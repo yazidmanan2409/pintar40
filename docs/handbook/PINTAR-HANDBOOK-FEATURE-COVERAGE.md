@@ -51,7 +51,7 @@ Production is still on the September 2026 version and has received neither 4.0 n
 |---|---|---|---|---|---|---|---|
 | 1 | Platform operation and school provisioning | 4.0 · Operational lifecycle | ON STAGING | operator workflow; `konfigurasi` | hle, T1 | 6.2, 16.1 | needs confirmation: the production school-founding path awaits an owner decision (OWR W2.20). |
 | 2 | School structure, year and class administration | 4.0 | ON STAGING | `konfigurasi/[bagian]` | hle, T1 | 7.3, 7.14 | verified |
-| 3 | Staff provision, activation and sign-in | 4.0 | ON STAGING | `pendataan`, `aktivasi`, `aktifkan`, `masuk` | hle | 5.2–5.3, 7.5–7.6 | verified: every existing email account completes set-up once at next sign-in after the upgrade and is held on «Aktifkan» until done (migration `20261021100000`, `aktifkan/page.tsx`, Bob's rehearsal). Written into 5.2 and the Bab 18 table. Still open: which wizard steps an existing account sees (e.g. whether an existing username is kept). |
+| 3 | Staff provision, activation and sign-in | 4.0 | ON STAGING | `pendataan`, `aktivasi`, `aktifkan`, `masuk` | hle | 5.2–5.3, 7.5–7.6 | verified: every existing email account completes set-up once at next sign-in after the upgrade and is held on «Aktifkan» until done (migration `20261021100000`, `aktifkan/page.tsx`, Bob's rehearsal). Written into 5.2 and the Bab 18 table. Bob (c): this is a 4.0 identity feature (migration `20261021100000`; completed through activation, `20261112100000`). The wizard shows only the missing steps (`WizardAktivasi`: completion needs username, password, PIN and name confirmation; a step already done is skipped). Still open: which steps an upgraded account typically has left, e.g. whether a new password is required. Recovery thresholds in the same file stay out of the handbook. |
 | 4 | Learner enrolment, class cards and access | 4.0 | ON STAGING | `aktivasi`, `masuk` (card), `terkunci`, `perangkat` | hle | 7.5–7.7, 11.2–11.3 | verified (thresholds deliberately omitted). |
 | 5 | Account leave, return, suspension, closure, credential recovery and admin continuity | 4.0 / 4.1 B0 | ON STAGING | `akun`, `masuk/lupa`, `masuk/buka-kembali`, `konfigurasi/keamanan`, `konfigurasi/staf` | hle | 5.6–5.7, 6.4–6.6, 7.11 | needs confirmation: learner access to «Akun saya» (ALI §9 vs OWR W2.25). |
 | 6 | Teacher membership, class move and school transfer | 4.0 | ON STAGING | `konfigurasi` (Pindah kelas, Perpindahan murid) | hle | 7.9–7.11, 16.7 | needs confirmation: post-transfer visibility; the transfer-offer defect. |
@@ -209,12 +209,12 @@ All 19 rows are covered in App. B, 4.5, 7.18, 9.12, 10.12, 14.5 and 15.6. Covere
 
 0. **Bob's answers (17 Nov, relayed by the owner).**
    - (a) Role names: **answered.** Use the frozen terms exactly; no ruling needed. The handbook already did.
-   - (b) Recommended role for a principal: **open.** Asked again.
+   - (b) Recommended role for a principal: **answered: do not recommend one.** "Kepala Sekolah" is only a card-design family (D-059(c), a design taxonomy, not a role); no record settles the mapping. 4.3 now states each role's limits (Kepala departemen cannot publish; Dekan holds no editing capability; Admin sekolah cannot read learner results) and carries [Perlu konfirmasi: peran untuk kepala sekolah]. Bob is raising it with the owner.
    - (c) Account set-up after the upgrade: **answered and verified** (row 3). In 5.2 and Bab 18.
-   - (d) The ruling text on the integrated AI leaving the roadmap if no provider qualifies: **open.** Asked again; 10.10 keeps its [Perlu konfirmasi].
+   - (d) If no provider qualifies: **answered.** Ruling 44 (16 Nov), `OWNER-RULINGS-4.1.md` line 99 (4.1 master-plan branch), verified: integrated AI-assisted MCQ generation is removed from the roadmap and PINTAR continues with manual authoring and workbook imports; this must not hold up the rest of development. 10.10 now states it; [Perlu konfirmasi] removed.
    - (e) Commit attribution: **answered.** Trailers are fine; the rule covers file contents only.
    - File location `docs/handbook/` on this branch: **confirmed.**
-1. **Roles for a principal.** PINTAR has no «Kepala sekolah» role. Decide the recommended role for a principal (Dekan at school scope? Admin sekolah?) and the handbook wording (4.3).
+1. **Roles for a principal.** Owner decision pending (raised by Bob). The handbook recommends no role (4.3).
 2. **Brief's role list vs product roles.** The assignment named seven user categories. The product has six roles. The handbook explains "Pimpinan Sekolah", "Peninjau" and "Fasilitator" as responsibilities within existing roles (4.2–4.3, 10.2, 12.3). Owner to confirm this treatment.
 3. **Terminology choice.**
    - The handbook follows Terminology v1 (D-068): «murid», «Guru», «Sekolah», «Anda».
@@ -232,7 +232,7 @@ All 19 rows are covered in App. B, 4.5, 7.18, 9.12, 10.12, 14.5 and 15.6. Covere
 13. **4.2 granular list.** Reconciled with RM Rev 3.1 (Section 2.2). Screens and steps still await the 4.2 plan itself.
 14. **Production school-founding path** (6.2). Pending owner decision.
 15. **Strings marked "pending Dr Gladys" or "Daisy's draft" in `hle.ts`** may still change. Re-run a wording check against `hle.ts` before Draft 02.
-16. **Existing internal FAQ.** `docs/product/handbook/PERTANYAAN-SEKOLAH-DRAF-1.md` (100 school questions; at least one passage known to be stale) was not reused. Reconcile it with this handbook's Chapter 17.
+16. **Existing internal FAQ.** `docs/product/handbook/PERTANYAAN-SEKOLAH-DRAF-1.md` (100 school questions; at least one passage known to be stale). Principal-related answers were checked (Q021, Q039, the role table near the end and the "who sees what" answer): they agree with the handbook (no principal role; Admin sekolah reads no learner results; nothing compares two educators). A full reconciliation with Chapter 17 is still to do. One gap noted: the FAQ says Kepala departemen can see learners' class feedback («Umpan balik»), which the handbook omits (item 17).
 17. **"Ruang Peragaan" (demonstration room) and «Umpan balik» (feedback rounds)** exist in code but not in the roadmap. Omitted from the handbook pending a decision on whether they are user features to document.
 18. **Product photos and screenshots.** None used. Add authentic screenshots with sample data after 4.1 acceptance (App. D).
 

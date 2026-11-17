@@ -303,7 +303,7 @@ PINTAR memiliki enam peran:
 
 Beberapa tanggung jawab penting di PINTAR tidak memiliki peran sendiri. Tanggung jawab itu dipegang oleh peran yang sudah ada:
 
-- **Kepala sekolah.** PINTAR tidak memiliki peran bernama «Kepala sekolah». Pimpinan sekolah memakai peran Dekan atau Kepala departemen, sesuai tanggung jawabnya, dan dapat juga memegang peran Admin sekolah bila sekolah memutuskan demikian. Untuk melihat ringkasan seluruh sekolah, lingkup perannya harus mencakup seluruh sekolah. [Perlu konfirmasi: peran yang dianjurkan untuk kepala sekolah.]
+- **Kepala sekolah.** PINTAR tidak memiliki peran bernama «Kepala sekolah». Sekolah memberikan peran sesuai tanggung jawab orangnya. Sebelum memilih, perhatikan batas setiap peran: Kepala departemen dapat meninjau dan menyetujui materi di lingkupnya, tetapi tidak menerbitkan; Dekan melihat gambaran lingkupnya dan memutuskan hal yang menunggu, tetapi sengaja tidak dapat mengubah materi atau data; Admin sekolah mengurus struktur dan orang, tetapi tidak membaca hasil belajar murid (Bab 7 dan 8). [Perlu konfirmasi: peran untuk kepala sekolah.]
 - **Peninjau materi.** Meninjau dan menyetujui materi adalah kewenangan yang dipegang Kepala departemen, Admin sekolah, dan Admin PINTAR. Aturan pentingnya adalah *dua orang*: penyusun tidak dapat menyetujui materinya sendiri. Di layar tertulis: «Persetujuannya harus dari orang lain, bukan dari penyusun.» (Bab 10)
 - **Fasilitator pengembangan profesi.** Fasilitator adalah seorang Guru yang ditugaskan di kelas pengembangan profesi. Guru yang mengikuti pengembangan profesi disebut **Peserta**, bukan murid. (Bab 12)
 - **Yang mengurus PINTAR di sekolah Anda.** Di layar bantuan dan pemulihan, PINTAR sering memakai ungkapan ini alih-alih nama peran. Biasanya yang dimaksud adalah Admin sekolah.
@@ -355,7 +355,7 @@ Untuk staf, misalnya guru, pimpinan, dan Admin sekolah, aktivasi dilakukan sendi
 
 Anda dapat berhenti di tengah dengan «Keluar dan lanjutkan nanti».
 
-**Sudah memakai PINTAR dengan email sebelum pembaruan?** Setelah sekolah Anda menerima PINTAR versi baru, setiap akun email yang sudah ada, milik staf maupun murid, perlu menyelesaikan penyiapan akun ini satu kali. Masuklah seperti biasa. PINTAR lalu membuka halaman aktivasi dan menahan Anda di sana sampai langkahnya selesai. Jika Anda memilih «Keluar dan lanjutkan nanti», halaman yang sama akan muncul lagi saat Anda masuk berikutnya. Murid yang masuk dengan kartu kelas tidak mengalami langkah ini. [Perlu konfirmasi: langkah mana yang ditampilkan bagi akun lama, misalnya apakah username yang sudah ada tetap dipakai.]
+**Sudah memakai PINTAR dengan email sebelum pembaruan?** Setelah sekolah Anda menerima PINTAR versi baru, setiap akun email yang sudah ada, milik staf maupun murid, perlu menyelesaikan penyiapan akun ini satu kali. Masuklah seperti biasa. PINTAR lalu membuka halaman aktivasi dan menahan Anda di sana sampai langkahnya selesai. Jika Anda memilih «Keluar dan lanjutkan nanti», halaman yang sama akan muncul lagi saat Anda masuk berikutnya. Murid yang masuk dengan kartu kelas tidak mengalami langkah ini. PINTAR hanya menampilkan langkah yang belum lengkap untuk akun Anda; langkah yang sudah lengkap dilewati. [Perlu konfirmasi: langkah mana yang biasanya tersisa bagi akun lama, misalnya apakah password perlu dibuat ulang.]
 
 [Ilustrasi: halaman aktivasi yang muncul setelah masuk, dengan langkah yang tersisa]
 
@@ -1367,7 +1367,7 @@ PINTAR sedang mengembangkan AI terpadu untuk menyusun draf soal pilihan ganda la
 - Fitur ini **opsional** dan merupakan **tambahan berbayar** yang diaktifkan per sekolah. Sekolah dapat memakai PINTAR sepenuhnya tanpa fitur ini.
 - Fitur ini **hanya untuk guru**.
 - PINTAR hanya akan menawarkan penyedia AI yang lolos penilaian PINTAR: mutu pendidikan, kontrak, keamanan, dan operasional. Sekolah memilih dari pilihan yang lolos, dengan perbandingan yang sama dan harganya, sebelum mengaktifkannya.
-- Penilaian penyedia masih berjalan. Belum ada penyedia, harga, paket, atau kuota yang diputuskan. Jika tidak ada penyedia yang lolos, fitur terpadu ini mungkin tidak ditawarkan. [Perlu konfirmasi: rumusan keputusan pemilik tentang hal ini.]
+- Penilaian penyedia masih berjalan. Belum ada penyedia, harga, paket, atau kuota yang diputuskan. Pemilik PINTAR sudah memutuskan: jika tidak ada penyedia yang mengizinkan cara kerja ini, penyusunan draf soal dengan AI terpadu dikeluarkan dari rencana PINTAR, dan PINTAR tetap berjalan dengan penulisan soal oleh guru dan unggah buku kerja. Keputusan ini tidak menahan pengembangan bagian PINTAR yang lain.
 
 Pengalaman yang dituju, jika fitur ini tersedia:
 
