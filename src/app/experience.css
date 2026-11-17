@@ -3959,6 +3959,16 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 .pin-langkah-daftar [aria-current="step"] { font-weight: var(--weight-strong); color: var(--ink-1); }
 .pin-riwayat-soal { margin-top: var(--space-2); }
 .pin-riwayat-soal .pin-daftar { margin-top: var(--space-2); }
+/* C2w «Catatan peninjau» (Daisy, C2W-CATATAN-KATA.md §1, §5): a sibling of «Riwayat soal»; per option a block, each note
+   set apart from the next, so one note's I-5 line never reads as the line under the note before it */
+.pin-catatan-peninjau { margin-top: var(--space-2); }
+.pin-catatan-pilihan { margin-top: var(--space-3); }
+.pin-catatan-pilihan + .pin-catatan-pilihan { border-top: 1px solid var(--line); padding-top: var(--space-3); }
+.pin-catatan-judul { margin: 0 0 var(--space-1); }
+.pin-catatan-isi { display: grid; gap: var(--space-1); }
+.pin-catatan-isi + .pin-catatan-isi { margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px dashed var(--line); }
+.pin-catatan-teks { margin: 0; overflow-wrap: anywhere; }
+.pin-catatan-form { display: grid; gap: var(--space-2); margin-top: var(--space-2); }
 .pin-kunci-banding { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--space-1) * 55)), 1fr)); gap: var(--space-3); }
 /* C1w (O41-19): «Sedang ditinjau (n)» stands apart from the certificates list under it */
 .pin-sertifikat-ditinjau { margin-bottom: var(--space-5); }

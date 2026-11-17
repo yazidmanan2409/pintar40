@@ -71,7 +71,7 @@ export default function CatatanPeninjau({ s, mode, item, label, catatan, day, fo
   ) : null);
   const terbuka = !!form && (form.buka !== null || form.tersimpan !== null);
   return (
-    <details className="pin-disclosure pin-catatan pin-noprint" data-catatan-peninjau={item} open={terbuka || undefined}>
+    <details className="pin-disclosure pin-catatan-peninjau pin-noprint" data-catatan-peninjau={item} open={terbuka || undefined}>
       <summary>{isi(s("studio.catatan.judul"), { n: String(kini) })}<Ikon nama="chevron-down" kelas="pin-chevron" /></summary>
       {blok.map((b) => {
         const sasaran = `${item}:${b.label}`;
