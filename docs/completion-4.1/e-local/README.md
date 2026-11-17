@@ -68,3 +68,22 @@ Sharon's A1–A5 locally:
 - **R7:** `pbcopy` clears the clipboard after the second key.
 - **R8:** the sending order is untuk-bob, then untuk-sharon, then untuk-juri.
 - **R9:** the residual risk is stated in the script and the instructions.
+
+## Found while preparing the judges' guide (Bob, 17 Nov, about 13:05 UTC)
+
+**The frozen kit's `reviewer/judgements-template.csv` does not match `score.mjs`'s input.**
+- The template's columns are `item_id, judge, role, key_correct, alignment, distractors, language, notes`. It has **no
+  review-burden column** and no reason column, and it carries an unclear judge/role pair.
+- `score.mjs` (frozen, `c3-judge-sheets/1`) requires all five criteria, `review_burden` among them, plus a `reason`, per
+  judge per item, for each provider code.
+- Review burden decides Q1 ("accepted"), so judges filling in the kit's template would leave Q1 unscorable.
+
+**Fix, with nothing frozen changed:**
+- **`PANDUAN-JURI.md`:** the judges' guide in Indonesian. It is a draft, for Daisy's language check and Sharon's
+  check against §4.
+- **A corrected scoring sheet,** one CSV per judge: `item_id, juri, benar, keselarasan, pengecoh, bahasa,
+  beban_tinjau, alasan`. It is generated from the item IDs in `untuk-sharon/items.json` (the same IDs the judges see).
+- **A converter, to be written and self-tested, for Sharon's review:** from the three CSVs plus the code-level slots to
+  one `c3-judge-sheets/1` file per provider code, which `score.mjs` then scores unchanged.
+  - It needs the map's `slots` (code → item IDs), not its `providers` block (code → provider).
+  - So **the owner extracts the slots only, on his Mac.** The provider mapping stays sealed until unblinding.

@@ -1,0 +1,88 @@
+# Panduan penilaian untuk juri · Evaluasi soal PINTAR
+
+**Untuk tiga guru juri (J1, J2, J3).** Draf, 17 November 2026. Bahasa Indonesia ditinjau Daisy sebelum dikirim.
+Aturannya mengikuti rubrik yang sudah dibekukan (`E-DECISION-PACK.md` §4 dan rencana §5). Panduan ini menjelaskannya;
+panduan ini tidak mengubah aturan apa pun.
+
+## 1 · Apa yang Anda nilai
+
+Anda menerima 60 soal pilihan ganda untuk Matematika SD Kelas 5, dari dua bab:
+- **Bab 1:** Pola Bilangan;
+- **Bab 2:** Data Sederhana.
+
+Setiap soal mencantumkan:
+- tujuan pembelajarannya;
+- pertanyaan (stem);
+- empat pilihan jawaban;
+- kunci jawaban, dengan alasan singkat;
+- untuk setiap pengecoh (pilihan yang salah), pemahaman keliru yang diwakilinya.
+
+Soal-soal ini disusun dengan bantuan AI. **Anda tidak diberi tahu sumbernya, dan tidak perlu menebaknya.** Nilailah
+setiap soal seperti Anda menilai soal yang diajukan rekan guru: apakah soal ini layak dipakai untuk murid Anda?
+
+## 2 · Lima hal yang dinilai untuk setiap soal
+
+| Kolom | Yang dinilai | Nilai |
+|---|---|---|
+| **benar** | **Ketepatan isi.** Kuncinya benar, pertanyaannya tidak ambigu, dan **tepat satu** pilihan yang benar | **1** = ya; **0** = tidak |
+| **keselarasan** | **Kesesuaian dengan tujuan.** Soal mengukur tujuan yang tertulis, pada tingkat yang tepat untuk Kelas 5 | 0, 1 atau 2 |
+| **pengecoh** | **Mutu pilihan yang salah.** Masuk akal bagi murid, masing-masing berasal dari pemahaman keliru yang nyata, dan tidak ada yang ternyata juga benar | 0, 1 atau 2 |
+| **bahasa** | **Bahasa Indonesia.** Benar, wajar, sesuai untuk anak Kelas 5, dan memakai istilah yang lazim di kelas | 0, 1 atau 2 |
+| **beban_tinjau** | **Seberapa banyak harus diubah** sebelum Anda mau menyetujui soal ini | **2** = setujui apa adanya; **1** = cukup suntingan ringan; **0** = harus ditulis ulang atau ditolak |
+
+**Patokan untuk nilai 0–2:**
+- **2:** baik; tidak ada yang perlu diperbaiki untuk hal ini.
+- **1:** ada kekurangan kecil yang mudah diperbaiki.
+- **0:** kekurangannya serius, atau hal ini tidak terpenuhi.
+
+**Tentang kolom benar.** Beri **0** bila:
+- kuncinya salah;
+- ada lebih dari satu jawaban yang benar;
+- tidak ada jawaban yang benar;
+- pertanyaannya bisa dibaca dengan dua cara sehingga jawabannya berubah.
+
+Satu soal dengan nilai 0 di sini dianggap kesalahan serius, jadi periksalah dengan teliti. Bila ragu, hitung sendiri
+jawabannya.
+
+**Kolom alasan wajib diisi untuk setiap soal:** satu atau dua kalimat, terutama bila Anda memberi nilai 0 atau 1.
+Alasan Anda akan dibaca oleh juri ketiga bila ada perbedaan penilaian.
+
+## 3 · Cara bekerja
+
+- **J1 dan J2** menilai **semua** soal, kelima kolomnya, **sendiri-sendiri**.
+  - Jangan berdiskusi dengan juri lain tentang soal mana pun sampai lembar Anda diserahkan.
+  - Jangan memakai alat AI untuk membantu menilai.
+- **J3** tidak menilai semua soal. Setelah lembar J1 dan J2 dicatat, J3 menerima daftar soal yang perlu diputuskan,
+  bersama alasan kedua juri:
+  - soal yang nilai **benar**-nya berbeda antara J1 dan J2;
+  - soal yang ditandai oleh pemeriksa kunci, dengan catatan alasannya. Catatan itu hanya pertimbangan, sama bobotnya
+    dengan alasan seorang juri;
+  - soal yang nilai 0–2-nya berbeda **dua** angka antara J1 dan J2.
+
+  Untuk soal-soal itu saja, J3 mengisi kolom yang diminta. **Keputusan J3 untuk kolom benar bersifat final.**
+- **Waktu:** kira-kira 2–3 jam untuk J1 dan J2 (Kamis, 09.00–12.00 WIB), dan kira-kira satu jam untuk J3
+  (Kamis, mulai 13.00 WIB).
+
+## 4 · Mengisi lembar nilai
+
+Anda menerima lembar nilai dalam bentuk tabel (CSV, dapat dibuka dengan Excel atau Google Sheets), satu baris per soal:
+
+| Kolom | Isi |
+|---|---|
+| `item_id` | Sudah terisi, misalnya `B1-001`. Jangan diubah |
+| `juri` | Sudah terisi: J1, J2 atau J3 |
+| `benar` | 0 atau 1 |
+| `keselarasan`, `pengecoh`, `bahasa`, `beban_tinjau` | 0, 1 atau 2 |
+| `alasan` | Kalimat Anda |
+
+Simpan sebagai CSV dengan nama yang sama, lalu kirimkan kepada Pak Yazid.
+
+## 5 · Yang perlu diingat
+
+- Nilailah soalnya, bukan gaya penulisnya.
+- Bila sebuah soal tidak muncul di lembar Anda, itu disengaja. Soal yang rusak formatnya tidak ditampilkan, dan sudah
+  dihitung terpisah.
+- Pertanyaan tentang cara menilai dapat diajukan kepada Pak Yazid. Pertanyaan tentang isi sebuah soal jangan
+  didiskusikan.
+
+Terima kasih atas waktu dan keahlian Anda.
