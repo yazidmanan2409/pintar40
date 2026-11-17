@@ -7,8 +7,8 @@ Owner's clarification, 17 Nov:
 - If a teacher asks about the origin of the questions, answer truthfully, without naming any provider before scoring
   is final.
 
-**The judges' guide therefore names no source.** It says «Sumber soal tidak disebutkan, dan Anda tidak perlu
-menebaknya.» It describes the key checker only by what it does.
+**The judges' guide therefore mentions no source at all** (Daisy, 8002a69b: saying «the source is not named» invites
+the guess). It asks the judges to score each question «apa adanya», and describes the key checker only by what it does.
 
 **If asked about the origin, a truthful answer that names no provider:**
 

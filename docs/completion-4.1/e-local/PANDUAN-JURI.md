@@ -15,7 +15,7 @@ Setiap soal mencantumkan:
 - kunci jawaban, dengan alasan singkat;
 - untuk setiap pengecoh (pilihan yang salah), pemahaman keliru yang diwakilinya.
 
-**Sumber soal tidak disebutkan, dan Anda tidak perlu menebaknya.** Nilailah setiap soal seperti Anda menilai soal yang diajukan rekan guru: apakah soal ini layak dipakai untuk murid Anda?
+Nilailah setiap soal apa adanya, seperti Anda menilai soal yang diajukan rekan guru: apakah soal ini layak dipakai untuk murid Anda?
 
 ## 2 · Lima hal yang dinilai untuk setiap soal
 
@@ -51,11 +51,11 @@ Nilai 0 di kolom ini dianggap kesalahan serius, jadi periksalah dengan teliti. B
   - Jangan memakai alat AI untuk membantu menilai.
 - **J3** tidak menilai semua soal. Setelah lembar J1 dan J2 dicatat, J3 menerima daftar soal yang perlu diputuskan, bersama alasan kedua juri:
   - soal yang nilai **benar**-nya berbeda antara J1 dan J2;
-  - soal yang ditandai oleh pemeriksa kunci, dengan catatan alasannya. Pemeriksa kunci adalah pemeriksaan terpisah di tim PINTAR: setiap soal dijawab tanpa melihat kuncinya dan tanpa mengetahui sumber soal, lalu soal ditandai bila jawabannya berbeda dari kunci. Catatan itu hanya bahan pertimbangan, sama bobotnya dengan alasan seorang juri;
+  - soal yang ditandai oleh pemeriksa kunci, dengan catatan alasannya. Pemeriksa kunci adalah pemeriksaan terpisah oleh tim PINTAR: setiap soal dijawab tanpa melihat kuncinya, lalu ditandai bila jawabannya berbeda dari kunci. Catatan itu hanya bahan pertimbangan, sama bobotnya dengan alasan seorang juri;
   - soal yang, di salah satu kolom 0–2, nilainya dari J1 dan J2 berbeda **dua** angka (misalnya 0 dan 2).
 
   Untuk soal-soal itu saja, J3 mengisi kolom yang diminta. **Keputusan J3 untuk kolom benar bersifat final.**
-- **Waktu:** kira-kira 2–3 jam untuk J1 dan J2, dan kira-kira satu jam untuk J3, setelah lembar J1 dan J2 dicatat. Pak Yazid memberi tahu tanggal dan jamnya.
+- **Waktu:** kira-kira 2–3 jam untuk J1 dan J2. J3 bekerja setelah lembar J1 dan J2 dicatat, kira-kira satu jam. Pak Yazid akan menyampaikan tanggal dan jamnya.
 
 ## 4 · Mengisi lembar nilai
 
@@ -74,7 +74,7 @@ Simpan sebagai CSV dengan nama yang sama, lalu kirimkan kepada Pak Yazid.
 ## 5 · Yang perlu diingat
 
 - Nilailah soalnya, bukan gaya penulisnya.
-- Bila lembar Anda berisi kurang dari 60 soal, itu disengaja. Soal yang formatnya rusak tidak ditampilkan, dan sudah dihitung terpisah.
+- Bila lembar Anda berisi kurang dari 60 soal, itu disengaja dan sudah diperhitungkan.
 - Pertanyaan tentang cara menilai dapat diajukan kepada Pak Yazid. Pertanyaan tentang isi sebuah soal jangan didiskusikan.
 
 Terima kasih atas waktu dan keahlian Anda.
