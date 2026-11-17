@@ -140,3 +140,79 @@ OpenAI ([events reference](https://developers.openai.com/api/reference/resources
 - Non-streaming at about 48K output tokens is the option Anthropic's docs advise against ("Avoid setting a large `max_tokens` value without using the streaming Messages API or Message Batches API"). The official SDK enforces this through its 10-minute check.
 - Streaming gives final usage and stop reason in a defined place on both providers: Anthropic in the last `message_delta`, OpenAI in `response.completed` or `response.incomplete`. The structured JSON has to be joined from text deltas before parsing.
 - Batch is 50% cheaper on both, with a 24-hour window, and both support the models under evaluation. It suits an offline evaluation if same-hour results aren't needed. Neither provider documents billing after a client disconnect on synchronous calls, so that question stays open.
+
+---
+
+# Additions from the security reviewer (via Bob), researched 2026-11-17
+
+Same rules: official documentation only, verbatim, with a URL and a grade for every fact. No API call was made.
+
+## R1. Where the final usage sits in a stream, and whether a stream that ends early carries any
+
+| Provider | Fact | Grade | Source |
+|---|---|---|---|
+| Anthropic | `message_start` carries a `usage` object at the start: `"usage": {"input_tokens": 25, "output_tokens": 1}` (example). | A | [streaming](https://platform.claude.com/docs/en/build-with-claude/streaming) |
+| Anthropic | The final usage is in the last `message_delta`: `"usage": {"output_tokens": 15}`. "The token counts shown in the `usage` field of the `message_delta` event are *cumulative*." | A | same |
+| Anthropic | A separate thinking-token count in streamed `usage` | not found (examples show only `output_tokens`; the effort page says "Thinking counts toward `max_tokens`") | same; [effort](https://platform.claude.com/docs/en/build-with-claude/effort) |
+| Anthropic | Thinking tokens are included in `output_tokens` rather than reported separately. | B | inferred from the two rows above |
+| Anthropic | A stream that ends early, before `message_delta`, has delivered only the `message_start` usage (input tokens plus an initial output count). The `error` event example carries no `usage` field. | B (the error shape itself is A) | same |
+| OpenAI | Final usage is in the terminal event's `response.usage`: `"usage": {"input_tokens": 0, "output_tokens": 0, "output_tokens_details": {"reasoning_tokens": 0}, "total_tokens": 0, "input_tokens_details": {"cached_tokens": 0, "cache_write_tokens": 0}}` (`response.completed` example). | A | [events reference](https://developers.openai.com/api/reference/resources/responses/streaming-events) |
+| OpenAI | `response.created` / `response.in_progress` examples: `"status": "in_progress"`, `"usage": null`. | A | same |
+| OpenAI | `response.failed` example: `"status": "failed"`, `"error": {"code": "server_error", "message": "The model failed to generate a response."}`, `"usage": null`. | A | same |
+| OpenAI | `response.incomplete` example: `"status": "incomplete"`, `"reason": "max_output_tokens"`, `"usage": null`. | A (as printed in the example) | same |
+| OpenAI | Whether a real `response.incomplete` or `response.failed` event carries filled-in usage, given that the examples print `null` | not found | — |
+| OpenAI | A stream cut before a terminal event (`completed` / `incomplete` / `failed`) has delivered no usage, because the earlier events print `"usage": null`. | B | inferred from the rows above |
+| OpenAI | Recovery: with `background` and `stream` both `true`, a dropped stream can be resumed from a `sequence_number` cursor (`GET /v1/responses/{id}?stream=true&starting_after=N`), and the final usage can then be read. | A (mechanism) / B (that usage is then readable) | [background](https://developers.openai.com/api/docs/guides/background) |
+
+## R2. Mid-stream error events: names, shapes, and which are retryable
+
+| Provider | Fact | Grade | Source |
+|---|---|---|---|
+| Anthropic | Event name `error`. Shape: `event: error` / `data: {"type": "error", "error": {"type": "overloaded_error", "message": "Overloaded"}}`. An `overloaded_error` "would normally correspond to an HTTP 529 in a non-streaming context". | A | [streaming#error-events](https://platform.claude.com/docs/en/build-with-claude/streaming) |
+| Anthropic | The `error.type` values are the same set as the HTTP errors: `invalid_request_error`, `authentication_error`, `billing_error`, `permission_error`, `not_found_error`, `conflict_error`, `request_too_large`, `rate_limit_error`, `api_error`, `timeout_error`, `overloaded_error`. | A (the list is from the HTTP errors section) / B (that streams use the same set) | [errors](https://platform.claude.com/docs/en/api/errors) |
+| Anthropic | Retryable, per the docs: `api_error` (500): "Retry the request with exponential backoff"; `conflict_error` (409): "Resolve the conflict, then retry the request." The SDK "automatically retries transient failures (such as connection errors, rate limits, and 5xx server errors) with exponential backoff, twice by default, honoring the `retry-after` header when present." | A | same |
+| Anthropic | A tier spend-cap 429 is not retryable: it "has no `retry-after` header and keeps failing until access resumes". | A | same |
+| Anthropic | Resuming a broken stream on Claude 4.6 and later: "add a user message that instructs the model to continue from where it left off." | A | [streaming#error-recovery](https://platform.claude.com/docs/en/build-with-claude/streaming) |
+| OpenAI | Event `error`, schema `ResponseErrorEvent`: `code: string or null`, `message: string`, `param: string or null`, `sequence_number`, `type: "error"`. Example: `{"type": "error", "code": "ERR_SOMETHING", "message": "Something went wrong", "param": null, "sequence_number": 1}`. | A | [events reference](https://developers.openai.com/api/reference/resources/responses/streaming-events) |
+| OpenAI | Event `response.failed` ("An event that is emitted when a response fails"), carrying `response.error` {`code`, `message`}, e.g. `server_error`. | A | same |
+| OpenAI | A list of the `code` values a stream `error` event can carry | not found | — |
+| OpenAI | Retryable, per the error guide: `APITimeoutError` and `InternalServerError`: "Retry your request after a brief wait and contact us if the issue persists." `RateLimitError`: "Pace your requests and follow `Retry-After` when it's present, subject to your retry limits." | A | [error-codes](https://developers.openai.com/api/docs/guides/error-codes) |
+| OpenAI | Retryability of each stream `error` code | not found | — |
+
+## R3. Billing on a cut stream (the client disconnects or the network drops)
+
+| Provider | Fact | Grade | Source |
+|---|---|---|---|
+| Anthropic | **unknown** — not documented on the errors, streaming, batch or effort pages, and an official-domain search found no page on it. | unknown | — |
+| OpenAI | **unknown** — not documented on the streaming, background, reasoning, batch or error pages. | unknown | — |
+| OpenAI | Related, not a disconnect: a response that hits `max_output_tokens` is billed ("you could incur costs for input and reasoning tokens without receiving a visible response"). | A | [reasoning](https://developers.openai.com/api/docs/guides/reasoning) |
+
+## R4. Batches: price, turnaround, output limits and structured output (facts only)
+
+The deadline reference point is Thursday 2026-11-19. These facts were recorded on Tuesday 2026-11-17.
+
+| Provider | Fact | Grade | Source |
+|---|---|---|---|
+| Anthropic | Price: "All usage is charged at 50 percent of the standard API prices." For Sonnet 5.5 the standard price is "$2 / input MTok, $10 / output MTok". | A | [batch-processing](https://platform.claude.com/docs/en/build-with-claude/batch-processing), [models overview](https://platform.claude.com/docs/en/about-claude/models/overview) |
+| Anthropic | Documented window: "Batches expire if processing does not complete within 24 hours." Typical time: "most batches completing within 1 hour." Also: "processing might be slowed down based on current demand and your request volume. In that case, you might see more requests expiring after 24 hours." | A | batch-processing |
+| Anthropic | Output limit in a batch: Sonnet 5.5 supports "up to 300k output tokens with the output-300k-2026-03-24 beta header". Without the header, the limit is not stated for batch. | A / not found | models overview |
+| Anthropic | Structured output in a batch: "Almost any request you can make to the Messages API can be included in a batch". The unsupported parameters are "`stream`, `speed`, `fallbacks`, and `max_tokens: 0`"; `output_config.format` is not among them. Structured outputs list `claude-sonnet-5-5` as supported. | A (the quotes) / B (that it works in a batch) | batch-processing, [structured-outputs](https://platform.claude.com/docs/en/build-with-claude/structured-outputs) |
+| OpenAI | Price: "50% cost discount compared to synchronous APIs"; for gpt-6.1-sol, "Batch and Flex prices are 50% lower than Standard". Standard is $2 input and $10 output per 1M tokens. | A | [batch](https://developers.openai.com/api/docs/guides/batch), [gpt-6.1-sol](https://developers.openai.com/api/docs/models/gpt-6.1-sol) |
+| OpenAI | Documented window: "For now, the completion window can only be set to `24h`." Typical time: "Each batch completes within 24 hours (and often more quickly)". No typical duration is given. | A | batch |
+| OpenAI | `/v1/responses` is a supported batch endpoint; gpt-6.1-sol: "Batch \| `v1/batch` \| Supported". | A | batch, gpt-6.1-sol |
+| OpenAI | Output limit in a batch | not found on the batch page (the model's own limit is "128,000 max output tokens") | gpt-6.1-sol |
+| OpenAI | Structured output in a batch | not found on the batch page (the model lists `structured_outputs` as supported) | — |
+
+## R5. Reasoning-effort controls: names, values, defaults, and whether a level means the same on both
+
+| Provider | Fact | Grade | Source |
+|---|---|---|---|
+| Anthropic | Parameter: `output_config.effort`. "With no value, the model's default level applies." Values: `max`, `xhigh`, `high`, `medium`, `low`. Sonnet 5.5 default: "`high` is the default on the Claude API". | A | [effort](https://platform.claude.com/docs/en/build-with-claude/effort) |
+| Anthropic | Level meanings: `high`: "Spends as many tokens as the task needs for excellent results." `medium`: "Balanced approach with moderate token savings." `low`: "Most efficient. Significant token savings with some capability reduction." `xhigh`: "Extended capability for long-horizon work." `max`: "Absolute maximum capability with no constraints on token spending." | A | same |
+| Anthropic | Calibration is model-specific: "Its levels are calibrated differently, so a level doesn't produce the same amount of thinking as on Claude Sonnet 5." "Effort is a behavioral signal, not a strict token budget." | A | same |
+| Anthropic | A related control: `thinking` (adaptive by default on Sonnet 5.5; `between_tools` is the lowest setting; `disabled` is rejected). | A | [errors](https://platform.claude.com/docs/en/api/errors) |
+| OpenAI | Parameter: `reasoning.effort` (Responses); `reasoning_effort` (Chat Completions). gpt-6.1-sol: "`reasoning.effort` supports `low`, `medium` (default), `high`, `xhigh`, and `max`." It "does not support `none` or `minimal`". | A | [gpt-6.1-sol](https://developers.openai.com/api/docs/models/gpt-6.1-sol), [reasoning](https://developers.openai.com/api/docs/guides/reasoning) |
+| OpenAI | Level meanings: `medium`: "When quality and reliability matter, and the task involves planning, complex reasoning, and judgement. Default configuration for most workloads". `high`: "Hard reasoning, complex debugging, deep planning, and high-value tasks where quality and intelligence matters more than latency." `low`: "Efficient reasoning with a modest latency increase." `xhigh`: "Deep research, asynchronous workflows and agentic tasks that require long runs." `max`: "Maximum reasoning for your most complex tasks." | A | reasoning |
+| OpenAI | "The models also reason adaptively across reasoning efforts, using fewer tokens for simpler tasks and thinking harder for complex tasks." | A | reasoning |
+| Both | A documented mapping or equivalence between Anthropic and OpenAI effort levels | not found | — |
+| Both | The level names match (`low`/`medium`/`high`/`xhigh`/`max`), and each provider describes a similar ordering of intent. Neither documents calibration across vendors, and Anthropic says calibration differs even between its own models. The defaults differ: Sonnet 5.5 is `high`, gpt-6.1-sol is `medium`. A matching level name does not establish matching intent or token spend; only measured token counts can compare them. | B | inferred from the rows above |
