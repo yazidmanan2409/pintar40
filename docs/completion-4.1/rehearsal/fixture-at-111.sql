@@ -70,14 +70,17 @@ end $$;
 
 -- answer every presented item of a session correctly, as its learner (the seed's own loop)
 create or replace function pg_temp.fx_answer_all(p_session uuid, p_limit int default 1000) returns int language plpgsql as $$
-declare r record; v_pos int; n int := 0;
+declare r record; v_pos jsonb; n int := 0;
 begin
-  for r in select pi.id as pid, pi.item_id from public.presented_items pi
+  for r in select pi.id as pid, pi.item_id, it.item_type from public.presented_items pi
+             join public.items it on it.id = pi.item_id
             where pi.session_id = p_session order by pi.position limit p_limit loop
-    select d.display_position into v_pos
+    -- MCQ_SINGLE answers one position; MCQ_MULTI answers the array of every correct one
+    select case when r.item_type::text = 'MCQ_MULTI' then jsonb_agg(d.display_position order by d.display_position)
+                else to_jsonb(min(d.display_position)) end into v_pos
       from public.option_display_order(p_session, r.item_id) d
       join public.item_options o on o.item_id = r.item_id and o.label = d.label
-     where o.is_correct limit 1;
+     where o.is_correct;
     perform public.record_answer(r.pid, 1, jsonb_build_object('posisi', v_pos));
     n := n + 1;
   end loop;

@@ -10,7 +10,8 @@ mkdir -p out/r111 out/after out/extra
 
 do_fixture() {
   # the synthetic shapes, at 111, in one transaction
-  q -1 -q -f "$here/fixture-at-111.sql" 2>&1 | grep -E 'NOTICE|ERROR' || true
+  q -1 -q -f "$here/fixture-at-111.sql" > out/fixture.log 2>&1 || { cat out/fixture.log; echo "::error::the fixture failed at 111"; exit 1; }
+  grep -E 'NOTICE' out/fixture.log || true
   n="$(q -At -c "select count(*) from auth.users where email like 'fiktif-%@example.invalid'")"
   [ "$n" -gt 0 ] || { echo "::error::the fixture added no synthetic learner"; exit 1; }
   # nothing in it is real: every email it wrote is on example.invalid
