@@ -289,3 +289,41 @@ Sharon, 16 Nov 2026 (22:40 UTC). Read-only.
 - **The two pins from 00:35 still apply:** «Akhiri»'s person-before-sitting order, and every `persons` FOR UPDATE being its function's first lock.
 
 **The affected implementation may proceed on this.** I review the lineage migration and the re-keyed start when they are pushed.
+
+## Addendum, 17 Nov 02:00 UTC: pin 2 does not hold (one exception is a real deadlock), and the two questions
+
+**What I read:** Second Eye's report on local `007d7acb`, as text. Noted from it:
+- `percobaan_terpakai` was a sibling the lineage sweep missed. It is now over the lineage, red first (A3-PT1).
+- Pin 1 is built as A3-L2P.
+- 91196deb's test copies are now their own roots.
+
+**Pin 2: my 00:35 statement that "each takes it first" was wrong for 3 of the 17.** Second Eye's reader is right, and I accepted the sweep too quickly. *Could reasonably have been anticipated (Q3, the locks):* I took the sweep's summary without asking for the per-function first lock.
+
+The test for each exception: **can a function that takes the person first (a start, «Akhiri») later request the lock the exception already holds?** If yes, there is a cycle.
+
+1. **`issue_institutional_id` holds `institutions` FOR UPDATE, then waits for `persons` FOR UPDATE. This is a real deadlock with a start.**
+   - The start holds `persons` FOR KEY SHARE first.
+   - Its sitting insert's foreign key to `institutions` then takes **KEY SHARE on that school's row**, which FOR UPDATE blocks.
+   - So: the start waits for the institution, and `issue_institutional_id` waits for the person.
+   - **Ruling (b), in A3, red first:**
+     - **F37-R06** races a start with `issue_institutional_id` for the same learner and school, on real connections, and is red today;
+     - **the fix:** take `institutions` **FOR NO KEY UPDATE** if the function only updates non-key columns, such as a counter. NO KEY UPDATE does not conflict with KEY SHARE, so the cycle cannot form. Otherwise take the person first.
+     - R06 is then green, and the other F37 cases stay green.
+2. **`confirm_my_name` (`account_setup` FOR UPDATE first) and `handle_new_auth_user` (`account_activation_grants` FOR UPDATE first): ruling (a), named exceptions,** on one condition.
+   - **The check:** no function that takes the person first, nor any foreign key from a table they write, locks `account_setup` or `account_activation_grants`.
+   - If the check holds, no cycle can pass through them. Each exception names its reason.
+   - If the check finds a locker, it becomes (b) as above.
+3. **Pin 2, restated:** every `persons` FOR UPDATE taker either takes the person first, or holds only locks that no person-first function can request, foreign keys included. The named exceptions are checked against that rule.
+
+**Question 1: an approved attempt request is not a "reset". I agree with Second Eye.**
+- It is an explicit, authorised and audited extra attempt, and it keeps every sitting and its history. A reset would erase or discount past sittings.
+- **The "no reset path" requirement stands as written:** no function may discount past sittings of the lineage.
+
+**Question 2: a grant must span the lineage too. Fix it in A3, not Z. This supersedes my 23:15 Z placement.**
+- **Under ruling 46, today's per-assignment grant is a dead end.** A learner who used the attempt on revision 1 is at the limit on revision 2. They cannot ask on revision 2's assignment, because `minta_percobaan` needs a sitting there, and they cannot start one because of the limit. That is a learner stuck, not a conservative refusal.
+- **A3 creates this, so A3 fixes it:**
+  - `percobaan_izin_jumlah` counts approved grants over the same lineage, school and year as the count;
+  - `minta_percobaan`'s eligibility reads a sitting anywhere in the lineage, and its lock key is the lineage root;
+  - **red first:** used on revision 1, a request is allowed and granted, then **exactly one** start through revision 2's assignment is allowed;
+  - two approvals still give two attempts, each a staff decision.
+- **The Z item for `minta_percobaan` (CARRIED-ITEMS) is withdrawn,** superseded by this.
