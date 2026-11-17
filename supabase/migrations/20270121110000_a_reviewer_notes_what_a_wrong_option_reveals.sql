@@ -39,6 +39,12 @@ insert into public.record_class_registry values
   ('catatan_peninjau', 'INSTITUTION_SCOPED',
    'C2w: a reviewer''s note on a sealed question''s option; read through functions only, never evidence, never a learner''s')
 on conflict do nothing;
+-- L1-F4's registry (20270117130000): every foreign key to persons(id) is classified. The writer is an act's actor, as
+-- every other such column: an anonymised person cannot sign in to write, and a replacement names its own writer.
+insert into public.orang_lampiran (tabel, kolom, kelas, alasan) values
+  ('catatan_peninjau', 'ditulis_oleh', 'BEBAS',
+   'an act''s actor (ditulis_oleh): an anonymised person cannot sign in to act, and a replacement names its own writer')
+on conflict do nothing;
 
 -- the refusals, by code (PR210); the screens' contract is src/lib/catatan-kontrak.ts
 create or replace function public.catatan_tolak(p_code text)

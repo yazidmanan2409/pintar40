@@ -62,14 +62,14 @@ export default async function SoalKelas({
   }
   const semua = await ajar.berjalan([id], ["OPEN", "CLOSED"]);
   const ini = semua.find((b) => b.id === tugasId);
-  const db = await supabaseServer();
-  const bukti = ini ? await buktiSoal(db, tugasId, id) : null;
+  const bukti = ini ? await buktiSoal(await supabaseServer(), tugasId, id) : null;
   if (!ini || !bukti) {
     return <HalamanPenolakan locale={locale} persona="educator" backHref={`/mengajar/${id}`} backLabel={ctx.ini.nama} />;
   }
   const soal = susunBuktiSoal(bukti);
   // C2w «Catatan peninjau» beside the evidence: the current notes, under teacher_question_evidence's own gate
   // (catatan_peninjau_kelas); a read refused or failed shows none, as with no note
+  const db = await supabaseServer();
   const [{ data: cd, error: ce }, zona] = await Promise.all([
     db.rpc("catatan_peninjau_kelas", { p_assignment: tugasId, p_class: id }),
     zonaSekolah(db, ctx.ini.institusi),
