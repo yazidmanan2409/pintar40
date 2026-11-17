@@ -23,6 +23,7 @@
  *   A3-LN2  the line check refuses a revision with two predecessors (the backfill's strictness).
  */
 import { spawn, spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { URUTAN, bacaUrutan, type Kunci } from "./a2a-l01.test";
@@ -189,11 +190,12 @@ begin perform 1 from public.assessment_sessions s where s.id = p for update;
  * person first, or holds before it only locks that no person-first function requests at a conflicting strength
  * (foreign keys included: the reader records an insert's or update's foreign key as KEY SHARE on the table it names). */
 const KONFLIK = (a: number, b: number) => a === 3 || b === 3 || (a >= 1 && b >= 2) || (a >= 2 && b >= 1);
-function pin2(db: string, tanam = ""): { pengambil: number; salah: string[] } {
+function pin2(db: string, tanam = ""): { pengambil: number; salah: string[]; dikecualikan: string[] } {
   const r = bacaUrutan(db, tanam);
   const fungsi = [...r.semua].filter(([fn]) => !/[[(]/.test(fn));
   const pertama = fungsi.filter(([, l]) => l[0]?.t === "persons");
   const salah: string[] = [];
+  const dikecualikan = new Set<string>();
   let pengambil = 0;
   for (const [fn, l] of fungsi) {
     const pu = l.findIndex((k) => k.t === "persons" && k.kuat === 3 && k.lewat === fn);
@@ -203,11 +205,45 @@ function pin2(db: string, tanam = ""): { pengambil: number; salah: string[] } {
       if (h.t === "persons") continue;
       const lawan = new Set<string>();
       for (const [pf, pl] of pertama) for (const k of pl) if (k.t === h.t && KONFLIK(h.kuat, k.kuat)) lawan.add(`${pf} (${k.t} at ${k.kuat}, via ${k.lewat})`);
+      if (lawan.size && PIN2_PENGECUALIAN[fn]?.tabel === h.t) { dikecualikan.add(fn); continue; }
       if (lawan.size) salah.push(`${fn} holds ${h.t} at strength ${h.kuat} before its persons FOR UPDATE, and a person-first function requests it: ${[...lawan].slice(0, 3).join("; ")}${lawan.size > 3 ? ` (+${lawan.size - 3})` : ""}`);
     }
   }
-  return { pengambil, salah: [...new Set(salah)] };
+  return { pengambil, salah: [...new Set(salah)], dikecualikan: [...dikecualikan].sort() };
 }
+/**
+ * Pin 2's NAMED EXCEPTIONS (Sharon, dd03a300 and 4d5cd5f6: a flag no race turns red is a named exception, with its
+ * reason and its race recorded). Each is one function holding one table, and nothing else: a new conflict in the same
+ * function, or the same function holding another table, is still reported. Each names its evidence and, where the
+ * exception rests on a premise, a source check that the premise still holds (run by A3-P2).
+ */
+const PIN2_PENGECUALIAN: Record<string, { tabel: string; alasan: string; bukti: string; premis?: string }> = {
+  confirm_my_name: {
+    tabel: "account_setup",
+    alasan: "the person-first functions reach account_setup only through the auth.users email guards, which write it only on a governed email correction or a card conversion; both come through Auth, and the one person-first function that changes an email (hapus_data_pribadi) marks the change as an anonymisation, which the guard returns on before it writes",
+    bukti: "A3-R05N",
+    premis: `select (position('pintar.anonimkan_email' in (select prosrc from pg_proc where oid = 'public.hapus_data_pribadi(uuid,text)'::regprocedure)) > 0
+        and position('pintar.anonimkan_email' in (select prosrc from pg_proc where oid = 'public.auth_email_correction_guard()'::regprocedure))
+          < position('update public.email_corrections' in (select prosrc from pg_proc where oid = 'public.auth_email_correction_guard()'::regprocedure)))::text`,
+  },
+  handle_new_auth_user: {
+    tabel: "account_activation_grants",
+    alasan: "the cycle needs a person who is closed at their own request and has no account; the only product writer of CLOSED_AT_REQUEST is minta_akun, which needs a signed-in account, and handle_new_auth_user refuses a person who has an account (PR010) before it locks the person; only Auth deleting a user directly could make the state (the operator runbook forbids it)",
+    bukti: "A3-P2 (this premise check)",
+    premis: `select ((select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+                 where n.nspname = 'public' and p.prosrc ~ 'CLOSED_AT_REQUEST' and p.prosrc ~* 'insert\\s+into\\s+public\\.person_suspensions') = 1
+        and position('insert into public.person_suspensions' in (select prosrc from pg_proc where oid = 'public.minta_akun(text,boolean)'::regprocedure)) > 0
+        and position('public.current_person_id()' in (select prosrc from pg_proc where oid = 'public.minta_akun(text,boolean)'::regprocedure)) > 0
+        and position('this person already has an account' in (select prosrc from pg_proc where oid = 'public.handle_new_auth_user()'::regprocedure))
+          between 1 and position('perform 1 from public.persons where id = v_person for update' in (select prosrc from pg_proc where oid = 'public.handle_new_auth_user()'::regprocedure)))::text`,
+  },
+  issue_institutional_id: {
+    tabel: "institutions",
+    alasan: "the person-first functions take the school FOR UPDATE only in the last-administrator guard's removal branch (peran_terakhir_kode under p_kunci); raced both ways against issue_institutional_id (akhiri_tugas_staf and revoke_role), no deadlock; SI-D03 keeps the school before the person for the import",
+    bukti: "A3-R04X",
+  },
+};
+
 const TANAM_P2 = `create function public._a3_p2_tanam(p uuid) returns void language plpgsql as $t$
 begin perform 1 from public.assessment_sessions s where s.id = p for update;
       perform 1 from public.persons pr where pr.id = p for update; end $t$;`;
@@ -389,9 +425,21 @@ end $r$; select current_setting('a3.r2i');`);
       const nyata = pin2(db());
       c.expect(nyata.pengambil >= 15, `only ${nyata.pengambil} function(s) take persons FOR UPDATE in their own body (the reader found too little to check)`);
       c.expect(nyata.salah.length === 0, `functions that hold, before their persons FOR UPDATE, a lock a person-first function requests:\n  ${nyata.salah.join("\n  ")}`);
+      // every named exception is still needed (a fixed function leaves the list), and each premise still holds
+      const nama = Object.keys(PIN2_PENGECUALIAN).sort();
+      c.expect(JSON.stringify(nyata.dikecualikan) === JSON.stringify(nama), `the named exceptions in use are ${nyata.dikecualikan.join(", ") || "none"}; the list names ${nama.join(", ")} (an exception no longer needed leaves the list)`);
+      const daftar = JSON.parse(readFileSync(join(process.cwd(), "selftest", "manifest.json"), "utf8")).tests.map((x: { id: string }) => x.id) as string[];
+      for (const [fn, e] of Object.entries(PIN2_PENGECUALIAN)) {
+        const id = e.bukti.split(" ")[0];
+        c.expect(daftar.includes(id), `${fn}'s exception names its evidence ${id}, which is not in the manifest`);
+        if (e.premis) {
+          const r = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-qAt", "-c", e.premis, db()], { encoding: "utf8" });
+          c.expect(r.stdout.trim() === "true", `${fn}'s exception rests on a premise that no longer holds (${e.alasan.slice(0, 90)}...): ${r.stdout.trim() || (r.stderr || "").trim().split("\n")[0]}`);
+        }
+      }
       const t = pin2(db(), TANAM_P2);
       c.expect(t.salah.some((x) => x.startsWith("_a3_p2_tanam holds assessment_sessions")), "the plant (a sitting, then its person FOR UPDATE) was not reported");
-      return c.verdict(`A2A-L01's reader: each of the ${nyata.pengambil} functions that take persons FOR UPDATE in their own body takes the person first, or holds before it only locks no person-first function requests at a conflicting strength, foreign keys included; a plant is reported`);
+      return c.verdict(`A2A-L01's reader: each of the ${nyata.pengambil} functions that take persons FOR UPDATE in their own body takes the person first, or holds before it only locks no person-first function requests at a conflicting strength, foreign keys included, but for three named exceptions, each one function and one table, each with its evidence and, where it rests on one, its premise checked: ${nama.map((f) => `${f} (${PIN2_PENGECUALIAN[f].tabel}; ${PIN2_PENGECUALIAN[f].bukti})`).join(", ")}; a plant is reported`);
     },
   },
   {
