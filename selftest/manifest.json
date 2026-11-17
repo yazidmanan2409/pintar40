@@ -6564,6 +6564,46 @@
       "id": "A2B-SP3",
       "runner": "static",
       "proves": "The Chief Architect (16 Nov 16:27) and Sharon (9b68fcad, T-SP): across every server-action file under src/app (\"use server\"), no exported action starts a sitting (engine.startSession, start_learning_session, open_assessment_session) except src/app/belajar/actions.ts's mulaiAsesmen, which maps PR110 MAINTENANCE_NO_NEW_START and PR040 MAINTENANCE_PLACE; the unused, postable startSession action (3c58620e) is gone; two plants, startSession restored and a start in another server file, are each caught."
+    },
+    {
+      "id": "C2W-B1",
+      "runner": "static",
+      "proves": "PLAN-A2B-C2W.md §3.4 B1, red first: executes against the migrations, in one rolled-back transaction, on C1w's scenario (the seeded cycle school, a package published by its seeded people, real sittings). Before and after a note and its replacement, the package's fingerprint, the question's options, two sittings' evidence and current results, the result count and metric_evaluate('class.misconceptions') are byte-identical."
+    },
+    {
+      "id": "C2W-B2",
+      "runner": "static",
+      "proves": "PLAN-A2B-C2W.md §3.4 B2, red first: executes against the migrations, in one rolled-back transaction. A teacher with CAN_DRAFT only, a learner, another school's administrator and an unknown item are refused alike (PR210 NOTE_NOT_ALLOWED). A missing option, an empty or over-long text and an unsealed draft are refused by name. A school's CAN_REVIEW writes and replaces. No UPDATE or DELETE of catatan_peninjau stands, even as the owner. Declaring it a metric source is refused. A learner reads no note, and their own sitting review carries none."
+    },
+    {
+      "id": "C2W-B4",
+      "runner": "static",
+      "proves": "PLAN-A2B-C2W.md §3.4 B4 (I-5 in Studio), red first: executes against the migrations, in one rolled-back transaction. A note on option B of version 1 (key A) is replaced once, and the key is corrected to B by C1w's governed correction. Read against version 2 with catatan_peninjau_studio, both notes predate the correction, with the key then, the key now and their version. A note written on version 2 carries no such line. Read against version 1, nothing predates. Another school and an unknown item are refused alike."
+    },
+    {
+      "id": "C2W-B5",
+      "runner": "static",
+      "proves": "PLAN-A2B-C2W.md §3.4 B5 (I-5 beside the class report), red first: executes against the migrations, in one rolled-back transaction. The class's teacher reads the current note through catatan_peninjau_kelas under teacher_question_evidence's own gate, with the key then and the key in force. A class the assignment was not set for, and an unknown assignment, are refused alike."
+    },
+    {
+      "id": "C2W-B6",
+      "runner": "static",
+      "proves": "PLAN-A2B-C2W.md §3.4 B6 with Sharon's addition (3a2de775), red first: executes against the migrations, in one rolled-back transaction, with a platform package distributed to the school. A school's head of department and administrator are refused NOTE_LIBRARY_CONTENT. The library's own administrator writes. A teacher of the school that received the release reads the note beside the class report. A teacher of a school without the release is refused exactly as for an unknown assignment."
+    },
+    {
+      "id": "C2W-D2",
+      "runner": "static",
+      "proves": "Sharon's D2 (3a2de775), red first: executes against the migrations, in one rolled-back transaction. A note inserted directly into catatan_peninjau as the owner is refused by the table's trigger, not only by the function, by name: NOTE_OWNER_MISMATCH when it names another owner than the item's, NOTE_NOT_SEALED when it sits on an unsealed item. A direct insert for the item's own owner on a sealed item stands (the control)."
+    },
+    {
+      "id": "C2W-D3",
+      "runner": "static",
+      "proves": "Sharon's D3 (3a2de775), red first: reads the function source (pg_proc) and the catalogue's indexes. The chain walk catatan_peninjau_garis has a depth cap and a cycle guard. Neither notes read takes a row lock. An index leads with items.supersedes_item_id."
+    },
+    {
+      "id": "C2W-D1R",
+      "runner": "static",
+      "proves": "Sharon's D1 (3a2de775), red first: executes against the migrations on two real connections, as the seeded cycle school's head of programme on one of its sealed questions, removing the test's notes afterwards. Two first notes on one option at once leave one, the second refused NOTE_EXISTS. Two replacements of that note at once leave one, the second refused NOTE_NOT_CURRENT."
     }
   ]
 }

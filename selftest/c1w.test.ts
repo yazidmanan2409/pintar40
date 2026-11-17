@@ -60,21 +60,21 @@ function siapkan(repoRoot: string): string | null {
 }
 
 // ------------------------------------------------------------------ the scenario's own language
-const q = (s: string) => `$q$${s}$q$`;
+export const q = (s: string) => `$q$${s}$q$`;
 /** An id the world recorded: c1.<name> (people u_<name> and p_<name>). */
-const G = (k: string) => `current_setting('c1.${k}')::uuid`;
-const S = (k: string) => `current_setting('c1.${k}')`;
+export const G = (k: string) => `current_setting('c1.${k}')::uuid`;
+export const S = (k: string) => `current_setting('c1.${k}')`;
 /** One probe: as `siapa` (the database owner when null) run `sql`; its answer kept under `k`. */
-const langkah = (k: string, siapa: string | null, sql: string) =>
+export const langkah = (k: string, siapa: string | null, sql: string) =>
   `v := v || jsonb_build_object('${k}', pg_temp.c1(${siapa ? G(`u_${siapa}`) : "null"}, ${q(sql)}));`;
 /** A step whose answer is not kept, as `siapa`. */
-const lakukan = (siapa: string | null, sql: string) => `perform pg_temp.c1_wajib(${siapa ? G(`u_${siapa}`) : "null"}, ${q(sql)});`;
+export const lakukan = (siapa: string | null, sql: string) => `perform pg_temp.c1_wajib(${siapa ? G(`u_${siapa}`) : "null"}, ${q(sql)});`;
 /** A fixture's own correction past the guards (the harness, never a product path). */
-const paksa = (sql: string) => `set local session_replication_role = replica; execute ${q(sql)}; set local session_replication_role = origin;`;
+export const paksa = (sql: string) => `set local session_replication_role = replica; execute ${q(sql)}; set local session_replication_role = origin;`;
 /** A question as the editor sends it: options A.. with `kunci` (comma-separated labels) correct. */
 const soal = (stem: string, kunci: string, n = 2, kosong = "") =>
   `pg_temp.c1_soal_json('${stem}', '${kunci}', ${n}, '${kosong}')`;
-const item = (course: string, stem: string) => `pg_temp.c1_item(${G(course)}, '${stem}')`;
+export const item = (course: string, stem: string) => `pg_temp.c1_item(${G(course)}, '${stem}')`;
 
 function skenario(badan: string[]): string {
   return `
@@ -311,7 +311,7 @@ rollback;
 `;
 }
 
-function jalankan(c: Checks, repoRoot: string, badan: string[]): Record<string, string> | null {
+export function jalankan(c: Checks, repoRoot: string, badan: string[]): Record<string, string> | null {
   const gagal = siapkan(repoRoot);
   if (!c.expect(gagal === null, gagal ?? "")) return null;
   const r = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-At", "-c", skenario(badan), db()], { encoding: "utf8", maxBuffer: 32 * 1024 * 1024 });
@@ -329,10 +329,10 @@ const audit = (aksi: string, target: string, lagi = "true") =>
   `select count(*) from public.audit_log l where l.action = '${aksi}' and l.target_id = (${target})::text and ${lagi}`;
 
 // the key correction's acts
-const ajukan = (it: string, kunci: string, alasan = ALASAN) => `select public.ajukan_koreksi_kunci(${it}, array['${kunci}'], '${alasan}') ->> 'koreksi'`;
-const simpanKoreksi = (nama: string, it: string, kunci: string) =>
+export const ajukan = (it: string, kunci: string, alasan = ALASAN) => `select public.ajukan_koreksi_kunci(${it}, array['${kunci}'], '${alasan}') ->> 'koreksi'`;
+export const simpanKoreksi = (nama: string, it: string, kunci: string) =>
   `perform set_config('c1.${nama}', (select k.id::text from public.key_corrections k where k.item_id = public.soal_ujung(${it}) and k.status = 'PENDING' and k.key_after = array['${kunci}']), true);`;
-const tegaskan = (k: string) => `select public.tegaskan_koreksi_kunci(${G(k)})::text`;
+export const tegaskan = (k: string) => `select public.tegaskan_koreksi_kunci(${G(k)})::text`;
 const hasilRingkas = (s: string) =>
   `select count(*) || '|' || count(*) filter (where not exists (select 1 from public.assessment_results x where x.supersedes_result_id = r.id))
           || '|' || (select r2.mastery from public.assessment_results r2 where r2.id = public.hasil_terkini_id(${G(s)}))
