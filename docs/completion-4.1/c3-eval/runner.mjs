@@ -339,6 +339,41 @@ function mockProvider(faults = {}) {
   };
 }
 
+// v2 streaming test infrastructure (Sharon S-3, S-4). THINK_CANARY marks every thinking delta the mock sends: it must
+// never appear in any file the run writes (S-2).
+const THINK_CANARY = 'THINKING-CANARY-7f3a';
+const enc = (x) => new TextEncoder().encode(x);
+const sseOf = (evs, nl = '\n') => evs.map(([ev, d]) => `event: ${ev}${nl}data: ${typeof d === 'string' ? d : JSON.stringify(d)}${nl}${nl}`).join('');
+// A local function in fetch's place that answers with a streamed body: in chunks of `chunk` bytes, `delayMs` apart;
+// failAfter: the connection fails after that many bytes; stallAfter: the body stops sending (until the call aborts).
+function fakeStream(bytes, { chunk = bytes.length || 1, delayMs = 0, failAfter = null, stallAfter = null, status = 200,
+  headers = { 'content-type': 'text/event-stream; charset=utf-8', 'request-id': 'req_stream' } } = {}) {
+  const seen = [];
+  const f = async (url, init) => {
+    seen.push({ url, init });
+    let off = 0;
+    const body = new ReadableStream({
+      async pull(c) {
+        if (stallAfter !== null && off >= stallAfter) {
+          await new Promise((r) => { const t = setTimeout(r, 10_000); init?.signal?.addEventListener('abort', () => { clearTimeout(t); r(); }); });
+          c.error(init?.signal?.reason ?? new Error('mock: stalled')); return;
+        }
+        if (failAfter !== null && off >= failAfter) { c.error(new Error('mock: connection reset mid-stream')); return; }
+        if (off >= bytes.length) { c.close(); return; }
+        if (delayMs) await new Promise((r) => setTimeout(r, delayMs));
+        let n = Math.min(chunk, bytes.length - off);
+        if (failAfter !== null) n = Math.min(n, failAfter - off);
+        if (stallAfter !== null) n = Math.min(n, stallAfter - off);
+        c.enqueue(bytes.slice(off, off + n)); off += n;
+      },
+    });
+    return new Response(body, { status, headers });
+  };
+  f.seen = seen; return f;
+}
+const filesUnder = (d) => readdirSync(d, { recursive: true, withFileTypes: true }).filter((x) => x.isFile()).map((x) => join(x.parentPath ?? x.path, x.name));
+const noThinkingIn = (d) => filesUnder(d).every((f) => !readFileSync(f, 'utf8').includes(THINK_CANARY));
+
 // canned HTTP errors: the documented ones shaped as E-PROVIDER-FACTS.md §6 shows them, and three undocumented ones
 const anthErr = (status, error, h = {}) => ({ status, headers: { 'request-id': 'req_mock', ...h }, bodyText: JSON.stringify({ type: 'error', error, request_id: 'req_mock' }) });
 const oaiErr = (status, error, h = {}) => ({ status, headers: { 'x-request-id': 'req_mock', ...h }, bodyText: JSON.stringify({ error }) });
@@ -620,9 +655,9 @@ async function adapterChecks(check, table) {
     check(q.method === 'POST' && q.url === 'https://api.anthropic.com/v1/messages', 'anthropic request: POST https://api.anthropic.com/v1/messages');
     check(eq(q.headers, { 'content-type': 'application/json', authorization: `Bearer ${KEY}`, 'anthropic-version': '2026-10-21' }), 'anthropic request headers: content-type application/json, Authorization: Bearer <key>, anthropic-version 2026-10-21 (no legacy x-api-key)');
     const f = q.body.output_config?.format ?? {};
-    check(eq(Object.keys(q.body).sort(), ['max_tokens', 'messages', 'model', 'output_config']) && q.body.model === 'claude-sonnet-5-5' && q.body.max_tokens === DEFAULT_MAX_OUTPUT
+    check(eq(Object.keys(q.body).sort(), ['max_tokens', 'messages', 'model', 'output_config', 'stream']) && q.body.stream === true && q.body.model === 'claude-sonnet-5-5' && q.body.max_tokens === DEFAULT_MAX_OUTPUT
       && eq(q.body.messages, [{ role: 'user', content: text }]) && eq(Object.keys(f).sort(), ['schema', 'type']) && f.type === 'json_schema' && eq(f.schema, wireSchema(schema)),
-      'anthropic request body: model claude-sonnet-5-5, max_tokens 12000, messages [user: the chapter request], output_config.format {type json_schema, schema: item-schema.json without its root annotations}; no system prompt');
+      'anthropic request body: model claude-sonnet-5-5, max_tokens 12000, messages [user: the chapter request], output_config.format {type json_schema, schema: item-schema.json without its root annotations}, stream true (v2); no system prompt');
     const okH = { 'request-id': 'req_018Eselftest', 'anthropic-ratelimit-requests-remaining': '3999', 'anthropic-ratelimit-output-tokens-reset': '2026-11-16T07:00:30Z', 'x-unrelated': 'dropped' };
     const okB = JSON.stringify({ id: 'msg_selftest', type: 'message', role: 'assistant', model: 'claude-sonnet-5-5', content: [{ type: 'text', text: '{"items":[]}' }],
       usage: { input_tokens: 2400, output_tokens: 2500, cache_creation_input_tokens: 10, cache_read_input_tokens: 5 } });
@@ -762,6 +797,134 @@ async function adapterChecks(check, table) {
   check(costMicro(272000, 1000, op) === 272000 * 2 + 1000 * 10 && costMicro(272001, 1000, op) === Math.ceil(272001 * 4 + 1000 * 15), 'openai price: above 272K input tokens the full request costs 2× input and 1.5× output');
 }
 
+
+// v2 streaming checks (Sharon S-1 to S-4; Ruling 50). Offline: every "fetch" here is a local function answering from
+// memory. DOC_STREAM is shaped as Anthropic's streaming page shows a response with thinking (read 17 Nov 2026).
+const DOC_STREAM = [
+  ['message_start', { type: 'message_start', message: { id: 'msg_doc', type: 'message', role: 'assistant', content: [], model: 'claude-sonnet-5-5', stop_reason: null, stop_sequence: null,
+    usage: { input_tokens: 4993, output_tokens: 1, cache_creation_input_tokens: 0, cache_read_input_tokens: 0 } } }],
+  ['content_block_start', { type: 'content_block_start', index: 0, content_block: { type: 'thinking', thinking: '', signature: '' } }],
+  ['content_block_delta', { type: 'content_block_delta', index: 0, delta: { type: 'thinking_delta', thinking: THINK_CANARY + ' langkah satu' } }],
+  ['ping', { type: 'ping' }],
+  ['content_block_delta', { type: 'content_block_delta', index: 0, delta: { type: 'thinking_delta', thinking: THINK_CANARY + ' langkah dua' } }],
+  ['content_block_delta', { type: 'content_block_delta', index: 0, delta: { type: 'signature_delta', signature: 'EqQBCgIYAhIM1gbcDa9GJwZA2b3hGgxBdjrkzLoky3dl1pkiMOYds' } }],
+  ['content_block_stop', { type: 'content_block_stop', index: 0 }],
+  ['content_block_start', { type: 'content_block_start', index: 1, content_block: { type: 'text', text: '' } }],
+  ['content_block_delta', { type: 'content_block_delta', index: 1, delta: { type: 'text_delta', text: '{"items":[{"stem":"Pola ½ — ' } }],
+  ['content_block_delta', { type: 'content_block_delta', index: 1, delta: { type: 'text_delta', text: 'bilangan ganjil"}]}' } }],
+  ['content_block_stop', { type: 'content_block_stop', index: 1 }],
+  ['message_delta', { type: 'message_delta', delta: { stop_reason: 'end_turn', stop_sequence: null }, usage: { output_tokens: 7600 } }],
+  ['message_stop', { type: 'message_stop' }],
+];
+const DOC_TEXT = '{"items":[{"stem":"Pola ½ — bilangan ganjil"}]}';
+async function streamChecks(check) {
+  const evNames = (evs) => evs.map((e) => e.event + '|' + e.data).join('\n');
+  const parseAll = (bytes, size, opt) => { const p = new SseParser(opt); const out = []; for (let i = 0; i < bytes.length; i += size) out.push(...p.push(bytes.slice(i, i + size))); out.push(...p.end()); return out; };
+  const assemble = (evs, nl) => { const p = new SseParser(); const a = anthropicAssembler(); for (const e of [...p.push(enc(sseOf(evs, nl))), ...p.end()]) a.feed(e); return a.finish(); };
+  const throwsIncomplete = (fn) => { try { fn(); return null; } catch (x) { return x instanceof StreamIncomplete ? x : null; } };
+  const cut = (i) => DOC_STREAM.filter((_, k) => k !== i);
+  const swap = (i, ev) => DOC_STREAM.map((x, k) => (k === i ? ev : x));
+
+  console.log('\n── streaming (v2, Sharon S-1 to S-4; offline)');
+  // S-3: the parser
+  const whole = enc(sseOf(DOC_STREAM));
+  const one = parseAll(whole, whole.length);
+  check(one.length === DOC_STREAM.length && one.every((e, i) => e.event === DOC_STREAM[i][0] && eq(JSON.parse(e.data), DOC_STREAM[i][1])), `S-3 parser: the documented sequence gives its ${DOC_STREAM.length} events, names and data intact`);
+  let same = true; for (const size of [1, 2, 3, 7, 64]) same = same && evNames(parseAll(whole, size)) === evNames(one);
+  check(same, 'S-3 parser: the same events whatever the chunk size (1, 2, 3, 7 and 64 bytes), including splits inside a line and inside a multi-byte character');
+  check(evNames(parseAll(enc(sseOf(DOC_STREAM, '\r\n')), 5)) === evNames(one) && evNames(parseAll(enc(sseOf(DOC_STREAM, '\r')), 5)) === evNames(one),
+    'S-3 parser: CRLF and CR line endings give the same events, also when a CRLF is split across chunks');
+  const ml = parseAll(enc(': keep-alive comment\nid: 7\nretry: 100\nevent: ping\ndata: {"type":\ndata: "ping"}\n\nevent: lonely\n\ndata: {"type":"ping"}\n\n'), 4);
+  check(ml.length === 2 && ml[0].event === 'ping' && ml[0].data === '{"type":\n"ping"}' && eq(JSON.parse(ml[0].data), { type: 'ping' }) && ml[1].event === 'message',
+    'S-3 parser: multi-line data is joined with a newline; comment, id and retry lines are ignored; an event with no data is not dispatched; no event name means "message"');
+  const tail = parseAll(enc('event: ping\ndata: {"type":"ping"}\n\nevent: message_stop\ndata: {"type":"message_stop"}'), 3);
+  check(tail.length === 1, 'S-3 parser: an event not ended by a blank line before the stream ends is discarded, never dispatched');
+  check(throwsIncomplete(() => parseAll(enc('x'.repeat(201)), 50, { maxBytes: 200 }))?.reason === 'byte_cap', 'S-3 parser: a stream larger than its byte cap is refused (reason byte_cap)');
+  check(STREAM_MAX_BYTES >= 8 * 1024 * 1024 && STREAM_MAX_BYTES <= 64 * 1024 * 1024, `S-3 parser: the byte cap (${STREAM_MAX_BYTES} bytes) is far above a 48,000-token answer and still bounded`);
+  check(throwsIncomplete(() => parseAll(Uint8Array.from([0x64, 0x61, 0x74, 0x61, 0x3a, 0x20, 0xff, 0xfe, 0x0a, 0x0a]), 3))?.reason === 'bad_utf8', 'S-3 parser: bytes that are not UTF-8 are refused (reason bad_utf8)');
+
+  // S-1, S-2: the assembled answer
+  const ok = assemble(DOC_STREAM);
+  check(ok.raw === DOC_TEXT && ok.stop_reason === 'end_turn' && ok.model === 'claude-sonnet-5-5' && eq(ok.usage, { input: 4993, output: 7600 }),
+    'S-1 assembler: a completed stream gives the text, the stop reason, the model, input from message_start and output from the final message_delta');
+  check(!JSON.stringify(ok).includes(THINK_CANARY) && !JSON.stringify(ok).includes('EqQBCgIYAhIM') && ok.evidence.thinking_blocks === 1,
+    'S-2 assembler: thinking and its signature are counted, never kept: nothing of them is in the result');
+  check(assemble(DOC_STREAM, '\r\n').raw === DOC_TEXT, 'S-1 assembler: the same text over CRLF');
+  const du = assemble(swap(11, ['message_delta', { type: 'message_delta', delta: { stop_reason: 'max_tokens', stop_sequence: null }, usage: { input_tokens: 5000, output_tokens: 48000, cache_read_input_tokens: 10, cache_creation_input_tokens: 2 } }]));
+  check(eq(du.usage, { input: 5012, output: 48000 }) && du.stop_reason === 'max_tokens', 'S-1 assembler: final usage in message_delta wins (cumulative), cache tokens added to input; max_tokens is a completed stream (kit.mjs validate then measures it)');
+  const unk = assemble([...DOC_STREAM.slice(0, 9), ['content_block_hint', { type: 'content_block_hint', index: 1 }], ...DOC_STREAM.slice(9)]);
+  check(unk.raw === DOC_TEXT && unk.evidence.unknown_events === 1, 'S-3 assembler: an unknown event type mid-stream is ignored and counted ("handle unknown event types gracefully")');
+  const twoText = assemble([...DOC_STREAM.slice(0, 10), ['content_block_start', { type: 'content_block_start', index: 2, content_block: { type: 'text', text: '' } }],
+    ['content_block_delta', { type: 'content_block_delta', index: 2, delta: { type: 'text_delta', text: ' ' } }], ['content_block_stop', { type: 'content_block_stop', index: 2 }], ...DOC_STREAM.slice(10)]);
+  check(twoText.raw === DOC_TEXT + ' ', 'S-1 assembler: several text blocks are joined in index order');
+  const INCOMPLETE = [
+    ['no message_stop (the stream just ends)', DOC_STREAM.slice(0, 12)],
+    ['an unknown final event in place of message_stop', swap(12, ['message_end', { type: 'message_end' }])],
+    ['no stop reason', swap(11, ['message_delta', { type: 'message_delta', delta: { stop_reason: null }, usage: { output_tokens: 7600 } }])],
+    ['an unknown stop reason', swap(11, ['message_delta', { type: 'message_delta', delta: { stop_reason: 'mystery_reason' }, usage: { output_tokens: 7600 } }])],
+    ['no usage in message_delta (message_start\'s output count is never used)', swap(11, ['message_delta', { type: 'message_delta', delta: { stop_reason: 'end_turn' } }])],
+    ['usage without output_tokens', swap(11, ['message_delta', { type: 'message_delta', delta: { stop_reason: 'end_turn' }, usage: { input_tokens: 4993 } }])],
+    ['an event after message_stop', [...DOC_STREAM, ['ping', { type: 'ping' }]]],
+    ['a delta before message_start', DOC_STREAM.slice(1)],
+    ['two message_start events', [DOC_STREAM[0], ...DOC_STREAM]],
+    ['a text_delta inside a thinking block', swap(4, ['content_block_delta', { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: 'x' } }])],
+    ['a delta for a block never started', swap(8, ['content_block_delta', { type: 'content_block_delta', index: 5, delta: { type: 'text_delta', text: 'x' } }])],
+    ['a text block never stopped', cut(10)],
+    ['data that is not JSON', swap(3, ['ping', '{not json'])],
+    ['an event name that disagrees with its data type', swap(3, ['ping', { type: 'message_stop' }])],
+    ['an empty stream', []],
+  ];
+  for (const [label, evs] of INCOMPLETE) check(throwsIncomplete(() => assemble(evs)) !== null, `S-1 assembler: refused, not a response: ${label}`);
+  // error events
+  const errEv = (type) => [...DOC_STREAM.slice(0, 9), ['error', { type: 'error', error: { type, message: 'mock' } }]];
+  const errOf = (type) => { try { assemble(errEv(type)); return null; } catch (x) { return x instanceof StreamError ? x : null; } };
+  for (const t of ['overloaded_error', 'api_error', 'timeout_error']) {
+    const x = errOf(t); check(x && classify(x).status === 'stream_error' && classify(x).retry === true && classify(x).stop === false && classify(x).noResponse === true && classify(x).type === t,
+      `S-1 a mid-stream ${t} event: stream_error, retried, counted towards the no-usable-response stop`);
+  }
+  for (const t of ['invalid_request_error', 'rate_limit_error', 'billing_error', 'mystery_error']) {
+    const x = errOf(t); check(x && classify(x).status === 'stream_error' && classify(x).retry === false && classify(x).stop === true, `S-1 a mid-stream ${t} event: stream_error, not retried, no further call to the provider (fail-closed)`);
+  }
+  const inc = throwsIncomplete(() => assemble(DOC_STREAM.slice(0, 9)));
+  check(inc && classify(inc).status === 'stream_incomplete' && classify(inc).retry === true && classify(inc).noResponse === true, 'S-1 a cut stream is stream_incomplete: retried, counted towards the no-usable-response stop');
+  check(inc && inc.evidence.text_chars > 0 && /^[0-9a-f]{64}$/.test(inc.evidence.text_sha256) && !JSON.stringify(inc.evidence).includes(THINK_CANARY) && !('text' in inc.evidence),
+    'S-1/S-2 a cut stream keeps evidence (event counts, bytes, the length and SHA-256 of the partial text), never the partial text or any thinking');
+
+  // the transport: streamCall with local functions in fetch's place
+  const A = ADAPTERS.anthropic; const table = loadPrices();
+  const args = { provider: 'anthropic', model: table.providers.anthropic.model, b: 1, attempt: 1, text: kitRequest(1), schema: schemaText(), maxOutput: 48000, key: 'DUMMY-KEY-PLACEHOLDER', clientRequestId: 'x' };
+  const run = async (f, opt) => { try { return { res: await streamCall(A, args, f, opt) }; } catch (err) { return { err }; } };
+  const okH = { 'content-type': 'text/event-stream; charset=utf-8', 'request-id': 'req_stream', 'anthropic-ratelimit-requests-remaining': '49', 'x-unrelated': 'dropped' };
+  const f1 = fakeStream(whole, { headers: okH }); const r1 = await run(f1);
+  const sent = f1.seen[0] && JSON.parse(f1.seen[0].init.body);
+  check(f1.seen.length === 1 && f1.seen[0].url === A.endpoint && sent?.stream === true && sent.max_tokens === 48000 && eq(f1.seen[0].init.headers, A.build(args).headers),
+    'transport: one POST to the Messages endpoint with stream true, max_tokens 48000 and the same headers as before');
+  check(r1.res?.raw === DOC_TEXT && r1.res.request_id === 'req_stream' && eq(r1.res.usage, { input: 4993, output: 7600 }) && r1.res.finish?.stop_reason === 'end_turn'
+    && r1.res.model_version === 'claude-sonnet-5-5' && r1.res.rate_limit?.['anthropic-ratelimit-requests-remaining'] === '49' && !('x-unrelated' in (r1.res.rate_limit ?? {})) && r1.res.stream?.events === DOC_STREAM.length,
+    'transport: the result has the same fields as before (text, request id, usage, stop reason, model version, rate-limit headers) plus the stream evidence');
+  check(!JSON.stringify(r1.res ?? {}).includes(THINK_CANARY), 'S-2 transport: no thinking in the result');
+  const t0 = Date.now(); const r2 = await run(fakeStream(enc(sseOf(DOC_STREAM, '\r\n')), { chunk: 5, delayMs: 1, headers: okH }));
+  check(r2.res?.raw === DOC_TEXT && eq(r2.res.usage, { input: 4993, output: 7600 }), `S-4 transport: a slow stream (5-byte chunks, CRLF) completes with the same result (${Date.now() - t0} ms)`);
+  const r3 = await run(fakeStream(whole, { headers: okH, failAfter: Math.floor(whole.length * 0.7) }));
+  check(r3.err instanceof StreamIncomplete && r3.err.reason === 'cut' && r3.err.request_id === 'req_stream' && classify(r3.err).status === 'stream_incomplete' && r3.err.evidence.text_chars > 0,
+    'S-4 transport: a connection that fails mid-stream is stream_incomplete (reason cut), request id and evidence kept');
+  const r3b = await run(fakeStream(enc(sseOf(DOC_STREAM.slice(0, 10))), { headers: okH }));
+  check(r3b.err instanceof StreamIncomplete && classify(r3b.err).status === 'stream_incomplete', 'S-4 transport: a stream that closes cleanly but early (no usage, no stop) is stream_incomplete');
+  const t1 = Date.now(); const r4 = await run(fakeStream(whole, { headers: okH, stallAfter: 300 }), { idleMs: 80 });
+  check(r4.err instanceof StreamIncomplete && r4.err.reason === 'idle' && Date.now() - t1 < 5000, `transport: a stream that goes silent is aborted after the idle limit (reason idle, ${Date.now() - t1} ms)`);
+  check(STREAM_IDLE_MS >= 60_000 && STREAM_IDLE_MS <= CALL_TIMEOUT_MS, `transport: the idle limit (${STREAM_IDLE_MS / 1000} s) is well above the ping interval and below the 25-minute call limit`);
+  const r5 = await run(fakeStream(enc(JSON.stringify({ type: 'error', error: { type: 'overloaded_error', message: 'Overloaded' }, request_id: 'req_529' })), { status: 529, headers: { 'content-type': 'application/json', 'request-id': 'req_529' } }));
+  check(r5.err instanceof HttpError && classify(r5.err).status === 'http_5xx' && classify(r5.err).retry === true && r5.err.request_id === 'req_529', 'transport: an HTTP error before the stream starts is classified exactly as before (529 overloaded_error: retried)');
+  const r6 = await run(fakeStream(enc(JSON.stringify({ type: 'error', error: { type: 'rate_limit_error', message: 'cap', details: { error_code: 'enforced_spend_limit_reached' } } })), { status: 429, headers: { 'content-type': 'application/json', 'request-id': 'req_cap' } }));
+  check(r6.err instanceof HttpError && classify(r6.err).status === 'spend_stop', 'transport: a spend stop before the stream starts is still a spend_stop');
+  const r7 = await run(fakeStream(enc('{"id":"msg"}'), { headers: { 'content-type': 'application/json', 'request-id': 'req_json' } }));
+  check(r7.err?.unparsable === true && classify(r7.err).status === 'unparsable_2xx' && r7.err.request_id === 'req_json', 'transport: a 2xx that is not an event stream is unparsable_2xx (retried, counted towards the no-usable-response stop)');
+  const r8 = await run(async () => { throw new TypeError('fetch failed'); });
+  check(r8.err && !(r8.err instanceof StreamIncomplete) && classify(r8.err).status === 'transport_error', 'transport: a failure before any response is a transport_error, as before');
+  const r9 = await run(fakeStream(enc(sseOf(errEv('overloaded_error'))), { headers: okH }));
+  check(r9.err instanceof StreamError && r9.err.request_id === 'req_stream' && classify(r9.err).retry === true && !JSON.stringify(r9.err.evidence ?? {}).includes(THINK_CANARY), 'transport: a mid-stream error event keeps the request id and evidence, without thinking');
+}
+
 // a syntactically valid 40-hex value for the self-test only; the real one is the frozen pack's commit, given at run time
 const TEST_PACK_SHA = '0123456789abcdef0123456789abcdef01234567';
 async function selfTest() {
@@ -886,9 +1049,43 @@ async function selfTest() {
     '(g) openai bab1: two such attempts then a valid one → not stopped; bab2 runs');
   check(g1.exitCode === 4 && eq(g1.summary.failed_requests.sort(), ['anthropic:bab1', 'anthropic:bab2']), '(g) the run ends with exit 4 and names anthropic\'s two requests as failed');
 
+
+  try {
+  // (h) v2 streaming through the whole run (Sharon S-4): the mock answers anthropic through the real streaming
+  // adapter and parser, with thinking in every stream
+  check(a.mock.streams.length === count(a, 'anthropic') && a.mock.streams.every((x) => x.url === ADAPTERS.anthropic.endpoint && x.stream === true),
+    `(h) every anthropic attempt in (a) went through the streaming transport with stream true (${a.mock.streams.length})`);
+  const h1 = await scen('h-stream', { 'anthropic:bab1:1': 'stream_cut', 'anthropic:bab1:2': 'stream_error', 'anthropic:bab1:3': 'stream_slow', 'anthropic:bab2:1': 'stream_unknown_event' }, {});
+  const hA = h1.ledger.entries.filter((e) => e.provider === 'anthropic');
+  check(eq(hA.map((e) => e.status), ['stream_incomplete', 'stream_error', 'ok', 'ok']) && h1.exitCode === 0, '(h) anthropic: a cut stream, a mid-stream overloaded_error, then a slow stream that succeeds; bab2 succeeds despite an unknown event; exit 0');
+  check(hA.slice(0, 2).every((e) => e.cost_usd === e.reserved_usd && e.cost_basis === 'reservation' && e.actual_output_tokens === null && e.stream?.events > 0 && /^[0-9a-f]{64}$/.test(e.stream?.text_sha256 ?? '')),
+    '(h) S-1: the cut and the errored stream each keep their full reservation as cost, with stream evidence in the ledger');
+  check(!existsSync(join(h1.outDir, 'anthropic', 'attempts', 'bab1.a1.json')) && !existsSync(join(h1.outDir, 'anthropic', 'attempts', 'bab1.a2.json')) && existsSync(join(h1.outDir, 'anthropic', 'attempts', 'bab1.a3.json')),
+    '(h) S-1: partial text is never written, validated or judged; only the completed attempt has a file');
+  check(hA.slice(2).every((e) => e.cost_basis === 'usage' && toMicro(e.cost_usd) <= toMicro(e.reserved_usd) && e.finish?.stop_reason === 'end_turn' && e.stream?.thinking_blocks === 1), '(h) the completed streams are costed from their final usage, within the reservation, with the stop reason recorded');
+  check([a, h1].every((r) => noThinkingIn(r.outDir)), '(h) S-2: no thinking text in any file the run wrote (attempts, judged files, provenance, ledger, summary, usage)');
+  const h2 = await scen('h2-stream-overrun', { 'anthropic:bab1:1': 'overrun' }, {});
+  const h2e = h2.ledger.entries.find((e) => e.provider === 'anthropic' && e.status === 'overrun');
+  const h2f = join(h2.outDir, 'anthropic', 'attempts', 'bab1.a1.json');
+  check(h2.exitCode === 3 && h2e && existsSync(h2f) && sha(readFileSync(h2f, 'utf8')) === h2e.response_sha256 && JSON.parse(readFileSync(h2f, 'utf8')).items?.length === PER_CHAPTER && noThinkingIn(h2.outDir),
+    '(h2) S-4: a streamed overrun keeps the paid answer (text only, its SHA-256 in the ledger), then aborts with exit 3');
+  const h3 = await scen('h3-stream-fatal', { 'anthropic:bab1:1': 'stream_error_fatal' }, {});
+  check(stopsAt(h3, 'anthropic', 'stream_error'), '(h3) a mid-stream invalid_request_error: one attempt, not retried, provider stopped, reservation kept as cost');
+  const h4 = await scen('h4-stream-cuts', { 'anthropic:bab1:1': 'stream_cut', 'anthropic:bab1:2': 'no_usage', 'anthropic:bab1:3': 'stream_cut' }, {});
+  check(eq(h4.ledger.entries.filter((e) => e.provider === 'anthropic').map((e) => e.status), ['stream_incomplete', 'stream_incomplete', 'stream_incomplete']) && /no usable response in 3 attempts/.test(h4.summary.per_provider.anthropic.stopped ?? ''),
+    '(h4) three incomplete streams on one request (cut, no final usage, cut) stop the provider (Sharon N4)');
+  // the dry run at the package's settings: 48,000, anthropic only, streaming
+  const h5 = await (async () => { const outDir = mkdtempSync(join(tmpdir(), 'c3-runner-h5-')); tmp.push(outDir); const mock = mockProvider(FAULTS_NORMAL);
+    const r = await runEval({ mode: 'dry-run', outDir, providers: ['anthropic'], prices: realDryPrices(table, ['anthropic']), caps: capsFrom(table, { 'cap-provider': 4.87, 'cap-total': 9.87 }), maxOutput: 48000, adapterFor: () => mock, packSha: TEST_PACK_SHA, log: () => {} });
+    return { ...r, outDir, mock }; })();
+  check(h5.exitCode === 0 && h5.summary.per_provider.anthropic.drafts_valid === 30 && h5.mock.streams.length === 4 && noThinkingIn(h5.outDir) && h5.ledger.entries.every((e) => e.max_output_tokens === 48000),
+    '(h5) the package settings (anthropic only, max_output 48,000, caps 4.87 / 9.87, pinned prices): 30 valid drafts, every call streamed, no thinking in any file');
+  } catch (x) { check(false, `streaming scenarios threw: ${String(x?.message ?? x).slice(0, 120)}`); }
+
   // the adapters against E-PROVIDER-FACTS.md §6
   console.log('\n── adapters against E-PROVIDER-FACTS.md §6 (offline)');
   await adapterChecks(check, table);
+  try { await streamChecks(check); } catch (x) { check(false, `streaming checks threw: ${String(x?.message ?? x).slice(0, 120)}`); }
 
   // the real-run gate
   console.log('\n── the real-run gate');
@@ -897,7 +1094,8 @@ async function selfTest() {
   check(!g.some((x) => /UNVERIFIED|not pinned|not grade A/.test(x)), 'prices, model IDs and sources are pinned for anthropic and openai (grade A, read 2026-11-16)');
   const dummyKeys = Object.fromEntries(providers.map((p) => [table.providers[p].key_env, 'DUMMY-KEY-PLACEHOLDER']));
   const g2 = liveGate(table, providers, dummyKeys); const unverified = providers.filter((p) => !ADAPTERS[p].verified);
-  check(unverified.every((p) => g2.some((x) => x.startsWith(`${p}: API adapter not verified`))) && (g2.length > 0) === (unverified.length > 0), `with keys present, a real run still refuses while an adapter is unverified (${unverified.join(', ') || 'none'})`);
+  const noStream = providers.filter((p) => !ADAPTERS[p].streaming);
+  check(unverified.every((p) => g2.some((x) => x.startsWith(`${p}: API adapter not verified`))) && (g2.length > 0) === (unverified.length + noStream.length > 0), `with keys present, a real run still refuses while an adapter is unverified (${unverified.join(', ') || 'none'}) or has no streaming transport (${noStream.join(', ') || 'none'})`);
   check(frozenSetProblems().length === 0, 'frozen set: kit.mjs, score.mjs and report.mjs match their SHA-256 in MANIFEST.json');
   const mf = manifest();
   check(frozenSetProblems({ ...mf, kit_sha256: '0'.repeat(64) }).some((x) => /kit\.mjs differs/.test(x)) && frozenSetProblems({ ...mf, score_sha256: undefined }).some((x) => /no score_sha256/.test(x))
@@ -906,21 +1104,23 @@ async function selfTest() {
   const gg = liveGate(table, ['google'], {});
   check(!('google' in ADAPTERS) && !PROVIDERS.includes('google') && gg.length === 1 && /^google: excluded: Not eligible .*§20\(d\)/.test(gg[0]), 'google: no adapter; refused with the §20(d) reason from prices.json');
   // the --live flag: required in addition to the gate
-  const allVerified = Object.fromEntries(Object.entries(ADAPTERS).map(([p, x]) => [p, { ...x, verified: true }]));   // test-only override
+  check(liveGate(table, ['openai'], dummyKeys).some((x) => /^openai: no streaming transport/.test(x)) && liveGate(table, ['anthropic'], dummyKeys).length === 0,
+    'v2 gate: a real run refuses a provider without a streaming transport (openai, deferred by Ruling 50); anthropic alone passes the gate with a key');
+  const allVerified = Object.fromEntries(Object.entries(ADAPTERS).map(([p, x]) => [p, { ...x, verified: true, streaming: true }]));   // test-only override
   check(liveGate(table, providers, dummyKeys, allVerified).length === 0, 'test-only override: with dummy keys and adapters marked verified, the gate itself passes');
   const nl = realRunProblems({ 'pack-sha': TEST_PACK_SHA }, table, providers, dummyKeys, allVerified);
   check(nl.length === 1 && /--live/.test(nl[0]), 'without --live a real run is refused, even with dummy keys and (hypothetically) verified adapters; the refusal names --live');
   const lv = realRunProblems({ live: true, 'pack-sha': TEST_PACK_SHA }, table, providers, dummyKeys);
-  check((lv.length > 0) === (unverified.length > 0) && !lv.some((x) => /--live/.test(x)) && unverified.every((p) => lv.some((x) => x.startsWith(`${p}: API adapter not verified`))), `with --live and dummy keys, a real run is still refused while an adapter is unverified (${unverified.join(', ') || 'none'})`);
+  check((lv.length > 0) === (unverified.length + noStream.length > 0) && !lv.some((x) => /--live/.test(x)) && unverified.every((p) => lv.some((x) => x.startsWith(`${p}: API adapter not verified`))) && noStream.every((p) => lv.some((x) => x.startsWith(`${p}: no streaming transport`))), `with --live and dummy keys, a real run is still refused while an adapter is unverified (${unverified.join(', ') || 'none'}) or has no streaming transport (${noStream.join(', ') || 'none'})`);
   check(realRunProblems({ live: true, 'pack-sha': TEST_PACK_SHA }, table, providers, dummyKeys, allVerified).length === 0, 'test-only override: --live, --pack-sha, keys and verified adapters together are the only way through');
-  const verifiedOnly = providers.filter((p) => ADAPTERS[p].verified);
+  const verifiedOnly = providers.filter((p) => ADAPTERS[p].verified && ADAPTERS[p].streaming);
   check(verifiedOnly.every((p) => realRunProblems({ live: true, 'pack-sha': TEST_PACK_SHA }, table, [p], dummyKeys).length === 0 && realRunProblems({ 'pack-sha': TEST_PACK_SHA }, table, [p], dummyKeys).length === 1),
     `the real adapters as they stand: ${verifiedOnly.join(', ') || 'none'} would pass the gate alone with --live and a key, and is refused without --live (checked in memory; no call made)`);
   // --pack-sha: a real run without a valid 40-hex value is refused BEFORE any request is built. Checked in memory with
   // spies: adapters whose build/call count and throw, a run function that counts, and fetch still blocked (above).
   console.log('\n── --pack-sha (in memory; no request is built)');
   const spy = { built: 0, called: 0, runs: 0 };
-  const spyAdapters = Object.fromEntries(Object.entries(ADAPTERS).map(([p, x]) => [p, { ...x, verified: true,
+  const spyAdapters = Object.fromEntries(Object.entries(ADAPTERS).map(([p, x]) => [p, { ...x, verified: true, streaming: true,
     build() { spy.built++; throw new Error('spy: a request was built'); }, async call() { spy.called++; throw new Error('spy: a call was made'); } }]));
   const spyRun = async (cfg) => { spy.runs++; spy.cfg = cfg; return { exitCode: 0, summary: { pack_sha: cfg.packSha } }; };
   const live = (extra) => liveRun({ args: { live: true, ...extra }, table, providers, env: dummyKeys, adapters: spyAdapters, run: spyRun, log: () => {} });
