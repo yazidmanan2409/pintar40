@@ -55,6 +55,16 @@ judul()    { printf '\n== %s\n' "$1"; }
 berhenti() { printf '\nSTOPPED: %s\nNothing further was done.\n' "$1"; clear_keys; exit 1; }
 sha()      { if command -v shasum >/dev/null 2>&1; then shasum -a 256 "$@"; else sha256sum "$@"; fi; }
 
+# Sharon P-2: the real run never starts beside a practice run. No practice stand-in may be listening, no practice run
+# may be in progress, and no rehearsal or practice setting may be left in this program's environment.
+if [ "$MODE" = live ]; then
+  if pgrep -f 'latihan-mock[.]mjs' >/dev/null 2>&1 || pgrep -f 'jalankan-e[.]sh --latihan' >/dev/null 2>&1; then
+    printf '\nSTOPPED: a practice run (--latihan) or its stand-in is still running. Close that Terminal window first.\nNothing further was done.\n'; exit 1; fi
+  LEFT="$(env | grep -c '^E_REHEARSE' || true)"
+  [ "$LEFT" = 0 ] || { printf '\nSTOPPED: practice or rehearsal settings are still set (%s). Open a new Terminal window.\nNothing further was done.\n' "$LEFT"; exit 1; }
+  echo "Real run: no practice run, stand-in or practice setting present."
+fi
+
 # ── Step A · checks, all offline ─────────────────────────────────────────────
 judul "Step A: checking this computer and the package (offline)"
 command -v node >/dev/null 2>&1 || berhenti "Node.js is not installed. Install Node 22 (see the instructions, step 1)."
@@ -175,7 +185,9 @@ set -e
 [ "$SCAN" -eq 1 ] || berhenti "the key was found in a result file, or the scan failed (code $SCAN). Send nothing; tell Bob."
 clear_keys
 echo "Checked: the key appears in no result file. It has been cleared from this program."
-# 2. nothing key-like, and no answer file, in the folder to send.
+# 2. nothing key-like, no incomplete answer (Sharon P-1), and no answer file, in the folder to send.
+if find "$HASIL"/untuk-* -path '*incomplete*' 2>/dev/null | grep -q .; then
+  berhenti "an incomplete answer is in a folder to send. Send nothing; tell Bob."; fi
 if grep -rIlE 'sk-(ant-|proj-)?[A-Za-z0-9_-]{16,}' "$HASIL/untuk-bob" >/dev/null 2>&1; then
   berhenti "something that looks like a key is in the folder to send. Send nothing; tell Bob."; fi
 [ "$(cd "$HASIL/untuk-bob" && ls | LC_ALL=C sort | tr '\n' ' ')" = "ledger.json ringkasan.txt summary.json " ] \

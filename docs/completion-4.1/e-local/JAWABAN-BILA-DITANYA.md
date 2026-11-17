@@ -25,5 +25,8 @@ menebaknya.» It describes the key checker only by what it does.
 - that two providers are being compared;
 - any ranking, any expectation, or any interim result.
 
+**If one teacher asks and is told, tell the other two the same sentence before they score,** so that all three score
+under the same conditions (Sharon P-4).
+
 **If a teacher asks, tell Bob afterwards**, so that the question and the answer given are noted in the results (who
 asked is not recorded, only that it happened).

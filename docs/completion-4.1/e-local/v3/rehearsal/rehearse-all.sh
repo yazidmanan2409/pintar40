@@ -16,7 +16,7 @@ case_run() { # name, shell, mock behaviour, input, extra-setup
   ( while :; do ps -eo args; sleep 0.05; done ) > "$R/ps-samples.txt" 2>/dev/null & local PS=$!
   sleep 1
   printf "$input" | E_REHEARSE_ANTHROPIC_BASE=http://127.0.0.1:47111 E_REHEARSE_OPENAI_BASE=http://127.0.0.1:47112 \
-    $sh "$R/pintar-e-local-v3/jalankan-e.sh" "${FLAG:---rehearse}" > "$R/out.txt" 2>&1; local rc=$?
+    $sh "$R/pintar-e-local-v3/jalankan-e.sh" ${FLAG:---rehearse} > "$R/out.txt" 2>&1; local rc=$?
   [ -n "${AFTER:-}" ] && ( cd "$R/pintar-e-local-v3" && eval "$AFTER" ) > "$R/out-after.txt" 2>&1
   kill $PA $PO $PS 2>/dev/null; wait $PA $PO $PS 2>/dev/null
   local HD="$R/pintar-e-local-v3/${HDIR:-hasil}"
@@ -45,6 +45,11 @@ FLAG=--latihan HDIR=hasil-latihan case_run latihan          zsh ok 'sk-ant-latih
 FLAG=--latihan HDIR=hasil-latihan case_run latihan-realkey  zsh ok "${K}RUN\n"
 # after a practice run, the real procedure still starts in the same folder (here in rehearse mode) and writes to hasil
 FLAG=--latihan HDIR=hasil AFTER="printf '${K}RUN\\n' | E_REHEARSE_ANTHROPIC_BASE=http://127.0.0.1:47111 zsh jalankan-e.sh --rehearse" case_run latihan-then-real zsh ok 'sk-ant-latihan\nRUN\n'
+# Sharon P-2: the real procedure (no flag) refuses to start beside a practice run or with stray settings. Each case
+# stops before Step A, so no key prompt and no network is reached.
+FLAG=' ' case_run live-beside-mock zsh ok '\nRUN\n' 'node latihan-mock.mjs /dev/null & echo $! > ../../mock.pid; sleep 0.5'
+kill "$(cat "$S/mock.pid")" 2>/dev/null; sleep 0.5
+E_REHEARSE=1 FLAG=' ' case_run live-stray-vars zsh ok '\nRUN\n'
 # R2, without contacting a provider: run the script's own live-mode unset line, with stray rehearsal variables set.
 L="$(grep -E '^if \[ "\$MODE" = live \]; then unset E_REHEARSE' "$H/../jalankan-e.sh")"
 left="$(E_REHEARSE=1 E_REHEARSE_ANTHROPIC_BASE=x E_REHEARSE_OPENAI_BASE=y zsh -c "MODE=live; $L; env | grep -c '^E_REHEARSE' || true")"

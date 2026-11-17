@@ -326,3 +326,38 @@ Source: Anthropic's structured-outputs page (platform.claude.com, build-with-cla
   - the full rehearsal again: 14 paths, all as expected.
 - **The owner runs it before any key exists,** and sends `hasil-latihan/untuk-bob.zip`. Only after that is the paid run requested.
 - **Package:** v3, rebuilt on runner `f9e38d69`. SHA-256: `eb701b4afb1c69019e4087424081a79ac9c7143f030a089705c1d7c7ae5f11d0`. It replaces `79226145…` and `1404befb…`, which must not be used.
+
+## Sharon on v3 (`1ad0927e`): PASS on the mechanics, with P-1 to P-4
+
+- **Sharon checked the core of the run independently:**
+  - she ran the self-test herself: 204 passed;
+  - she recomputed the reservation: US$0.523730 for bab1, US$0.520808 for bab2, and US$3.133614 for all six calls, within US$4.87;
+  - enforcement is unchanged, and a cut stream keeps its full reservation.
+- **Structured output with streaming** is accepted on grade-A facts. The first paid call is the live proof.
+- **Rulings (b) and (c)** are accepted, with N4 still bounding retries.
+- **The Mac practice mode** answers her BSD-tools residual.
+- **P-1, preservation (met).**
+  - The partial text holds text blocks only, and is kept inside PRIVAT only.
+  - The outgoing step now also refuses any `incomplete` path in a folder to send. That is in addition to the allowlist of the three `untuk-bob` files.
+  - **Only Bob or the owner reads it,** for incident investigation, and never a judge or Sharon before every score is final.
+- **P-2, the real run beside a practice run (met).**
+  - Live mode now refuses to start while `latihan-mock.mjs` or a `--latihan` run is running, and while any rehearsal or practice setting is left.
+  - It checks this before Step A, so before any key prompt or network use.
+  - There are two new rehearsal cases: `live-beside-mock` stopped as required; `live-stray-vars` had its settings cleared and stopped at the empty key, before any network use.
+  - **The rehearsal now covers 16 paths, all as expected.**
+- **P-3, to state in the results.** Item ids carry a provider *code*. Within one session, that lets judges see which items share a source, though never which source. It is inherent in the frozen design (§4.4).
+- **P-4, to record in the results.**
+  - If the answer in `JAWABAN-BILA-DITANYA.md` is used with a teacher, the results record that it was.
+  - Bob decides whether all three teachers are then told the same. **My decision:** yes. If one teacher asks and is told, the other two are told the same sentence before they score, so that their conditions stay alike. The results record it either way.
+- **Blinding (d):**
+  - Option B is consistent with rulings 50 (5), 48 and 50 (6)(c);
+  - Option A needs the owner's explicit amendment, with a new tool that Sharon reviews.
+- **Package:** v3, SHA-256 `b29996e6e49552819cf83447325043da417c4be6023f406060d55578a0c3030c`. It supersedes every earlier v3 checksum.
+
+**Still open before any paid run:**
+1. the owner's choice of A or B;
+2. Daisy's review of the three guide edits;
+3. the owner's practice run on the Mac;
+4. the owner's authorisation.
+
+No call, no key and no spend before then.
