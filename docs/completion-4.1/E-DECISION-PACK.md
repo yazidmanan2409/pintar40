@@ -336,7 +336,14 @@ a number of approved questions for a fixed cost.
 
 **Still open:**
 - **The three judges' names** (recruitment).
-- **G2:** Anthropic's sub-processor list. It could not be read from this environment: `trust.anthropic.com` is outside the session's network, tried 17 Nov. **Yours to read in your browser,** as for G1: https://trust.anthropic.com/subprocessors
+- **G2:** Anthropic's sub-processor list. **This is a partial check, by the owner, 17 Nov.**
+  - The Trust Center's public overview lists Google Cloud, AWS, Microsoft Azure and Cloudflare among the sub-processors. It points to the Subprocessors tab for the complete list.
+  - That tab was not readable in the owner's session. It is also outside this session's network.
+  - **The full list goes into the paid-run request, for the owner's review,** at step 4 below.
+- **Limits, as the owner reads them (17 Nov):**
+  - The per-provider caps of US$5 already bound two providers at US$10 combined.
+  - The runner's US$12 total is a secondary safeguard.
+  - The offline worst case, with every retry, is US$1.53 for both providers (§3.2a).
 
 **No-cost preparation that follows from Sharon's review** (offline, on `claude/e-runner-prep`; no call, key or spend):
 - a **self-tested scoring script,** run by the operator: the resolutions, the critical count, Q1 and Q2, with their edge
