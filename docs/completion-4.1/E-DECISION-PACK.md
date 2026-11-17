@@ -344,6 +344,10 @@ a number of approved questions for a fixed cost.
   - The per-provider caps of US$5 already bound two providers at US$10 combined.
   - The runner's US$12 total is a secondary safeguard.
   - The offline worst case, with every retry, is US$1.53 for both providers (§3.2a).
+- **Caps for the paid-run request (Sharon, `f3dcd341`; Bob's recommendation):**
+  - runner `--cap-provider 5 --cap-total 10`. A total of 12 can never bind, because two providers at 5 make 10. At 10, both gates are real;
+  - **provider-side hard limits of US$5 each, set in both consoles before the run,** as the backstop against a leaked key or a runner fault;
+  - each console's limit is read back, and the read-back recorded in the evidence.
 
 **No-cost preparation that follows from Sharon's review** (offline, on `claude/e-runner-prep`; no call, key or spend):
 - a **self-tested scoring script,** run by the operator: the resolutions, the critical count, Q1 and Q2, with their edge
