@@ -46,6 +46,24 @@ E's three owner decisions (providers, scoring rules, judges) stay visible in sta
 
 **Principles:** no silent scope expansion; no bypassed security or deployment gates; no false completion claims.
 
+## C2w FROZEN at `a9d303b20294cf9fee9279944f66a3be6f1300fc` (17 Nov 2026, about 07:00 UTC)
+
+- **The gates for the freeze are met.**
+  - Second Eye ran the one full pre-flight on `a9d303b2` and it is green: suite 1232 passed and 0 failed, plants 175/175, red cases 11/11, and lint, typecheck and build identity clean.
+  - Sharon's review is a PASS on this head (`C2W-R2-c9d9ae4e.md`, 04:30 addendum).
+- **[PR #25](https://github.com/yazidmanan2409/pintar40/pull/25) is open for CI only.** The journeys (audit-journeys, both jobs) are dispatched with `inputs.ref` set to `a9d303b2`.
+- **Still open, before the owner is asked for the before-read:**
+  - CI on PR #25 is green.
+  - The journeys are green.
+  - Daisy captures the Kanonik list at 390, showing one grant (TERIMA, 16 Nov 15:52).
+  - The preservation query is checked.
+- **The preservation query is `batches/c2w-evidence/preservation-C2w.sql` on this branch.** It keeps A2b's method and restates the pair as 282 → 283. It is kept off `claude/c2w` so that the frozen head does not move.
+  - reason_code is now preserved.
+  - Line 64 is now state.
+  - Lines 65 to 67 are new and read `release_distributions`.
+  - Second Eye dry-runs it locally at 282 and at 283; Sharon checks it.
+- **No staging read and no merge until the owner authorises each one.**
+
 ## A2b ACCEPTED on staging (17 Nov 2026, about 02:15 UTC)
 
 - **The owner's authorisations:**
