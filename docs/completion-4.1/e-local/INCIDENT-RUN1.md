@@ -325,4 +325,4 @@ Source: Anthropic's structured-outputs page (platform.claude.com, build-with-cla
   - a practice run followed by the real procedure in the same folder, which completed;
   - the full rehearsal again: 14 paths, all as expected.
 - **The owner runs it before any key exists,** and sends `hasil-latihan/untuk-bob.zip`. Only after that is the paid run requested.
-- **Package:** v3, rebuilt on runner `f9e38d69`. SHA-256: `1404befb4da8df59315854c10a123a7f4f6e4e93ff009d5d28285bc9daed66ba`. It replaces `79226145…`, which must not be used.
+- **Package:** v3, rebuilt on runner `f9e38d69`. SHA-256: `eb701b4afb1c69019e4087424081a79ac9c7143f030a089705c1d7c7ae5f11d0`. It replaces `79226145…` and `1404befb…`, which must not be used.
