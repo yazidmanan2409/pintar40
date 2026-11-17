@@ -127,3 +127,33 @@ It does **not** give the token counts or `finish`. Those are in `runs/ledger.jso
   - `1ebd840d` is the fix: the input bound is bytes × 1.2 + 10,000, and an overrun keeps the response before aborting.
     The self-test passes in full. The cap tests were recalibrated to the larger reservations; their intent is unchanged.
   - `DEFAULT_MAX_OUTPUT` stays 12,000 until the owner decides. The v2 package will pass `--max-output`.
+
+## Sharon on runner v2 (`435eb425`): step 1 accepted; T-1 required; T-2 for the owner
+
+- **T-1, required before any rerun: long requests.** Anthropic's errors page, read 17 Nov (grade A), says:
+  - "Avoid setting a large `max_tokens` value without using the streaming Messages API or Message Batches API".
+  - "Some networks might drop idle connections".
+  - A request that "reaches the server's time limit before the response starts" returns `timeout_error`.
+  - "Consider using the streaming Messages API or Message Batches API for long-running requests, especially those over
+    10 minutes".
+
+  Raising the client timeout to 25 minutes (`99a9ea15`) is **not enough by itself**. Nobody has yet established, grade A:
+  - whether a client disconnect is billed, for either provider;
+  - OpenAI's long-request behaviour.
+
+  A research session (`session_01FXjU1kQmRdGcQ1XZrzGxSK`, on the `pintar40` environment, which reaches both
+  providers' documentation) is collecting these facts. Documentation only; no call. It is also collecting:
+  - each provider's streaming event format, with final usage and the stop reason;
+  - the batch options;
+  - `gpt-6.1-sol`'s maximum output;
+  - the reasoning-effort controls;
+  - Anthropic's full sub-processor list (G2).
+- **Bob's likely fix: stream (SSE) for both providers,** each provider's own recommended route. The runner collects the
+  final message, usage and stop reason, so validation, costing and the ledger are unchanged.
+  - Rehearsal cases: a slow mock stream that succeeds; a mid-stream error; and an overrun that keeps the response.
+  - **The adapter changes need Sharon's review again.**
+- **T-2, the owner's choice: reasoning effort.** Keep each provider's default (Anthropic `high`; OpenAI's default, to be
+  confirmed), or set a lower effort, the same in intent for both. Whichever is chosen is recorded in the request and
+  frozen before the run. §4 is unaffected.
+- **Timing:** streaming adds the facts, the adapter work and Sharon's re-review. Thursday's judging is now **at risk**.
+  Friday 20 Nov is the realistic date if the facts arrive tonight.
