@@ -1,0 +1,20 @@
+happy: exit=0 runs_dir=yes key_text_in_outputs=none | == Done
+no-go: exit=1 runs_dir=no key_text_in_outputs=none | STOPPED: you did not type RUN.
+swapped: exit=1 runs_dir=no key_text_in_outputs=none | STOPPED: the first key does not look like an Anthropic key (it should start sk-ant-). Were they swapped?
+empty: exit=1 runs_dir=no key_text_in_outputs=none | STOPPED: a key was empty.
+key-denied: exit=1 runs_dir=no key_text_in_outputs=none | STOPPED: a key or model was not confirmed. Nothing was spent.
+tampered: exit=1 runs_dir=no key_text_in_outputs=none | STOPPED: the package does not match its checksums. Download it again.
+old-hasil: exit=1 runs_dir=no key_text_in_outputs=none | STOPPED: a folder 'hasil' already exists. Move it somewhere safe first; this script never overwrites results.
+--- happy path ringkasan:
+mode: rehearse
+run window (this command): 2026-11-17T11:28:34.933Z to 2026-11-17T11:28:35.614Z
+ledger first request: 2026-11-17T11:28:35.148Z
+ledger last settlement: 2026-11-17T11:28:35.576Z
+sealed map sha256: a69996b1ecdebd23eb69e810bf604570e802ec175f9e4751eded5afde605f213
+anthropic: 4 attempts, US$0.217116, {"invalid_output":1,"ok":2,"http_429":1}
+openai: 3 attempts, US$0.285058, {"transport_error":1,"ok":2}
+--- happy path: provider or model names in the Sharon and judge files:
+none
+--- happy path: what each mock received (auth shown is the rehearsal dummy):
+[{"url":"/v1/models/claude-sonnet-5-5","auth":"Bearer sk-ant-REHEARSALKEYAAA","ver":"2026-10-21"}][{"url":"/v1/models/gpt-6.1-sol","auth":"Bearer sk-proj-REHEARSALKEYOOO","ver":null}]
+--- happy path: the bash version used: 5.2.21(1)-release
