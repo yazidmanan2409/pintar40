@@ -74,3 +74,29 @@ It packages c3-eval at `68ebe2fd`, which includes the fail-closed change `ecfbbe
 - **R4:** the rehearsal still ran on bash 5.2.21. The Mac's `/bin/bash` is 3.2.
 
 **Verdict: not yet. PASS once R1, R2 and R4 are done** on a new commit with the rehearsal re-run. Only then is the procedure presented to the owner.
+
+## Addendum, 17 Nov 12:20 UTC: `134cbb4c4f361c022cf538247f1c1a11a91c40ce`. PASS.
+
+**What I read:** `jalankan-e.sh`, its key, trap, scan and unset lines, plus `rehearsal/REHEARSAL-RESULT.txt`.
+
+- **R1 is fixed.**
+  - No `env` binary remains. The key check runs in a subshell using prefix assignments, with `E_REHEARSE=1` exported only in rehearse mode (line 84).
+  - **A `ps -eo args` sampler ran through every case,** about 1,800 to 10,000 lines each, and found no key text.
+  - **Control-R1 proves the sampler would have caught one.**
+- **R2 is fixed:** live mode unsets all three `E_REHEARSE*` variables (line 23), and the rehearsal shows 0 left.
+- **R3 is fixed, the stronger way:** `grep -rqF -f <(printf …)` over all of `hasil/`, the run log included, before `clear_keys` (line 143). The keys never touch argv, and control-R3 finds a planted key.
+- **R4 is fixed:** the script is now `#!/bin/zsh`, run as `zsh jalankan-e.sh`.
+  - It is rehearsed under zsh 5.9, macOS's version, and the happy path also passes under bash 5.2.
+  - **Accepted.** zsh is the Mac's default shell and the version matches.
+- **R5:** the package sha256 `2244f07709e61e2d73ec6a3e73706b1f67925ab7ba125ab50a2fd9b417660591` goes to the owner in a separate message, and he checks it before extracting.
+- **R6:** a `trap clear_keys EXIT`.
+- **R7:** the clipboard is cleared with `pbcopy`.
+- **R8:** the sending order is untuk-bob, then untuk-sharon after the map sha is committed, then untuk-juri after my flags are committed.
+- **R9:** the residual risk is stated.
+- **The rehearsal:** 9 cases, the R2 check and two controls, all as expected.
+
+**One residual, accepted and to be stated:** the rehearsal ran on Linux tools, not macOS's BSD tools (`find`, `zip`, `shasum`, `grep`).
+- The pre-key steps, the checksums, the frozen set, the self-tests and the dry run, all run on the Mac and stop safely on any error, before any key and before any spend.
+- **If a post-run step fails on a BSD difference** (blinding, zipping or the scan), the paid run's outputs are already safe in `PRIVAT-…`, the keys are cleared by the trap, and nothing has been sent. Recovery is manual, with Bob, and it has no security impact. **INSTRUCTIONS.md should say exactly that,** in one line.
+
+**Verdict: PASS. The procedure may be presented to the owner.** No call, key or spend happens until he authorises it.
