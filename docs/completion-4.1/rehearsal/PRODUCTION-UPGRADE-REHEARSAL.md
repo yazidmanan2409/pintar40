@@ -212,3 +212,14 @@ the step checks that:
 - Production's volume; stage 2's ten largest tables size it.
 - Production's real shapes, until stage 2 is authorised.
 - A3, which is not in the target yet.
+
+
+## Stage 2 · read-only production counts: DONE (17 Nov 2026, owner-authorised)
+
+The result is in `stage2-production-counts-RESULT-2026-11-17.md`:
+- **Identity:** production is exactly at 111. The md5 of its version list equals the repository's, so there is no drift.
+- **Data:** it is essentially empty: 1 person, 1 email account, 3 tenants, and no items, courses, sittings or
+  certificates.
+- **Guards:** every one reads 0, so no 4.1 migration would refuse.
+- **REH-1 and REH-3:** neither has any production exposure.
+- **A copy of production data is not needed.**
