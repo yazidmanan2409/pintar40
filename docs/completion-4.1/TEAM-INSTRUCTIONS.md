@@ -46,6 +46,32 @@ E's three owner decisions (providers, scoring rules, judges) stay visible in sta
 
 **Principles:** no silent scope expansion; no bypassed security or deployment gates; no false completion claims.
 
+## A2b ACCEPTED on staging (17 Nov 2026, about 02:15 UTC)
+
+- **The owner's authorisations:**
+  - the "before" read (ruling 45);
+  - "A2b merge authorised", with the staging migration and the mandatory after-check.
+- **The "before" read** was taken read only on `pintar-staging` at 16 Nov 23:31:01 UTC, and read 267 / `20270119270000`.
+- **Merge:** [PR #24](https://github.com/yazidmanan2409/pintar40/pull/24) as `1b1cada8`, a merge commit whose tree is identical
+  to `ac25e9b1`.
+- **Staging:** `staging.yml` run 43999826059 succeeded; the migrations equal the repository; the sign-in round trip passed.
+- **The "after" read,** with the same cutoff and watermark:
+  - only line 10 moved, 267 → 282 / `20270120240000`;
+  - the versions digest equals `main`'s 282;
+  - every preserved line is identical.
+  - Evidence: `batches/a2b-evidence/preservation-A2b-staging-{BEFORE,AFTER}.txt`.
+- **Hosted:** pg_cron job 5 succeeded at 02:05 UTC after the promotion; job 6 is intact; A2b adds no job.
+- **Sharon:** promotion PASS; A2b accepted (`A2B-PROMOTION-1b1cada8.md`, `7ea8498f`).
+- **Rollback position,** as for A2a: no dedicated script. Recovery is a reviewed forward fix, or a staging backup restore
+  under the owner's authorisation.
+- **Carried to Z:**
+  - A2B-R3;
+  - the start trigger's `now()` branch;
+  - the L01 ranks (A3-R3);
+  - A2B-R1;
+  - Daisy's N-1 to N-5.
+- **Production is untouched** (migration 111).
+
 ## A2b REFROZEN at `ac25e9b14d51928f6991f8932b3bb572a262c096` (16 Nov 2026, about 22:00 UTC)
 
 The reopening for the start-path defect is closed. All evidence below is on this exact SHA:
