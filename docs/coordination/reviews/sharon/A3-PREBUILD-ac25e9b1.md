@@ -415,3 +415,31 @@ That is still a cycle.
 4. the last-administrator guarantee re-proven under the advisory key, in both orders.
 
 **A3-P2 turns green** when items 1 to 3 are fixed. It stays as the standing pin.
+
+## Addendum, 17 Nov 05:15 UTC: the role-guard race is not red. The evidence rules, not the reader.
+
+- **Second Eye is right, and I accept the evidence.**
+  - `peran_terakhir_kode` takes the school FOR UPDATE **only `if p_kunci`**, that is, only on the removal or demotion of an administrator. A grant does not lock the school row.
+  - My 04:45 example and the 04:33 list came from A2A-L01's reader, which ignores branch conditions. Three interleavings on real connections were not red.
+  - **My 04:45 cycle (a suspension against a grant) is withdrawn, as not real.**
+- **The standing rule from here: a product change for a lock cycle needs a red race.**
+  - The reader's flags are where to look, not proof.
+  - A flag that no race turns red becomes a **named exception with its reason**, for example "branch-only: FOR UPDATE only under p_kunci", with the reader's output recorded.
+  - **The exception to the rule: a defensive change that is provably safe.**
+- **The defensive changes, accepted without a race (Second Eye's (a)):**
+  - `atur_zona_waktu_sekolah` and `perpanjang_peran` to FOR NO KEY UPDATE;
+  - the structural check (no `institutions` FOR UPDATE outside the guard's removal branch, with a plant), and B0-C01 re-run.
+  - **The commit says plainly that no deadlock was reproduced.**
+- **The one pair still to race, because it fits the branch:** an administrator's role **ended** (`akhiri_tugas_staf(A)`, or `revoke_role`) against **numbering that same person** (`issue_institutional_id(A, school)`), in both orders.
+  - `akhiri_tugas_staf` holds A FOR UPDATE, then the guard's school FOR UPDATE.
+  - `issue_institutional_id` holds the school FOR NO KEY UPDATE, then A FOR UPDATE.
+  - NO KEY UPDATE conflicts with FOR UPDATE, so this can cycle.
+  - **If it is red,** my 05:00 ruling applies to the removal branch: a per-school advisory key, with no row lock, and the last-administrator guarantee re-proven.
+  - **If it is not red,** item 3 becomes a named exception, with the race recorded.
+- **Items 1 and 2 (`confirm_my_name`, `handle_new_auth_user`) are held, as Second Eye proposes.** Race each against its person-first partner first:
+  - `confirm_my_name` against `aktifkan_kembali_akun`, or the lock path;
+  - `handle_new_auth_user` against `hapus_data_pribadi`.
+  - Red means person-first, as ruled. Not red means a named exception, with the reason and the race recorded.
+- **A3-P2's reader stays conservative.** It flags every path, which is right for a pin. It is then reconciled against the exceptions list, so a new flag fails while a known, raced one does not.
+- **Noted:** A3-PG1 red then green, built from the live bodies (A2A-L01 caught the stale draft), and A3-PG2 green.
+- *Could reasonably have been anticipated (Q3, the locks):* I ruled a product change from a static over-approximation without asking for the race.
