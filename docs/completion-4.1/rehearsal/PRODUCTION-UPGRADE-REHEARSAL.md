@@ -30,9 +30,6 @@ refuses rather than guesses, is the case the rehearsal exists for.
 
 ## Stage 2: fidelity against production (needs the owner's separate authorisation)
 
-The query is written: `stage2-production-counts.sql` (counts only, read only, valid at 111; tested on the synthetic
-rows by every rehearsal run). It is not run against production until the owner authorises it.
-
 1. **A read-only fingerprint of production:** its migration list and catalogue fingerprint (the existing
    `checkpoint/evidence/rollback/catalogue-fingerprint.sql`), plus row counts per table. No content. This confirms
    production is exactly at 111 with no drift, and sizes the data.
@@ -46,8 +43,6 @@ rows by every rehearsal run). It is not run against production until the owner a
 |---|---|---|
 | 44001512901 (`157ebd5c`) | `1b1cada8` (main, 282) | Green; the comparison counted added rows as changes, so it was refined |
 | **44002777230** (`1f924a73`) | `1b1cada8` (main, 282) | **Green.** The classification is below |
-| 44007832144 (`9141abe2`) | `1b1cada8` (main, 282) | Failed at the fixture (an MCQ_MULTI answer); the fixture was fixed |
-| **44008372954** (`be0ae204`) | `1b1cada8` (main, 282) | **Green.** Fixture, Sharon's three blind spots, the QUICK guard probe, stage 2's query at 111. Below |
 
 ### Run 44002777230 (17 Nov 2026, 02:24 UTC)
 
@@ -84,131 +79,3 @@ migration. No learner, school or assessment record is altered. **No defect found
 - A3's lineage backfill is not in the target yet.
 
 Stage 2's read-only fingerprint would cover the first two. The rehearsal reruns when A3 lands.
-
-### Run 44008372954 (17 Nov 2026, 03:13 UTC): Sharon's review implemented
-
-The rerun implements Sharon's review, `REHEARSAL-STAGE1-0ee5e36c.md` (`b9630a72`). The workflow is at `be0ae204`, and
-the target is still `1b1cada8` (main, 282). **Green.** Run 44007832144 (`9141abe2`) failed first, at the fixture. The
-learning-cycle school's draw can present an MCQ_MULTI question, and the fixture's answer helper gave one position where
-`record_answer` takes an array. That was fixed in the fixture; no check was changed.
-
-**What was added**, all under `docs/completion-4.1/rehearsal/`:
-- `fixture-at-111.sql`: synthetic shapes at 111, written through 111's own functions wherever 111 has one
-  (`launch_quick_assessment`, `start_learning_session`, `certificate_prepare` and `certificate_seal`, `pause_session`,
-  `session_enforce_deadline`, `withdraw_release`). Ten "Murid Fiktif" learners, all on `example.invalid`.
-- `stage2-production-counts.sql`: stage 2's query, counts only and read only. It is described below.
-- `capture-at-111.sql`, `holder-read.sql`, `checks-after-upgrade.sql`, `quick-guard-probe.sh` and `rehearse.sh`:
-  the BEFORE capture, the checks after the upgrade, and the guard probe.
-
-**The result:**
-- **The upgrade:** 171 migrations, applied in 5 s over the fixture. None failed.
-- **The applied versions** equal `main`'s 282.
-- **The db contract** (fable01) passes.
-- **The comparison:** 118 tables were compared over their columns at 111. 101 are identical and 17 differ: the 16 of
-  run 44002777230, unchanged, plus `auth.users`. In `auth.users`, one row of 111 was altered: the fixture's locked
-  account, by L-1's rewrite (`20270116130000`, intended). The fixture's suspended account was left alone, as the rule says.
-
-**Blind spot 1, backfills: closed.**
-- 53 columns are added to tables of 111. Each is reported with its null and distinct counts over the rows of 111, matched
-  by primary key (all 118 tables have one). The adding migration is named in the run summary.
-- Each data-rewriting migration's own rule is asserted, and every assertion holds:
-
-| Migration | The rule asserted | Rows of 111 |
-|---|---|---|
-| `20261021100000` | Every person has a `pintar_id`: not null, distinct, Crockford Base32 | 35 |
-| `20261102100000` | `pass_mark` = the definition's `mastery_min`, with source BEFORE_SCHOOL_MARKS, unless PRE_TEST; otherwise none. Checked on assignments and sittings, and the fixture's PRE_TEST case stays empty | 6 and 8 |
-| `20261118100000` | `learning_context` is ACADEMIC below the Jenjang and empty on the school and the Jenjang; `member_kind` follows it | 33 |
-| `20270112195000` | `zona_waktu` = Asia/Jakarta | 6 |
-| `20270115100000` | `revision` = 1, and the item was never edited | 44 |
-| `20270115100000` | A release withdrawn before the upgrade carries its first RELEASE_WITHDRAWN audit row (the fixture's withdrawn release) | 4 |
-| `20270116130000` | A ban of infinity becomes 2999-12-31 23:59:59 UTC; every other ban is unchanged; no infinity is left | 2 bans |
-| `20261011100000` | The rows of 111 are not standard templates, and each of the 5 schools holds both standard reports | — |
-| `20270114100000`, `20270119*` | No sitting of 111 carries a closure, a hold or an emergency mark | 8 |
-| `20261201100000` | `*_as_issued` is empty on the certificates of 111 (there is no backfill), and the readers fall back | 1 |
-
-**Blind spot 2, new tables: closed.**
-- Six new tables hold rows after the upgrade.
-- Two are filled from 111's rows by an `INSERT … SELECT`, and both rules hold:
-  - `account_setup` (`20261021100000`): one REQUIRED row for each EMAIL account of 111 that is not an evaluation
-    persona. That is 27 rows for 27 accounts.
-  - `result_views` (`20261227100000`): one row for each POST_TEST sitting FINALIZED at 111, with `first_seen_at` equal to
-    `finalized_at`. That is 1 row for 1 sitting.
-- The other four are configuration:
-  - `orang_lampiran`, 113 rows, from the catalogue and a values list;
-  - `exposed_content_marks`, 260 rows;
-  - `email_send_limits`, 3 rows;
-  - `accountability_store`, 1 row.
-
-**Blind spot 3, extra state: closed.**
-- `cron.job` is absent at 111, because pg_cron is not installed there. After the upgrade it holds 2 jobs, both
-  intended: `pintar-pengerjaan-tutup-terjadwal` (`*/5`, A1's closer) and `pintar-akuntabilitas-buang-lama` (daily).
-- `storage.buckets` (1) and `storage.objects`' metadata (1 synthetic row) are unchanged.
-- The jobs are held while the AFTER reads are taken, then made active again. No job ran before the hold.
-
-**Sharon's question, the QUICK certificate (`20261113100000`): an issued certificate stays valid and reads as it did.**
-- The fixture seals a certificate from a QUICK sitting at 111. It is ISSUED, with a placeholder signature.
-- After the upgrade:
-  - its row is unchanged over 111's columns;
-  - its verification material (payload, signature, key version) is byte-identical;
-  - `verify_certificate` still returns it as BERLAKU, with the same pass, predikat and school;
-  - its holder's `my_certificate` returns every field 111 returned.
-- The read paths: `verify_certificate` (the public check, behind `/api/verifikasi/[token]`),
-  `certificate_verification_material` (what the endpoint recomputes the signature over) and `my_certificate`. None of
-  them reads `mode_policy`. Only `certificate_eligibility` does, and it gates new certificates only.
-- **The change is prospective.** A QUICK sitting that finished at 111 without a certificate was eligible at 111. It is
-  no longer eligible: "mode QUICK does not certify".
-- **The guard:** `20261113100000` refuses an ELIGIBLE, unsigned QUICK certificate. The main run never creates one. The
-  probe does, inside one transaction that is never committed: it prepares the certificate, then applies 112 up to the
-  guard. The guard raises its BOB-50 refusal naming exactly 1 certificate. Afterwards the fingerprint is the same and
-  the database still holds 111 migrations.
-
-**Stage 2's query** (`stage2-production-counts.sql`) **runs at 111 on the synthetic rows.** It returns 84 measures, and
-the step checks that:
-- the transaction is read only, and ends in a rollback;
-- the output holds no email, no fixture name and no uuid;
-- every guard measure is 0.
-
-**Findings for Bob and Sharon** (reported here; no product migration was changed):
-1. **A sitting that 111 had already EXPIRED, but never scored, stays unscored after the upgrade.** This is a probable
-   defect.
-   - `20270114100000` adds `closure_kind` with no backfill.
-   - A1's closer (`pengerjaan_tutup_calon`) and the lazy check (`pengerjaan_putus_tenggat`) finalise an EXPIRED
-     sitting only when `closure_kind` is DEADLINE or WINDOW_CLOSED.
-   - The fixture's EXPIRED sitting with no result was not a candidate, and remained EXPIRED with no result after the
-     closer's pass. The workflow reports it as a warning.
-   - By contrast, the sitting that was past its deadline but still IN_PROGRESS was closed and scored as intended
-     (IN_PROGRESS → FINALIZED).
-   - Stage 2's "EXPIRED, not finalised (no result)" measure says how many production holds.
-2. **Every existing EMAIL account, staff and learners, starts REQUIRED in `account_setup`** (`20261021100000`, "existing
-   staff, C10"). It is intended by the migration's comment, but every production account holder will meet the setup
-   step on their next sign-in. That should be a release note.
-3. **The verification date of an existing certificate can move by one day.** `verify_certificate` now writes the
-   issue day on the school's own clock (`20270113160000`, D-199; Asia/Jakarta by default). For a certificate issued
-   between 17:00 and 24:00 UTC, the public date is the next day compared with what 111 showed. No row moves. Stage 2
-   counts such certificates. The fixture's certificate was issued at 03:13 UTC, so its date did not move.
-4. **On production, two migrations take a different path.** `20261006100000` and `20261007100000` take their
-   "structural check only" path when `platform_environment` is `production`. The rehearsal's database is
-   `development`, so it runs their behavioural probes instead. Stage 2 reports the flag.
-5. **Four migrations refuse to apply over a data shape.** The synthetic data never meets one, by construction.
-   Stage 2 counts each:
-   - `20261202100000`: an option that names another school's misconception;
-   - `20270112160000`: two live enrolments of one person in the same school, year and programme (a new unique index);
-   - `20270113110000`: two sealed replacements of one certificate;
-   - `20270112210000`: two `promotion.applied` audit rows that share a run id.
-
-**The fixture's coverage of the data-rewriting migrations, 112 to 282:**
-- **They act on fixture or seed rows:** `20261011100000`, `20261021100000`, `20261102100000`, `20261110100000`
-  (its flip-and-restore self-test), `20261113100000`, `20261118100000`, `20261211100000`, `20261227100000`,
-  `20270112195000`, `20270115100000`, `20270116130000`, and the registry, catalogue and scoring rewrites.
-- **They cannot act on any 111 database:**
-  - `20270117170000` (`person_suspensions`) and `20270119120000` (`maintenance_windows`) update tables created after
-    111, so those tables are empty at the upgrade, in production too.
-  - `20270112200000`, `20270117140000`, `20270118120000`, `20270119180000` and `20270120200000` write data only
-    inside the function bodies they install.
-- **A3's lineage shapes are in place for its backfill.** The fixture holds two definitions sharing (institution, title,
-  mode), a course chain of depth 2, and a module with no predecessor.
-
-**Still not covered:**
-- Production's volume; stage 2's ten largest tables size it.
-- Production's real shapes, until stage 2 is authorised.
-- A3, which is not in the target yet.

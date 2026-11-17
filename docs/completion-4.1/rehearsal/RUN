@@ -1,3 +1,2 @@
 target=1b1cada8ba7b93b28eaaeb8c854f5a5252927cde
-# Changing this file (or the workflow, or the rehearsal's .sql and .sh files) on claude/bob-41-master-plan runs the rehearsal.
-# 17 Nov 2026: rerun with the synthetic fixture at 111, Sharon's three blind spots, the QUICK guard probe and stage 2's query.
+# Changing this file (or the workflow) on claude/bob-41-master-plan runs the rehearsal.
