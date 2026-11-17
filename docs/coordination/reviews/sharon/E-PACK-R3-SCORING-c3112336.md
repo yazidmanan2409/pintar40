@@ -146,3 +146,12 @@ No calls are made, nothing is spent, and no material leaves PINTAR.
 - `slot` runs on the owner's Mac from the map, so the provider block stays sealed.
 - **The "PROPOSED" wording in `score.mjs`'s output** is corrected in the results document, not in frozen code. **The results document must cite ruling 48 and `ecb0d3c4`** as the approval.
 - **`PANDUAN-JURI.md`'s Indonesian is Daisy's.** I check only that it states nothing beyond rubric §5 and pack §4. I will read it when she has passed it.
+
+## Addendum, 13:25 UTC: J3-H is applied (`526c848c`). PASS on `nilai-juri.mjs`.
+
+- **`j3` requires** `--flags-sha256`, `--j1-sha256` and `--j2-sha256`.
+- **`json` requires** `--j1-sha256`, `--j2-sha256` and `--j3-sha256`.
+- **Each refuses** on a missing or malformed hash, and on a mismatch (lines 28 to 31). That is the same pattern `score.mjs` uses for the flags.
+- **I re-ran the self-test myself,** from a scratch copy: **12 passed, 0 failed.** It includes the three new refusal cases.
+- **The order now holds by construction:** the flags, then the J1 and J2 hashes, then J3, then J3's hash, then `json`, then `score.mjs`, then the map.
+- **PASS.** I will read `PANDUAN-JURI.md` for its content after Daisy's pass.
