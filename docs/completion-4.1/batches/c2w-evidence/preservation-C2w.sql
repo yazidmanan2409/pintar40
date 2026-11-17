@@ -2,16 +2,23 @@
 -- preservation-A2b.sql, as merged in 1b1cada8) restated for C2w, with the same method, lines and rules. Read that
 -- file's header for the method. Only what differs is stated here.
 --
--- THE PAIR IS 282 -> 283. Staging holds 282 migrations today (A2b, promoted 17 Nov). C2w adds one,
--- 20270121100000 (a distribution's place for its controller). Line 10 is expected to read
--- "282 / 20270120240000" BEFORE the merge and "283 / 20270121100000" AFTER it. Nothing else under "preserved" may move.
+-- THE PAIR IS 282 -> 284. Staging holds 282 migrations today (A2b, promoted 17 Nov). C2w adds two:
+--   * 20270121100000, a distribution's place for its controller (A2B-R2);
+--   * 20270121110000, the reviewer notes (C2W-COMPLETION.md §7, be01b4f2; restated 17 Nov 07:50, pending the build).
+-- Line 10 is expected to read "282 / 20270120240000" BEFORE the merge and "284 / 20270121110000" AFTER it. Nothing else
+-- under "preserved" may move.
 --
 -- READ ONLY, run exactly as A2b's was: in a read-only transaction, BEFORE with the two `batas` values null, AFTER with
 -- the two printed values written in.
 --
--- WHAT C2w CHANGES: two functions (distribusi_tempat, distribusi_berlaku), their grants, and two new
--- client_rpc_registry rows. Those rows are created after the cutoff, so they fall outside every fingerprint. C2w adds no
--- column, alters no column, changes no column's type and changes no existing row.
+-- WHAT C2w CHANGES:
+--   * 20270121100000: two functions (distribusi_tempat, distribusi_berlaku), their grants, and two new
+--     client_rpc_registry rows.
+--   * 20270121110000 (by design; confirm against the built file): one new, append-only table of reviewer notes, with its
+--     functions, grants and registry rows.
+--   Every new row is created after the cutoff, so it falls outside every fingerprint. The new table holds no row at the
+--   BEFORE read. C2w adds no column to an existing table, alters no column, changes no column's type and changes no
+--   existing row. If the built migration does otherwise, this header and the exclusions are restated first.
 --
 -- WHAT DIFFERS FROM A2b's QUERY:
 --   * `baru` and `mw_keluar` are now empty. maintenance_windows.reason_code exists on both sides of this pair, so it is
@@ -32,7 +39,7 @@
 --       authority before it writes the row and its audit together, so a match proves the authorised path. Anything
 --       other than 0 is a material discrepancy.
 --
--- Not yet rehearsed. Before the BEFORE read, a local dry run at 282 -> 283 must show three things (Sharon):
+-- Not yet rehearsed. Before the BEFORE read, a local dry run at 282 -> 284 must show three things (Sharon):
 --   * only line 10 moves;
 --   * a planted withdrawal through the function shows in line 67, with line 68 at 0;
 --   * a planted direct update, with no audit row, makes line 68 read 1.
@@ -55,7 +62,7 @@ sidik(n, garis, nilai) as (
   select 1, 'cutoff (write into batas.saat after the merge)', (select saat::text from batas)
   union all select 2, 'audit_log watermark (write into batas.audit_id after the merge)', (select audit_id::text from batas)
 
-  -- ── state: expected to move from 282 to 283 by the promotion (line 10; the header)
+  -- ── state: expected to move from 282 to 284 by the promotion (line 10; the header)
   union all select 10, 'state · migrations',
     (select count(*) || ' / ' || max(version) || '; versions digest ' || md5(string_agg(version, ',' order by version))
        from supabase_migrations.schema_migrations)
