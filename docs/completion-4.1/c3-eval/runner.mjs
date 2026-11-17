@@ -1126,7 +1126,9 @@ async function streamChecks(check) {
   const inc = throwsIncomplete(() => assemble(DOC_STREAM.slice(0, 9)));
   check(inc && classify(inc).status === 'stream_incomplete' && classify(inc).retry === true && classify(inc).noResponse === true, 'S-1 a cut stream is stream_incomplete: retried, counted towards the no-usable-response stop');
   check(inc && inc.evidence.text_chars > 0 && /^[0-9a-f]{64}$/.test(inc.evidence.text_sha256) && !JSON.stringify(inc.evidence).includes(THINK_CANARY) && !('text' in inc.evidence),
-    'S-1/S-2 a cut stream keeps evidence (event counts, bytes, the length and SHA-256 of the partial text), never the partial text or any thinking');
+    'S-1/S-2 a cut stream\'s ledger evidence holds event counts, bytes, and the length and SHA-256 of the partial text, never the text or any thinking');
+  check(inc && inc.partial === '{"items":[{"stem":"Pola ½ — ' && sha(inc.partial) === inc.evidence.text_sha256 && !inc.partial.includes(THINK_CANARY),
+    'owner: a cut stream carries its partial answer text (text blocks only, no thinking) for the runner to preserve, matching its SHA-256');
 
   // the transport: streamCall with local functions in fetch's place
   const A = ADAPTERS.anthropic; const table = loadPrices();
@@ -1299,7 +1301,23 @@ async function selfTest() {
   check(hA.slice(0, 2).every((e) => e.cost_usd === e.reserved_usd && e.cost_basis === 'reservation' && e.actual_output_tokens === null && e.stream?.events > 0 && /^[0-9a-f]{64}$/.test(e.stream?.text_sha256 ?? '')),
     '(h) S-1: the cut and the errored stream each keep their full reservation as cost, with stream evidence in the ledger');
   check(!existsSync(join(h1.outDir, 'anthropic', 'attempts', 'bab1.a1.json')) && !existsSync(join(h1.outDir, 'anthropic', 'attempts', 'bab1.a2.json')) && existsSync(join(h1.outDir, 'anthropic', 'attempts', 'bab1.a3.json')),
-    '(h) S-1: partial text is never written, validated or judged; only the completed attempt has a file');
+    '(h) S-1: partial text is never an attempt file, never validated or judged; only the completed attempt has one');
+  // owner, 17 Nov: incomplete paid responses are preserved securely for incident investigation, never scored
+  const inc1 = join(h1.outDir, 'anthropic', 'incomplete');
+  const incFiles = existsSync(inc1) ? readdirSync(inc1).sort() : [];
+  check(eq(incFiles, ['bab1.a1.partial.txt', 'bab1.a2.partial.txt']) && hA.slice(0, 2).every((e, i) => e.partial_file === `anthropic/incomplete/bab1.a${i + 1}.partial.txt`
+      && sha(readFileSync(join(h1.outDir, e.partial_file), 'utf8')) === e.stream.text_sha256 && e.stream.text_chars === readFileSync(join(h1.outDir, e.partial_file), 'utf8').length && e.stream.text_chars > 0),
+    '(h) owner: the cut and the errored stream each keep their partial answer text in <provider>/incomplete/ (PRIVAT), matching the SHA-256 and length in the ledger');
+  check(noThinkingIn(inc1) && hA.slice(2).every((e) => !e.partial_file), '(h) S-2: the preserved partial text holds no thinking; a completed attempt has no partial file');
+  { const bl3 = mkdtempSync(join(tmpdir(), 'c3-runner-blind-h-')); tmp.push(bl3);
+    execFileSync(process.execPath, [KIT, 'blind', h1.outDir, bl3], { encoding: 'utf8' });
+    const sealed = JSON.parse(readFileSync(join(bl3, 'SEALED', 'map.json'), 'utf8'));
+    const anth = Object.values(sealed.providers).find((v) => v.folder === 'anthropic');
+    const partials = incFiles.map((f) => readFileSync(join(inc1, f), 'utf8'));
+    const shown = filesUnder(bl3).filter((f) => !f.includes('SEALED')).map((f) => readFileSync(f, 'utf8')).join('\n');
+    check(Object.keys(sealed.items).length === 60 && anth.bab1.response_sha256 === sha(readFileSync(join(h1.outDir, 'anthropic', 'attempts', 'bab1.a3.json')))
+      && partials.every((t) => !shown.includes(t.slice(0, 200))),
+      '(h) the frozen kit.mjs blind reads only the judged files: 60 items, bab1 is the completed attempt 3, and no preserved partial text reaches what the judges or the key checker see'); }
   check(hA.slice(2).every((e) => e.cost_basis === 'usage' && toMicro(e.cost_usd) <= toMicro(e.reserved_usd) && e.finish?.stop_reason === 'end_turn' && e.stream?.thinking_blocks === 1), '(h) the completed streams are costed from their final usage, within the reservation, with the stop reason recorded');
   check([a, h1].every((r) => noThinkingIn(r.outDir)), '(h) S-2: no thinking text in any file the run wrote (attempts, judged files, provenance, ledger, summary, usage)');
   const h2 = await scen('h2-stream-overrun', { 'anthropic:bab1:1': 'overrun' }, {});
