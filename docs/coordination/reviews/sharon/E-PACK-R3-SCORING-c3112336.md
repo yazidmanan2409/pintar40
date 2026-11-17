@@ -77,3 +77,32 @@ No calls are made, nothing is spent, and no material leaves PINTAR.
   - a malformed item is voided on its own and never shown.
 - **One process note, not code:** `--flags-sha256` is typed by the operator. The report should show that it equals the hash committed **before** the judges' sheets were exchanged, with both commit times, so the check proves order and not only integrity.
 - **The freeze is confirmed on this head** for E's offline preparation. No call, key or spend is authorised.
+
+## Addendum, 17 Nov 2026 08:40 UTC: ruling 48. §4 is frozen.
+
+**THE FROZEN PACK: `ecb0d3c48b3a1ec0623253f3a32097ea5c7b38f4`** (`docs/completion-4.1/E-DECISION-PACK.md`, revision 4, on `claude/bob-41-master-plan`).
+- **This is the SHA the runner's `--pack-sha` must carry** for every paid call.
+- A run carrying any other SHA is outside the frozen rules.
+
+**What I checked, from the diff `c3112336..ecb0d3c4`, and §4 at `ecb0d3c4` (lines 149 to 261):**
+- **§4.2 is exactly the owner's amendment of 16 Nov, plus my five conditions:**
+  1. flags blind and committed before any score is seen;
+  2. a reason with every flag, and a rejected flag stays rejected;
+  3. counts per provider after unblinding;
+  4. the audit's limit stated;
+  5. order, not only integrity.
+- **§4.3a** is approved as proposed: Q1 at least 24 of 30, and Q2 each criterion at least 1.0. It states the freeze before the first paid call, Q1 and the critical rule reading one resolved table, and the lost-chapter edge case.
+- **§4.3b** matches `score.mjs` as I passed it (`68ebe2fd`).
+- **Nothing else in §4 changed in substance.**
+
+**Two wording points.** Neither changes a rule. **Do not edit §4 for them,** because any edit to §4 needs a new freeze and a new SHA.
+1. §4.2's disclosure still ends "(open, §6)". At the same commit, §6 records it as **decided**: Sharon is the key checker, with the owner's safeguards. Because the runner pins the whole commit, **§6 at `ecb0d3c4` governs.** Note it in §6 or in the ruling's record, not in §4.
+2. **The safeguard "the same process applies to both providers"** is in §6 and not in §4.2. It binds through the same commit, and I will apply it as written.
+
+**My role, as I will carry it out under ruling 48:**
+- **Blind:** I see only the blinded items, with no judge's score, and I am the same for both providers.
+- **Each flag gives a reason.** All flags are committed, and their SHA-256 recorded, before any score is revealed.
+- **My flags only route an item** to the third educator. **Every final correctness and acceptance decision is the educators'.**
+- **After unblinding,** the report lists my flags per provider, with the educators' decisions.
+
+**Still: no call, no key, no spend.** G2, Anthropic's sub-processor list, is read at the pre-run step.
