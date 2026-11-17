@@ -338,3 +338,14 @@ The test for each exception: **can a function that takes the person first (a sta
   - Every run-time `persons` lock at 111 is therefore a foreign key's KEY SHARE. KEY SHARE locks never conflict with each other, so no cycle can pass through `persons`.
 - **What a start at 111 does meet:** its sitting insert takes KEY SHARE on `institutions`, so it **waits** behind `issue_institutional_id`'s FOR UPDATE on the same school, until that commits. **It is a wait, not a deadlock,** because `issue_institutional_id` waits for nothing the start holds.
 - **Conclusion:** production at 111 is not exposed. The exposure starts with A2a's person lock and A1's `persons` FOR UPDATE takers. Bob's "staging" record is right.
+
+## Addendum, 17 Nov 02:30 UTC: Second Eye's plan for my 02:00 rulings
+
+- **The plan is accepted:**
+  - `issue_institutional_id` moves to FOR NO KEY UPDATE, since it only reads `namespace`, and the race under its own new name;
+  - the sweep of every "institutions FOR UPDATE, then persons", `import_advance` included;
+  - pin 2 with the two named exceptions and their check;
+  - the five places where grants change to span the lineage, with A3-PG1.
+- **`attempt_requests_one_pending` stays per (person, assignment). Accepted.**
+  - The lineage-root advisory lock is the serialiser.
+  - **One condition:** a check that `minta_percobaan` is the only writer of `attempt_requests`, through grants and the function catalogue, so the narrower index never has to stand alone.

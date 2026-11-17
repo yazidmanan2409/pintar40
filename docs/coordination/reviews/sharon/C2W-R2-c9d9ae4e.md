@@ -56,3 +56,24 @@ Sharon, 16 Nov 2026 (16:00 UTC). Read-only.
 
 - **`74732b61` is my recommendation, taken:** `on conflict (function_name) do nothing`. It is the one change from the text I reviewed.
 - **Condition:** when the branch is pushed, I diff `c9d9ae4e` against the text, and `74732b61` must contain only that clause and its comment.
+
+## Addendum, 17 Nov 02:30 UTC: the diff after the push, and C2w's entry evidence (F-3, F-4)
+
+**`claude/c2w` is at `74732b6139acfbbb26d653ca813aea0b1a949159`,** on top of `3c58620e`.
+
+- **`c9d9ae4e` matches the text I reviewed.**
+  - **The migration:** both functions use withdraw's rule; they are STABLE and SECURITY DEFINER, executable by authenticated only, with the PLATFORM registry rows and the verification block.
+  - **The app:** `tempatDistribusi` refuses on an error, or when no owner comes back, before `wajibDalamKonteks`. The direct reads of `release_distributions` are gone from the action and from the Kanonik page. `konteks-server.ts` loses its one line.
+- **`74732b61` is only the on-conflict clause and its comment** (`do update …` becomes `do nothing`), as I recommended.
+- **A2B-R2: PASS, unconditional.**
+
+**F-4 (`ac49795c`, test only), accepted.**
+- C2W-F4R races two saves of one draft, in both orders. The second save is refused PR180 DRAFT_EDIT_CONFLICT, and exactly one edit row is written.
+- **What it found:** two locks serialise a save, and either one alone is enough. With both removed, the second save fails on a unique key with no named error: the data holds, but by accident.
+- The plant removes both and is caught. **The redundancy is accepted.** Because one lock alone is enough, the test cannot see the loss of a single lock. That is a property, not a gap.
+
+**F-3 (`8cf25792`, test only), accepted.**
+- C2W-F3D shows that only Admin platform decides a review of a Professional Development certificate. The issuing school's admin, its head of department, and another school's admin are each refused PR190.
+- The decision is recorded and audited. It was green on its first run, and the plant (the PD branch given the school's rule) is caught.
+
+**C2w's entry evidence is complete from my side:** F-3, F-4 and A2B-R2.
