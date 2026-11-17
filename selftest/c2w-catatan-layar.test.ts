@@ -129,7 +129,7 @@ export const c2wCatatanLayarTests: SelfTest[] = [
         c.expect(/class="[^"]*pin-noprint[^"]*"[^>]*data-catatan-peninjau|data-catatan-peninjau[^>]*class="[^"]*pin-noprint/.test(h0), "the notes' disclosure prints (O-3)");
         // the form, in place
         const h1 = tersusun(await (await kadep.halaman(paket(`?pelajaran=1&catatan=${item}:B`))).text());
-        c.expect(teks(h1).includes("Catatan untuk pilihan B") && teks(h1).includes(id("studio.catatan.petunjuk")) && /name="isi"/.test(h1) && /maxlength="1000"/.test(h1),
+        c.expect(teks(h1).includes("Catatan untuk pilihan B") && teks(h1).includes(id("studio.catatan.petunjuk")) && /name="isi"/.test(h1) && /maxlength="1000"/i.test(h1),
           "the note's form for option B has not Daisy's label, hint, a text field and its 1000-character bound");
         // empty: refused in Daisy's words, the typed text kept, nothing saved
         const f0 = formDengan(h1, `data-catatan-form="${item}:B"`, { isi: "   " });
