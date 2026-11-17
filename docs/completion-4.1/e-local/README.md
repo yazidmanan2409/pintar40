@@ -87,3 +87,12 @@ Sharon's A1–A5 locally:
   one `c3-judge-sheets/1` file per provider code, which `score.mjs` then scores unchanged.
   - It needs the map's `slots` (code → item IDs), not its `providers` block (code → provider).
   - So **the owner extracts the slots only, on his Mac.** The provider mapping stays sealed until unblinding.
+- **`nilai-juri.mjs`** (17 Nov, about 13:20 UTC) does the four steps: `lembar` (the J1 and J2 sheets), `slot` (the map's
+  slots only, run on the Mac), `j3` (the routing, with both reasons and the flag note, A5) and `json` (to
+  `c3-judge-sheets/1`).
+  - Its self-test passes 9/0.
+  - It was run end to end on the rehearsal's real outputs: 60 items, codes A and B, through the **frozen `score.mjs`
+    unchanged**, and both scored. The slots file carries no provider or folder name.
+  - It reads `,` or `;` CSV, since Excel in an Indonesian locale writes `;`.
+- **A stale label in the frozen `score.mjs`:** its output still says Q1 and Q2 are "PROPOSED, awaiting owner approval".
+  They were approved by ruling 48. The results document states the approval. The frozen code is not edited.

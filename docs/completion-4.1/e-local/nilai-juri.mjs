@@ -1,0 +1,192 @@
+// PINTAR E · the judges' sheets: generate, route to J3, and convert for score.mjs. Dependency-free; no network.
+//
+//   node nilai-juri.mjs lembar <untuk-sharon/items.json> <out-dir>
+//        → lembar-nilai-J1.csv, lembar-nilai-J2.csv: one row per item ID, with the five criteria and alasan blank.
+//   node nilai-juri.mjs slot <SEALED/map.json> <slots.json>
+//        → the map's "slots" only (code → item IDs and status). It carries no provider name. The owner runs it on his Mac.
+//   node nilai-juri.mjs j3 <J1.csv> <J2.csv> <flags.json> <out-dir>
+//        → lembar-nilai-J3.csv: only the items J3 must decide, with what is asked, both judges' reasons, and the
+//          key-checker's flag reason as a reviewer's note (Sharon A5).
+//   node nilai-juri.mjs json <J1.csv> <J2.csv> <J3.csv> <slots.json> <out-dir>
+//        → sheets-<code>.json in score.mjs's format "c3-judge-sheets/1", one file per provider code.
+//   node nilai-juri.mjs --self-test
+//
+// It reads CSV with "," or ";" as the separator (Excel in an Indonesian locale writes ";"), quoted fields included.
+// Nothing in the frozen set (kit.mjs, score.mjs, report.mjs) is changed: this only prepares score.mjs's input.
+
+import { readFileSync, writeFileSync, mkdirSync, mkdtempSync, rmSync } from 'node:fs';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
+
+const COLS = ['item_id', 'juri', 'benar', 'keselarasan', 'pengecoh', 'bahasa', 'beban_tinjau', 'alasan'];
+const MAP02 = { keselarasan: 'alignment', pengecoh: 'distractors', bahasa: 'language', beban_tinjau: 'review_burden' };
+const C02 = Object.keys(MAP02);
+class Fatal extends Error {}
+
+// ── CSV ─────────────────────────────────────────────────────────────────────
+function parseCsv(text) {
+  text = text.replace(/^﻿/, '');
+  const first = text.split(/\r?\n/, 1)[0];
+  const sep = (first.match(/;/g) || []).length > (first.match(/,/g) || []).length ? ';' : ',';
+  const rows = []; let row = [], f = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) { if (c === '"') { if (text[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += c; continue; }
+    if (c === '"') q = true; else if (c === sep) { row.push(f); f = ''; }
+    else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(f); rows.push(row); row = []; f = ''; }
+    else f += c;
+  }
+  if (f !== '' || row.length) { row.push(f); rows.push(row); }
+  const head = rows.shift().map((h) => h.trim().toLowerCase());
+  for (const c of ['item_id', 'juri', 'benar', ...C02, 'alasan']) if (!head.includes(c)) throw new Fatal(`sheet: column "${c}" is missing`);
+  return rows.filter((r) => r.some((x) => x.trim() !== '')).map((r) => Object.fromEntries(head.map((h, i) => [h, (r[i] ?? '').trim()])));
+}
+const cell = (s) => /[",;\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+const toCsv = (cols, rows) => [cols.join(','), ...rows.map((r) => cols.map((c) => cell(String(r[c] ?? ''))).join(','))].join('\n') + '\n';
+
+function readSheet(path, judge) {
+  const rows = parseCsv(readFileSync(path, 'utf8')); const by = new Map();
+  for (const r of rows) {
+    if (r.juri && r.juri.toUpperCase() !== judge) throw new Fatal(`${path}: row ${r.item_id} is for ${r.juri}, not ${judge}`);
+    if (by.has(r.item_id)) throw new Fatal(`${path}: ${r.item_id} appears twice`);
+    by.set(r.item_id, r);
+  }
+  return by;
+}
+function num(v, allowed, where) {
+  if (v === '') return null;
+  const n = Number(v.replace(',', '.'));
+  if (!allowed.includes(n)) throw new Fatal(`${where}: "${v}" is not one of ${allowed.join('/')}`);
+  return n;
+}
+
+// ── lembar: J1 and J2 sheets ────────────────────────────────────────────────
+function lembar(itemsPath, out) {
+  const raw = JSON.parse(readFileSync(itemsPath, 'utf8')); const items = Array.isArray(raw) ? raw : raw.items;
+  const ids = items.map((x) => x.item_id); if (new Set(ids).size !== ids.length) throw new Fatal('items: duplicate item IDs');
+  mkdirSync(out, { recursive: true });
+  for (const j of ['J1', 'J2']) writeFileSync(join(out, `lembar-nilai-${j}.csv`), toCsv(COLS, ids.map((id) => ({ item_id: id, juri: j }))));
+  return ids.length;
+}
+
+// ── slot: the map's slots only ──────────────────────────────────────────────
+function slot(mapPath, outPath) {
+  const m = JSON.parse(readFileSync(mapPath, 'utf8'));
+  if (!m.slots || typeof m.slots !== 'object') throw new Fatal('map: no slots');
+  const slots = {};
+  for (const [code, list] of Object.entries(m.slots)) {
+    if (!/^[A-Z]$/.test(code)) throw new Fatal(`map: unexpected code ${code}`);
+    slots[code] = list.map((s) => ({ item_id: s.item_id, chapter: s.chapter, status: s.status }));
+  }
+  writeFileSync(outPath, JSON.stringify({ format: 'c3-slots/1', slots }, null, 2) + '\n');
+  return Object.keys(slots);
+}
+
+// ── j3: what the third educator must decide ─────────────────────────────────
+function j3Needs(r1, r2, flagged) {
+  const need = [];
+  const b1 = num(r1.benar, [0, 1], `J1 ${r1.item_id} benar`), b2 = num(r2.benar, [0, 1], `J2 ${r2.item_id} benar`);
+  if (b1 === null || b2 === null) throw new Fatal(`${r1.item_id}: benar is blank for J1 or J2`);
+  if (b1 !== b2 || flagged) need.push('benar');
+  for (const c of C02) {
+    const a = num(r1[c], [0, 1, 2], `J1 ${r1.item_id} ${c}`), b = num(r2[c], [0, 1, 2], `J2 ${r2.item_id} ${c}`);
+    if (a === null || b === null) throw new Fatal(`${r1.item_id}: ${c} is blank for J1 or J2`);
+    if (Math.abs(a - b) === 2) need.push(c);
+  }
+  return need;
+}
+function j3(j1p, j2p, flagsPath, out) {
+  const s1 = readSheet(j1p, 'J1'), s2 = readSheet(j2p, 'J2');
+  const flags = JSON.parse(readFileSync(flagsPath, 'utf8'));
+  if (flags.format !== 'c3-key-flags/1') throw new Fatal('flags: not c3-key-flags/1');
+  const fl = new Map(flags.flags.map((f) => [f.item_id, f.reason]));
+  if ([...s1.keys()].sort().join() !== [...s2.keys()].sort().join()) throw new Fatal('J1 and J2 do not cover the same items');
+  const rows = [];
+  for (const [id, r1] of s1) {
+    const need = j3Needs(r1, s2.get(id), fl.has(id));
+    if (need.length) rows.push({ item_id: id, juri: 'J3', perlu_dinilai: need.join(' '), alasan_J1: r1.alasan,
+      alasan_J2: s2.get(id).alasan, catatan_pemeriksa_kunci: fl.get(id) ?? '' });
+  }
+  mkdirSync(out, { recursive: true });
+  const cols = ['item_id', 'juri', 'perlu_dinilai', ...COLS.slice(2), 'alasan_J1', 'alasan_J2', 'catatan_pemeriksa_kunci'];
+  writeFileSync(join(out, 'lembar-nilai-J3.csv'), toCsv(cols, rows));
+  return rows.length;
+}
+
+// ── json: score.mjs's input, per provider code ──────────────────────────────
+function score(row, judge, only) {
+  const o = { item_id: row.item_id, judge, reason: row.alasan ?? '' };
+  const b = num(row.benar ?? '', [0, 1], `${judge} ${row.item_id} benar`); if (b !== null) o.correctness = b;
+  for (const c of C02) { const v = num(row[c] ?? '', [0, 1, 2], `${judge} ${row.item_id} ${c}`); if (v !== null) o[MAP02[c]] = v; }
+  if (!only) for (const k of ['correctness', ...Object.values(MAP02)]) if (!(k in o)) throw new Fatal(`${judge} ${row.item_id}: ${k} is blank`);
+  return o;
+}
+function json(j1p, j2p, j3p, slotsPath, out) {
+  const s1 = readSheet(j1p, 'J1'), s2 = readSheet(j2p, 'J2'), s3 = readSheet(j3p, 'J3');
+  const { format, slots } = JSON.parse(readFileSync(slotsPath, 'utf8'));
+  if (format !== 'c3-slots/1') throw new Fatal('slots: not c3-slots/1');
+  mkdirSync(out, { recursive: true }); const written = [];
+  const validIds = new Set(Object.values(slots).flat().filter((s) => s.status === 'valid').map((s) => s.item_id));
+  for (const id of s1.keys()) if (!validIds.has(id)) throw new Fatal(`J1 scored ${id}, which is not a valid slot`);
+  for (const [code, list] of Object.entries(slots)) {
+    const scores = [];
+    for (const s of list.filter((x) => x.status === 'valid')) {
+      if (!s1.has(s.item_id) || !s2.has(s.item_id)) throw new Fatal(`${s.item_id}: missing from J1 or J2`);
+      scores.push(score(s1.get(s.item_id), 'J1', false), score(s2.get(s.item_id), 'J2', false));
+      if (s3.has(s.item_id)) scores.push(score(s3.get(s.item_id), 'J3', true));
+    }
+    const sheet = { format: 'c3-judge-sheets/1', provider_code: code, items: list, scores };
+    const p = join(out, `sheets-${code}.json`); writeFileSync(p, JSON.stringify(sheet, null, 2) + '\n'); written.push(p);
+  }
+  return written;
+}
+
+// ── self-test ───────────────────────────────────────────────────────────────
+function selfTest() {
+  let pass = 0, fail = 0; const check = (c, m) => { if (c) { pass++; console.log('PASS  ' + m); } else { fail++; console.log('FAIL  ' + m); } };
+  const d = mkdtempSync(join(tmpdir(), 'nilai-juri-'));
+  try {
+    const ids = [...Array(15)].map((_, i) => `B1-${String(i + 1).padStart(3, '0')}`).concat([...Array(14)].map((_, i) => `B2-${String(i + 1).padStart(3, '0')}`));
+    writeFileSync(join(d, 'items.json'), JSON.stringify(ids.map((id) => ({ item_id: id, chapter: id[1] === '1' ? 1 : 2 }))));
+    check(lembar(join(d, 'items.json'), join(d, 's')) === 29, 'lembar: one row per item ID');
+    const t = parseCsv(readFileSync(join(d, 's', 'lembar-nilai-J1.csv'), 'utf8'));
+    check(t.length === 29 && t.every((r) => r.juri === 'J1' && r.benar === ''), 'lembar: J1 sheet blank, judge filled');
+    const slotsMap = { warning: 'SEALED', providers: { A: { folder: 'x' } }, items: {}, slots: { A: [
+      ...ids.slice(0, 15).map((id) => ({ item_id: id, chapter: 1, status: 'valid' })),
+      ...ids.slice(15).map((id) => ({ item_id: id, chapter: 2, status: 'valid' })),
+      { item_id: 'A-B2-missing-15', chapter: 2, status: 'missing' }] } };
+    writeFileSync(join(d, 'map.json'), JSON.stringify(slotsMap));
+    slot(join(d, 'map.json'), join(d, 'slots.json'));
+    const so = readFileSync(join(d, 'slots.json'), 'utf8');
+    check(!/folder|providers|warning/.test(so), 'slot: no provider block or folder name in slots.json');
+    // J1 all 2/1; J2 disagrees on benar for B1-002, is 2 apart on pengecoh for B1-003; ; separator and quoted reason
+    const fill = (j, f) => toCsv(COLS, ids.map((id) => f({ item_id: id, juri: j, benar: '1', keselarasan: '2', pengecoh: '2', bahasa: '2', beban_tinjau: '2', alasan: 'baik, jelas' })));
+    writeFileSync(join(d, 'J1.csv'), fill('J1', (r) => r));
+    writeFileSync(join(d, 'J2.csv'), fill('J2', (r) => (r.item_id === 'B1-002' ? { ...r, benar: '0', alasan: 'kunci "B" salah' } : r.item_id === 'B1-003' ? { ...r, pengecoh: '0' } : r)).replace(/,/g, ';'));
+    writeFileSync(join(d, 'flags.json'), JSON.stringify({ format: 'c3-key-flags/1', flags: [{ item_id: 'B2-004', reason: 'kunci seharusnya C' }] }));
+    check(j3(join(d, 'J1.csv'), join(d, 'J2.csv'), join(d, 'flags.json'), join(d, 'j3')) === 3, 'j3: three items routed (benar differs, pengecoh 2 apart, flagged)');
+    const j3rows = parseCsv(readFileSync(join(d, 'j3', 'lembar-nilai-J3.csv'), 'utf8'));
+    check(j3rows.find((r) => r.item_id === 'B1-003').perlu_dinilai === 'pengecoh' && j3rows.find((r) => r.item_id === 'B2-004').catatan_pemeriksa_kunci === 'kunci seharusnya C', 'j3: asks only what is needed; the flag reason reaches J3 as a note');
+    check(j3rows.find((r) => r.item_id === 'B1-002').alasan_j2 === 'kunci "B" salah', 'j3: quoted reasons survive the ";" sheet');
+    const j3f = toCsv(COLS, [{ item_id: 'B1-002', juri: 'J3', benar: '0', alasan: 'kunci salah' }, { item_id: 'B1-003', juri: 'J3', pengecoh: '1', alasan: 'sedang' }, { item_id: 'B2-004', juri: 'J3', benar: '1', alasan: 'kunci benar' }]);
+    writeFileSync(join(d, 'J3.csv'), j3f);
+    const w = json(join(d, 'J1.csv'), join(d, 'J2.csv'), join(d, 'J3.csv'), join(d, 'slots.json'), join(d, 'out'));
+    const sh = JSON.parse(readFileSync(w[0], 'utf8'));
+    check(sh.format === 'c3-judge-sheets/1' && sh.items.length === 30 && sh.scores.filter((x) => x.judge === 'J3').length === 3, 'json: 30 slots, J1+J2 on every valid item, J3 only where routed');
+    check(sh.scores.every((x) => x.judge !== 'J1' || ['correctness', 'alignment', 'distractors', 'language', 'review_burden'].every((k) => k in x)), 'json: every J1 row carries all five criteria, review_burden included');
+    let refused = false; try { writeFileSync(join(d, 'bad.csv'), toCsv(COLS, [{ item_id: 'B1-001', juri: 'J1', benar: '3' }])); readSheet(join(d, 'bad.csv'), 'J1'); j3Needs(readSheet(join(d, 'bad.csv'), 'J1').get('B1-001'), { item_id: 'B1-001', benar: '1' }, false); } catch (e) { refused = e instanceof Fatal; }
+    check(refused, 'a value outside 0/1 is refused');
+    return { pass, fail, sheet: w[0], dir: d };
+  } finally { if (!process.env.KEEP) rmSync(d, { recursive: true, force: true }); }
+}
+
+function main(a) {
+  if (a[0] === '--self-test') { const r = selfTest(); console.log(`\n${r.pass} passed, ${r.fail} failed`); process.exit(r.fail ? 1 : 0); }
+  const [cmd, ...p] = a;
+  if (cmd === 'lembar' && p.length === 2) return console.log(`${lembar(...p)} rows per sheet`);
+  if (cmd === 'slot' && p.length === 2) return console.log(`slots for codes ${slot(...p).join(', ')}`);
+  if (cmd === 'j3' && p.length === 4) return console.log(`${j3(...p)} items for J3`);
+  if (cmd === 'json' && p.length === 5) return console.log(json(...p).join('\n'));
+  console.error('usage: see the header of nilai-juri.mjs'); process.exit(2);
+}
+try { main(process.argv.slice(2)); } catch (e) { if (e instanceof Fatal) { console.error('REFUSED  ' + e.message); process.exit(1); } throw e; }
