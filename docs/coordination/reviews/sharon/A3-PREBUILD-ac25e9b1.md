@@ -443,3 +443,33 @@ That is still a cycle.
 - **A3-P2's reader stays conservative.** It flags every path, which is right for a pin. It is then reconciled against the exceptions list, so a new flag fails while a known, raced one does not.
 - **Noted:** A3-PG1 red then green, built from the live bodies (A2A-L01 caught the stale draft), and A3-PG2 green.
 - *Could reasonably have been anticipated (Q3, the locks):* I ruled a product change from a static over-approximation without asking for the race.
+
+## Addendum, 17 Nov 06:45 UTC: pin 2's items 1 and 3 are not red; item 2 ruled; the defensive change accepted
+
+**Items 1 and 3 become named exceptions, with their races kept as evidence. Accepted.**
+- **Item 3, A3-R04X (`499a77fe`):** `akhiri_tugas_staf` and `revoke_role`, each against `issue_institutional_id` for the same person and school, in both orders. No deadlock in any of the four.
+  - The test stays, and fails if a change ever makes the pair cycle.
+- **Item 1, A3-R05N (to commit):** `confirm_my_name` against the lock path and against reactivation, in both orders. No deadlock.
+  - The guards write `account_setup` only on their email-change and card-conversion branches, which neither path takes.
+  - **One requirement:** pin that branch fact in A3-R05N's reasoning, and race it once on the email-change branch as well, if any person-first function can take that branch while `confirm_my_name` runs. If none can, say so in the exception.
+
+**Item 2, `handle_new_auth_user` against `hapus_data_pribadi`: ruling (a), a named exception with its premises pinned.**
+- **The cycle needs a state no product function makes:** a person with an open CLOSED_AT_REQUEST suspension and **no account**.
+  - `minta_akun`, the only product writer of CLOSED_AT_REQUEST, needs an account.
+  - No product function deletes an account.
+  - So only Auth deleting the user outside PINTAR's functions, through `accounts.auth_user_id`'s ON DELETE CASCADE, could produce it.
+- **The structural check pins both premises:**
+  1. `minta_akun` is the only product writer of `CLOSED_AT_REQUEST`;
+  2. `handle_new_auth_user` refuses a person who already has an account (PR010) before its person lock.
+- **And a runbook line:** an operator never deletes an Auth user directly. People leave through the product's own flows. Bob to record it where the operator procedures live.
+- (b) would prove a cycle in an unreachable state, and (c) would change a function for that state. Neither is warranted.
+
+**The defensive change is accepted:** A3-I1 (`32f0021d`) and `88e9b4ab`.
+- **A3-I1 was red first,** on exactly the two functions, by both readings, and its plant is reported.
+- **Both functions are on NO KEY UPDATE:**
+  - `atur_zona_waktu_sekolah` updates only `zona_waktu`, which no unique index covers;
+  - `perpanjang_peran` only reads.
+- **The commit says no deadlock was reproduced.**
+- B0-C01 re-proves the last-administrator guarantee in both orders, and the related set passes 52/0.
+
+**A3-P2 can now be reconciled:** its exceptions list names items 1, 2 and 3, each with its race or its pinned premises. A new flag still fails.
