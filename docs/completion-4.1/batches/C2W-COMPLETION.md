@@ -24,7 +24,7 @@ A reviewer records what a wrong option reveals about learners' thinking, after t
 | F-4: concurrent edits of one draft, two connections, the shared race helper | **Closed** | C2W-F4R at `ac49795c` (Sharon: accepted) |
 | F-3: a platform admin decides a PD certificate review, with its refusal counterpart | **Closed**, no authorization defect | C2W-F3D at `8cf25792` (Sharon: accepted) |
 | A2b accepted on staging | **Promoted**: main `1b1cada8`, staging at 282; Sharon's acceptance check in progress | Chief Architect, 17 Nov 02:14 |
-| Sharon's short design review | **Pending**: this page | — |
+| Sharon's short design review | **Accepted with conditions D1 to D4** (§9) | `C2W-NOTES-DESIGN-be01b4f2.md` at `3a2de775` |
 | Daisy's short review | **Pending**: this page | — |
 
 ## 3 · Already decided (§3.3), carried as they are
@@ -149,3 +149,19 @@ A reviewer records what a wrong option reveals about learners' thinking, after t
 - **Daisy:**
   - the four word gaps in §6;
   - where the Studio disclosure sits relative to «Riwayat soal».
+
+## 9 · Sharon's conditions (accepted design, `3a2de775`), carried into the build
+
+- **Answers:** (1) `CAN_REVIEW` for a school's writer: yes. (2) The library rule and the report-authorised read: yes.
+  (3) The chain walked per read: yes, under D3.
+- **B6, added:** a teacher of a school **without** the release is refused, with the same answer as an unknown item.
+- **D1 · two first notes at once.** The `menggantikan_id` index does not stop them.
+  - A partial unique index on `(item_id, opsi_label)` where `menggantikan_id` is null.
+  - The write checks that `menggantikan_id` is the current note on the same item and option.
+  - A two-connection race for both cases (two first notes; two replacements of one note), each ending in a named refusal.
+- **D2 · the trigger enforces, not only the function:** on insert, `institution_id` is the item's owner and
+  `content_is_sealed` holds.
+- **D3 · the chain walk:** a depth cap and a cycle guard, an index on `items.supersedes_item_id`, read as one statement
+  with no lock.
+- **D4 · no learner named:** the form says, in Daisy's words, that a note never names a learner (library notes cross
+  schools). A note renders as escaped text only; B3 asserts that markup shows as text.
