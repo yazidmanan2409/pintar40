@@ -14,7 +14,8 @@ point by closing the Terminal window or pressing Control-C.
 
 ## 2 · Check the package
 
-1. Save `pintar-e-local.tar.gz` in your **Downloads** folder.
+1. Save `pintar-e-local.tar.gz` in your **Downloads** folder. Use this fresh copy only: do not add other files to
+   the folder it unpacks into.
 2. In Terminal, type:
    ```
    cd ~/Downloads
@@ -61,9 +62,9 @@ Everything is in the folder `~/Downloads/pintar-e-local/hasil`:
 
 | File or folder | What to do |
 |---|---|
-| `untuk-bob.zip` | **Send to Bob** (attach it in his session). It holds costs, times and the sealed map's fingerprint. It has no questions and no key |
-| `untuk-sharon.zip` | **Send to Bob as well.** He passes it to Sharon. It holds the questions and options only, and names no provider |
-| `untuk-juri.zip` | **Keep for now.** Bob sends you the judges' scoring guide. Then give both to the three judges |
+| `untuk-bob.zip` | **Send to Bob first** (attach it in his session). It holds costs, times and the sealed map's fingerprint. It has no questions and no key. Bob records the fingerprint before anything else moves |
+| `untuk-sharon.zip` | **Send to Bob as well**, after he confirms the fingerprint is recorded. He passes it to Sharon. It holds the questions and options only, and names no provider |
+| `untuk-juri.zip` | **Keep for now.** Bob sends you the judges' scoring guide **after** the fingerprint is recorded. Then give both to the three judges |
 | `PRIVAT-simpan-jangan-dikirim` | **Keep it safe, and send it to no one.** It holds the raw answers and the map of which provider wrote which question. Bob asks for it only after every score is final |
 
 ## 7 · Revoke both keys
@@ -71,7 +72,8 @@ Everything is in the folder `~/Downloads/pintar-e-local/hasil`:
 - **Anthropic Console:** your evaluation workspace → API keys → delete the temporary key.
 - **OpenAI:** your evaluation project → API keys → revoke the temporary key.
 
-Then tell Bob: "keys revoked".
+**Do this straight after step 5.** Then close the Terminal window, and tell Bob "keys revoked" with the time you
+did it.
 
 ## If the script stops
 

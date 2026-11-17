@@ -22,6 +22,7 @@ case_run empty      ok   '\nsk-proj-REHEARSALKEYOOO\nRUN\n'
 case_run key-denied deny "${K}RUN\n"
 case_run tampered   ok   "${K}RUN\n" 'echo "// x" >> docs/completion-4.1/c3-eval/prices.json'
 case_run old-hasil  ok   "${K}RUN\n" 'mkdir hasil'
+case_run dotenv     ok   "${K}RUN\n" 'touch .env'
 R="$S/reh-happy"; echo "--- happy path ringkasan:" >> "$OUT"; cat "$R/pintar-e-local/hasil/untuk-bob/ringkasan.txt" >> "$OUT"
 echo "--- happy path: provider or model names in the Sharon and judge files:" >> "$OUT"
 grep -rliE "anthropic|openai|claude|gpt|sonnet" "$R/pintar-e-local/hasil/untuk-sharon" "$R/pintar-e-local/hasil/untuk-juri" >> "$OUT" || echo "none" >> "$OUT"

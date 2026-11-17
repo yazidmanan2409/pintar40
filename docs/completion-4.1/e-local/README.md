@@ -33,8 +33,11 @@ not authorisation for paid calls.** The owner gives it at the moment he types `R
    - the paid run becomes the offline dry run, with the same caps and pack;
    - the key check points at a 127.0.0.1 mock.
 
-   Seven cases are covered: the happy path, the run not typed, swapped keys, an empty key, a key refused, a tampered
-   package, and an existing results folder. Each stop path stops before any spend.
+   Eight cases are covered: the happy path, the run not typed, swapped keys, an empty key, a key refused, a tampered
+   package, an existing results folder, and a stray `.env`. Each stop path stops before any spend.
+   Sharon's command-sheet points (`2fc38130`) are applied: the package records and checks its source commit; a `.env`
+   in the folder is refused; the folders to send are scanned for key-like text and for the map before they are zipped;
+   the map's fingerprint goes to Bob first; and the revocation time is recorded.
 5. **Simple:** one command, two pastes, one typed word, three zip files, and one folder to keep.
 
 Sharon's A1–A5 locally:

@@ -37,6 +37,9 @@ echo "Node $(node --version): OK"
 if command -v shasum >/dev/null 2>&1; then shasum -a 256 -c -s SHA256SUMS || stop "the package does not match its checksums. Download it again."
 else sha256sum -c --quiet SHA256SUMS || stop "the package does not match its checksums. Download it again."; fi
 echo "Package checksums: OK"
+echo "Package built from the frozen runner commit $(cat SOURCE-COMMIT)"
+[ "$(cat SOURCE-COMMIT)" = "68ebe2fda37c03016ddca36d9668418865f8d587" ] || stop "the package is not from the frozen runner commit."
+[ -z "$(find "$ROOT" -name '.env*' -print -quit)" ] || stop "a .env file is inside this folder. Use a fresh copy of the package."
 [ ! -e "$HASIL" ] || stop "a folder 'hasil' already exists. Move it somewhere safe first; this script never overwrites results."
 mkdir -p "$PRIVAT" "$HASIL/latihan"
 
@@ -127,6 +130,12 @@ node -e '
   console.log(lines.join("\n"));
 ' "$PRIVAT/runs/ledger.json" "$MODE" "$T_START" "$T_END" "$MAP_SHA" | tee "$HASIL/untuk-bob/ringkasan.txt"
 
+# Before anything leaves this Mac (Sharon's sheet, points 4 and 5): nothing key-like, and the sealed map in none of them.
+if grep -rIlE 'sk-(ant-|proj-)?[A-Za-z0-9_-]{16,}' "$HASIL/untuk-sharon" "$HASIL/untuk-juri" "$HASIL/untuk-bob" >/dev/null 2>&1; then
+  stop "something that looks like a key is in a folder to send. Send nothing; tell Bob."; fi
+if find "$HASIL/untuk-sharon" "$HASIL/untuk-juri" "$HASIL/untuk-bob" -name 'map.json' | grep -q .; then
+  stop "the sealed map is in a folder to send. Send nothing; tell Bob."; fi
+echo "Checked: no key-like text and no sealed map in the folders to send."
 ( cd "$HASIL" && zip -qr untuk-sharon.zip untuk-sharon && zip -qr untuk-juri.zip untuk-juri && zip -qr untuk-bob.zip untuk-bob )
 
 say "Done"

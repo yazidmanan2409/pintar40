@@ -5,12 +5,13 @@ empty: exit=1 runs_dir=no key_text_in_outputs=none | STOPPED: a key was empty.
 key-denied: exit=1 runs_dir=no key_text_in_outputs=none | STOPPED: a key or model was not confirmed. Nothing was spent.
 tampered: exit=1 runs_dir=no key_text_in_outputs=none | STOPPED: the package does not match its checksums. Download it again.
 old-hasil: exit=1 runs_dir=no key_text_in_outputs=none | STOPPED: a folder 'hasil' already exists. Move it somewhere safe first; this script never overwrites results.
+dotenv: exit=1 runs_dir=no key_text_in_outputs=none | STOPPED: a .env file is inside this folder. Use a fresh copy of the package.
 --- happy path ringkasan:
 mode: rehearse
-run window (this command): 2026-11-17T11:28:34.933Z to 2026-11-17T11:28:35.614Z
-ledger first request: 2026-11-17T11:28:35.148Z
-ledger last settlement: 2026-11-17T11:28:35.576Z
-sealed map sha256: a69996b1ecdebd23eb69e810bf604570e802ec175f9e4751eded5afde605f213
+run window (this command): 2026-11-17T11:31:04.420Z to 2026-11-17T11:31:05.075Z
+ledger first request: 2026-11-17T11:31:04.646Z
+ledger last settlement: 2026-11-17T11:31:05.043Z
+sealed map sha256: e73221785d60b58e9c2416ca3a155c43b79da92ed3be0320086a3d95a7172445
 anthropic: 4 attempts, US$0.217116, {"invalid_output":1,"ok":2,"http_429":1}
 openai: 3 attempts, US$0.285058, {"transport_error":1,"ok":2}
 --- happy path: provider or model names in the Sharon and judge files:
