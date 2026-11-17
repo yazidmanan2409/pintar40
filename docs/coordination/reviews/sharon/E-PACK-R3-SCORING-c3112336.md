@@ -155,3 +155,36 @@ No calls are made, nothing is spent, and no material leaves PINTAR.
 - **I re-ran the self-test myself,** from a scratch copy: **12 passed, 0 failed.** It includes the three new refusal cases.
 - **The order now holds by construction:** the flags, then the J1 and J2 hashes, then J3, then J3's hash, then `json`, then `score.mjs`, then the map.
 - **PASS.** I will read `PANDUAN-JURI.md` for its content after Daisy's pass.
+
+## Addendum, 17 Nov 13:55 UTC: the judges' guide (`d32d059f`), my role in it, and a gap in the flag pipeline
+
+**What I checked:**
+- `PANDUAN-JURI.md` at `d32d059f`: its §2 criteria, its J1, J2 and J3 sections, and the line about the key checker;
+- `kit.mjs` at `68ebe2fd`: `blind`'s `kunci/` output and `sealKey`.
+
+**The guide's content matches the rubric and pack §4:**
+- **`benar`** (correctness) is 1 or 0: the key is right, the stem is unambiguous, and exactly one option is correct. That is §4.3b.
+- **The four 0–2 criteria** are each defined, with higher always better, and `beban_tinjau` (review effort) has its 2, 1 and 0 meanings.
+- **A reason is required for every item.**
+- **J1 and J2 score alone and do not confer.**
+- **J3's three routes** match `score.mjs`, and J3's correctness decision is final.
+- **A flag carries the same weight as a judge's reason (A5).** Nothing beyond the frozen rules is stated.
+
+**The key checker's line ("peninjau AI di tim PINTAR … menjawab setiap soal tanpa melihat kuncinya dan tanpa tahu sumber soal, lalu menandai kunci yang ia ragukan") does not misstate my role.**
+- **One precision for Daisy's words:** I do not judge the key. I **answer** each item blind, and a flag arises **where my answer differs from the key.** Something like «lalu soal ditandai bila jawabannya berbeda dari kunci» would be exact. The wording is Daisy's to choose.
+- **That design corrects my own A1** (`c878038e`), where I wrote that my sheet holds the keys. **The kit's design is stronger:** `kunci/` holds the stems and options without the key, and `jawaban-k-template.csv` asks only for my answer. My A1 is superseded on that point.
+
+**THE GAP: there is no step from my blind answers to `score.mjs`'s flags file. Required before Thursday (K-FLAG).**
+- **What `score.mjs` needs:** `c3-key-flags/1`, `{ item_id, reason }` per flag, with a reason required, and its hash given as `--flags-sha256`.
+- **What the kit gives:** `jawaban-k-template.csv` has `item_id,answer` only, with no reason, and `seal-key` writes `k-answers.json` into SEALED on the owner's Mac. No tool turns answers into flags.
+- **Required:**
+  1. **My sheet gains an `alasan` column.** I write my working for every item. Check that `seal-key` tolerates the extra column, or seal from my committed CSV.
+  2. **I commit my answers CSV and its SHA-256 on my branch,** before any judge's sheet exists. That is the order proof.
+  3. **A new `nilai-juri.mjs flags <answers.csv> <reviewer/items.json> --answers-sha256 <h>`** writes `c3-key-flags/1`. It contains every item where my answer differs from the key, with my `alasan` as the reason.
+     - It refuses on a hash mismatch, or a missing answer or reason.
+     - It uses only the blinded `reviewer/items.json`, which carries the keys, so the map is not needed.
+  4. **The flags file's SHA-256** is committed with it, also before J1's and J2's sheets are recorded. Then `j3` and `score.mjs` take that hash.
+  5. **A self-test case:** an answer that differs makes a flag carrying its reason, and an answer that matches makes none.
+
+**The `nilai-juri.mjs` delta (Daisy's Q-2: strict UTF-8 first, then Windows-1252) is accepted,** with the self-test at 13/0.
+- **One addition:** print which decoding was used for each sheet, so that a silent mis-decode shows in the record.
