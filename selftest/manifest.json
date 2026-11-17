@@ -6624,6 +6624,11 @@
       "id": "A3-R04X",
       "runner": "static",
       "proves": "Sharon's A3-P2 item 3 (4d5cd5f6), the pair that fits the last-administrator guard's removal branch: executes against the migrations on two real connections, each rolled back, on the seeded Alpha school. The harness makes Alpha's head of department a second administrator with no number there and gives Alpha a namespace, both committed and removed afterwards. akhiri_tugas_staf and revoke_role are each raced against issue_institutional_id for that person and school, in both orders: the removal holding the person first, and the issue holding the school first. No connection is aborted as a deadlock. This is recorded as the reason item 3 is a named exception."
+    },
+    {
+      "id": "A3-I1",
+      "runner": "static",
+      "proves": "Sharon's defensive change (4d5cd5f6), red first: no function takes institutions FOR UPDATE except the last-administrator guard's removal branch (peran_terakhir_kode under p_kunci). It is read two ways over the migrations' catalogue: A2A-L01's own lock reader, which records each lock's strength and the path to it, and the function source (pg_proc's prosrc). A plant that takes a school FOR UPDATE, inside a rolled-back transaction, is reported by both."
     }
   ]
 }

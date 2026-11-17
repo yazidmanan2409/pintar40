@@ -604,6 +604,49 @@ rollback;`;
     },
   },
   {
+    // Sharon's defensive change (4d5cd5f6, accepted with no race reproduced): no institutions FOR UPDATE anywhere but the
+    // last-administrator guard's removal branch (peran_terakhir_kode, "if p_kunci then"). Read two ways: A2A-L01's reader
+    // (which records each lock's strength and the path to it) and the function source, so a reader blind spot does not
+    // hide one. A plant (a function taking a school FOR UPDATE) must be reported.
+    id: "A3-I1",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      const baca = (tanam: string) => {
+        // institutions is unranked in A2A-L01, and the reader lists only functions that touch a ranked table: it is
+        // ranked for this reading only (as A3-L1P ranks its two), and A2A-L01's ranks are restored at once
+        const asli = URUTAN.institutions;
+        URUTAN.institutions = 8.9;
+        let r: ReturnType<typeof bacaUrutan>;
+        try { r = bacaUrutan(db(), tanam); } finally { if (asli === undefined) delete URUTAN.institutions; else URUTAN.institutions = asli; }
+        const lewatPembaca: string[] = [];
+        for (const [fn, l] of r.semua) for (const k of l) {
+          if (k.t !== "institutions" || k.kuat !== 3) continue;
+          const ujung = k.lewat.split(" > ").pop() ?? "";
+          if (ujung !== "peran_terakhir_kode") lewatPembaca.push(`${fn} via ${k.lewat}`);
+        }
+        const sql = `begin; ${tanam}
+select coalesce(string_agg(p.oid::regprocedure::text, ',' order by p.oid::regprocedure::text), '') from pg_proc p
+ join pg_namespace n on n.oid = p.pronamespace
+ where n.nspname in ('public', 'selftest') and p.prokind in ('f', 'p')
+   and regexp_replace(p.prosrc, 'if p_kunci then perform 1 from public\\.institutions i where i\\.id = r\\.institution_id for update;', '', 'g')
+       ~* 'from\\s+public\\.institutions\\M[^;]*\\mfor\\s+update\\M';
+rollback;`;
+        const q = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-qAt", "-c", sql, db()], { encoding: "utf8" });
+        return { pembaca: [...new Set(lewatPembaca)], sumber: q.stdout.trim().split("\n").filter(Boolean).pop() ?? "", ok: q.status === 0, err: q.stderr };
+      };
+      const nyata = baca("");
+      if (!c.expect(nyata.ok, `the catalogue could not be read: ${nyata.err.trim().split("\n").find((l) => /ERROR/.test(l))}`)) return c.verdict("");
+      c.expect(nyata.sumber === "", `functions whose source takes institutions FOR UPDATE outside the guard's removal branch: ${nyata.sumber}`);
+      c.expect(nyata.pembaca.length === 0, `A2A-L01's reader finds institutions at FOR UPDATE outside peran_terakhir_kode:\n  ${nyata.pembaca.slice(0, 12).join("\n  ")}`);
+      const t = baca(`create function public._a3_i1_tanam(p uuid) returns void language plpgsql as $t$
+begin perform 1 from public.institutions i where i.id = p for update; end $t$;`);
+      c.expect(t.sumber.includes("_a3_i1_tanam") && t.pembaca.some((x) => x.startsWith("_a3_i1_tanam")), "the plant (a function taking a school FOR UPDATE) was not reported by both readings");
+      c.expect(URUTAN.institutions === undefined, "A2A-L01's ranks were not restored after the reading");
+      return c.verdict("no function takes institutions FOR UPDATE but the last-administrator guard's removal branch (peran_terakhir_kode under p_kunci), read both by A2A-L01's reader (each lock's strength and its path) and by the function source; a plant taking a school FOR UPDATE is reported by both");
+    },
+  },
+  {
     id: "A3-R01",
     requires: ["db"],
     run: async (ctx) => {
