@@ -73,4 +73,4 @@
 #   pg_cron: job 5 pintar-pengerjaan-tutup-terjadwal (*/5, active) succeeded at 02:05:00 UTC, after the promotion;
 #   job 6 pintar-akuntabilitas-buang-lama (daily 19:17, active), last succeeded 16 Nov 19:17. No failures since the
 #   promotion. A2b adds no scheduled job.
-#   environment-facts.yml dispatched on main after the promotion: see TEAM-INSTRUCTIONS for its run.
+#   environment-facts.yml run 44000776986 on main at 1b1cada8 (dispatched after the promotion): success.

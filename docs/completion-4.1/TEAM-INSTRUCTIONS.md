@@ -60,7 +60,7 @@ E's three owner decisions (providers, scoring rules, judges) stay visible in sta
   - the versions digest equals `main`'s 282;
   - every preserved line is identical.
   - Evidence: `batches/a2b-evidence/preservation-A2b-staging-{BEFORE,AFTER}.txt`.
-- **Hosted:** pg_cron job 5 succeeded at 02:05 UTC after the promotion; job 6 is intact; A2b adds no job.
+- **Hosted:** pg_cron job 5 succeeded at 02:05 UTC after the promotion; job 6 is intact; A2b adds no job. environment-facts run 44000776986: success.
 - **Sharon:** promotion PASS; A2b accepted (`A2B-PROMOTION-1b1cada8.md`, `7ea8498f`).
 - **Rollback position,** as for A2a: no dedicated script. Recovery is a reviewed forward fix, or a staging backup restore
   under the owner's authorisation.
