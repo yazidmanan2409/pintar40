@@ -331,4 +331,41 @@ rollback;`;
       return c.verdict("a revision of a course (supersedes_course_id) with a revision of its definition passes garis_definisi_periksa, the check the lineage backfill runs; given a second same-titled, same-mode definition in the course it supersedes, the check refuses; rolled back");
     },
   },
+  {
+    // A3, ruling 46, a sibling the lineage sweep missed: percobaan_terpakai (20270114100000) is A1's count of "an attempt",
+    // which its own comment says mirrors may_start_assessment's. may_start now counts across the lineage; this count
+    // still matched one definition and version, so percobaan_tandai would leave a sitting on revision 2 after one on
+    // revision 1 unmarked (an approved request never spent) and minta_percobaan would read the learner as within limit.
+    id: "A3-PT1",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      const sql = `begin;
+create temp table pt1 on commit drop as
+select s.person_id, s.assessment_assignment_id aa1, s.assessment_definition_id d1 from public.assessment_sessions s
+  join public.assessment_definitions d on d.id = s.assessment_definition_id
+ where s.assessment_assignment_id is not null and d.attempt_limit is not null
+   and coalesce(s.termination_cause::text, '') not in ('INSTITUTIONAL_REVOCATION', 'ADMINISTRATIVE_TERMINATION')
+ order by s.id limit 1;
+select 'ada|' || count(*) from pt1;
+-- revision 2 of the sitting's assessment, on its line, and an OPEN assignment of it in the same school and year
+-- (the harness's hand, rolled back): the learner has no sitting under it yet
+set local session_replication_role = replica;
+insert into public.assessment_definitions select (jsonb_populate_record(d, jsonb_build_object('id', 'a3a1e000-0000-4000-8000-a30100000010',
+    'version', d.version + 600))).* from public.assessment_definitions d where d.id = (select d1 from pt1);
+insert into public.assessment_assignments select (jsonb_populate_record(aa, jsonb_build_object('id', 'a3a1e000-0000-4000-8000-a30100000011',
+    'assessment_definition_id', 'a3a1e000-0000-4000-8000-a30100000010'))).* from public.assessment_assignments aa where aa.id = (select aa1 from pt1);
+set local session_replication_role = origin;
+select 'satu|' || public.percobaan_terpakai(person_id, aa1) from pt1;
+select 'dua|' || public.percobaan_terpakai(person_id, 'a3a1e000-0000-4000-8000-a30100000011') from pt1;
+rollback;`;
+      const r = spawnSync("psql", ["-v", "ON_ERROR_STOP=0", "-qAt", "-c", sql, db()], { encoding: "utf8" });
+      const v: Record<string, string> = {};
+      for (const l of r.stdout.split("\n")) { const i = l.indexOf("|"); if (i > 0) v[l.slice(0, i)] = l.slice(i + 1); }
+      if (!c.expect(v.ada === "1", `the world must hold a learner's counted sitting of a limited assessment (the case cannot be set up): ${v.ada ?? "no answer"} ${(r.stderr || "").trim().split("\n")[0] ?? ""}`)) return c.verdict("");
+      c.expect(Number(v.satu) >= 1, `the sitting's own assignment must count it: ${v.satu ?? "no answer"}`);
+      c.expect(v.dua === v.satu, `revision 2's assignment must count the revision-1 sitting as may_start_assessment does (ruling 46): ${v.dua ?? "no answer"} against ${v.satu ?? "no answer"}`);
+      return c.verdict("percobaan_terpakai, A1's count of an attempt, counts a learner's sitting on revision 1 of an assessment under an OPEN assignment of revision 2 in the same school and year (the harness's hand, rolled back), as may_start_assessment counts it across the lineage");
+    },
+  },
 ];

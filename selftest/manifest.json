@@ -6589,6 +6589,11 @@
       "id": "A3-LN2",
       "runner": "static",
       "proves": "Ruling 46's backfill strictness (Sharon, 478c8750: every non-root revision finds exactly one predecessor, or the migration refuses), red first: executes garis_definisi_periksa against the migrations, in a rolled-back transaction, on a revision the harness makes (a course copied with supersedes_course_id, its module with supersedes_module_id, the module's definition copied into it at a higher version): with exactly one predecessor the check passes; with a second same-titled, same-mode definition in the superseded module it must refuse, naming the predecessor."
+    },
+    {
+      "id": "A3-PT1",
+      "runner": "static",
+      "proves": "Ruling 46, a sibling the lineage sweep missed, red first: executes against the migrations, in a rolled-back transaction. A learner's counted sitting on revision 1 of a limited assessment; the harness adds revision 2 on the same line and an OPEN assignment of it in the same school and year. percobaan_terpakai (A1's count of an attempt, used by percobaan_tandai, minta_percobaan and both request lists) must count the revision-1 sitting under revision 2's assignment as it does under its own, as may_start_assessment does."
     }
   ]
 }
