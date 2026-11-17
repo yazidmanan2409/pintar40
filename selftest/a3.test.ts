@@ -174,6 +174,17 @@ const TANAM_L1P = `create function public._a3_l1p_tanam(p uuid) returns void lan
 begin perform 1 from public.assessment_assignments a where a.id = p for share;
       perform 1 from public.learning_assignments la where la.id = p for key share; end $t$;`;
 
+/** Sharon's pin (7cd65cba): does `fn` take its persons, by a lock of its own, before its first sitting lock? */
+function orangSebelumPengerjaan(db: string, fn: string, tanam = ""): { orang: number; pengerjaan: number; lewat: string } {
+  const l = bacaUrutan(db, tanam).semua.get(fn) ?? [];
+  const orang = l.findIndex((k) => k.t === "persons" && k.lewat === fn);
+  const pengerjaan = l.findIndex((k) => k.t === "assessment_sessions");
+  return { orang, pengerjaan, lewat: pengerjaan >= 0 ? l[pengerjaan].lewat : "" };
+}
+const TANAM_L2P = `create function public._a3_l2p_tanam(p uuid) returns void language plpgsql as $t$
+begin perform 1 from public.assessment_sessions s where s.id = p for update;
+      perform 1 from public.persons pr where pr.id = p for key share; end $t$;`;
+
 export const a3DbTests: SelfTest[] = [
   {
     id: "A3-L1P",
@@ -187,6 +198,27 @@ export const a3DbTests: SelfTest[] = [
       c.expect(tanam.salah.some((x) => x.startsWith("_a3_l1p_tanam:")), "the plant (assessment_assignments, then learning_assignments) was not reported");
       c.expect(URUTAN.learning_assignments === undefined && URUTAN.assessment_assignments === undefined, "A2A-L01's ranks were not restored after the check");
       return c.verdict(`A2A-L01's reader, with the two tables ranked for this check only: all ${nyata.keduanya} functions that lock both learning_assignments and assessment_assignments take learning_assignments first; a plant locking them the other way round is reported; A2A-L01's ranks are left as they were`);
+    },
+  },
+  {
+    // Sharon's sweep acceptance (7cd65cba), pin 1: «Akhiri penugasan» takes the persons of all its open sittings before
+    // its first sitting lock, so no sitting it holds waits on a person a departure holds (F37-R05's pair).
+    id: "A3-L2P",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      const a = orangSebelumPengerjaan(db(), "akhiri_penugasan");
+      c.expect(a.orang >= 0, "akhiri_penugasan takes no person lock of its own (the reader found nothing to check)");
+      c.expect(a.pengerjaan >= 0, "akhiri_penugasan takes no sitting lock (the reader found nothing to check)");
+      c.expect(a.orang >= 0 && a.pengerjaan >= 0 && a.orang < a.pengerjaan, `akhiri_penugasan locks a sitting (via ${a.lewat}) before its own person lock`);
+      const src = spawnSync("psql", ["-qAt", "-c", "select prosrc from pg_proc where oid = 'public.akhiri_penugasan(uuid,text,text,boolean)'::regprocedure", db()], { encoding: "utf8" }).stdout;
+      const i = src.search(/from public\.persons pr where pr\.id in \(select x\.person_id from public\.penugasan_sesi\(p_la\) x\s+where x\.status in \('CREATED', 'IN_PROGRESS', 'PAUSED'\)\) order by pr\.id for key share of pr/);
+      const j = src.search(/for update loop/);
+      c.expect(i >= 0, "akhiri_penugasan's person lock no longer reads the persons of all its open sittings, in order (penugasan_sesi, CREATED/IN_PROGRESS/PAUSED, by id)");
+      c.expect(i >= 0 && j >= 0 && i < j, "akhiri_penugasan's person lock is not before its sitting loop");
+      const t = orangSebelumPengerjaan(db(), "_a3_l2p_tanam", TANAM_L2P);
+      c.expect(t.pengerjaan >= 0 && !(t.orang >= 0 && t.orang < t.pengerjaan), "the plant (a sitting, then its person) was not reported");
+      return c.verdict(`A2A-L01's reader: akhiri_penugasan takes its own person lock (lock ${a.orang + 1}) before its first sitting lock (lock ${a.pengerjaan + 1}), and that lock is one ordered statement over the persons of all its open sittings (penugasan_sesi, CREATED, IN_PROGRESS or PAUSED), before the sitting loop; a plant locking a sitting and then its person is reported`);
     },
   },
   {

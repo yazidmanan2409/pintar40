@@ -6594,6 +6594,11 @@
       "id": "A3-PT1",
       "runner": "static",
       "proves": "Ruling 46, a sibling the lineage sweep missed, red first: executes against the migrations, in a rolled-back transaction. A learner's counted sitting on revision 1 of a limited assessment; the harness adds revision 2 on the same line and an OPEN assignment of it in the same school and year. percobaan_terpakai (A1's count of an attempt, used by percobaan_tandai, minta_percobaan and both request lists) must count the revision-1 sitting under revision 2's assignment as it does under its own, as may_start_assessment does."
+    },
+    {
+      "id": "A3-L2P",
+      "runner": "static",
+      "proves": "Sharon's sweep acceptance (7cd65cba), pin 1: read by A2A-L01's own lock reader over the migrations' catalogue, akhiri_penugasan takes a person lock of its own before its first sitting lock, and its source shows that lock as one ordered statement (FOR KEY SHARE, by id) over the persons of all its open sittings, before its sitting loop. A plant that locks a sitting and then its person, inside the reader's rolled-back transaction, is reported."
     }
   ]
 }
