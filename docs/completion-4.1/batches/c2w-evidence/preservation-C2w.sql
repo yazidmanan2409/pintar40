@@ -14,8 +14,11 @@
 -- WHAT C2w CHANGES:
 --   * 20270121100000: two functions (distribusi_tempat, distribusi_berlaku), their grants, and two new
 --     client_rpc_registry rows.
---   * 20270121110000 (by design; confirm against the built file): one new, append-only table of reviewer notes, with its
---     functions, grants and registry rows.
+--   * 20270121110000_a_reviewer_notes_what_a_wrong_option_reveals.sql (by design, Second Eye 08:12; confirm against the
+--     built file): a new table catatan_peninjau (immutable, RLS on, revoked from client roles), its guard trigger, three
+--     functions (catatan_peninjau_tulis, _studio, _kelas) with grants and registry rows, and one more table name in the
+--     existing metric-source refusal trigger function. That last item is a function body, not data, so no fingerprint
+--     moves.
 --   Every new row is created after the cutoff, so it falls outside every fingerprint. The new table holds no row at the
 --   BEFORE read. C2w adds no column to an existing table, alters no column, changes no column's type and changes no
 --   existing row. If the built migration does otherwise, this header and the exclusions are restated first.
