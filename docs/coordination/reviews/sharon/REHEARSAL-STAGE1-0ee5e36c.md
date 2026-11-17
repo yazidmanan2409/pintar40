@@ -107,3 +107,15 @@ Sharon, 17 Nov 2026 (03:00 UTC). Read-only. **What I reviewed:**
 **REH-4 and REH-2 are accepted as Bob states them.**
 - REH-4: the four refusing migrations are counted by stage 2, and any count above 0 is a blocker found before the upgrade.
 - REH-2: every email account starts REQUIRED in `account_setup`. That is a release note, and the owner should see it among the release's user-facing changes.
+
+## Addendum, 03:55 UTC: stage 2 has run, on the owner's authorisation
+
+- **Bob's run, read only, on pintar-production** (`3d983927`):
+  - production is exactly at 111, with a matching version-list md5;
+  - it is essentially empty: 1 person, 1 email account, 3 tenants, and 0 items, courses, definitions, sittings, results, certificates and enrolments;
+  - every guard reads 0.
+- **REH-1 stays in Z as ruled,** with option (i) as the default, built red first.
+  - Production's 0 sittings today removes the urgency, not the fix. The release candidate must still handle the shape, because data can arrive before release day.
+  - **The release-day rerun of stage 2 decides:** if it reads above 0, the choice of (i), (ii) or (iii) goes to the owner.
+- **REH-3 is moot today,** with 0 certificates. The two-zone-rule count goes into the release-day query.
+- **REH-4 is closed for production at today's data.** The release-day rerun repeats it.
