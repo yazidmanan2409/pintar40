@@ -3969,6 +3969,11 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 .pin-catatan-isi + .pin-catatan-isi { margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px dashed var(--line); }
 .pin-catatan-teks { margin: 0; overflow-wrap: anywhere; }
 .pin-catatan-form { display: grid; gap: var(--space-2); margin-top: var(--space-2); }
+/* Daisy C-7: the act sits under the on-screen version's note, before the dashed rule to the other versions' notes */
+.pin-catatan-pilihan > .pin-soal-tindakan + .pin-catatan-isi,
+.pin-catatan-pilihan > .pin-catatan-form + .pin-catatan-isi { margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px dashed var(--line); }
+/* Daisy C-8: room above «Catatan sebelumnya (n)», under the attribution line before it */
+.pin-catatan-pilihan > details { margin-top: var(--space-3); }
 .pin-kunci-banding { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--space-1) * 55)), 1fr)); gap: var(--space-3); }
 /* C1w (O41-19): «Sedang ditinjau (n)» stands apart from the certificates list under it */
 .pin-sertifikat-ditinjau { margin-bottom: var(--space-5); }

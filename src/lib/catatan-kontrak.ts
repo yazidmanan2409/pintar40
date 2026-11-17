@@ -58,6 +58,13 @@ export function bacaCatatan(data: unknown): Catatan[] {
     && typeof (c as Catatan).id === "string" && typeof (c as Catatan).opsi === "string" && typeof (c as Catatan).isi === "string");
 }
 
+/**
+ * An option's block, in Studio, top to bottom (Daisy C-7, TINJAUAN-C2W-CATATAN-53a31d91.md): the note on the version on
+ * screen; directly under it, its act («Tulis catatan» / «Ganti catatan», or the form), since that is the note it
+ * replaces; then the other versions' notes, newest version first; then «Catatan sebelumnya (n)».
+ */
+export const URUTAN_BLOK = ["kini_layar", "tindakan", "kini_lain", "sebelumnya"] as const;
+
 /** One option's block: the notes that hold now (newest first) and the ones they replaced (newest first, oldest last). */
 export type BlokCatatan = { label: string; kini: Catatan[]; lama: Catatan[] };
 

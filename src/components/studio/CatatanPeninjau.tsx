@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import Link from "next/link";
 import Ikon from "@/components/Ikon";
 import BarisHasil from "@/components/BarisHasil";
@@ -5,7 +6,7 @@ import SimpanIsian from "@/components/SimpanIsian";
 import TombolKirim from "@/components/TombolKirim";
 import { TeksBaris } from "@/components/teks/Teks";
 import type { HleEvent } from "@/lib/hle";
-import { blokCatatan, catatanKiniDi, type Catatan } from "@/lib/catatan-kontrak";
+import { URUTAN_BLOK, blokCatatan, catatanKiniDi, type Catatan } from "@/lib/catatan-kontrak";
 import { tulisCatatanAksi } from "@/app/studio/soal-actions";
 
 /**
@@ -81,13 +82,18 @@ export default function CatatanPeninjau({ s, mode, item, label, catatan, day, fo
         return (
           <section key={b.label} className="pin-catatan-pilihan" id={`catatan-${item}-${b.label}`} data-catatan-pilihan={sasaran}>
             <p className="pin-catatan-judul"><strong>{isi(s("studio.catatan.pilihan"), { label: b.label })}</strong></p>
-            {b.kini.map((c) => (
+            {URUTAN_BLOK.map((bagian) => {
+              const satu = (c: Catatan) => (
               <div key={c.id} className="pin-catatan-isi" data-catatan={c.id}>
                 {i5(c)}
                 <p className="pin-catatan-teks"><TeksBaris teks={c.isi} /></p>
                 <p className="pin-meta">{oleh(c)}</p>
               </div>
-            ))}
+              );
+              if (bagian === "kini_layar") return <Fragment key={bagian}>{b.kini.filter((c) => c.item === item).map(satu)}</Fragment>;
+              if (bagian === "kini_lain") return <Fragment key={bagian}>{b.kini.filter((c) => c.item !== item).map(satu)}</Fragment>;
+              if (bagian === "sebelumnya") return (
+                <Fragment key={bagian}>
             {mode === "studio" && b.lama.length > 0 ? (
               <details className="pin-disclosure pin-noprint" data-catatan-sebelumnya={sasaran}>
                 <summary>{isi(s("studio.catatan.sebelumnya"), { n: String(b.lama.length) })}<Ikon nama="chevron-down" kelas="pin-chevron" /></summary>
@@ -102,6 +108,10 @@ export default function CatatanPeninjau({ s, mode, item, label, catatan, day, fo
                 </ol>
               </details>
             ) : null}
+                </Fragment>
+              );
+              return (
+                <Fragment key={bagian}>
             {form && form.tersimpan === b.label ? <BarisHasil nada="ok">{s("studio.catatan.tersimpan")}</BarisHasil> : null}
             {form && formIni ? (
               <form id={formId} action={tulisCatatanAksi} className="pin-catatan-form" data-catatan-form={sasaran}>
@@ -133,6 +143,9 @@ export default function CatatanPeninjau({ s, mode, item, label, catatan, day, fo
                 </Link>
               </p>
             ) : null}
+                </Fragment>
+              );
+            })}
           </section>
         );
       })}
