@@ -47,6 +47,8 @@
 //   <out>/<provider>/bab<n>.json             raw response text of the judged attempt, unmodified
 //   <out>/<provider>/bab<n>.provenance.json  model, version, request id, prompt version, source excerpt hash, …
 //   <out>/<provider>/attempts/bab<n>.a<k>.json   every attempt's raw response, kept
+//   <out>/<provider>/incomplete/bab<n>.a<k>.partial.txt   v3: the answer text received before a stream broke off, kept
+//                                            for incident investigation only (never validated, judged or blinded)
 //   <out>/<provider>/usage.json              the kit's usage.json (provenance + calls with tokens)
 // v2 streaming: anthropic calls stream (streamCall). Only a completed stream is a response; a cut or errored stream is
 // stream_incomplete or stream_error, keeps its full reservation and is retried like a transport error. A real run
@@ -278,10 +280,10 @@ export function anthropicAssembler() {
   const textNow = () => [...st.blocks.entries()].sort((x, y) => x[0] - y[0]).filter(([, b]) => b.type === 'text').map(([, b]) => b.text.join('')).join('');
   const evidence = () => { const t = textNow(); return { events: st.events, pings: st.pings, unknown_events: st.unknown, thinking_blocks: st.thinking, blocks: st.blocks.size,
     started: st.started, stopped: st.stopped, stop_reason: st.stop_reason, final_usage_seen: !!st.final_usage, text_chars: t.length, text_sha256: sha(t) }; };
-  const fail = (reason, msg) => new StreamIncomplete(reason, msg, evidence());
+  const fail = (reason, msg) => { const x = new StreamIncomplete(reason, msg, evidence()); x.partial = textNow(); return x; };
   const block = (j) => { const b = st.blocks.get(j.index); if (!b || !b.open) throw fail('bad_order', `${j.type} for block ${j.index}, which is not open`); return b; };
   return {
-    evidence,
+    evidence, partial: textNow,
     feed({ event, data }) {
       st.events++;
       if (st.stopped) throw fail('after_stop', `event "${event}" after message_stop`);
@@ -289,7 +291,7 @@ export function anthropicAssembler() {
       const type = j?.type;
       if (typeof type !== 'string' || (event !== 'message' && event !== type)) throw fail('bad_event', `event "${event}" carries data of type ${JSON.stringify(type)}`);
       if (type === 'ping') { st.pings++; return; }
-      if (type === 'error') throw new StreamError(j.error, evidence());
+      if (type === 'error') { const x = new StreamError(j.error, evidence()); x.partial = textNow(); throw x; }
       if (type === 'message_start') {
         if (st.started) throw fail('bad_order', 'a second message_start');
         st.started = true; st.model = j.message?.model ?? null; st.start_usage = j.message?.usage ?? null; return;
@@ -371,7 +373,8 @@ async function streamCall(adapter, args, fetchImpl = globalThis.fetch, opt = {})
     } catch (x) {
       try { await reader.cancel(); } catch { /* already closed */ }
       if (x instanceof StreamIncomplete || x instanceof StreamError) throw tag(x);
-      throw tag(new StreamIncomplete(idleFired ? 'idle' : signal.aborted ? 'call_limit' : 'cut', String(x?.message ?? x).slice(0, 120), asm.evidence()));
+      const y = new StreamIncomplete(idleFired ? 'idle' : signal.aborted ? 'call_limit' : 'cut', String(x?.message ?? x).slice(0, 120), asm.evidence()); y.partial = asm.partial();
+      throw tag(y);
     }
     let out; try { out = asm.finish(); } catch (x) { throw tag(x); }
     out.evidence.bytes = bytes;
@@ -701,6 +704,13 @@ export async function runEval(cfg) {
         }
         if (err) {
           const c = classify(err);
+          // owner, 17 Nov: an incomplete paid answer is preserved for incident investigation, in <provider>/incomplete/
+          // (inside PRIVAT on the Mac). It is never an attempt file, never validated, and kit.mjs blind never reads it.
+          if (typeof err.partial === 'string' && err.partial.length) {
+            mkdirSync(join(pdir, 'incomplete'), { recursive: true });
+            writeFileSync(join(pdir, 'incomplete', `bab${b}.a${attempt}.partial.txt`), err.partial);
+            settle.partial_file = `${provider}/incomplete/bab${b}.a${attempt}.partial.txt`;
+          }
           ledger.settle(e, { ...settle, status: c.status, http_status: c.http ?? (c.status === 'http_429' ? 429 : null), error_type: c.type ?? null, error_code: c.code ?? null, error: String(err.message).slice(0, 200), retryable: c.retry });
           log(`${c.status.padEnd(16)} ${provider} bab${b} attempt ${attempt}: ${err.message}${c.retry && attempt < MAX_ATTEMPTS ? ' → retry' : ''}${c.stop ? ' → no further call to ' + provider : ''}`);
           it.outcome = c.status;
@@ -1102,6 +1112,13 @@ async function streamChecks(check) {
     ['an unknown stop reason', swap(11, ['message_delta', { type: 'message_delta', delta: { stop_reason: 'mystery_reason' }, usage: { output_tokens: 7600 } }])],
     ['no usage in message_delta (message_start\'s output count is never used)', swap(11, ['message_delta', { type: 'message_delta', delta: { stop_reason: 'end_turn' } }])],
     ['usage without output_tokens', swap(11, ['message_delta', { type: 'message_delta', delta: { stop_reason: 'end_turn' }, usage: { input_tokens: 4993 } }])],
+    ['a negative output count', swap(11, ['message_delta', { type: 'message_delta', delta: { stop_reason: 'end_turn' }, usage: { output_tokens: -5 } }])],
+    ['a fractional output count', swap(11, ['message_delta', { type: 'message_delta', delta: { stop_reason: 'end_turn' }, usage: { output_tokens: 7600.5 } }])],
+    ['an output count sent as a string', swap(11, ['message_delta', { type: 'message_delta', delta: { stop_reason: 'end_turn' }, usage: { output_tokens: '7600' } }])],
+    ['a final output count below message_start\'s', swap(11, ['message_delta', { type: 'message_delta', delta: { stop_reason: 'end_turn' }, usage: { output_tokens: 0 } }])],
+    ['a negative input count', swap(11, ['message_delta', { type: 'message_delta', delta: { stop_reason: 'end_turn' }, usage: { input_tokens: -1, output_tokens: 7600 } }])],
+    ['a negative cache count', swap(11, ['message_delta', { type: 'message_delta', delta: { stop_reason: 'end_turn' }, usage: { output_tokens: 7600, cache_read_input_tokens: -3 } }])],
+    ['a cumulative output count that goes down between message_delta events', [...DOC_STREAM.slice(0, 11), ['message_delta', { type: 'message_delta', delta: { stop_reason: null }, usage: { output_tokens: 8000 } }], DOC_STREAM[11], DOC_STREAM[12]]],
     ['an event after message_stop', [...DOC_STREAM, ['ping', { type: 'ping' }]]],
     ['a delta before message_start', DOC_STREAM.slice(1)],
     ['two message_start events', [DOC_STREAM[0], ...DOC_STREAM]],
