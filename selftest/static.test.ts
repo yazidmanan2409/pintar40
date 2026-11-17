@@ -58,6 +58,7 @@ import { a2aDaruratTests } from "./a2a-c-darurat.test";
 import { a2bBatasTests } from "./a2b-batas.test";
 import { a2bR2DbTests } from "./a2b-r2.test";
 import { c2wF4Tests } from "./c2w-f4.test";
+import { a2bMulaiDbTests } from "./a2b-mulai.test";
 import { adm02Tests } from "./adm02.test";
 import { adm09Tests } from "./adm09.test";
 import { d088iTests } from "./d088i.test";
@@ -2181,6 +2182,7 @@ export const staticTests: SelfTest[] = [
   ...a2bBatasTests,
   ...a2bR2DbTests,
   ...c2wF4Tests,
+  ...a2bMulaiDbTests,
   ...adm02Tests,
   ...adm09Tests,
   ...d088iTests,

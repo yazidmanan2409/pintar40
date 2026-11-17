@@ -1,69 +1,61 @@
--- A2b's staging promotion: the preservation query (PLAN-A2B-C2W.md A13; Bob's GO of 16 Nov; Sharon, `fdffee31`).
--- It is docs/completion-4.1/batches/a2a-evidence/preservation-C-after.sql (change C's "after" read, itself the
--- checkpoint's query from `main`) with four changes, and nothing else:
---   1. `batas` is back to two nulls: A2b takes a fresh "before" read, BEFORE the merge.
---   2. `baru` also leaves out, by name, the one column A2b adds to data that already exists:
---        maintenance_windows.reason_code   (20270120190000_a_planned_window_gives_its_reason.sql)
---      A2b's fourteen migrations (268 to 281) add no other column, alter no other column, and change no existing row:
---      every insert and update they carry is inside a function body, or a new client_rpc_registry row (created
---      after the cutoff, outside every fingerprint).
---   3. Line 63, the preserved line for maintenance_windows: every window created up to the cutoff whose end
---      (ended_at, else ends_at) had passed at the cutoff, as a count and an md5 of each row's content in id order,
---      leaving out by name A2a's node_ids, t_stop and t_lift and A2b's reason_code (`mw_keluar`).
---   4. Lines 73 and 74, the maintenance_windows "state" lines, read with the rule below; not "preserved".
+-- A2b's staging promotion: the preservation query (PLAN-A2B-C2W.md A13; the Chief Architect's GO of 16 Nov; restated
+-- for Sharon's freeze checks P1 to P3, A2B-FREEZE-3c58620e.md at e07e67a6).
 --
--- WHY ONLY FINISHED WINDOWS ARE PRESERVED. A window that is still planned, active or open at the cutoff may legitimately
--- change after it: the minute tick writes activation_recorded_at and deactivation_recorded_at, and an administrator
--- may end it (ended_at, ended_by_person_id, end_reason) or extend it (ends_at). Line 73 lists those windows by id at
--- each read. Line 74 counts finished windows whose deactivation is not yet recorded at the read; at the "before" read
--- it should be 0 (the tick runs every minute). If it is not 0, line 63 may move by exactly those rows, and the
--- comparison says so.
+-- THE PAIR IS 267 -> 282. Staging holds 267 migrations today (A2a change C, the last promotion). A2b adds fifteen,
+-- 268 to 282 (20270120100000 to 20270120240000; the last is the start path, A2b reopened 16 Nov). Line 10 is expected to
+-- read "267 / 20270119270000" BEFORE the merge and "282 / 20270120240000" AFTER it; nothing else under "preserved" may move.
 --
--- What follows is change C's header, unchanged.
---
--- The 4.1 staging checkpoint's preservation query (STAGING-CHECKPOINT-BEFORE-A2A.md steps 5 and 10; Sharon,
--- CHECKPOINT-RUNBOOK-c51e6d47…, "the preservation query and the synthetic rows"). It extends Batch 5's
--- (docs/completion-4.0/batch-5/evidence/staging/preservation.sql) to what 225-244 can touch in data that already exists.
---
--- READ ONLY. Run it in a read-only transaction, once BEFORE the merge and once AFTER the last check (step 10). Every
--- line under "preserved" must be equal. The lines under "state" are expected to move from 224 to 244 (named on the
--- preconditions page). Nothing here writes.
---
--- ONLY ROWS THAT EXISTED BEFORE. Every fingerprint covers only the rows that existed at the "before" read: by creation
--- time up to the cutoff, and audit_log by id up to its watermark. Each fingerprint is a count and an md5 of each row's
--- content in id order. So the checkpoint's own rows (synthetic people, their accounts, suspensions, requests, sign-in
--- records, audit rows, and the one anonymised person: the preconditions page lists them) fall outside both reads by
--- construction. They are also never matched by their marker alone.
+-- READ ONLY. Run it in a read-only transaction, once BEFORE the merge and once AFTER the promotion's last check. Nothing
+-- here writes.
 --   * BEFORE the merge: leave the two values in `batas` as null. The read takes now() and audit_log's last id, and
 --     prints them on its first two lines.
 --   * AFTER: write those two printed values into `batas`, in place of the two nulls, and run it again.
 --
--- THE SAME TEXT READS AT 224 AND AT 244. Rows are read as to_jsonb(row) minus the 24 columns 225-244 add (`baru`).
--- So a column that exists only at 244 never changes a fingerprint, and the query names no column 224 lacks. No
--- column type changes between 224 and 244 (the rollback's migra diff shows only added columns, and
--- item_options.rationale made nullable).
+-- ONLY ROWS THAT EXISTED BEFORE. Every fingerprint covers only the rows that existed at the "before" read: by creation
+-- time up to the cutoff, and audit_log by id up to its watermark. Each is a count and an md5 of each row's content in
+-- id order (to_jsonb(row)), so rows written after the cutoff fall outside both reads by construction.
 --
--- WHAT 225-244 CHANGE IN EXISTING DATA, BY DESIGN, and how each is read:
---   * 233 (L-1) rewrites auth.users.banned_until = 'infinity' to public.akun_terkunci_sampai(). Users are therefore
---     fingerprinted by whether they are locked, not by the stored instant.
---   * 228 and 241 fill only the columns they add, which are outside the fingerprints.
---   * The scheduled closure (227/231, every 5 minutes) closes sittings that are still open after their deadline. That
---     is A1's purpose. So the sittings fingerprint covers only sittings that had already ended at the cutoff and were
---     not ended or closed after it. The sittings still open at the read are counted on their own line. After the
---     merge, "closed by the schedule since the cutoff" counts those the job ended. Each must have been open at the
---     "before" read.
+-- WHAT IS LEFT OUT, AND WHY: only what A2b adds, plus three exclusions each with its own reason.
+--   * `baru` and `mw_keluar` hold the one column A2b adds to data that already exists, maintenance_windows.reason_code
+--     (20270120190000). It exists only after A2b, so leaving it out by name is what lets the same text read at 267 and
+--     at 282. Its value on the existing rows is held on its own line instead: line 64, no window created before the cutoff
+--     carries a code (the migration adds the column with no default and fills nothing).
+--     A2b's fifteen migrations add no other column, alter no other column, change no column's type, and change no
+--     existing row: every insert and update they carry is inside a function body, or a new client_rpc_registry row
+--     (created after the cutoff, outside every fingerprint). So every other existing column is fingerprinted,
+--     including the darurat_* and closure_* columns of assessment_sessions and the node_ids, t_stop and t_lift of
+--     maintenance_windows, which A2b's own code can write.
+--   * Line 44, auth.users: a user is read as locked or not (banned_until is not null), not by the stored instant. Since
+--     233 (4.0, L-1) a lock is stored as akun_terkunci_sampai(), an instant the platform computes; the lock itself is
+--     what must be preserved. A2b writes nothing in auth.
+--   * Line 58, assessment_sessions: only sittings that had ended at the cutoff, and were not ended or closed after it.
+--     The scheduled closure (A1, every 5 minutes) legitimately ends sittings still open past their deadline; lines 70
+--     to 72 read those, with the rule there.
+--   * maintenance_windows is read in two parts (Sharon P3):
+--     - line 63, the windows finished at the cutoff (ended_at, else ends_at, at or before it): every column but
+--       reason_code;
+--     - line 75, the windows not finished at the cutoff: every column but reason_code and the seven a legitimate act
+--       writes (`mw_jalan`: starts_at for «Mulai sekarang», ends_at for «Perpanjang», ended_at, ended_by_person_id and
+--       end_reason for an end, activation_recorded_at and deactivation_recorded_at for the minute tick). It still
+--       covers kind, platform, institution_ids, node_ids, message, reason, created_by_person_id, created_at, t_stop and
+--       t_lift. THE RULE: if line 75 differs, every window that differs must have an audit_log row above the
+--       watermark (line 76 lists them); a difference with none is a material discrepancy. An emergency lift between
+--       the reads writes t_lift and is such a row.
+--   * Lines 73 and 74 are state, not preserved: 73 lists the unfinished windows by id; 74 counts finished windows whose
+--     deactivation the tick has not yet recorded (expected 0 at the "before" read; if not 0, line 63 may move by
+--     exactly those rows).
+--
+-- Rehearsed locally 267 -> 282 with planted windows: PRESERVATION-A2B.md.
 with batas as (
   select coalesce(null::timestamptz, now()) as saat,
          coalesce(null::bigint, (select max(id) from public.audit_log)) as audit_id
 ),
-baru as (select array[
-  'attempt_request_id', 'closure_at', 'closure_by_person_id', 'closure_deadline', 'closure_kind', 'closure_reason',
-  'frozen_at', 'frozen_cause', 'frozen_remaining_seconds', 'frozen_suspension_id', 'unfrozen_at', 'unfrozen_by_person_id',
-  'discarded_at', 'discarded_by_person_id', 'rationale_withdrawn_by', 'edited_at', 'edited_by_person_id', 'revision',
-  'dipegang_saat_tutup', 'replaced_at', 'replaced_by_release_id', 'withdrawal_reason', 'withdrawn_at',
-  'withdrawn_by_person_id', 'darurat_dikredit_sampai', 'darurat_geser_detik', 'darurat_jendela_id', 'darurat_keluar', 'darurat_sejak',
-  'reason_code']::text[] as k),
-mw_keluar as (select array['node_ids', 't_stop', 't_lift', 'reason_code']::text[] as k),
+-- only what A2b adds (the header): maintenance_windows.reason_code
+baru as (select array['reason_code']::text[] as k),
+mw_keluar as (select array['reason_code']::text[] as k),
+-- an unfinished window: reason_code, and the seven columns a legitimate act writes (the header, line 75)
+mw_jalan as (select array['reason_code', 'starts_at', 'ends_at', 'ended_at', 'ended_by_person_id', 'end_reason',
+  'activation_recorded_at', 'deactivation_recorded_at']::text[] as k),
 demo as (select id from public.institutions where slug = 'sekolah-demo-pintar'),
 uji as (select id from public.institutions where slug like 'sekolah-uji-%'),
 orang_demo as (select distinct e.person_id from public.enrollments e where e.institution_id = (select id from demo)
@@ -73,7 +65,7 @@ sidik(n, garis, nilai) as (
   select 1, 'cutoff (write into batas.saat after the merge)', (select saat::text from batas)
   union all select 2, 'audit_log watermark (write into batas.audit_id after the merge)', (select audit_id::text from batas)
 
-  -- ── state: expected to move from 224 to 244 by the promotion (the migration count is runbook steps 5 and 8)
+  -- ── state: expected to move from 267 to 282 by the promotion (line 10; the header)
   union all select 10, 'state · migrations',
     (select count(*) || ' / ' || max(version) || '; versions digest ' || md5(string_agg(version, ',' order by version))
        from supabase_migrations.schema_migrations)
@@ -116,7 +108,7 @@ sidik(n, garis, nilai) as (
   union all select 33, 'management_decisions_all', (select md5(coalesce(string_agg(to_jsonb(t)::text, ',' order by t.id), ''))
        from public.management_decisions t, batas where t.raised_at <= batas.saat)
 
-  -- ── preserved: what 225-244 read or write in tables that already exist (every row that existed at the cutoff)
+  -- ── preserved: every row that existed at the cutoff, in the tables A2b's code reads or writes (and 4.0's lines above)
   union all select 40, 'persons', (select count(*) || ' ' || md5(coalesce(string_agg(to_jsonb(t)::text, ',' order by t.id), ''))
        from public.persons t, batas where t.created_at <= batas.saat)
   union all select 41, 'person_usernames', (select count(*) || ' ' || md5(coalesce(string_agg(to_jsonb(t)::text, ',' order by t.person_id), ''))
@@ -132,7 +124,7 @@ sidik(n, garis, nilai) as (
      where u.created_at <= batas.saat and u.banned_until is not null)
   union all select 46, 'role_assignments', (select count(*) || ' ' || md5(coalesce(string_agg(to_jsonb(t)::text, ',' order by t.id), ''))
        from public.role_assignments t, batas where t.created_at <= batas.saat)
-  union all select 47, 'person_suspensions (224 columns)', (select count(*) || ' ' || md5(coalesce(string_agg((to_jsonb(t) - (select k from baru))::text, ',' order by t.id), ''))
+  union all select 47, 'person_suspensions', (select count(*) || ' ' || md5(coalesce(string_agg((to_jsonb(t) - (select k from baru))::text, ',' order by t.id), ''))
        from public.person_suspensions t, batas where t.started_at <= batas.saat)
   union all select 48, 'account_requests', (select count(*) || ' ' || md5(coalesce(string_agg(to_jsonb(t)::text, ',' order by t.id), ''))
        from public.account_requests t, batas where t.created_at <= batas.saat)
@@ -142,19 +134,19 @@ sidik(n, garis, nilai) as (
        from public.institutions t, batas where t.created_at <= batas.saat)
   union all select 51, 'org_nodes', (select count(*) || ' ' || md5(coalesce(string_agg(to_jsonb(t)::text, ',' order by t.id), ''))
        from public.org_nodes t, batas where t.created_at <= batas.saat)
-  union all select 52, 'courses (224 columns)', (select count(*) || ' ' || md5(coalesce(string_agg((to_jsonb(t) - (select k from baru))::text, ',' order by t.id), ''))
+  union all select 52, 'courses', (select count(*) || ' ' || md5(coalesce(string_agg((to_jsonb(t) - (select k from baru))::text, ',' order by t.id), ''))
        from public.courses t, batas where t.created_at <= batas.saat)
-  union all select 53, 'plp_releases (224 columns)', (select count(*) || ' ' || md5(coalesce(string_agg((to_jsonb(t) - (select k from baru))::text, ',' order by t.id), ''))
+  union all select 53, 'plp_releases', (select count(*) || ' ' || md5(coalesce(string_agg((to_jsonb(t) - (select k from baru))::text, ',' order by t.id), ''))
        from public.plp_releases t, batas where t.created_at <= batas.saat)
-  union all select 54, 'items (224 columns)', (select count(*) || ' ' || md5(coalesce(string_agg((to_jsonb(t) - (select k from baru))::text, ',' order by t.id), ''))
+  union all select 54, 'items', (select count(*) || ' ' || md5(coalesce(string_agg((to_jsonb(t) - (select k from baru))::text, ',' order by t.id), ''))
        from public.items t, batas where t.created_at <= batas.saat)
-  union all select 55, 'item_options (224 columns)', (select count(*) || ' ' || md5(coalesce(string_agg((to_jsonb(t) - (select k from baru))::text, ',' order by t.id), ''))
+  union all select 55, 'item_options', (select count(*) || ' ' || md5(coalesce(string_agg((to_jsonb(t) - (select k from baru))::text, ',' order by t.id), ''))
        from public.item_options t, batas where t.created_at <= batas.saat)
   union all select 56, 'learning_assignments', (select count(*) || ' ' || md5(coalesce(string_agg(to_jsonb(t)::text, ',' order by t.id), ''))
        from public.learning_assignments t, batas where t.created_at <= batas.saat)
   union all select 57, 'assessment_assignments', (select count(*) || ' ' || md5(coalesce(string_agg(to_jsonb(t)::text, ',' order by t.id), ''))
        from public.assessment_assignments t, batas where t.created_at <= batas.saat)
-  union all select 58, 'assessment_sessions ended at the cutoff (224 columns)', (select count(*) || ' ' || md5(coalesce(string_agg((to_jsonb(t) - (select k from baru))::text, ',' order by t.id), ''))
+  union all select 58, 'assessment_sessions ended at the cutoff', (select count(*) || ' ' || md5(coalesce(string_agg((to_jsonb(t) - (select k from baru))::text, ',' order by t.id), ''))
        from public.assessment_sessions t, batas
       where t.created_at <= batas.saat and t.status not in ('CREATED', 'IN_PROGRESS', 'PAUSED')
         and coalesce((to_jsonb(t) ->> 'closure_at')::timestamptz, '-infinity') <= batas.saat
@@ -168,10 +160,24 @@ sidik(n, garis, nilai) as (
   union all select 62, 'audit_log up to the watermark', (select count(*) || ' ' || md5(coalesce(string_agg(to_jsonb(t)::text, ',' order by t.id), ''))
        from public.audit_log t, batas where t.id <= batas.audit_id)
 
-  union all select 63, 'maintenance_windows finished at the cutoff (without node_ids, t_stop, t_lift, reason_code)',
+  union all select 63, 'maintenance_windows finished at the cutoff (without reason_code)',
     (select count(*) || ' ' || md5(coalesce(string_agg((to_jsonb(t) - (select k from mw_keluar))::text, ',' order by t.id), ''))
        from public.maintenance_windows t, batas
       where t.created_at <= batas.saat and coalesce(t.ended_at, t.ends_at) <= batas.saat)
+
+  union all select 64, 'maintenance_windows created before the cutoff that carry a reason_code',
+    (select count(*)::text from public.maintenance_windows t, batas
+      where t.created_at <= batas.saat and to_jsonb(t) ->> 'reason_code' is not null)
+  union all select 75, 'maintenance_windows not finished at the cutoff (without reason_code and the seven an act writes)',
+    (select count(*) || ' ' || md5(coalesce(string_agg((to_jsonb(t) - (select k from mw_jalan))::text, ',' order by t.id), ''))
+       from public.maintenance_windows t, batas
+      where t.created_at <= batas.saat and coalesce(t.ended_at, t.ends_at, 'infinity') > batas.saat)
+  union all select 76, 'audit_log above the watermark on those windows (the rule for line 75)',
+    (select count(*) || ' ' || coalesce(string_agg(l.target_id || ':' || l.action, ',' order by l.id), '')
+       from public.audit_log l, batas
+      where l.id > batas.audit_id and l.target_table = 'maintenance_windows'
+        and l.target_id in (select t.id::text from public.maintenance_windows t
+                             where t.created_at <= batas.saat and coalesce(t.ended_at, t.ends_at, 'infinity') > batas.saat))
 
   -- ── the scheduled closure's own lines (A1): not "preserved"; read with the rule in the header
   union all select 70, 'sittings open at this read (created before the cutoff)', (select count(*) || ' ' || md5(coalesce(string_agg(t.id::text, ',' order by t.id), ''))

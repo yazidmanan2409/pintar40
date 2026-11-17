@@ -17,10 +17,6 @@ async function db() {
   return (await supabaseServer()) as unknown as engine.EngineClient;
 }
 
-export async function startSession(assessmentAssignmentId: string) {
-  return engine.startSession(await db(), assessmentAssignmentId);
-}
-
 export async function submitAnswer(
   presentedItemId: string, clientSeq: number, value: LearnerAnswer,
   receiptMode: "LIVE" | "REPLAYED" | "LATE_SYNC" = "LIVE", clientAssertedAt?: string,

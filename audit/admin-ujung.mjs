@@ -414,11 +414,16 @@ await step("B4-W11", "alpha's admin checks a time, schedules a window in step 2,
   const kabar = langkah2.locator('[role="status"]');
   harus(rec, (await kabar.count()) >= 1 && norm(await kabar.first().innerText()).length > 0,
     `step 2 says what the window would meet before anything is saved («${norm(await kabar.first().innerText().catch(() => ""))}», ${await kabar.count()} line(s))`);
+  // A2b D2 (Daisy, A2-KATA-DESAIN B1): a planned window names its reason from the list. «Lainnya» keeps the walk's own
+  // text as the stored reason (a coded reason stores its code), so the window is still found by it below
+  await langkah2.getByRole("radio", { name: "Lainnya", exact: true }).check();
   await langkah2.locator('input[name="alasan"]').fill(alasan);
   await langkah2.getByRole("button", { name: "Jadwalkan pemeliharaan" }).click();
   await A.waitForURL((u) => u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});
   await A.waitForLoadState("networkidle");
   const jendela = sql(`select id from public.maintenance_windows where reason = '${esc(alasan)}' order by created_at desc limit 1`);
+  harus(rec, sql(`select coalesce(reason_code, '') from public.maintenance_windows where reason = '${esc(alasan)}' order by created_at desc limit 1`) === "LAINNYA",
+    "the window carries the reason chosen on the screen (LAINNYA)");
   if (!harus(rec, !!jendela, "the window is saved")) return;
   harus(rec, Number(jejak(sejak, "maintenance.scheduled", jendela)) >= 1, "scheduling is audited (maintenance.scheduled)");
   const baris = A.locator(`li[data-jendela="${jendela}"]`);

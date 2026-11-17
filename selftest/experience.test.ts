@@ -2242,9 +2242,11 @@ export const experienceTests: SelfTest[] = [
       // MOVED 278 -> 279, RESTATED, A2b batch 2: 20270120210000 (the planned form chooses classes).
       // MOVED 279 -> 280, RESTATED, A2b batch 2: 20270120220000 (a window's place for its controller).
       // MOVED 280 -> 281, RESTATED, A2b batch 2: 20270120230000 (a notice's place for its controller, S-1).
-      // MOVED 281 -> 282, RESTATED, C2w A2B-R2: 20270121100000 (a distribution's place for its controller): two
+      // MOVED 281 -> 282, RESTATED, A2b reopened: 20270120240000 (a start refused for maintenance says its code): a
+      // replaced function body; no table, no column.
+      // MOVED 282 -> 283, RESTATED, C2w A2B-R2 on main after A2b: 20270121100000 (a distribution's place for its controller): two
       // functions and two registry rows; no table, no column.
-      c.expect(migrations.length === 282, `${migrations.length} migrations; the frozen baseline has 282`);
+      c.expect(migrations.length === 283, `${migrations.length} migrations; the frozen baseline has 283`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4162,8 +4164,9 @@ export const experienceTests: SelfTest[] = [
       // MOVED 278 -> 279, RESTATED, A2b batch 2, for 20270120210000 (the planned form chooses classes): no tour RPC.
       // MOVED 279 -> 280, RESTATED, A2b batch 2, for 20270120220000 (a window's place for its controller): no tour RPC.
       // MOVED 280 -> 281, RESTATED, A2b batch 2, for 20270120230000 (a notice's place for its controller, S-1): no tour RPC.
-      // MOVED 281 -> 282, RESTATED, C2w A2B-R2, for 20270121100000 (a distribution's place for its controller): no tour RPC.
-      c.expect(migs.length === 282, `${migs.length} migrations; the baseline has 282`);
+      // MOVED 281 -> 282, RESTATED, A2b reopened, for 20270120240000 (a start refused for maintenance says its code): no tour RPC.
+      // MOVED 282 -> 283, RESTATED, C2w A2B-R2 on main after A2b, for 20270121100000 (a distribution's place for its controller): no tour RPC.
+      c.expect(migs.length === 283, `${migs.length} migrations; the baseline has 283`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
