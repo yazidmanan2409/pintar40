@@ -51,8 +51,9 @@ export const KATA_CATATAN: Array<[string, string, string]> = [
   ["studio.catatan.tulis", "Tulis catatan", "Write a note"],
   ["studio.catatan.ganti", "Ganti catatan", "Replace the note"],
   ["studio.catatan.label", "Catatan untuk pilihan {label}", "Note on option {label}"],
-  ["studio.catatan.petunjuk", "Apa yang ditunjukkan pilihan ini tentang cara berpikir murid? Catatan ini tidak dilihat murid dan tidak mengubah soal atau nilai. Sampai 1000 karakter.",
-    "What does this option show about how learners think? Learners never see this note, and it changes no question or score. Up to 1000 characters."],
+  // §8.2 (1fca435c; Sharon's D4): a note never names a learner, the hint's second sentence
+  ["studio.catatan.petunjuk", "Apa yang ditunjukkan pilihan ini tentang cara berpikir murid? Jangan menyebut nama atau data murid mana pun. Catatan ini tidak dilihat murid dan tidak mengubah soal atau nilai. Sampai 1000 karakter.",
+    "What does this option show about how learners think? Do not name any learner or include any learner's data. Learners never see this note, and it changes no question or score. Up to 1000 characters."],
   ["studio.catatan.petunjuk_ganti", "Catatan lama tetap tersimpan dan terlihat di Catatan sebelumnya.", "The old note stays saved and visible under Earlier notes."],
   ["studio.catatan.simpan", "Simpan catatan", "Save the note"],
   ["studio.catatan.batal", "Batal", "Cancel"],
@@ -73,7 +74,21 @@ export const KATA_CATATAN: Array<[string, string, string]> = [
     "PINTAR Library questions are annotated only by PINTAR's reviewers. Nothing was saved."],
   ["studio.catatan.galat.note_not_current", "Catatan ini baru saja diganti oleh peninjau lain. Muat ulang halaman untuk membaca catatan terbarunya. Tidak ada yang disimpan.",
     "Another reviewer has just replaced this note. Reload the page to read the latest note. Nothing was saved."],
+  // §8.1 (1fca435c): two first notes at once
+  ["studio.catatan.galat.note_exists", "Pilihan ini baru saja diberi catatan oleh peninjau lain. Muat ulang halaman untuk membacanya. Tidak ada yang disimpan.",
+    "Another reviewer has just written a note on this option. Reload the page to read it. Nothing was saved."],
 ];
+
+type Ct = { id: string; item: string; versi: number; pada: string; soal?: string };
+/** Daisy §8.3's two rules, read loosely so this test is red, not a type error, before they exist. */
+type Kontrak = {
+  blokCatatan: (label: string[], c: Ct[], semua: boolean, kiniItem?: string) => Array<{ label: string; kini: Ct[] }>;
+  catatanGuru: (c: Ct[]) => Ct[];
+};
+/** A note as the reads return it, for the pure rules. */
+const cat = (id: string, item: string, versi: number, pada: string, x: Record<string, unknown> = {}) => ({
+  id, item, versi, opsi: "B", isi: id, pada, pustaka: false, nama: "N", menggantikan: null, digantikan: false, digantikan_pada: null,
+  kunci_saat_itu: "A", kunci_kini: "A", sebelum_koreksi: false, ...x });
 
 export const c2wCatatanLayarTests: SelfTest[] = [
   {
@@ -99,7 +114,21 @@ export const c2wCatatanLayarTests: SelfTest[] = [
       c.expect(!/"studio\.catatan[^"]*":\s*\{[^}]*anotasi/i.test(hle), "a notes string says «anotasi»");
       const komponen = baca(repoRoot, "src/components/studio/CatatanPeninjau.tsx");
       c.expect(/pin-noprint/.test(komponen) && (komponen.match(/<details\b/g) ?? []).length >= 2, "the notes' disclosures are not pin-noprint (O-3), or the nested «Catatan sebelumnya» is missing");
-      return c.verdict("every code catatan_tolak (PR210) raises is the contract's and the reverse; Daisy's words are in the copy table word for word, each with her English; no notes string says «anotasi»; the notes' disclosures never print");
+      // §8.3 (1fca435c): several versions of one option
+      const kt = (await import("../src/lib/catatan-kontrak")) as unknown as Partial<Kontrak>;
+      if (c.expect(typeof kt.blokCatatan === "function" && typeof kt.catatanGuru === "function", "catatan-kontrak has no blokCatatan or no catatanGuru (Daisy §8.3)")) {
+        // version 3 on screen (q3); notes on v1 (newest written), v3 and v2
+        const semua = [cat("n1", "q1", 1, "2026-11-17T10:00:00Z"), cat("n3", "q3", 3, "2026-11-15T10:00:00Z"), cat("n2", "q2", 2, "2026-11-16T10:00:00Z")];
+        const urut = kt.blokCatatan!(["A", "B"], semua, false, "q3")[0]?.kini.map((x) => x.id).join(",");
+        c.expect(urut === "n3,n2,n1", `Studio orders an option's notes ${urut}; Daisy §8.3: the version on screen first, then newest version first (n3,n2,n1)`);
+        const guru = kt.catatanGuru!(semua.map((x) => ({ ...x, soal: "p" })));
+        c.expect(guru.map((x) => x.id).join(",") === "n3", `beside the class report option B shows ${guru.map((x) => x.id).join(",")}; Daisy §8.3: one note, the newest version's (n3)`);
+        const lama = kt.catatanGuru!([cat("m1", "q1", 1, "2026-11-10T10:00:00Z", { soal: "p" }), cat("m2", "q2", 2, "2026-11-09T10:00:00Z", { soal: "p" }),
+          cat("m3", "q1", 1, "2026-11-10T10:00:00Z", { soal: "r" })]);
+        c.expect(lama.map((x) => x.id).sort().join(",") === "m2,m3", `one note per question and option: ${lama.map((x) => x.id).join(",")}; expected m2 (the newer version) and m3 (another question)`);
+      }
+      c.expect(/data-catatan-ganti/.test(komponen) && /catatanKiniDi\(semua, item, b\.label\)/.test(komponen), "«Ganti catatan» is not tied to the note on the version on screen");
+      return c.verdict("every code catatan_tolak (PR210) raises is the contract's and the reverse; Daisy's words (with §8's additions at 1fca435c: the hint's no-learner sentence and NOTE_EXISTS) are in the copy table word for word, each with her English; no notes string says «anotasi»; the notes' disclosures never print; executes blokCatatan and catatanGuru: in Studio the version on screen's note first, then newest version first, «Ganti catatan» only for the version on screen; beside the class report one note per question and option, the newest version's");
     },
   },
   {
