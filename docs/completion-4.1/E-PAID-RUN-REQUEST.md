@@ -69,6 +69,24 @@ log a credential.
 | 7 | **Go: the paid calls.** At most 6 calls per provider, with the runner capped at US$5 / US$10 and `--pack-sha ecb0d3c4…`. The material sent is the synthetic SD Kelas 5 package only. **No real-person data is sent.** | Bob, on your "go" | The ledger, the provenance records and the cost per provider |
 | 8 | **After the run:** <br>• You revoke both keys. <br>• I propose removing the two hosts (you approve). <br>• You may leave or lower the console limits. | You and Bob | The revocations and the removal, confirmed |
 
+### 2a · Sharon's additions (review `c878038e`, PASS on `3b6f802d`)
+
+- **A1. Sharon's sheet.** It is built only from `blind`'s allowlists: codes, stems, options and keys. It sits at a named
+  path. The sealed map is never placed where she can read it. She commits her flags, and their SHA-256, on her own branch.
+- **A2. The audit order.** J1's and J2's sheet hashes are committed **before** Bob lists the disagreements and flags for
+  J3. The audit then reads, in order:
+  1. the flags hash;
+  2. the sheet hashes;
+  3. J3's list;
+  4. the map.
+- **A3. The key proof.** The keys are injected by the network proxy, so the environment holds only a dummy, and the
+  runner's "key present" check proves nothing. **Step 6's model-listing call is the real proof of authentication. It
+  must succeed on both hosts before step 7.** No real key is ever in the environment, and no request header is logged.
+- **A4. The network window.** The record shows that the ledger's first and last request times fall inside the network
+  approval window (step 5 to step 8).
+- **A5. J3 and the flags.** J3 receives Sharon's reason for a flag as a reviewer's note. It weighs no more than a
+  judge's reason.
+
 ---
 
 ## 3 · From the run to Thursday 19 Nov
