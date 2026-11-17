@@ -825,6 +825,14 @@ async function selfTest() {
   check(count(c, 'anthropic', 'http_4xx') === 1 && count(c, 'anthropic') === 1 && c.summary.items['anthropic:bab2'].outcome === 'not_attempted', '(c) a plain 400 is not retried and stops the provider (bab2 not attempted)');
   check(count(c, 'openai', 'http_5xx') === 3 && c.summary.items['openai:bab1'].valid === false, '(c) three 5xx: retries exhausted at 3 attempts, request failed');
   check(c.exitCode === 3 && c.summary.abort?.kind === 'overrun' && count(c, 'openai') === 4, '(c) a reported cost above its reservation aborts at once (exit 3), no further call');
+  // v2, red first (E incident run 1, 17 Nov): a paid response is kept even when its cost overruns the reservation.
+  const ovr = c.ledger.entries.find((x) => x.provider === 'openai' && x.chapter === 2 && x.status === 'overrun');
+  check(existsSync(join(c.outDir, 'openai', 'attempts', 'bab2.a1.json')) && /^[0-9a-f]{64}$/.test(ovr?.response_sha256 ?? ''),
+    'v2 (c) an overrun keeps the paid response: the attempt file is written and its SHA-256 is in the ledger, then the run aborts');
+  // v2, red first: the input bound is above the real count observed on 17 Nov (anthropic bab1: 4,993 input tokens).
+  { const t = kitRequest(1), sch = schemaText(); const wc = worstCase(Buffer.byteLength(t, 'utf8') + Buffer.byteLength(sch, 'utf8'), 12000, { input: 2, output: 10 });
+    check(wc.input_bound >= 4993 && wc.input_bound >= Buffer.byteLength(t + sch, 'utf8'),
+      `v2 the bab1 input bound (${wc.input_bound}) is at least the real 4,993 tokens and at least the request's UTF-8 bytes`); }
 
   // (d) a spend or billing stop: never retried, and no further call to that provider
   const d = await scen('d-spend-stops', FAULTS_STOP, {});
