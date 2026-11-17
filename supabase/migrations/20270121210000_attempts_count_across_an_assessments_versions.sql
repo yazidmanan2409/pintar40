@@ -772,3 +772,231 @@ begin
     raise exception 'A3, ruling 46: a revision or a new version does not carry its root';
   end if;
 end $$;
+
+-- ---------------------------------------------------------------------------------------------------------------
+-- A3, ruling 46, Sharon's answer to Q2 (17 Nov; A3-PG1): an approved further attempt spans the assessment's line, as the
+-- count does. The assignments one grant serves: every assignment, in the same school and the same school year, of a
+-- definition on the same line as this one's (this one included). Internal: read by the five places below.
+create or replace function public.percobaan_penugasan_segaris(p_assessment_assignment uuid)
+returns setof uuid language sql stable security definer set search_path = public, pg_temp as $$
+  select a2.id
+    from public.assessment_assignments aa
+    join public.assessment_definitions d on d.id = aa.assessment_definition_id
+    join public.assessment_definitions d2 on d2.lineage_root_definition_id = d.lineage_root_definition_id
+    join public.assessment_assignments a2 on a2.assessment_definition_id = d2.id
+     and a2.institution_id = aa.institution_id
+     and a2.academic_period_id is not distinct from aa.academic_period_id
+   where aa.id = p_assessment_assignment
+$$;
+revoke all on function public.percobaan_penugasan_segaris(uuid) from public, anon, authenticated;
+
+-- A3, ruling 46 (Q2): REDEFINED IN FULL from its live body (20270114100000 as the A2a and A2b migrations patched it, read
+-- with pg_get_functiondef); one change: the grant's scope is the line (percobaan_penugasan_segaris).
+CREATE OR REPLACE FUNCTION public.percobaan_izin_jumlah(p_person uuid, p_assessment_assignment uuid)
+ RETURNS integer
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public', 'pg_temp'
+AS $function$
+  select count(*)::integer from public.attempt_requests r
+   where r.person_id = p_person and r.assessment_assignment_id in (select public.percobaan_penugasan_segaris(p_assessment_assignment)) and r.status = 'APPROVED'
+$function$;
+revoke all on function public.percobaan_izin_jumlah(uuid, uuid) from public, anon, authenticated;
+
+-- A3, ruling 46 (Q2): REDEFINED IN FULL from its live body (20270114100000 as the A2a and A2b migrations patched it, read
+-- with pg_get_functiondef); one change: the grant's scope is the line (percobaan_penugasan_segaris).
+CREATE OR REPLACE FUNCTION public.percobaan_tandai(p_session uuid)
+ RETURNS void
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public', 'pg_temp'
+AS $function$
+declare s public.assessment_sessions; v_batas integer; v_req uuid;
+begin
+  select * into s from public.assessment_sessions where id = p_session;
+  if s.id is null or s.assessment_assignment_id is null or s.attempt_request_id is not null then return; end if;
+  select d.attempt_limit into v_batas from public.assessment_definitions d where d.id = s.assessment_definition_id;
+  if v_batas is null or public.percobaan_terpakai(s.person_id, s.assessment_assignment_id) <= v_batas then return; end if;
+  select r.id into v_req from public.attempt_requests r
+   where r.person_id = s.person_id and r.assessment_assignment_id in (select public.percobaan_penugasan_segaris(s.assessment_assignment_id)) and r.status = 'APPROVED'
+   order by (exists (select 1 from public.assessment_sessions x where x.attempt_request_id = r.id
+                       and coalesce(x.termination_cause::text, '') not in ('INSTITUTIONAL_REVOCATION', 'ADMINISTRATIVE_TERMINATION'))),
+            r.decided_at, r.id
+   limit 1;
+  if v_req is not null then
+    update public.assessment_sessions set attempt_request_id = v_req where id = p_session;
+  end if;
+end
+$function$;
+revoke all on function public.percobaan_tandai(uuid) from public, anon, authenticated;
+
+-- A3, ruling 46 (Q2): REDEFINED IN FULL from its live body (20270114100000 as the A2a and A2b migrations patched it, read
+-- with pg_get_functiondef); one change: the grant's scope is the line (percobaan_penugasan_segaris).
+CREATE OR REPLACE FUNCTION public.minta_percobaan(p_session uuid, p_alasan text)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public', 'pg_temp'
+AS $function$
+declare v_actor uuid := public.current_person_id(); s public.assessment_sessions; v_alasan text := btrim(coalesce(p_alasan, ''));
+        v_batas integer; v_pakai integer; v_izin integer; v_id uuid;
+begin
+  -- A2A-L01 (Sharon, A2A-L01-FINDING-f09da528.md): the learner first, before the sitting is touched
+  perform 1 from public.persons p, public.assessment_sessions a where a.id = p_session and p.id = a.person_id for share of p;
+  -- A2a D6.2: the learner, the shared fence, then protection read under it
+  perform public.pengerjaan_pagar(p_session);
+  select * into s from public.assessment_sessions where id = p_session for update;
+  if v_actor is null or s.id is null then perform public.pengerjaan_tolak('SITTING_NOT_ALLOWED'); end if;
+  if public.session_is_professional(s.id) then
+    perform public.pengerjaan_tolak(case when public.is_system_admin() then 'SITTING_PROFESSIONAL' else 'SITTING_NOT_ALLOWED' end);
+  end if;
+  if not public.boleh_kelola_pengerjaan(s.id) or s.person_id = v_actor then perform public.pengerjaan_tolak('SITTING_NOT_ALLOWED'); end if;
+  if char_length(v_alasan) < 10 or char_length(v_alasan) > 300 then perform public.pengerjaan_tolak('SITTING_REASON_REQUIRED'); end if;
+  select d.attempt_limit into v_batas from public.assessment_definitions d where d.id = s.assessment_definition_id;
+  if s.assessment_assignment_id is null or v_batas is null then perform public.pengerjaan_tolak('ATTEMPT_NOT_LIMITED'); end if;
+  perform public.maintenance_jaga_sesi(p_session);   -- A2b: the place, read at the write
+  -- one request at a time for this learner and assessment. A3, ruling 46 (Sharon's Q2): the assessment is its line,
+  -- so the key is the lineage root and the checks read every assignment on the line in this school and year. The
+  -- unique index (per assignment) is the narrower backstop; minta_percobaan is the only function that inserts (A3-PG2).
+  perform pg_advisory_xact_lock(hashtextextended('minta_percobaan:garis:' || s.person_id::text || ':'
+    || (select d.lineage_root_definition_id from public.assessment_definitions d where d.id = s.assessment_definition_id)::text, 0));
+  if exists (select 1 from public.attempt_requests r where r.person_id = s.person_id
+               and r.assessment_assignment_id in (select public.percobaan_penugasan_segaris(s.assessment_assignment_id)) and r.status = 'PENDING') then
+    perform public.pengerjaan_tolak('ATTEMPT_REQUEST_OPEN');
+  end if;
+  -- never while a sitting of this assessment is open (a held one is open): it is ended or resumed first
+  perform public.pengerjaan_putus_tenggat(x.id, true) from public.assessment_sessions x
+   where x.person_id = s.person_id and x.assessment_assignment_id in (select public.percobaan_penugasan_segaris(s.assessment_assignment_id))
+     and x.status in ('CREATED', 'IN_PROGRESS', 'PAUSED');
+  if exists (select 1 from public.assessment_sessions x where x.person_id = s.person_id
+               and x.assessment_assignment_id in (select public.percobaan_penugasan_segaris(s.assessment_assignment_id)) and x.status in ('CREATED', 'IN_PROGRESS', 'PAUSED')) then
+    perform public.pengerjaan_tolak('ATTEMPT_SITTING_OPEN');
+  end if;
+  v_pakai := public.percobaan_terpakai(s.person_id, s.assessment_assignment_id);
+  v_izin := public.percobaan_izin_jumlah(s.person_id, s.assessment_assignment_id);
+  if v_pakai < v_batas + v_izin then perform public.pengerjaan_tolak('ATTEMPT_NOT_NEEDED'); end if;
+
+  insert into public.attempt_requests (institution_id, person_id, assessment_assignment_id, session_id, requested_by_person_id, reason)
+  values (s.institution_id, s.person_id, s.assessment_assignment_id, s.id, v_actor, v_alasan)
+  returning id into v_id;
+  perform public.audit_write('attempt_request.requested', 'attempt_requests', v_id::text, s.institution_id,
+    jsonb_build_object('request_id', v_id, 'session_id', s.id, 'person_id', s.person_id,
+                       'assessment_assignment_id', s.assessment_assignment_id, 'reason', v_alasan, 'actor', v_actor,
+                       'attempts_used', v_pakai, 'attempt_limit', v_batas, 'attempts_granted', v_izin,
+                       'from', jsonb_build_object('status', null), 'to', jsonb_build_object('status', 'PENDING')));
+  return jsonb_build_object('ok', true, 'id', v_id, 'status', 'PENDING');
+end
+$function$;
+revoke all on function public.minta_percobaan(uuid, text) from public, anon, authenticated;
+grant execute on function public.minta_percobaan(uuid, text) to authenticated;
+
+-- A3, ruling 46 (Q2): REDEFINED IN FULL from its live body (20270114100000 as the A2a and A2b migrations patched it, read
+-- with pg_get_functiondef); one change: the grant's scope is the line (percobaan_penugasan_segaris).
+CREATE OR REPLACE FUNCTION public.daftar_pengerjaan(p_kelas uuid, p_assessment_assignment uuid)
+ RETURNS TABLE(person_id uuid, nama text, sesi_id uuid, jumlah_sesi integer, keadaan text, status session_status, mulai timestamp with time zone, tenggat timestamp with time zone, sisa_detik integer, diperpanjang integer, ditahan_sejak timestamp with time zone, sisa_ditahan_detik integer, murid_aktif boolean, berakhir_pada timestamp with time zone, dihitung boolean, percobaan_terpakai integer, batas_percobaan integer, percobaan_diizinkan boolean, izin_belum_dipakai boolean, permintaan_id uuid, permintaan_status text, permintaan_pada timestamp with time zone, permintaan_alasan text, permintaan_oleh_saya boolean, keputusan_pada timestamp with time zone, keputusan_alasan text)
+ LANGUAGE plpgsql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public', 'pg_temp'
+AS $function$
+declare v_me uuid := public.current_person_id(); aa public.assessment_assignments; v_batas integer;
+begin
+  select * into aa from public.assessment_assignments x where x.id = p_assessment_assignment;
+  if v_me is null or aa.id is null
+     or not exists (select 1 from public.org_nodes n where n.id = p_kelas and (n.id = aa.node_id or n.jalur @> array[aa.node_id]))
+     or exists (select 1 from public.learning_assignments la where la.id = aa.learning_assignment_id and public.release_is_professional(la.plp_release_id))
+     or not public.can_on_node('CAN_MANAGE_SITTINGS', p_kelas) then
+    perform public.pengerjaan_tolak('SITTING_NOT_ALLOWED');
+  end if;
+  select d.attempt_limit into v_batas from public.assessment_definitions d where d.id = aa.assessment_definition_id;
+  return query
+    with murid as (
+      select e.person_id as pid from public.memberships m join public.enrollments e on e.id = m.enrollment_id
+       where m.node_id = p_kelas and m.valid_to is null and e.status = 'ACTIVE'
+      union
+      select s.person_id from public.assessment_sessions s
+       where s.assessment_assignment_id = aa.id and coalesce(s.class_node_id, s.cohort_node_id) = p_kelas
+    )
+    select m.pid, p.display_name, s.id,
+           (select count(*)::integer from public.assessment_sessions x where x.person_id = m.pid and x.assessment_assignment_id = aa.id
+               and coalesce(x.class_node_id, x.cohort_node_id) = p_kelas),
+           case when s.id is null then 'NOT_STARTED'
+                when s.status in ('CREATED', 'IN_PROGRESS', 'PAUSED') and s.frozen_at is not null and s.unfrozen_at is null then 'FROZEN'
+                when s.status in ('CREATED', 'IN_PROGRESS', 'PAUSED') and public.pengerjaan_dilindungi(s.id) then 'HELD_STOP'
+                when s.status in ('CREATED', 'IN_PROGRESS', 'PAUSED') and t.tenggat is not null and t.tenggat <= now() then 'ENDED_BY_DEADLINE'
+                when s.status in ('CREATED', 'IN_PROGRESS', 'PAUSED') then 'OPEN'
+                when s.closure_kind = 'TEACHER_SCORED' then 'ENDED_SCORED'
+                when s.closure_kind = 'TEACHER_NOT_COUNTED' then 'ENDED_NOT_COUNTED'
+                when s.closure_kind in ('DEADLINE', 'WINDOW_CLOSED') then 'ENDED_BY_DEADLINE'
+                when s.status in ('SUBMITTED', 'FINALIZED') then 'HANDED_IN'
+                when s.status = 'EXPIRED' then 'EXPIRED_UNSCORED'
+                when s.status = 'TERMINATED' and s.termination_cause = 'ADMINISTRATIVE_TERMINATION' then 'ENDED_WITH_ASSIGNMENT'
+                else 'ENDED_OTHER' end,
+           s.status, coalesce(s.started_at, s.created_at), t.tenggat,
+           case when s.status in ('CREATED', 'IN_PROGRESS', 'PAUSED') and not (s.frozen_at is not null and s.unfrozen_at is null) and t.tenggat is not null
+                then greatest(0, floor(extract(epoch from (t.tenggat - now())))::integer) end,
+           s.deadline_extended_count::integer,
+           case when s.frozen_at is not null and s.unfrozen_at is null then s.frozen_at end,
+           case when s.frozen_at is not null and s.unfrozen_at is null then s.frozen_remaining_seconds end,
+           not public.orang_ditangguhkan(m.pid),
+           case when s.status in ('CREATED', 'IN_PROGRESS', 'PAUSED') then null
+                else coalesce(s.closure_at, s.finalized_at, s.submitted_at) end,
+           case when s.id is null then null
+                else coalesce(s.termination_cause::text, '') not in ('INSTITUTIONAL_REVOCATION', 'ADMINISTRATIVE_TERMINATION') end,
+           public.percobaan_terpakai(m.pid, aa.id), v_batas,
+           s.attempt_request_id is not null,
+           exists (select 1 from public.attempt_requests g where g.person_id = m.pid
+                     and g.assessment_assignment_id in (select public.percobaan_penugasan_segaris(aa.id))
+                     and g.status = 'APPROVED'
+                     and not exists (select 1 from public.assessment_sessions x where x.attempt_request_id = g.id)),
+           q.id, q.status, q.requested_at, q.reason, q.requested_by_person_id = v_me, q.decided_at, q.decision_reason
+      from murid m
+      join public.persons p on p.id = m.pid
+      left join lateral (select x.* from public.assessment_sessions x
+                          where x.person_id = m.pid and x.assessment_assignment_id = aa.id
+                            and coalesce(x.class_node_id, x.cohort_node_id) = p_kelas
+                          -- the latest; at one instant, the open one, then the granted one
+                          order by x.created_at desc, (x.status in ('CREATED', 'IN_PROGRESS', 'PAUSED')) desc,
+                                   (x.attempt_request_id is not null) desc, x.id desc limit 1) s on true
+      left join lateral (select public.pengerjaan_tenggat_efektif(s.id) as tenggat) t on true
+      left join lateral (select g.* from public.attempt_requests g
+                          where g.person_id = m.pid and g.assessment_assignment_id = aa.id
+                          order by g.requested_at desc, g.id desc limit 1) q on true
+     order by p.display_name, m.pid;
+end
+$function$;
+revoke all on function public.daftar_pengerjaan(uuid, uuid) from public, anon, authenticated;
+grant execute on function public.daftar_pengerjaan(uuid, uuid) to authenticated;
+
+-- A3, ruling 46 (Q2): REDEFINED IN FULL from its live body (20270114100000 as the A2a and A2b migrations patched it, read
+-- with pg_get_functiondef); one change: the grant's scope is the line (percobaan_penugasan_segaris).
+CREATE OR REPLACE FUNCTION public.percobaan_saya(p_assessment_assignment uuid)
+ RETURNS boolean
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public', 'pg_temp'
+AS $function$
+  select exists (select 1 from public.attempt_requests g
+                  where g.person_id = public.current_person_id() and g.assessment_assignment_id in (select public.percobaan_penugasan_segaris(p_assessment_assignment))
+                    and g.status = 'APPROVED'
+                    and not exists (select 1 from public.assessment_sessions x where x.attempt_request_id = g.id))
+$function$;
+revoke all on function public.percobaan_saya(uuid) from public, anon, authenticated;
+grant execute on function public.percobaan_saya(uuid) to authenticated;
+
+do $$
+declare f text; v text;
+begin
+  foreach f in array array['percobaan_izin_jumlah(uuid,uuid)', 'percobaan_tandai(uuid)', 'minta_percobaan(uuid,text)',
+                           'daftar_pengerjaan(uuid,uuid)', 'percobaan_saya(uuid)'] loop
+    if position('percobaan_penugasan_segaris(' in (select prosrc from pg_proc where oid = ('public.' || f)::regprocedure)) = 0 then
+      raise exception 'A3, ruling 46 (Q2): % does not read the grant over the line', f;
+    end if;
+  end loop;
+  v := (select prosrc from pg_proc where oid = 'public.minta_percobaan(uuid,text)'::regprocedure);
+  if position('minta_percobaan:garis:' in v) = 0 or position('s.assessment_assignment_id::text, 0)' in v) > 0 then
+    raise exception 'A3, ruling 46 (Q2): minta_percobaan''s key is not the lineage root';
+  end if;
+  if has_function_privilege('authenticated', 'public.percobaan_penugasan_segaris(uuid)', 'execute') then
+    raise exception 'A3, ruling 46 (Q2): the line helper is reachable by a client';
+  end if;
+end $$;
