@@ -72,7 +72,7 @@ Sharon, 17 Nov 2026 (08:30 UTC). Read-only.
 **`fde309c5`, the edit to the migration, is accepted:**
 - the one change is a `orang_lampiran` row classing `catatan_peninjau.ditulis_oleh` as BEBAS, an act's actor, with `on conflict do nothing`;
 - L1F4-E01 is green again;
-- correcting it in the draft migration, not in a new one, is right, since it is unpushed to staging.
+- ~~correcting it in the draft migration, not in a new one, is right, since it is unpushed to staging.~~ *Corrected, 14:45 UTC: `fde309c5` was pushed to `claude/c2w` with `5b34fa5f`. Editing the migration in place is still right, because it has not been promoted to staging.*
 - *The miss is noted as Second Eye's own:* `b4177078` went out on targeted runs only.
 
 **D4: half met. One requirement remains.**
@@ -87,3 +87,15 @@ Sharon, 17 Nov 2026 (08:30 UTC). Read-only.
 2. **NOTE_LIBRARY_CONTENT to any school's reviewer on a library question: acceptable.** That reviewer can read the released question, and "library content is noted by the platform's reviewers" is a fact about the library, not about anyone.
 
 **The mapping is accepted:** the codes no form can reach go to `galat.action_not_allowed`, and an unnamed failure gets the "not saved" sentence plus a logged reference.
+
+## Addendum, 17 Nov 14:45 UTC: D4 met (`12943afa`)
+
+- **The form's hint now carries Daisy's §8.2 sentence as its second sentence:** «Jangan menyebut nama atau data murid mana pun.» / «Do not name any learner or include any learner's data.»
+  - C2W-K01 checks it word for word, in both languages, and was red first at `545a1b7f`.
+  - **D4 is met.**
+- **Daisy's §8.3:**
+  - in Studio, the note on the version on screen comes first;
+  - beside the class report, one note per question and option is shown, the newest version's (`catatanGuru`, a pure function, executed in K01).
+  - There is no database change.
+- **The pre-flight, as reported:** suite 1242 passed and 0 failed, plants 175/175, red cases 11/11.
+- **D1 to D4 are all met.** The C2w candidate comes to me for my freeze checks: the preservation pair restated with the notes table, and my lines 65 to 68 kept.
