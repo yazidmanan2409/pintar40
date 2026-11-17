@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 948" role="img" aria-labelledby="d05-judul d05-isi" class="diagram">
+  <title id="d05-judul">D-05 · Dari hasil asesmen ke langkah mengajar berikutnya</title>
+  <desc id="d05-isi">Murid mengumpulkan Uji Penguasaan dan PINTAR mencatatnya. Guru membuka Lihat bukti. Jika angka belum tampil, bukti belum cukup: guru menunggu lebih banyak murid mengumpulkan dan belum menyimpulkan. Jika angka sudah tampil, guru membaca Kesimpulan dari yang umum ke yang khusus, lalu membuka Lihat per soal. Guru memutuskan langkah berikutnya: mengajarkan ulang satu bagian, meminta murid tertentu membaca lagi, memeriksa lagi dengan Uji Cepat, atau melanjutkan. PINTAR mencatat bukti baru, dan siklus berulang.</desc>
+  <defs>
+    <marker id="d05-panah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4E5A64"/>
+    </marker>
+    <marker id="d05-panah-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8A5F00"/>
+    </marker>
+    <g id="d05-orang">
+      <circle cx="0" cy="-4" r="3.4" fill="#075056"/>
+      <path d="M-6,6 C-6,0.5 6,0.5 6,6 z" fill="#075056"/>
+    </g>
+  </defs>
+  <style>
+    .t { font-family: "Plus Jakarta Sans", "Segoe UI", Arial, sans-serif; font-size: 13px; fill: #1F2A33; }
+    .tb { font-weight: 650; }
+    .lab { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 9.5px; letter-spacing: .08em; fill: #075056; font-weight: 500; }
+    .lab-a { fill: #8A5F00; }
+    .kecil { font-size: 11.5px; fill: #4E5A64; }
+    .garis { stroke: #4E5A64; stroke-width: 1.4; fill: none; }
+    .pintar { fill: #FFFFFF; stroke: #075056; stroke-width: 1.3; }
+    .guru { fill: #E3EFEC; stroke: #075056; stroke-width: 1.3; }
+    .putus { fill: #075056; stroke: #075056; }
+    .periksa { fill: #FFFFFF; stroke: #4E5A64; stroke-width: 1.3; }
+    .amber { fill: #F7EED8; stroke: #8A5F00; stroke-width: 1.3; }
+  </style>
+
+  <!-- 1 · PINTAR mencatat -->
+  <rect class="pintar" x="60" y="8" width="340" height="66" rx="3"/>
+  <text class="lab" x="74" y="27">PINTAR</text>
+  <text class="t" x="74" y="46">Murid mengumpulkan Uji Penguasaan.</text>
+  <text class="t" x="74" y="64">PINTAR mencatat jawaban resminya.</text>
+
+  <path class="garis" d="M230,74 V100" marker-end="url(#d05-panah)"/>
+
+  <!-- 2 · Guru membuka Lihat bukti -->
+  <rect class="guru" x="60" y="102" width="340" height="62" rx="14"/>
+  <use href="#d05-orang" x="80" y="122"/>
+  <text class="lab" x="92" y="126">GURU</text>
+  <text class="t" x="74" y="150">Buka <tspan class="tb">Mengajar › kelas › «Lihat bukti»</tspan>.</text>
+
+  <path class="garis" d="M230,164 V188" marker-end="url(#d05-panah)"/>
+
+  <!-- 3 · Periksa: sudah tampil? -->
+  <path class="periksa" d="M230,190 L340,240 L230,290 L120,240 z"/>
+  <text class="t tb" x="230" y="236" text-anchor="middle">Angka sudah</text>
+  <text class="t tb" x="230" y="254" text-anchor="middle">tampil?</text>
+
+  <!-- Belum: cabang pengecualian -->
+  <path class="garis" d="M340,240 H428" stroke="#8A5F00" marker-end="url(#d05-panah-amber)"/>
+  <text class="t kecil" x="352" y="232">Belum</text>
+  <rect class="amber" x="430" y="166" width="202" height="176" rx="8"/>
+  <text class="lab lab-a" x="444" y="186">BUKTI BELUM CUKUP</text>
+  <text class="t" x="444" y="206">Layar menulis</text>
+  <text class="t" x="444" y="223">«Belum cukup data</text>
+  <text class="t" x="444" y="240">untuk menampilkan</text>
+  <text class="t" x="444" y="257">angka ini.»</text>
+  <text class="t kecil" x="444" y="280">Ini bukan hasil buruk.</text>
+  <text class="t kecil" x="444" y="297">Belum menyimpulkan.</text>
+  <text class="t kecil" x="444" y="314">Ingatkan yang belum</text>
+  <text class="t kecil" x="444" y="331">mengumpulkan.</text>
+  <!-- kembali ke langkah 1 -->
+  <path class="garis" d="M531,166 V41 H402" stroke="#8A5F00" stroke-dasharray="4 3" marker-end="url(#d05-panah-amber)"/>
+  <text class="t kecil" x="540" y="84">setelah lebih</text>
+  <text class="t kecil" x="540" y="99">banyak murid</text>
+  <text class="t kecil" x="540" y="114">mengumpulkan</text>
+
+  <!-- Ya -->
+  <path class="garis" d="M230,290 V318" marker-end="url(#d05-panah)"/>
+  <text class="t kecil" x="240" y="308">Ya</text>
+
+  <!-- 4 · Baca Kesimpulan -->
+  <rect class="guru" x="60" y="320" width="340" height="104" rx="14"/>
+  <use href="#d05-orang" x="80" y="340"/>
+  <text class="lab" x="92" y="344">GURU</text>
+  <text class="t" x="74" y="366">Baca <tspan class="tb">«Kesimpulan»</tspan> dari yang umum</text>
+  <text class="t" x="74" y="383">ke yang khusus: Pemahaman dan Kenaikan,</text>
+  <text class="t" x="74" y="400">lalu Penguasaan per bagian, Pemahaman</text>
+  <text class="t" x="74" y="417">keliru, dan Sebaran hasil.</text>
+
+  <path class="garis" d="M230,424 V450" marker-end="url(#d05-panah)"/>
+
+  <!-- 5 · Lihat per soal -->
+  <rect class="guru" x="60" y="452" width="340" height="86" rx="14"/>
+  <use href="#d05-orang" x="80" y="472"/>
+  <text class="lab" x="92" y="476">GURU</text>
+  <text class="t" x="74" y="498">Buka <tspan class="tb">«Lihat per soal»</tspan>: soal mana yang</text>
+  <text class="t" x="74" y="515">sulit, jawaban salah mana yang sering</text>
+  <text class="t" x="74" y="532">dipilih, siapa yang mungkin perlu bantuan.</text>
+
+  <path class="garis" d="M230,538 V564" marker-end="url(#d05-panah)"/>
+
+  <!-- 6 · Guru memutuskan -->
+  <rect class="putus" x="60" y="566" width="340" height="64" rx="14"/>
+  <circle cx="80" cy="583" r="3.4" fill="#FFFFFF"/>
+  <path d="M74,593 C74,587.5 86,587.5 86,593 z" fill="#FFFFFF"/>
+  <text class="lab" x="92" y="590" style="fill:#FFFFFF">GURU MEMUTUSKAN</text>
+  <text class="t tb" x="74" y="614" style="fill:#FFFFFF">Apa langkah mengajar berikutnya?</text>
+  <text class="t kecil" x="410" y="590">PINTAR tidak</text>
+  <text class="t kecil" x="410" y="605">memutuskan</text>
+  <text class="t kecil" x="410" y="620">untuk Anda.</text>
+
+  <!-- pilihan -->
+  <path class="garis" d="M145,630 V652" marker-end="url(#d05-panah)"/>
+  <path class="garis" d="M315,630 V652" marker-end="url(#d05-panah)"/>
+  <rect class="guru" x="60" y="654" width="166" height="62" rx="10"/>
+  <text class="t" x="72" y="680">Mengajarkan ulang</text>
+  <text class="t" x="72" y="698">satu bagian</text>
+  <rect class="guru" x="234" y="654" width="166" height="62" rx="10"/>
+  <text class="t tb" x="244" y="680" style="font-size:12.2px">«Minta membaca lagi»</text>
+  <text class="t" x="246" y="698">untuk murid tertentu</text>
+  <rect class="guru" x="60" y="724" width="166" height="62" rx="10"/>
+  <text class="t" x="72" y="750">Memeriksa lagi</text>
+  <text class="t" x="72" y="768">dengan <tspan class="tb">Uji Cepat</tspan></text>
+  <rect class="guru" x="234" y="724" width="166" height="62" rx="10"/>
+  <text class="t" x="246" y="750">Melanjutkan ke</text>
+  <text class="t" x="246" y="768">materi berikutnya</text>
+
+  <path class="garis" d="M230,786 V814" marker-end="url(#d05-panah)"/>
+
+  <!-- 7 · PINTAR mencatat bukti baru -->
+  <rect class="pintar" x="60" y="816" width="340" height="66" rx="3"/>
+  <text class="lab" x="74" y="835">PINTAR</text>
+  <text class="t" x="74" y="854">Mencatat bukti baru. Hasil berikutnya</text>
+  <text class="t" x="74" y="872">tampil lagi di «Lihat bukti».</text>
+  <!-- siklus kembali ke langkah 2 -->
+  <path class="garis" d="M60,849 H28 V133 H58" stroke-dasharray="4 3" marker-end="url(#d05-panah)"/>
+  <text class="t kecil" x="20" y="500" transform="rotate(-90 20 500)" text-anchor="middle">asesmen berikutnya</text>
+
+  <!-- legenda -->
+  <g transform="translate(60,904)">
+    <rect class="pintar" x="0" y="0" width="22" height="16" rx="2"/>
+    <text class="t kecil" x="30" y="12">Dicatat PINTAR</text>
+    <rect class="guru" x="140" y="0" width="22" height="16" rx="6"/>
+    <text class="t kecil" x="170" y="12">Dilakukan guru</text>
+    <rect class="putus" x="278" y="0" width="22" height="16" rx="6"/>
+    <text class="t kecil" x="308" y="12">Diputuskan guru</text>
+    <rect class="amber" x="428" y="0" width="22" height="16" rx="4"/>
+    <text class="t kecil" x="458" y="12">Pengecualian</text>
+  </g>
+</svg>
