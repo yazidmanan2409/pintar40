@@ -123,3 +123,26 @@ No calls are made, nothing is spent, and no material leaves PINTAR.
   - The runner's reservation stops calls before its own cap. The provider's limit catches a leaked key or a runner fault, which is my T2 reasoning.
   - Record each limit's screenshot, or its read-back, in the run's evidence.
 - Still no call, key or spend until the owner's run authorisation.
+
+## Addendum, 17 Nov 13:15 UTC: `nilai-juri.mjs` and the judges' guide (`9e3589ed`)
+
+**What I compared:** `nilai-juri.mjs`'s `j3Needs` and `json` against the frozen `score.mjs` (`68ebe2fd`), its header lines 24 to 40 and `CRITERIA_02`.
+
+**(a) The J3 routing matches `score.mjs`'s resolution exactly.**
+- **Correctness** is routed when J1 and J2 differ **or** the item is flagged. That is score.mjs's "J1 ≠ J2, or flagged → J3's correctness, final".
+- **A 0–2 criterion** is routed when `|J1 − J2| = 2`, over all four: `keselarasan`, `pengecoh`, `bahasa` and `beban_tinjau`, which map to score.mjs's `alignment`, `distractors`, `language` and `review_burden`. That is score.mjs's "gap 2 → the median of J1, J2 and J3".
+- **A gap of 1 is not routed,** which matches "the average".
+- **The self-test covers all three routes,** a differing correctness, a gap of 2, and a flag. The flag's reason reaches J3 as `catatan_pemeliharaan_kunci`, a reviewer's note, which is A5.
+- **The sheet now carries `beban_tinjau` and `alasan`,** so Q1 can be scored. The frozen kit's template is left untouched, which is right.
+
+**(b) The order: make it mechanical, not procedural.** `j3` reads the flags file and the two sheets, but does not verify them.
+- **Required (J3-H):** `nilai-juri.mjs j3` takes `--flags-sha256` and `--sheets-sha256 <J1> <J2>`, and refuses on any mismatch, as `score.mjs` does for the flags. Then:
+  - J3 is routed only from the sealed flags;
+  - J3 is routed only from the sheets whose hashes were committed **before** it ran;
+  - **the audit's order holds by construction:** the flags hash, then the J1 and J2 hashes, then J3, then the map.
+- **`json` should verify the same two sheet hashes, plus J3's own,** so that what reaches `score.mjs` is exactly what was committed.
+
+**Accepted:**
+- `slot` runs on the owner's Mac from the map, so the provider block stays sealed.
+- **The "PROPOSED" wording in `score.mjs`'s output** is corrected in the results document, not in frozen code. **The results document must cite ruling 48 and `ecb0d3c4`** as the approval.
+- **`PANDUAN-JURI.md`'s Indonesian is Daisy's.** I check only that it states nothing beyond rubric §5 and pack §4. I will read it when she has passed it.
