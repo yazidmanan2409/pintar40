@@ -317,7 +317,12 @@ export function anthropicAssembler() {
       if (type === 'content_block_stop') { block(j).open = false; return; }
       if (type === 'message_delta') {
         if (typeof j.delta?.stop_reason === 'string') st.stop_reason = j.delta.stop_reason;
-        if (j.usage && typeof j.usage === 'object') st.final_usage = { ...(st.final_usage ?? {}), ...j.usage };
+        if (j.usage && typeof j.usage === 'object') {
+          // usage in message_delta is cumulative: a count that goes down is not trustworthy
+          const prev = st.final_usage ?? {};
+          for (const [k, v] of Object.entries(j.usage)) if (Number.isFinite(prev[k]) && Number.isFinite(v) && v < prev[k]) throw fail('bad_usage', `${k} went down from ${prev[k]} to ${v}`);
+          st.final_usage = { ...prev, ...j.usage };
+        }
         return;
       }
       st.stopped = true;   // message_stop
@@ -329,6 +334,10 @@ export function anthropicAssembler() {
       if (!ANTHROPIC_STOP_REASONS.includes(st.stop_reason)) throw fail('stop_reason', `stop reason ${JSON.stringify(st.stop_reason)} is not a known one`);
       const f = st.final_usage ?? {}, s0 = st.start_usage ?? {};
       if (!Number.isFinite(f.output_tokens)) throw fail('no_usage', 'no final output count in message_delta');
+      // every count used for cost must be a non-negative whole number, and the final output count at least the start's
+      for (const u of [s0, f]) for (const k of ['input_tokens', 'output_tokens', 'cache_creation_input_tokens', 'cache_read_input_tokens'])
+        if (u[k] !== undefined && u[k] !== null && !(Number.isInteger(u[k]) && u[k] >= 0)) throw fail('bad_usage', `${k} ${JSON.stringify(u[k])} is not a whole number of tokens`);
+      if (Number.isInteger(s0.output_tokens) && f.output_tokens < s0.output_tokens) throw fail('bad_usage', `final output count ${f.output_tokens} is below message_start's ${s0.output_tokens}`);
       const pick = (k) => (Number.isFinite(f[k]) ? f[k] : Number.isFinite(s0[k]) ? s0[k] : null);
       const input = pick('input_tokens');
       if (input === null) throw fail('no_usage', 'no input count');
