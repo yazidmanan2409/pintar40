@@ -317,3 +317,110 @@ begin
     raise exception 'A3: issue_institutional_id''s grants moved';
   end if;
 end $$;
+
+-- ---------------------------------------------------------------------------------------------------------------
+-- A3, Sharon's defensive change (4d5cd5f6; A3-I1): no institutions FOR UPDATE outside the last-administrator guard's
+-- removal branch (peran_terakhir_kode under p_kunci). NO DEADLOCK WAS REPRODUCED for these two: the races tried
+-- against the guard's family (A3-R04X and the three recorded in Sharon's 4d5cd5f6 review) do not cycle. The change is
+-- defensive and provably safe:
+--   * atur_zona_waktu_sekolah updates only zona_waktu, which no unique index covers, so its own UPDATE takes NO KEY
+--     UPDATE; the explicit lock now asks for the same;
+--   * perpanjang_peran only reads the school row to serialise with the guard; NO KEY UPDATE still conflicts with the
+--     guard's FOR UPDATE and with itself.
+-- Neither blocks a foreign key's KEY SHARE on the school any more. Both are REDEFINED IN FULL from their live bodies
+-- (pg_get_functiondef), one change each; their grants are restated as they were live.
+CREATE OR REPLACE FUNCTION public.atur_zona_waktu_sekolah(p_institution uuid, p_zona text)
+ RETURNS text
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public', 'pg_temp'
+AS $function$
+declare v_old text;
+begin
+  if public.current_person_id() is null or not public.is_system_admin() then
+    raise exception using errcode = 'PR150', detail = 'ZONA_NOT_ALLOWED',
+      message = 'a school''s time zone is set by the PINTAR Administrator';
+  end if;
+  if p_zona is null or p_zona not in ('Asia/Jakarta', 'Asia/Makassar', 'Asia/Jayapura') then
+    raise exception using errcode = 'PR150', detail = 'ZONA_INVALID', message = 'choose WIB, WITA or WIT';
+  end if;
+  select i.zona_waktu into v_old from public.institutions i where i.id = p_institution for no key update;
+  if not found then
+    raise exception using errcode = 'PR150', detail = 'ZONA_INVALID', message = 'no such school';
+  end if;
+  if v_old = p_zona then return p_zona; end if;
+  update public.institutions set zona_waktu = p_zona where id = p_institution;
+  perform public.audit_write('institution.time_zone_changed', 'institutions', p_institution::text, p_institution,
+    jsonb_build_object('from', v_old, 'to', p_zona));
+  return p_zona;
+end
+$function$;
+revoke all on function public.atur_zona_waktu_sekolah(uuid, text) from public, anon, authenticated;
+grant execute on function public.atur_zona_waktu_sekolah(uuid, text) to authenticated;
+
+CREATE OR REPLACE FUNCTION public.perpanjang_peran(p_assignment uuid, p_valid_until timestamp with time zone, p_alasan text)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public', 'pg_temp'
+AS $function$
+declare v_actor uuid := public.current_person_id(); v_alasan text := btrim(coalesce(p_alasan, ''));
+        r public.role_assignments; v_baru uuid; v_sendiri boolean;
+begin
+  if v_actor is null then perform public.peran_tolak('ROLE_RENEW_NOT_ALLOWED'); end if;
+  select * into r from public.role_assignments ra where ra.id = p_assignment;
+  if r.id is null
+     or not (public.is_system_admin() or (r.scope_node_id is not null and public.has_scope('INSTITUTION_ADMIN', r.scope_node_id))) then
+    perform public.peran_tolak('ROLE_RENEW_NOT_ALLOWED');
+  end if;
+  -- the row the last-holder rule locks, taken before anything is written, then the assignment itself: two renewals,
+  -- or a renewal and a revocation, of one role serialise here
+  if r.role = 'SYSTEM_ADMIN' then
+    perform 1 from public.platform_environment for update;
+  elsif r.role = 'INSTITUTION_ADMIN' then
+    perform 1 from public.institutions i where i.id = r.institution_id for no key update;
+  end if;
+  select * into r from public.role_assignments ra where ra.id = p_assignment for update;
+  if r.revoked_at is not null or now() < r.valid_from or now() >= r.valid_until then
+    perform public.peran_tolak('ROLE_RENEW_NOT_LIVE');
+  end if;
+  v_sendiri := r.person_id = v_actor;
+  -- the only self-grant: the platform's only usable administrator, their own SYSTEM_ADMIN role (the guard decides again)
+  if v_sendiri and (r.role <> 'SYSTEM_ADMIN'
+                    or exists (select 1 from public.admin_dapat_dipakai('SYSTEM_ADMIN', null) a where a.person_id <> v_actor)) then
+    perform public.peran_tolak('ROLE_RENEW_SELF');
+  end if;
+  if p_valid_until is null or p_valid_until <= now() or p_valid_until <= r.valid_until then
+    perform public.peran_tolak('ROLE_RENEW_UNTIL_INVALID');
+  end if;
+  if char_length(v_alasan) < 10 or char_length(v_alasan) > 300 then perform public.peran_tolak('ROLE_RENEW_REASON_REQUIRED'); end if;
+
+  -- the new assignment through the guard, as the signed-in actor (whoever may grant this role may renew it), then the
+  -- old one revoked: both stamped now(), one instant, no gap and no overlap
+  perform set_config('pintar.peran_perpanjang', r.id::text, true);
+  insert into public.role_assignments (person_id, role, scope_node_id, valid_until)
+  values (r.person_id, r.role, r.scope_node_id, p_valid_until)
+  returning id into v_baru;
+  update public.role_assignments set revoked_at = now(), revoked_by = v_actor, revoked_reason = v_alasan where id = r.id;
+  perform set_config('pintar.peran_perpanjang', '', true);
+
+  perform public.audit_write('role.renewed', 'role_assignments', v_baru::text, r.institution_id,
+    jsonb_build_object('person_id', r.person_id, 'role', r.role, 'scope_node_id', r.scope_node_id, 'reason', v_alasan,
+                       'from', jsonb_build_object('assignment', r.id, 'valid_until', r.valid_until),
+                       'to', jsonb_build_object('assignment', v_baru, 'valid_until', p_valid_until),
+                       'self', v_sendiri, 'actor_role', public.audit_actor_role(r.institution_id)));
+  return jsonb_build_object('ok', true, 'id', v_baru, 'sampai', p_valid_until, 'sendiri', v_sendiri);
+end
+$function$;
+revoke all on function public.perpanjang_peran(uuid, timestamp with time zone, text) from public, anon, authenticated;
+grant execute on function public.perpanjang_peran(uuid, timestamp with time zone, text) to authenticated;
+
+do $$
+declare f text;
+begin
+  foreach f in array array['atur_zona_waktu_sekolah(uuid,text)', 'perpanjang_peran(uuid,timestamp with time zone,text)'] loop
+    if (select prosrc from pg_proc where oid = ('public.' || f)::regprocedure) ~* 'from\s+public\.institutions\M[^;]*\mfor\s+update\M' then
+      raise exception 'A3: % takes its school FOR UPDATE (A3-I1)', f;
+    end if;
+  end loop;
+end $$;
