@@ -647,6 +647,64 @@ begin perform 1 from public.institutions i where i.id = p for update; end $t$;`)
     },
   },
   {
+    // Sharon's A3-P2 item 1 (4d5cd5f6): confirm_my_name (account_setup FOR UPDATE through setup_saya, then the person)
+    // raced against the person-first functions the reader names, in both orders: the lock path (tangguhkan_akun) and the
+    // reactivation path (aktifkan_kembali_akun, on a suspension the harness makes and the product lifts). Alpha's
+    // teacher's set-up is put back to REQUIRED with the name unconfirmed (committed) and restored byte-identical. Every
+    // race connection rolls back. Not red on 671175e4: this records the races that make item 1 a named exception.
+    id: "A3-R05N",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      const psql = (sql: string) => spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-qAt", "-c", sql, db()], { encoding: "utf8" });
+      spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-q", "-1", "-f", join(process.cwd(), "selftest", "db", "fable01.sql"), db()], { encoding: "utf8" });
+      const SYS = "sysadmin@synthetic.pintar.test", GURU = "alpha-guru@synthetic.pintar.test";
+      const g = psql(`select ac.person_id from public.accounts ac join auth.users u on u.id = ac.auth_user_id where u.email = '${GURU}'`).stdout.trim();
+      const akun = g ? psql(`select a.id from public.accounts a where a.person_id = '${g}' and a.kind = 'EMAIL'`).stdout.trim() : "";
+      if (!c.expect(!!g && !!akun, "the synthetic world has no Alpha teacher with an email account")) return c.verdict("");
+      // the set-up's four mutable fields, as they were, kept as text to put back exactly
+      const kolom = `state || '|' || coalesce(completed_at::text, '') || '|' || coalesce(password_set_at::text, '') || '|' || coalesce(name_confirmed_at::text, '')`;
+      const asli = psql(`select ${kolom} from public.account_setup where account_id = '${akun}'`).stdout.trim();
+      if (!c.expect(!!asli, "Alpha's teacher has no set-up row")) return c.verdict("");
+      const [st, ca, ps, nc] = asli.split("|");
+      const nilai = (x: string) => (x === "" ? "null" : `'${x}'::timestamptz`);
+      const terbuka = () => psql(`select count(*) from public.person_suspensions where person_id = '${g}' and ended_at is null`).stdout.trim();
+      if (!c.expect(terbuka() === "0", "Alpha's teacher is already suspended (the race cannot be set up)")) return c.verdict("");
+      psql(`begin; set local session_replication_role = replica;
+        update public.account_setup set state = 'REQUIRED', completed_at = null, name_confirmed_at = null where account_id = '${akun}'; commit;`);
+      const ringkas: string[] = [];
+      try {
+        const konfirmasi = `select selftest.as_user('${GURU}'); select public.confirm_my_name(null) is not null`;
+        const pegangOrang = `select 1 from public.persons where id = '${g}' for update`;
+        const pegangSetup = `select 1 from public.account_setup where account_id = '${akun}' for update`;
+        const jalur = async (nama: string, sql: string) => {
+          const satu = await balapanTahan(pegangOrang, sql, konfirmasi);
+          const dua = await balapanTahan(pegangSetup, konfirmasi, sql);
+          for (const [urutan, r] of [["person first", satu], ["set-up first", dua]] as const) {
+            c.expect(!r.deadlock, `${nama} against confirm_my_name, ${urutan}: deadlock detected (${(r.a + " / " + r.b).split("\n").find((l) => /deadlock/i.test(l))})`);
+            c.expect(r.ok, `${nama} against confirm_my_name, ${urutan}: a connection failed: ${r.a.split("\n").pop()} / ${r.b.split("\n").pop()}`);
+            ringkas.push(`${nama}, ${urutan}: ${r.menunggu ? "the second waited" : "no wait"}, no deadlock`);
+          }
+        };
+        await jalur("tangguhkan_akun", `select selftest.as_user('${SYS}'); select public.tangguhkan_akun('${g}', 'ADMINISTRATIVE', 'uji A3-R05N: balapan dua koneksi') ->> 'ok'`);
+        // the reactivation path: a suspension the harness makes through the product, lifted by the product afterwards
+        const t = psql(`begin; select selftest.as_user('${SYS}'); select public.tangguhkan_akun('${g}', 'ADMINISTRATIVE', 'uji A3-R05N: penyiapan balapan') ->> 'ok'; commit;`);
+        if (c.expect(t.status === 0 && terbuka() === "1", `the harness could not suspend Alpha's teacher: ${(t.stderr || t.stdout).trim().split("\n").pop()}`)) {
+          await jalur("aktifkan_kembali_akun", `select selftest.as_user('${SYS}'); select public.aktifkan_kembali_akun('${g}', 'uji A3-R05N: balapan dua koneksi') ->> 'ok'`);
+        }
+      } finally {
+        if (terbuka() !== "0") psql(`begin; select selftest.as_user('${SYS}'); select public.aktifkan_kembali_akun('${g}', 'uji A3-R05N: pembersihan balapan'); commit;`);
+        psql(`begin; set local session_replication_role = replica;
+          update public.account_setup set state = '${st}', completed_at = ${nilai(ca)}, password_set_at = ${nilai(ps)}, name_confirmed_at = ${nilai(nc)}
+           where account_id = '${akun}'; commit;`);
+        const kini = psql(`select ${kolom} from public.account_setup where account_id = '${akun}'`).stdout.trim();
+        c.expect(kini === asli, `Alpha's teacher's set-up was not restored exactly: ${kini} (was ${asli})`);
+        c.expect(terbuka() === "0", "a suspension of Alpha's teacher is left open");
+      }
+      return c.verdict(`two real connections on Alpha's teacher, each rolled back: ${ringkas.join("; ")}; the set-up restored exactly and the harness's suspension lifted by aktifkan_kembali_akun. Recorded as the reason A3-P2's item 1 (confirm_my_name holding account_setup before the person) is a named exception`);
+    },
+  },
+  {
     id: "A3-R01",
     requires: ["db"],
     run: async (ctx) => {
