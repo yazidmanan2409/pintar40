@@ -2246,7 +2246,9 @@ export const experienceTests: SelfTest[] = [
       // replaced function body; no table, no column.
       // MOVED 282 -> 283, RESTATED, C2w A2B-R2 on main after A2b: 20270121100000 (a distribution's place for its controller): two
       // functions and two registry rows; no table, no column.
-      c.expect(migrations.length === 283, `${migrations.length} migrations; the frozen baseline has 283`);
+      // MOVED 283 -> 284, RESTATED, C2w reviewer notes: 20270121110000 (a reviewer notes what a wrong option reveals): one
+      // table (catatan_peninjau: item, option, owner, text, writer, time, replaced note); no column named for a mark.
+      c.expect(migrations.length === 284, `${migrations.length} migrations; the frozen baseline has 284`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4166,7 +4168,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 280 -> 281, RESTATED, A2b batch 2, for 20270120230000 (a notice's place for its controller, S-1): no tour RPC.
       // MOVED 281 -> 282, RESTATED, A2b reopened, for 20270120240000 (a start refused for maintenance says its code): no tour RPC.
       // MOVED 282 -> 283, RESTATED, C2w A2B-R2 on main after A2b, for 20270121100000 (a distribution's place for its controller): no tour RPC.
-      c.expect(migs.length === 283, `${migs.length} migrations; the baseline has 283`);
+      // MOVED 283 -> 284, RESTATED, C2w reviewer notes, for 20270121110000: no tour RPC.
+      c.expect(migs.length === 284, `${migs.length} migrations; the baseline has 284`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
