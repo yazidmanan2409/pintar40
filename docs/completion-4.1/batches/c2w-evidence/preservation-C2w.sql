@@ -20,13 +20,22 @@
 --     reason_code is now fingerprinted on unfinished windows too.
 --   * Line 64 is now state, not a preserved line. It counts the windows created before the cutoff that carry a code.
 --     Since A2b such windows are legitimate, and lines 63 and 75 hold their values.
---   * Lines 65 to 67 are new: release_distributions, which C2w's code reads and «Tarik izin» writes.
+--   * Lines 65 to 68 are new: release_distributions, which C2w's code reads and «Tarik izin» writes.
 --     - Line 65 covers the grants withdrawn at the cutoff, every column. It must not move.
 --     - Line 66 covers the grants active at the cutoff, without the four columns a withdrawal writes. It must not move.
---     - Line 67 is state: the grants withdrawn since the cutoff. THE RULE: each one listed must be a withdrawal by
---       its library's controller (withdrawn_by_person_id holds that person). Any other is a material discrepancy.
+--       This is safe because the table's check ties WITHDRAWN to withdrawn_at and withdrawn_by, and its trigger
+--       makes WITHDRAWN terminal (Sharon, C2W-PRESERVATION-78336be2.md).
+--     - Line 67 is state: the grants withdrawn since the cutoff.
+--     - Line 68 is the rule for line 67, computed (Sharon P1). It counts the grants withdrawn since the cutoff that have
+--       no audit_log row above the watermark with action RELEASE_DISTRIBUTION_WITHDRAWN, that grant as target_id, and
+--       withdrawn_by_person_id as actor_person_id. It MUST read 0. withdraw_release_distribution checks the
+--       authority before it writes the row and its audit together, so a match proves the authorised path. Anything
+--       other than 0 is a material discrepancy.
 --
--- Not yet rehearsed: a local dry run at 282 and at 283 is needed before the BEFORE read.
+-- Not yet rehearsed. Before the BEFORE read, a local dry run at 282 -> 283 must show three things (Sharon):
+--   * only line 10 moves;
+--   * a planted withdrawal through the function shows in line 67, with line 68 at 0;
+--   * a planted direct update, with no audit row, makes line 68 read 1.
 with batas as (
   select coalesce(null::timestamptz, now()) as saat,
          coalesce(null::bigint, (select max(id) from public.audit_log)) as audit_id
@@ -164,6 +173,16 @@ sidik(n, garis, nilai) as (
     (select count(*) || ' ' || md5(coalesce(string_agg(t.id::text, ',' order by t.id), ''))
        from public.release_distributions t, batas
       where t.created_at <= batas.saat and t.withdrawn_at > batas.saat)
+  union all select 68, 'state · of those, with no audited withdrawal above the watermark (must be 0; Sharon P1)',
+    (select count(*)::text
+       from public.release_distributions t, batas
+      where t.created_at <= batas.saat and t.withdrawn_at > batas.saat
+        and not exists (select 1 from public.audit_log a
+                         where a.id > batas.audit_id
+                           and a.action = 'RELEASE_DISTRIBUTION_WITHDRAWN'
+                           and a.target_table = 'release_distributions'
+                           and a.target_id = t.id::text
+                           and a.actor_person_id = t.withdrawn_by_person_id))
   union all select 75, 'maintenance_windows not finished at the cutoff (without the seven an act writes)',
     (select count(*) || ' ' || md5(coalesce(string_agg((to_jsonb(t) - (select k from mw_jalan))::text, ',' order by t.id), ''))
        from public.maintenance_windows t, batas
