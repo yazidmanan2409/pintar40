@@ -334,8 +334,12 @@ a number of approved questions for a fixed cost.
   - "The same process applies to both providers" is stated here, not in §4.2. It binds through the same frozen commit,
     `ecb0d3c4`, which the runner pins as a whole.
 
+**Decided by the owner, 17 Nov (ruling 49):**
+- The caps are the runner's US$5 per provider and US$10 in total, plus each console's US$5 hard limit, read back.
+- **Three judges are nominated**, available on Thursday 19 Nov. They are J1–J3 here; their names are held by the owner only.
+
 **Still open:**
-- **The three judges' names** (recruitment).
+- The owner confirms each judge against §5, and names which of the three is J3 (the adjudicator).
 - **G2:** Anthropic's sub-processor list. **This is a partial check, by the owner, 17 Nov.**
   - The Trust Center's public overview lists Google Cloud, AWS, Microsoft Azure and Cloudflare among the sub-processors. It points to the Subprocessors tab for the complete list.
   - That tab was not readable in the owner's session. It is also outside this session's network.
