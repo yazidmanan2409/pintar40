@@ -37,3 +37,4 @@
 | 16 Nov, 16:30 | Bob | Q-12 rows vanish during maintenance: hide or show? | Bob's note, 16:28 | `A2B-DAFTAR-Q12-PUTUSAN.md`: **show, as before A2b**; no disabled control on the list; in this fix |
 | 16 Nov, 22:20 | Bob | A3: D12's codes and recovery screens; D-2's no-loop | `PLAN-A3-C3W-Z.md` §2 | `A3-KODE-PEMULIHAN.md`: **done**; Sharon's half pending |
 | 17 Nov, 07:40 | Bob | C2w Kanonik capture at 390 | `claude/c2w` at `a9d303b2` | `TINJAUAN-C2W-KANONIK-a9d303b2.md`: **PASS**; N-6, N-7 for the next batch |
+| 17 Nov, 07:13 | Bob | C2w freeze withdrawn (`3cb48f2a`); Kanonik capture on hold | Bob's note | My `a9d303b2` review is marked a rehearsal in place. Waiting for the real candidate |

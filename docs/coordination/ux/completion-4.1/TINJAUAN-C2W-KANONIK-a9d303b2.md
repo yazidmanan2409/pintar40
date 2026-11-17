@@ -1,7 +1,7 @@
 # C2w · Studio › Pustaka PINTAR («Tarik»), at 390 px: review (Daisy, 17 Nov 2026)
 
 > **What holds now:**
-> - **PASS. No blocker.**
+> - ~~**PASS. No blocker.**~~ **A REHEARSAL, not a gate (17 Nov, 07:13):** Bob withdrew the `a9d303b2` freeze (`3cb48f2a`), because C2w's reviewer notes are not built yet. The findings stand as observations. The real review comes on the real C2w candidate, and will cover «Tarik izin», the notes, and I-5's wording in Studio and beside the class report.
 > - **Two notes for the next batch** (§2). Neither is introduced by C2w: they are 4.0 strings that C2w's fix makes visible for the first time.
 > - **Read:** a local build of `claude/c2w` at `a9d303b20294cf9fee9279944f66a3be6f1300fc`, at 390 px, as the synthetic platform admin in the «PINTAR Kurikulum Nasional» context.
 > - **Captures:** `c2w-kanonik-a9d303b2/`.
