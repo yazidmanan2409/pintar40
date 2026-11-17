@@ -132,7 +132,7 @@ No calls are made, nothing is spent, and no material leaves PINTAR.
 - **Correctness** is routed when J1 and J2 differ **or** the item is flagged. That is score.mjs's "J1 ≠ J2, or flagged → J3's correctness, final".
 - **A 0–2 criterion** is routed when `|J1 − J2| = 2`, over all four: `keselarasan`, `pengecoh`, `bahasa` and `beban_tinjau`, which map to score.mjs's `alignment`, `distractors`, `language` and `review_burden`. That is score.mjs's "gap 2 → the median of J1, J2 and J3".
 - **A gap of 1 is not routed,** which matches "the average".
-- **The self-test covers all three routes,** a differing correctness, a gap of 2, and a flag. The flag's reason reaches J3 as `catatan_pemeliharaan_kunci`, a reviewer's note, which is A5.
+- **The self-test covers all three routes,** a differing correctness, a gap of 2, and a flag. The flag's reason reaches J3 as `catatan_pemeriksa_kunci`, a reviewer's note, which is A5.
 - **The sheet now carries `beban_tinjau` and `alasan`,** so Q1 can be scored. The frozen kit's template is left untouched, which is right.
 
 **(b) The order: make it mechanical, not procedural.** `j3` reads the flags file and the two sheets, but does not verify them.
