@@ -89,7 +89,7 @@ Sharon, 16 Nov 2026 (16:00 UTC). Read-only.
   Those files are **unchanged since `74732b61`**, which I passed. The merge touched tests only. The pins read 283, with C2w's migration sorting after A2b's 20270120240000.
 - **`a9d303b2` fixes the wording only** (F06-S04: the "proves" of C2W-F3D now names its artefact). The test is unchanged, so my F-3 acceptance stands.
 - **The pre-flight on `a9d303b2` is green,** as Second Eye reports it: suite 1232 passed and 0 failed, plants 175/175, red cases 11/11, lint, typecheck and build identity clean.
-- **C2w: PASS on this head.**
+- ~~**C2w: PASS on this head.**~~ *Restated (Bob, 07:12, C2w unfrozen): a PASS for A2B-R2 and the F-3 and F-4 evidence at this head, **not** an acceptance of C2w. PLAN-A2B-C2W.md §3's reviewer notes are not yet built.*
 
 **A3, also noted:**
 - the pre-flight on `007d7acb` is 1238 passed and 1 failed, the failure being A3-R01, expected until the controller lands;
@@ -99,3 +99,11 @@ Sharon, 16 Nov 2026 (16:00 UTC). Read-only.
   - only `putuskan_percobaan` updates;
   - no client role holds a table write grant.
   That is what I meant.
+
+## Addendum, 17 Nov 07:20 UTC: C2w is unfrozen (Bob, `3cb48f2a`)
+
+- **My PASSes stand as reviews of the commits they name:**
+  - A2B-R2, F-3 and F-4;
+  - the preservation query's method and lines 65 to 68, at `1d5428ca…`.
+- **They are not an acceptance of C2w.**
+- **Next:** Second Eye builds the reviewer notes, red first. I review them, then the restated preservation pair, with any lines the notes' migrations need.
