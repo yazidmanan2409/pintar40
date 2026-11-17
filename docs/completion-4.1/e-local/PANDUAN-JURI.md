@@ -51,7 +51,7 @@ Nilai 0 di kolom ini dianggap kesalahan serius, jadi periksalah dengan teliti. B
   - Jangan memakai alat AI untuk membantu menilai.
 - **J3** tidak menilai semua soal. Setelah lembar J1 dan J2 dicatat, J3 menerima daftar soal yang perlu diputuskan, bersama alasan kedua juri:
   - soal yang nilai **benar**-nya berbeda antara J1 dan J2;
-  - soal yang ditandai oleh pemeriksa kunci, dengan catatan alasannya. Pemeriksa kunci adalah peninjau AI di tim PINTAR. Ia menjawab setiap soal tanpa melihat kuncinya dan tanpa tahu sumber soal, lalu menandai kunci yang ia ragukan. Catatan itu hanya bahan pertimbangan, sama bobotnya dengan alasan seorang juri;
+  - soal yang ditandai oleh pemeriksa kunci, dengan catatan alasannya. Pemeriksa kunci adalah peninjau AI di tim PINTAR. Ia menjawab setiap soal tanpa melihat kuncinya dan tanpa tahu sumber soal, lalu soal ditandai bila jawabannya berbeda dari kunci. Catatan itu hanya bahan pertimbangan, sama bobotnya dengan alasan seorang juri;
   - soal yang, di salah satu kolom 0–2, nilainya dari J1 dan J2 berbeda **dua** angka (misalnya 0 dan 2).
 
   Untuk soal-soal itu saja, J3 mengisi kolom yang diminta. **Keputusan J3 untuk kolom benar bersifat final.**

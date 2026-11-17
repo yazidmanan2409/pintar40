@@ -96,3 +96,26 @@ Sharon's A1–A5 locally:
   - It reads `,` or `;` CSV, since Excel in an Indonesian locale writes `;`.
 - **A stale label in the frozen `score.mjs`:** its output still says Q1 and Q2 are "PROPOSED, awaiting owner approval".
   They were approved by ruling 48. The results document states the approval. The frozen code is not edited.
+
+## Sharon K-FLAG (`03dc25b8`): from the key checker's blind answers to `c3-key-flags/1`
+
+- **`nilai-juri.mjs lembar-k`** builds the key checker's sheet (`item_id, jawaban, alasan`) from the keyless
+  `untuk-sharon/items.json`. It refuses an items file that carries keys.
+- **`nilai-juri.mjs flags`**, given the answers' committed SHA-256 (`--answers-sha256`) and the judges' `items.json`
+  (which holds the keys), writes a flag wherever the answer differs from the key, with the alasan as its reason. It
+  refuses:
+  - a hash mismatch;
+  - a missing or invalid answer;
+  - a differing answer with no alasan.
+- **The order:**
+  1. Sharon commits her answers CSV and its SHA;
+  2. `flags` is run;
+  3. the flags file's SHA is committed **before** the J1 and J2 sheets exist;
+  4. `j3` and `score.mjs` both verify it.
+
+  The kit's `seal-key` is not used: it needs the sealed map, which stays on the owner's Mac. The committed CSV and its
+  SHA are the seal.
+- **Each sheet's decoding** (utf-8 or windows-1252) is printed.
+- **Tests:** the self-test passes 20/0. End to end on the rehearsal's 60 items, one planted wrong key became a flag with
+  its reason, was routed alone to J3, and was resolved by the **frozen `score.mjs`** as a critical error: 1, within the
+  maximum of 1.
