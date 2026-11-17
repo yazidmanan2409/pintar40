@@ -66,3 +66,44 @@ Sharon, 17 Nov 2026 (03:00 UTC). Read-only. **What I reviewed:**
 6. **Volume:** row counts for the ten largest tables, so the 6-second figure can be scaled, and any rewrite over a large table can be timed against the statement timeout.
 
 **And for stage 1's reruns:** add synthetic rows for shapes 2, 3 and 5 to the rehearsal's own fixture, applied on the 111 base, so that each data migration acts on at least one row.
+
+## Addendum, 17 Nov 2026 03:45 UTC: run 44008372954, the stage-2 counts, and REH-1 to REH-4
+
+**What I read:**
+- Bob's report on run 44008372954 (commits `9141abe2`, `be0ae204`, `359b90c4`);
+- `stage2-production-counts.sql` (229 lines) on `claude/bob-41-master-plan`: its safety header and its outputs;
+- for REH-1, `session_enforce_deadline` at 111 (20260913090000) and 20270114100000:18–30 and :319–365.
+
+**My three blind spots are closed:**
+- 53 new columns on 111's rows are counted, with 10 backfill rules asserted;
+- the 6 new tables with rows are listed, and the 2 filled from old data are checked;
+- `cron.job` and storage are added.
+
+**The quick-assessment certificate question is answered:** a certificate issued before reads and verifies byte-identically.
+
+**The stage-2 query is accepted as safe to propose for the owner's authorisation:**
+- one transaction, `set transaction read only`, a 60 s statement timeout, and a rollback;
+- the outputs are counts and catalogue metadata only, with no names, emails or row content.
+- **Not run by me,** and not to be run without the owner.
+
+**REH-1: confirmed. It is a blocker for any production release.**
+- **At 111, `session_enforce_deadline` sets a sitting to EXPIRED and never scores it.** So *every* expired sitting in production is expired and unscored.
+- **20270114100000 builds the closer to score only sittings it marked** (`closure_kind` DEADLINE or WINDOW_CLOSED). It states that "an EXPIRED sitting from before this migration carries no marking and is never touched".
+- **So after the upgrade, every pre-upgrade expired sitting stays unscored, permanently and silently.** The learner has no result, and nothing will produce one. *Could reasonably have been anticipated (Q4, before and after):* the design wrote down this omission, and nobody asked how many such rows production holds.
+- **The ruling on where:** Z, as a data migration before the production release, not A3. It is outside A3's boundary list, and it must be in the release candidate that goes to production.
+- **The ruling on what, with one product decision left to the owner:**
+  - **(i), my recommendation:** mark each pre-upgrade EXPIRED sitting with no result as `closure_kind = 'DEADLINE'`, with `closure_deadline` = its `authoritative_deadline` and `closure_at` = the migration's instant. The closer then scores it on its recorded answers, which is 4.1's own rule (doc 04 §3). It is audited per sitting, and stated in the release note.
+  - **(ii):** mark them not counted.
+  - **(iii):** leave them for teachers, who already have TEACHER_SCORED and TEACHER_NOT_COUNTED. If so, a list of them goes to each school.
+  - **The owner chooses.**
+  - **Whichever is chosen:** red first, with a rehearsal fixture of an EXPIRED unscored 111 sitting, showing it is resolved after the upgrade by the chosen rule. The scoring must use the definition and version the sitting was taken on, and stage 2 counts them, which its query already does.
+  - A sitting with no `authoritative_deadline` cannot take (i) as written, because the constraint needs `closure_deadline`. Count those separately.
+
+**REH-3: intended for new certificates. For old ones, count before deciding.**
+- 20270113160000 shows a public certificate's date in the school's own zone. For a WITA or WIT school, a certificate issued between 00:00 and 01:00 or 02:00 local time now shows a date one day later than under the old Jakarta rule. A printed copy would then disagree with verification.
+- **Stage 2 should count** certificates whose date differs between the two zone rules.
+- If the count is 0, the question is moot. If not, the owner chooses between keeping the old date for certificates issued before, or accepting the shift with a note.
+
+**REH-4 and REH-2 are accepted as Bob states them.**
+- REH-4: the four refusing migrations are counted by stage 2, and any count above 0 is a blocker found before the upgrade.
+- REH-2: every email account starts REQUIRED in `account_setup`. That is a release note, and the owner should see it among the release's user-facing changes.

@@ -44,3 +44,5 @@ This list is updated as items arrive. Each line names where it is due.
 ~~**Z register triage (added):**~~ *Moved into A3 (A3-PREBUILD addendum, 17 Nov 02:00).* `minta_percobaan` and `percobaan_izin_jumlah` are keyed per (learner, assignment), while the attempt count is per (definition, version). Align them, with a test that one approval adds exactly one attempt through any assignment (A3-PREBUILD addendum, 23:15).
 
 **Z register (added 17 Nov):** in L01, rank `learning_assignments` and `assessment_assignments` after the fence, and reorder `akhiri_penugasan`, both moves, `tegaskan_koreksi_kunci`, `assign_release` and `minta_percobaan` to persons, then the fence, then learning, then assessment. That clears the 23 violations hidden today (A3-PREBUILD addendum, 00:20).
+
+**Z, before any production release:** REH-1, the pre-upgrade EXPIRED and unscored sittings (rule per the owner; red first on a rehearsal fixture). REH-3's date-shift count decides its handling. REH-4's refusing shapes must count 0 in stage 2.
