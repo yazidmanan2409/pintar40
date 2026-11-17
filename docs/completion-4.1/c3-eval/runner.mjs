@@ -966,9 +966,9 @@ async function adapterChecks(check, table) {
     check(q.method === 'POST' && q.url === 'https://api.openai.com/v1/responses', 'openai request: POST https://api.openai.com/v1/responses (Responses API)');
     check(eq(q.headers, { 'content-type': 'application/json', authorization: `Bearer ${KEY}`, 'x-client-request-id': args('openai').clientRequestId }), 'openai request headers: content-type application/json, Authorization: Bearer <key>, X-Client-Request-Id; no version header');
     const f = q.body.text?.format ?? {};
-    check(eq(Object.keys(q.body).sort(), ['input', 'max_output_tokens', 'model', 'store', 'text']) && q.body.model === 'gpt-6.1-sol' && q.body.input === text && q.body.max_output_tokens === DEFAULT_MAX_OUTPUT && q.body.store === false
+    check(eq(Object.keys(q.body).sort(), ['input', 'max_output_tokens', 'model', 'store', 'stream', 'text']) && q.body.stream === true && q.body.model === 'gpt-6.1-sol' && q.body.input === text && q.body.max_output_tokens === DEFAULT_MAX_OUTPUT && q.body.store === false
       && eq(f, { type: 'json_schema', name: 'c3_items', schema: wireSchema(schema), strict: true }),
-      'openai request body: model gpt-6.1-sol, input (the chapter request), max_output_tokens 12000, store false, text.format {type json_schema, name, schema, strict true}; no instructions');
+      'openai request body: model gpt-6.1-sol, input (the chapter request), max_output_tokens 12000, store false, text.format {type json_schema, name, schema, strict true}, stream true (v4); no instructions, no reasoning setting (the default, Ruling 50)');
     let bad = null; try { A.build({ ...args('openai'), clientRequestId: 'naïve' }); } catch (x) { bad = x; }
     check(bad instanceof Fatal && args('openai').clientRequestId.length <= 512, 'openai request: X-Client-Request-Id is ASCII and at most 512 characters, or the request is not built');
     const okH = { 'x-request-id': 'req_selftest', 'x-ratelimit-remaining-requests': '4999', 'x-ratelimit-reset-tokens': '6ms', 'openai-version': '2020-10-01', 'x-unrelated': 'dropped' };
@@ -1191,6 +1191,129 @@ async function streamChecks(check) {
   check(r9.err instanceof StreamError && r9.err.request_id === 'req_stream' && classify(r9.err).retry === true && !JSON.stringify(r9.err.evidence ?? {}).includes(THINK_CANARY), 'transport: a mid-stream error event keeps the request id and evidence, without thinking');
 }
 
+
+// v4 OpenAI streaming checks (Ruling 50 (7); the same conditions S-1 to S-4 as Anthropic). OAI_STREAM is shaped as the
+// Responses API's streaming events are understood today. Each shape is to be confirmed against grade-A facts, and until
+// then the adapter is marked unverified and a real run refuses it.
+const oe2 = (type, x) => [type, { type, ...x }];
+const OAI_RESP = { id: 'resp_doc', object: 'response', model: 'gpt-6.1-sol', status: 'in_progress', output: [], usage: null };
+const OAI_TEXT = '{"items":[{"stem":"Pola ½ — bilangan ganjil"}]}';
+const OAI_USAGE = { input_tokens: 4800, input_tokens_details: { cached_tokens: 0 }, output_tokens: 9000, output_tokens_details: { reasoning_tokens: 6000 }, total_tokens: 13800 };
+const oaiSeq = (evs) => evs.map(([t, d], i) => [t, typeof d === 'string' ? d : { ...d, sequence_number: i }]);
+const OAI_STREAM = oaiSeq([
+  oe2('response.created', { response: OAI_RESP }),
+  oe2('response.in_progress', { response: OAI_RESP }),
+  oe2('response.output_item.added', { output_index: 0, item: { id: 'rs_1', type: 'reasoning', summary: [] } }),
+  oe2('response.reasoning_summary_part.added', { item_id: 'rs_1', output_index: 0, summary_index: 0, part: { type: 'summary_text', text: '' } }),
+  oe2('response.reasoning_summary_text.delta', { item_id: 'rs_1', output_index: 0, summary_index: 0, delta: THINK_CANARY + ' ringkasan' }),
+  oe2('response.reasoning_summary_text.done', { item_id: 'rs_1', output_index: 0, summary_index: 0, text: THINK_CANARY + ' ringkasan' }),
+  oe2('response.output_item.done', { output_index: 0, item: { id: 'rs_1', type: 'reasoning', summary: [{ type: 'summary_text', text: THINK_CANARY + ' ringkasan' }] } }),
+  oe2('response.output_item.added', { output_index: 1, item: { id: 'msg_1', type: 'message', role: 'assistant', status: 'in_progress', content: [] } }),
+  oe2('response.content_part.added', { item_id: 'msg_1', output_index: 1, content_index: 0, part: { type: 'output_text', text: '', annotations: [] } }),
+  oe2('response.output_text.delta', { item_id: 'msg_1', output_index: 1, content_index: 0, delta: '{"items":[{"stem":"Pola ½ — ' }),
+  oe2('response.output_text.delta', { item_id: 'msg_1', output_index: 1, content_index: 0, delta: 'bilangan ganjil"}]}' }),
+  oe2('response.output_text.done', { item_id: 'msg_1', output_index: 1, content_index: 0, text: OAI_TEXT }),
+  oe2('response.content_part.done', { item_id: 'msg_1', output_index: 1, content_index: 0, part: { type: 'output_text', text: OAI_TEXT, annotations: [] } }),
+  oe2('response.output_item.done', { output_index: 1, item: { id: 'msg_1', type: 'message', role: 'assistant', status: 'completed', content: [{ type: 'output_text', text: OAI_TEXT, annotations: [] }] } }),
+  oe2('response.completed', { response: { ...OAI_RESP, status: 'completed', usage: OAI_USAGE,
+    output: [{ id: 'rs_1', type: 'reasoning', summary: [] }, { id: 'msg_1', type: 'message', role: 'assistant', status: 'completed', content: [{ type: 'output_text', text: OAI_TEXT, annotations: [] }] }] } }),
+]);
+async function openaiStreamChecks(check) {
+  const A = ADAPTERS.openai; const table = loadPrices();
+  const args = { provider: 'openai', model: table.providers.openai.model, b: 1, attempt: 1, text: kitRequest(1), schema: schemaText(), maxOutput: 48000, key: 'DUMMY-KEY-PLACEHOLDER', clientRequestId: 'live-x.openai.bab1.a1' };
+  const assemble = (evs, maxOutput = 48000) => { const p = new SseParser(); const a = A.assembler({ maxOutput }); for (const e of [...p.push(enc(sseOf(evs))), ...p.end()]) a.feed(e); return a.finish(); };
+  const refused = (fn) => { try { fn(); return null; } catch (x) { return x instanceof StreamIncomplete ? x : null; } };
+  const swap = (i, ev) => oaiSeq(OAI_STREAM.map((x, k) => (k === i ? ev : x)));
+  const drop = (i) => oaiSeq(OAI_STREAM.filter((_, k) => k !== i));
+  const last = OAI_STREAM.length - 1;
+  const done = (resp) => oe2('response.completed', { response: { ...OAI_STREAM[last][1].response, ...resp } });
+  console.log('\n── openai streaming (v4, the same S-1 to S-4; offline)');
+  check(A.streaming === true && typeof A.assembler === 'function' && A.request_id_header === 'x-request-id', 'openai adapter: streams, with its own assembler, and reads the request id from x-request-id');
+  const ok = assemble(OAI_STREAM);
+  check(ok.raw === OAI_TEXT && ok.model === 'gpt-6.1-sol' && eq(ok.usage, { input: 4800, output: 15000 }) && ok.finish.status === 'completed',
+    'S-1 openai: a completed stream gives the text, the model, input_tokens, and output settled at output + reasoning (9,000 + 6,000), as the non-streamed adapter does');
+  check(eq(assemble(OAI_STREAM, 12000).usage, { input: 4800, output: 12000 }), 'S-1 openai: the output bound never exceeds max_output_tokens, which includes reasoning');
+  check(!JSON.stringify(ok).includes(THINK_CANARY) && ok.evidence.thinking_blocks === 1, 'S-2 openai: reasoning and its summary are counted, never kept');
+  const inc = assemble(swap(last, oe2('response.incomplete', { response: { ...OAI_RESP, status: 'incomplete', incomplete_details: { reason: 'max_output_tokens' }, usage: OAI_USAGE, output: [] } })));
+  check(inc.raw === OAI_TEXT && inc.finish.status === 'incomplete' && inc.finish.reason === 'max_output_tokens' && eq(inc.usage, { input: 4800, output: 15000 }),
+    'S-1 openai: response.incomplete (max_output_tokens) is a finished, billed stream: its text is kept and kit.mjs validate measures it, like Anthropic\'s max_tokens');
+  const rf = assemble(oaiSeq([...OAI_STREAM.slice(0, 8), oe2('response.content_part.added', { item_id: 'msg_1', output_index: 1, content_index: 0, part: { type: 'refusal', refusal: '' } }),
+    oe2('response.refusal.delta', { item_id: 'msg_1', output_index: 1, content_index: 0, delta: 'Maaf, tidak bisa.' }), oe2('response.refusal.done', { item_id: 'msg_1', output_index: 1, content_index: 0, refusal: 'Maaf, tidak bisa.' }),
+    oe2('response.content_part.done', { item_id: 'msg_1', output_index: 1, content_index: 0, part: { type: 'refusal', refusal: 'Maaf, tidak bisa.' } }),
+    oe2('response.output_item.done', { output_index: 1, item: { id: 'msg_1', type: 'message', content: [{ type: 'refusal', refusal: 'Maaf, tidak bisa.' }] } }),
+    done({ output: [{ id: 'msg_1', type: 'message', content: [{ type: 'refusal', refusal: 'Maaf, tidak bisa.' }] }] })]));
+  check(rf.raw === '' && rf.finish.refusal === true && rf.finish.refusal_chars === 17 && !JSON.stringify(rf).includes('Maaf'),
+    'S-1 openai: a refusal gives no text (validate measures it invalid); only that it happened and its length are recorded, not its words');
+  const unk = assemble(oaiSeq([...OAI_STREAM.slice(0, 10), oe2('response.output_text.annotation.added', { item_id: 'msg_1', output_index: 1, content_index: 0, annotation: {} }), ...OAI_STREAM.slice(10)]));
+  check(unk.raw === OAI_TEXT && unk.evidence.unknown_events === 1, 'S-3 openai: an event type the adapter does not use is ignored and counted');
+  const noOut = assemble(swap(last, done({ output: undefined })));
+  check(noOut.raw === OAI_TEXT, 'S-1 openai: a response.completed without the output array is accepted on the streamed text (the cross-check runs only when output is present)');
+  const REFUSE = [
+    ['no terminal event (the stream just ends)', oaiSeq(OAI_STREAM.slice(0, last))],
+    ['an unknown final event in place of response.completed', swap(last, oe2('response.finished', { response: { status: 'completed', usage: OAI_USAGE } }))],
+    ['response.completed with a status other than completed', swap(last, done({ status: 'in_progress' }))],
+    ['response.completed without usage', swap(last, done({ usage: null }))],
+    ['usage without output_tokens', swap(last, done({ usage: { input_tokens: 4800 } }))],
+    ['a negative output count', swap(last, done({ usage: { ...OAI_USAGE, output_tokens: -1 } }))],
+    ['a fractional input count', swap(last, done({ usage: { ...OAI_USAGE, input_tokens: 4800.5 } }))],
+    ['a negative reasoning count', swap(last, done({ usage: { ...OAI_USAGE, output_tokens_details: { reasoning_tokens: -3 } } }))],
+    ['response.incomplete without usage', swap(last, oe2('response.incomplete', { response: { status: 'incomplete', incomplete_details: { reason: 'max_output_tokens' } } }))],
+    ['a status of cancelled', swap(last, oe2('response.incomplete', { response: { status: 'cancelled', usage: OAI_USAGE } }))],
+    ['an event after the terminal event', oaiSeq([...OAI_STREAM, oe2('response.in_progress', { response: OAI_RESP })])],
+    ['two terminal events', oaiSeq([...OAI_STREAM, OAI_STREAM[last]])],
+    ['text before response.created', drop(0).slice(1)],
+    ['a second response.created', oaiSeq([OAI_STREAM[0], ...OAI_STREAM])],
+    ['a text delta for a part never added', swap(9, oe2('response.output_text.delta', { item_id: 'msg_1', output_index: 1, content_index: 5, delta: 'x' }))],
+    ['a text delta inside a reasoning item', swap(4, oe2('response.output_text.delta', { item_id: 'rs_1', output_index: 0, content_index: 0, delta: 'x' }))],
+    ['output_text.done that disagrees with the deltas', swap(11, oe2('response.output_text.done', { item_id: 'msg_1', output_index: 1, content_index: 0, text: OAI_TEXT + 'x' }))],
+    ['response.completed whose output disagrees with the deltas', swap(last, done({ output: [{ id: 'msg_1', type: 'message', content: [{ type: 'output_text', text: 'lain' }] }] }))],
+    ['a sequence number that goes backwards', OAI_STREAM.map((x, k) => (k === 5 ? [x[0], { ...x[1], sequence_number: 2 }] : x))],
+    ['a sequence number that repeats', OAI_STREAM.map((x, k) => (k === 6 ? [x[0], { ...x[1], sequence_number: 5 }] : x))],
+    ['data that is not JSON', swap(3, ['response.in_progress', '{nope'])],
+    ['an event name that disagrees with its data type', swap(1, ['response.in_progress', { type: 'response.completed', sequence_number: 1 }])],
+    ['an empty stream', []],
+  ];
+  for (const [label, evs] of REFUSE) check(refused(() => assemble(evs)) !== null, `S-1 openai: refused, not a response: ${label}`);
+  const cut = refused(() => assemble(oaiSeq(OAI_STREAM.slice(0, 10))));
+  check(cut && cut.partial === '{"items":[{"stem":"Pola ½ — ' && sha(cut.partial) === cut.evidence.text_sha256 && !cut.partial.includes(THINK_CANARY) && !JSON.stringify(cut.evidence).includes(THINK_CANARY),
+    'owner: a cut openai stream carries its partial answer text (output text only, no reasoning) for preservation, matching its SHA-256');
+  // error events and response.failed
+  const errOf = (evs) => { try { assemble(evs); return null; } catch (x) { return x instanceof StreamError ? x : null; } };
+  const mid = (ev) => oaiSeq([...OAI_STREAM.slice(0, 10), ev]);
+  const e1 = errOf(mid(oe2('error', { code: 'server_error', message: 'The server had an error', param: null })));
+  check(e1 && classify(e1).status === 'stream_error' && classify(e1).retry === true && classify(e1).noResponse === true && e1.partial === '{"items":[{"stem":"Pola ½ — ',
+    'S-1 openai: a mid-stream error event server_error: stream_error, retried, counted towards the no-usable-response stop, partial text kept');
+  for (const c of ['rate_limit_exceeded', 'insufficient_quota', 'invalid_request_error', 'mystery_code', null]) {
+    const x = errOf(mid(oe2('error', { code: c, message: 'mock', param: null })));
+    check(x && classify(x).status === 'stream_error' && classify(x).retry === false && classify(x).stop === true, `S-1 openai: a mid-stream error event ${c ?? '(no code)'}: not retried, no further call to the provider (fail-closed)`);
+  }
+  const f1 = errOf(mid(oe2('response.failed', { response: { ...OAI_RESP, status: 'failed', error: { code: 'server_error', message: 'x' }, usage: null } })));
+  check(f1 && classify(f1).status === 'stream_error' && classify(f1).retry === true, 'S-1 openai: response.failed with server_error: stream_error, retried, its reservation kept');
+  const f2 = errOf(mid(oe2('response.failed', { response: { ...OAI_RESP, status: 'failed', error: { code: 'invalid_prompt', message: 'x' } } })));
+  check(f2 && classify(f2).retry === false && classify(f2).stop === true, 'S-1 openai: response.failed with any other code: not retried, the provider stops');
+  // the transport
+  const run = async (f, opt) => { try { return { res: await streamCall(A, args, f, opt) }; } catch (err) { return { err }; } };
+  const okH = { 'content-type': 'text/event-stream; charset=utf-8', 'x-request-id': 'req_oai', 'x-ratelimit-remaining-requests': '499', 'x-unrelated': 'dropped' };
+  const whole = enc(sseOf(OAI_STREAM));
+  const f0 = fakeStream(whole, { headers: okH }); const r0 = await run(f0);
+  const sent = f0.seen[0] && JSON.parse(f0.seen[0].init.body);
+  check(f0.seen.length === 1 && f0.seen[0].url === A.endpoint && sent?.stream === true && sent.max_output_tokens === 48000 && sent.store === false && !('reasoning' in sent) && eq(f0.seen[0].init.headers, A.build(args).headers),
+    'openai transport: one POST to /v1/responses with stream true, max_output_tokens 48000, store false, no reasoning setting, and the same headers as before');
+  check(r0.res?.raw === OAI_TEXT && r0.res.request_id === 'req_oai' && eq(r0.res.usage, { input: 4800, output: 15000 }) && r0.res.finish?.status === 'completed' && r0.res.model_version === 'gpt-6.1-sol'
+    && r0.res.rate_limit?.['x-ratelimit-remaining-requests'] === '499' && !('x-unrelated' in (r0.res.rate_limit ?? {})) && r0.res.stream?.events === OAI_STREAM.length && !JSON.stringify(r0.res).includes(THINK_CANARY),
+    'openai transport: text, request id (x-request-id), usage, finish, model and the x-ratelimit-* headers, with stream evidence and no reasoning');
+  const r1 = await run(fakeStream(enc(sseOf(OAI_STREAM, '\r\n')), { chunk: 7, delayMs: 1, headers: okH }));
+  check(r1.res?.raw === OAI_TEXT, 'S-4 openai transport: a slow stream (7-byte chunks, CRLF) completes with the same result');
+  const r2 = await run(fakeStream(whole, { headers: okH, failAfter: enc(sseOf(OAI_STREAM.slice(0, 10))).length + 10 }));
+  check(r2.err instanceof StreamIncomplete && r2.err.reason === 'cut' && r2.err.request_id === 'req_oai' && r2.err.partial?.length > 0, 'S-4 openai transport: a connection that fails mid-stream is stream_incomplete, request id and partial text kept');
+  const r3 = await run(fakeStream(whole, { headers: okH, stallAfter: 400 }), { idleMs: 80 });
+  check(r3.err instanceof StreamIncomplete && r3.err.reason === 'idle', 'openai transport: a silent stream is aborted at the idle limit');
+  const r4 = await run(fakeStream(enc(JSON.stringify({ error: { type: 'insufficient_quota', code: 'project_spend_limit_exceeded', message: 'x' } })), { status: 429, headers: { 'content-type': 'application/json', 'x-request-id': 'req_q' } }));
+  check(r4.err instanceof HttpError && classify(r4.err).status === 'spend_stop' && r4.err.request_id === 'req_q', 'openai transport: an HTTP error before the stream starts is classified exactly as before (a spend stop)');
+  const r5 = await run(fakeStream(enc('{"id":"resp"}'), { headers: { 'content-type': 'application/json', 'x-request-id': 'req_j' } }));
+  check(r5.err?.unparsable === true && r5.err.request_id === 'req_j', 'openai transport: a 2xx that is not an event stream is unparsable_2xx');
+}
+
 // a syntactically valid 40-hex value for the self-test only; the real one is the frozen pack's commit, given at run time
 const TEST_PACK_SHA = '0123456789abcdef0123456789abcdef01234567';
 async function selfTest() {
@@ -1219,10 +1342,10 @@ async function selfTest() {
   check(a.exitCode === 0, '(a) completes with exit 0');
   check(a.breaches.length === 0 && a.spentMicro <= a.caps.total, '(a) no reservation let spend exceed a cap');
   check(a.mock.used.length === 4 && Object.keys(FAULTS_NORMAL).every((k) => a.mock.used.some((u) => u.startsWith(k))), '(a) all four planted faults were injected');
-  check(count(a, 'anthropic') === 4 && count(a, 'openai') === 3, '(a) attempts per provider: anthropic 4, openai 3 (7 in all)');
+  check(count(a, 'anthropic') === 4 && count(a, 'openai') === 4, '(a) attempts per provider: anthropic 4, openai 4 (8 in all; v4: openai\'s stream without final usage is refused and retried)');
   check(count(a, 'anthropic', 'invalid_output') === 1 && count(a, 'anthropic', 'http_429') === 1 && count(a, 'openai', 'transport_error') === 1, '(a) malformed → invalid_output, 429 → http_429, transport → transport_error, each retried once');
   const nu = a.ledger.entries.find((e) => e.provider === 'openai' && e.chapter === 2);
-  check(nu.status === 'ok' && nu.cost_basis === 'reservation' && nu.cost_usd === nu.reserved_usd, '(a) the response with no usage keeps its reservation as its cost');
+  check(nu.status === 'stream_incomplete' && nu.cost_basis === 'reservation' && nu.cost_usd === nu.reserved_usd, '(a) v4: a stream with no final usage is not a response (S-1): stream_incomplete, its reservation kept as its cost, retried');
   check(a.ledger.entries.filter((e) => ['http_429', 'transport_error'].includes(e.status)).every((e) => e.cost_usd === e.reserved_usd), '(a) a 429 or transport error keeps its reservation as its cost');
   check(a.ledger.entries.filter((e) => e.cost_basis === 'usage').every((e) => toMicro(e.cost_usd) <= toMicro(e.reserved_usd)), '(a) every usage-based cost is within its reservation');
   check(providers.every((p) => a.summary.per_provider[p].drafts_valid === 30 && a.summary.per_provider[p].requests_valid === 2), '(a) 30 valid drafts (2 requests × 15) per provider');
@@ -1319,7 +1442,7 @@ async function selfTest() {
   try {
   // (h) v2 streaming through the whole run (Sharon S-4): the mock answers anthropic through the real streaming
   // adapter and parser, with thinking in every stream
-  check(a.mock.streams.length === count(a, 'anthropic') && a.mock.streams.every((x) => x.url === ADAPTERS.anthropic.endpoint && x.stream === true),
+  check(a.mock.streams.filter((x) => x.url === ADAPTERS.anthropic.endpoint).length === count(a, 'anthropic') && a.mock.streams.every((x) => x.stream === true),
     `(h) every anthropic attempt in (a) went through the streaming transport with stream true (${a.mock.streams.length})`);
   const h1 = await scen('h-stream', { 'anthropic:bab1:1': 'stream_cut', 'anthropic:bab1:2': 'stream_error', 'anthropic:bab1:3': 'stream_slow', 'anthropic:bab2:1': 'stream_unknown_event' }, {});
   const hA = h1.ledger.entries.filter((e) => e.provider === 'anthropic');
@@ -1364,10 +1487,37 @@ async function selfTest() {
     '(h5) the package settings (anthropic only, max_output 48,000, caps 4.87 / 9.87, pinned prices): 30 valid drafts, every call streamed, no thinking in any file');
   } catch (x) { check(false, `streaming scenarios threw: ${String(x?.message ?? x).slice(0, 120)}`); }
 
+
+  // (i) v4: openai through the whole run, through the real streaming adapter
+  try {
+    check(a.mock.streams.filter((x) => x.provider === 'openai').length === count(a, 'openai') - 1 && a.mock.streams.every((x) => x.stream === true),
+      '(i) every openai attempt in (a) that reached the transport streamed (the planted transport error never reaches it)');
+    const i1 = await scen('i-oai-stream', { 'openai:bab1:1': 'stream_cut', 'openai:bab1:2': 'stream_error', 'openai:bab1:3': 'stream_slow', 'openai:bab2:1': 'stream_unknown_event' }, {});
+    const iO = i1.ledger.entries.filter((e) => e.provider === 'openai');
+    check(eq(iO.map((e) => e.status), ['stream_incomplete', 'stream_error', 'ok', 'ok']) && iO.slice(0, 2).every((e) => e.cost_usd === e.reserved_usd && e.partial_file && e.stream?.events > 0)
+      && iO.slice(2).every((e) => e.cost_basis === 'usage' && toMicro(e.cost_usd) <= toMicro(e.reserved_usd)) && noThinkingIn(i1.outDir) && i1.exitCode === 0,
+      '(i) openai: a cut stream and a mid-stream server_error keep their reservations and their partial text; a slow stream and one with an unknown event succeed; no reasoning in any file');
+    const i2 = await scen('i2-oai-incomplete', { 'openai:bab1:1': 'stream_max_output' }, {});
+    const i2e = i2.ledger.entries.find((e) => e.provider === 'openai' && e.chapter === 1 && e.attempt === 1);
+    check(i2e.status === 'invalid_output' && i2e.finish?.status === 'incomplete' && i2e.finish?.reason === 'max_output_tokens' && i2e.cost_basis === 'usage' && existsSync(join(i2.outDir, 'openai', 'attempts', 'bab1.a1.json')),
+      '(i2) openai response.incomplete (max_output_tokens): billed by usage, its text kept as an attempt, measured invalid, retried');
+    const i3 = await scen('i3-oai-failed', { 'openai:bab1:1': 'stream_failed_fatal' }, {});
+    check(stopsAt(i3, 'openai', 'stream_error'), '(i3) openai response.failed with a non-retryable code: one attempt, provider stopped, reservation kept');
+    const i4 = await scen('i4-oai-overrun', { 'openai:bab1:1': 'overrun' }, {});
+    const i4e = i4.ledger.entries.find((e) => e.provider === 'openai' && e.status === 'overrun');
+    check(i4.exitCode === 3 && i4e && existsSync(join(i4.outDir, 'openai', 'attempts', 'bab1.a1.json')) && noThinkingIn(i4.outDir), '(i4) a streamed openai overrun keeps the paid answer, then aborts');
+    const i5 = await (async () => { const outDir = mkdtempSync(join(tmpdir(), 'c3-runner-i5-')); tmp.push(outDir); const mock = mockProvider(FAULTS_NORMAL);
+      const r = await runEval({ mode: 'dry-run', outDir, providers: ['openai'], prices: realDryPrices(table, ['openai']), caps: capsFrom(table, { 'cap-provider': 5, 'cap-total': 9.51 }), maxOutput: 48000, adapterFor: () => mock, packSha: TEST_PACK_SHA, log: () => {} });
+      return { ...r, outDir, mock }; })();
+    check(i5.exitCode === 0 && i5.summary.per_provider.openai.drafts_valid === 30 && i5.mock.streams.length === count(i5, 'openai') - 1 && noThinkingIn(i5.outDir) && i5.ledger.entries.every((e) => e.max_output_tokens === 48000),
+      '(i5) the v4 package settings (openai only, max_output 48,000, caps 5.00 / 9.51, pinned prices): 30 valid drafts, every call that reached the transport streamed, no reasoning in any file');
+  } catch (x) { check(false, `openai streaming scenarios threw: ${String(x?.message ?? x).slice(0, 120)}`); }
+
   // the adapters against E-PROVIDER-FACTS.md §6
   console.log('\n── adapters against E-PROVIDER-FACTS.md §6 (offline)');
   await adapterChecks(check, table);
   try { await streamChecks(check); } catch (x) { check(false, `streaming checks threw: ${String(x?.message ?? x).slice(0, 120)}`); }
+  try { await openaiStreamChecks(check); } catch (x) { check(false, `openai streaming checks threw: ${String(x?.message ?? x).slice(0, 120)}`); }
 
   // the real-run gate
   console.log('\n── the real-run gate');
@@ -1386,8 +1536,10 @@ async function selfTest() {
   const gg = liveGate(table, ['google'], {});
   check(!('google' in ADAPTERS) && !PROVIDERS.includes('google') && gg.length === 1 && /^google: excluded: Not eligible .*§20\(d\)/.test(gg[0]), 'google: no adapter; refused with the §20(d) reason from prices.json');
   // the --live flag: required in addition to the gate
-  check(liveGate(table, ['openai'], dummyKeys).some((x) => /^openai: no streaming transport/.test(x)) && liveGate(table, ['anthropic'], dummyKeys).length === 0,
-    'v2 gate: a real run refuses a provider without a streaming transport (openai, deferred by Ruling 50); anthropic alone passes the gate with a key');
+  check(liveGate(table, ['openai'], dummyKeys).some((x) => /^openai: API adapter not verified.*streaming/.test(x)) && !liveGate(table, ['openai'], dummyKeys).some((x) => /no streaming transport/.test(x)) && liveGate(table, ['anthropic'], dummyKeys).length === 0,
+    'v4 gate: openai now streams, but a real run refuses it while its streaming facts are not grade A; anthropic alone passes the gate with a key');
+  check(liveGate(table, ['openai'], dummyKeys, { ...ADAPTERS, openai: { ...ADAPTERS.openai, streaming: false, verified: true, unverified_fields: [] } }).some((x) => /^openai: no streaming transport/.test(x)),
+    'v4 gate: a provider without a streaming transport is still refused');
   const allVerified = Object.fromEntries(Object.entries(ADAPTERS).map(([p, x]) => [p, { ...x, verified: true, streaming: true }]));   // test-only override
   check(liveGate(table, providers, dummyKeys, allVerified).length === 0, 'test-only override: with dummy keys and adapters marked verified, the gate itself passes');
   const nl = realRunProblems({ 'pack-sha': TEST_PACK_SHA }, table, providers, dummyKeys, allVerified);
