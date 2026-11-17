@@ -707,6 +707,27 @@ begin
 end
 $function$;
 
+-- A3, ruling 46, the sibling the sweep missed (A3-PT1): A1's count of "an attempt", read by percobaan_tandai,
+-- minta_percobaan and both request lists, says what may_start_assessment's count says: the same assessment, now across
+-- its published versions (its lineage), under any assignment, within one school and one school year; an ending by the
+-- school's own act excused. Approved requests stay per assignment (percobaan_izin_jumlah, unchanged).
+create or replace function public.percobaan_terpakai(p_person uuid, p_assessment_assignment uuid)
+returns integer language sql stable security definer set search_path = public, pg_temp as $$
+  select count(*)::integer
+    from public.assessment_assignments aa
+    join public.assessment_definitions d on d.id = aa.assessment_definition_id
+    join public.assessment_sessions s
+      on s.person_id = p_person
+     and (s.assessment_assignment_id = aa.id
+          or (s.assessment_definition_id in (select x.id from public.assessment_definitions x
+                                               where x.lineage_root_definition_id = d.lineage_root_definition_id)
+              and s.institution_id = aa.institution_id
+              and exists (select 1 from public.assessment_assignments a2 where a2.id = s.assessment_assignment_id
+                            and a2.academic_period_id is not distinct from aa.academic_period_id)))
+     and coalesce(s.termination_cause::text, '') not in ('INSTITUTIONAL_REVOCATION', 'ADMINISTRATIVE_TERMINATION')
+   where aa.id = p_assessment_assignment
+$$;
+
 -- ADR-0021: each function this migration (re)defines has EXECUTE revoked from PUBLIC here, and keeps exactly its grants
 revoke all on function public.salin_kursus_revisi(uuid, uuid, uuid, boolean) from public, anon, authenticated;
 grant execute on function public.salin_kursus_revisi(uuid, uuid, uuid, boolean) to service_role;
@@ -716,6 +737,7 @@ revoke all on function public.may_start_assessment(uuid) from public, anon;
 grant execute on function public.may_start_assessment(uuid) to authenticated, service_role;
 revoke all on function public.start_learning_session(uuid) from public, anon;
 grant execute on function public.start_learning_session(uuid) to authenticated, service_role;
+revoke all on function public.percobaan_terpakai(uuid, uuid) from public, anon, authenticated;
 
 do $$
 declare v text;
@@ -740,6 +762,10 @@ begin
   v := (select prosrc from pg_proc where oid = 'public.may_start_assessment(uuid)'::regprocedure);
   if position('x.lineage_root_definition_id = v_d.lineage_root_definition_id' in v) = 0 or position('assessment_definition_version = v_d.version' in v) > 0 then
     raise exception 'A3, ruling 46: may_start does not count across the line';
+  end if;
+  v := (select prosrc from pg_proc where oid = 'public.percobaan_terpakai(uuid,uuid)'::regprocedure);
+  if position('x.lineage_root_definition_id = d.lineage_root_definition_id' in v) = 0 or position('assessment_definition_version = d.version' in v) > 0 then
+    raise exception 'A3, ruling 46: A1''s count of an attempt does not count across the line as may_start does';
   end if;
   if position('v_def.lineage_root_definition_id' in (select prosrc from pg_proc where oid = 'public.salin_kursus_revisi(uuid,uuid,uuid,boolean)'::regprocedure)) = 0
      or position('where d.id = p_definition))' in (select prosrc from pg_proc where oid = 'public.save_assessment_definition(uuid,jsonb)'::regprocedure)) = 0 then
