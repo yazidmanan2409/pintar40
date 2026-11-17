@@ -361,3 +361,25 @@ Source: Anthropic's structured-outputs page (platform.claude.com, build-with-cla
 4. the owner's authorisation.
 
 No call, no key and no spend before then.
+
+## The owner's practice run on the Mac (17 Nov, 23:32 UTC): passed
+
+The owner ran `zsh jalankan-e.sh --latihan` on the package `b29996e6…030c`. Exit code 0; no provider was called and nothing was spent. Bob checked `untuk-bob.zip`:
+- **It holds only `ledger.json`, `summary.json` and `ringkasan.txt`.** There is no key-like text, no thinking canary and no dummy key in it.
+- **The settings are the reviewed ones:**
+  - mode `latihan` (the dry run);
+  - pack `ecb0d3c4`;
+  - Anthropic only;
+  - max_output 48,000;
+  - caps 4.87 / 9.87.
+- **The run matched the rehearsal exactly:**
+  - the same four mock attempts (invalid → ok, 429 → ok);
+  - the same reservations (US$0.523730 and US$0.520808);
+  - each streamed attempt had 171 events;
+  - the 429 kept its reservation.
+
+  The US$0.620018 in the summary is the mock's arithmetic, not spend.
+- **The void run 1 was found and unchanged on the Mac.** Its ledger's SHA-256 is `58f03b891b2f04c9e98f7aeccb68e783a1ea3893c53846bb2b31bb0aae155d6a`, recorded here. A real run's summary must show the same value.
+- **So the Mac's own tools ran every step:** the checksums, the hidden prompt, the key check, the scan and the zip. That closes the Mac-execution concern.
+
+**Every requirement of Ruling 50 (6) and Ruling 51 for the run is now met.** What remains is the owner's authorisation of the paid run.
