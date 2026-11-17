@@ -112,6 +112,10 @@ jobs:
         run: |
           psql -1 -At -F ' ' -v ON_ERROR_STOP=1 -c "set transaction read only" -f out/fingerprint.sql "$DB_URL" > out/before.txt
           psql -At -v ON_ERROR_STOP=1 -c "select count(*) || ' / ' || max(version) from supabase_migrations.schema_migrations" "$DB_URL" | tee out/before-version.txt
+          mkdir -p out/rows
+          while IFS=$'\t' read -r s t cols; do
+            psql -At -v ON_ERROR_STOP=1 -c "select row($cols)::text from $s.\"$t\"" "$DB_URL" | LC_ALL=C sort > "out/rows/$s.$t.before"
+          done < out/columns-at-111.tsv
       - name: UPGRADE — apply the target's migrations 112 onward, timed
         working-directory: base
         run: |
@@ -128,16 +132,26 @@ jobs:
         run: |
           psql -1 -At -F ' ' -v ON_ERROR_STOP=1 -c "set transaction read only" -f out/fingerprint.sql "$DB_URL" > out/after.txt
           psql -At -v ON_ERROR_STOP=1 -c "select count(*) || ' / ' || max(version) from supabase_migrations.schema_migrations" "$DB_URL" | tee out/after-version.txt
-          join -j1 <(sort out/before.txt) <(sort out/after.txt) | awk '$2!=$4 || $3!=$5 {print $1": before "$2" "$3" -> after "$4" "$5}' > out/changed-tables.txt || true
-          echo "tables whose pre-existing rows changed: $(wc -l < out/changed-tables.txt) of $(wc -l < out/before.txt)"
+          join -j1 <(sort out/before.txt) <(sort out/after.txt) | awk '$2!=$4 || $3!=$5 {print $1}' > out/changed-tables.list || true
+          # per changed table: rows of 111 that are gone or altered (the finding), and rows added by later migrations
+          : > out/changed-tables.txt
+          while read -r k; do
+            s="${k%%.*}"; t="${k#*.}"
+            cols="$(awk -F '\t' -v s="$s" -v t="$t" '$1==s && $2==t {print $3}' out/columns-at-111.tsv)"
+            comm -23 "out/rows/$k.before" <(psql -At -v ON_ERROR_STOP=1 -c "select row($cols)::text from $s.\"$t\"" "$DB_URL" | LC_ALL=C sort) > "out/rows/$k.gone"
+            comm -13 "out/rows/$k.before" <(psql -At -v ON_ERROR_STOP=1 -c "select row($cols)::text from $s.\"$t\"" "$DB_URL" | LC_ALL=C sort) > "out/rows/$k.added"
+            echo "$k: rows of 111 altered or removed $(wc -l < "out/rows/$k.gone"); rows added $(wc -l < "out/rows/$k.added")" >> out/changed-tables.txt
+          done < out/changed-tables.list
           cat out/changed-tables.txt
           {
             echo "## Production upgrade rehearsal (synthetic)"
             echo "- production release: \`$PRODUCTION_SHA\` ($(cat out/before-version.txt))"
             echo "- target: \`${{ steps.refs.outputs.target }}\` ($(cat out/after-version.txt))"
             echo "- $(cat out/upgrade-seconds.txt)"
-            echo "- tables whose pre-existing rows changed (over 111's columns): $(wc -l < out/changed-tables.txt) of $(wc -l < out/before.txt)"
+            echo "- tables that differ (over 111's columns): $(wc -l < out/changed-tables.list) of $(wc -l < out/before.txt)"
             echo '```'; cat out/changed-tables.txt; echo '```'
+            echo "### Rows of 111 altered or removed (the finding)"
+            for f in out/rows/*.gone; do [ -s "$f" ] && { echo "#### $(basename "$f" .gone)"; echo '```'; head -40 "$f"; echo '```'; }; done
           } >> "$GITHUB_STEP_SUMMARY"
       - name: The applied versions equal the target's
         env:
