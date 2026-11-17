@@ -6,13 +6,16 @@
 // It never prints or stores a key, a request header or a response body.
 //
 // The keys come from this process's own environment, set by jalankan-e.sh for this one command only.
+// Which providers: the arguments (v3: `anthropic` only, Ruling 50); with none, both, as before.
 
 const MODELS = { anthropic: 'claude-sonnet-5-5', openai: 'gpt-6.1-sol' };
 const BASE = { anthropic: 'https://api.anthropic.com', openai: 'https://api.openai.com' };
+const LIST = process.argv.length > 2 ? process.argv.slice(2) : ['anthropic', 'openai'];
+for (const p of LIST) if (!(p in MODELS) || LIST.indexOf(p) !== LIST.lastIndexOf(p)) { console.error(`unknown or repeated provider: ${p}`); process.exit(2); }
 
 // Rehearsal only: jalankan-e.sh --rehearse points both checks at a local mock on 127.0.0.1. No other host is accepted.
 if (process.env.E_REHEARSE === '1') {
-  for (const p of ['anthropic', 'openai']) {
+  for (const p of LIST) {
     const b = process.env[`E_REHEARSE_${p.toUpperCase()}_BASE`] || '';
     if (!/^http:\/\/127\.0\.0\.1:\d+$/.test(b)) { console.error(`rehearsal base for ${p} must be http://127.0.0.1:<port>`); process.exit(2); }
     BASE[p] = b;
@@ -28,7 +31,7 @@ const REQ = {
 };
 
 let ok = true;
-for (const p of ['anthropic', 'openai']) {
+for (const p of LIST) {
   const at = new Date().toISOString();
   if (!KEY[p]) { console.log(`${p}: no key given  ${at}`); ok = false; continue; }
   let status = 'no response', confirmed = false;

@@ -183,3 +183,69 @@ real-sized checks, the source-commit pin, the void-ledger check and the caps.
   keeps the response.
 - **S-5:** only the adapters and the transport change. Key handling and the procedure are unchanged. The package is
   rebuilt with a new SOURCE-COMMIT, and the rehearsal is re-run.
+
+## Ruling 50 and v3: Anthropic only, streamed (17 Nov, Bob; for Sharon's review)
+
+**Nothing has been run. There is no key and no paid call.** The owner authorises a run only after Sharon's PASS.
+
+### The runner, on `claude/e-runner-v2`
+- **`80c80252` is the red-first step:** the streaming checks were added first, and 6 failed.
+- **`301b91a6` is the fix.** The self-test passes in full: **193 checks.**
+- **What changed:** the transport, the Anthropic adapter, error classification, the mock and the live gate.
+- **What did not change:** key handling, the budget formula, the caps, the overrun abort, and the frozen set (`kit.mjs`, `score.mjs`, `report.mjs`).
+
+| Condition | How it is met | Proof in the self-test |
+|---|---|---|
+| **S-1** Only a completed stream is a response | A stream counts only if it has `message_start`, every block closed, a known stop reason, a final output count from `message_delta` (never `message_start`'s), and then `message_stop`. Anything else is `stream_incomplete`, or `stream_error` for an `error` event. Either way the attempt keeps its **full reservation** as its cost. Its partial text is never written, validated or judged. Only the evidence is kept: event counts, bytes, and the partial text's length and SHA-256 | 15 refusal cases; scenarios (h) and (h4) |
+| **S-2** No thinking is stored | Only `text_delta` in `text` blocks is kept. Thinking and signature deltas are counted, never kept. Every mock stream carries a canary in its thinking, and no file the run writes may contain it | (h), (h2), (h5); the rehearsal scans `hasil` and the terminal output: none |
+| **S-3** A robust parser | It follows the HTML standard's rules for event streams: CRLF, LF and CR line endings; multi-line data; comments; `id` and `retry` ignored; an unterminated event discarded. It also has a 32 MB byte cap, strict UTF-8, unknown event types ignored and counted, and an unknown final event refused | The documented thinking stream, split at 1, 2, 3, 7 and 64 bytes and over CRLF and CR, gives the same events |
+| **S-4** A streaming mock | The dry run's Anthropic answers go through the **real** adapter, parser and assembler, from a local stream in `fetch`'s place. The faults are: a slow stream (31-byte chunks, CRLF); a cut stream; a mid-stream `overloaded_error` (retried); a mid-stream `invalid_request_error` (the provider stops); no final usage; an unknown event; and an overrun that **keeps the answer** and then aborts | (h) to (h5); transport checks for a dropped connection, the idle limit and an early close |
+| **S-5** Only the adapters and transport change | Key handling is unchanged. The procedure changes only as Ruling 50 requires (one key, no OpenAI). The package is v3, under the new SOURCE-COMMIT `301b91a6`, and is rehearsed | See the package section below |
+
+**Further points for review:**
+- **Errors before the stream starts** are classified exactly as before. For example, a 429 spend stop is still a `spend_stop`.
+- **A 2xx that is not an event stream** is `unparsable_2xx`.
+- **Retries on mid-stream `error` events:** only `overloaded_error`, `api_error` and `timeout_error` are retried. These are the documented retryable types. Every other type stops the provider (fail-closed).
+- **The idle limit:** 5 minutes with no byte aborts the call as `stream_incomplete` (idle). The 25-minute call limit stays.
+- **A real run now refuses any provider without a streaming transport.** That is OpenAI today, deferred by Ruling 50. Its adapter is unchanged and needs its own verification later.
+
+### The reservation and its enforcement (for Sharon to verify)
+
+At the package settings (Anthropic only, max_output 48,000, pinned US$2 / US$10, from `runner.mjs --plan`):
+
+| | Input bound | Worst case |
+|---|---|---|
+| bab1, per call | 21,865 | US$0.523730 |
+| bab2, per call | 20,404 | US$0.520808 |
+| **all 6 calls** | | **US$3.133614** |
+
+- The cap is **US$4.87**. So even if all 6 calls each cost their full reservation, Anthropic's spend stays US$1.74 under the cap. This is the worst case the owner accepted in Ruling 50.
+- **How the cap is enforced:**
+  - before every call, `Ledger.check` refuses the call if spent + open reservations + this call's worst case would exceed the cap;
+  - only one reservation is open at a time;
+  - with no final usage, the reservation stands as the cost;
+  - a cost above its reservation aborts the run.
+- These rules are the ones Sharon reviewed (scenarios b, b2, b3 and c). Streaming did not change them.
+
+### Package v3 (`e-local/v3`)
+- **Anthropic only:**
+  - one key, with a refusal if the key looks like OpenAI's;
+  - a key check for Anthropic only (`periksa-kunci.mjs anthropic`; it checks both providers when given no argument, as before);
+  - `--providers anthropic`.
+- **No blinding.** The frozen `kit.mjs blind` needs at least two providers. So Anthropic's drafts stay sealed and unread in the PRIVAT folder, and `untuk-bob` holds only the ledger and the two summaries. The script checks this before zipping.
+- **Rehearsal** (`v3/rehearsal/REHEARSAL-RESULT.txt`, under zsh 5.9 and bash 5.2): **the happy path and 10 stop paths all passed.** On every path:
+  - no key appeared in any output or in the process list;
+  - no thinking text appeared in any output;
+  - the OpenAI mock received nothing.
+
+  On the happy path, every Anthropic attempt that started streamed, at max_output 48,000. The R1, R3 and S-2 controls each caught their planted case.
+- Package: `pintar-e-local-v3.tar.gz`, SHA-256 `79226145e469c6184a56b727fe3ba8408feecc200bfd4022b03ca7df097b2005`.
+
+### For the owner: what this means for judging (no action needed until Sharon passes)
+- **The frozen kit blinds Anthropic's and OpenAI's questions together.** That is what keeps the judges from knowing whose questions they score.
+- **Recommendation:** keep it that way.
+  - Run Anthropic now; its drafts stay sealed.
+  - Run OpenAI after its own verification.
+  - Then blind the 60 questions together and judge them in one session.
+- **Why:** judging Anthropic alone first would tell the judges that every question in that batch, and later every question in the second batch, came from one provider. That weakens the blinding the comparison rests on.
+- **The cost:** **Friday 20 November is possible only if OpenAI's run is also done by then.** Otherwise judging moves to when it is.
