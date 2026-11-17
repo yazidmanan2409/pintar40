@@ -414,6 +414,10 @@ export const retroTests: SelfTest[] = [
         // C1w (Daisy Q5, C1-R1): «Riwayat soal (n versi)» is collapsed by her ruling; each earlier version opens read-only
         "src/components/studio/SoalKerja.tsx": ["a question's history, under the question, which stays shown in full",
           "one earlier version of a question, read-only, under its line in that history"],
+        // C2w (Daisy, C2W-CATATAN-KATA.md §1, §5): «Catatan peninjau (n)», a sibling of «Riwayat soal», and the replaced
+        // notes nested under each option; neither holds required content: a note is never evidence and never printed (O-3)
+        "src/components/studio/CatatanPeninjau.tsx": ["a question's reviewer notes, after its history, under the question, which stays shown in full",
+          "an option's replaced notes, read-only, under the note that holds now"],
       };
       const ada = new Map<string, number>();
       for (const f of [...tsx(join(repoRoot, "src", "app")), ...tsx(join(repoRoot, "src", "components"))]) {
