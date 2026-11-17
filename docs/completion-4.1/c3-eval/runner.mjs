@@ -845,6 +845,16 @@ async function selfTest() {
   { const t = kitRequest(1), sch = schemaText(); const wc = worstCase(Buffer.byteLength(t, 'utf8') + Buffer.byteLength(sch, 'utf8'), 12000, { input: 2, output: 10 });
     check(wc.input_bound >= 4993 && wc.input_bound >= Buffer.byteLength(t + sch, 'utf8'),
       `v2 the bab1 input bound (${wc.input_bound}) is at least the real 4,993 tokens and at least the request's UTF-8 bytes`); }
+  // v2: real-sized counts (E incident run 1). At the raised output limit, a call that uses twice the observed input
+  // and every output token (thinking included) still costs no more than its reservation, so it cannot overrun.
+  for (const mo of [32000, 48000]) {
+    for (const b of CHAPTERS) {
+      const t = kitRequest(b), sch = schemaText(); const pr = { input: 2, output: 10 };
+      const wc = worstCase(Buffer.byteLength(t, 'utf8') + Buffer.byteLength(sch, 'utf8'), mo, pr);
+      check(costMicro(2 * 4993, mo, pr) <= wc.micro,
+        `v2 real-sized: bab${b} at max_output ${mo}, 2 × 4,993 input + ${mo} output costs ${usd(costMicro(2 * 4993, mo, pr))} <= reservation ${usd(wc.micro)}`);
+    }
+  }
 
   // (d) a spend or billing stop: never retried, and no further call to that provider
   const d = await scen('d-spend-stops', FAULTS_STOP, {});
