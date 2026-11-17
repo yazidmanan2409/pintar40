@@ -100,3 +100,30 @@ It does **not** give the token counts or `finish`. Those are in `runs/ledger.jso
   4. Sharon's PASS;
   5. the owner's new authorisation.
 - **A future overrun** keeps the response as evidence, but still aborts. Going on after one is the owner's call.
+
+## The ledger (received 17 Nov; no key text; both keys revoked by the owner)
+
+| Field | Value |
+|---|---|
+| actual input tokens | **4,993** (the bound was 3,930) |
+| actual output tokens | **12,000**: exactly the limit |
+| stop reason | **`max_tokens`**: the response was cut off |
+| of which thinking | **7,482** (`output_tokens_details.thinking_tokens`) |
+| duration | 83 s |
+
+- **The second finding.** Claude Sonnet 5.5 always thinks before it answers: adaptive thinking, default effort
+  `high`, and it cannot be turned off. This is from Anthropic's models overview, read 17 Nov. Its maximum output is
+  128K. Thinking used 7,482 of the 12,000 tokens, which left about 4,500 for the 15 items, so **every attempt at
+  12,000 would be truncated.** OpenAI's `max_output_tokens` also counts reasoning.
+- **So `max_output` must rise, for both providers alike.** Neither provider's defaults are changed. The proposal is
+  **48,000**:
+  - the worst case is about US$0.52 per call, US$3.14 per provider with every retry, and US$6.28 in all;
+  - that is inside the deducted caps of US$4.87 (Anthropic), US$5 (OpenAI) and US$9.87 (total);
+  - the expected cost is about US$1.05 per provider.
+  - 32,000 would cost about two-thirds as much, with less room for thinking. **This is the owner's decision.**
+  - OpenAI's maximum output for `gpt-6.1-sol` must be confirmed at least this large (its page is unreadable from here).
+- **Runner v2, on `claude/e-runner-v2`:**
+  - `6aeb06b2` is the red-first test step: both new tests failed.
+  - `1ebd840d` is the fix: the input bound is bytes × 1.2 + 10,000, and an overrun keeps the response before aborting.
+    The self-test passes in full. The cap tests were recalibrated to the larger reservations; their intent is unchanged.
+  - `DEFAULT_MAX_OUTPUT` stays 12,000 until the owner decides. The v2 package will pass `--max-output`.
