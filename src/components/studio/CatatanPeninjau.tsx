@@ -56,7 +56,7 @@ export default function CatatanPeninjau({ s, mode, item, label, catatan, day, fo
   form?: FormCatatan | null;
 }) {
   const semua = catatan ?? [];
-  const blok = blokCatatan(label, semua, mode === "studio" && !!form).filter((b) => mode === "studio" || b.kini.length > 0);
+  const blok = blokCatatan(label, semua, mode === "studio" && !!form, item).filter((b) => mode === "studio" || b.kini.length > 0);
   const kini = semua.filter((c) => !c.digantikan).length;
   if (blok.length === 0 || (mode === "guru" && kini === 0)) return null;
   const nama = (c: Catatan) => (c.pustaka ? s("studio.catatan.pintar") : c.nama ?? "—");

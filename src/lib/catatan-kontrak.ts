@@ -61,17 +61,36 @@ export function bacaCatatan(data: unknown): Catatan[] {
 /** One option's block: the notes that hold now (newest first) and the ones they replaced (newest first, oldest last). */
 export type BlokCatatan = { label: string; kini: Catatan[]; lama: Catatan[] };
 
+const baru = (a: Catatan, b: Catatan) => (a.pada < b.pada ? 1 : a.pada > b.pada ? -1 : a.id < b.id ? 1 : -1);
+/** Newest version first, then newest written (Daisy §8.3). */
+const versiBaru = (a: Catatan, b: Catatan) => (b.versi - a.versi) || baru(a, b);
+
 /**
  * Per option, in the question's order. A reader is shown only the options that have a note; a reviewer every option,
- * so each has its form (Daisy §1).
+ * so each has its form (Daisy §1). The notes that hold now: the one on the version on screen (`kiniItem`) first, then
+ * the others, newest version first (§8.3: the reader came to read this version).
  */
-export function blokCatatan(label: readonly string[], catatan: readonly Catatan[], semua: boolean): BlokCatatan[] {
-  const baru = (a: Catatan, b: Catatan) => (a.pada < b.pada ? 1 : a.pada > b.pada ? -1 : a.id < b.id ? 1 : -1);
+export function blokCatatan(label: readonly string[], catatan: readonly Catatan[], semua: boolean, kiniItem?: string): BlokCatatan[] {
+  const urut = (a: Catatan, b: Catatan) => (Number(b.item === kiniItem) - Number(a.item === kiniItem)) || versiBaru(a, b);
   return label.map((l) => ({
     label: l,
-    kini: catatan.filter((c) => c.opsi === l && !c.digantikan).sort(baru),
+    kini: catatan.filter((c) => c.opsi === l && !c.digantikan).sort(urut),
     lama: catatan.filter((c) => c.opsi === l && c.digantikan).sort(baru),
   })).filter((b) => semua || b.kini.length > 0 || b.lama.length > 0);
+}
+
+/**
+ * Beside the class report, ONE note per question and option (Daisy §8.3): the teacher's line carries no version, so two
+ * would read as a contradiction. The newest version's: the revision in force is the line's newest, so its note when it
+ * has one, otherwise the newest earlier one (which carries the teacher's I-5 line when the key differs).
+ */
+export function catatanGuru(catatan: readonly Catatan[]): Catatan[] {
+  const satu = new Map<string, Catatan>();
+  for (const c of [...catatan].filter((x) => !x.digantikan).sort(versiBaru)) {
+    const k = `${c.soal ?? c.item}:${c.opsi}`;
+    if (!satu.has(k)) satu.set(k, c);
+  }
+  return [...satu.values()];
 }
 
 /** The note a replacement names: the current note of this option on the version on screen, if any. */

@@ -4429,7 +4429,7 @@ const table: Table = {
   "studio.catatan.tulis": { default: "Tulis catatan", en: "Write a note" },
   "studio.catatan.ganti": { default: "Ganti catatan", en: "Replace the note" },
   "studio.catatan.label": { default: "Catatan untuk pilihan {label}", en: "Note on option {label}" },
-  "studio.catatan.petunjuk": { default: "Apa yang ditunjukkan pilihan ini tentang cara berpikir murid? Catatan ini tidak dilihat murid dan tidak mengubah soal atau nilai. Sampai 1000 karakter.", en: "What does this option show about how learners think? Learners never see this note, and it changes no question or score. Up to 1000 characters." },
+  "studio.catatan.petunjuk": { default: "Apa yang ditunjukkan pilihan ini tentang cara berpikir murid? Jangan menyebut nama atau data murid mana pun. Catatan ini tidak dilihat murid dan tidak mengubah soal atau nilai. Sampai 1000 karakter.", en: "What does this option show about how learners think? Do not name any learner or include any learner's data. Learners never see this note, and it changes no question or score. Up to 1000 characters." },
   "studio.catatan.petunjuk_ganti": { default: "Catatan lama tetap tersimpan dan terlihat di Catatan sebelumnya.", en: "The old note stays saved and visible under Earlier notes." },
   "studio.catatan.simpan": { default: "Simpan catatan", en: "Save the note" },
   "studio.catatan.batal": { default: "Batal", en: "Cancel" },

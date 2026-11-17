@@ -13,7 +13,7 @@ import { BarisLingkup } from "@/components/bukti";
 import { TeksBaris } from "@/components/teks/Teks";
 import { judulHalaman } from "@/lib/judul-halaman";
 import CatatanPeninjau from "@/components/studio/CatatanPeninjau";
-import { bacaCatatan, tanggalUtuh } from "@/lib/catatan-kontrak";
+import { bacaCatatan, catatanGuru, tanggalUtuh } from "@/lib/catatan-kontrak";
 import { tanggal } from "@/lib/tanggal";
 import { zonaSekolah } from "@/lib/zona-sekolah";
 
@@ -74,7 +74,8 @@ export default async function SoalKelas({
     db.rpc("catatan_peninjau_kelas", { p_assignment: tugasId, p_class: id }),
     zonaSekolah(db, ctx.ini.institusi),
   ]);
-  const catatan = ce ? [] : bacaCatatan(cd);
+  // Daisy §8.3: one note per question and option, the newest version's
+  const catatan = ce ? [] : catatanGuru(bacaCatatan(cd));
   const hari = (iso: string | null | undefined) => (iso ? tanggalUtuh(tanggal(iso, "baca", locale, zona)) : "—");
 
   return (
