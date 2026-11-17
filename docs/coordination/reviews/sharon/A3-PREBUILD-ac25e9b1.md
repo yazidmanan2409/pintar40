@@ -378,3 +378,40 @@ The test for each exception: **can a function that takes the person first (a sta
 4. **The last-administrator guarantee is re-proven after the change:** two concurrent revocations of the last two administrators leave at least one, in both orders. That is the property the FOR UPDATE was there for.
 
 *Could reasonably have been anticipated (Q3, the locks):* this is A3-R4's pattern on other tables. My "the test for each exception" covered `persons`; the same test applies to every row a foreign key reaches.
+
+## Addendum, 17 Nov 05:00 UTC: pin 2 is red on three. Rulings, and a correction to my 04:45 ruling.
+
+**What I reviewed:** A3-P2 (local), built as I restated pin 2. It finds three functions.
+
+**Items 1 and 2 become (b), as Second Eye proposes. Accepted.**
+- **`confirm_my_name`:** a person-first re-activation or lock updates `account_setup`, so it takes the person first.
+- **`handle_new_auth_user`:** `hapus_data_pribadi` updates `account_activation_grants`, so it takes the person first.
+  - The grant's person is read without a lock, then the person is locked, then the grant is **re-read under the lock**. If the grant changed, it is refused or retried. A grant that creates a new person is unchanged.
+- **Each is red first,** with its race on real connections.
+
+**Item 3: `issue_institutional_id` against the last-administrator guard.**
+
+**My 04:45 ruling does not fix it, so it is corrected here.** Converting the guard to FOR NO KEY UPDATE is not enough, because NO KEY UPDATE conflicts with NO KEY UPDATE:
+- the role function holds the person and waits for the school;
+- `issue_institutional_id` holds the school and waits for the person.
+That is still a cycle.
+
+**Ruling: Second Eye's (b).** The last-administrator guard, `peran_terakhir_kode` at both sites, serialises on a transaction-scoped **advisory key per school** and takes no lock on the school row.
+- **Why it closes every cycle found so far:**
+  - **The role functions** take the person (first), then the advisory key, then their `role_assignments` write, whose foreign key takes KEY SHARE on the school.
+  - **`issue_institutional_id` and the import** hold the school FOR NO KEY UPDATE, then the person.
+  - **KEY SHARE is compatible with NO KEY UPDATE,** so the role function never waits on the school row while `issue_institutional_id` holds it.
+  - **The only remaining wait** is `issue_institutional_id` on the person, behind a role function that waits for nothing it holds. So there is no cycle.
+  - **SI-D03's order, school then person, is kept** for the import and for issuing.
+- **The guarantee is unchanged:** every role change in one school serialises on that school's key, so the last administrator still cannot be removed by two concurrent revocations.
+  - **A function touching several schools** takes their keys in school-id order.
+- **The two plain readers,** `atur_zona_waktu_sekolah` and `perpanjang_peran`, take FOR NO KEY UPDATE, as ruled at 04:45. Both take the school before the person, so they serialise with `issue_institutional_id` on the school and cannot form a cycle with it. Against person-first FOR UPDATE takers, their school lock does not block foreign-key KEY SHARE.
+- **A2A-L01:** the guard's advisory key is ranked after `persons` and before the school row, and the reader records it.
+
+**So my 04:45 points become:**
+1. NO KEY UPDATE for `issue_institutional_id` (done), `atur_zona_waktu_sekolah` and `perpanjang_peran`, and **the advisory key for the guard**;
+2. **two races, red first:** suspension against a role grant (04:45), and **numbering a person in a school against a role change of theirs there** (item 3);
+3. the structural check: no `institutions` FOR UPDATE, with strength recorded, plus the plant, and the guard holding no row lock on `institutions`;
+4. the last-administrator guarantee re-proven under the advisory key, in both orders.
+
+**A3-P2 turns green** when items 1 to 3 are fixed. It stays as the standing pin.
