@@ -937,7 +937,8 @@ returns void language plpgsql set search_path = public, pg_temp as $$
 begin
   reset role;
   perform set_config('request.jwt.claims',
-    json_build_object('sub', p_uid, 'role', 'authenticated')::text, true);
+    -- A3 (Sharon, 8df83c47): the same fixed per-person session as selftest.as_user (fable01.sql)
+    json_build_object('sub', p_uid, 'role', 'authenticated', 'session_id', md5('selftest-sesi:' || p_uid::text)::uuid)::text, true);
   perform set_config('request.jwt.claim.sub', p_uid::text, true);
   set local role authenticated;
 end $$;

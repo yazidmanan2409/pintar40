@@ -23,7 +23,7 @@
  *   A3-LN2  the line check refuses a revision with two predecessors (the backfill's strictness).
  */
 import { spawn, spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { URUTAN, bacaUrutan, type Kunci } from "./a2a-l01.test";
@@ -280,6 +280,57 @@ async function balapanTahan(tahan: string, sisa: string, kedua: string): Promise
 }
 
 export const a3DbTests: SelfTest[] = [
+  {
+    // Sharon, 8df83c47, conditions 1 and 2: the harness's per-person session (selftest.as_user, as_user_uid) is the
+    // harness's only. No migration defines or calls selftest.as_user, or derives a session from 'selftest-sesi:'; and the
+    // product's sesi_saya() reads the session from the verified claims and nothing else.
+    id: "A3-H01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const dir = join(repoRoot, "supabase", "migrations");
+      const berkas = readdirSync(dir).filter((f) => f.endsWith(".sql")).sort();
+      c.expect(berkas.length > 200, `only ${berkas.length} migrations read`);
+      const kena = berkas.filter((f) => /selftest\.as_user|selftest-sesi/.test(readFileSync(join(dir, f), "utf8")));
+      c.expect(kena.length === 0, `a migration names the harness's identity: ${kena.join(", ")}`);
+      // the latest definition of sesi_saya, wherever it is
+      let tubuh = "";
+      for (const f of berkas) {
+        const m = /create (?:or replace )?function public\.sesi_saya\(\)[\s\S]*?\$[a-z_]*\$;/i.exec(readFileSync(join(dir, f), "utf8"));
+        if (m) tubuh = m[0];
+      }
+      c.expect(tubuh.includes("request.jwt.claims") && tubuh.includes("session_id"), "sesi_saya() does not read session_id from the verified claims");
+      c.expect(!/\bp_[a-z_]+|current_setting\('(?!request\.jwt\.claims)/.test(tubuh.replace(/^create (?:or replace )?function public\.sesi_saya\(\)/i, "")),
+        "sesi_saya() takes a parameter or reads a setting other than the verified claims");
+      return c.verdict(`reads all ${berkas.length} migrations (the source): none defines or calls selftest.as_user or derives a session from 'selftest-sesi:'; the latest sesi_saya() reads session_id from request.jwt.claims and from nothing else`);
+    },
+  },
+  {
+    // Sharon, 8df83c47, condition 3: the harness's derived sessions are per person and fixed. Two personas get two ids;
+    // one persona gets the same id each time, by as_user and as_user_uid alike; claims without a session_id give none.
+    id: "A3-H02",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      for (const f of ["fable01.sql", "fable06.sql"]) spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-q", "-1", "-f", join(process.cwd(), "selftest", "db", f), db()], { encoding: "utf8" });
+      const r = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-qAt", "-c", `begin;
+        select selftest.as_user('alpha-siswa-1@synthetic.pintar.test'); reset role; select 'A1=' || coalesce(public.sesi_saya()::text, 'null');
+        select selftest.as_user('alpha-siswa-1@synthetic.pintar.test'); reset role; select 'A2=' || coalesce(public.sesi_saya()::text, 'null');
+        reset role; select selftest.as_user_uid((select id from auth.users where email = 'alpha-siswa-1@synthetic.pintar.test')); reset role; select 'AU=' || coalesce(public.sesi_saya()::text, 'null');
+        select selftest.as_user('alpha-guru@synthetic.pintar.test'); reset role; select 'B=' || coalesce(public.sesi_saya()::text, 'null');
+        reset role; select set_config('request.jwt.claims', json_build_object('sub', (select id from auth.users where email = 'alpha-siswa-1@synthetic.pintar.test'), 'role', 'authenticated')::text, true);
+        select 'N=' || coalesce(public.sesi_saya()::text, 'null');
+        rollback;`, db()], { encoding: "utf8" });
+      if (!c.expect(r.status === 0, `the read failed: ${(r.stderr || "").trim().split("\n").pop()}`)) return c.verdict("");
+      const v = Object.fromEntries(r.stdout.split("\n").filter((l) => /^[A-Z0-9]+=/.test(l)).map((l) => l.split("=") as [string, string]));
+      const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+      c.expect(uuid.test(v.A1 ?? "") && uuid.test(v.B ?? ""), `a persona has no harness session: ${v.A1} / ${v.B}`);
+      c.expect(v.A1 !== v.B, `two personas share one harness session: ${v.A1}`);
+      c.expect(v.A1 === v.A2 && v.A1 === v.AU, `one persona's harness session is not fixed (as_user twice, as_user_uid): ${v.A1} / ${v.A2} / ${v.AU}`);
+      c.expect(v.N === "null", `claims without a session_id still give a session: ${v.N}`);
+      return c.verdict("executes selftest.as_user and as_user_uid against the migrations, rolled back: two personas get two different sessions; one persona gets the same session from as_user twice and from as_user_uid; claims with no session_id give sesi_saya() null (S11 stays expressible)");
+    },
+  },
   {
     id: "A3-L1P",
     requires: ["db"],
