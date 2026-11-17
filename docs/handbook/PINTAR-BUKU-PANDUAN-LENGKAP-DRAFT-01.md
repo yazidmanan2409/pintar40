@@ -16,7 +16,7 @@ PT ZAYD PINTAR SELALU (ZPS)
 
 Bagian ini akan dihapus sebelum buku diterbitkan.
 
-1. **Status fitur.** Setiap fitur diberi tanda versi dan status (lihat Bab 2). Pada saat draf ini ditulis, fondasi PINTAR 4.0 sudah selesai di lingkungan uji (*staging*), PINTAR 4.1 sedang diselesaikan dan belum diterima oleh para pendidik, dan versi 4.2, 4.5, serta 5.0 masih berupa rencana atau arah. Buku ini menjelaskan pengalaman yang dituju untuk setiap versi. Buku ini **tidak** menyatakan bahwa suatu fitur sudah tersedia di sekolah.
+1. **Status fitur.** Setiap fitur diberi tanda versi dan status (lihat Bab 2). Pada saat draf ini ditulis, layanan yang dipakai sekolah (produksi) masih memakai versi September 2026 dan belum menerima 4.0 maupun 4.1. Fondasi PINTAR 4.0 sudah selesai dan diuji di lingkungan uji (*staging*). PINTAR 4.1 sedang dikembangkan; bagian pertamanya sudah diterima di lingkungan uji. Versi 4.2, 4.5, dan 5.0 masih berupa rencana atau arah. Buku ini menjelaskan pengalaman yang dituju untuk setiap versi. Buku ini **tidak** menyatakan bahwa suatu fitur sudah dapat dipakai sekolah.
 2. **Istilah.** Buku ini mengikuti Terminologi PINTAR v1 yang dipakai di layar: *murid* (bukan siswa atau peserta didik), *Guru*, *Sekolah*, *Admin sekolah*, *Admin PINTAR*, dan sapaan *Anda*. Peran yang disebut dalam penugasan sebagai "Pimpinan Sekolah", "Peninjau Materi", dan "Fasilitator Pengembangan Profesional" bukan peran sistem tersendiri. Buku ini menjelaskannya sebagai tanggung jawab yang dipegang oleh peran yang ada (Bab 4).
 3. **Teks layar.** Kata dalam tanda «…» adalah teks layar PINTAR 4.0/4.1 sebagaimana tercatat saat penyusunan. Sebagian teks masih dapat berubah sebelum rilis.
 4. **Tanda [Perlu konfirmasi: …]** menandai hal yang belum dapat dipastikan dari sumber. Daftar lengkapnya ada di berkas *PINTAR-HANDBOOK-FEATURE-COVERAGE.md*.
@@ -145,7 +145,7 @@ Penting untuk mengetahui sejak awal apa yang *tidak* dilakukan PINTAR:
 - PINTAR **tidak memutuskan** nilai akhir, kenaikan kelas, atau tindakan terhadap murid secara otomatis. Keputusan itu milik orang yang berwenang.
 - PINTAR **tidak memantau** perilaku. PINTAR mencatat tindakan penting demi akuntabilitas, misalnya siapa yang masuk atau meminta cetakan resmi. PINTAR tidak merekam klik, tidak mengamati layar, dan tidak memakai kamera.
 - PINTAR **tidak membandingkan** sekolah satu dengan sekolah lain.
-- PINTAR **tidak membiarkan AI memutuskan**. Ketika AI membantu menyusun draf soal (mulai PINTAR 4.1), draf itu selalu diperiksa dan diputuskan oleh guru, lalu ditinjau orang kedua sebelum dirilis.
+- PINTAR **tidak membiarkan AI memutuskan**. Ketika AI membantu menyusun draf soal, draf itu selalu diperiksa dan diputuskan oleh guru, lalu ditinjau orang kedua sebelum dirilis. Murid tidak pernah berinteraksi dengan AI.
 
 ## 1.6 PINTAR dari versi ke versi
 
@@ -154,7 +154,7 @@ PINTAR dibangun bertahap. Setiap versi berdiri di atas versi sebelumnya.
 | Versi | Nama | Inti perubahannya bagi pengguna |
 |---|---|---|
 | **4.0** | Fondasi | Sekolah, akun, peran, kelas, tahun ajaran, perpindahan, Studio, pelajaran, asesmen, hasil, laporan, sertifikat, dan pengembangan profesi guru. Bukti belajar dapat dipercaya. |
-| **4.1** | Integritas, kesinambungan, dan pemulihan | Guru dapat mengatur sesi asesmen seorang murid, kunci jawaban yang keliru dapat dikoreksi dengan benar, pemeliharaan dapat dijadwalkan, penghentian darurat melindungi pekerjaan murid, tindakan penting tercatat, catatan peninjau, pemulihan antarperangkat, dan bantuan AI untuk menyusun draf soal. |
+| **4.1** | Integritas, kesinambungan, dan pemulihan | Guru dapat mengatur sesi asesmen seorang murid, kunci jawaban yang keliru dapat dikoreksi dengan benar, pemeliharaan dapat dijadwalkan, penghentian darurat melindungi pekerjaan murid, tindakan penting tercatat, catatan peninjau, dan pemulihan antarperangkat. AI terpadu untuk menyusun draf soal sedang dikembangkan sebagai tambahan berbayar yang opsional, dan belum pasti. |
 | **4.2** | Kematangan operasional | Mode Ujian, jabatan dan penugasan di dua sekolah, ekspor data sekolah, laporan periode lalu, beberapa perbaikan akun dan catatan, statistik Kesehatan soal terjadwal, dan penegakan masa simpan data. |
 | **4.5** | Memahami | PINTAR membantu guru memahami apa yang sebenarnya didukung oleh bukti: mutu soal, sebaran hasil, penjelasan yang tenang dan relevan, sejarah yang dapat dijelaskan, serta evaluasi guru yang diatur institusi dengan perlindungan bagi guru. |
 | **5.0** | Bertindak dan bertumbuh | Guru memilih tujuan pertumbuhannya sendiri, mencatat tindakan perbaikan (intervensi), mengamati apa yang terjadi, dan merenungkan hasilnya. Sekolah dapat menjalankan siklus perbaikan di tingkat bagian atau sekolah. |
@@ -182,7 +182,7 @@ Setiap fitur di buku ini diberi tanda seperti berikut:
 
 | Tanda | Artinya |
 |---|---|
-| **〔4.0〕** | Bagian dari fondasi PINTAR 4.0. |
+| **〔4.0〕** | Bagian dari fondasi PINTAR 4.0. Sudah dibangun dan diuji, belum dirilis ke sekolah. |
 | **〔4.1〕** | Bagian dari cakupan PINTAR 4.1 yang sudah disetujui. 4.1 sedang diselesaikan dan akan diterima melalui sesi bersama para pendidik sebelum digunakan sekolah. |
 | **〔4.2 · direncanakan〕** | Pekerjaan yang sudah diputuskan untuk dipindahkan ke 4.2. Rincian dan rencana kerjanya masih akan ditetapkan. |
 | **〔4.2 · usulan〕** | Usulan untuk 4.2 yang belum disetujui. |
@@ -230,13 +230,14 @@ Prinsip ini berlaku juga untuk tindakan. PINTAR tidak pernah mengirim tugas tamb
 
 ## 3.3 AI membantu, manusia memutuskan
 
-Mulai PINTAR 4.1, AI dapat membantu guru menyusun draf soal pilihan ganda dari sumber yang dipilih guru. Aturannya tegas:
+AI dapat membantu guru menyiapkan draf soal dengan dua cara. Pertama, guru boleh memakai AI milik sendiri atau sekolah, lalu mengunggah hasilnya melalui buku kerja Studio tanpa biaya tambahan. Kedua, PINTAR sedang mengembangkan AI terpadu sebagai tambahan berbayar yang opsional bagi sekolah; fitur ini belum pasti tersedia (Bab 10.10). Aturannya sama untuk keduanya:
 
 - Draf AI tidak pernah terbit atau ditugaskan dengan sendirinya.
-- Guru memeriksa, mengubah, menolak, atau meminta draf baru.
+- Guru memeriksa, mengubah, menolak, atau meminta draf baru, dan tetap bertanggung jawab atas isinya.
 - Soal yang diterima tetap ditinjau orang kedua sebelum dirilis.
-- Tidak ada data pribadi murid yang dikirim ke penyedia AI.
-- Jika layanan AI tidak tersedia, guru tetap dapat menulis soal sendiri.
+- Tidak ada data yang dapat mengenali murid yang boleh diberikan kepada AI.
+- Murid tidak pernah berinteraksi dengan AI.
+- Guru selalu dapat menulis soal sendiri.
 
 Mulai PINTAR 4.5, AI dapat membantu *menyampaikan* kesimpulan yang sudah disetujui dengan bahasa yang mudah dipahami. AI tidak membuat kesimpulan pendidikan sendiri dan tidak membuat penilaian resmi.
 
@@ -372,8 +373,8 @@ Jika data yang dimasukkan tidak cocok, PINTAR menjawab dengan kalimat yang sama,
 
 Saat staf masuk dari peramban yang belum dikenal, PINTAR bertanya «Komputer siapa ini?»:
 
-- **«Komputer bersama»**, misalnya komputer laboratorium atau ruang guru. PINTAR terkunci setelah lima menit tidak dipakai. Satu menit sebelumnya muncul peringatan «PINTAR akan terkunci dalam 1 menit» dengan tombol «Saya masih di sini». Untuk membuka kunci, masukkan PIN. Jika tetap terkunci lama, atau tiga kali salah memasukkan PIN, sesi berakhir dan Anda perlu masuk lagi.
-- **«Komputer pribadi saya»**. Anda tetap masuk hingga sekitar tujuh hari.
+- **«Komputer bersama»**, misalnya komputer laboratorium atau ruang guru. PINTAR terkunci setelah beberapa saat tidak dipakai. Sesaat sebelumnya muncul peringatan dengan tombol «Saya masih di sini». Untuk membuka kunci, masukkan PIN. Jika terkunci terlalu lama, atau setelah beberapa kali salah memasukkan PIN, sesi berakhir dan Anda perlu masuk lagi.
+- **«Komputer pribadi saya»**. Anda tetap masuk lebih lama di perangkat itu.
 
 Murid yang memakai komputer bersama dilindungi dengan cara yang sama. Halaman **PINTAR terkunci** tidak menyebut nama murid. Murid membuka kunci dengan PIN kartunya, lalu kembali ke halaman tempat ia berhenti. Jika yang duduk di depan komputer adalah murid lain, tautan «Bukan akun Anda?» mengeluarkan akun sebelumnya dengan aman.
 
@@ -388,7 +389,7 @@ Kemajuan belajar mengikuti *orangnya*, bukan komputernya. Murid dapat berpindah 
 
 **Staf yang lupa password** memakai «Lupa password?» di halaman masuk. Ketik email atau username. Jika akunnya sudah aktif, PINTAR mengirim kode ke email akun itu untuk membuat password baru. Setelah password baru disimpan, akun itu keluar dari semua perangkat lain, dan pemiliknya diberi tahu.
 
-Jika email tidak dapat diakses, staf dapat memakai «Pakai PINTAR ID dan PIN». Untuk melindungi akun, jika PIN salah tiga kali, cara ini ditutup sementara selama satu jam. Jika salah lagi tiga kali, ditutup empat jam. Setelah itu, cara pemulihan dengan PIN ditutup sampai dipulihkan melalui email atau oleh Admin sekolah atau Admin PINTAR melalui **Keamanan akun**. Akunnya sendiri tidak terkunci; hanya cara pemulihan ini yang ditutup.
+Jika email tidak dapat diakses, staf dapat memakai «Pakai PINTAR ID dan PIN». Untuk melindungi akun, setelah beberapa kali salah memasukkan PIN, cara ini ditutup sementara, dan jika terus salah, ditutup sampai dipulihkan melalui email atau oleh Admin sekolah atau Admin PINTAR melalui **Keamanan akun**. Akunnya sendiri tidak terkunci; hanya cara pemulihan ini yang ditutup. Jika Anda mengalaminya, hubungi yang mengurus PINTAR di sekolah Anda.
 
 **Murid yang lupa PIN atau kehilangan kartu** meminta bantuan guru atau Admin sekolah. Di layar tertulis: «Lupa PIN? Tanyakan kepada guru.» Admin sekolah menerbitkan kartu baru, kartu lama langsung tidak berlaku, dan semua hasil belajar murid tetap utuh (Bab 7).
 
@@ -434,7 +435,11 @@ Ketika ada kendala, PINTAR tidak menampilkan pesan teknis mentah. PINTAR menjela
 
 Staf dapat melaporkan masalah melalui «Laporkan masalah» dan melihat perkembangannya di «Laporan saya».
 
-## 5.11 Ke depan: cara masuk dan keamanan staf
+## 5.11 Tur PINTAR dan Bantuan 〔4.0〕
+
+Saat pertama kali memakai PINTAR, murid dan guru dapat mengikuti **Tur PINTAR**: «Tur halaman Belajar» untuk murid dan «Tur untuk guru» untuk guru. Tur berjalan langkah demi langkah dengan «Berikutnya» dan «Kembali», dan dapat dilewati dengan «Lewati tur». Jika Anda memilih «Jangan tampilkan tur ini lagi», tur tidak muncul otomatis lagi, tetapi tetap dapat dibuka kapan saja dari **Bantuan** dengan «Mulai tur». Dari **Bantuan** Anda juga dapat membuka satu langkah tur saja. Butuh bantuan lain? Murid diarahkan untuk bertanya kepada guru; staf diarahkan ke layanan sekolah.
+
+## 5.12 Ke depan: cara masuk dan keamanan staf
 
 - **Masuk dengan WhatsApp** 〔4.5 · arah〕. PINTAR 4.5 mencatat rencana untuk masuk melalui WhatsApp. Penyedia, biaya, cara kerja, pemulihan, dan tinjauan keamanannya masih harus diputuskan, termasuk bagaimana cara ini berhubungan dengan kartu kelas dan pemulihan yang dibantu sekolah bagi murid.
 - **Pemeriksaan akses tidak biasa untuk staf** 〔4.5 · arah〕. Jika akun staf masuk dengan cara yang tidak biasa, PINTAR dapat meminta pemeriksaan tambahan. Tanda yang dipakai, cara tantangan, dan pemulihannya akan ditetapkan dalam rencana 4.5. Pemeriksaan identitas untuk semua pengguna belum direncanakan.
@@ -573,7 +578,7 @@ Admin PINTAR dapat membaca **Jejak audit** di seluruh platform: siapa melakukan 
 
 - **Penegakan masa simpan data** 〔4.2 · direncanakan〕. Admin PINTAR dan pengurus data sekolah yang berwenang akan dapat menegakkan masa simpan data sesuai kebijakan yang berlaku. Catatan mana yang tercakup, pengecualiannya, dan cara menjaga keutuhan sejarah masih harus ditetapkan. Kebijakan masa simpan bukti pendidikan diputuskan tersendiri oleh pemilik PINTAR sebelum data sekolah sungguhan dipakai (Bab 18 dan Lampiran B).
 - **Penutupan sekolah dan fondasi banyak sekolah** 〔belum ditetapkan〕. Ditunda ke setelah 4.2.
-- **Pemeriksaan akses tidak biasa untuk staf** dan **masuk dengan WhatsApp** 〔4.5 · arah〕 (Bab 5.11).
+- **Pemeriksaan akses tidak biasa untuk staf** dan **masuk dengan WhatsApp** 〔4.5 · arah〕 (Bab 5.12).
 
 ---
 
@@ -1257,6 +1262,7 @@ Materi yang sudah dipakai tidak pernah diubah. Untuk mengoreksinya, terbitkan **
 
 - Murid tetap terikat pada versi yang benar-benar ia lihat. Tidak ada yang diganti di tengah sesi yang sedang berjalan.
 - Revisi menggantikan versi lama untuk **penugasan baru**.
+- Revisi tidak memberi kesempatan baru. Batas kesempatan berlaku untuk semua versi asesmen yang sama. Jalan yang wajar untuk kesempatan tambahan adalah permintaan guru yang disetujui orang lain (Bab 9.8).
 - Riwayat revisi dapat dibaca orang.
 
 **Menarik terbitan** («Tarik») memerlukan alasan. Mulai 4.1, terbitan yang ditarik tidak dapat dimulai lagi. Guru dan murid melihat «Dihentikan penerbit · tidak dapat dimulai lagi; hasil tetap dihitung». Kata «Ditarik» hanya dipakai di dalam Studio.
@@ -1301,29 +1307,67 @@ Catatan berkode tentang jenis pemahaman keliru belum termasuk 4.1 dan masih menu
 
 [Perlu konfirmasi: layar catatan peninjau karena fitur ini belum dibangun saat penyusunan.]
 
-## 10.10 Menyusun draf soal dengan bantuan AI 〔4.1〕
+## 10.10 Menyiapkan soal dengan bantuan AI
 
-PINTAR 4.1 merencanakan bantuan AI untuk menyusun draf soal pilihan ganda. Fitur ini dibangun paling akhir di 4.1, setelah penyedia AI dipilih melalui evaluasi buta yang dibatasi biayanya dan diputuskan oleh pemilik PINTAR.
+Ada tiga cara menyiapkan soal di PINTAR. Ketiganya berakhir di jalur yang sama: draf, tinjauan orang kedua, persetujuan, dan penerbitan (10.4).
 
-Pengalaman yang dituju:
+1. **Menulis sendiri**, di buku kerja atau, mulai 4.1, di meja kerja soal.
+2. **Memakai AI Anda sendiri, lalu mengunggah hasilnya.** Tersedia, tanpa biaya tambahan.
+3. **Memakai AI terpadu PINTAR.** Tambahan berbayar yang opsional, sedang dikembangkan, dan belum pasti tersedia.
+
+**AI membantu. Guru memutuskan.** Apa pun caranya, guru tetap penulisnya dan bertanggung jawab atas isinya. Murid tidak pernah berinteraksi dengan AI.
+
+### Memakai AI Anda sendiri
+
+Anda boleh memakai layanan AI yang sudah Anda atau sekolah Anda punya untuk membuat **draf** pelajaran dan soal, lalu mengunggahnya ke PINTAR. PINTAR tidak memungut biaya tambahan untuk materi yang diunggah dengan cara ini, dan PINTAR tidak memerlukan kata sandi atau kunci layanan AI Anda.
+
+**Sebelum mulai: yang tidak boleh masuk ke AI.** Aturannya: jangan memasukkan apa pun yang dapat mengenali seorang murid, langsung maupun bila digabung dengan keterangan lain. Jangan pernah memasukkan:
+
+- data murid: nama, NISN, NIK atau ID PINTAR, tanggal lahir, alamat, nomor telepon, email, atau data orang tua dan wali;
+- catatan tentang murid: nilai, jawaban, laporan, kehadiran, catatan perilaku, keadaan kesehatan, atau kebutuhan khusus;
+- tulisan atau karya murid sendiri, walaupun tanpa nama;
+- daftar kelas, foto, tangkapan layar PINTAR, dan berkas yang diunduh dari PINTAR;
+- kata sandi, tautan masuk, kode undangan, dan tautan akun atau kelas;
+- data pribadi guru lain dan data sekolah yang tidak untuk umum;
+- soal ujian yang harus tetap rahasia;
+- materi yang bukan hak Anda.
+
+Apa pun yang Anda tempel ke layanan AI di luar PINTAR diolah oleh perusahaan AI itu menurut aturannya sendiri. PINTAR tidak dapat melihatnya dan tidak dapat menariknya kembali. Pakai akun yang disetujui sekolah dan periksa pengaturannya lebih dulu. Anda dan sekolah Anda bertanggung jawab atas apa yang Anda tempel.
+
+**Langkah-langkahnya:**
+
+1. Di **Studio › Buat Paket**, pilih «Unduh templat Excel». Bila perlu, unduh juga «Unduh contoh isian».
+2. Salin salah satu perintah contoh dari PINTAR ke layanan AI Anda. Ganti setiap bagian yang perlu diisi dan tempel materi Anda.
+3. Salin tabel jawaban AI ke lembar yang sama namanya di templat, mulai dari baris 2.
+4. Unggah buku kerja itu di **Studio › Buat Paket**. PINTAR memeriksa setiap baris lebih dulu. Bila ada yang salah, PINTAR menyebut lembar, baris, dan masalahnya, dan belum menyimpan apa pun.
+5. Baca setiap pelajaran, setiap soal, dan kuncinya. Perbaiki yang salah, lalu «Ajukan untuk ditinjau».
+
+**Sebelum mengunggah, periksa:** tidak ada data yang dapat mengenali murid, termasuk dalam soal cerita (ganti nama yang sama dengan nama murid yang Anda kenal); setiap soal punya tepat satu jawaban benar; setiap pilihan punya alasan; dan setiap kode dan nomor cocok antarlembar.
+
+Satu buku kerja berisi satu kursus utuh. Untuk menambah beberapa soal ke pelajaran yang sudah ada, tulis langsung di Studio. PINTAR tidak menangani layanan AI di luar PINTAR, akunnya, atau biayanya.
+
+[Perlu konfirmasi: tempat terbit panduan dan perintah contoh untuk sekolah.]
+
+### AI terpadu PINTAR 〔4.1 · dalam pengembangan, belum pasti〕
+
+PINTAR sedang mengembangkan AI terpadu untuk menyusun draf soal pilihan ganda langsung di Studio. Statusnya perlu dipahami dengan jelas:
+
+- Fitur ini **opsional** dan merupakan **tambahan berbayar** yang diaktifkan per sekolah. Sekolah dapat memakai PINTAR sepenuhnya tanpa fitur ini.
+- Fitur ini **hanya untuk guru**.
+- PINTAR hanya akan menawarkan penyedia AI yang lolos penilaian PINTAR: mutu pendidikan, kontrak, keamanan, dan operasional. Sekolah memilih dari pilihan yang lolos, dengan perbandingan yang sama dan harganya, sebelum mengaktifkannya.
+- Penilaian penyedia masih berjalan. Belum ada penyedia, harga, paket, atau kuota yang diputuskan. Jika tidak ada penyedia yang lolos, fitur terpadu ini mungkin tidak ditawarkan. [Perlu konfirmasi: rumusan keputusan pemilik tentang hal ini.]
+
+Pengalaman yang dituju, jika fitur ini tersedia:
 
 1. **Guru memilih** sumber yang diizinkan dan satu tujuan pembelajaran.
-2. **AI menyusun draf**: soal pilihan ganda, usulan jawaban, penjelasan, dan rujukan ke sumbernya. Draf masuk ke meja kerja soal sebagai draf, lengkap dengan asal-usulnya: model, sumber, guru, dan versi perintahnya.
+2. **AI menyusun draf**: soal pilihan ganda, usulan jawaban, penjelasan, dan rujukan ke sumbernya. Draf masuk ke meja kerja soal lengkap dengan asal-usulnya.
 3. **Draf diperiksa**: format, duplikasi, jawaban yang ambigu, dan kecocokan dengan sumber.
 4. **Guru memutuskan**: menerima, mengubah, menolak, atau meminta draf baru.
-5. **Ditinjau, lalu dirilis**: soal yang diterima mengikuti alur tinjauan dan penerbitan biasa (10.4), termasuk tinjauan orang kedua. Baru setelah itu soal dapat ditugaskan.
+5. **Ditinjau, lalu dirilis** melalui alur biasa, termasuk tinjauan orang kedua. Baru setelah itu soal dapat ditugaskan.
 
-**Aturan yang tidak berubah:**
+Tidak ada data pribadi murid yang dikirim ke penyedia AI. Jika pembuatan draf gagal atau kosong, tidak ada yang dibuat. Guru dan peninjau melihat asal-usul AI; murid melihat soal yang sudah terbit seperti soal lain. Mengganti pilihan penyedia hanya berlaku untuk permintaan baru; soal yang sudah ada tetap memakai asal-usulnya dan tetap dapat dipakai.
 
-- Draf tidak pernah terbit atau ditugaskan dengan sendirinya, dan riwayatnya tercatat.
-- Tidak ada data pribadi murid yang dikirim ke penyedia AI.
-- Jika pembuatan draf gagal atau kosong, tidak ada yang dibuat.
-- Guru dan peninjau melihat asal-usul AI. Murid melihat soal yang sudah terbit seperti soal lain.
-- Jika layanan AI tidak tersedia, guru tetap dapat menulis soal sendiri.
-
-**AI membantu. Guru memutuskan.**
-
-[Perlu konfirmasi: layar dan teks fitur ini; penyedia AI dan batas pemakaiannya belum diputuskan saat penyusunan.]
+[Perlu konfirmasi: layar dan teks fitur ini.]
 
 ## 10.11 Kesehatan soal 〔4.0; dijadwalkan di 4.2; diperbaiki dan diperluas di 4.5〕
 
@@ -1368,7 +1412,7 @@ Murid tidak memerlukan email atau password. Kartu kelas tidak memuat foto.
 
 > **Jika terjadi kendala** Lupa PIN atau kartunya hilang? «Lupa PIN? Tanyakan kepada guru.» Sekolah akan menerbitkan kartu baru. Kartu lama langsung tidak berlaku, dan semua hasil belajar Anda tetap utuh.
 
-Jika nomor kartu terlalu sering dicoba dengan PIN yang salah, PINTAR menutupnya sementara: «Nomor kartu ini sudah terlalu sering dicoba.»
+Jika nomor kartu terlalu sering dicoba dengan PIN yang salah, PINTAR menutupnya sementara: «Nomor kartu ini sudah terlalu sering dicoba.» Mintalah bantuan guru atau yang mengurus PINTAR di sekolah Anda.
 
 Di 4.0, halaman PINTAR ID dan Kartu PINTAR belum tersedia untuk murid; keduanya hanya untuk staf.
 
@@ -1378,7 +1422,7 @@ Di laboratorium komputer, PINTAR melindungi Anda:
 
 - Jika tidak dipakai beberapa saat, PINTAR terkunci. Halaman kunci tidak menyebut nama Anda.
 - Untuk melanjutkan, masukkan PIN kartu Anda. Anda kembali ke halaman tempat Anda berhenti.
-- Jika tiga kali salah memasukkan PIN, sesi di komputer itu berakhir. Kartu Anda tetap dapat dipakai di komputer lain. «Lupa PIN? Keluar, lalu minta bantuan guru Anda.»
+- Setelah beberapa kali salah memasukkan PIN, sesi di komputer itu berakhir. Kartu Anda tetap dapat dipakai di komputer lain. «Lupa PIN? Keluar, lalu minta bantuan guru Anda.»
 - Jika komputer itu akan dipakai teman, tekan «Bukan akun Anda?» untuk keluar dengan aman.
 - Di layar yang dipakai bersama, PINTAR hanya menyebut nama depan Anda.
 
@@ -1429,7 +1473,7 @@ Tombol yang tersedia:
 
 Sebelum mengumpulkan, PINTAR bertanya: «Kumpulkan sekarang? Setelah dikumpulkan, jawaban tidak bisa diubah.» PINTAR menunggu sampai semua jawaban tersimpan sebelum mengumpulkannya.
 
-Uji Penguasaan memiliki dua kesempatan. Jumlah kesempatan tidak bertambah kembali walaupun guru mengakhiri lalu memberikan asesmen yang sama lagi. Kesempatan tambahan hanya dapat diberikan melalui permintaan guru yang disetujui orang lain (Bab 9.8).
+Uji Penguasaan memiliki dua kesempatan. Jumlah kesempatan tidak bertambah kembali walaupun guru mengakhiri lalu memberikan asesmen yang sama lagi, dan tidak bertambah walaupun asesmennya direvisi: kesempatan dihitung untuk semua versi asesmen yang sama. Kesempatan tambahan hanya dapat diberikan melalui permintaan guru yang disetujui orang lain (Bab 9.8).
 
 > **Jika terjadi kendala** Internet putus di tengah Uji Penguasaan? Jawaban yang sudah tersimpan tidak hilang. Setelah tersambung kembali, lanjutkan.
 
@@ -1717,7 +1761,7 @@ Lihat Bab 8.9 untuk proses evaluasi resmi. Satu hal penting: sebelum bukti yang 
 
 ## 14.10 Kemampuan operasional yang dibawa ke 4.5
 
-- **Masuk dengan WhatsApp** dan **pemeriksaan akses tidak biasa untuk staf** (Bab 5.11).
+- **Masuk dengan WhatsApp** dan **pemeriksaan akses tidak biasa untuk staf** (Bab 5.12).
 - **Share & Learn** 〔belum ditetapkan〕. Gagasan berbagi melalui tautan dan kode QR pernah dicatat sebagai arah 4.5, tetapi sumber resmi dan cakupannya belum dipastikan. Sebelum dibangun, harus diputuskan siapa penerimanya, apa yang boleh dibagikan, persetujuan atau kewenangannya, masa berlaku, dan cara mencabutnya.
 
 ## 14.11 Yang masih harus diputuskan sebelum 4.5 dibangun
@@ -1925,10 +1969,10 @@ Prinsip yang sudah ditetapkan:
 
 Catatan akuntabilitas masuk dan cetak memiliki masa simpan sendiri, yaitu 12 bulan (Bab 7.16). Kebijakan masa simpan bukti pendidikan diputuskan tersendiri oleh pemilik PINTAR sebelum data sekolah sungguhan dipakai. Bagaimana sebuah catatan ditampilkan setelah disposisi sengaja belum diputuskan.
 
-## 16.9 Perjalanan I · Dari draf AI sampai bukti jangka panjang 〔4.1–4.5〕
+## 16.9 Perjalanan I · Dari draf AI sampai bukti jangka panjang 〔4.1 · dalam pengembangan · 4.5〕
 
-1. Bu Rina memilih bab yang sudah disetujui sekolah sebagai sumber, lalu meminta AI menyusun draf soal (Bab 10.10).
-2. AI menghasilkan draf, atau tidak menghasilkan apa pun jika gagal. Tidak ada data murid yang dikirim.
+1. Bu Rina memilih bab yang sudah disetujui sekolah sebagai sumber, lalu meminta AI menyusun draf soal, dengan AI terpadu jika sekolahnya kelak mengaktifkannya, atau dengan AI sekolahnya sendiri lalu mengunggah hasilnya (Bab 10.10).
+2. AI menghasilkan draf, atau tidak menghasilkan apa pun jika gagal. Tidak ada data murid yang diberikan kepada AI.
 3. Bu Rina memeriksa dan mengubah draf, lalu menerimanya. Soal itu ditinjau Pak Yusuf, lalu diterbitkan.
 4. Murid mengerjakan soal yang sudah terbit, dan bukti terkumpul. Murid melihat soal itu seperti soal lain.
 5. Kemudian soal itu direvisi. Hasil lama tetap terikat pada revisi lamanya.
@@ -1960,7 +2004,7 @@ Tidak. Daftar murid diurutkan menurut abjad, dan laporan tidak mengurutkan murid
 Tidak. PINTAR mencatat tindakan penting demi akuntabilitas, misalnya masuk, keluar, meminta cetakan resmi, dan tindakan administratif. PINTAR tidak merekam klik, halaman yang dibuka, atau layar Anda (Bab 7.16).
 
 **Apakah AI memutuskan nilai atau soal?**
-Tidak. Mulai 4.1, AI hanya menyusun draf soal yang harus diputuskan guru dan ditinjau orang kedua. Mulai 4.5, AI dapat membantu menyampaikan kesimpulan yang sudah disetujui. AI tidak membuat kesimpulan sendiri (Bab 3.3).
+Tidak. AI hanya menyusun draf soal yang harus diputuskan guru dan ditinjau orang kedua. Mulai 4.5, AI dapat membantu menyampaikan kesimpulan yang sudah disetujui. AI tidak membuat kesimpulan sendiri (Bab 3.3).
 
 **Apakah PINTAR membandingkan sekolah kami dengan sekolah lain?**
 Tidak. Laporan PINTAR bukan alat pemeringkatan sekolah, dan perbandingan antarsekolah dikecualikan di 4.5.
@@ -2003,7 +2047,10 @@ Keduanya ditangani oleh peninjau dan pimpinan. Guru melihat «Per soal» untuk k
 Hasil pengembangan profesi tidak muncul di layar keputusan manajemen. Anda dapat melihat siapa yang dapat melihat hasil Anda (Bab 12.4).
 
 **Apakah draf soal dari AI memakai data murid saya?**
-Tidak. Tidak ada data pribadi murid yang dikirim ke penyedia AI (Bab 10.10).
+Tidak boleh. AI terpadu PINTAR tidak mengirim data pribadi murid. Jika Anda memakai AI sendiri, jangan pernah memasukkan apa pun yang dapat mengenali murid (Bab 10.10).
+
+**Apakah sekolah harus membayar untuk memakai AI?**
+Tidak harus. Memakai AI sekolah sendiri lalu mengunggah hasilnya melalui buku kerja tidak dikenai biaya tambahan. AI terpadu PINTAR, yang masih dikembangkan, direncanakan sebagai tambahan berbayar yang opsional (Bab 10.10).
 
 ### Untuk pimpinan
 
@@ -2107,7 +2154,7 @@ Admin sekolah dapat mencari referensi cetak selama 12 bulan (Bab 7.16).
 
 ## Lampiran A · Panduan ketersediaan fitur per versi
 
-Status per 16 November 2026. Fondasi 4.0 sudah selesai di lingkungan uji. Penggunaan di sekolah sungguhan memerlukan langkah rilis tersendiri dan izin pemilik PINTAR. PINTAR 4.1 sedang diselesaikan dan akan diterima bersama para pendidik sebelum digunakan sekolah.
+Status per 17 November 2026. **Layanan yang dipakai sekolah (produksi) masih memakai versi September 2026; belum ada fitur 4.0 atau 4.1 di sana.** Fondasi 4.0 sudah selesai dan diuji di lingkungan uji. Bagian pertama 4.1 sudah diterima di lingkungan uji; bagian lainnya masih dikembangkan. Penggunaan di sekolah memerlukan penerimaan bersama para pendidik, langkah rilis tersendiri, dan izin pemilik PINTAR.
 
 ### PINTAR 4.0 · Fondasi
 
@@ -2134,6 +2181,7 @@ Status per 16 November 2026. Fondasi 4.0 sudah selesai di lingkungan uji. Penggu
 | Sekolah | Pemeliharaan sekolah atau platform; penghentian darurat platform atau sekolah | 5.8, 6.7 |
 | Studio | Paket Pembelajaran dari buku kerja; langkah menuju terbit; tinjauan dua orang | 10.3–10.5 |
 | Studio | Bank Soal; Aturan Asesmen; pemahaman keliru; soal wajib | 10.5–10.6 |
+| Unggah buku kerja, termasuk draf dari AI milik sekolah sendiri (tanpa biaya tambahan) | 10.3, 10.10 |
 | Studio | Revisi dalam satu garis; menarik terbitan | 10.7 |
 | Studio | Kesehatan soal | 10.11 |
 | Mengajar | Menyediakan materi; mengakhiri atau menarik penugasan | 9.3 |
@@ -2163,7 +2211,7 @@ Status per 16 November 2026. Fondasi 4.0 sudah selesai di lingkungan uji. Penggu
 | Data pribadi yang dihapus tidak dapat dibuka kembali | 6.5 |
 | Catatan peninjau di samping soal | 10.9 |
 | Pemulihan antarperangkat dengan satu penulis | 9.11, 11.11 |
-| Draf soal dengan bantuan AI | 10.10 |
+| AI terpadu untuk draf soal: tambahan berbayar yang opsional, dalam pengembangan, belum pasti | 10.10 |
 
 ### PINTAR 4.2 · Kematangan operasional 〔direncanakan〕
 
