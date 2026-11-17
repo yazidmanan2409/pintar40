@@ -329,6 +329,10 @@ a number of approved questions for a fixed cost.
 
   A provider with 24 accepted drafts but more than one wrong key therefore does **not** qualify. Q1 and the critical-key
   rule read the same resolved table.
+- **Alignment note (Sharon, `93b934f3`).** §4 is not edited, because editing it would need a new freeze and a new SHA. Read it with these two points:
+  - §4.2's disclosure still says the key-checker choice is "(open, §6)". It is **decided** here, by ruling 48, and §6 governs.
+  - "The same process applies to both providers" is stated here, not in §4.2. It binds through the same frozen commit,
+    `ecb0d3c4`, which the runner pins as a whole.
 
 **Still open:**
 - **The three judges' names** (recruitment).
