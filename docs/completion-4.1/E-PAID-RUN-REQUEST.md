@@ -199,3 +199,22 @@ is not a ceiling. OpenAI's ceilings are the runner's US$5 and the US$5 balance. 
 5. The paid run: at most 6 calls per provider.
 6. You revoke both keys; I record the ledger window (A4).
 7. The blinding, then Sharon's sealed key check, then the judges' files to you.
+
+### 6e · Owner, 17 Nov about 10:00 UTC; and the run session
+
+- **Terms:** the owner accepts both providers' applicable terms for E.
+- **The OpenAI key:** Models: Read added; Responses: Write; every other permission None.
+- **OpenAI auto-reload:** off. The owner permits turning it on only if genuinely necessary, within US$10 of total usage.
+  **It is not necessary,** since the worst case is US$0.764 per provider. It stays off. No project hard limit was reported,
+  so **the US$5 prepaid balance with auto-reload off is the provider-side backstop** (6b, item 2).
+- **Judges:** all three confirmed, J1–J3. J3 is named to the owner privately.
+- **The environment:** `pintar40-e-evaluation` (personal) was created. **This session cannot change environment while it
+  runs,** so the run is done by **a dedicated run session on that environment,** created by Bob. The keys are saved
+  there, never on Default.
+  - The owner enters both keys in that session's secure forms.
+  - It runs the no-cost checks first: the self-tests, the offline dry run, and the model-listing proof on both hosts.
+  - It then stops and asks the owner for the go.
+  - **The go must be typed by the owner in that session.** A relayed message does not count.
+- **Still open, at the go:** the owner confirms `gpt-6.1-sol` at US$2 / US$10 (its page is unreadable from both sessions).
+- **The private folder:** the run session sends the owner `runs/` and `out/SEALED` as one archive, and the judges' files
+  separately. The owner keeps them. Only Sharon's key-check sheet is committed, on `claude/e-run-kunci` (A1).
