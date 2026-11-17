@@ -6543,7 +6543,7 @@
     {
       "id": "C2W-F3D",
       "runner": "static",
-      "proves": "F-3 (THE PLAN §7.7; PLAN-A2B-C2W.md §3.2, before C2w), selftest/c1w.test.ts in one rolled-back transaction: the bootstrap learner's sitting, its sealed certificate under review through a governed key correction, its course made Professional Development by the fixture (session_is_professional true): the issuing school's Admin sekolah (CAN_PUBLISH, who decides an academic review), its head of department and another school's Admin sekolah are each refused PR190 CERT_REVIEW_NOT_ALLOWED; Admin platform's queue (tinjauan_sertifikat_antrean) offers the review as theirs to decide, and putuskan_tinjauan_sertifikat confirms it, recorded as decided by Admin platform and audited once. The plant, boleh_putuskan_tinjauan's PD branch given the school's rule, is caught. C1W-S06 holds the academic half."
+      "proves": "F-3 (THE PLAN §7.7; PLAN-A2B-C2W.md §3.2, before C2w), selftest/c1w.test.ts; executes against the migrations in one rolled-back transaction: the bootstrap learner's sitting, its sealed certificate under review through a governed key correction, its course made Professional Development by the fixture (session_is_professional true): the issuing school's Admin sekolah (CAN_PUBLISH, who decides an academic review), its head of department and another school's Admin sekolah are each refused PR190 CERT_REVIEW_NOT_ALLOWED; Admin platform's queue (tinjauan_sertifikat_antrean) offers the review as theirs to decide, and putuskan_tinjauan_sertifikat confirms it, recorded as decided by Admin platform and audited once. The plant, boleh_putuskan_tinjauan's PD branch given the school's rule, is caught. C1W-S06 holds the academic half."
     },
     {
       "id": "A2B-SP1",
