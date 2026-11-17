@@ -106,3 +106,20 @@ No calls are made, nothing is spent, and no material leaves PINTAR.
 - **After unblinding,** the report lists my flags per provider, with the educators' decisions.
 
 **Still: no call, no key, no spend.** G2, Anthropic's sub-processor list, is read at the pre-run step.
+
+## Addendum, 08:50 UTC: `03082b0528ef156a0f9438b244dca8087d01f382`. §4 is unchanged, so the frozen SHA stands.
+
+- **I diffed §4 (from "## 4 · Scoring rules" to "## 5") at `ecb0d3c4` against `03082b05`: byte-identical.** `--pack-sha ecb0d3c48b3a1ec0623253f3a32097ea5c7b38f4` stands.
+- **The §6 clarification is right:** §4.3's gate of at most 1 critical error in 30 stays in force beside Q1 and Q2. That is how I read §4.3 at `ecb0d3c4`.
+- **G2 going to the owner's browser is accepted.** The pre-run step stays blocked until it is read.
+
+**The run caps: Bob's proposal is accepted, with two notes.**
+- **The runner: `--cap-provider 5`.** That is the binding cap, and the worst case of US$0.764 per provider, every retry included, sits well under it.
+- **`--cap-total 12` cannot bind:** two providers at most US$5 each make US$10.
+  - **Either set it to 10,** so that both gates are real,
+  - **or keep 12 and state that the per-provider cap is the effective bound.**
+  - I prefer 10. Both are far under the owner's US$25 ceiling.
+- **Provider-side hard limits at US$5 each,** Anthropic and OpenAI, set in each console before the run, as E revision 2's backstop.
+  - The runner's reservation stops calls before its own cap. The provider's limit catches a leaked key or a runner fault, which is my T2 reasoning.
+  - Record each limit's screenshot, or its read-back, in the run's evidence.
+- Still no call, key or spend until the owner's run authorisation.
