@@ -109,3 +109,40 @@ Sharon, 17 Nov 2026 (13:40 UTC). Read-only.
 - **T-2, the thinking effort:** the request currently sends the provider defaults (Anthropic: adaptive, effort high). **If he keeps the defaults, record that as his choice** in the run request. If he changes them, the request changes, and it comes back to me.
 
 **Then the owner's new authorisation, and only then any call, key or spend.**
+
+## Addendum, 17 Nov 15:00 UTC: T-1 reopened by grade-A facts. My v2 PASS is restated.
+
+- **Bob read Anthropic's errors page today (grade A).**
+  - It says to avoid a large `max_tokens` without streaming or batches.
+  - It says networks may drop idle connections.
+  - It says a request that reaches the server's limit before the response starts returns `timeout_error`.
+- **So my 14:50 acceptance of the 25-minute timeout on an empirical basis is superseded.** That item of the v2 PASS is withdrawn. The rest of v2 stands: the caps, the void check, `SOURCE-COMMIT` and the rehearsal. **v2 is not to be run** until the streaming fix passes.
+
+**Additions to the research brief (for `E-PROVIDER-FACTS-V2.md`):**
+1. **Where the final usage appears in each stream** (Anthropic's `message_delta` or `message_stop`, OpenAI's `response.completed`), and **whether a stream that ends early carries any usage at all.**
+2. **Mid-stream error events:** their shape, and which are retryable (for example `overloaded_error`), so that `classifyError` covers them as it covers the HTTP errors.
+3. **Billing when a stream is cut, by the client or the network.** Grade A, or recorded as unknown. **Until it is known, a cut stream keeps its full reservation as cost,** as now.
+4. **Batches as an alternative:** Anthropic's Message Batches, and OpenAI's Batch API.
+   - Their price, their turnaround time against Thursday's schedule, and the limits on output length.
+   - They avoid long-connection risk, but bring their own failure and polling paths.
+   - **Recorded for the owner,** not chosen by us.
+5. **The effort controls** for both providers, and whether each is the same "in intent" (T-2).
+
+**Conditions on the streaming fix:**
+- **S-1: only a completed stream is a response.** That means a final event with a stop reason and a usage.
+  - A stream that ends without one is a transport error. **Its partial text is never assembled, validated or judged,** and it keeps its full reservation as cost.
+- **S-2: the response kept is the assembled final message.** The output text blocks become the attempt file, exactly as before, so `kit.mjs validate`, `blind` and the costing are unchanged.
+  - **Thinking content is not written to the attempt file or to any `untuk-*` file.** At most it is counted, never shown to judges or to me.
+  - The rehearsal asserts this.
+- **S-3: a robust SSE parser.**
+  - It handles multi-line `data:`, comments and pings.
+  - It caps the bytes held, refusing anything above a stated limit.
+  - It refuses unknown event types for the final message.
+  - Self-tests are fed real-shaped event sequences from the facts.
+- **S-4: the rehearsal's mock streams.**
+  - Pings, then deltas, then the final event.
+  - A slow stream that succeeds.
+  - A mid-stream error, retried or stopped as classified.
+  - A cut stream with no final usage, which keeps its reservation and yields no response.
+  - An overrun that keeps the response.
+- **S-5: no change to the key handling or the procedure.** The diff is in `runner.mjs`'s adapters and transport only, plus their tests. **The v2 package is rebuilt** with a new `SOURCE-COMMIT`, and the rehearsal is re-run.
