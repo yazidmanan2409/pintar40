@@ -47,3 +47,40 @@ Sharon, 17 Nov 2026 (13:40 UTC). Read-only.
 **§4 stays untouched,** so `ecb0d3c4` stands. §3's changes are recorded at a new commit, and the runner keeps carrying `--pack-sha ecb0d3c4…`.
 
 **No call, key or spend** until v2 passes and the owner authorises it.
+
+## Addendum, 17 Nov 14:10 UTC: the ledger, and runner v2 (C4 step 1), at `1ebd840d` on `claude/e-runner-v2`
+
+**What the ledger shows (`891659e8`):**
+- input: 4,993 tokens;
+- output: 12,000, with `stop_reason` `max_tokens`;
+- of that output, 7,482 tokens were thinking.
+
+**So every attempt at 12,000 would be truncated.** `max_output` must rise, and Bob's diagnosis is right.
+
+**The runner diff, `68ebe2fd..1ebd840d`, `runner.mjs` only, is accepted for C4 step 1.**
+- **The input bound** is `ceil(bytes × 1.2) + 10,000`, with bytes counted as UTF-8 for the request and the schema together.
+  - That is a hard bound on the text, plus an allowance of twice the whole observed 4,993, treating all of it as overhead.
+  - It is generous, and the test asserts the bound for chapter 1 is at least 4,993 and at least its bytes.
+- **An overrun writes the attempt file and `response_sha256` into the ledger, then aborts.** That is defect 2 fixed, with its red-first case.
+- **The b2 and b3 cap scenarios are recalibrated** to the new bound, with the same intent: one call, then refused.
+
+**T-1, required before any rerun: the request timeout, against a 48,000-token output.**
+- **The runner aborts every request at `AbortSignal.timeout(600_000)`,** which is 10 minutes, and it does not stream.
+- At 48,000 output tokens, thinking included, a generation running at under 80 tokens a second takes longer than 10 minutes.
+- **The runner would then abort a request the provider may still complete and bill.** That is a transport error, retried twice at a full reservation each, for **no** usable draft. The caps still hold, but the run would fail and the money would buy nothing.
+- **Required:**
+  - (a) **Verify, grade A in E-PROVIDER-FACTS,** each provider's documented behaviour for long non-streaming requests: any maximum duration, any requirement to stream above a `max_tokens` level, and billing when the client disconnects;
+  - (b) **then either** raise the timeout to cover `max_output` at a conservative documented throughput, **or** switch to streaming, collecting the final message and its `usage`;
+  - (c) **add a rehearsal case:** a mock that takes longer than the old timeout returns normally under the new one.
+
+**T-2, for the owner's decision, not mine: the thinking effort.**
+- Sonnet 5.5's adaptive thinking defaults to high, and 7,482 of the 12,000 tokens were thinking.
+- **Choosing a lower effort (or a fixed thinking budget), or keeping high with a 48,000 output, is a question of what is being evaluated.** It is not a defect.
+- **Whatever he chooses** must be recorded in `prices.json` or the request, the same for both providers in intent, and **frozen before the run.**
+- §4 is not affected, since it scores outputs, not settings.
+
+**The 48,000 proposal:**
+- **the worst case is US$3.14 per provider and US$6.28 in all,** inside the caps of 4.87, 5 and 9.87;
+- **it needs T-1 resolved,** and the owner's choice on T-2.
+
+**The rest of C4 (steps 2 to 4)** follows when v2 is built: the new SOURCE-COMMIT, `hasil/` required, the caps of 4.87 and 9.87, the rehearsal with real-sized counts, the overrun-keeps case and T-1(c).
