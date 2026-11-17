@@ -327,3 +327,14 @@ The test for each exception: **can a function that takes the person first (a sta
   - **red first:** used on revision 1, a request is allowed and granted, then **exactly one** start through revision 2's assignment is allowed;
   - two approvals still give two attempts, each a staff decision.
 - **The Z item for `minta_percobaan` (CARRIED-ITEMS) is withdrawn,** superseded by this.
+
+## Addendum, 17 Nov 02:15 UTC: A3-R4's exposure at production's migration 111. Bob's reading is confirmed: not exposed.
+
+**What I read:** the repository only. The first 111 migrations on `main` run up to `20261005120000_activation_is_granted_not_inferred.sql`. I read `issue_institutional_id` at 20260926100000, and searched all 111 for `persons` locks.
+
+- **At 111, `issue_institutional_id` takes `institutions` FOR UPDATE and then inserts `institutional_identities`.** That insert's foreign key takes **KEY SHARE** on `persons`, not FOR UPDATE. The `persons` FOR UPDATE that closes the cycle came later.
+- **At 111, no function takes `persons` FOR UPDATE, updates a `persons` key, or deletes a `persons` row.**
+  - The only `update public.persons` statements are inside two migrations' one-off self-check blocks (20261001100000:567 and 20261004110000:121). Those are non-key updates, so FOR NO KEY UPDATE, and they run once, at migration.
+  - Every run-time `persons` lock at 111 is therefore a foreign key's KEY SHARE. KEY SHARE locks never conflict with each other, so no cycle can pass through `persons`.
+- **What a start at 111 does meet:** its sitting insert takes KEY SHARE on `institutions`, so it **waits** behind `issue_institutional_id`'s FOR UPDATE on the same school, until that commits. **It is a wait, not a deadlock,** because `issue_institutional_id` waits for nothing the start holds.
+- **Conclusion:** production at 111 is not exposed. The exposure starts with A2a's person lock and A1's `persons` FOR UPDATE takers. Bob's "staging" record is right.
