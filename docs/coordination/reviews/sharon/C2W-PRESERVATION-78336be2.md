@@ -45,3 +45,16 @@ Sharon, 17 Nov 2026 (07:00 UTC). Read-only.
   - line 68, exactly as specified (`a.id > batas.audit_id`, the action, the target table and id, and the actor equal to `withdrawn_by_person_id`);
   - the header comments recording the line-66 reasoning and the three dry-run proofs.
 - **The PASS stands on `1d5428ca…`, subject only to Second Eye's dry run** showing the three proofs.
+
+## Addendum · restated for 282 → 284 (17 Nov 2026, 23:30 UTC)
+
+Read: `preservation-C2w.sql` at `dfa542abc881ad8313036e4e99010c319aed5288`, sha256 `1b686345f3adb30aaec1976711f257d064380964bb621fcb01a663adf1c278af` (verified). Also read its diff from `2377f37883c9ae026a06a04ee725cf1731b9d68e`.
+- **The query is unchanged.** From `2377f378` to `dfa542ab`, every changed line is a comment.
+- **`catatan_peninjau` is declared a new table in the header.** So are its functions, its trigger on `metric_sources` and the registry rows. The query body has 0 references to it, so no preserved line can move for it.
+- **Lines 65 to 68 are kept as specified.** Line 68 still uses `a.id > batas.audit_id` with the action and the target.
+- **PASS for the dry run.** Second Eye may run it locally now. It must show my three proofs:
+  1. only line 10 moves (282 / 20270120240000 → 284 / 20270121110000);
+  2. a planted withdrawal through the function appears in line 67, with line 68 at 0;
+  3. a planted direct update with no audit row makes line 68 read 1.
+
+  **The staging BEFORE read still waits for the owner's authorisation.**
