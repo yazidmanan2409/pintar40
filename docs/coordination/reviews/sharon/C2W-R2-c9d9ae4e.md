@@ -77,3 +77,25 @@ Sharon, 16 Nov 2026 (16:00 UTC). Read-only.
 - The decision is recorded and audited. It was green on its first run, and the plant (the PD branch given the school's rule) is caught.
 
 **C2w's entry evidence is complete from my side:** F-3, F-4 and A2B-R2.
+
+## Addendum, 17 Nov 04:30 UTC: C2w's new head `a9d303b20294cf9fee9279944f66a3be6f1300fc` (main merged)
+
+- **`1806e00f` is a true merge,** with parents `74732b61` (C2w) and `1b1cada8` (main at A2b's promotion). Nothing was rebased.
+- **The product delta from main is exactly C2w's reviewed change:** `git diff 1b1cada8 a9d303b2 -- supabase src` shows only:
+  - migration 20270121100000;
+  - `studio/actions.ts`;
+  - `studio/kanonik/page.tsx`;
+  - `konteks-server.ts`.
+  Those files are **unchanged since `74732b61`**, which I passed. The merge touched tests only. The pins read 283, with C2w's migration sorting after A2b's 20270120240000.
+- **`a9d303b2` fixes the wording only** (F06-S04: the "proves" of C2W-F3D now names its artefact). The test is unchanged, so my F-3 acceptance stands.
+- **The pre-flight on `a9d303b2` is green,** as Second Eye reports it: suite 1232 passed and 0 failed, plants 175/175, red cases 11/11, lint, typecheck and build identity clean.
+- **C2w: PASS on this head.**
+
+**A3, also noted:**
+- the pre-flight on `007d7acb` is 1238 passed and 1 failed, the failure being A3-R01, expected until the controller lands;
+- the new race is A3-R02I.
+- **Second Eye's widened writer check for `attempt_requests` is accepted:**
+  - only `minta_percobaan` inserts;
+  - only `putuskan_percobaan` updates;
+  - no client role holds a table write grant.
+  That is what I meant.
