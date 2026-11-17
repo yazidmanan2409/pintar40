@@ -6,7 +6,7 @@ not authorisation for paid calls.** The owner gives it at the moment he types `R
 | File | What it is |
 |---|---|
 | `INSTRUCTIONS.md` | The owner's numbered steps, shipped in the package |
-| `jalankan-e.sh` | The one script the owner runs. Steps A–E: offline checks, hidden key prompts, the no-cost key check, the typed `RUN`, then the run, the blinding and the hand-off folders |
+| `jalankan-e.sh` | The one script the owner runs, with `zsh` (the macOS default; also bash-compatible). Steps A–E: offline checks, hidden key prompts, the no-cost key check, the typed `RUN`, then the run, the blinding and the hand-off folders |
 | `periksa-kunci.mjs` | The no-cost key check (A3): one GET of each model's record. It prints status and CONFIRMED / NOT confirmed only |
 | `build-package.sh` | Builds `pintar-e-local.tar.gz` from the frozen runner at `68ebe2fd` plus the three files above, with `SHA256SUMS` |
 | `rehearsal/` | The offline rehearsal (`rehearse-all.sh`, a 127.0.0.1 mock) and its result |
@@ -46,3 +46,25 @@ Sharon's A1–A5 locally:
 - **A3:** `periksa-kunci.mjs`; both checks must pass before `RUN` is offered.
 - **A4:** the run window is recorded in milliseconds, and the ledger's first and last times are printed against it.
 - **A5:** unchanged, at J3.
+
+## Sharon's review of `58225030` (`54a53b7a`), applied
+
+**Required:**
+- **R1:** the key check no longer uses the external `env` binary. Each key reaches node through a prefix assignment in a
+  subshell only, and `E_REHEARSE` is exported in rehearse mode only. A process-list sampler runs in every rehearsal case
+  (about 10,000 lines a case) and finds no key text. The R1 control proves the sampler would catch a key in a live
+  process's argv.
+- **R2:** live mode unsets `E_REHEARSE` and both `E_REHEARSE_*_BASE` at the start. Rehearsed: 0 variables are left.
+- **R3:** before the keys are cleared, the exact key values are given to `grep -rqF -f` through a file descriptor (not
+  argv), over every result file, including `run-log.txt`. Exit 0 or 2 stops the script. The R3 control proves a planted
+  key is found.
+- **R4:** no bash 3.2 could be obtained here (the GNU mirrors are blocked and there is no docker daemon). So the script
+  is zsh-safe and run with `zsh`, the macOS default, rehearsed under zsh 5.9, which is macOS's version. The happy path
+  is also rehearsed under bash 5.2.
+
+**Recommended:**
+- **R5:** the tarball's SHA-256 is sent in a separate message.
+- **R6:** an `EXIT` trap clears both keys.
+- **R7:** `pbcopy` clears the clipboard after the second key.
+- **R8:** the sending order is untuk-bob, then untuk-sharon, then untuk-juri.
+- **R9:** the residual risk is stated in the script and the instructions.

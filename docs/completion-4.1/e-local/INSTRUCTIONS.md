@@ -21,7 +21,8 @@ point by closing the Terminal window or pressing Control-C.
    cd ~/Downloads
    shasum -a 256 pintar-e-local.tar.gz
    ```
-3. The long code it prints must be **exactly** the one Bob gave you. If it differs, stop and tell Bob.
+3. The long code it prints must be **exactly** the one in Bob's **separate message** (not the one beside the file).
+   If it differs, stop and tell Bob.
 
 ## 3 · Unpack it
 
@@ -32,14 +33,17 @@ cd pintar-e-local
 
 ## 4 · Start the script
 
+Close any programs you don't need. Then:
+
 ```
-bash jalankan-e.sh
+zsh jalankan-e.sh
 ```
 
 - **Step A** runs by itself, for about a minute. It checks Node, the package and the frozen material, runs every
   self-test, and does an offline practice run. Nothing is sent anywhere.
 - **Step B** asks for each key in turn: first **Anthropic**, then **OpenAI**. Copy the key from where you saved it,
   click in Terminal, paste with Command-V and press Return. **Nothing shows as you paste; that is intended.**
+  The script clears your clipboard after the second key.
 - **Step C** checks both keys at no cost. You should see two lines ending in **`CONFIRMED`**.
   If not, the script stops, and nothing is spent. Tell Bob what it printed.
 
@@ -50,11 +54,10 @@ The script shows the limits again and asks you to type **`RUN`**.
 - Anything else stops the script without spending.
 
 The run takes a few minutes. Leave the Mac awake and the window open. When it finishes, the script:
-- clears both keys from its memory;
 - blinds the questions;
+- checks every result file for the exact text of both keys, and stops if it finds either one;
+- clears both keys from its memory;
 - prints a short summary of costs and times.
-
-**After pasting, copy any ordinary text** (a word, say) so that the key no longer sits in your clipboard.
 
 ## 6 · What to send, and what to keep
 
@@ -62,9 +65,9 @@ Everything is in the folder `~/Downloads/pintar-e-local/hasil`:
 
 | File or folder | What to do |
 |---|---|
-| `untuk-bob.zip` | **Send to Bob first** (attach it in his session). It holds costs, times and the sealed map's fingerprint. It has no questions and no key. Bob records the fingerprint before anything else moves |
-| `untuk-sharon.zip` | **Send to Bob as well**, after he confirms the fingerprint is recorded. He passes it to Sharon. It holds the questions and options only, and names no provider |
-| `untuk-juri.zip` | **Keep for now.** Bob sends you the judges' scoring guide **after** the fingerprint is recorded. Then give both to the three judges |
+| `untuk-bob.zip` | **1st. Send to Bob** (attach it in his session). It holds costs, times and the sealed map's fingerprint. It has no questions and no key. Bob records the fingerprint |
+| `untuk-sharon.zip` | **2nd. Send to Bob when he says the fingerprint is recorded.** He passes it to Sharon. It holds the questions and options only, and names no provider |
+| `untuk-juri.zip` | **3rd. Keep it until Bob says Sharon's check is recorded** and sends you the judges' scoring guide. Then give both to the three judges |
 | `PRIVAT-simpan-jangan-dikirim` | **Keep it safe, and send it to no one.** It holds the raw answers and the map of which provider wrote which question. Bob asks for it only after every score is final |
 
 ## 7 · Revoke both keys
@@ -74,6 +77,12 @@ Everything is in the folder `~/Downloads/pintar-e-local/hasil`:
 
 **Do this straight after step 5.** Then close the Terminal window, and tell Bob "keys revoked" with the time you
 did it.
+
+## One accepted risk
+
+While the run is going, another program running under your account could read the keys from the runner's memory.
+That is why you close programs you don't need before step 4. The run takes only minutes, and the keys are revoked
+straight after.
 
 ## If the script stops
 
