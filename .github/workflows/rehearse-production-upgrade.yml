@@ -5,18 +5,29 @@
 #   the whole 111 -> 282 jump from production's own starting point. This job does, on a throw-away local stack on the
 #   runner:
 #     1. it builds the database exactly as production's release commit defines it (5b5b68d: migrations 1 to 111) with
-#        that commit's own synthetic seed (September-era rows, the shapes 4.1's migrations must transform);
-#     2. it fingerprints every existing table, over the columns that exist at 111 only;
-#     3. it applies every later migration of the target commit (112 to 282), timed, one transaction per migration;
-#     4. it fingerprints again over the same columns, and lists every table whose pre-existing rows changed;
-#     5. it checks the applied versions equal the target's, and runs the db contract (fable01) on the result.
+#        that commit's own synthetic seed, then adds the rehearsal's own SYNTHETIC fixture at 111
+#        (docs/completion-4.1/rehearsal/fixture-at-111.sql: the shapes 4.1's data migrations act on, which the
+#        September seed lacks: a locked account, open sittings, a departed learner, a sealed QUICK certificate, ...);
+#     2. it runs stage 2's read-only production query here, at 111, on the synthetic rows only (it never runs anywhere
+#        else until the owner authorises stage 2);
+#     3. it fingerprints every existing table, over the columns that exist at 111 only, and pg_cron's jobs, storage
+#        buckets and storage objects' metadata; it captures every table's primary keys and the checks' inputs;
+#     4. it proves 20261113100000's guard refuses an ELIGIBLE QUICK certificate, on a transaction it never commits;
+#     5. it applies every later migration of the target commit (112 to 282), timed, one transaction per migration;
+#     6. it fingerprints again over the same columns, lists every table whose pre-existing rows changed, and checks
+#        Sharon's blind spots: the columns added to tables of 111 (null and distinct counts over the rows of 111, and
+#        each data-rewriting migration's backfill rule), the new tables with rows (and the rule of each filled from
+#        111's rows), and that a certificate sealed from a QUICK sitting still reads and verifies as it did;
+#     7. it runs A1's closer once, on purpose, on the open sittings the upgrade found;
+#     8. it checks the applied versions equal the target's, and runs the db contract (fable01) on the result.
 #   NEVER PRODUCTION, NEVER STAGING: no secret is read, no remote database is reached. Synthetic data only.
 #   It does NOT prove the upgrade on production's real rows or volume. That needs the owner's separate authorisation
 #   (a read-only schema fingerprint and row counts of production), recorded in PRODUCTION-UPGRADE-REHEARSAL.md.
 #
 # A changed table is a FINDING to read, not automatically a failure: some 4.1 migrations rewrite existing values on
-# purpose (each must be named and justified in the rehearsal record). The job fails only if a migration fails to apply,
-# the applied versions differ from the target's, or the db contract fails.
+# purpose (each must be named and justified in the rehearsal record). The job fails if a migration fails to apply, a
+# backfill or new-table rule does not hold, a certificate of 111 reads differently, the guard does not refuse, the
+# closer moves a sitting it did not select, the applied versions differ from the target's, or the db contract fails.
 name: rehearsal · production upgrade 111 -> HEAD (synthetic, local only)
 
 on:
@@ -25,6 +36,8 @@ on:
     paths:
       - .github/workflows/rehearse-production-upgrade.yml
       - docs/completion-4.1/rehearsal/RUN
+      - docs/completion-4.1/rehearsal/*.sql
+      - docs/completion-4.1/rehearsal/*.sh
   workflow_dispatch:
     inputs:
       target:
@@ -84,6 +97,18 @@ jobs:
         uses: ./.github/actions/local-stack
         with:
           working-directory: base
+      - name: Fixture — synthetic shapes at 111 (the rehearsal's own, over the 5b5b68d seed)
+        env:
+          DB_URL: ${{ steps.stack.outputs.db-url }}
+        run: |
+          mkdir -p out
+          bash docs/completion-4.1/rehearsal/rehearse.sh fixture
+      - name: the stage 2 query runs at 111 (synthetic)
+        env:
+          DB_URL: ${{ steps.stack.outputs.db-url }}
+        run: |
+          bash docs/completion-4.1/rehearsal/rehearse.sh stage2
+          cat out/stage2-at-111.txt
       - name: The fingerprint, written against 111's own columns
         env:
           DB_URL: ${{ steps.stack.outputs.db-url }}
@@ -116,6 +141,12 @@ jobs:
           while IFS=$'\t' read -r s t cols; do
             psql -At -v ON_ERROR_STOP=1 -c "select row($cols)::text from $s.\"$t\"" "$DB_URL" | LC_ALL=C sort > "out/rows/$s.$t.before"
           done < out/columns-at-111.tsv
+          bash docs/completion-4.1/rehearsal/rehearse.sh extra before
+          bash docs/completion-4.1/rehearsal/rehearse.sh capture
+      - name: The QUICK guard refuses as designed (20261113100000, on a transaction never committed)
+        env:
+          DB_URL: ${{ steps.stack.outputs.db-url }}
+        run: bash docs/completion-4.1/rehearsal/rehearse.sh probe
       - name: UPGRADE — apply the target's migrations 112 onward, timed
         working-directory: base
         run: |
@@ -126,6 +157,12 @@ jobs:
           npx --no-install supabase migration up --local 2>&1 | tee ../out/upgrade.log
           end=$(date +%s)
           echo "upgrade took $(( end - start )) s" | tee ../out/upgrade-seconds.txt
+      - name: Extra state after (pg_cron, storage), then hold the scheduled jobs for the reads
+        env:
+          DB_URL: ${{ steps.stack.outputs.db-url }}
+        run: |
+          bash docs/completion-4.1/rehearsal/rehearse.sh extra after
+          bash docs/completion-4.1/rehearsal/rehearse.sh hold-jobs
       - name: AFTER — the same fingerprint over the same columns, and the comparison
         env:
           DB_URL: ${{ steps.stack.outputs.db-url }}
@@ -143,6 +180,13 @@ jobs:
             echo "$k: rows of 111 altered or removed $(wc -l < "out/rows/$k.gone"); rows added $(wc -l < "out/rows/$k.added")" >> out/changed-tables.txt
           done < out/changed-tables.list
           cat out/changed-tables.txt
+          # blind spot 3: pg_cron's jobs, storage buckets and storage objects' metadata, before and after
+          : > out/extra-changes.txt
+          for f in out/extra/*.before; do
+            k="$(basename "$f" .before)"
+            echo "$k: before $(wc -l < "$f"), after $(wc -l < "out/extra/$k.after"); gone $(comm -23 "$f" "out/extra/$k.after" | wc -l), added $(comm -13 "$f" "out/extra/$k.after" | wc -l)" >> out/extra-changes.txt
+          done
+          cat out/extra-changes.txt
           {
             echo "## Production upgrade rehearsal (synthetic)"
             echo "- production release: \`$PRODUCTION_SHA\` ($(cat out/before-version.txt))"
@@ -152,7 +196,29 @@ jobs:
             echo '```'; cat out/changed-tables.txt; echo '```'
             echo "### Rows of 111 altered or removed (the finding)"
             for f in out/rows/*.gone; do [ -s "$f" ] && { echo "#### $(basename "$f" .gone)"; echo '```'; head -40 "$f"; echo '```'; }; done
+            echo "### Extra state: pg_cron, storage (blind spot 3)"
+            echo '```'; cat out/extra-changes.txt
+            for f in out/extra/*.after; do k="$(basename "$f" .after)"; comm -13 "out/extra/$k.before" "$f" | sed "s/^/$k added: /"; comm -23 "out/extra/$k.before" "$f" | sed "s/^/$k gone: /"; done
+            echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
+      - name: Blind spots 1 and 2, and the QUICK certificate
+        env:
+          DB_URL: ${{ steps.stack.outputs.db-url }}
+        run: |
+          set -o pipefail
+          status=0
+          bash docs/completion-4.1/rehearsal/rehearse.sh checks || status=$?
+          {
+            echo "### Blind spot 1: columns added to tables of 111, over the rows of 111"
+            echo '| table | column | rows of 111 | nulls | distinct | added by |'; echo '|---|---|---|---|---|---|'
+            awk -F '\t' '{printf "| %s | %s | %s | %s | %s | %s |\n", $1, $2, $3, $4, $5, $6}' out/after/backfill-migrations.tsv
+            echo "### Blind spot 2: new tables with rows"
+            echo '```'; awk -F '\t' '$2 > 0' out/after/new-tables.tsv; echo '```'
+            echo "### The checks"
+            echo '| area | rule | result | detail |'; echo '|---|---|---|---|'
+            awk -F '\t' '{printf "| %s | %s | %s | %s |\n", $1, $2, $3, $4}' out/after/checks.tsv
+          } >> "$GITHUB_STEP_SUMMARY" || true
+          exit $status
       - name: The applied versions equal the target's
         env:
           DB_URL: ${{ steps.stack.outputs.db-url }}
@@ -160,6 +226,15 @@ jobs:
           psql -At -c "select version from supabase_migrations.schema_migrations order by version" "$DB_URL" > out/applied.txt
           ls target/supabase/migrations | sed -E 's/^([0-9]{14})_.*/\1/' | sort > out/target.txt
           diff -u out/target.txt out/applied.txt
+      - name: A1's closer, its first pass on the open sittings of 111
+        env:
+          DB_URL: ${{ steps.stack.outputs.db-url }}
+        run: |
+          status=0
+          bash docs/completion-4.1/rehearsal/rehearse.sh closer || status=$?
+          bash docs/completion-4.1/rehearsal/rehearse.sh release-jobs
+          { echo "### A1's closer, first pass"; echo '```'; echo "candidates: $(wc -l < out/after/closer-candidates.txt)"; cat out/after/closer-moved.tsv; echo "EXPIRED at 111, still unscored after the pass: $(cat out/after/closer-stranded.txt 2>/dev/null)"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          exit $status
       - name: The db contract holds on the upgraded database
         env:
           DB_URL: ${{ steps.stack.outputs.db-url }}
