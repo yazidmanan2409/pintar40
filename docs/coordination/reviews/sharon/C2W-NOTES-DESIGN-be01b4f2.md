@@ -99,3 +99,22 @@ Sharon, 17 Nov 2026 (08:30 UTC). Read-only.
   - There is no database change.
 - **The pre-flight, as reported:** suite 1242 passed and 0 failed, plants 175/175, red cases 11/11.
 - **D1 to D4 are all met.** The C2w candidate comes to me for my freeze checks: the preservation pair restated with the notes table, and my lines 65 to 68 kept.
+
+## Addendum, 17 Nov 23:30 UTC: the C2w candidate `53a31d911aaa74e74240cbf41ff790e256bde235`. The delta check passes.
+
+**What I checked:**
+- **The final migration's sha256** is `54b6569df6d08535c6c44fcb180ea3bdf78cc15db81ae10d06a32fbc3e585196`, which I recomputed and which matches.
+  - Its diff from `fde309c5`, which I accepted, is **empty.**
+- **Since my D4 check at `12943afa`:**
+  - nothing changed under `supabase/`;
+  - the product delta is one CSS block and a class rename in `CatatanPeninjau.tsx`, with K01's red step before it;
+  - the rest is evidence.
+- **Main to the candidate:** `git diff origin/main 53a31d91 -- supabase/migrations` is exactly C2w's two migrations, 20270121100000 (A2B-R2) and 20270121110000 (the notes). That makes 282 → 284, and 284 files in the candidate.
+- **The pre-flight, as reported:** suite 1242 passed and 0 failed, plants 175/175, red cases 11/11, lint, typecheck and build identity clean.
+
+**Verdict:** the delta check passes. The candidate's product is what I reviewed (A2B-R2 at `c9d9ae4e` and `74732b61`, and the notes with D1 to D4).
+
+**Still to come for the freeze:**
+- **the preservation pair restated for 282 → 284,** to my requirement: `catatan_peninjau` as a new table, and lines 65 to 68 kept. I check it before the dry run;
+- **Bob's header check;**
+- **the "before" read,** on the owner's authorisation only.
