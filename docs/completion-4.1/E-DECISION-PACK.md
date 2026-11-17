@@ -1,8 +1,10 @@
-# E · AI provider evaluation: decision pack for the owner (revision 3)
+# E · AI provider evaluation: decision pack for the owner (revision 4)
 
-Prepared by Bob, 16 November 2026. **Revision 3, same day:** the owner's decisions on revision 2 are recorded
-(ruling 43, §6). §4.2 is amended, and §4.3a's threshold is **proposed, not frozen**. §4 freezes only when the owner
-approves that threshold.
+Prepared by Bob, 16 November 2026. **Revision 4, 17 Nov:** the owner's ruling 48 is recorded (§6).
+- §4.3a is approved, so **§4 is frozen** at this revision's commit. Sharon records its SHA, and the runner carries it.
+- §4.2's key checker is Sharon, with one safeguard: the human educators make the final correctness and acceptance decisions.
+- OpenAI is eligible for the evaluation (G1).
+- The judges' criteria are approved; their names are pending.
 
 **For your decision. Nothing is activated:** no account, credential, network
 egress to a provider API, call, transmission of material or spending.
@@ -197,7 +199,7 @@ move afterwards.
 - **If no provider qualifies,** the report says so. Nothing is selected, C3w is not shortened, and it comes to you
   (THE PLAN §5.6 J). Changing the prompt and running again would need your separate approval and a new freeze.
 
-**4.3a Minimum educational-quality threshold (PROPOSED by Bob, for the owner's approval; not frozen)**
+**4.3a Minimum educational-quality threshold (APPROVED by the owner, ruling 48, 17 Nov; frozen)**
 
 It uses only the existing rubric (plan §5) and the existing definition of an accepted draft (§4.5). A provider must
 meet **both** conditions, across its 30 items:
@@ -284,10 +286,24 @@ a number of approved questions for a fixed cost.
 3. **Judges: the three-educator structure and the §5 profile are approved.** The judges are **not yet nominated**;
    their names stay pending.
 
-**Open for the owner now:**
-- approve §4.3a (or one of its alternatives), then §4 freezes;
-- **the key checker (Sharon's disclosure, §4.2):** Sharon, as amended, or a key checker who is not an Anthropic
-  model. Choosing the second needs no other change to §4.2.
+**Decided by the owner, 17 Nov (ruling 48):**
+- **§4.3a is approved:** Q1 is at least 24 of 30 accepted, and Q2 is each criterion averaging at least 1.0. **§4 is frozen.**
+- **The key checker is Sharon,** as amended in §4.2, with three safeguards:
+  - her flags only route an item to the human educators, who make every final correctness and acceptance decision;
+  - her flags are committed before any score is revealed;
+  - **the same process applies to both providers.**
+- **G1, OpenAI: YES, eligible for the controlled evaluation.** This rests on the owner's own reading of the Services Agreement, the DPA and the sub-processor list, and holds under four conditions:
+  - only educators interact with the AI;
+  - no identifiable learner data is submitted;
+  - every draft is reviewed by humans before publication;
+  - PINTAR complies with the API terms.
+
+  It is a preliminary eligibility assessment, not a legal certification of any production arrangement.
+- **Judges:** the §5 criteria are approved. Reasonable compensation is allowed, agreed in advance and unrelated to scores.
+
+**Still open:**
+- **The three judges' names** (recruitment).
+- **G2:** Anthropic's sub-processor list. It was not read when Anthropic's eligibility was closed, so it is read at step 4 below.
 
 **No-cost preparation that follows from Sharon's review** (offline, on `claude/e-runner-prep`; no call, key or spend):
 - a **self-tested scoring script,** run by the operator: the resolutions, the critical count, Q1 and Q2, with their edge
