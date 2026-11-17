@@ -20,8 +20,13 @@
 // It has no adapter.
 //
 // Budget rules, applied before EVERY attempt:
-//   input_estimate  = ceil((request chars + schema chars) / 3)      no tokenizer: conservative estimator
-//   worst_case      = ceil(input_estimate × 1.2) × in_price + max_output × out_price
+//   input_estimate  = UTF-8 bytes of (request + schema)               a true upper bound on the text's tokens: both
+//                                                                     providers' tokenisers are byte-level (tokens <= bytes)
+//   input_bound     = ceil(input_estimate × 1.2) + 10,000             the allowance covers what the provider adds
+//                                                                     (structured output); sized from the 17 Nov run
+//                                                                     (4,993 real input tokens, all treated as overhead,
+//                                                                     × 2, rounded up; floor 1,000). v2, E incident run 1
+//   worst_case      = input_bound × in_price + max_output × out_price
 //   max_output is sent to the API as the hard output cap.
 //   The worst case is RESERVED in the ledger before the call; the call is refused if
 //     provider spent + provider reservations + worst_case > per-provider cap (US$8), or
@@ -59,6 +64,7 @@ const MAX_ATTEMPTS = 3;            // 1 + at most 2 retries per request
 const CONCURRENCY = 1;             // the in-flight bound: one reservation at a time
 const CHARS_PER_TOKEN = 3;
 const INPUT_MARGIN = 1.2;
+const INPUT_ALLOWANCE = 10000;   // v2: see the budget rules above
 const DEFAULT_MAX_OUTPUT = 12000;  // hard output cap per call: 15 items of JSON in Indonesian
 const LABELS = ['A', 'B', 'C', 'D'];
 const UNVERIFIED = 'UNVERIFIED';
@@ -87,16 +93,16 @@ function kitValidate(file, b) {
 }
 
 // ───────────────────────────── cost
-const estimateInputTokens = (chars) => Math.ceil(chars / CHARS_PER_TOKEN);
+const estimateInputTokens = (bytes) => bytes;   // v2: tokens <= bytes (byte-level tokenisers); CHARS_PER_TOKEN is no longer used
 // prices are USD per 1M tokens, so tokens × price is micro-USD; rounded up. A documented long-prompt surcharge
 // (prices.json `surcharge`, e.g. OpenAI above 272K input tokens) applies to the full request.
 function costMicro(inTok, outTok, p) {
   const s = p.surcharge && inTok > p.surcharge.above_input_tokens ? p.surcharge : null;
   return Math.ceil(inTok * p.input * (s ? s.input_multiplier : 1) + outTok * p.output * (s ? s.output_multiplier : 1));
 }
-function worstCase(chars, maxOutput, p) {
-  const est = estimateInputTokens(chars);
-  const inBound = Math.ceil(est * INPUT_MARGIN);
+function worstCase(bytes, maxOutput, p) {
+  const est = estimateInputTokens(bytes);
+  const inBound = Math.ceil(est * INPUT_MARGIN) + INPUT_ALLOWANCE;
   return { input_estimate: est, input_bound: inBound, max_output_tokens: maxOutput, micro: costMicro(inBound, maxOutput, p) };
 }
 
@@ -384,10 +390,11 @@ export async function runEval(cfg) {
       let noResponse = 0;   // attempts of this request that ended as a transport error or an unparsable 2xx
       const text = req[b];
       const chars = text.length + schema.length;   // the schema is sent (or listed) with the request: counted as input
+      const bytes = Buffer.byteLength(text, 'utf8') + Buffer.byteLength(schema, 'utf8');
       for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-        const wc = worstCase(chars, maxOutput, price);
+        const wc = worstCase(bytes, maxOutput, price);
         const seq = ledger.doc.entries.filter((e) => e.provider === provider && e.status !== 'refused').length + 1;
-        const base = { run_id: runId, pack_sha: packSha, provider, model: price.model, chapter: b, request_index: seq, attempt, input_chars: chars,
+        const base = { run_id: runId, pack_sha: packSha, provider, model: price.model, chapter: b, request_index: seq, attempt, input_chars: chars, input_bytes: bytes,
           input_tokens_estimate: wc.input_estimate, input_tokens_bound: wc.input_bound, max_output_tokens: maxOutput,
           price_per_mtok: { input: price.input, output: price.output }, reserved_usd: usd(wc.micro), reserved_at: new Date().toISOString() };
         const chk = ledger.check(provider, wc.micro);
@@ -412,6 +419,10 @@ export async function runEval(cfg) {
           request_id: res?.request_id ?? err?.request_id ?? null, client_request_id: clientRequestId, model_version: res?.model_version ?? null,
           usage_raw: res?.usage_raw ?? null, finish: res?.finish ?? null, duration_ms, rate_limit: res?.rate_limit ?? err?.rate_limit ?? null };
         if (actual > wc.micro) {
+          // v2: a paid response is always kept, as evidence, even when its cost overruns; the run still aborts.
+          if (res && res.raw !== undefined && res.raw !== null) {
+            writeFileSync(join(pdir, 'attempts', 'bab' + b + '.a' + attempt + '.json'), res.raw); settle.response_sha256 = sha(res.raw);
+          }
           ledger.settle(e, { ...settle, status: 'overrun', reason: `reported cost ${usd(actual)} exceeds its reservation ${usd(wc.micro)}` });
           abort = { kind: 'overrun', reason: `${provider} bab${b} attempt ${attempt}: ${e.reason}` }; log(`ABORT    ${abort.reason}`); break outer;
         }
@@ -556,7 +567,8 @@ export function planTable(prices, providers, maxOutput) {
   for (const p of providers) {
     per[p] = { one: 0, all: 0 };
     for (const b of CHAPTERS) {
-      const chars = kitRequest(b).length + schema.length; const wc = worstCase(chars, maxOutput, prices[p]);
+      const chars = kitRequest(b).length + schema.length;
+      const wc = worstCase(Buffer.byteLength(kitRequest(b), 'utf8') + Buffer.byteLength(schema, 'utf8'), maxOutput, prices[p]);
       rows.push({ provider: p, chapter: `bab${b}`, chars, ...wc });
       per[p].one += wc.micro; per[p].all += MAX_ATTEMPTS * wc.micro;
     }
@@ -566,7 +578,7 @@ export function planTable(prices, providers, maxOutput) {
 }
 function printPlan(plan, prices, caps) {
   const p0 = Object.values(prices)[0];
-  console.log(`Worst case per call: ceil(ceil(chars/3) × 1.2) × $${p0.input}/M + max_output × $${p0.output}/M`);
+  console.log(`Worst case per call: (ceil(bytes × 1.2) + 10000) × $${p0.input}/M + max_output × $${p0.output}/M`);
   console.log('| Provider | Chapter | Chars (request + schema) | Input estimate | Input bound (×1.2) | Max output | Worst case per call (USD) |');
   console.log('|---|---|---|---|---|---|---|');
   for (const r of plan.rows) console.log(`| ${r.provider} | ${r.chapter} | ${r.chars} | ${r.input_estimate} | ${r.input_bound} | ${r.max_output_tokens} | ${usd(r.micro)} |`);
@@ -814,11 +826,11 @@ async function selfTest() {
   check(count(b) === 0 && b.spentMicro === 0 && b.breaches.length === 0, '(b) no call made, nothing spent, no reservation above the cap');
   check(b.ledger.entries.length === 1 && b.ledger.entries[0].status === 'refused' && existsSync(join(b.outDir, 'summary.json')), '(b) the refusal is in the ledger and a summary is written');
   // (b2) a cap that allows a few calls and then refuses
-  const b2 = await scen('b2-ceiling-1.30', FAULTS_NORMAL, { 'cap-total': 1.30 });
-  check(b2.exitCode === 2 && count(b2) === 2 && b2.breaches.length === 0 && b2.spentMicro <= b2.caps.total, `(b2) total cap 1.30: ${count(b2)} calls, then refused; spend ${usd(b2.spentMicro)} never above the cap`);
+  const b2 = await scen('b2-ceiling-1.55', FAULTS_NORMAL, { 'cap-total': 1.55 });
+  check(b2.exitCode === 2 && count(b2) === 2 && b2.breaches.length === 0 && b2.spentMicro <= b2.caps.total, `(b2) total cap 1.55: ${count(b2)} calls, then refused; spend ${usd(b2.spentMicro)} never above the cap`);
   // (b3) the per-provider cap
-  const b3 = await scen('b3-provider-1.10', FAULTS_NORMAL, { 'cap-provider': 1.10 });
-  check(b3.exitCode === 2 && b3.summary.abort?.cap === 'per_provider' && count(b3, 'anthropic') === 1 && b3.breaches.length === 0, '(b3) per-provider cap 1.10: one call, then refused on the provider cap');
+  const b3 = await scen('b3-provider-1.30', FAULTS_NORMAL, { 'cap-provider': 1.30 });
+  check(b3.exitCode === 2 && b3.summary.abort?.cap === 'per_provider' && count(b3, 'anthropic') === 1 && b3.breaches.length === 0, '(b3) per-provider cap 1.30: one call, then refused on the provider cap');
 
   // extra branches: non-retryable 4xx, retries exhausted, usage above the reservation
   const c = await scen('c-branches', FAULTS_EXTRA, {});
@@ -918,7 +930,7 @@ async function selfTest() {
   const plan = planTable(prices, providers, DEFAULT_MAX_OUTPUT);
   check(Object.values(plan.per).every((v) => v.all <= toMicro(8)) && plan.total <= toMicro(25), `plan at the assumed $15/$75: worst case with every retry ${usd(plan.total)} within US$25; per provider ${usd(Object.values(plan.per)[0].all)} within US$8`);
   const rp = planTable(realDryPrices(table, providers), providers, DEFAULT_MAX_OUTPUT);
-  check(Object.values(rp.per).every((v) => v.all === 764298) && rp.total === 1528596, `plan at the pinned $2/$10: worst case with every retry ${usd(rp.total)} (per provider ${usd(Object.values(rp.per)[0].all)})`);
+  check(Object.values(rp.per).every((v) => v.all === 973614) && rp.total === 1947228, `plan at the pinned $2/$10: worst case with every retry ${usd(rp.total)} (per provider ${usd(Object.values(rp.per)[0].all)})`);
   for (const t of tmp) rmSync(t, { recursive: true, force: true });
   console.log(`\n${fails.length ? fails.length + ' FAILED' : 'all passed'} (temporary folders removed)`);
   return fails.length ? 1 : 0;
