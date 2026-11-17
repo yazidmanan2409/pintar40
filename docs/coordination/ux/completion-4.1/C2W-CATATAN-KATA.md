@@ -98,3 +98,30 @@
 ## 7 · Anticipation
 
 **Found before the build**, by **question 2** (the neighbour: two reviewers replacing at once) and **question 5** (where «belum dikaitkan» renders, and for whom).
+
+---
+
+## 8 · Additions, 17 Nov 13:35, on Second Eye's build (`claude/c2w` at `5b34fa5f`)
+
+**8.1 · NOTE_EXISTS** (two reviewers write the **first** note on one option at once): **Second Eye's provisional sentence is accepted as final.**
+- ID «Pilihan ini baru saja diberi catatan oleh peninjau lain. Muat ulang halaman untuk membacanya. Tidak ada yang disimpan.»
+- EN «Another reviewer has just written a note on this option. Reload the page to read it. Nothing was saved.»
+- It is the sibling of §2's "replaced first" line, in the same form.
+
+**8.2 · A note never names a learner (D4): in the form's hint, as its second sentence.** The hint becomes:
+- ID «Apa yang ditunjukkan pilihan ini tentang cara berpikir murid? Jangan menyebut nama atau data murid mana pun. Catatan ini tidak dilihat murid dan tidak mengubah soal atau nilai. Sampai 1000 karakter.»
+- EN «What does this option show about how learners think? Do not name any learner or include any learner's data. Learners never see this note, and it changes no question or score. Up to 1000 characters.»
+- It goes in the hint, not in a refusal, because PINTAR cannot check it. The words match X-1's guide.
+
+**8.3 · Notes on several versions of one option: keep both in Studio; one note for the teacher.**
+- **Studio:**
+  - Keep both current notes, as built.
+  - **Order:** the note on the **version on screen** first, then the others, newest version first. Not simply newest-written first: the reader came to read this version.
+  - The count «Catatan peninjau (n)» counts all of them, as built.
+  - «Ganti catatan» replaces only the note on the version on screen. Notes on other versions show no button, so their attribution («versi {n}») tells the reader why.
+- **Beside the class report:** **one note per option.**
+  - It is the note on the revision in force when there is one.
+  - Otherwise it is the newest note on an earlier revision, with the teacher's I-5 line when the key differs.
+  - The teacher's line has no version number, so two unnumbered notes on one option would read as a contradiction.
+
+**Anticipation:** 8.1 and 8.3 were found by Second Eye in the build, and both are neighbours of §2 and §1 (**question 2**). They were anticipable, and the cases are mine: I wrote §1 with one current note per option in mind.

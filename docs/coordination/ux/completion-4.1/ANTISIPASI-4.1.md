@@ -55,6 +55,13 @@
 
 **So far: 10 defects, all anticipable; 2 of them mine.** Plus V-2 (mine, D4's duration), recorded above.
 
+## C2w, reviewer notes (words reviewed at `be01b4f2`, built at `5b34fa5f`)
+
+| # | Defect | Whose | Anticipable? | Question | Why |
+|---|---|---|---|---|---|
+| C2W-D1 | No words for two reviewers writing the **first** note at once (NOTE_EXISTS) | **mine** | **Yes** | **2** | I wrote the "replaced first" neighbour, but not the "first note" one |
+| C2W-D2 | §1 assumed one current note per option, but notes belong to a version | **mine** | **Yes** | **1** | What else holds this state: the revision chain |
+
 ## My own verification error, recorded with the defects
 
 | # | Error | Anticipable? | Question | Correction |
