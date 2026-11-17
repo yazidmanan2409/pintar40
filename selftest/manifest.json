@@ -6604,6 +6604,11 @@
       "id": "A3-R02I",
       "runner": "static",
       "proves": "Sharon's ruling (b) on pin 2 (561bcf9d), red first: executes against the migrations on two real connections, with committed rows of the harness's own removed afterwards (a learner of its own in the cycle's Kelas with no number at its school, and a namespace on that school). The start's transaction holds the person FOR KEY SHARE across a pause; issue_institutional_id takes the school and waits on the person; then start_learning_session inserts its sitting, whose foreign key takes FOR KEY SHARE on the school. Neither connection is aborted as a deadlock; both commit, and the learner holds one sitting and one number at the school."
+    },
+    {
+      "id": "A3-P2",
+      "runner": "static",
+      "proves": "Sharon's pin 2 as she restated it (561bcf9d), red first: read by A2A-L01's own lock reader over the migrations' catalogue (foreign keys included: an insert's or update's foreign key is read as KEY SHARE on the table it names). Every function that takes persons FOR UPDATE in its own body either takes the person as its first lock, or holds before it only locks that no person-first function requests at a conflicting strength. A plant that locks a sitting and then its person FOR UPDATE, inside the reader's rolled-back transaction, is reported."
     }
   ]
 }

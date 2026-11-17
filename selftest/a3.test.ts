@@ -185,6 +185,33 @@ const TANAM_L2P = `create function public._a3_l2p_tanam(p uuid) returns void lan
 begin perform 1 from public.assessment_sessions s where s.id = p for update;
       perform 1 from public.persons pr where pr.id = p for key share; end $t$;`;
 
+/** Sharon's pin 2, restated (561bcf9d): every function that takes persons FOR UPDATE in its own body either takes the
+ * person first, or holds before it only locks that no person-first function requests at a conflicting strength
+ * (foreign keys included: the reader records an insert's or update's foreign key as KEY SHARE on the table it names). */
+const KONFLIK = (a: number, b: number) => a === 3 || b === 3 || (a >= 1 && b >= 2) || (a >= 2 && b >= 1);
+function pin2(db: string, tanam = ""): { pengambil: number; salah: string[] } {
+  const r = bacaUrutan(db, tanam);
+  const fungsi = [...r.semua].filter(([fn]) => !/[[(]/.test(fn));
+  const pertama = fungsi.filter(([, l]) => l[0]?.t === "persons");
+  const salah: string[] = [];
+  let pengambil = 0;
+  for (const [fn, l] of fungsi) {
+    const pu = l.findIndex((k) => k.t === "persons" && k.kuat === 3 && k.lewat === fn);
+    if (pu < 0) continue;
+    pengambil++;
+    for (const h of l.slice(0, pu)) {
+      if (h.t === "persons") continue;
+      const lawan = new Set<string>();
+      for (const [pf, pl] of pertama) for (const k of pl) if (k.t === h.t && KONFLIK(h.kuat, k.kuat)) lawan.add(`${pf} (${k.t} at ${k.kuat}, via ${k.lewat})`);
+      if (lawan.size) salah.push(`${fn} holds ${h.t} at strength ${h.kuat} before its persons FOR UPDATE, and a person-first function requests it: ${[...lawan].slice(0, 3).join("; ")}${lawan.size > 3 ? ` (+${lawan.size - 3})` : ""}`);
+    }
+  }
+  return { pengambil, salah: [...new Set(salah)] };
+}
+const TANAM_P2 = `create function public._a3_p2_tanam(p uuid) returns void language plpgsql as $t$
+begin perform 1 from public.assessment_sessions s where s.id = p for update;
+      perform 1 from public.persons pr where pr.id = p for update; end $t$;`;
+
 export const a3DbTests: SelfTest[] = [
   {
     id: "A3-L1P",
@@ -318,6 +345,22 @@ end $r$; select current_setting('a3.r2i');`);
       } finally {
         bersihkan();
       }
+    },
+  },
+  {
+    // Sharon's pin 2, restated (561bcf9d; my finding that the first form did not hold, at 561bcf9d's request): read by
+    // A2A-L01's own reader. A plant (a sitting FOR UPDATE, then its person FOR UPDATE: every start requests a sitting
+    // after the person) must be reported.
+    id: "A3-P2",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      const nyata = pin2(db());
+      c.expect(nyata.pengambil >= 15, `only ${nyata.pengambil} function(s) take persons FOR UPDATE in their own body (the reader found too little to check)`);
+      c.expect(nyata.salah.length === 0, `functions that hold, before their persons FOR UPDATE, a lock a person-first function requests:\n  ${nyata.salah.join("\n  ")}`);
+      const t = pin2(db(), TANAM_P2);
+      c.expect(t.salah.some((x) => x.startsWith("_a3_p2_tanam holds assessment_sessions")), "the plant (a sitting, then its person FOR UPDATE) was not reported");
+      return c.verdict(`A2A-L01's reader: each of the ${nyata.pengambil} functions that take persons FOR UPDATE in their own body takes the person first, or holds before it only locks no person-first function requests at a conflicting strength, foreign keys included; a plant is reported`);
     },
   },
   {
