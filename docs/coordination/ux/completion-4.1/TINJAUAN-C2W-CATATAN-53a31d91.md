@@ -1,4 +1,4 @@
-# C2w · «Catatan peninjau» screens (B4, B5, B7): review (Daisy, 18 Nov 2026)
+# C2w · «Catatan peninjau» screens (B4, B5, B7): review (Daisy, 17 Nov 2026, 23:17 UTC)
 
 > **What holds now:**
 > - **No blocker.**

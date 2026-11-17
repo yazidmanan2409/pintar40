@@ -41,4 +41,4 @@
 | 17 Nov, 08:20 | Second Eye | C2w reviewer notes: design review and four word gaps | `C2W-COMPLETION.md` at `be01b4f2` | `C2W-CATATAN-KATA.md`: **NO BLOCKER TO BUILD** |
 | 17 Nov, 13:10 | Bob | Judges' guide, Indonesian | `PANDUAN-JURI.md` at `9e3589ed` | `TINJAUAN-PANDUAN-JURI-9e3589ed.md`: **PASS with edits**; Q-1 «pemeriksa kunci», Q-2 Indonesian Excel CSV |
 | 17 Nov, 13:35 | Second Eye | C2w notes built; NOTE_EXISTS words; D4 learner-name line; notes on several versions | `claude/c2w` at `5b34fa5f` | `C2W-CATATAN-KATA.md` §8: **done** (C2W-D1 and D2, mine) |
-| 18 Nov, 23:20 | Second Eye | C2w notes captures B4/B5/B7 | `claude/c2w` at `53a31d91` | `TINJAUAN-C2W-CATATAN-53a31d91.md`: **no blocker**; C-7 required (place of «Ganti catatan»), C-8 spacing, N-8 |
+| 17 Nov, 23:17 | Second Eye | C2w notes captures B4/B5/B7 | `claude/c2w` at `53a31d91` | `TINJAUAN-C2W-CATATAN-53a31d91.md`: **no blocker**; C-7 required (place of «Ganti catatan»), C-8 spacing, N-8 |
