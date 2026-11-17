@@ -52,8 +52,13 @@ function parseCsv(text) {
 const cell = (s) => /[",;\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 const toCsv = (cols, rows) => [cols.join(','), ...rows.map((r) => cols.map((c) => cell(String(r[c] ?? ''))).join(','))].join('\n') + '\n';
 
+// Daisy Q-2: Excel in an Indonesian locale may save CSV as Windows-1252, not UTF-8. Decode strictly as UTF-8 first;
+// fall back to Windows-1252 only if the bytes are not valid UTF-8.
+function decode(buf) {
+  try { return new TextDecoder('utf-8', { fatal: true }).decode(buf); } catch { return new TextDecoder('windows-1252').decode(buf); }
+}
 function readSheet(path, judge) {
-  const rows = parseCsv(readFileSync(path, 'utf8')); const by = new Map();
+  const rows = parseCsv(decode(readFileSync(path))); const by = new Map();
   for (const r of rows) {
     if (r.juri && r.juri.toUpperCase() !== judge) throw new Fatal(`${path}: row ${r.item_id} is for ${r.juri}, not ${judge}`);
     if (by.has(r.item_id)) throw new Fatal(`${path}: ${r.item_id} appears twice`);
@@ -194,6 +199,9 @@ function selfTest() {
     check(sh.scores.every((x) => x.judge !== 'J1' || ['correctness', 'alignment', 'distractors', 'language', 'review_burden'].every((k) => k in x)), 'json: every J1 row carries all five criteria, review_burden included');
     let refused = false; try { writeFileSync(join(d, 'bad.csv'), toCsv(COLS, [{ item_id: 'B1-001', juri: 'J1', benar: '3' }])); readSheet(join(d, 'bad.csv'), 'J1'); j3Needs(readSheet(join(d, 'bad.csv'), 'J1').get('B1-001'), { item_id: 'B1-001', benar: '1' }, false); } catch (e) { refused = e instanceof Fatal; }
     check(refused, 'a value outside 0/1 is refused');
+    writeFileSync(join(d, 'w1252.csv'), Buffer.concat([Buffer.from('item_id;juri;benar;keselarasan;pengecoh;bahasa;beban_tinjau;alasan\r\nB1-001;J1;1;2;2;2;2;baik caf', 'latin1'), Buffer.from([0xe9, 0x0d, 0x0a])]));
+    const enc = readSheet(join(d, 'w1252.csv'), 'J1').get('B1-001').alasan;
+    check(enc.endsWith('caf\u00e9'), 'Windows-1252: an accented letter survives (café)');
     return { pass, fail, sheet: w[0], dir: d };
   } finally { if (!process.env.KEEP) rmSync(d, { recursive: true, force: true }); }
 }
