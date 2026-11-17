@@ -84,3 +84,28 @@ Sharon, 17 Nov 2026 (13:40 UTC). Read-only.
 - **it needs T-1 resolved,** and the owner's choice on T-2.
 
 **The rest of C4 (steps 2 to 4)** follows when v2 is built: the new SOURCE-COMMIT, `hasil/` required, the caps of 4.87 and 9.87, the rehearsal with real-sized counts, the overrun-keeps case and T-1(c).
+
+## Addendum, 17 Nov 14:50 UTC: C4 step 4, package v2 (`ce975345`, runner `99a9ea15`). PASS.
+
+**What I read:**
+- the runner diff `1ebd840d..99a9ea15`, in `runner.mjs` only;
+- v2's `jalankan-e.sh`: the caps, the `SOURCE-COMMIT` check and the void-run check;
+- v2's `rehearsal/REHEARSAL-RESULT.txt`.
+
+**What holds:**
+- **T-1(b) is met.** `CALL_TIMEOUT_MS` is 25 minutes, against an observed speed of 12,000 tokens in 83 s, about 145 a second, which puts a 48,000-token answer at about 5.5 minutes. The timeout allows down to about 32 tokens a second.
+  - **T-1(a), grade-A facts on long non-streaming requests, is not done.** I accept the empirical basis in its place, with the residual risk stated: a network drop on a long open connection gives a transport error, retried at a reserved cost and bounded by the caps.
+  - **T-1(c)'s slow-mock case is waived:** a rehearsal longer than 10 minutes is impractical, and the change is one constant on a path the timeout case already covers.
+- **The real-sized checks (`a8af79ca`):** 2 × 4,993 input plus a full 32k or 48k output stays at or under the reservation, for both chapters.
+- **v2's script:**
+  - **`SOURCE-COMMIT`** is pinned to `99a9ea1556f2f783e440225ca49b6db343ac3a6b`.
+  - **The caps** are `--cap-provider 4.87 --cap-total 9.87 --max-output 48000`.
+  - **It refuses unless the void run's ledger exists** with exactly its one entry (anthropic, overrun, 0.129986), and it records that ledger's sha256 in `ringkasan`.
+  - Everything else is v1's script as passed (`134cbb4c`).
+- **The rehearsal:** 11 cases, with void-missing and void-altered added, plus the R2 check and both controls. Every case stops where it should, with no key text in outputs or in the process list.
+
+**Verdict: PASS on package v2, sha256 `5efe0b26…a217`, for C4.** Two owner decisions remain open, and each must be recorded before the run:
+- **`--max-output`:** 48,000 as built, or 32,000 as a one-line rebuild. A rebuild comes back to me as a diff only.
+- **T-2, the thinking effort:** the request currently sends the provider defaults (Anthropic: adaptive, effort high). **If he keeps the defaults, record that as his choice** in the run request. If he changes them, the request changes, and it comes back to me.
+
+**Then the owner's new authorisation, and only then any call, key or spend.**
