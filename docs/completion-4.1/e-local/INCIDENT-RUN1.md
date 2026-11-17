@@ -54,7 +54,7 @@ From `runs/ledger.json`: `actual_input_tokens`, `actual_output_tokens`, `finish`
    - **The pack:** §3 (the cost section, outside the frozen §4) records the new bound. §4 is untouched, so the
      frozen SHA `ecb0d3c4` stands.
 3. **The rule for the lost attempt** (Sharon to confirm; the owner to approve):
-   - The first run is recorded as **void, an operator fault**. Its one response was never seen, so no response was
+   - The first run is recorded as **void: tooling defect** (Sharon C1; the owner ran it exactly as written). Its one response was never seen, so no response was
      selected or rejected on quality, and §4.1's "no retry for quality" is not engaged.
    - The rerun is a **fresh run of both providers**, with new run IDs. The void run's cost is reported alongside, as
      cost of the evaluation, not of either provider's drafts.
@@ -81,3 +81,22 @@ It contains no key text (checked). It confirms:
 - no reservation is left open.
 
 It does **not** give the token counts or `finish`. Those are in `runs/ledger.json`, which is still needed.
+
+## Sharon's review (`3aefd3d5`): analysis confirmed; the void rule accepted with C1–C4
+
+- **The bound.** Bytes × 1.2 is a true bound on the text, because both tokenisers are byte-level (tokens ≤ bytes).
+  - The allowance for what the provider adds is sized **from the ledger**: at least twice the observed overhead, with
+    a floor of 1,000 tokens. Its derivation goes into pack §3.
+  - Nothing is sized before the ledger arrives.
+  - If `finish` shows the 12,000 limit was reached, `max_output` rises and the worst case is re-proved.
+- **C1:** the label is "void: tooling defect".
+- **C2:** the fact is stated plainly. The response was never persisted or seen, so §4.1 is not engaged.
+- **C3:** both providers rerun fresh, under the same process. The void US$0.13 is reported as evaluation cost and
+  deducted from the caps: Anthropic US$4.87, total US$9.87.
+- **C4, the v2 gate, in this order:**
+  1. the runner diff, with red-first tests;
+  2. a new SOURCE-COMMIT, with `hasil/` required;
+  3. a rehearsal with real-sized token counts, and an overrun case that keeps the response;
+  4. Sharon's PASS;
+  5. the owner's new authorisation.
+- **A future overrun** keeps the response as evidence, but still aborts. Going on after one is the owner's call.
