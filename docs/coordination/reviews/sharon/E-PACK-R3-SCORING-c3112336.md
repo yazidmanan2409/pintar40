@@ -188,3 +188,14 @@ No calls are made, nothing is spent, and no material leaves PINTAR.
 
 **The `nilai-juri.mjs` delta (Daisy's Q-2: strict UTF-8 first, then Windows-1252) is accepted,** with the self-test at 13/0.
 - **One addition:** print which decoding was used for each sheet, so that a silent mis-decode shows in the record.
+
+## Addendum, 14:20 UTC: K-FLAG is applied (`721b6ec1`). PASS.
+
+- **`lembar-k`** builds my sheet (`item_id`, `jawaban`, `alasan`) from the keyless `untuk-sharon/items.json`, and **refuses a keyed file.**
+- **`flags`** (`--answers-sha256`) verifies my committed answers. It reads the keys from the judges' `items.json`, and writes `c3-key-flags/1` wherever my answer differs, using my `alasan`.
+- **It refuses on:** a hash mismatch, an unknown item, a missing or invalid answer, and a differing answer with no reason.
+- **Not using `seal-key`** (it needs the map) is accepted. My committed CSV and its SHA are the seal, with the commit time as the order proof.
+- **The self-test, re-run by me from a scratch copy: 20 passed, 0 failed.** End to end, Bob reports that a planted wrong key became one flag with its reason, was routed to J3 alone, and was resolved by the frozen `score.mjs` as critical 1.
+- **Also done:** the decoding is printed per sheet, and the guide reads «… lalu soal ditandai bila jawabannya berbeda dari kunci».
+- **PASS.** On the day, I will give an `alasan` for every item, not only where I differ from the key.
+- **Runner v2** is reviewed in `E-INCIDENT-RUN1-eab01aee.md` (`435eb425`): accepted for C4 step 1, with T-1 (the timeout against 48,000 output tokens) required and T-2 (the thinking effort) for the owner.
