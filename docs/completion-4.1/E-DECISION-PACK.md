@@ -121,6 +121,26 @@ uses the 12,000 cap. The plan's "under about US$10" for three providers still ho
 costs its reported usage, or its whole reservation if none is reported. A 400 is not retried. A crash leaves the
 reservation counted. The ledger carries across runs, so a second run counts the first's spend.
 
+### 3.2a The proposed US$5 per provider, re-proved (17 Nov, at the owner's request)
+
+The runner and plan were re-run offline with the runner's own per-provider cap lowered to US$5 (`--cap-provider 5`), on
+`claude/e-runner-prep` at `68ebe2fd`. Nothing was sent to any network.
+
+| Check | Result |
+|---|---|
+| `--plan --real-prices --cap-provider 5`, at the verified US$2 / US$10 | Worst case with **every retry used** (6 calls of 12,000 output tokens each): **US$0.764 per provider** and US$1.529 for both. That is under US$5 per provider by a factor of about 6.5 |
+| `--dry-run --real-prices --cap-provider 5`, with the frozen pack's SHA, using the planted fault plan | Both providers completed with **30 valid drafts each**, retries included: Anthropic took 4 attempts (one 429, one malformed output), US$0.217; OpenAI took 3 attempts (one transport error), US$0.285. No refusal. No open reservation |
+| The `ceiling` scenario | Refused **before** the first call, as designed |
+| The self-tests: `runner.mjs`, `score.mjs` (44/0) and `report.mjs` (21/0) | All pass |
+
+- **What US$5 would not cover:** prices far above the verified ones. At an assumed flagship price of US$15 / US$75, the
+  worst case is US$5.73 per provider. A US$5 cap would then stop a provider's run before it completed. The cap would hold,
+  and the run would be reported as incomplete. The model IDs and prices are re-verified immediately before the paid run
+  (ruling 43), so this case is a check, not an expectation.
+- **Recommendation for the paid-run request:** set the provider-side cap at US$5, as proposed, and lower the runner to
+  US$5 per provider (`--cap-provider 5`; the runner can only lower its caps) and US$12 in total (`--cap-total 12`).
+  Both providers' worst case then fits with a wide margin, and neither cap can let spend exceed the other.
+
 ### 3.3 The no-cost dry run
 
 `node runner.mjs --self-test`: **all checks passed**. I re-ran it myself. No network: `fetch` is blocked and was
@@ -301,9 +321,18 @@ a number of approved questions for a fixed cost.
   It is a preliminary eligibility assessment, not a legal certification of any production arrangement.
 - **Judges:** the §5 criteria are approved. Reasonable compensation is allowed, agreed in advance and unrelated to scores.
 
+- **Clarification (17 Nov): ruling 48 does not change the critical-key gate.** A provider qualifies only by meeting all three
+  conditions of §4.3:
+  - no more than **1 critical key error in 30**;
+  - Q1 **and** Q2 of §4.3a;
+  - the contract, security and operational checks.
+
+  A provider with 24 accepted drafts but more than one wrong key therefore does **not** qualify. Q1 and the critical-key
+  rule read the same resolved table.
+
 **Still open:**
 - **The three judges' names** (recruitment).
-- **G2:** Anthropic's sub-processor list. It was not read when Anthropic's eligibility was closed, so it is read at step 4 below.
+- **G2:** Anthropic's sub-processor list. It could not be read from this environment: `trust.anthropic.com` is outside the session's network, tried 17 Nov. **Yours to read in your browser,** as for G1: https://trust.anthropic.com/subprocessors
 
 **No-cost preparation that follows from Sharon's review** (offline, on `claude/e-runner-prep`; no call, key or spend):
 - a **self-tested scoring script,** run by the operator: the resolutions, the critical count, Q1 and Q2, with their edge
