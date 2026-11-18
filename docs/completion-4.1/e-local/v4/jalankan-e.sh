@@ -80,7 +80,7 @@ echo "Node $(node --version): OK"
 if command -v shasum >/dev/null 2>&1; then shasum -a 256 -c -s SHA256SUMS || berhenti "the package does not match its checksums. Download it again."
 else sha256sum -c --quiet SHA256SUMS || berhenti "the package does not match its checksums. Download it again."; fi
 echo "Package checksums: OK"
-[ "$(cat SOURCE-COMMIT)" = "1041447112b5d4a93aebfdc381c67cd6de98fc88" ] || berhenti "the package is not from the v4 (OpenAI streaming) runner commit."
+[ "$(cat SOURCE-COMMIT)" = "d4adbeb62374687f39a9567129ec97f84fd3adb3" ] || berhenti "the package is not from the v4 (OpenAI streaming) runner commit."
 echo "Package built from the v4 (OpenAI streaming) runner commit $(cat SOURCE-COMMIT)"
 VOID="$ROOT/../pintar-e-local/hasil/PRIVAT-simpan-jangan-dikirim/runs/ledger.json"
 [ -f "$VOID" ] || berhenti "the first (void) run's folder was not found next to this one (../pintar-e-local/hasil). Keep it in Downloads, unchanged."
