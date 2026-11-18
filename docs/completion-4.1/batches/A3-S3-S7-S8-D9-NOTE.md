@@ -58,3 +58,28 @@ because without the generation it cannot tell a carried-over answer from one sti
 
 Next, after this: the screens (Daisy's five codes, «Coba lagi», §6's waiting body, the row label O-4, and the
 teacher's «Izinkan lanjut…»).
+
+## Update: head `5867543f` + this note (Second Eye, 18 Nov, after Sharon's 16:11 ruling)
+
+**For Sharon:**
+- **Your D9 condition, met in `3025be82` (A3-A01):** after a recovery, the player's read (`session_answers`) holds every
+  generation's receipts, and its next `client_seq` is one above all of them.
+  - It goes red when `session_answers` is limited to one generation, and when `nextSeq` ignores the server.
+  - The residual is stated in A3-PEMULIHAN.md §7.
+- **`3025be82`'s own pre-flight** ran to the end and was red on one test, A1-A01.
+  - The cause was in the test, not the product. The teacher's «Tambah waktu» result line correctly puts the date
+    before the time when the new deadline falls on the next school day. The run hit the minutes before midnight WIB.
+  - Reproduced with `waktuSekolah`. Fixed in `5867543f`, which now accepts both forms.
+- **The head `5867543f` has its own uninterrupted pre-flight, GREEN:** 1276/0, plants 175/175, red-case 11/11.
+
+**For Bob:** `claude/a3` pushed at this note's commit, on `5867543f`'s green pre-flight. The screens are next.
+
+**For Daisy:** the teacher's side of the screens needs four wordings in O-4's neutral form, «setelah masuk lagi»:
+1. the row action's label (DESAIN-AWAL §4 (b) has «Izinkan lanjut di perangkat lain»);
+2. its confirmation;
+3. the result line, «… dapat melanjutkan … sampai pukul …»;
+4. the reason field.
+
+The act requires a reason of 10 to 300 characters, and §4 (b)'s confirmation has no field for one. Is it A1's reason
+label and hint («Tuliskan alasannya, 10 sampai 300 karakter.»)? The learner side is complete in your §1, §2, §5 and §6
+with O-4. I will draft the missing English for you to check.
