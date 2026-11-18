@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| E v4 ruling 52 (the attempt used per chapter) | Met: one rule for both providers, metadata only, inside the outgoing scans; package bae2c4c7 supersedes 3f2ade84 | `86658dcba9e01646693e51acaaeb78ea9d18d113` / `7a83c7ac164c689c863951769c39f863eb0e9269` | `E-V4-d4adbeb6.md` |
 | E v4 R-1, R-2, C-1 | Met; package 3f2ade84 supersedes bc2f3c0c; (a) stays with the owner | `88e33ec663297e2d1436c828d95236494f2f58d4` / `d2a0210bc5f9b7778ee4b20b9ee55f8134120df4` | `E-V4-d4adbeb6.md` |
 | E v4 (OpenAI streaming; both providers blinded together) | PASS (self-test 260/0, 6 probes). (a) keep retry after output, provided the attempt used per chapter is reported for both; the owner decides. (b) fail-closed points right. (c) matches v2, ruling 51 and P-1. C-1 wording (a missing sequence_number is tolerated; "hashed only"). R-1 (reasoning content part) and R-2 (copy only bab1/2 and re-hash) recommended | `d4adbeb62374687f39a9567129ec97f84fd3adb3` / `013903bcb3457b75afe3a96343aaabd8ea44434b` | `E-V4-d4adbeb6.md` |
 | A3 harness suite mismatch, F37 pick, may_start vs material | F37 test fix (may_start + a real start, rolled back) accepted; push gate unchanged. A3-F37-M1 is a real fail-closed defect, predates A3 (20260929), and goes to Z, not A3 | `b5cd166a6fb6199ee9b5891099966f34907240c3` (base) | `A3-DIFFS-671175e4.md` |

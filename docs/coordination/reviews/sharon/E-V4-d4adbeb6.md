@@ -114,6 +114,20 @@ Read: `git diff 239a0211..88e33ec663297e2d1436c828d95236494f2f58d4 -- runner.mjs
 - **(a):** the attempt used per chapter is in `bab<n>.provenance.json`. It must reach the results before judging. **The owner decides (a).**
 - **Not a condition:** OpenAI's folder is still copied whole into PRIVAT/gabungan, `incomplete/` included. That is safe: the kit reads only `bab${b}.json`, and P-1 refuses `incomplete` in every outgoing folder.
 
+## Addendum · ruling 52: the attempt used is reported (18 Nov 2026, 02:20 UTC)
+
+Read: `git diff 3836673c..86658dcba9e01646693e51acaaeb78ea9d18d113 -- runner.mjs` (47 added lines; red first at `3836673c`) and `git diff d2a0210b..7a83c7ac164c689c863951769c39f863eb0e9269 -- v4/jalankan-e.sh`. **My (a) condition is met.**
+- `acceptedAttempts` applies one rule to every provider in the ledgers. For each chapter it reports:
+  - the first `ok` attempt;
+  - the attempts used and their statuses;
+  - the request id and the response sha256.
+
+  It reports metadata only, and a chapter not accepted is stated as such.
+- `asal-jawaban.txt` is written into `untuk-bob` before the outgoing scans, so the key, `incomplete` and map scans cover it. The allowlist names it exactly.
+  - It exposes nothing new: the ledger in `untuk-bob` already carries the same request ids and sha256s, and `untuk-bob` never reaches the judges.
+- **Package `bae2c4c72ccc67761da3b03ed8f27671f5b58e7c38495c60e5ae1aeb51c3949e`** supersedes `3f2ade84`, with `SOURCE-COMMIT` pinned to `86658dcb`.
+- **Not a condition:** for OpenAI, the script does not assert that the printed sha256 equals the judged `bab<n>.json`, as `salin_dua` does for Anthropic. The sealed map records each judged file's sha256 (`kit.mjs:169–173`), so the two can be compared after unsealing.
+
 ## Still open, and not mine
 
 - C-1's wording, which needs no rebuild.
