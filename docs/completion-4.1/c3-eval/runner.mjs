@@ -1399,6 +1399,14 @@ async function openaiStreamChecks(check) {
     'S-1 openai: a refusal gives no text (validate measures it invalid); only that it happened and its length are recorded, not its words');
   const unk = assemble(oaiSeq([...OAI_STREAM.slice(0, 10), oe2('response.output_text.annotation.added', { item_id: 'msg_1', output_index: 1, content_index: 0, annotation: {} }), ...OAI_STREAM.slice(10)]));
   check(unk.raw === OAI_TEXT && unk.evidence.unknown_events === 1, 'S-3 openai: an event type the adapter does not use is ignored and counted');
+  // facts 3e1a09f0 §1 (B): the event: line's name is not documented to equal data.type, so OpenAI's events are read by
+  // data.type alone; a stream with no event: lines at all, or with names that differ, assembles the same
+  const dataOnly = (() => { const p = new SseParser(); const a = A.assembler({ maxOutput: 48000 });
+    for (const e of [...p.push(enc(OAI_STREAM.map(([, d]) => `data: ${JSON.stringify(d)}\n\n`).join(''))), ...p.end()]) a.feed(e); return a.finish(); })();
+  check(dataOnly.raw === OAI_TEXT && eq(dataOnly.usage, ok.usage), 'S-3 openai (facts §1): a stream of data: lines only, with no event: names, assembles the same');
+  const renamed = assemble(OAI_STREAM.map((x, k) => (k === 1 ? ['something.else', x[1]] : x)));
+  check(renamed.raw === OAI_TEXT && renamed.evidence.renamed_events === 1, 'S-3 openai (facts §1): events are read by data.type; an event: name that differs is counted, not trusted');
+  check(A.verified === true && A.unverified_fields.length === 0 && A.fail_closed_fields.length >= 5, 'openai adapter (facts 3e1a09f0): verified, with every grade-B or undocumented point listed as fail-closed');
   const noOut = assemble(swap(last, done({ output: undefined })));
   check(noOut.raw === OAI_TEXT, 'S-1 openai: a response.completed without the output array is accepted on the streamed text (the cross-check runs only when output is present)');
   const REFUSE = [
@@ -1423,7 +1431,6 @@ async function openaiStreamChecks(check) {
     ['a sequence number that goes backwards', OAI_STREAM.map((x, k) => (k === 5 ? [x[0], { ...x[1], sequence_number: 2 }] : x))],
     ['a sequence number that repeats', OAI_STREAM.map((x, k) => (k === 6 ? [x[0], { ...x[1], sequence_number: 5 }] : x))],
     ['data that is not JSON', swap(3, ['response.in_progress', '{nope'])],
-    ['an event name that disagrees with its data type', swap(1, ['response.in_progress', { type: 'response.completed', sequence_number: 1 }])],
     ['an empty stream', []],
   ];
   for (const [label, evs] of REFUSE) check(refused(() => assemble(evs)) !== null, `S-1 openai: refused, not a response: ${label}`);
