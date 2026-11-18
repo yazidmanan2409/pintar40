@@ -49,6 +49,10 @@ offer**, not which existing ones to preserve.
 the learner's result and in staff views? *Bob's view: on the result and in staff views only. It shows that the
 certificate was earned under the conditions, without turning a public document into a record of failures.*
 
+- **Q-5 · Reading before Uji Penguasaan** (from verification 3, `batches/verify-58/V3-READING-GATE.md`): must every
+  lesson be read first, or is reading advised? Today only the chapter screen requires it; the database and a typed
+  address don't.
+
 ## 4 · Verification (before any real certificate)
 
 - **Refusal:** a certifying sitting refuses each refused assistance level, through the normal entry point and by a
