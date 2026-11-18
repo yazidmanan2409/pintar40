@@ -127,3 +127,31 @@ tr { break-inside: avoid; }
 .tahap p { margin: 0; }
 .ringkasan { font-size: 9pt; }
 .ringkasan td { padding-top: 1.6mm; padding-bottom: 1.6mm; }
+
+/* ── revision 2 (18 Nov): two-part status, planning state, overview, journeys ── */
+.ikon-A { border-radius: .3mm; transform: rotate(45deg) scale(.85); }           /* Arah disetujui: diamond */
+.ikon-S { border-radius: .5mm; border-color: #6B7A80; background: linear-gradient(135deg, transparent 44%, #6B7A80 44%, #6B7A80 56%, transparent 56%); } /* not yet in schools: struck square */
+.status-wadah { text-align: right; }
+.fitur .status.sekolah { color: var(--tinta-2); font-weight: 600; margin-top: .6mm; }
+.fitur dl.rencana { grid-template-columns: 30mm 1fr; margin: 2.4mm 0 0; padding: 2.2mm 3mm; background: #F4F6F6; border-radius: 1.5mm; font-size: 9pt; }
+.fitur dl.rencana dt { color: var(--tinta-2); font-size: 8.6pt; }
+.daftar-isi li a { flex: 1; }
+.daftar-isi .jml { color: var(--tinta-2); font-size: 9pt; }
+.daftar-isi .hal { min-width: 8mm; text-align: right; font-weight: 700; color: var(--teal); }
+.tangga li em { margin-left: auto; font-style: normal; color: var(--tinta-2); font-size: 10pt; }
+.ikhtisar { display: grid; gap: 3mm; }
+.rilis { display: block; border: .3mm solid var(--garis); border-left: 1.2mm solid var(--teal); border-radius: 2mm; padding: 3mm 4.4mm 2.4mm; break-inside: avoid; }
+.rilis-kepala { display: flex; align-items: baseline; gap: 3mm; margin-bottom: 1.6mm; }
+.rilis-kepala b { font-size: 16pt; color: var(--teal); }
+.rilis-kepala span { font-size: 11.5pt; font-weight: 800; }
+.rilis-kepala em { margin-left: auto; font-style: normal; font-weight: 700; color: var(--teal); font-size: 9.5pt; }
+.rilis dl { display: grid; grid-template-columns: 30mm 1fr; gap: 1mm 4mm; margin: 0; font-size: 9.3pt; line-height: 1.45; }
+.rilis dt { font-weight: 800; color: var(--teal); font-size: 8.8pt; }
+.rilis dd { margin: 0; }
+.hari { border-top: .25mm solid var(--garis); padding: 3mm 0 2mm; break-inside: avoid; }
+.hari h3 { margin: 0 0 1.2mm; font-size: 11.5pt; font-weight: 800; color: var(--teal); }
+.chips { display: flex; flex-wrap: wrap; gap: 1.6mm; margin: 1.4mm 0 0; }
+.chip { display: inline-flex; align-items: center; border: .25mm solid var(--garis); border-radius: 4mm; padding: .6mm 2.4mm .6mm 1.8mm; font-size: 8.5pt; background: #fff; }
+.chip span { color: var(--tinta-2); margin-left: 1.2mm; font-size: 8pt; }
+.chip .ikon { margin-right: 1.2mm; width: 2.8mm; height: 2.8mm; }
+.fitur, .fitur header { break-inside: avoid; }

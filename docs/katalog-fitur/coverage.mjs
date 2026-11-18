@@ -2,6 +2,7 @@
 // Internal verification only; not part of the reader-facing PDF.
 import { writeFileSync } from "node:fs";
 import { VERSI, KANDIDAT, STATUS } from "./fitur.mjs";
+import { RENCANA } from "./rencana.mjs";
 // Source per entry. HB = Handbook Draft 01a section (verified against code on main); COV = handbook coverage
 // map row; RM = Consolidated Roadmap Rev 3 (doc control 3.3, 4.1 master-plan branch); ST = 4.1 status report
 // 18 Nov 2026; OR = OWNER-RULINGS-4.1; DTT = DECISIONS-TO-TRACK.
@@ -16,16 +17,16 @@ const SRC = {
   "40-peta-bacaan": "HB 11.6 · COV 8", "40-bantuan": "HB 11.6 · COV 8", "40-uji-penguasaan": "HB 11.7 · COV 9 (attempts per Bob's review 17 Nov)", "40-uji-cepat": "HB 9.5 · COV 8",
   "40-baca-lagi": "Tugas 12 sample (hle mengajar.ulang.*) · COV 8", "40-hasil": "HB 11.8 · COV 9", "40-lihat-bukti": "HB 9.6; Tugas 12 sample · COV 15", "40-per-soal": "HB 9.6; Tugas 12 sample · COV 15",
   "40-ringkasan": "HB 8.4 · COV 15", "40-pimpinan": "HB 8.3 · COV 15", "40-integritas": "HB 8.6 · COV 15", "40-sertifikat": "HB 7.15, 13 · COV 14",
-  "40-cetak": "HB 8.4; website Features · COV 15", "40-pengembangan": "HB 12.1–12.5 · COV 16", "40-darurat": "HB 6.7 · COV 11/12", "40-audit": "HB 6.9, 7.17 · COV 15",
+  "40-cetak": "HB 8.4; website Features · COV 15", "40-pengembangan": "HB 12.1–12.5 · COV 16", "40-darurat": "THE PLAN §5.3 C (4.0: maintenance_windows platform or schools, T−15, drain, 60/30/15; stop_pintar_now platform or school) and D6 (4.0 deadlines keep running) · COV 11/12", "40-audit": "HB 6.9, 7.17 · COV 15",
   "40-email": "HB 6.8, 7.17 · COV 1", "40-bahasa": "HB 5.1", "40-tur": "HB 5.11 · COV 39", "40-lapor": "code: «Laporkan masalah» (D-037) · COV 16",
   "41-admin": "HB 6.6 · ST §3 B0", "41-atur-sesi": "HB 9.8 · ST §3 A1", "41-kesempatan": "HB 7.13, 9.8 · ST §3 A1", "41-ditinggalkan": "HB 9.9, 11.10 · ST §3 A1",
-  "41-ditangguhkan": "HB 6.5 · ST §3 A1", "41-meja-kerja": "HB 10.2, 10.7 · ST §3 C1w", "41-kunci": "HB 10.8 · ST §3 C1w", "41-catatan-masuk": "HB 7.16 · ST §3 B1",
-  "41-referensi-cetak": "HB 18.2 · ST §3 B2", "41-darurat": "HB 6.7 · ST §3 A2a", "41-pemeliharaan": "HB 5.8, 7.12 · ST §3 A2b", "41-penolakan-seragam": "HB 5.3 · RM 4.1 corrections (S-1)",
-  "41-catatan-peninjau": "HB 10.9 · ST §3 C2w (finished, awaiting staging approval)", "41-tarik-peredaran": "Bob's review 17 Nov §2.3 · ST §3 C2w", "41-satu-penulis": "HB 9.11 · ST §4 A3", "41-pemulihan-sesi": "HB 9.11, 11.11 · ST §4 A3",
-  "41-kesempatan-versi": "OR ruling 46 · ST §4 A3", "41-ai-sendiri": "OR ruling 41; X1 guide · COV 18b", "41-ai-terpadu": "OR rulings 38–44 · ST §5 C3w (design approved)",
+  "41-ditangguhkan": "HB 6.5 · ST §3 A1", "41-meja-kerja": "HB 10.2, 10.7 · ST §3 C1w", "41-kunci": "HB 10.8 · ST §3 C1w", "41-catatan-masuk": "HB 7.16 · ST §3 B1 · THE PLAN D-4 (print requests; no school export or export event in 4.1)",
+  "41-referensi-cetak": "HB 18.2 · ST §3 B2", "41-darurat": "THE PLAN D6 + owner ruling D-1 (11 Nov): held with exact remaining time · ST §3 A2a", "41-pemeliharaan": "HB 5.8, 7.12 · ST §3 A2b", "41-penolakan-seragam": "HB 5.3 · RM 4.1 corrections (S-1)",
+  "41-catatan-peninjau": "HB 10.9 · ST §3 C2w · OWNER-RETURN-18NOV 07:58 (before-read done; merge refused by a repository rule, not yet on staging)", "41-tarik-peredaran": "Bob's review 17 Nov §2.3 · ST §3 C2w", "41-satu-penulis": "HB 9.11 · ST §4 A3", "41-pemulihan-sesi": "HB 9.11, 11.11 · ST §4 A3",
+  "41-kesempatan-versi": "OR ruling 46 · ST §4 A3", "41-ai-sendiri": "OR ruling 41; X1 guide · COV 18b (standard Studio import)", "41-ai-terpadu": "OR rulings 38–44 (optional paid per-school add-on; PINTAR-qualified options) · ST §5 C3w (design approved)",
   "42-mode-ujian": "RM 4.2 A.1", "42-jabatan": "RM 4.2 B.2 (O41-8)", "42-dua-sekolah": "RM 4.2 B.2 (O41-12, principle approved)", "42-satu-orang": "RM 4.2 B.9 (Rev 3.1)",
   "42-koreksi-struktur": "RM 4.2 B.6", "42-tanpa-guru": "RM 4.2 B.10 (Rev 3.1)", "42-serah-terima": "RM 4.2 B.11 [execution plan]", "42-koreksi-pengembangan": "RM 4.2 B.6",
-  "42-tolak-permintaan": "RM 4.2 C.5", "42-ganti-password": "RM 4.2 C.5", "42-ekspor": "RM 4.2 C.3", "42-periode-lalu": "RM 4.2 C.4", "42-kesehatan-terjadwal": "RM 4.2 item 7 [execution plan]",
+  "42-tolak-permintaan": "RM 4.2 C.5", "42-ganti-password": "RM 4.2 C.5", "42-ekspor": "RM 4.2 C.3 · THE PLAN D-4 (export and its event arrive together)", "42-periode-lalu": "RM 4.2 C.4", "42-kesehatan-terjadwal": "RM 4.2 item 7 [execution plan]",
   "45-kecerdasan-soal": "RM 4.5 item 1", "45-perbaikan-statistik": "RM 4.5 'Early 4.5 verification' (RD-4)", "45-kompetensi": "RM 4.5 item 1", "45-empat-pernyataan": "RM 4.5 item 2",
   "45-sebaran": "RM 4.5 item 3", "45-quiet": "RM 4.5 item 3", "45-sejarah": "RM 4.5 item 6", "45-evaluasi": "RM 4.5 item 4 + lifecycle (R-1 open)", "45-perlindungan": "RM 4.5 item 5",
   "45-whatsapp": "RM 4.5 carried (O41-2)", "45-akses-tidak-biasa": "RM 4.5 carried (D-088)",
@@ -36,13 +37,13 @@ const SRC = {
   "k-share-learn": "RM 4.5 'Items raised for source reconciliation'", "k-portal-ortu": "RM disposition table; COV 38", "k-kegunaan-qi": "RM 4.5 'Items raised for source reconciliation'",
 };
 const rows = [];
-for (const v of VERSI) for (const k of v.kelompok) for (const f of k.fitur) rows.push(`| \`${f.id}\` | ${f.nama} | ${v.v} | ${STATUS[f.status]} | ${SRC[f.id] ?? "**MISSING**"} |`);
+for (const v of VERSI) for (const k of v.kelompok) for (const f of k.fitur) rows.push(`| \`${f.id}\` | ${f.nama} | ${v.v} | ${STATUS[f.status]}${RENCANA[f.id] ? ` · ${RENCANA[f.id].keadaan} (${RENCANA[f.id].kode})` : ""} | ${SRC[f.id] ?? "**MISSING**"} |`);
 const krows = KANDIDAT.map((k) => `| \`${k.id}\` | ${k.nama} | — | ${k.status} | ${SRC[k.id] ?? "**MISSING**"} |`);
 const missing = [...rows, ...krows].filter((r) => r.includes("**MISSING**")).length;
 writeFileSync(new URL("./KATALOG-COVERAGE.md", import.meta.url), `# Katalog Lengkap Fitur PINTAR 4.0–5.0 · coverage checklist
 
 **Internal verification only. Not part of the reader-facing PDF.** Generated by \`coverage.mjs\` from \`fitur.mjs\`.
-Status is as of 18 November 2026.
+Status is as of 18 November 2026. Planning states (4.2, 4.5, 5.0) come from \`rencana.mjs\`, which is taken from Bob's planning audit (\`docs/roadmap/PLANNING-AUDIT-4.2-4.5-5.0.md\`, revision 4).
 
 ## Sources and precedence
 
