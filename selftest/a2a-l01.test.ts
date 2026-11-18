@@ -689,7 +689,7 @@ function sesiL03(db: string): string {
     insert into public.assessment_sessions
     select (jsonb_populate_record(s, jsonb_build_object('pengendali_sesi', null, 'generasi', 1, 'id', '${SESI_L03}', 'status', 'IN_PROGRESS',
       'authoritative_deadline', now() - interval '1 day', 'finalized_at', null, 'submitted_at', null,
-      'closure_kind', null, 'closure_at', null, 'frozen_at', null, 'unfrozen_at', null))).*
+      'closure_kind', null, 'closure_deadline', null, 'closure_by_person_id', null, 'closure_reason', null, 'closure_at', null, 'frozen_at', null, 'unfrozen_at', null))).*
       from public.assessment_sessions s where s.status = 'FINALIZED' order by s.id limit 1;
     commit;
     select person_id from public.assessment_sessions where id = '${SESI_L03}';`).split("\n").pop()!;

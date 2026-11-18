@@ -109,7 +109,7 @@ insert into public.assessment_sessions
 select (jsonb_populate_record(src, jsonb_build_object('id', gen_random_uuid(), 'status', 'IN_PROGRESS',
   'person_id', mu.person_id, 'enrollment_id', mu.enr, 'institution_id', '${inst}', 'class_node_id', '${kelas}', 'cohort_node_id', null,
   'authoritative_deadline', now() + interval '60 minutes', 'created_at', now() - interval '10 minutes', 'started_at', now() - interval '10 minutes',
-  'finalized_at', null, 'submitted_at', null, 'closure_kind', null, 'closure_at', null, 'closure_deadline', null,
+  'finalized_at', null, 'submitted_at', null, 'closure_kind', null, 'closure_deadline', null, 'closure_by_person_id', null, 'closure_reason', null, 'closure_at', null, 'closure_deadline', null,
   'frozen_at', null, 'unfrozen_at', null, 'termination_cause', null, 'darurat_sejak', null, 'darurat_jendela_id', null,
   'darurat_dikredit_sampai', null, 'darurat_keluar', null, 'attempt_request_id', null))).*
   from src, generate_series(0, ${N} - 1) g join murid mu on mu.i = g % (select count(*) from murid);
@@ -119,7 +119,7 @@ select (jsonb_populate_record(src, jsonb_build_object('id', ('a2a1b000-0000-4000
   'person_id', '${luar[0]}', 'enrollment_id', '${luar[1]}', 'cohort_node_id', null,
   'authoritative_deadline', case when g = 0 then now() - interval '10 minutes' else now() + interval '3 hours' end,
   'created_at', case when g = 0 then now() - interval '5 minutes' else now() - interval '20 minutes' end, 'started_at', now() - interval '20 minutes',
-  'finalized_at', null, 'submitted_at', null, 'closure_kind', null, 'closure_at', null, 'closure_deadline', null,
+  'finalized_at', null, 'submitted_at', null, 'closure_kind', null, 'closure_deadline', null, 'closure_by_person_id', null, 'closure_reason', null, 'closure_at', null, 'closure_deadline', null,
   'frozen_at', null, 'unfrozen_at', null, 'termination_cause', null, 'darurat_sejak', null, 'darurat_jendela_id', null,
   'darurat_dikredit_sampai', null, 'darurat_keluar', null, 'attempt_request_id', null))).*
   from src, generate_series(0, ${PENGAMBIL}) g;

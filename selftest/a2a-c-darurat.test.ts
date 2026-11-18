@@ -88,7 +88,7 @@ begin; set local session_replication_role = replica;
 insert into public.assessment_sessions
 select (jsonb_populate_record(s, jsonb_build_object('pengendali_sesi', null, 'generasi', 1, 'id', '${SESI}', 'status', 'IN_PROGRESS', 'person_id', '${orang}',
   'authoritative_deadline', now() + interval '30 minutes', 'created_at', now() - interval '5 minutes', 'finalized_at', null, 'submitted_at', null,
-  'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
+  'closure_kind', null, 'closure_deadline', null, 'closure_by_person_id', null, 'closure_reason', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
   'darurat_sejak', null, 'darurat_jendela_id', null))).*
   from public.assessment_sessions s where s.status = 'FINALIZED' order by s.id limit 1;
 -- 1. the stop takes effect (T_stop)
@@ -144,7 +144,7 @@ async function terputus(db: string): Promise<{ separuh: string; tepat: string; e
   const sesi = (id: string, orang: string) => `insert into public.assessment_sessions
 select (jsonb_populate_record(s, jsonb_build_object('pengendali_sesi', null, 'generasi', 1, 'id', '${id}', 'status', 'IN_PROGRESS', 'person_id', '${orang}',
   'authoritative_deadline', now() + interval '30 minutes', 'created_at', now() - interval '5 minutes', 'finalized_at', null, 'submitted_at', null,
-  'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
+  'closure_kind', null, 'closure_deadline', null, 'closure_by_person_id', null, 'closure_reason', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
   'darurat_sejak', null, 'darurat_jendela_id', null))).*
   from public.assessment_sessions s where s.status = 'FINALIZED' order by s.id limit 1;`;
   try {
@@ -199,7 +199,7 @@ async function antarBatch(db: string): Promise<{ satu: string; dua: string; tepa
   const sesi = (id: string, orang: string) => `insert into public.assessment_sessions
 select (jsonb_populate_record(s, jsonb_build_object('pengendali_sesi', null, 'generasi', 1, 'id', '${id}', 'status', 'IN_PROGRESS', 'person_id', '${orang}',
   'authoritative_deadline', now() + interval '30 minutes', 'created_at', now() - interval '5 minutes', 'finalized_at', null, 'submitted_at', null,
-  'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
+  'closure_kind', null, 'closure_deadline', null, 'closure_by_person_id', null, 'closure_reason', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
   'darurat_sejak', null, 'darurat_jendela_id', null))).*
   from public.assessment_sessions s where s.status = 'FINALIZED' order by s.id limit 1;`;
   try {
@@ -366,7 +366,7 @@ insert into public.assessment_sessions
 select (jsonb_populate_record(s, jsonb_build_object('pengendali_sesi', null, 'generasi', 1, 'id', '${SESI}', 'status', 'IN_PROGRESS', 'person_id', '${person}',
   'enrollment_id', '${enr}', 'institution_id', '${inst}',
   'authoritative_deadline', now() - interval '30 minutes', 'created_at', now() - interval '60 minutes', 'finalized_at', null,
-  'submitted_at', null, 'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
+  'submitted_at', null, 'closure_kind', null, 'closure_deadline', null, 'closure_by_person_id', null, 'closure_reason', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
   'termination_cause', null, 'termination_reason', null, 'terminated_by_person_id', null, 'attempt_request_id', null,
   'darurat_sejak', now() - interval '50 minutes', 'darurat_jendela_id', '${JENDELA}'))).*
   from public.assessment_sessions s where s.status = 'FINALIZED' order by (s.institution_id = '${inst}') desc, s.id limit 1;
@@ -452,7 +452,7 @@ update public.assessment_assignments set closes_at = now() - interval '10 minute
 insert into public.assessment_sessions
 select (jsonb_populate_record(s, jsonb_build_object('pengendali_sesi', null, 'generasi', 1, 'id', '${SESI}', 'status', 'IN_PROGRESS', 'authoritative_deadline', null,
   'created_at', now() - interval '1 minute', 'started_at', now() - interval '1 minute', 'finalized_at', null, 'submitted_at', null,
-  'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
+  'closure_kind', null, 'closure_deadline', null, 'closure_by_person_id', null, 'closure_reason', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
   'termination_cause', null, 'termination_reason', null, 'terminated_by_person_id', null, 'attempt_request_id', null,
   'darurat_sejak', null, 'darurat_jendela_id', null, 'darurat_geser_detik', 2700))).*
   from public.assessment_sessions s where s.id = '${sumber}';
@@ -545,7 +545,7 @@ insert into public.assessment_sessions
 select (jsonb_populate_record(s, jsonb_build_object('pengendali_sesi', null, 'generasi', 1, 'id', '${SESI}', 'status', 'IN_PROGRESS', 'person_id', '${person}',
   'enrollment_id', '${enr}', 'institution_id', '${inst}', 'class_node_id', '${kelas}', 'cohort_node_id', null,
   'authoritative_deadline', now() + interval '30 minutes', 'created_at', now() - interval '10 minutes', 'finalized_at', null,
-  'submitted_at', null, 'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
+  'submitted_at', null, 'closure_kind', null, 'closure_deadline', null, 'closure_by_person_id', null, 'closure_reason', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
   'termination_cause', null, 'termination_reason', null, 'terminated_by_person_id', null, 'attempt_request_id', null,
   'darurat_sejak', null, 'darurat_jendela_id', null))).*
   from public.assessment_sessions s where s.status = 'FINALIZED' order by (s.institution_id = '${inst}') desc, s.id limit 1;
@@ -619,7 +619,7 @@ function calonTanpaLapar(db: string): { ada: boolean; berapa: number; err: strin
   const sesi = (id: string, sumber: string, orang: string, umur: string, ditahan: boolean) => `insert into public.assessment_sessions
 select (jsonb_populate_record(s, jsonb_build_object('pengendali_sesi', null, 'generasi', 1, 'id', '${id}', 'status', 'IN_PROGRESS', 'person_id', ${orang},
   'authoritative_deadline', timestamptz '2001-01-01', 'created_at', timestamptz '${umur}', 'finalized_at', null, 'submitted_at', null,
-  'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
+  'closure_kind', null, 'closure_deadline', null, 'closure_by_person_id', null, 'closure_reason', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
   'darurat_sejak', ${ditahan ? "now()" : "null"}, 'darurat_jendela_id', ${ditahan ? `'${JENDELA}'` : "null"}))).*
   from public.assessment_sessions s where s.id = ${sumber};`;
   const asal = "(select id from a2a_c705_s)";
@@ -714,7 +714,7 @@ select (jsonb_populate_record(s, jsonb_build_object('pengendali_sesi', null, 'ge
                  where m.node_id = '${kelas}' and m.valid_to is null and e.status = 'ACTIVE' order by e.id limit 1),
   'institution_id', '${inst}', 'assessment_assignment_id', '${aa}', 'class_node_id', '${kelas}', 'cohort_node_id', null,
   'authoritative_deadline', null, 'created_at', now() - interval '10 minutes', 'finalized_at', null, 'submitted_at', null,
-  'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
+  'closure_kind', null, 'closure_deadline', null, 'closure_by_person_id', null, 'closure_reason', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
   'termination_cause', null, 'termination_reason', null, 'terminated_by_person_id', null, 'attempt_request_id', null,
   'darurat_sejak', null, 'darurat_jendela_id', null))).*
   from public.assessment_sessions s where s.status = 'FINALIZED' order by s.id limit 1;
@@ -792,7 +792,7 @@ insert into public.assessment_sessions
 select (jsonb_populate_record(s, jsonb_build_object('pengendali_sesi', null, 'generasi', 1, 'id', '${id(i)}', 'status', '${x.status}', 'person_id', '${orang}',
   'enrollment_id', '${enr}', 'institution_id', '${inst}', 'class_node_id', '${kelas}', 'cohort_node_id', null,
   'authoritative_deadline', now() - interval '10 minutes', 'created_at', now() - interval '60 minutes', 'started_at', now() - interval '60 minutes',
-  'finalized_at', null, 'submitted_at', null, 'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null,
+  'finalized_at', null, 'submitted_at', null, 'closure_kind', null, 'closure_deadline', null, 'closure_by_person_id', null, 'closure_reason', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null,
   'unfrozen_at', null, 'termination_cause', null, 'termination_reason', null, 'terminated_by_person_id', null, 'attempt_request_id', null,
   'deadline_extended_count', 0, 'darurat_sejak', now() - interval '50 minutes', 'darurat_jendela_id', '${JENDELA}'))).*
   from public.assessment_sessions s where s.status = 'FINALIZED' order by (s.institution_id = '${inst}') desc, s.id limit 1;`).join("\n");
@@ -922,7 +922,7 @@ function probeGeser(db: string): { hasil: Record<string, string>; err: string } 
   const salin = (id: string, tenggat: string, geser: number, dibuat: string) => `insert into public.assessment_sessions
 select (jsonb_populate_record(s, jsonb_build_object('pengendali_sesi', null, 'generasi', 1, 'id', '${id}', 'status', 'IN_PROGRESS', 'authoritative_deadline', ${tenggat},
   'created_at', ${dibuat}, 'started_at', ${dibuat}, 'finalized_at', null, 'submitted_at', null,
-  'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
+  'closure_kind', null, 'closure_deadline', null, 'closure_by_person_id', null, 'closure_reason', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
   'termination_cause', null, 'termination_reason', null, 'terminated_by_person_id', null, 'attempt_request_id', null,
   'deadline_extended_count', 0, 'cohort_node_id', null, 'darurat_sejak', null, 'darurat_jendela_id', null, 'darurat_geser_detik', ${geser}))).*
   from public.assessment_sessions s where s.id = '${sumber}';`;
@@ -1162,7 +1162,7 @@ update public.enrollments set valid_from = valid_from - interval '1 day' where i
 insert into public.assessment_sessions
 select (jsonb_populate_record(s, jsonb_build_object('pengendali_sesi', null, 'generasi', 1, 'id', '${S}', 'status', 'IN_PROGRESS', 'person_id', '${f.person}',
   'authoritative_deadline', now() + interval '30 minutes', 'created_at', now() - interval '60 minutes', 'finalized_at', null, 'submitted_at', null,
-  'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
+  'closure_kind', null, 'closure_deadline', null, 'closure_by_person_id', null, 'closure_reason', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
   'darurat_sejak', null, 'darurat_jendela_id', null, 'darurat_dikredit_sampai', null))).*
   from public.assessment_sessions s where s.status = 'FINALIZED' order by s.id limit 1;
 ${kasus === "TANDAI" ? jendela(W1, 50, 40) : jendela(W1, 50, 5)}
@@ -1300,7 +1300,7 @@ insert into public.assessment_sessions
 select (jsonb_populate_record(s, jsonb_build_object('pengendali_sesi', null, 'generasi', 1, 'id', '${S}', 'status', 'IN_PROGRESS', 'person_id', '${f.person}',
   'enrollment_id', '${f.enr}', 'class_node_id', '${f.node}', 'cohort_node_id', null,
   'authoritative_deadline', ${tenggat}, 'created_at', now() - interval '60 minutes', 'finalized_at', null, 'submitted_at', null,
-  'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
+  'closure_kind', null, 'closure_deadline', null, 'closure_by_person_id', null, 'closure_reason', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
   'darurat_sejak', null, 'darurat_jendela_id', null, 'darurat_dikredit_sampai', null))).*
   from public.assessment_sessions s where s.id = '${f.sumber}';`;
 }
@@ -1520,7 +1520,7 @@ function keluarSesudahHenti(db: string) {
 select (jsonb_populate_record(s, jsonb_build_object('pengendali_sesi', null, 'generasi', 1, 'id', '${id}', 'status', 'IN_PROGRESS', 'person_id', '${person}',
   'enrollment_id', '${enr}', 'institution_id', '${inst}', 'class_node_id', '${node}', 'cohort_node_id', null,
   'authoritative_deadline', ${tenggat}, 'created_at', ${dibuat}, 'started_at', ${dibuat}, 'finalized_at', null, 'submitted_at', null,
-  'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
+  'closure_kind', null, 'closure_deadline', null, 'closure_by_person_id', null, 'closure_reason', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
   'termination_cause', null, 'termination_reason', null, 'terminated_by_person_id', null, 'attempt_request_id', null,
   'darurat_sejak', null, 'darurat_jendela_id', null, 'darurat_dikredit_sampai', null, 'darurat_keluar', null))).*
   from public.assessment_sessions s where s.status = 'FINALIZED' order by (s.institution_id = '${inst}') desc, s.id limit 1;`;
@@ -1616,7 +1616,7 @@ function hitungHenti(db: string) {
 select (jsonb_populate_record(s, jsonb_build_object('pengendali_sesi', null, 'generasi', 1, 'id', '${id}', 'status', 'IN_PROGRESS', 'person_id', '${f.person}',
   'enrollment_id', '${f.enr}', 'institution_id', '${f.inst}', 'class_node_id', '${f.node}', 'cohort_node_id', null,
   'authoritative_deadline', now() + interval '30 minutes', 'created_at', now() - interval '60 minutes', 'finalized_at', null, 'submitted_at', null,
-  'closure_kind', null, 'closure_at', null, 'closure_deadline', null,
+  'closure_kind', null, 'closure_deadline', null, 'closure_by_person_id', null, 'closure_reason', null, 'closure_at', null, 'closure_deadline', null,
   'frozen_at', ${beku ? "now() - interval '45 minutes'" : "null"}, 'frozen_cause', ${beku ? "'ACCOUNT_SUSPENDED'" : "null"},
   'frozen_suspension_id', null, 'frozen_remaining_seconds', ${beku ? "1800" : "null"}, 'unfrozen_at', null, 'unfrozen_by_person_id', null,
   'darurat_sejak', null, 'darurat_jendela_id', null, 'darurat_dikredit_sampai', null, 'darurat_keluar', null))).*
@@ -1914,8 +1914,8 @@ alter table public.assessment_sessions disable trigger _l1f4_assessment_sessions
   disable trigger assessment_sessions_the_pass_mark_is_sealed, disable trigger assessment_sessions_zz_exposed_is_not_assessed;
 create function pg_temp.a2a_mulai(p_sql text) returns text language plpgsql as $m$
 begin execute p_sql; return 'OK'; exception when others then return sqlstate || ':' || sqlerrm; end $m$;
-select 'mulai_kelas|' || pg_temp.a2a_mulai($q$insert into public.assessment_sessions select (jsonb_populate_record(s, jsonb_build_object('pengendali_sesi', null, 'generasi', 1, 'id', gen_random_uuid(), 'status', 'CREATED', 'person_id', '${f.person}', 'enrollment_id', '${f.enr}', 'class_node_id', '${f.node}', 'cohort_node_id', null, 'created_at', now(), 'started_at', null, 'finalized_at', null, 'submitted_at', null, 'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null, 'termination_cause', null, 'darurat_sejak', null, 'darurat_jendela_id', null, 'darurat_dikredit_sampai', null, 'darurat_keluar', null))).* from public.assessment_sessions s where s.id = '${f.sumber}'$q$);
-select 'mulai_lain|' || pg_temp.a2a_mulai($q$insert into public.assessment_sessions select (jsonb_populate_record(s, jsonb_build_object('pengendali_sesi', null, 'generasi', 1, 'id', gen_random_uuid(), 'status', 'CREATED', 'person_id', '${lainOrang}', 'enrollment_id', '${lainEnr}', 'class_node_id', '${lainKelas}', 'cohort_node_id', null, 'created_at', now(), 'started_at', null, 'finalized_at', null, 'submitted_at', null, 'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null, 'termination_cause', null, 'darurat_sejak', null, 'darurat_jendela_id', null, 'darurat_dikredit_sampai', null, 'darurat_keluar', null))).* from public.assessment_sessions s where s.id = '${f.sumber}'$q$);
+select 'mulai_kelas|' || pg_temp.a2a_mulai($q$insert into public.assessment_sessions select (jsonb_populate_record(s, jsonb_build_object('pengendali_sesi', null, 'generasi', 1, 'id', gen_random_uuid(), 'status', 'CREATED', 'person_id', '${f.person}', 'enrollment_id', '${f.enr}', 'class_node_id', '${f.node}', 'cohort_node_id', null, 'created_at', now(), 'started_at', null, 'finalized_at', null, 'submitted_at', null, 'closure_kind', null, 'closure_deadline', null, 'closure_by_person_id', null, 'closure_reason', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null, 'termination_cause', null, 'darurat_sejak', null, 'darurat_jendela_id', null, 'darurat_dikredit_sampai', null, 'darurat_keluar', null))).* from public.assessment_sessions s where s.id = '${f.sumber}'$q$);
+select 'mulai_lain|' || pg_temp.a2a_mulai($q$insert into public.assessment_sessions select (jsonb_populate_record(s, jsonb_build_object('pengendali_sesi', null, 'generasi', 1, 'id', gen_random_uuid(), 'status', 'CREATED', 'person_id', '${lainOrang}', 'enrollment_id', '${lainEnr}', 'class_node_id', '${lainKelas}', 'cohort_node_id', null, 'created_at', now(), 'started_at', null, 'finalized_at', null, 'submitted_at', null, 'closure_kind', null, 'closure_deadline', null, 'closure_by_person_id', null, 'closure_reason', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null, 'termination_cause', null, 'darurat_sejak', null, 'darurat_jendela_id', null, 'darurat_dikredit_sampai', null, 'darurat_keluar', null))).* from public.assessment_sessions s where s.id = '${f.sumber}'$q$);
 ${sebagaiOrang(admin)}
 select 'kendali_admin|' || public.maintenance_controls(w)::text from public.maintenance_windows w where w.id = '${W}';
 ${sebagaiOrang(sys)}
