@@ -57,6 +57,7 @@ This is the running record. Bob updates it as work moves; the newest entries are
 
 | When (UTC) | What |
 |---|---|
+| 07:58 | **C2w promotion, STOPPED at the merge (no change made).** The owner authorised the before-read and the merge. Done: the before-read, read only on pintar-staging, which read 282 / `20270120240000` with lines 11–62 identical to A2b's after-read; recorded at `d688c7c7`. PR #25 was marked ready for review. **The merge was refused by the repository rules:** the required check «verdict · green only when every job ran and succeeded» is expected from the PR's own `pull_request` CI run. CI did run green on `aa5f5741` (run 44216101395), but by manual dispatch, because the frozen head's commits carry `[skip ci]`, so no `pull_request` run exists for that head. Nothing was bypassed. Staging is untouched at 282. Options are with the owner |
 | 02:30 | **C2w FROZEN at `aa5f5741`.** The journeys passed (run 44216105919, jobs A and B). **Both owner requests are READY** (decision 2): the before-read first, then the merge, separately. Nothing past the boundary without the owner |
 | 02:05 | **Sharon's layout delta check had already passed** at 01:18 (`210cc98e`: render order only, nothing under supabase/), together with the dry-run proofs. Bob had missed it. **Only the journeys remain before the freeze** |
 | 02:03 | **CI green on `aa5f5741`** (run 44216101395). Journeys run 44216105919 in progress. Sharon asked again for her layout delta check. Both owner requests drafted |
