@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| A3 S3, S7, S8, D9 (381aa196..c0cce607) | PASS. R-1 and R-2 met; P14–P17 as asked. c0cce607 needs its own full pre-flight. D9: (a), with an app test that the next seq after a recovery is above all held; the residual is stated as self-limited | `c0cce607` | `A3-DIFFS-671175e4.md` |
 | A3 recovery acts built (20270121240000) | PASS on the mechanism; orders match §2, §3 and §3a; the permission is consumed last. R-1: minta's valid-permission leg must be RECOVERY_NOT_NEEDED. R-2: P08's description over-claims (the refusal rolls the deadline ending back; the sweep ends it) | `381aa196e1e34629f32dee70b56cddd81ed04164` | `A3-DIFFS-671175e4.md` |
 | Readiness register draft 1 | PR-4–6 gates confirmed; but "off" covers only the schedule (workflow_dispatch runs against production), and the switch-on must test missing secrets. PR-11 confirmed: 7 unbounded concurrent RPCs per class (~210 for 30 classes); limit concurrency | `899d3aef` | `READINESS-REGISTER-899d3aef.md` |
 | D-2 certificate spec §1, P-1 to P-3 | §1: STANDALONE also certifies with assistance (P-1 must cover it; derive the set from mode_policy). P-1: capture the policy at the sitting start (P-6). P-2: no accommodation on the certificate or verification. P-3: fix the ordinal at the start, under ruling 46's lock, with the same count as may_start | `ed8ad32b` | `D2-CERT-SPEC-ed8ad32b.md` |
