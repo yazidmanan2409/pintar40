@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| Readiness register draft 1 | PR-4–6 gates confirmed; but "off" covers only the schedule (workflow_dispatch runs against production), and the switch-on must test missing secrets. PR-11 confirmed: 7 unbounded concurrent RPCs per class (~210 for 30 classes); limit concurrency | `899d3aef` | `READINESS-REGISTER-899d3aef.md` |
 | D-2 certificate spec §1, P-1 to P-3 | §1: STANDALONE also certifies with assistance (P-1 must cover it; derive the set from mode_policy). P-1: capture the policy at the sitting start (P-6). P-2: no accommodation on the certificate or verification. P-3: fix the ordinal at the start, under ruling 46's lock, with the same count as may_start | `ed8ad32b` | `D2-CERT-SPEC-ed8ad32b.md` |
 | Ruling 55: D-1, D-8, D-6 | D-1: 13 live readers, 7 affected (3 learner, 1 teacher, 3 statistical). D-8: query drafted and proved locally, NOT run (staging action outside my standing rule). D-6: educator-related feedback, reachable in code; containment = revoke 5 write RPCs from authenticated, no deletion | `7ba18b03b47ec78f61b0e66cf1f11f1a4044534a` | `RULING55-D1-D8-D6-7ba18b03.md` |
 | R-15 Sharon items on main | Open: the run-guard order (mitigated); the A1 approval re-check (mitigated) and the result-report rule; C1w one-question stats (to 4.5) and the confirmer preference; B0 closure (mitigated). The rest closed, with citations | `7ba18b03b47ec78f61b0e66cf1f11f1a4044534a` | `R15-SHARON-ITEMS-7ba18b03.md` |
