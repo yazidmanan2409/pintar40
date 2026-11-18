@@ -1873,4 +1873,108 @@ rollback;`;
       return c.verdict("executes lanjutkan_di_sini against the migrations, rolled back: with a work-scoped planned window active over the learner's class the recovery is allowed; with an emergency stop over the learner it is refused PR170 SITTING_CLASS_STOPPED (pengerjaan_pagar, under the shared fence); a platform-wide window is refused at the request (D10)");
     },
   },
+  {
+    // A3-P16 (S7, A3-2; Sharon 11:03): recoveries on real connections, each committing by design and leaving no open
+    // sitting and no live permission behind (P3). (1) Two recoveries of one low-stakes sitting from two sessions: the
+    // second waits on the sitting row, then sees the first's generation and moves it on (generation 3, two audit rows);
+    // the plant (the act's FOR UPDATE removed) loses the first. (2) A recovery against a superseding permission: the
+    // learner waits on the teacher's new permission and consumes the newest; the older stays unused. (3) A recovery
+    // against the teacher's ending: it waits, then has nothing to recover.
+    id: "A3-P16",
+    requires: ["db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const gagal = siapkan(ctx.repoRoot);
+      if (!c.expect(gagal === null, gagal ?? "")) return c.verdict("");
+      const { psqlLain, tidur, gantiFungsi } = await import("./balapan");
+      const sql1 = (q: string) => spawnSync("psql", ["-X", "-qAt", "-v", "ON_ERROR_STOP=1", "-c", q, db()], { encoding: "utf8" });
+      const tag = `${Date.now()}`;
+      const guru = sql1("select id from auth.users where email = 'siklus-guru@synthetic.pintar.test'").stdout.trim();
+      // the fixture, committed: two learners of the cycle's Kelas; L1's Pemetaan Awal open on session A; L2's Pemetaan
+      // Awal finished and its Uji Penguasaan open on session A
+      const buat = (nama: string, post: boolean) => sql1(`do $f$ declare f record; v_k uuid; v_u uuid; v_p uuid; v_e uuid; v_pre uuid;
+        begin
+          perform selftest.as_owner();
+          select * into f from selftest.cycle_fixture();
+          select la.node_id into v_k from public.learning_assignments la where la.id = f.la;
+          v_u := selftest.f06p10_person('${nama}-${tag}');
+          select a.person_id into v_p from public.accounts a where a.auth_user_id = v_u;
+          insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status)
+          select v_p, e.institution_id, e.academic_period_id, e.programme_id, 'ACTIVE' from public.memberships mm
+            join public.enrollments e on e.id = mm.enrollment_id where mm.node_id = v_k and mm.valid_to is null limit 1
+          returning id into v_e;
+          insert into public.memberships (enrollment_id, node_id, academic_period_id)
+          select v_e, v_k, e.academic_period_id from public.enrollments e where e.id = v_e;
+          perform set_config('request.jwt.claims', json_build_object('sub', v_u, 'role', 'authenticated', 'session_id', md5('a3r-A:' || v_u)::uuid)::text, true);
+          perform set_config('request.jwt.claim.sub', v_u::text, true);
+          set local role authenticated;
+          v_pre := public.start_learning_session(f.aa_pre);
+          if ${post} then
+            perform public.record_answer(x.id, 1, selftest.f09_answer(x.id, true)) from (select p.id from public.presented_items p where p.session_id = v_pre order by p.position limit 1) x;
+            perform public.finish_my_session(v_pre, null); v_pre := public.start_learning_session(f.aa_post); end if;
+          perform selftest.as_owner();
+          perform set_config('r.out', v_u || '|' || v_pre, true);
+        end $f$;
+        select current_setting('r.out');`);
+      const s1 = buat("a3r-satu", false), s2 = buat("a3r-dua", true);
+      const [u1, sesi1] = s1.stdout.trim().split("\n").pop()!.split("|");
+      const [u2, sesi2] = s2.stdout.trim().split("\n").pop()!.split("|");
+      // P3: every sitting of this run's two learners is ended and their permissions removed, on every path
+      const tutup = () => sql1(`begin; set local session_replication_role = replica;
+          delete from public.pengerjaan_izin_lanjut where person_id in (select a.person_id from public.accounts a where a.auth_user_id::text in ('${u1}', '${u2}'));
+          update public.assessment_sessions set status = 'TERMINATED', termination_cause = 'ADMINISTRATIVE_TERMINATION',
+                 termination_reason = 'A3-P16 race fixture'
+           where person_id in (select a.person_id from public.accounts a where a.auth_user_id::text in ('${u1}', '${u2}')) and status in ('CREATED', 'IN_PROGRESS', 'PAUSED');
+          commit;`);
+      if (!c.expect(!!sesi1 && !!sesi2 && !!guru, `the race fixture could not be made: ${s1.stderr.trim().slice(0, 200)} ${s2.stderr.trim().slice(0, 200)}`)) { tutup(); return c.verdict(""); }
+      const sebagai = (uid: string, sesi: string, q: string, tahan = 0) => `begin;
+        select set_config('request.jwt.claims', json_build_object('sub', '${uid}', 'role', 'authenticated', 'session_id', '${sesi}')::text, true);
+        select set_config('request.jwt.claim.sub', '${uid}', true);
+        set local role authenticated;
+        ${q};
+        ${tahan ? `select pg_sleep(${tahan});` : ""}
+        commit;`;
+      const keadaan = (s: string) => sql1(`select generasi || '|' || coalesce(pengendali_sesi::text, 'null') || '|' || status from public.assessment_sessions where id = '${s}'`).stdout.trim();
+      const sesiB = "00000000-0000-4000-8000-00000000000b", sesiC = "00000000-0000-4000-8000-00000000000c", sesiT = "00000000-0000-4000-8000-0000000000aa";
+      const pulih = (uid: string, sesi: string, s: string, tahan = 0) => psqlLain(sebagai(uid, sesi, `select public.lanjutkan_di_sini('${s}')`, tahan));
+      const reset1 = () => sql1(`begin; set local session_replication_role = replica;
+        update public.assessment_sessions set generasi = 1, pengendali_sesi = md5('a3r-A:' || '${u1}')::uuid where id = '${sesi1}'; commit;`);
+      const rekam = (s: string) => sql1(`select count(*) from public.audit_log where action = 'assessment_session.recovered' and target_id = '${s}'`).stdout.trim();
+      try {
+        // (1) two recoveries from two sessions
+        const a1 = rekam(sesi1);
+        const x = pulih(u1, sesiB, sesi1, 1.5); await tidur(500); const y = await pulih(u1, sesiC, sesi1); const xr = await x;
+        c.expect(xr.ok && y.ok, `both recoveries must succeed, one after the other: B ${xr.err} / C ${y.err}`);
+        c.expect(y.ms >= 800, `the second recovery must wait for the first on the sitting row: ${y.ms} ms`);
+        c.expect(keadaan(sesi1).split("|").slice(0, 2).join("|") === `3|${sesiC}`, `after both, the generation is 3 and the controller is the later session: ${keadaan(sesi1)}`);
+        c.expect(Number(rekam(sesi1)) - Number(a1) === 2, `two recoveries, two audit rows: ${Number(rekam(sesi1)) - Number(a1)}`);
+        // the plant: without the row lock the second reads the old generation and the first is lost
+        reset1();
+        // (the deadline rule takes the sitting FOR UPDATE too, so both locks go: either alone serialises the act)
+        const balik = gantiFungsi("public.lanjutkan_di_sini(uuid)", "where id = p_session for update;", "where id = p_session;");
+        try {
+          const balik2 = gantiFungsi("public.pengerjaan_putus_tenggat(uuid,boolean)", "where id = p_session for update;", "where id = p_session;");
+          try {
+            const px = pulih(u1, sesiB, sesi1, 1.5); await tidur(500); await pulih(u1, sesiC, sesi1); await px;
+          } finally { balik2(); }
+        } finally { balik(); }
+        c.expect(keadaan(sesi1).split("|")[0] !== "3", `the plant (neither FOR UPDATE) must lose a recovery, and was not caught: ${keadaan(sesi1)}`);
+        // (2) a recovery against a superseding permission: the teacher's newer permission holds the sitting; the learner
+        // waits, then consumes the newest; the older stays unused
+        const izin = (alasan: string, tahan = 0) => psqlLain(sebagai(guru, sesiT, `select public.izinkan_lanjut('${sesi2}', '${alasan}')`, tahan));
+        const p1 = await izin("izin pertama untuk balapan");
+        c.expect(p1.ok, `the first permission: ${p1.err}`);
+        const t = izin("izin kedua menggantikan yang pertama", 1.5); await tidur(500); const l = await pulih(u2, sesiB, sesi2); const tr = await t;
+        c.expect(tr.ok && l.ok && l.ms >= 800, `the learner's recovery must wait for the new permission, then succeed: ${tr.err} / ${l.err} / ${l.ms} ms`);
+        const pakai = sql1(`select string_agg(coalesce(dipakai_generasi::text, 'unused'), ',' order by dibuat_pada) from public.pengerjaan_izin_lanjut where session_id = '${sesi2}'`).stdout.trim();
+        c.expect(pakai === "unused,2", `the newest permission is consumed and the older stays unused: ${pakai}`);
+        // (3) a recovery against the teacher's ending
+        const akhir = psqlLain(sebagai(guru, sesiT, `select public.akhiri_pengerjaan('${sesi2}', 'NOT_COUNTED', 'diakhiri guru saat balapan uji')`, 1.5));
+        await tidur(500); const l3 = await pulih(u2, sesiC, sesi2); const ar = await akhir;
+        c.expect(ar.ok, `the teacher's ending: ${ar.err}`);
+        c.expect(!l3.ok && /RECOVERY_NOTHING/.test(l3.err) && l3.ms >= 800, `the recovery must wait for the ending, then find nothing to recover: ${l3.err} (${l3.ms} ms)`);
+        return c.verdict("on real connections, each committing (P3: nothing left open): two recoveries of one sitting from two sessions serialise on the sitting row (the second waits, then moves generation 2 to 3; two audit rows), and the plant without the act's and the deadline rule's FOR UPDATE loses one; a recovery waits on the teacher's superseding permission and consumes the newest, the older staying unused; a recovery racing the teacher's ending waits and then answers RECOVERY_NOTHING");
+      } finally { tutup(); }
+    },
+  },
 ];

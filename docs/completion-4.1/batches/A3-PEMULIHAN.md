@@ -103,6 +103,9 @@ moves before the lock (A3-E01 checks it; A2A-L01 ranks `pengerjaan_izin_lanjut` 
 | A3-P11 | S5 supersession | of two permissions the newest alone counts: with it used, the older unused one is not consulted |
 | A3-P12 | §6.2 | the class's teacher allowing an open low-stakes sitting: `RECOVERY_NOT_NEEDED`, nothing written |
 | A3-P13 | §6.3 | the request's conditions (S9, S11, the controller, an ended sitting), its idempotent mark, that it grants nothing, that a recovery clears it; the three acts' registry rows |
+| A3-P14 | S3 | a later generation's answer at a lower client sequence is final over the earlier generation's, and the scored result counts it |
+| A3-P15 | S8 | ruling 42's legs: a work-scoped planned window allows a recovery; an emergency stop over the learner refuses it `SITTING_CLASS_STOPPED` |
+| A3-P16 | S7 | on real connections: two recoveries from two sessions serialise (generation 3, two audit rows; the plant without both FOR UPDATEs loses one); a recovery waits on a superseding permission and consumes the newest; a recovery racing the teacher's ending answers `RECOVERY_NOTHING` |
 | A3-E01 | Sharon | the permission is written by exactly the two acts, each under the sitting `FOR UPDATE`; the two learner acts declared |
 
 **Later, in their own commits:** S3 (the scored result across generations, A3-4); S7 (the races, A3-2), **including a

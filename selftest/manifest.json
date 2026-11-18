@@ -6701,6 +6701,11 @@
       "proves": "executes lanjutkan_di_sini against the migrations, rolled back (S8; ruling 42, decision 2): with a work-scoped planned window active over the learner's class the recovery is allowed; with an emergency stop over the learner it is refused PR170 SITTING_CLASS_STOPPED, under the shared fence. A platform-wide window is refused at the request (D10)."
     },
     {
+      "id": "A3-P16",
+      "runner": "static",
+      "proves": "executes lanjutkan_di_sini, izinkan_lanjut and akhiri_pengerjaan against the migrations on real connections, each committing (S7; Sharon 11:03): two recoveries of one sitting from two sessions serialise on the sitting row (generation 3, two audit rows) and the plant without the act's and the deadline rule's FOR UPDATE loses one; a recovery waits on a superseding permission and consumes the newest; a recovery racing the teacher's ending answers RECOVERY_NOTHING. The fixture's sittings are ended and its permissions removed."
+    },
+    {
       "id": "A3-E01",
       "runner": "static",
       "proves": "A3-3, the enumeration test (THE PLAN §5.5 D5; Sharon §3, condition 2): reads the function catalogue and the triggers. Every function that writes assessment_sessions or responses is declared by class: a learner boundary, which calls the gate; the start's insert; a service or staff writer; or an inner function. The triggers on the two tables are as declared. Every writer that updates or deletes a sitting takes it FOR UPDATE first, in its body or through the gate, pengerjaan_ditahan_periksa or penugasan_sesi. submit_response is reached only from record_answer. Two plants, rolled back, are reported: an undeclared writer, and pengerjaan_tahan_orang with its sitting FOR UPDATE removed. The recovery permission (pengerjaan_izin_lanjut) is written by exactly izinkan_lanjut and lanjutkan_di_sini, each taking the sitting FOR UPDATE first; lanjutkan_di_sini and minta_izin_lanjut are declared learner recovery boundaries."
