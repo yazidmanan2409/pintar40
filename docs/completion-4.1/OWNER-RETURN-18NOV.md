@@ -34,6 +34,7 @@ This is the running record. Bob updates it as work moves; the newest entries are
 
 | When (UTC) | What |
 |---|---|
+| 05:45 | **E key check:** the owner uploaded `untuk-sharon.zip` directly into Sharon's session (option 1; no GitHub branch). Sharon verified its SHA-256 (`bdce76ae…6fdf`) and committed her blind answers before any comparison (`b056e334`): `lembar-kunci-K.csv` sha256 `b7eb6424…4f54df`, 60 rows, each with a reason. Bob checked both fingerprints. **Next: the flags.** The owner runs `nilai-juri.mjs flags` on his Mac against `untuk-juri/items.json`, which holds the keys and never leaves the Mac. Bob then commits `flags.json`'s SHA-256 before any judge's sheet. The kit's `seal-key` is not used (K-FLAG, `03dc25b8`): the committed CSV and its SHA are the seal |
 | 05:35 | **E run 3 (OpenAI, live) verified:** 2 calls, 30 schema-valid drafts, US$0.151946, no retry. **Both providers blinded together. Sealed map fingerprint recorded: `112714f4…5e59`.** Total spend US$0.634200 of US$10. Next: `untuk-sharon.zip` to Sharon for the key check |
 | 05:25 | **The owner's v4 practice run passed** (exit 0; no call, no spend). `untuk-bob.zip` checked: the four allowed files only, no key text, the reviewed settings, and both earlier runs unchanged by fingerprint (`58f03b89`, `69a9a702`). Mock blinding and the attempt list worked. **Only the owner's paid-run authorisation remains** (decision 4) |
 | 02:10 | **Sharon's final confirmation of v4** (`70ffdb4f`): her condition is met. Package `bae2c4c7` verified and attached for the free practice run (decision 3) |
