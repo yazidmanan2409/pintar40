@@ -360,10 +360,10 @@ export function anthropicAssembler() {
 //   response.failed, or an `error` event                  a stream_error;
 //   anything else, or nothing                             stream_incomplete.
 export function openaiAssembler({ maxOutput } = {}) {
-  const st = { events: 0, unknown: 0, renamed: 0, pings: 0, thinking: 0, started: false, terminal: null, model: null, seq: null, items: new Map(), parts: new Map(), refusal: 0, resp: null };
+  const st = { events: 0, unknown: 0, renamed: 0, rparts: 0, pings: 0, thinking: 0, started: false, terminal: null, model: null, seq: null, items: new Map(), parts: new Map(), refusal: 0, resp: null };
   const textNow = () => [...st.parts.entries()].sort((x, y) => (x[1].o - y[1].o) || (x[1].c - y[1].c)).filter(([, q]) => q.type === 'output_text').map(([, q]) => q.text.join('')).join('');
   const evidence = () => { const t = textNow(); return { events: st.events, pings: 0, unknown_events: st.unknown, thinking_blocks: st.thinking, blocks: st.parts.size,
-    started: st.started, stopped: !!st.terminal, stop_reason: st.terminal, final_usage_seen: !!st.resp?.usage, renamed_events: st.renamed, text_chars: t.length, text_sha256: sha(t) }; };
+    started: st.started, stopped: !!st.terminal, stop_reason: st.terminal, final_usage_seen: !!st.resp?.usage, renamed_events: st.renamed, reasoning_parts: st.rparts, text_chars: t.length, text_sha256: sha(t) }; };
   const fail = (reason, msg) => { const x = new StreamIncomplete(reason, msg, evidence()); x.partial = textNow(); return x; };
   const err = (e) => { const x = new StreamError({ type: e?.code ?? null, message: e?.message }, evidence(), OPENAI_STREAM_RETRY); x.partial = textNow(); return x; };
   const part = (j) => { const q = st.parts.get(`${j.output_index}:${j.content_index}`); if (!q || !q.open) throw fail('bad_order', `${j.type} for part ${j.output_index}:${j.content_index}, which is not open`); return q; };
@@ -404,7 +404,10 @@ export function openaiAssembler({ maxOutput } = {}) {
       if (type === 'response.output_item.done') { const it = st.items.get(j.output_index); if (!it || !it.open) throw fail('bad_order', `output_item.done for item ${j.output_index}`); it.open = false; return; }
       if (type === 'response.content_part.added') {
         const it = st.items.get(j.output_index); const k = `${j.output_index}:${j.content_index}`;
-        if (!it || !it.open || it.type !== 'message' || !Number.isInteger(j.content_index) || st.parts.has(k)) throw fail('bad_order', `content_part.added for part ${k}`);
+        if (!it || !it.open || !Number.isInteger(j.content_index) || st.parts.has(k)) throw fail('bad_order', `content_part.added for part ${k}`);
+        // Sharon R-1: a part on a non-message item (a reasoning item) is tracked so that its events stay in order, but
+        // it is never an output_text part, so nothing of it is ever kept; it is counted as reasoning
+        if (it.type !== 'message') { st.rparts++; st.parts.set(k, { type: `not-message:${j.part?.type ?? null}`, open: true, text: [], o: j.output_index, c: j.content_index }); return; }
         st.parts.set(k, { type: j.part?.type ?? null, open: true, text: [], o: j.output_index, c: j.content_index }); return;
       }
       if (type === 'response.content_part.done') { part(j).open = false; return; }
