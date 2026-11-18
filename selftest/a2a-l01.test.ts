@@ -329,6 +329,8 @@ export const PENGECUALIAN: { penulis: string; lewat: Lewat; alasan: string; syar
   samaBaris("hitung_ulang_koreksi_kunci", "the recalculated result's person_id is the sitting's learner, taken FOR KEY SHARE first (row 3, migration 20270118130000)"),
   samaBaris("pengerjaan_pagar", "the learner and the shared fence, already held by the act's own first call to pengerjaan_pagar (a shared advisory lock re-taken by its holder does not wait)"),
   samaBaris("tambah_waktu_pengerjaan", "the learner of p_session, already taken FOR KEY SHARE by pengerjaan_pagar before the fence (change A's line, now a re-lock)"),
+  // A3 (D7): the permission names the sitting's learner (taken FOR KEY SHARE by pengerjaan_pagar) and the teacher
+  samaBaris("izinkan_lanjut", "the permission's person_id is the sitting's learner, taken FOR KEY SHARE by pengerjaan_pagar before the fence; diizinkan_oleh is v_guru, taken FOR KEY SHARE before the fence (as stop_pintar_now's actor)"),
   samaBaris("stop_pintar_now", "the window's created_by_person_id is v_me, taken FOR KEY SHARE before the fence (required change 3: no person row is waited on after it)"),
   samaBaris("recompute_result", "the new result's person_id is the sitting's learner, taken FOR KEY SHARE first (row 4, migration 20270118140000)"),
   samaBaris("transfer_minta", "the transfer's person_id is e.person_id, taken FOR KEY SHARE first (C1, migration 20270118120000)"),

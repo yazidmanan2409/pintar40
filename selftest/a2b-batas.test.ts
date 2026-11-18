@@ -248,6 +248,11 @@ export const KELAS_PENULIS: Record<string, { kelas: Kelas; alasan: string; baru?
   akhiri_pendaftaran: { kelas: "ALLOWED", alasan: "a departure: a person leaving is not the class's work being changed" },
   transfer_execute: { kelas: "ALLOWED", alasan: "a transfer: a person moving" },
   tangguhkan_akun: { kelas: "ALLOWED", alasan: "a suspension acts on a person, not on the class's work", baru: true },
+  // A3 (ruling 42, decision 2): a recovery of a draining sitting is allowed in a work-scoped window; its platform-wide
+  // and emergency refusals are S8's commit. The request grants nothing; the teacher's permission is the recovery's half
+  lanjutkan_di_sini: { kelas: "ALLOWED", alasan: "A3 D7: the learner continues a running sitting on another session (ruling 42)", baru: true },
+  minta_izin_lanjut: { kelas: "ALLOWED", alasan: "A3: the learner's request for a permission; it grants nothing", baru: true },
+  izinkan_lanjut: { kelas: "ALLOWED", alasan: "A3 D7: the teacher's permission, the Uji Penguasaan recovery's half (ruling 42)", baru: true },
   record_answer: { kelas: "ALLOWED", alasan: "the drain (D5, K5): a running sitting is worked on to its deadline and grace", baru: true },
   pause_session: { kelas: "ALLOWED", alasan: "the drain (D5, K5)", baru: true },
   resume_session: { kelas: "ALLOWED", alasan: "the drain (D5, K5)", baru: true },

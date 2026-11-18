@@ -542,7 +542,7 @@ begin
     execute 'update public.pengerjaan_izin_lanjut set dibuat_pada = now() - interval ''1 minute'' where session_id = $1' using v_post;
     v := v || jsonb_build_object('P11_izin_baru', pg_temp.p('T', 'T', ${"$q$"}select public.izinkan_lanjut(current_setting('p.post')::uuid, 'izin kedua untuk sesi yang sama')::text${"$q$"}));
     perform selftest.as_owner();
-    execute 'update public.pengerjaan_izin_lanjut set dipakai_pada = now() where id = (select z.id from public.pengerjaan_izin_lanjut z
+    execute 'update public.pengerjaan_izin_lanjut set dipakai_pada = now(), dipakai_generasi = 2 where id = (select z.id from public.pengerjaan_izin_lanjut z
              where z.session_id = $1 order by z.dibuat_pada desc limit 1)' using v_post;
     v := v || jsonb_build_object('P11_lama', pg_temp.p('M', 'B', ${"$q$"}select public.lanjutkan_di_sini(current_setting('p.post')::uuid)::text${"$q$"}));
     raise exception 'ganti-rollback';
