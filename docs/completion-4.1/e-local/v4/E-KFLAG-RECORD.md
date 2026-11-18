@@ -15,7 +15,16 @@
 1. **The seal:** `kit.mjs seal-key` on `PRIVAT/out` with `jawaban-k.csv`, once. It writes `SEALED/k-answers.json` beside the map.
 2. **The comparison:** `nilai-juri.mjs flags` with `lembar-kunci-K.csv`, the judges' `untuk-juri/items.json` (which holds the keys) and the committed answers' SHA-256. This writes `flags.json`: each flagged item id with Sharon's reason, and no keys, no provider codes and no scores.
 
-**Recorded here when they arrive:** the number of flags, `flags.json`'s SHA-256, and the flagged item ids with Sharon's reasons. The fingerprint is committed **before any judge's sheet exists.**
+## RESULT (18 Nov, the owner's Mac)
+
+- **The seal:** done once; it printed `sealed`.
+- **The comparison:** **0 flags.** Sharon's blind answer equals the key on all 60 items.
+- **`flags.json`** (committed as `kflag/flags.json`): `{"format": "c3-key-flags/1", "flags": []}`.
+  - **SHA-256: `90e753acd601f9649398d98988721f1e2db08d7a361d44006f269b3397ce073f`**, committed here before any judge's sheet exists.
+  - `nilai-juri.mjs j3` and `score.mjs` verify the flags against this fingerprint.
+- **Sharon is told only:** 0 flags, and this fingerprint.
+
+**Recorded here when they arrive (for reference, the plan was):** the number of flags, `flags.json`'s SHA-256, and the flagged item ids with Sharon's reasons. The fingerprint is committed **before any judge's sheet exists.**
 
 ## For the educators (preserved, not a flag)
 
@@ -27,14 +36,17 @@
 - **How it reaches the educators:**
   - if the comparison flags B1-016, J3 receives the note with the flag;
   - if it is not flagged, it is still given to J3 among the items J3 decides, as a wording question. It is never treated as a correctness ruling: the educators decide.
+- **Outcome: B1-016 was not flagged.** Sharon's answer (C) matches its key. Her note stands as a **wording observation**. It goes to J3 with the J3 list, labelled as a wording note for the educators, outside the flag rules. It is also carried into the results as an item-level revision note. It does not change J1's and J2's scoring, which happens without it, so their judgements stay independent.
 - Nothing about who wrote the item is implied.
 
 ## The judging-release gate
 
 `untuk-juri.zip` goes to J1 and J2 only when **all** of these hold:
-- [ ] the seal is done on the owner's Mac (`sealed` printed once);
-- [ ] `flags.json` is made, and its SHA-256 is committed here by Bob;
-- [ ] Sharon has received only the flag count and the flagged ids with her reasons;
-- [ ] the judges' guide is the neutral `PANDUAN-JURI.md` (Daisy, `8002a69b`), with `JAWABAN-BILA-DITANYA.md` held by the owner.
+- [x] the seal is done on the owner's Mac (`sealed` printed once);
+- [x] `flags.json` is made, and its SHA-256 (`90e753ac…073f`) is committed here by Bob;
+- [x] Sharon has received only the flag count (0) and the fingerprint;
+- [x] the judges' guide is the neutral `PANDUAN-JURI.md` (Daisy, `8002a69b`; Sharon, `1ad0927e`), with `JAWABAN-BILA-DITANYA.md` held by the owner.
+
+**GATE CLEAR (18 Nov).** The owner may release `untuk-juri.zip` and `PANDUAN-JURI.md` to J1 and J2.
 
 Then J1 and J2 score independently. J3 decides the routed items. **The map is unsealed only after every score is final.** No provider identity is revealed before that.
