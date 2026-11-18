@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| A3 preservation query (draft, 284→287) | PASS for the local dry run: only baru and lines 77–81 differ from C2w. Backfill risk: a read-only step 0 pre-check on staging (no copy), under the owner's authorisation. Six dry-run proofs settled. V-2 to A3: the gate claims a controller on an ENDED sitting via VIEW; claim only on an open sitting, red first | `7072ea5e4d197f98808253c85dbdac6218660db0` (sha256 8cb312ee…) | `A3-PRESERVATION-8cb312ee.md` |
 | A3 controller (migration 20270121220000 + A3-C01..C07) | PASS on every earlier condition. V-1 before the freeze: note_item_view now runs the whole gate, so a held sitting refuses a view (and assistance) SITTING_FROZEN; keep VIEW out of the hold check (recommended) or rule it, red first | `e6e28e52313b41c2381acdd1310fab7e202792a5` | `A3-DIFFS-671175e4.md` |
 | E K-FLAG blind key answers (60 items) | Answered blind and committed before any comparison. Package sha256 bdce76ae… verified; lembar-kunci-K.csv b7eb6424…, jawaban-k.csv c0838b0b… | this commit | `E-KFLAG/README.md` |
 | A3 L01 token 29 | Case 3, (i) accepted: every pagar branch takes the sitting FOR UPDATE before its update; remedy 2 withdrawn. Condition: a static pin with a plant on the four branch functions | local only | `A3-DIFFS-671175e4.md` |
