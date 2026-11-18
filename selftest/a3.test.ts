@@ -362,6 +362,191 @@ async function balapanTahan(tahan: string, sisa: string, kedua: string): Promise
   return { deadlock: /deadlock detected/i.test(ra.out + rb.out), menunggu, a: ra.out, b: rb.out, ok: ra.code === 0 && rb.code === 0 };
 }
 
+/**
+ * The recovery act's scenario (A3-PEMULIHAN.md; A3-P01..P09), red first: one rolled-back transaction, a learner of the
+ * seeded learning-cycle Kelas with three verified sessions (A, B, C), the cycle's teacher (T) and another school's
+ * teacher (L). Each probe is kept as «ok:<value>» or «<SQLSTATE>:<DETAIL>»; the x-probes roll back.
+ */
+function skenarioPulih(): string {
+  const S = (n: number) => `(select p.id from public.presented_items p where p.session_id = current_setting('p.s')::uuid order by p.position offset ${n - 1} limit 1)`;
+  const J = (n: number, seq: number) => `select x.outcome from public.record_answer(${S(n)}, ${seq}, selftest.f09_answer(${S(n)}, true)) x`;
+  const P = (k: string, siapa: string, sesi: string, sql: string, x = false) =>
+    `v := v || jsonb_build_object('${k}', pg_temp.p${x ? "x" : ""}('${siapa}', '${sesi}', $q$${sql}$q$));`;
+  const lanjut = (id = "current_setting('p.s')::uuid") => `select public.lanjutkan_di_sini(${id})::text`;
+  const izin = (id = "current_setting('p.post')::uuid") => `select public.izinkan_lanjut(${id}, 'perangkat murid mati saat Uji Penguasaan')::text`;
+  const jejak = `(select md5(coalesce(string_agg(r.id::text || r.client_seq || r.value::text || r.received_at::text, ',' order by r.id), ''))
+     from public.responses r join public.presented_items p on p.id = r.presented_item_id where p.session_id = current_setting('p.s')::uuid)`;
+  const keadaan = `(select coalesce(s.pengendali_sesi::text, 'null') || '|' || s.generasi || '|' || s.status || '|' || coalesce(s.authoritative_deadline::text, '-')
+     from public.assessment_sessions s where s.id = current_setting('p.s')::uuid)`;
+  return `
+begin;
+create function pg_temp.p(p_siapa text, p_sesi text, p_sql text)
+returns text language plpgsql as $f$
+declare v_out text; v_state text; v_detail text; v_msg text; v_val text; v_u uuid := current_setting('p.u_' || p_siapa)::uuid;
+begin
+  begin
+    reset role;
+    perform set_config('request.jwt.claims', case p_sesi
+      when 'NONE' then json_build_object('sub', v_u, 'role', 'authenticated')
+      else json_build_object('sub', v_u, 'role', 'authenticated', 'session_id', current_setting('p.sesi_' || p_sesi)) end::text, true);
+    perform set_config('request.jwt.claim.sub', v_u::text, true);
+    set local role authenticated;
+    execute p_sql into v_val;
+    v_out := 'ok:' || coalesce(v_val, '');
+  exception when others then
+    get stacked diagnostics v_state = returned_sqlstate, v_detail = pg_exception_detail, v_msg = message_text;
+    v_out := v_state || ':' || coalesce(nullif(v_detail, ''), left(v_msg, 70));
+  end;
+  perform selftest.as_owner();
+  return v_out;
+end $f$;
+create function pg_temp.px(p_siapa text, p_sesi text, p_sql text)
+returns text language plpgsql as $f$
+declare v_out text;
+begin
+  begin
+    v_out := pg_temp.p(p_siapa, p_sesi, p_sql);
+    raise exception 'px-rollback';
+  exception when others then
+    if sqlerrm <> 'px-rollback' then v_out := coalesce(v_out, 'probe-error:' || sqlerrm); end if;
+  end;
+  return v_out;
+end $f$;
+create temp table p_snap (v jsonb) on commit drop;
+do $p$
+declare v jsonb := '{}'::jsonb; f record; v_k uuid; v_u uuid; v_p uuid; v_e uuid; v_s uuid; v_post uuid; v_sebelum text; st text;
+begin
+  perform selftest.as_owner();
+  perform set_config('p.tag', to_char(clock_timestamp(), 'HH24MISSUS'), true);
+  perform set_config('p.sesi_A', gen_random_uuid()::text, true);
+  perform set_config('p.sesi_B', gen_random_uuid()::text, true);
+  perform set_config('p.sesi_C', gen_random_uuid()::text, true);
+  perform set_config('p.sesi_T', gen_random_uuid()::text, true);
+  perform set_config('p.sesi_L', gen_random_uuid()::text, true);
+  select * into f from selftest.cycle_fixture();
+  if f.aa_pre is null then raise exception 'the learning-cycle fixture is absent'; end if;
+  select la.node_id into v_k from public.learning_assignments la where la.id = f.la;
+  v_u := selftest.f06p10_person('p-murid-' || current_setting('p.tag'));
+  select a.person_id into v_p from public.accounts a where a.auth_user_id = v_u;
+  insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status)
+  select v_p, e.institution_id, e.academic_period_id, e.programme_id, 'ACTIVE'
+    from public.memberships mm join public.enrollments e on e.id = mm.enrollment_id
+   where mm.node_id = v_k and mm.valid_to is null limit 1
+  returning id into v_e;
+  insert into public.memberships (enrollment_id, node_id, academic_period_id)
+  select v_e, v_k, e.academic_period_id from public.enrollments e where e.id = v_e;
+  perform set_config('p.u_M', v_u::text, true);
+  perform set_config('p.u_T', (select id::text from auth.users where email = 'siklus-guru@synthetic.pintar.test'), true);
+  perform set_config('p.u_L', (select id::text from auth.users where email = 'alpha-guru@synthetic.pintar.test'), true);
+  set local session_replication_role = replica;
+  update public.assessment_definitions d set allows_pause = true
+    from public.assessment_assignments aa where aa.id = f.aa_pre and d.id = aa.assessment_definition_id;
+  set local session_replication_role = origin;
+  -- the low-stakes sitting (Pemetaan Awal), started and answered on session A
+  v := v || jsonb_build_object('mulai', pg_temp.p('M', 'A', format('select public.start_learning_session(%L)::text', f.aa_pre)));
+  select s.id into v_s from public.assessment_sessions s where s.person_id = v_p and s.assessment_assignment_id = f.aa_pre;
+  if v_s is null then raise exception 'the sitting was not started: %', v ->> 'mulai'; end if;
+  perform set_config('p.s', v_s::text, true);
+  ${P("A_jawab", "M", "A", J(1, 1))}
+  v_sebelum := ${keadaan};
+  v := v || jsonb_build_object('sebelum', v_sebelum, 'jejak_sebelum', ${jejak},
+    'percobaan_sebelum', (select public.percobaan_terpakai(v_p, f.aa_pre)::text));
+  -- A3-P07 (S11): no session id, refused, writing nothing
+  ${P("P07_lanjut", "M", "NONE", lanjut(), true)}
+  -- A3-P06 (S9): an unknown id, and a sitting that is not the caller's, answer alike
+  ${P("P06_asing", "M", "B", lanjut("gen_random_uuid()"), true)}
+  ${P("P06_bukan", "T", "T", lanjut(), true)}
+  -- A3-P08 (D10): a held sitting is refused
+  set local session_replication_role = replica;
+  execute 'update public.assessment_sessions set frozen_at = now(), frozen_cause = ''ACCOUNT_SUSPENDED'' where id = $1' using v_s;
+  set local session_replication_role = origin;
+  ${P("P08_tahan", "M", "B", lanjut(), true)}
+  set local session_replication_role = replica;
+  execute 'update public.assessment_sessions set frozen_at = null, frozen_cause = null where id = $1' using v_s;
+  set local session_replication_role = origin;
+  -- A3-P01 (S1, S2): session B continues here; the generation rises by one and the controller is B
+  ${P("P01_lanjut", "M", "B", lanjut())}
+  v := v || jsonb_build_object('sesudah', ${keadaan}, 'jejak_sesudah', ${jejak},
+    'percobaan_sesudah', (select public.percobaan_terpakai(v_p, f.aa_pre)::text));
+  ${P("P01_lagi", "M", "B", lanjut())}
+  v := v || jsonb_build_object('sesudah_lagi', ${keadaan});
+  -- A3-P09 (D7, S10): the audit row and the RECONNECT observation
+  v := v || jsonb_build_object('P09_audit', (select count(*)::text from public.audit_log a
+          where a.action = 'assessment_session.recovered' and a.target_id = v_s::text),
+    'P09_integritas', (select count(*)::text from public.integrity_signals g where g.session_id = v_s and g.category = 'RECONNECT'));
+  -- A3-P02 (S2): the superseded session A: answer, pause, resume and hand-in are each refused
+  ${P("P02_jawab", "M", "A", J(2, 1), true)}
+  ${P("P02_jeda", "M", "A", "select public.pause_session(current_setting('p.s')::uuid)::text", true)}
+  ${P("P02_lanjut", "M", "A", "select public.resume_session(current_setting('p.s')::uuid)::text", true)}
+  ${P("P02_serah", "M", "A", "select public.submit_session(current_setting('p.s')::uuid)::text", true)}
+  -- A3-P08 (D10): past its deadline: ended by the rule, then nothing to recover
+  set local session_replication_role = replica;
+  execute 'update public.assessment_sessions set authoritative_deadline = now() - interval ''2 days'' where id = $1' using v_s;
+  set local session_replication_role = origin;
+  ${P("P08_tenggat", "M", "C", lanjut(), true)}
+  set local session_replication_role = replica;
+  execute 'update public.assessment_sessions set authoritative_deadline = $2 where id = $1'
+    using v_s, nullif(split_part(v_sebelum, '|', 4), '-')::timestamptz;
+  set local session_replication_role = origin;
+  -- A3-P03 (S4): nothing to recover in an ended sitting
+  foreach st in array array['SUBMITTED', 'FINALIZED', 'EXPIRED', 'TERMINATED'] loop
+    set local session_replication_role = replica;
+    execute 'update public.assessment_sessions set status = $2::public.session_status where id = $1' using v_s, st;
+    set local session_replication_role = origin;
+    v := v || jsonb_build_object('P03_' || st, pg_temp.px('M', 'C', ${"$q$"}select public.lanjutkan_di_sini(current_setting('p.s')::uuid)::text${"$q$"}));
+  end loop;
+  set local session_replication_role = replica;
+  execute 'update public.assessment_sessions set status = ''IN_PROGRESS'' where id = $1' using v_s;
+  set local session_replication_role = origin;
+  -- the Uji Penguasaan: the Pemetaan Awal finished by its controller B, then the post-test started on A
+  ${P("pre_selesai", "M", "B", "select public.finish_my_session(current_setting('p.s')::uuid, null)::text")}
+  v := v || jsonb_build_object('mulai_post', pg_temp.p('M', 'A', format('select public.start_learning_session(%L)::text', f.aa_post)));
+  select s.id into v_post from public.assessment_sessions s where s.person_id = v_p and s.assessment_assignment_id = f.aa_post;
+  perform set_config('p.post', coalesce(v_post::text, gen_random_uuid()::text), true);
+  -- A3-P04 (S5): no permission; the wrong teacher and an unknown id (P06); the class's teacher allows it
+  ${P("P04_tanpa", "M", "B", lanjut("current_setting('p.post')::uuid"), true)}
+  ${P("P06_guru_lain", "L", "L", izin(), true)}
+  ${P("P06_guru_asing", "T", "T", izin("gen_random_uuid()"), true)}
+  ${P("P07_guru_tanpa_sesi", "T", "NONE", izin(), true)}
+  ${P("P04_izin", "T", "T", izin())}
+  -- a lapsed permission: backdated by the harness, probed, rolled back (the variable keeps the answer)
+  begin
+    execute 'update public.pengerjaan_izin_lanjut set berlaku_sampai = now() - interval ''1 minute'' where session_id = $1' using v_post;
+    v := v || jsonb_build_object('P04_kedaluwarsa', pg_temp.p('M', 'B', ${"$q$"}select public.lanjutkan_di_sini(current_setting('p.post')::uuid)::text${"$q$"}));
+    raise exception 'kedaluwarsa-rollback';
+  exception when others then
+    if sqlerrm <> 'kedaluwarsa-rollback' then v := v || jsonb_build_object('P04_kedaluwarsa', 'probe-error:' || left(sqlerrm, 70)); end if;
+  end;
+  perform selftest.as_owner();
+  ${P("P04_sah", "M", "B", lanjut("current_setting('p.post')::uuid"))}
+  ${P("P04_terpakai", "M", "C", lanjut("current_setting('p.post')::uuid"), true)}
+  perform selftest.as_owner();
+  insert into p_snap values (v);
+end $p$;
+select 'P' || chr(9) || v::text from p_snap;
+rollback;
+`;
+}
+
+let hasilPulih: { v: Record<string, string> | null; galat: string[] } | undefined;
+/** The recovery scenario, run once for A3-P01..P09; each test reports its own reading of it. */
+function jalankanPulih(c: Checks, repoRoot: string): Record<string, string> | null {
+  if (!hasilPulih) {
+    hasilPulih = { v: null, galat: [] };
+    const gagal = siapkan(repoRoot);
+    if (gagal !== null) hasilPulih.galat.push(gagal);
+    else {
+      const r = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-At", "-c", skenarioPulih(), db()], { encoding: "utf8", maxBuffer: 32 * 1024 * 1024 });
+      const pesan = (r.stderr || "").trim().split("\n").find((l) => /ERROR/.test(l)) ?? (r.stderr || "").trim().split("\n").pop();
+      const baris = r.stdout.split("\n").find((l) => l.startsWith("P\t"));
+      if (r.status !== 0 || !baris) hasilPulih.galat.push(`the recovery scenario could not run: ${pesan}`);
+      else hasilPulih.v = JSON.parse(baris.slice(2));
+    }
+  }
+  for (const g of hasilPulih.galat) c.expect(false, g);
+  return hasilPulih.v;
+}
+
 export const a3DbTests: SelfTest[] = [
   {
     // Sharon, 8df83c47, conditions 1 and 2: the harness's per-person session (selftest.as_user, as_user_uid) is the
@@ -1372,6 +1557,132 @@ rollback;`;
       c.expect(Number(v.satu) >= 1, `the sitting's own assignment must count it: ${v.satu ?? "no answer"}`);
       c.expect(v.dua === v.satu, `revision 2's assignment must count the revision-1 sitting as may_start_assessment does (ruling 46): ${v.dua ?? "no answer"} against ${v.satu ?? "no answer"}`);
       return c.verdict("percobaan_terpakai, A1's count of an attempt, counts a learner's sitting on revision 1 of an assessment under an OPEN assignment of revision 2 in the same school and year (the harness's hand, rolled back), as may_start_assessment counts it across the lineage");
+    },
+  },
+  {
+    // A3-P01 (S1, S2; THE PLAN §5.5 D7): a low-stakes recovery from a second verified session
+    id: "A3-P01",
+    requires: ["db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const v = jalankanPulih(c, ctx.repoRoot);
+      if (!v) return c.verdict("");
+      const [ctl0, gen0] = (v.sebelum ?? "").split("|");
+      const [ctl1, gen1] = (v.sesudah ?? "").split("|");
+      c.expect(v.P01_lanjut === `ok:${Number(gen0) + 1}`, `session B's continue must return the next generation (${Number(gen0) + 1}): ${v.P01_lanjut}`);
+      c.expect(Number(gen1) === Number(gen0) + 1, `the generation must rise by exactly one: ${v.sebelum} -> ${v.sesudah}`);
+      c.expect(ctl1 !== "null" && ctl1 !== ctl0, `the controller must become the caller's verified session: ${v.sebelum} -> ${v.sesudah}`);
+      c.expect(v.P01_lagi === v.P01_lanjut && v.sesudah_lagi === v.sesudah, `the controller continuing again must write nothing and return the same generation: ${v.P01_lagi} / ${v.sesudah_lagi}`);
+      return c.verdict("executes lanjutkan_di_sini against the migrations, rolled back: a learner's second verified session continues a low-stakes sitting; the generation rises by one and the controller becomes that session (from the verified claims; the act takes no session parameter); continuing again from it writes nothing");
+    },
+  },
+  {
+    // A3-P02 (S2): after a recovery, every write of the superseded session is refused
+    id: "A3-P02",
+    requires: ["db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const v = jalankanPulih(c, ctx.repoRoot);
+      if (!v) return c.verdict("");
+      c.expect(/^ok:/.test(v.P01_lanjut ?? ""), `the recovery did not happen, so nothing is superseded: ${v.P01_lanjut}`);
+      for (const k of ["P02_jawab", "P02_jeda", "P02_lanjut", "P02_serah"]) c.expect(v[k] === "PR170:SITTING_NOT_CONTROLLER", `${k}: the superseded session must be refused SITTING_NOT_CONTROLLER: ${v[k]}`);
+      return c.verdict("after session B's recovery, session A's answer, pause, resume and hand-in are each refused PR170 SITTING_NOT_CONTROLLER; rolled back");
+    },
+  },
+  {
+    // A3-P03 (S4): nothing to recover in an ended sitting
+    id: "A3-P03",
+    requires: ["db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const v = jalankanPulih(c, ctx.repoRoot);
+      if (!v) return c.verdict("");
+      for (const st of ["SUBMITTED", "FINALIZED", "EXPIRED", "TERMINATED"]) c.expect(v[`P03_${st}`] === "PR170:RECOVERY_NOTHING", `a ${st} sitting must answer RECOVERY_NOTHING: ${v[`P03_${st}`]}`);
+      return c.verdict("lanjutkan_di_sini on a SUBMITTED, FINALIZED, EXPIRED and TERMINATED sitting answers PR170 RECOVERY_NOTHING; rolled back");
+    },
+  },
+  {
+    // A3-P04 (S5; owner ruling D-3): an Uji Penguasaan needs the teacher's permission, single use, 10 minutes
+    id: "A3-P04",
+    requires: ["db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const v = jalankanPulih(c, ctx.repoRoot);
+      if (!v) return c.verdict("");
+      if (!c.expect(/^ok:/.test(v.mulai_post ?? ""), `the Uji Penguasaan could not be started for the case: ${v.pre_selesai} / ${v.mulai_post}`)) return c.verdict("");
+      c.expect(v.P04_tanpa === "PR170:RECOVERY_NOT_AUTHORISED", `with no permission: ${v.P04_tanpa}`);
+      c.expect(/^ok:\d{4}-/.test(v.P04_izin ?? ""), `the class's teacher must be able to allow it, returning when it lapses: ${v.P04_izin}`);
+      c.expect(v.P04_kedaluwarsa === "PR170:RECOVERY_AUTHORISATION_EXPIRED", `with a lapsed permission: ${v.P04_kedaluwarsa}`);
+      c.expect(v.P04_sah === "ok:2", `with a valid permission the recovery succeeds once: ${v.P04_sah}`);
+      c.expect(v.P04_terpakai === "PR170:RECOVERY_AUTHORISATION_USED", `a used permission does not move the sitting again: ${v.P04_terpakai}`);
+      return c.verdict("an Uji Penguasaan's recovery is refused RECOVERY_NOT_AUTHORISED with no permission and RECOVERY_AUTHORISATION_EXPIRED with a lapsed one; the class's teacher allows it (izinkan_lanjut, returning when it lapses); it then succeeds once, and a third session is refused RECOVERY_AUTHORISATION_USED; rolled back");
+    },
+  },
+  {
+    // A3-P05 (S6; ruling 42 condition 2): a recovery adds no time, changes no answer, uses no attempt
+    id: "A3-P05",
+    requires: ["db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const v = jalankanPulih(c, ctx.repoRoot);
+      if (!v) return c.verdict("");
+      const [, , st0, dl0] = (v.sebelum ?? "").split("|"); const [, , st1, dl1] = (v.sesudah ?? "").split("|");
+      if (!c.expect(/^ok:/.test(v.P01_lanjut ?? ""), `the recovery did not happen: ${v.P01_lanjut}`)) return c.verdict("");
+      c.expect(st0 === st1 && dl0 === dl1, `the status and the deadline must be unchanged: ${v.sebelum} -> ${v.sesudah}`);
+      c.expect(v.jejak_sebelum === v.jejak_sesudah, "the earlier responses must be byte-identical (id, client_seq, value, received_at)");
+      c.expect(v.percobaan_sebelum === v.percobaan_sesudah, `the attempt count must be unchanged: ${v.percobaan_sebelum} -> ${v.percobaan_sesudah}`);
+      return c.verdict("a recovery leaves the sitting's status and deadline, every earlier response (id, client_seq, value, received_at) and the attempt count unchanged; rolled back");
+    },
+  },
+  {
+    // A3-P06 (S9; Sharon 7fa4de5d): no existence oracle, at the learner's act and the teacher's
+    id: "A3-P06",
+    requires: ["db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const v = jalankanPulih(c, ctx.repoRoot);
+      if (!v) return c.verdict("");
+      for (const k of ["P06_asing", "P06_bukan", "P06_guru_lain", "P06_guru_asing"]) c.expect(v[k] === "PR170:SITTING_NOT_CONTROLLER", `${k} must answer SITTING_NOT_CONTROLLER: ${v[k]}`);
+      return c.verdict("an unknown sitting id and another person's sitting answer PR170 SITTING_NOT_CONTROLLER at lanjutkan_di_sini; at izinkan_lanjut, another school's teacher and an unknown id answer the same; rolled back");
+    },
+  },
+  {
+    // A3-P07 (S11): a session with no id is refused at both acts
+    id: "A3-P07",
+    requires: ["db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const v = jalankanPulih(c, ctx.repoRoot);
+      if (!v) return c.verdict("");
+      c.expect(v.P07_lanjut === "PR170:SITTING_NOT_CONTROLLER", `the learner with no session id: ${v.P07_lanjut}`);
+      c.expect(v.P07_guru_tanpa_sesi === "PR170:SITTING_NOT_CONTROLLER", `the teacher with no session id: ${v.P07_guru_tanpa_sesi}`);
+      return c.verdict("a verified token with no session id is refused PR170 SITTING_NOT_CONTROLLER at lanjutkan_di_sini and at izinkan_lanjut; rolled back");
+    },
+  },
+  {
+    // A3-P08 (D10): a held sitting is not recovered; one past its deadline is ended by the ordinary rule first
+    id: "A3-P08",
+    requires: ["db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const v = jalankanPulih(c, ctx.repoRoot);
+      if (!v) return c.verdict("");
+      c.expect(v.P08_tahan === "PR170:SITTING_FROZEN", `a held sitting: ${v.P08_tahan}`);
+      c.expect(v.P08_tenggat === "PR170:RECOVERY_NOTHING", `a sitting past its deadline is ended by the rule, then has nothing to recover: ${v.P08_tenggat}`);
+      return c.verdict("a held sitting's recovery is refused PR170 SITTING_FROZEN; a sitting past its deadline is ended by the deadline rule first and answers RECOVERY_NOTHING; rolled back");
+    },
+  },
+  {
+    // A3-P09 (D7; S10): every recovery is recorded, once
+    id: "A3-P09",
+    requires: ["db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const v = jalankanPulih(c, ctx.repoRoot);
+      if (!v) return c.verdict("");
+      c.expect(v.P09_audit === "1", `one assessment_session.recovered audit row for the recovery: ${v.P09_audit}`);
+      c.expect(v.P09_integritas === "1", `one RECONNECT integrity signal for the recovery: ${v.P09_integritas}`);
+      return c.verdict("a recovery writes one assessment_session.recovered audit row and one RECONNECT integrity signal, and the controller's repeat writes none; rolled back");
     },
   },
 ];

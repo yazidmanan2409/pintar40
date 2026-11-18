@@ -6626,6 +6626,51 @@
       "proves": "Sharon V-2 (f6d3a2cb): executes note_item_view against the migrations, in A3-R01's rolled-back transaction, on the learner's SUBMITTED sitting with no controller. The sitting keeps no controller: the gate's one-time claim (D6) is written only to a CREATED, IN_PROGRESS or PAUSED sitting, so nothing is written to an ended one."
     },
     {
+      "id": "A3-P01",
+      "runner": "static",
+      "proves": "S1, S2 (THE PLAN §5.5 D7): executes lanjutkan_di_sini against the migrations, rolled back. A learner's second verified session continues a low-stakes sitting: the generation rises by one and the controller becomes that session, from the verified claims; the act takes no session parameter. Continuing again from it writes nothing."
+    },
+    {
+      "id": "A3-P02",
+      "runner": "static",
+      "proves": "executes record_answer, pause_session, resume_session and submit_session against the migrations, in the recovery scenario's rolled-back transaction (S2): after a recovery, the superseded session's answer, pause, resume and hand-in are each refused PR170 SITTING_NOT_CONTROLLER, rolled back."
+    },
+    {
+      "id": "A3-P03",
+      "runner": "static",
+      "proves": "executes lanjutkan_di_sini against the migrations, rolled back (S4): lanjutkan_di_sini on a SUBMITTED, FINALIZED, EXPIRED and TERMINATED sitting answers PR170 RECOVERY_NOTHING, rolled back."
+    },
+    {
+      "id": "A3-P04",
+      "runner": "static",
+      "proves": "executes lanjutkan_di_sini and izinkan_lanjut against the migrations, rolled back (S5, owner ruling D-3): an Uji Penguasaan's recovery is refused RECOVERY_NOT_AUTHORISED with no permission and RECOVERY_AUTHORISATION_EXPIRED with a lapsed one. The class's teacher allows it with izinkan_lanjut. It then succeeds once, and a third session is refused RECOVERY_AUTHORISATION_USED. Rolled back."
+    },
+    {
+      "id": "A3-P05",
+      "runner": "static",
+      "proves": "executes lanjutkan_di_sini against the migrations and reads the sitting and its responses, rolled back (S6, ruling 42 condition 2): a recovery leaves the sitting's status and deadline, every earlier response (id, client_seq, value, received_at) and the attempt count unchanged, rolled back."
+    },
+    {
+      "id": "A3-P06",
+      "runner": "static",
+      "proves": "executes lanjutkan_di_sini and izinkan_lanjut against the migrations, rolled back (S9, Sharon 7fa4de5d): an unknown sitting id and another person's sitting answer PR170 SITTING_NOT_CONTROLLER at lanjutkan_di_sini. At izinkan_lanjut, another school's teacher and an unknown id answer the same. Rolled back."
+    },
+    {
+      "id": "A3-P07",
+      "runner": "static",
+      "proves": "executes lanjutkan_di_sini and izinkan_lanjut against the migrations, rolled back (S11): a verified token with no session id is refused PR170 SITTING_NOT_CONTROLLER at lanjutkan_di_sini and at izinkan_lanjut, rolled back."
+    },
+    {
+      "id": "A3-P08",
+      "runner": "static",
+      "proves": "executes lanjutkan_di_sini against the migrations, rolled back (D10): a held sitting's recovery is refused PR170 SITTING_FROZEN. A sitting past its deadline is ended by the deadline rule first and answers RECOVERY_NOTHING. Rolled back."
+    },
+    {
+      "id": "A3-P09",
+      "runner": "static",
+      "proves": "executes lanjutkan_di_sini against the migrations and reads the audit log and integrity_signals, rolled back (D7, S10): a recovery writes one assessment_session.recovered audit row and one RECONNECT integrity signal, and the controller's repeat writes none, rolled back."
+    },
+    {
       "id": "A3-E01",
       "runner": "static",
       "proves": "A3-3, the enumeration test (THE PLAN §5.5 D5; Sharon §3, condition 2): reads the function catalogue and the triggers. Every function that writes assessment_sessions or responses is declared by class: a learner boundary, which calls the gate; the start's insert; a service or staff writer; or an inner function. The triggers on the two tables are as declared. Every writer that updates or deletes a sitting takes it FOR UPDATE first, in its body or through the gate, pengerjaan_ditahan_periksa or penugasan_sesi. submit_response is reached only from record_answer. Two plants, rolled back, are reported: an undeclared writer, and pengerjaan_tahan_orang with its sitting FOR UPDATE removed."
