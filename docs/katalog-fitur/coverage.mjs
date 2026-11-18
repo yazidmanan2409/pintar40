@@ -1,0 +1,91 @@
+// Writes KATALOG-COVERAGE.md: every catalogue entry with its version, status and the source that supports it.
+// Internal verification only; not part of the reader-facing PDF.
+import { writeFileSync } from "node:fs";
+import { VERSI, KANDIDAT, STATUS } from "./fitur.mjs";
+// Source per entry. HB = Handbook Draft 01a section (verified against code on main); COV = handbook coverage
+// map row; RM = Consolidated Roadmap Rev 3 (doc control 3.3, 4.1 master-plan branch); ST = 4.1 status report
+// 18 Nov 2026; OR = OWNER-RULINGS-4.1; DTT = DECISIONS-TO-TRACK.
+const SRC = {
+  "40-buka-sekolah": "HB 6.2 · COV 1", "40-persiapan": "HB 7.2 · COV 2", "40-struktur": "HB 7.3 · COV 2", "40-ketuntasan": "HB 7.4 · COV 2",
+  "40-pendataan": "HB 7.5 · COV 3/4", "40-aktivasi": "HB 5.2 · COV 3", "40-kartu-kelas": "HB 7.6–7.7, 11.2 · COV 4", "40-akun-saya": "HB 5.7 · COV 3",
+  "40-masuk-aman": "HB 5.4, 11.3 · COV 4", "40-pemulihan": "HB 5.6, 7.7 · COV 5", "40-peran": "HB 4.2, 7.8 · COV 3", "40-penangguhan": "HB 6.4–6.5 · COV 5",
+  "40-tinggalkan": "HB 5.7, 11.13 · COV 5", "40-pindah-kelas": "HB 7.9 · COV 6", "40-pindah-sekolah": "HB 7.10 · COV 6", "40-keluar-kembali": "HB 7.11 · COV 6",
+  "40-akhir-tugas": "HB 7.11 · COV 6", "40-kenaikan": "HB 7.14 · COV 2", "40-paket": "HB 10.3 · COV 7", "40-tinjauan": "HB 10.4–10.5 · COV 7",
+  "40-bank-soal": "HB 10.5 · COV 7", "40-aturan": "HB 10.6 · COV 7", "40-revisi": "HB 10.7 · COV 7", "40-pustaka": "HB 6.3 · COV 7",
+  "40-kesehatan-soal": "HB 10.11 · COV 7", "40-sediakan": "HB 9.2–9.3 · COV 8", "40-belajar": "HB 11.4 · COV 8", "40-pemetaan": "HB 11.5 · COV 8",
+  "40-peta-bacaan": "HB 11.6 · COV 8", "40-bantuan": "HB 11.6 · COV 8", "40-uji-penguasaan": "HB 11.7 · COV 9 (attempts per Bob's review 17 Nov)", "40-uji-cepat": "HB 9.5 · COV 8",
+  "40-baca-lagi": "Tugas 12 sample (hle mengajar.ulang.*) · COV 8", "40-hasil": "HB 11.8 · COV 9", "40-lihat-bukti": "HB 9.6; Tugas 12 sample · COV 15", "40-per-soal": "HB 9.6; Tugas 12 sample · COV 15",
+  "40-ringkasan": "HB 8.4 · COV 15", "40-pimpinan": "HB 8.3 · COV 15", "40-integritas": "HB 8.6 · COV 15", "40-sertifikat": "HB 7.15, 13 · COV 14",
+  "40-cetak": "HB 8.4; website Features · COV 15", "40-pengembangan": "HB 12.1–12.5 · COV 16", "40-darurat": "HB 6.7 · COV 11/12", "40-audit": "HB 6.9, 7.17 · COV 15",
+  "40-email": "HB 6.8, 7.17 · COV 1", "40-bahasa": "HB 5.1", "40-tur": "HB 5.11 · COV 39", "40-lapor": "code: «Laporkan masalah» (D-037) · COV 16",
+  "41-admin": "HB 6.6 · ST §3 B0", "41-atur-sesi": "HB 9.8 · ST §3 A1", "41-kesempatan": "HB 7.13, 9.8 · ST §3 A1", "41-ditinggalkan": "HB 9.9, 11.10 · ST §3 A1",
+  "41-ditangguhkan": "HB 6.5 · ST §3 A1", "41-meja-kerja": "HB 10.2, 10.7 · ST §3 C1w", "41-kunci": "HB 10.8 · ST §3 C1w", "41-catatan-masuk": "HB 7.16 · ST §3 B1",
+  "41-referensi-cetak": "HB 18.2 · ST §3 B2", "41-darurat": "HB 6.7 · ST §3 A2a", "41-pemeliharaan": "HB 5.8, 7.12 · ST §3 A2b", "41-penolakan-seragam": "HB 5.3 · RM 4.1 corrections (S-1)",
+  "41-catatan-peninjau": "HB 10.9 · ST §3 C2w (finished, awaiting staging approval)", "41-tarik-peredaran": "Bob's review 17 Nov §2.3 · ST §3 C2w", "41-satu-penulis": "HB 9.11 · ST §4 A3", "41-pemulihan-sesi": "HB 9.11, 11.11 · ST §4 A3",
+  "41-kesempatan-versi": "OR ruling 46 · ST §4 A3", "41-ai-sendiri": "OR ruling 41; X1 guide · COV 18b", "41-ai-terpadu": "OR rulings 38–44 · ST §5 C3w (design approved)",
+  "42-mode-ujian": "RM 4.2 A.1", "42-jabatan": "RM 4.2 B.2 (O41-8)", "42-dua-sekolah": "RM 4.2 B.2 (O41-12, principle approved)", "42-satu-orang": "RM 4.2 B.9 (Rev 3.1)",
+  "42-koreksi-struktur": "RM 4.2 B.6", "42-tanpa-guru": "RM 4.2 B.10 (Rev 3.1)", "42-serah-terima": "RM 4.2 B.11 [execution plan]", "42-koreksi-pengembangan": "RM 4.2 B.6",
+  "42-tolak-permintaan": "RM 4.2 C.5", "42-ganti-password": "RM 4.2 C.5", "42-ekspor": "RM 4.2 C.3", "42-periode-lalu": "RM 4.2 C.4", "42-kesehatan-terjadwal": "RM 4.2 item 7 [execution plan]",
+  "45-kecerdasan-soal": "RM 4.5 item 1", "45-perbaikan-statistik": "RM 4.5 'Early 4.5 verification' (RD-4)", "45-kompetensi": "RM 4.5 item 1", "45-empat-pernyataan": "RM 4.5 item 2",
+  "45-sebaran": "RM 4.5 item 3", "45-quiet": "RM 4.5 item 3", "45-sejarah": "RM 4.5 item 6", "45-evaluasi": "RM 4.5 item 4 + lifecycle (R-1 open)", "45-perlindungan": "RM 4.5 item 5",
+  "45-whatsapp": "RM 4.5 carried (O41-2)", "45-akses-tidak-biasa": "RM 4.5 carried (D-088)",
+  "50-pertumbuhan": "RM 5.0 item 1", "50-kesepakatan": "RM 5.0 item 1", "50-intervensi": "RM 5.0 item 2 (R-4 open)", "50-tiga-klaim": "RM 5.0 item 3", "50-jalur": "RM 5.0 item 4", "50-institusi": "RM 5.0 item 5",
+  "k-batas-waktu": "RM 4.2 A (candidate)", "k-ai-sendiri": "DTT (X-2/X-3/X-4)", "k-masa-simpan": "RM 4.2 C.8 (unassigned, Rev 3.1)", "k-tutup-sekolah": "RM 4.2 'Later than 4.2'",
+  "k-yayasan": "RM 4.2 'Later than 4.2'", "k-tanggal-tahun": "RM 4.2 'Later than 4.2'", "k-batal-cabut": "RM 4.2 'Later than 4.2'", "k-pulihkan-rilis": "RM 4.2 'Later than 4.2'",
+  "k-sesuaikan-pustaka": "RM 4.2 'Later than 4.2'", "k-pengarahan": "RM 4.2 'Later than 4.2' (briefings); hidden in 4.0 per code comment", "k-hapus-keluarga": "RM 4.2 'Later than 4.2'",
+  "k-share-learn": "RM 4.5 'Items raised for source reconciliation'", "k-portal-ortu": "RM disposition table; COV 38", "k-kegunaan-qi": "RM 4.5 'Items raised for source reconciliation'",
+};
+const rows = [];
+for (const v of VERSI) for (const k of v.kelompok) for (const f of k.fitur) rows.push(`| \`${f.id}\` | ${f.nama} | ${v.v} | ${STATUS[f.status]} | ${SRC[f.id] ?? "**MISSING**"} |`);
+const krows = KANDIDAT.map((k) => `| \`${k.id}\` | ${k.nama} | — | ${k.status} | ${SRC[k.id] ?? "**MISSING**"} |`);
+const missing = [...rows, ...krows].filter((r) => r.includes("**MISSING**")).length;
+writeFileSync(new URL("./KATALOG-COVERAGE.md", import.meta.url), `# Katalog Lengkap Fitur PINTAR 4.0–5.0 · coverage checklist
+
+**Internal verification only. Not part of the reader-facing PDF.** Generated by \`coverage.mjs\` from \`fitur.mjs\`.
+Status is as of 18 November 2026.
+
+## Sources and precedence
+
+- **RM**: *PINTAR Consolidated Roadmap 4.0–5.0*, Revision 3 (doc control 3.3, including Rev 3.1's correction of the 4.2 inventory), \`docs/roadmap/\` on the 4.1 master-plan branch. It consolidates the roadmap, the reconciliation of 11 Nov and the owner record.
+- **OR**: \`OWNER-RULINGS-4.1.md\` (rulings 38–46 on AI drafting and attempts).
+- **ST**: 4.1 progress report, 18 Nov 2026 (\`docs/completion-4.1/STATUS-2026-11-18.md\`). It is the status evidence for 4.1.
+- **HB**: Handbook Draft 01a section. Its descriptions were traced to screens and code on \`main\` and corrected after Bob's review of 17 Nov.
+- **COV**: the handbook coverage map's feature row, \`docs/handbook/PINTAR-HANDBOOK-FEATURE-COVERAGE.md\`.
+- **DTT**: \`docs/roadmap/DECISIONS-TO-TRACK.md\`.
+
+**Not found in the repository, so not read directly:** \`PINTAR-ROADMAP.md\` and \`ROADMAP-RECONCILIATION-2026-11-11.md\`, on every branch. RM consolidates both and is used in their place. Bob to confirm this is acceptable.
+
+## Entries (${rows.length} features, ${krows.length} candidates; ${missing} without a source)
+
+| id | Feature | Version | Status | Source |
+|---|---|---|---|---|
+${rows.join("\n")}
+
+## Candidates and unassigned items (kept outside every version)
+
+| id | Item | Version | Status | Source |
+|---|---|---|---|---|
+${krows.join("\n")}
+
+## Deliberately not listed as features
+
+- **AI provider evaluation (E).** It is an evaluation, not a feature. It appears only in the technical reference, as deciding whether integrated AI can be offered.
+- **Z integrated acceptance and the educator walkthrough.** These are milestones, not features. They are mentioned in the 4.1 chapter introduction.
+- **«Umpan balik kelas» (class feedback rounds) and the «Ruang Peragaan» demonstration room.** Both exist in code but appear in no roadmap. The handbook also omits them until the owner decides (COV §5 item 17). **Bob to confirm.**
+- **Post-4.1 codebase rationalisation.** Internal work, not user-facing.
+- **Beyond-5.0 research horizon and Contextual Intelligence.** Research only, with no version commitment.
+- **Context Passport.** Its internal continuity capability is carried by «Sejarah yang dapat dijelaskan» (RM 4.5 item 6).
+
+## Points for Bob to verify before publication
+
+1. **Version assignments and statuses.** Check all ${rows.length} entries, especially:
+   - C2w as «Sedang dikembangkan», with a note that it is finished and awaiting staging approval;
+   - C3w as «Selesai dirancang, belum dibangun»;
+   - 4.5 and 5.0 entries shown as «Direncanakan», with each chapter introduction saying "approved direction, not yet planned in detail".
+2. **«Catatan peninjau».** The catalogue follows ST: reviewers record what a wrong option reveals about a misunderstanding. Handbook 10.9 said coded misconception notes were outside 4.1. Which is current?
+3. **4.0 maintenance scope.** The catalogue says 4.0 scheduled platform-wide maintenance, with emergency stops for the platform or one school, and that 4.1 added class- and school-level scheduling. Taken from HB 5.8 and 6.7.
+4. **«Laporkan masalah» as a 4.0 feature.** Code only; it is not in RM Appendix A.
+5. **Working names.** Kecerdasan Soal, Sebaran Hasil, Quiet Intelligence, Pertumbuhan Guru and Kesepakatan Pertumbuhan Bersama are working names pending the owner (COV §5 item 4).
+6. **Missing sources.** \`PINTAR-ROADMAP.md\` and \`ROADMAP-RECONCILIATION-2026-11-11.md\` (above).
+`);
+console.log(`coverage: ${rows.length} features, ${krows.length} candidates, ${missing} missing`);

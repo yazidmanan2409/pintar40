@@ -1,0 +1,129 @@
+/* Katalog Lengkap Fitur PINTAR 4.0–5.0 · the handbook's design grammar (design language v0.1). */
+@font-face { font-family: "Plus Jakarta Sans"; font-weight: 200 800; src: url("fonts/plus-jakarta-sans-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+2000-206F, U+2190-21FF, U+2200-22FF; }
+@font-face { font-family: "Plus Jakarta Sans"; font-weight: 200 800; src: url("fonts/plus-jakarta-sans-latin-ext.woff2") format("woff2"); unicode-range: U+0100-024F, U+1E00-1EFF; }
+@font-face { font-family: "Inter"; font-weight: 700; src: url("fonts/inter-700-latin.woff2") format("woff2"); }
+
+:root { --teal: #075056; --tint: #E4F0EF; --tinta: #16262A; --tinta-2: #44585C; --garis: #D5DFDF; --sans: "Plus Jakarta Sans", "Helvetica Neue", Arial, sans-serif; }
+
+/* ── pages ───────────────────────────────────────────── */
+@page { size: A4; margin: 22mm 20mm 20mm 20mm;
+  @top-left { content: "PINTAR · Katalog Lengkap Fitur 4.0–5.0"; font-family: "Plus Jakarta Sans", Arial, sans-serif; font-size: 8pt; font-weight: 500; color: #44585C; vertical-align: bottom; padding-bottom: 5mm; }
+}
+@page :right { @bottom-right { content: counter(page); font-family: "Plus Jakarta Sans", Arial, sans-serif; font-size: 8pt; font-weight: 600; color: #44585C; vertical-align: top; padding-top: 5mm; } }
+@page :left  { @bottom-left  { content: counter(page); font-family: "Plus Jakarta Sans", Arial, sans-serif; font-size: 8pt; font-weight: 600; color: #44585C; vertical-align: top; padding-top: 5mm; } }
+@page sampul { margin: 0; @top-left { content: none; } @bottom-left { content: none; } @bottom-right { content: none; } }
+@page v40 { @top-right { content: "4.0"; font-family: "Plus Jakarta Sans", Arial, sans-serif; font-size: 8pt; font-weight: 800; color: #fff; background-color: #075056; vertical-align: middle; text-align: center; width: 16mm; height: 8mm; margin-top: 0; margin-right: -20mm; } }
+@page v41 { @top-right { content: "4.1"; font-family: "Plus Jakarta Sans", Arial, sans-serif; font-size: 8pt; font-weight: 800; color: #fff; background-color: #075056; vertical-align: middle; text-align: center; width: 16mm; height: 8mm; margin-top: 0; margin-right: -20mm; } }
+@page v42 { @top-right { content: "4.2"; font-family: "Plus Jakarta Sans", Arial, sans-serif; font-size: 8pt; font-weight: 800; color: #fff; background-color: #075056; vertical-align: middle; text-align: center; width: 16mm; height: 8mm; margin-top: 0; margin-right: -20mm; } }
+@page v45 { @top-right { content: "4.5"; font-family: "Plus Jakarta Sans", Arial, sans-serif; font-size: 8pt; font-weight: 800; color: #fff; background-color: #075056; vertical-align: middle; text-align: center; width: 16mm; height: 8mm; margin-top: 0; margin-right: -20mm; } }
+@page v50 { @top-right { content: "5.0"; font-family: "Plus Jakarta Sans", Arial, sans-serif; font-size: 8pt; font-weight: 800; color: #fff; background-color: #075056; vertical-align: middle; text-align: center; width: 16mm; height: 8mm; margin-top: 0; margin-right: -20mm; } }
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; font-family: var(--sans); color: var(--tinta); font-size: 10pt; line-height: 1.55; }
+p { margin: 0 0 2.6mm; }
+b, strong { font-weight: 800; }
+a { color: inherit; text-decoration: none; }
+.kecil { font-size: 9pt; color: var(--tinta-2); }
+
+/* ── cover ───────────────────────────────────────────── */
+.sampul { page: sampul; height: 297mm; position: relative; padding: 26mm 24mm; break-after: page; background: #fff; }
+.sampul .merek { font-family: Inter, Arial, Helvetica, sans-serif; font-weight: 700; color: #075056; font-size: 22pt; margin: 0; }
+.sampul-isi { position: absolute; left: 24mm; right: 24mm; top: 92mm; }
+.sampul .versi { font-size: 11pt; font-weight: 800; color: var(--teal); margin-bottom: 3mm; }
+.sampul h1 { font-size: 34pt; line-height: 1.08; font-weight: 800; color: var(--teal); margin: 0 0 6mm; letter-spacing: -.015em; max-width: 150mm; }
+.sampul .lede { font-size: 13pt; color: var(--tinta-2); max-width: 140mm; margin-bottom: 16mm; }
+.tangga { list-style: none; margin: 0; padding: 0; border-top: .53mm solid var(--teal); }
+.tangga li { display: flex; gap: 6mm; padding: 2.8mm 0; border-bottom: .25mm solid var(--garis); font-size: 11pt; color: var(--tinta); }
+.tangga li span { width: 12mm; font-weight: 800; color: var(--teal); }
+.sampul-kaki { position: absolute; left: 24mm; bottom: 20mm; font-size: 9pt; color: var(--tinta-2); margin: 0; }
+
+/* ── opening sections and chapter openers ────────────── */
+.pengantar { break-before: page; }
+.versi { font-size: 10pt; font-weight: 800; color: var(--teal); margin: 0 0 1.5mm; }
+h2 { font-size: 22pt; line-height: 1.12; font-weight: 800; color: var(--teal); margin: 0 0 4mm; letter-spacing: -.01em; }
+h3.sub { font-size: 13pt; font-weight: 800; color: var(--teal); margin: 5.5mm 0 2.2mm; padding-bottom: 1.4mm; border-bottom: .53mm solid var(--teal); break-after: avoid; }
+.lede { font-size: 11pt; line-height: 1.5; color: var(--tinta-2); margin-bottom: 5mm; }
+blockquote.prinsip { margin: 4mm 0 2mm; padding: 3.4mm 5mm; border-left: 1.2mm solid var(--teal); background: var(--tint); font-size: 12pt; font-weight: 800; color: var(--teal); }
+blockquote.prinsip.besar { font-size: 17pt; line-height: 1.3; padding: 6mm 7mm; margin-top: 8mm; }
+.jalur { list-style: none; margin: 2mm 0 4mm; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 2mm; }
+.jalur li { background: var(--tint); border-radius: 2mm; padding: 3mm; position: relative; }
+.jalur li b { display: block; font-size: 14pt; color: var(--teal); }
+.jalur li span { font-size: 8.5pt; line-height: 1.35; color: var(--tinta); display: block; }
+.jalur li:not(:last-child)::after { content: "›"; position: absolute; right: -2.1mm; top: 50%; transform: translateY(-50%); color: var(--teal); font-weight: 800; }
+
+table { width: 100%; border-collapse: collapse; font-size: 9.5pt; line-height: 1.45; margin: 1mm 0 3mm; }
+th { text-align: left; font-size: 8.8pt; font-weight: 800; color: var(--teal); border-bottom: .53mm solid var(--teal); padding: 0 3mm 1.6mm 0; }
+td { vertical-align: top; padding: 2mm 3mm 2mm 0; border-bottom: .25mm solid var(--garis); }
+tr { break-inside: avoid; }
+.tabel-status td:first-child { width: 62mm; font-weight: 700; white-space: nowrap; }
+.ringkasan td:first-child { width: 34mm; }
+.ringkasan td:first-child b { display: block; font-size: 14pt; color: var(--teal); }
+.ringkasan td:first-child span { font-size: 8.5pt; color: var(--tinta-2); font-weight: 700; }
+.ringkasan td:nth-child(3) { width: 40mm; }
+.ringkasan td.jumlah { width: 16mm; font-weight: 800; font-size: 12pt; color: var(--teal); padding-right: 0; }
+.ringkasan td.jumlah span { display: flex; gap: 1mm; margin-top: 1mm; }
+.ringkasan td.jumlah .ikon { margin: 0; }
+.daftar-isi { list-style: none; margin: 0; padding: 0; }
+.daftar-isi li { display: flex; justify-content: space-between; gap: 4mm; padding: 1.8mm 0; border-bottom: .25mm solid var(--garis); }
+.daftar-isi li b { color: var(--teal); margin-right: 2mm; }
+.daftar-isi li span { color: var(--tinta-2); font-size: 9pt; white-space: nowrap; }
+
+/* status marks: shape and word together (survives a photocopy) */
+.ikon { display: inline-block; width: 3.2mm; height: 3.2mm; border-radius: 50%; border: .45mm solid var(--teal); margin-right: 1.8mm; vertical-align: -.4mm; flex: 0 0 auto; }
+.ikon-T { background: var(--teal); }
+.ikon-D { background: linear-gradient(90deg, var(--teal) 50%, transparent 50%); }
+.ikon-R { background: radial-gradient(circle, var(--teal) 32%, transparent 36%); }
+.ikon-P { background: transparent; }
+.ikon-K { border-style: dashed; border-radius: .6mm; }
+
+/* chapters */
+.bab { break-before: page; }
+.bab-v40 { page: v40; } .bab-v41 { page: v41; } .bab-v42 { page: v42; } .bab-v45 { page: v45; } .bab-v50 { page: v50; }
+.pembuka { margin-bottom: 4mm; }
+.pembuka .versi { font-size: 30pt; line-height: 1; letter-spacing: -.02em; margin-bottom: 2mm; }
+.bab-lain .pembuka .versi { font-size: 10pt; letter-spacing: 0; }
+.isi-bab { background: var(--tint); border-radius: 2mm; padding: 3.4mm 5mm 2.6mm; margin: 3mm 0 4mm; }
+.kecil-judul { font-size: 9pt; font-weight: 800; color: var(--teal); margin-bottom: 1.2mm; }
+.isi-bab ol { margin: 0; padding-left: 5mm; columns: 2; column-gap: 8mm; }
+.isi-bab li { margin-bottom: .8mm; break-inside: avoid; }
+.isi-bab li span { color: var(--tinta-2); font-size: 8.5pt; }
+.tidak { border: .45mm solid var(--teal); border-radius: 2mm; padding: 3.4mm 5mm 2.4mm; margin-bottom: 4mm; }
+.tidak ul { margin: 0; padding-left: 5mm; columns: 2; column-gap: 8mm; }
+.tidak li { margin-bottom: .8mm; }
+.alur { margin: 2mm 0 4mm; }
+.alur figcaption { font-size: 9pt; font-weight: 800; color: var(--teal); margin-bottom: 1.6mm; }
+.alur ol { list-style: none; margin: 0; padding: 0; display: flex; gap: 1.6mm; flex-wrap: wrap; counter-reset: a; }
+.alur li { counter-increment: a; flex: 1 1 0; min-width: 20mm; border: .4mm solid var(--teal); border-radius: 2mm; padding: 2mm 2.4mm; font-size: 9pt; font-weight: 700; color: var(--teal); position: relative; }
+.alur li::before { content: counter(a); display: block; font-size: 8pt; color: var(--tinta-2); font-weight: 600; }
+.alur li:last-child { background: var(--teal); color: #fff; }
+.alur li:last-child::before { color: #CFE3E0; }
+
+/* feature groups and entries */
+.kelompok h3 { font-size: 13pt; font-weight: 800; color: var(--teal); margin: 7mm 0 3mm; padding-bottom: 1.4mm; border-bottom: .53mm solid var(--teal); break-after: avoid; }
+.kelompok h3 span { font-size: 9pt; font-weight: 700; margin-right: 2.6mm; }
+.fitur { break-inside: avoid; border-bottom: .25mm solid var(--garis); padding: 3.4mm 0 3mm; }
+.fitur header { display: flex; justify-content: space-between; align-items: baseline; gap: 6mm; }
+.fitur h4 { margin: 0; font-size: 11.5pt; line-height: 1.3; font-weight: 800; color: var(--tinta); }
+.fitur .status { margin: 0; font-size: 8.8pt; font-weight: 700; color: var(--teal); white-space: nowrap; }
+.fitur .untuk { font-size: 8.8pt; color: var(--tinta-2); margin: .6mm 0 2mm; }
+.fitur dl { display: grid; grid-template-columns: 30mm 1fr; gap: 1.4mm 5mm; margin: 0; }
+.fitur dt { font-size: 9pt; font-weight: 800; color: var(--teal); padding-top: .2mm; }
+.fitur dd { margin: 0; }
+.fitur dd.contoh { color: var(--tinta-2); }
+.fitur .catatan { margin: 2.2mm 0 0 35mm; font-size: 8.8pt; color: var(--tinta-2); border-left: .6mm solid var(--teal); padding-left: 2.6mm; }
+
+/* candidates and reference tables */
+.kandidat td:first-child { width: 52mm; }
+.kandidat td:first-child .ikon { margin-right: 2mm; }
+.kandidat td:last-child { width: 56mm; color: var(--tinta-2); }
+.rujukan td:first-child { width: 20mm; font-weight: 800; color: var(--teal); }
+
+/* closing */
+.tahap { list-style: none; margin: 2mm 0 0; padding: 0; }
+.tahap li { display: grid; grid-template-columns: 18mm 1fr; gap: 4mm; padding: 3.4mm 0; border-bottom: .25mm solid var(--garis); break-inside: avoid; }
+.tahap li > b { font-size: 18pt; color: var(--teal); line-height: 1.1; }
+.tahap h4 { margin: 0 0 1mm; font-size: 11.5pt; font-weight: 800; }
+.tahap p { margin: 0; }
+.ringkasan { font-size: 9pt; }
+.ringkasan td { padding-top: 1.6mm; padding-bottom: 1.6mm; }
