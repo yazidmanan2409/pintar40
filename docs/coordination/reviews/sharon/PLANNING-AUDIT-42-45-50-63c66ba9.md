@@ -91,3 +91,11 @@ With these changes, 4.2's totals become: COMPLETE 1, PARTIAL 4, UNRESOLVED 12, B
 4. **G-4 and G-5 are one path:** R-2 → production adoption (after the upgrade's blockers) → real evidence → 4.5. R-2 should be a 4.2 deliverable. Bob lists them as separate High risks and leaves R-2 unassigned.
 
 *Could reasonably have been anticipated* applies to the audit, not to my own work. Q1 (readers and writers) finds M-3 and M-6. Q2 (the neighbouring act) finds M-4. Q5 (who checks) finds G-7's grant-enforced boundary.
+
+## Addendum · revision 3 checked (18 Nov 2026, 08:35 UTC)
+
+Read: §7 of the audit at `69ed8b63`. **It states my review correctly. No disagreement with Bob remains open; D-03 and D-R2 are the owner's.**
+- **Two small corrections to the row:**
+  - "Asked to read revision 2" is stale, per Bob's own note. My review stands on revision 1, and revision 3 records it;
+  - **D-05b** (current grants govern reading, the period governs content) is adopted, as Bob's note says, but is missing from the row's "Adopted in revision 3" list.
+- **On D-03:** Bob's recommendation is the code's behaviour, where `tangguhkan_akun` is platform-admin only. That answers who may suspend today. It still leaves the owner to confirm the model: a suspension made for one school's reason ends the person's work at every school. **That is the decision, and it is correctly placed with the owner.**
