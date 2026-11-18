@@ -14,7 +14,7 @@ This is the running record. Bob updates it as work moves; the newest entries are
    - **What v4 does:** it retries a broken stream at most twice, within the caps, as Anthropic's run did.
    - **(a) Keep it: the same process for both providers (Ruling 48). Bob recommends this.**
    - **(b) Follow the guidance literally:** OpenAI could then lose a whole chapter that Anthropic's process would have retried.
-   - Sharon advises first. The code does not change until the owner rules.
+   - **Sharon agrees with (a)** (`b52b1079`). Her condition: the report states which attempt each chapter's answer came from, for both providers. The code does not change until the owner rules.
 2. **C2w,** once frozen: the read-only "before" preservation read on staging, then the merge. These are two separate authorisations.
 3. **E, the OpenAI paid run,** after Sharon's PASS and the owner's free practice run: his authorisation and one new temporary OpenAI key.
 
@@ -24,6 +24,8 @@ This is the running record. Bob updates it as work moves; the newest entries are
 
 | When (UTC) | What |
 |---|---|
+| 01:50 | Sharon's two recommendations done, under the delegation. R-1: a reasoning item's content part is accepted, never kept (red `239a0211`, fix `88e33ec6`, self-test 262). R-2: only the two judged Anthropic files are copied for blinding, then re-hashed. **Package v4 now SHA-256 `3f2ade8464fbd54dbf6e183106e1f49c9b78721a7a0b55850bb063a011924283`**; rehearsal 18 paths. Sharon asked to confirm |
+| 01:44 | **Sharon: E v4 PASS** (`b52b1079`). The blinding matches Ruling 51 and P-1. Wording correction C-1 made |
 | 01:27 | OpenAI v4 sent to Sharon for independent review (`OPENAI-READINESS.md`) |
 | 01:25 | Package v4 rebuilt on the verified runner `d4adbeb6`: SHA-256 `bc2f3c0c…a6299`. Rehearsal: 18 paths, all as expected |
 | 01:24 | OpenAI adapter reconciled with the grade-A facts (`3e1a09f0`), test first. Events are read by data.type. Verified, with seven fail-closed points; self-test 260 |
