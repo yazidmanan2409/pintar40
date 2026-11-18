@@ -1,0 +1,59 @@
+# Z · readiness tracker
+
+Bob, 18 Nov 2026, about 10:00 UTC. **One list of everything that must be true, or triaged, before Z's candidate** (`PLAN-A3-C3W-Z.md` §4.2).
+- It gathers items now scattered across `TEAM-INSTRUCTIONS.md`, the batch records and reviews, so that they can be
+  worked in parallel with A3 and C3w-1 instead of all at once at Z.
+- It adds no scope: every item below is already recorded, and its source is cited.
+- Owners update their row with a commit.
+
+## 1 · Batches
+
+| Batch | State | What remains |
+|---|---|---|
+| B0, A1, C1w, B1, B2, A2a, A2b | Accepted on staging | — |
+| **C2w** | **Accepted on staging at 284** (ruling 53) | — |
+| **A3** | Building; head `fc7a26e5`, 286 migrations; V-1 and V-2 done | The recovery act (red cases to Sharon first), the teacher's authorisation and the finish manifest. Then merge main (now with C2w) into it: pins to 288 and a full pre-flight. Then the dry run (Sharon's six proofs; step 0's line-4 reference at 284), the reviews, CI, the journeys, the freeze and the promotion (owner) |
+| **C3w-1** | Pre-build review complete (`C3W-1-DESIGN.md` §9) | Built after A3. Daisy's Z-2, Z-3 (one answer for unknown and forbidden, V-3), N-6 and N-7 come first |
+| **C3w-2** | Waits for E's results, the owner's qualification and limits, egress and the key | — |
+
+## 2 · The register carried to Z
+
+| # | Item | Source | Owner | State |
+|---|---|---|---|---|
+| R-1 | A departed learner opening a sitting directly by its web address | Sharon's ruling; A2a page, item 6 | Second Eye | Re-check when A3 changes the start path |
+| R-2 | Two simultaneous refused acts can each write an audit row | Sharon; A2a page, item 7 | Second Eye | Triage |
+| R-3 | A2b's person-level start branch reads `now()`, not `clock_timestamp()` | Sharon, A2b commit 2 | Second Eye | Triage |
+| R-4 | A2B-R3 | A2b acceptance | Second Eye | Triage |
+| R-5 | A2B-R1 (emergency reason codes): deferred, not a blocker | PLAN §4.2 | — | Stated |
+| R-6 | The L01 ranks (A3-R3); C3w-1 adds its three tables (Sharon, D-4) | A2b acceptance; C3W-1-DESIGN §9 | Second Eye | With A3 and C3w-1 |
+| R-7 | **X-1:** a Studio refusal renders two `<main id="isi">` | TEAM-INSTRUCTIONS register | Daisy verifies | **Lands as Z-2** in C3w-1's first commits |
+| R-8 | **X-2:** six `/belajar/[tugas]/` sub-pages don't check that the id belongs to the learner (they show the generic error page) | same | Second Eye; Daisy verifies | Open |
+| R-9 | **X-3:** an unknown correction id shows "not allowed" | same | Daisy verifies | **Lands as Z-3, revised:** ONE answer for unknown and forbidden (Daisy's V-3) |
+| R-10 | **X-4:** a Konfigurasi sub-page shows a shorter navigation than the index | same | Daisy verifies | Open |
+| R-11 | Phone-width overflow on `/mengajar/[kelas]/siapa`, `soal` and `bukti` | Daisy | Daisy | Open |
+| R-12 | Daisy's N-1 to N-5, plus N-6 and N-7 (Kanonik keys) | A2b acceptance; Daisy `dde78004` | Daisy | N-6 and N-7 land in C3w-1; N-1 to N-5 to confirm |
+| R-13 | The three 4.0 rendered checks on staging (a night-issued certificate's date; the integrity count line; «Materi tanpa judul») | EXECUTION-PLAN §6 | Daisy, or a browser-capable person | Outstanding; before the walkthrough |
+| R-14 | **X-15** (planning audit): four readers treat a not-yet-started role as live (`studio_capabilities`, `refuse_duplicate_active_grant`, `sertifikat_koreksi_tolak`, `orang_dipegang`) | Second Eye, 18 Nov | Bob to triage | **Triage question:** is it reachable today? Future-dated starts are 4.2, but a `valid_from` in the future can be written now if any path sets it. Second Eye to answer in one line |
+| R-15 | Non-blocking findings carried from 4.0, A1 and C1w ("with the batch that touches the same code, or in 4.2") | EXECUTION-PLAN §5 | Bob | Triage at Z; most go to 4.2 or the rationalisation audit |
+
+## 3 · Z's other entry items
+
+| Item | State |
+|---|---|
+| The external-AI guide and prompts (onboarding X-1) ready for the walkthrough | Written (Daisy), data warning reviewed (Sharon); **one paste test open** |
+| The six integrated journeys (PLAN §4.3, Addendum 1) | J3 needs C3w-2 on staging. J1, J2, J4, J5 and J6 can be written against main as batches land |
+| A fresh-built schema equal to migrated staging; restore yields both scheduled jobs | At Z |
+| The owner's decisions | Staging promotion at Z; the walkthrough date (O41-7) |
+
+## 4 · What can move now, without waiting for A3
+
+- **Daisy:**
+  - R-10 and R-11: check on main whether each is still open, and write each fix's specification;
+  - R-12: confirm N-1 to N-5;
+  - the X-1 paste test;
+  - her vocabulary page (planning audit D-V).
+- **Second Eye:** R-14's one-line answer, at a natural pause in A3. R-8 is small but changes app code, so it is built
+  after A3, before C3w-1's Z commits.
+- **Bob:**
+  - R-15's triage list;
+  - the Z journey skeletons for J1, J2, J4, J5 and J6, mapped to existing tests.
