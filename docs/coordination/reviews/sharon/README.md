@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| E K-FLAG blind key answers (60 items) | Answered blind and committed before any comparison. Package sha256 bdce76ae… verified; lembar-kunci-K.csv b7eb6424…, jawaban-k.csv c0838b0b… | this commit | `E-KFLAG/README.md` |
 | A3 L01 token 29 | Case 3, (i) accepted: every pagar branch takes the sitting FOR UPDATE before its update; remedy 2 withdrawn. Condition: a static pin with a plant on the four branch functions | local only | `A3-DIFFS-671175e4.md` |
 | A3 controller: L01 report position | (b) examine first: (0) is KEY SHARE; token 29 is assessment_sessions(2) before the gate FOR UPDATE, a possible 2→3 on one sitting the checker misses. If it is the same row, take FOR UPDATE first (defensive, no race needed); if not, a named exception. Z: the checker should report 2→3 | local only | `A3-DIFFS-671175e4.md` |
 | A3 controller: A2B-I01 class and L01 report (rulings, before the commit) | (1) INNER accepted: all 8 callers named, not a boundary, the claim executed via assistance_state, all 8 VOLATILE. (2) L01 report restated test-only: exactly 9 lines, sitting(3),(2) after FENCE(3), no red head. Plus: the trigger assigns, seed-sesi kept out of migrations, S11 and second-session cases, a generasi-ordering case | local only (d0a49dcb, b1c812b6) | `A3-DIFFS-671175e4.md` |
