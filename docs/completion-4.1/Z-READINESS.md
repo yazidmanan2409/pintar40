@@ -82,4 +82,11 @@ in A3's gaps, economically.
 - C1w's statistics after a one-question revision (goes to 4.5), and the preference for a confirmer who is not the author;
 - B0's account closure (platform admin only, and recoverable).
 
-Everything else is closed, with citations. The open items are classed at Z. Daisy's lines are pending.
+Everything else is closed, with citations. The open items are classed at Z.
+
+**Daisy's items, checked (18 Nov, 12:22):** `R15-DAISY-7ba18b03.md` on `ux-1/daisy-experience` (`087b5848`).
+- 6 closed.
+- 6 open for Z: four are one string or one line each, and two need one look each (A1-R4, C1-R4).
+- 1 goes to 4.2: C1-R5's email.
+
+**R-15 is triaged.** Its Z items join Second Eye's Z fixes after A3.
