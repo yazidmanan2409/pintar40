@@ -16,6 +16,8 @@ export const LABEL_PILIHAN = ["A", "B", "C", "D", "E"] as const;
 export type AlamatSoal = {
   pelajaran?: string; c1h?: "ok" | "gagal"; c1?: string; c1s?: string; c1m?: string; ref?: string;
   ubah?: string; tambah?: string; kunci?: string; langkah?: string; jangkar?: string;
+  /** C2w: the note form the address opens, the answer's code and the note it is about («<item>:<label>») */
+  catatan?: string; c2h?: "ok" | "gagal"; c2?: string; c2s?: string;
 };
 export function alamatSoal(course: string, q: AlamatSoal): string {
   const p = new URLSearchParams();

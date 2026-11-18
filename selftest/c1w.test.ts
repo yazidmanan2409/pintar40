@@ -60,21 +60,21 @@ function siapkan(repoRoot: string): string | null {
 }
 
 // ------------------------------------------------------------------ the scenario's own language
-const q = (s: string) => `$q$${s}$q$`;
+export const q = (s: string) => `$q$${s}$q$`;
 /** An id the world recorded: c1.<name> (people u_<name> and p_<name>). */
-const G = (k: string) => `current_setting('c1.${k}')::uuid`;
-const S = (k: string) => `current_setting('c1.${k}')`;
+export const G = (k: string) => `current_setting('c1.${k}')::uuid`;
+export const S = (k: string) => `current_setting('c1.${k}')`;
 /** One probe: as `siapa` (the database owner when null) run `sql`; its answer kept under `k`. */
-const langkah = (k: string, siapa: string | null, sql: string) =>
+export const langkah = (k: string, siapa: string | null, sql: string) =>
   `v := v || jsonb_build_object('${k}', pg_temp.c1(${siapa ? G(`u_${siapa}`) : "null"}, ${q(sql)}));`;
 /** A step whose answer is not kept, as `siapa`. */
-const lakukan = (siapa: string | null, sql: string) => `perform pg_temp.c1_wajib(${siapa ? G(`u_${siapa}`) : "null"}, ${q(sql)});`;
+export const lakukan = (siapa: string | null, sql: string) => `perform pg_temp.c1_wajib(${siapa ? G(`u_${siapa}`) : "null"}, ${q(sql)});`;
 /** A fixture's own correction past the guards (the harness, never a product path). */
-const paksa = (sql: string) => `set local session_replication_role = replica; execute ${q(sql)}; set local session_replication_role = origin;`;
+export const paksa = (sql: string) => `set local session_replication_role = replica; execute ${q(sql)}; set local session_replication_role = origin;`;
 /** A question as the editor sends it: options A.. with `kunci` (comma-separated labels) correct. */
 const soal = (stem: string, kunci: string, n = 2, kosong = "") =>
   `pg_temp.c1_soal_json('${stem}', '${kunci}', ${n}, '${kosong}')`;
-const item = (course: string, stem: string) => `pg_temp.c1_item(${G(course)}, '${stem}')`;
+export const item = (course: string, stem: string) => `pg_temp.c1_item(${G(course)}, '${stem}')`;
 
 function skenario(badan: string[]): string {
   return `
@@ -311,7 +311,7 @@ rollback;
 `;
 }
 
-function jalankan(c: Checks, repoRoot: string, badan: string[]): Record<string, string> | null {
+export function jalankan(c: Checks, repoRoot: string, badan: string[]): Record<string, string> | null {
   const gagal = siapkan(repoRoot);
   if (!c.expect(gagal === null, gagal ?? "")) return null;
   const r = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-At", "-c", skenario(badan), db()], { encoding: "utf8", maxBuffer: 32 * 1024 * 1024 });
@@ -329,10 +329,10 @@ const audit = (aksi: string, target: string, lagi = "true") =>
   `select count(*) from public.audit_log l where l.action = '${aksi}' and l.target_id = (${target})::text and ${lagi}`;
 
 // the key correction's acts
-const ajukan = (it: string, kunci: string, alasan = ALASAN) => `select public.ajukan_koreksi_kunci(${it}, array['${kunci}'], '${alasan}') ->> 'koreksi'`;
-const simpanKoreksi = (nama: string, it: string, kunci: string) =>
+export const ajukan = (it: string, kunci: string, alasan = ALASAN) => `select public.ajukan_koreksi_kunci(${it}, array['${kunci}'], '${alasan}') ->> 'koreksi'`;
+export const simpanKoreksi = (nama: string, it: string, kunci: string) =>
   `perform set_config('c1.${nama}', (select k.id::text from public.key_corrections k where k.item_id = public.soal_ujung(${it}) and k.status = 'PENDING' and k.key_after = array['${kunci}']), true);`;
-const tegaskan = (k: string) => `select public.tegaskan_koreksi_kunci(${G(k)})::text`;
+export const tegaskan = (k: string) => `select public.tegaskan_koreksi_kunci(${G(k)})::text`;
 const hasilRingkas = (s: string) =>
   `select count(*) || '|' || count(*) filter (where not exists (select 1 from public.assessment_results x where x.supersedes_result_id = r.id))
           || '|' || (select r2.mastery from public.assessment_results r2 where r2.id = public.hasil_terkini_id(${G(s)}))
@@ -1152,6 +1152,70 @@ export const c1wTests: SelfTest[] = [
         + "DITINJAU from that moment (no reason, no score), its status, payload, signature, number and token unchanged, in the issuing school's queue and "
         + "notice; a head of department and a platform admin cannot decide; the school confirms (BERLAKU again) or revokes through revoke_certificate "
         + "(DICABUT, its reason recorded); a decided certificate affected again gets a new review; DIGANTIKAN and DICABUT take precedence; a review is history");
+    },
+  },
+  {
+    // F-3 (THE PLAN §7.7; PLAN-A2B-C2W.md §3.2, before C2w): a platform administrator decides a Professional
+    // Development certificate review, and a school's reviewer cannot. C1W-S06 holds the academic half (the school's
+    // CAN_PUBLISH decides; Admin platform is refused). The sitting is C1W-S06's own, the bootstrap learner's, under
+    // review through a governed key correction; the fixture's one shortcut (paksa, the harness's hand) makes its
+    // course Professional Development, which is what session_is_professional reads. The plant, in a second run:
+    // boleh_putuskan_tinjauan's PD branch given the school's rule; the test must then fail.
+    id: "C2W-F3D",
+    requires: ["db"],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const sertifikat = `(select x.id from public.certificates x where x.session_id = ${G("bs")} order by x.issued_at desc limit 1)`;
+      const presented = (n: number) => `(select p.item_id from public.presented_items p where p.session_id = ${G("bs")} order by p.position offset ${n} limit 1)`;
+      const kunciLain = (it: string) => `(select o.label from public.item_options o where o.item_id = ${it} and not o.is_correct order by o.label limit 1)`;
+      const putus = (k: string, siapa: string) =>
+        langkah(k, siapa, `select public.putuskan_tinjauan_sertifikat(${G("rv")}, 'CONFIRMED', 'Hasil pengembangan profesi tetap di atas batas.') ->> 'status'`);
+      const badan = (tanam: boolean): string[] => [
+        `if ${S("boot")} = '' then raise exception 'the bootstrap school is absent'; end if;`,
+        `perform selftest.purge_certificates();`,
+        `perform set_config('c1.bs', selftest.boot_attempt(true)::text, true);`,
+        `perform selftest.as_owner(); perform public.certificate_prepare(${G("bs")}, 1::smallint);`,
+        `perform set_config('c1.cert', ${sertifikat}::text, true); perform public.certificate_seal(${G("cert")}, 1::smallint, repeat('a', 64));`,
+        `perform selftest.as_owner();
+         perform set_config('c1.it_k1', (${presented(0)})::text, true);
+         perform set_config('c1.kunci_k1', ${kunciLain(G("it_k1"))}, true);
+         perform selftest.as_user_uid(${G("u_badmin")});
+         perform set_config('c1.k1', public.ajukan_koreksi_kunci(${G("it_k1")}, array[${S("kunci_k1")}], '${ALASAN}') ->> 'koreksi', true);
+         perform selftest.as_owner();`,
+        lakukan("bkadep", `select public.tegaskan_koreksi_kunci(${G("k1")})`),
+        `perform set_config('c1.rv', (select v.id::text from public.certificate_reviews v where v.certificate_id = ${G("cert")} and v.decision is null), true);`,
+        // the fixture's shortcut: the sitting's course is Professional Development
+        paksa(`update public.courses set learning_context = 'PROFESSIONAL_DEVELOPMENT' where id = (select r.course_id from public.assessment_sessions s join public.plp_releases r on r.id = s.plp_release_id where s.id = current_setting('c1.bs')::uuid)`),
+        ...(tanam ? [`perform selftest.as_owner(); execute replace(pg_get_functiondef('public.boleh_putuskan_tinjauan(uuid)'::regprocedure),
+             'then public.is_system_admin()', 'then public.peran_tenant_punya(public.current_person_id(), ''CAN_PUBLISH'', c.institution_id)');`] : []),
+        langkah("pd", null, `select public.session_is_professional(${G("bs")})::text || '|' || (select count(*) from public.certificate_reviews v where v.id = ${G("rv")} and v.decision is null)`),
+        // who may decide a PD review
+        putus("badmin", "badmin"),
+        putus("bkadep", "bkadep"),
+        putus("lain", "lain"),
+        langkah("antrean_sys", "sys", `select (x -> 0 ->> 'sertifikat' = ${S("cert")})::text || '|' || (x -> 0 ->> 'boleh_putuskan') from public.tinjauan_sertifikat_antrean(${G("boot")}) x`),
+        putus("sys", "sys"),
+        langkah("cek", null, `select v.decision || '|' || (v.decided_by_person_id = ${G("p_sys")})::text || '|' || (select count(*) from public.audit_log l
+             where l.action = 'certificate.review_decided' and l.target_id = ${S("cert")} and l.actor_person_id = ${G("p_sys")}) from public.certificate_reviews v where v.id = ${G("rv")}`),
+      ];
+      const m = jalankan(c, repoRoot, badan(false));
+      if (!m) return c.verdict("");
+      const harap = (k: string, h: string, apa: string) => c.expect(m[k] === h, `${apa}: answered ${m[k]}; expected ${h}`);
+      harap("pd", "ok:true|1", "the sitting is Professional Development and its certificate's review is open");
+      harap("badmin", "PR190:CERT_REVIEW_NOT_ALLOWED", "the issuing school's Admin sekolah (CAN_PUBLISH, who decides an academic review) deciding a PD review");
+      harap("bkadep", "PR190:CERT_REVIEW_NOT_ALLOWED", "the school's head of department deciding a PD review");
+      harap("lain", "PR190:CERT_REVIEW_NOT_ALLOWED", "another school's Admin sekolah deciding a PD review");
+      harap("antrean_sys", "ok:true|true", "Admin platform's queue offers the PD review as theirs to decide");
+      harap("sys", "ok:ISSUED", "Admin platform deciding the PD review (confirmed)");
+      harap("cek", "ok:CONFIRMED|true|1", "the decision recorded as Admin platform's, and audited once");
+      // the plant: the PD branch given the school's rule; the school's admin may then decide, and the test must fail
+      const t2 = jalankan(new Checks(), repoRoot, badan(true));
+      c.expect(t2 !== null && (t2.badmin !== "PR190:CERT_REVIEW_NOT_ALLOWED" || t2.sys !== "ok:ISSUED"),
+        `the plant (the PD branch given the school's rule) must be caught: the school's admin answered ${t2?.badmin}, Admin platform ${t2?.sys}`);
+      return c.verdict("F-3: a Professional Development certificate under review (a governed key correction changed its sitting's result) is "
+        + "decided by Admin platform alone: the issuing school's Admin sekolah, its head of department and another school's admin are refused "
+        + "CERT_REVIEW_NOT_ALLOWED; Admin platform's queue offers it as theirs, the confirmation is recorded and audited as Admin platform's; "
+        + "the plant giving the PD branch the school's rule is caught (C1W-S06 holds the academic half)");
     },
   },
   {

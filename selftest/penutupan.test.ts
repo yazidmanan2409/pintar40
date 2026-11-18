@@ -539,7 +539,10 @@ export const penutupanTests: SelfTest[] = [
         && /<select className=\{field\} name="institution"[\s\S]*?sekolahTujuan\.map/.test(h)
         && /<select className=\{field\} name="distribusi"[\s\S]*?izinBerlaku\.map/.test(h),
         "the package, the school and the grant to withdraw are not chosen by name");
-      c.expect(/from\("release_distributions"\)\.select\("id, plp_release_id, institution_id"\)\.eq\("status", "ACTIVE"\)/.test(h)
+      // RESTATED, C2w A2B-R2 (Second Eye, this test's author): the open grants are still a read made for the form, now
+      // through distribusi_berlaku, the controller-only read (the direct read of release_distributions was always empty:
+      // a staff client cannot select it)
+      c.expect(/rpc\("distribusi_berlaku"\)/.test(h) && !/from\("release_distributions"\)/.test(h)
         && /tenant_kind === "PLATFORM_CANONICAL"/.test(h) && /tenant_kind === "INSTITUTION"/.test(h),
         "the choices are not the library's published packages, the schools and the open grants");
       return c.verdict("Pustaka PINTAR's grant and withdrawal are drawn for Admin platform alone; the library's published package, "

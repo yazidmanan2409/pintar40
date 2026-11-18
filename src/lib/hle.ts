@@ -575,6 +575,29 @@ export type HleEvent =
   | "studio.soal.riwayat.tujuan"
   | "studio.soal.riwayat.tetap"
   | "studio.soal.riwayat.gagal"
+  | "studio.catatan.judul"
+  | "studio.catatan.pilihan"
+  | "studio.catatan.sebelumnya"
+  | "studio.catatan.diganti_pada"
+  | "studio.catatan.tulis"
+  | "studio.catatan.ganti"
+  | "studio.catatan.label"
+  | "studio.catatan.petunjuk"
+  | "studio.catatan.petunjuk_ganti"
+  | "studio.catatan.simpan"
+  | "studio.catatan.batal"
+  | "studio.catatan.tersimpan"
+  | "studio.catatan.oleh"
+  | "studio.catatan.pintar"
+  | "studio.catatan.oleh_guru"
+  | "studio.catatan.i5"
+  | "studio.catatan.i5_guru"
+  | "studio.catatan.galat.note_text_invalid"
+  | "studio.catatan.galat.note_not_sealed"
+  | "studio.catatan.galat.note_not_allowed"
+  | "studio.catatan.galat.note_library_content"
+  | "studio.catatan.galat.note_not_current"
+  | "studio.catatan.galat.note_exists"
   | "studio.kunci.keliru"
   | "studio.kunci.judul"
   | "studio.kunci.langkah"
@@ -4398,6 +4421,30 @@ const table: Table = {
   "studio.soal.riwayat.tujuan": { default: "Tujuan diubah", en: "Objective changed" },
   "studio.soal.riwayat.tetap": { default: "Tidak ada yang diubah", en: "Nothing changed" },
   "studio.soal.riwayat.gagal": { default: "Riwayat soal ini belum dapat dibaca. Muat ulang halaman ini.", en: "This question's history could not be read. Reload this page." },
+  // C2w · «Catatan peninjau» (Daisy, C2W-CATATAN-KATA.md at 535561ed; the I-5 lines, A2B-C2W-KATA.md §3)
+  "studio.catatan.judul": { default: "Catatan peninjau ({n})", en: "Reviewer notes ({n})" },
+  "studio.catatan.pilihan": { default: "Pilihan {label}", en: "Option {label}" },
+  "studio.catatan.sebelumnya": { default: "Catatan sebelumnya ({n})", en: "Earlier notes ({n})" },
+  "studio.catatan.diganti_pada": { default: "Diganti pada {tanggal}", en: "Replaced on {tanggal}" },
+  "studio.catatan.tulis": { default: "Tulis catatan", en: "Write a note" },
+  "studio.catatan.ganti": { default: "Ganti catatan", en: "Replace the note" },
+  "studio.catatan.label": { default: "Catatan untuk pilihan {label}", en: "Note on option {label}" },
+  "studio.catatan.petunjuk": { default: "Apa yang ditunjukkan pilihan ini tentang cara berpikir murid? Jangan menyebut nama atau data murid mana pun. Catatan ini tidak dilihat murid dan tidak mengubah soal atau nilai. Sampai 1000 karakter.", en: "What does this option show about how learners think? Do not name any learner or include any learner's data. Learners never see this note, and it changes no question or score. Up to 1000 characters." },
+  "studio.catatan.petunjuk_ganti": { default: "Catatan lama tetap tersimpan dan terlihat di Catatan sebelumnya.", en: "The old note stays saved and visible under Earlier notes." },
+  "studio.catatan.simpan": { default: "Simpan catatan", en: "Save the note" },
+  "studio.catatan.batal": { default: "Batal", en: "Cancel" },
+  "studio.catatan.tersimpan": { default: "Catatan tersimpan.", en: "Note saved." },
+  "studio.catatan.oleh": { default: "{nama} · {tanggal} · versi {n}", en: "{nama} · {tanggal} · version {n}" },
+  "studio.catatan.pintar": { default: "Peninjau PINTAR", en: "PINTAR reviewer" },
+  "studio.catatan.oleh_guru": { default: "Peninjau: {nama} · {tanggal}", en: "Reviewer: {nama} · {tanggal}" },
+  "studio.catatan.i5": { default: "Ditulis sebelum kunci soal ini diperbaiki, saat kuncinya masih {kunci_saat_itu}. Catatan ini tentang versi {n}; kunci yang berlaku sekarang {kunci_kini}.", en: "Written before this question's key was corrected, when its key was still {kunci_saat_itu}. This note is about version {n}; the key in force now is {kunci_kini}." },
+  "studio.catatan.i5_guru": { default: "Ditulis sebelum kunci soal ini diperbaiki, saat kuncinya masih {kunci_saat_itu}. Kunci yang berlaku sekarang {kunci_kini}.", en: "Written before this question's key was corrected, when its key was still {kunci_saat_itu}. The key in force now is {kunci_kini}." },
+  "studio.catatan.galat.note_text_invalid": { default: "Tulis catatannya, 1 sampai 1000 karakter. Tidak ada yang disimpan.", en: "Write the note, 1 to 1000 characters. Nothing was saved." },
+  "studio.catatan.galat.note_not_sealed": { default: "Catatan peninjau hanya dapat ditulis untuk soal yang sudah diterbitkan. Tidak ada yang disimpan.", en: "Reviewer notes can only be written on a published question. Nothing was saved." },
+  "studio.catatan.galat.note_not_allowed": { default: "Hanya peninjau sekolah pemilik soal ini yang dapat menulis catatan peninjau. Tidak ada yang disimpan.", en: "Only a reviewer at the school that owns this question can write reviewer notes. Nothing was saved." },
+  "studio.catatan.galat.note_library_content": { default: "Soal Pustaka PINTAR hanya diberi catatan oleh peninjau PINTAR. Tidak ada yang disimpan.", en: "PINTAR Library questions are annotated only by PINTAR's reviewers. Nothing was saved." },
+  "studio.catatan.galat.note_not_current": { default: "Catatan ini baru saja diganti oleh peninjau lain. Muat ulang halaman untuk membaca catatan terbarunya. Tidak ada yang disimpan.", en: "Another reviewer has just replaced this note. Reload the page to read the latest note. Nothing was saved." },
+  "studio.catatan.galat.note_exists": { default: "Pilihan ini baru saja diberi catatan oleh peninjau lain. Muat ulang halaman untuk membacanya. Tidak ada yang disimpan.", en: "Another reviewer has just written a note on this option. Reload the page to read it. Nothing was saved." },
   "studio.kunci.keliru": { default: "Kunci jawaban keliru?", en: "Answer key wrong?" },
   "studio.kunci.judul": { default: "Perbaiki kunci jawaban", en: "Correct the answer key" },
   "studio.kunci.langkah": { default: "Langkah {i} dari 3", en: "Step {i} of 3" },
