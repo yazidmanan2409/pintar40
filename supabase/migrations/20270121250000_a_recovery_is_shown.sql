@@ -132,7 +132,7 @@ end $function$;
 revoke all on function public.pengerjaan_saya(uuid) from public, anon, authenticated;
 grant execute on function public.pengerjaan_saya(uuid) to authenticated;
 
-do $chk$
+do $$
 declare v text;
 begin
   v := pg_get_functiondef('public.pengerjaan_saya(uuid)'::regprocedure);
@@ -150,4 +150,4 @@ begin
      or not has_function_privilege('authenticated', 'public.pengerjaan_saya(uuid)', 'execute') then
     raise exception 'the screens'' reads: grants changed';
   end if;
-end $chk$;
+end $$;
