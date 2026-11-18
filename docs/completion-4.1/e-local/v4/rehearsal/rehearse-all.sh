@@ -74,6 +74,8 @@ echo "--- happy path: every OpenAI attempt that reached the transport streamed (
 node -e 'const l=require(process.argv[1]); for (const e of l.entries) console.log(`${e.provider} bab${e.chapter} a${e.attempt}: ${e.status}, max_output ${e.max_output_tokens}, reserved ${e.reserved_usd}, cost ${e.cost_usd} (${e.cost_basis}), stream ${e.stream ? `events ${e.stream.events}, bytes ${e.stream.bytes}, thinking blocks ${e.stream.thinking_blocks}, stop ${e.stream.stop_reason}` : "none (HTTP error before the stream)"}`)' "$P/PRIVAT-simpan-jangan-dikirim/runs/ledger.json" >> "$OUT"
 echo "--- happy path: what each mock received (the auth shown is the rehearsal dummy; the Anthropic mock must be empty):" >> "$OUT"
 cat "$R/seenO.json" >> "$OUT"; echo >> "$OUT"; if [ -s "$R/seenA.json" ]; then cat "$R/seenA.json" >> "$OUT"; else echo "anthropic mock: nothing received" >> "$OUT"; fi
+echo "--- happy path: what was copied for blinding from Anthropic (Sharon R-2: bab1.json and bab2.json only):" >> "$OUT"
+ls "$P/PRIVAT-simpan-jangan-dikirim/gabungan/anthropic" | tr '\n' ' ' >> "$OUT"; echo >> "$OUT"
 echo "--- happy path: the blinded set (both providers, 60 items expected) and its provider codes:" >> "$OUT"
 node -e 'const m=require(process.argv[1]); console.log(Object.keys(m.items).length + " items; providers " + Object.entries(m.providers).map(([k,v])=>k+"="+v.folder).sort().join(", "))' "$P/PRIVAT-simpan-jangan-dikirim/out/SEALED/map.json" >> "$OUT"
 echo "--- shells: $(zsh --version); bash $BASH_VERSION" >> "$OUT"

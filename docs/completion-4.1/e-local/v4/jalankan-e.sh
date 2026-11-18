@@ -80,7 +80,7 @@ echo "Node $(node --version): OK"
 if command -v shasum >/dev/null 2>&1; then shasum -a 256 -c -s SHA256SUMS || berhenti "the package does not match its checksums. Download it again."
 else sha256sum -c --quiet SHA256SUMS || berhenti "the package does not match its checksums. Download it again."; fi
 echo "Package checksums: OK"
-[ "$(cat SOURCE-COMMIT)" = "d4adbeb62374687f39a9567129ec97f84fd3adb3" ] || berhenti "the package is not from the v4 (OpenAI streaming) runner commit."
+[ "$(cat SOURCE-COMMIT)" = "88e33ec663297e2d1436c828d95236494f2f58d4" ] || berhenti "the package is not from the v4 (OpenAI streaming) runner commit."
 echo "Package built from the v4 (OpenAI streaming) runner commit $(cat SOURCE-COMMIT)"
 VOID="$ROOT/../pintar-e-local/hasil/PRIVAT-simpan-jangan-dikirim/runs/ledger.json"
 [ -f "$VOID" ] || berhenti "the first (void) run's folder was not found next to this one (../pintar-e-local/hasil). Keep it in Downloads, unchanged."
@@ -181,15 +181,30 @@ echo "Run finished (exit code $RUN_EXIT). No program needs your key any more."
 # ── Step E · both providers blinded together, on this Mac (Ruling 51) ────────
 judul "Step E: blinding both providers' questions together"
 GAB="$PRIVAT/gabungan"
-mkdir -p "$GAB"
+mkdir -p "$GAB/anthropic"
+# Sharon R-2: copy only the two judged answer files, then re-hash the copies against their ledger's ok entries. One step
+# for the live run and for practice alike, so the rehearsal runs the same code the live run does.
+salin_dua() { # <runs dir with ledger.json and anthropic/bab1.json, bab2.json> <destination dir>
+  cp "$1/anthropic/bab1.json" "$1/anthropic/bab2.json" "$2/"
+  node -e '
+    const { createHash } = require("node:crypto"); const { readFileSync, readdirSync } = require("node:fs"); const { join } = require("node:path");
+    const [src, dst] = process.argv.slice(1); const l = JSON.parse(readFileSync(join(src, "ledger.json"), "utf8"));
+    if (readdirSync(dst).sort().join(",") !== "bab1.json,bab2.json") process.exit(1);
+    for (const b of [1, 2]) {
+      const ok = l.entries.filter((e) => e.provider === "anthropic" && e.chapter === b && e.status === "ok");
+      if (ok.length !== 1) process.exit(1);
+      if (createHash("sha256").update(readFileSync(join(dst, `bab${b}.json`))).digest("hex") !== ok[0].response_sha256) process.exit(1);
+    }' "$1" "$2"
+}
 if [ "$MODE" = live ]; then
-  cp -R "$V3RUNS/anthropic" "$GAB/anthropic"
+  salin_dua "$V3RUNS" "$GAB/anthropic" || berhenti "Anthropic's two sealed answers did not copy exactly (their fingerprints differ). Send nothing; tell Bob."
 else
   # practice and rehearsal: mock answers for Anthropic too, so that the real sealed answers are never read
   ( cd "$EVAL" && node runner.mjs --dry-run --real-prices --providers anthropic --cap-provider 4.87 --cap-total 9.87 --max-output 48000 \
       --pack-sha "$PACK_SHA" --out "$PRIVAT/latihan-anthropic" ) > "$PRIVAT/latihan-anthropic.txt" 2>&1 || berhenti "the practice Anthropic answers could not be made."
-  cp -R "$PRIVAT/latihan-anthropic/anthropic" "$GAB/anthropic"
+  salin_dua "$PRIVAT/latihan-anthropic" "$GAB/anthropic" || berhenti "the practice Anthropic answers did not copy exactly. Tell Bob."
 fi
+echo "Anthropic's two answers copied for blinding; their fingerprints match the ledger."
 cp -R "$PRIVAT/runs/openai" "$GAB/openai"
 ( cd "$EVAL" && node kit.mjs blind "$GAB" "$PRIVAT/out" ) > "$PRIVAT/blind-log.txt" 2>&1 || berhenti "blinding failed (see the blind log)."
 MAP_SHA="$(sha "$PRIVAT/out/SEALED/map.json" | cut -d' ' -f1)"

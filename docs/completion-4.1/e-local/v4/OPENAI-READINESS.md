@@ -8,7 +8,7 @@
 - **Streaming:**
   - `stream: true` on `POST /v1/responses`.
   - Final usage is in `response.completed`'s `response.usage`.
-  - `sequence_number` is on every event.
+  - `sequence_number` is in every event's schema.
 - **Statuses and errors:**
   - the status values, and the `incomplete_details.reason` values (`max_output_tokens`, `max_messages`, `content_filter`, `steered`);
   - the `error` event's fields (`code`, `message`, `param`, `sequence_number`);
@@ -20,7 +20,7 @@
 - **New event types** are a backwards-compatible change.
 - **Not documented or only B,** each handled fail-closed (the adapter's `fail_closed_fields`):
   - **Event framing:** event names are not documented to equal `data.type`, so events are read by `data.type`.
-  - **sequence_number** being strictly increasing: a repeat or a step back is refused.
+  - **sequence_number** being strictly increasing: a repeat or a step back is refused; a missing number is tolerated (Sharon C-1).
   - **Usage on `incomplete` and `failed`:** the examples print `null`. Without usage the stream is not a response, and its reservation is kept.
   - **Error-event codes:** only `server_error` is retried.
   - **One terminal event per stream:** anything after it, or none at all, is refused.
@@ -69,7 +69,7 @@ At the package settings (OpenAI only, 48,000, the pinned US$2 / US$10):
   - the void run 1, which must be unchanged;
   - **Anthropic's run 2:** the two recorded request ids and costs, and each sealed answer file's SHA-256 against its ledger. The files are hashed only, never shown.
 - **After a completed run:** it blinds Anthropic's sealed answers and OpenAI's new ones **together** with the frozen `kit.mjs blind` (Ruling 51). That produces `untuk-bob` (the ledger and the summaries), `untuk-sharon` and `untuk-juri`, as in v2's reviewed flow.
-- **Practice and rehearsal** blind mock answers for both providers, and never read Anthropic's real ones.
+- **Practice and rehearsal** blind mock answers for both providers. They only hash Anthropic's real answer files, never copying or showing them.
 - **Kept from v3:** P-1, P-2, the key handling and the outgoing scans.
 - **Rehearsal** (`v4/rehearsal/REHEARSAL-RESULT.txt`): 18 paths, all as expected:
   - no key in any output or the process list;
@@ -86,3 +86,16 @@ OpenAI's rate-limits guide says (A): *"An error after streaming begins can arriv
   - **(a) Keep it.** This is the same process for both providers (Ruling 48). The guidance is advice, not a prohibition. With `store: false` there is no side effect, and the cost is bounded and reserved.
   - **(b) Follow the guidance literally:** no automatic retry once output has arrived. The request then fails, which can cost OpenAI a chapter that Anthropic's process would have retried. That is unequal treatment.
 - **Bob recommends (a).** It is not changed in code until Sharon and the owner rule.
+
+## 6 · Sharon's verdict (`b52b1079`): PASS, and what followed
+
+- **PASS.** Sharon ran the self-test herself and probed the assembler six times. She found `kit.mjs` byte-identical to the reviewed `68ebe2fd`, and the reservation figures unchanged. The US$9.51 total cap is below US$9.517746, so it is conservative.
+- **(a) Retrying after output:** she agrees with keeping it, because what the guidance protects against cannot happen here. **The owner decides.**
+  - **Her condition:** the report states which attempt each chapter's answer came from, for both providers alike.
+  - That is recorded per chapter in `bab<n>.provenance.json` (`attempt`), and carried into the results before judging.
+- **(b) The fail-closed points:** right as they stand. She asked for one wording correction, C-1, made above; the code is deliberately unchanged.
+- **(c) The blinding:** it matches v2's flow, Ruling 51 and P-1.
+- **Her two recommendations, both done** (ordinary technical fixes, within scope under the owner's delegation of 18 Nov):
+  - **R-1:** a content part on a reasoning item is accepted, counted as reasoning, and nothing of it is kept. Red first `239a0211`, fixed in `88e33ec6`; self-test 262. Without this, such a stream would have been refused and N4 would have stopped OpenAI after about US$1.57, with no answer.
+  - **R-2:** Step E copies only `bab1.json` and `bab2.json` from Anthropic's run 2, then re-hashes the copies against the ledger. The live run and the practice run use one shared step, so the rehearsal exercises it. The rehearsal shows only those two files copied.
+- **Package v4, rebuilt on runner `88e33ec6`:** SHA-256 **`3f2ade8464fbd54dbf6e183106e1f49c9b78721a7a0b55850bb063a011924283`**. It supersedes `bc2f3c0c`. Rehearsal: 18 paths, all as expected.

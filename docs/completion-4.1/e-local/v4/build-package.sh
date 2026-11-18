@@ -3,7 +3,7 @@
 # plus this folder's script and instructions, the key check and nilai-juri.mjs (for the slots-only step on the Mac).
 # Usage: bash build-package.sh <empty-output-dir>
 set -euo pipefail
-SRC=d4adbeb62374687f39a9567129ec97f84fd3adb3
+SRC=88e33ec663297e2d1436c828d95236494f2f58d4
 HERE="$(cd "$(dirname "$0")" && pwd)"; REPO="$(cd "$HERE/../../../.." && pwd)"; OUT="$1"; P="$OUT/pintar-e-local-v4"
 mkdir -p "$P"
 git -C "$REPO" archive "$SRC" docs/completion-4.1/c3-eval docs/onboarding/konten-sintetis | tar -x -C "$P"
