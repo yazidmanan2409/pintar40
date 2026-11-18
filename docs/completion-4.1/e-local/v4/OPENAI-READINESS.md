@@ -114,3 +114,28 @@ OpenAI's rate-limits guide says (A): *"An error after streaming begins can arriv
   - No key, reasoning text or sealed Anthropic text in any output.
   - Only `bab1.json` and `bab2.json` copied for blinding.
   - 60 items blinded under two codes.
+
+## 8 · The owner's practice run on the Mac (18 Nov, 05:19 UTC): passed
+
+The owner ran `zsh jalankan-e.sh --latihan` on the package `bae2c4c7…49e`. Exit code 0; no provider was called and nothing was spent. Bob checked `untuk-bob.zip`:
+- **It holds exactly the four allowlisted files.** There is no key-like text, no reasoning canary and no dummy key in them.
+- **The settings are the reviewed ones:** mode `latihan` (the dry run), pack `ecb0d3c4`, OpenAI only, 48,000 output tokens, caps 5.00 / 9.51. Only one call was in flight at a time, and no reservation was left open.
+- **Both earlier runs were found unchanged on the Mac, by fingerprint:**
+  - void run 1's ledger is `58f03b89…`, as recorded;
+  - Anthropic run 2's ledger is `69a9a702…`, the same as the ledger the owner sent after that run.
+- **The practice run behaved as rehearsed:**
+  - OpenAI's four mock attempts were a transport error then ok, and a stream with no final usage then ok, each failed attempt keeping its full reservation;
+  - the mock answers were blinded together, and the sealed map's fingerprint is recorded;
+  - the attempt list names attempt 2 of 2 for every chapter of both providers.
+
+  The US$1.110526 is the mock's arithmetic, not spend.
+- **The Mac's own tools ran every step,** blinding included.
+
+**Every preparation step the owner set for OpenAI is now complete:**
+- the official facts;
+- red-first tests;
+- v4 rebuilt and rehearsed;
+- Sharon's PASS and final confirmation;
+- the practice run on the Mac.
+
+**What remains is the owner's authorisation of the paid run.**

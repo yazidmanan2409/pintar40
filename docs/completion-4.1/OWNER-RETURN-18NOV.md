@@ -17,7 +17,7 @@ This is the running record. Bob updates it as work moves; the newest entries are
    - **(b) Follow the guidance literally:** OpenAI could then lose a whole chapter that Anthropic's process would have retried.
    - **Sharon agrees with (a)** (`b52b1079`). Her condition: the report states which attempt each chapter's answer came from, for both providers. The code does not change until the owner rules.
 2. **C2w (READY; frozen at `aa5f5741`):** the read-only "before" preservation read on staging, then the merge. These are two separate authorisations, **drafted in `batches/c2w-evidence/C2W-OWNER-REQUESTS.md`**.
-3. **E, the free practice run (ready now; no key, no cost).** The package is attached in the session: `pintar-e-local-v4.tar.gz`, full SHA-256 **`bae2c4c72ccc67761da3b03ed8f27671f5b58e7c38495c60e5ae1aeb51c3949e`**.
+3. ~~**E, the free practice run**~~ **DONE, 05:19: passed.** The package is attached in the session: `pintar-e-local-v4.tar.gz`, full SHA-256 **`bae2c4c72ccc67761da3b03ed8f27671f5b58e7c38495c60e5ae1aeb51c3949e`**.
    - Sharon's final confirmation: `70ffdb4f`.
    - Bob unpacked and verified the exact file: its checksums, its runner `86658dcb`, its scripts matching the repository, and its self-test passing.
    - **To practise:**
@@ -34,6 +34,7 @@ This is the running record. Bob updates it as work moves; the newest entries are
 
 | When (UTC) | What |
 |---|---|
+| 05:25 | **The owner's v4 practice run passed** (exit 0; no call, no spend). `untuk-bob.zip` checked: the four allowed files only, no key text, the reviewed settings, and both earlier runs unchanged by fingerprint (`58f03b89`, `69a9a702`). Mock blinding and the attempt list worked. **Only the owner's paid-run authorisation remains** (decision 4) |
 | 02:10 | **Sharon's final confirmation of v4** (`70ffdb4f`): her condition is met. Package `bae2c4c7` verified and attached for the free practice run (decision 3) |
 | 02:03 | **Ruling 52 implemented test first:** the runner names which attempt produced each accepted chapter, for both providers (red `3836673c`, fix `86658dcb`, self-test 267). v4 writes `untuk-bob/asal-jawaban.txt`. **Package v4 now `bae2c4c72ccc67761da3b03ed8f27671f5b58e7c38495c60e5ae1aeb51c3949e`**; rehearsal 18 paths. Sharon asked for her final confirmation |
 | 01:59 | Sharon confirmed R-1, R-2 and C-1 (`d012560f`) |
