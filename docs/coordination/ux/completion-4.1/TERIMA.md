@@ -51,3 +51,4 @@
 | 18 Nov, 09:56 | Bob | Z readiness: R-10, R-11, R-12, X-1 | `main` `7ba18b03` | `Z-SIAP-DAISY-7ba18b03.md`: R-10 open (spec, plus N-9), R-11 open on /siapa only (spec), R-12 table, X-1 ready (`PANDUAN-AI-SENDIRI.md`) |
 | 18 Nov, 10:00 | Bob | Vocabulary page (planning audit D-V) | — | `KOSAKATA-RIWAYAT-DAN-PENOLAKAN.md`: **done** |
 | 18 Nov, 11:05 | Second Eye | A3 recovery act proposal, three points | `claude/a3` at `547b3707` | `A3-KODE-PEMULIHAN.md` §6: no conflict; NOT_AUTHORISED body says the request reaches the list; one request; row «minta lanjut di sesi lain» |
+| 18 Nov, 12:20 | Bob | R-15 Daisy items | Z-READINESS §5 at `a6bc556e` | `R15-DAISY-7ba18b03.md`: 6 closed, 6 Z, 1 4.2 |
