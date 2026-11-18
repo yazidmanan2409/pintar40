@@ -955,6 +955,29 @@ export async function runEval(cfg) {
   return { exitCode, summary, ledger: ledger.doc };
 }
 
+// ───────────────────────────── Ruling 52: which attempt produced each accepted chapter
+// For each provider and chapter in the given ledgers: the first attempt whose answer was accepted (status ok, as the run
+// judges it), how many attempts the chapter used, and that attempt's request id and response SHA-256. Metadata only: no
+// question text. The same rule for both providers.
+export function acceptedAttempts(ledgers) {
+  const out = [];
+  const entries = ledgers.flatMap((l) => l.entries ?? []);
+  for (const provider of [...new Set(entries.map((e) => e.provider))].sort()) {
+    for (const b of CHAPTERS) {
+      const es = entries.filter((e) => e.provider === provider && e.chapter === b && e.status !== 'refused').sort((x, y) => x.attempt - y.attempt);
+      const ok = es.find((e) => e.status === 'ok');
+      out.push({ provider, chapter: b, accepted: !!ok, attempt: ok ? ok.attempt : null, attempts_used: es.length,
+        statuses: es.map((e) => e.status), request_id: ok?.request_id ?? null, response_sha256: ok?.response_sha256 ?? null });
+    }
+  }
+  return out;
+}
+export function formatAcceptedAttempts(rows) {
+  return rows.map((r) => r.accepted
+    ? `${r.provider} bab${r.chapter}: accepted from attempt ${r.attempt} of ${r.attempts_used} (request ${r.request_id ?? 'none'}, response sha256 ${r.response_sha256}; attempts: ${r.statuses.join(', ')})`
+    : `${r.provider} bab${r.chapter}: NOT accepted after ${r.attempts_used} attempt(s)${r.statuses.length ? ' (' + r.statuses.join(', ') + ')' : ''}`).join('\n');
+}
+
 // ───────────────────────────── configuration and the real-run gate
 function loadPrices() { return JSON.parse(readFileSync(join(HERE, 'prices.json'), 'utf8')); }
 function capsFrom(table, args) {
@@ -1809,6 +1832,7 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.live && (args['self-test'] || args['dry-run'] || args.plan)) throw new Fatal('--live cannot be combined with --self-test, --dry-run or --plan');
   if (args['self-test']) return selfTest();
+  if (args.asal) { console.log(formatAcceptedAttempts(acceptedAttempts(String(args.asal).split(',').map((f) => JSON.parse(readFileSync(f, 'utf8')))))); return 0; }
   const table = loadPrices();
   const providers = (args.providers ?? eligible(table).join(',')).split(',').filter(Boolean);
   for (const p of providers) {
