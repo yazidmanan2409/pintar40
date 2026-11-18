@@ -374,7 +374,10 @@ begin
   -- rows the educator persona will review and the dean will see in aggregate --
   -- there is no second copy of them anywhere.
   perform set_config('request.jwt.claim.sub', u_siswa::text, true);
-  perform set_config('request.jwt.claims', json_build_object('sub', u_siswa, 'role','authenticated')::text, true);
+  -- A3: a learner's token always carries its Auth session id, and a sitting is written by that session alone (A3 D2,
+  -- S11); the seed's learner has one, fixed, under the seed's own prefix (never the harness's 'selftest-sesi:')
+  perform set_config('request.jwt.claims', json_build_object('sub', u_siswa, 'role','authenticated',
+    'session_id', md5('seed-sesi:' || u_siswa::text)::uuid)::text, true);
   v_session := public.start_learning_session(aa);
   for r in select pi.id as pid, pi.item_id from public.presented_items pi
             where pi.session_id = v_session order by pi.position
