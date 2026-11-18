@@ -19,6 +19,10 @@ export const KODE_PENGERJAAN_DB = [
   // A2a D6.2: the class is stopped (Daisy's teacher line, «{kelas}» filled by the screen); the fence busy (her line);
   // held by a stop (the guard's code: it reaches a screen only through a path no act takes, said as the stopped class)
   "SITTING_CLASS_STOPPED", "SITTING_FENCE_BUSY", "SITTING_EMERGENCY_HELD",
+  // A3 (D12): the sitting is written by another signed-in session (another device, a re-sign-in, or none). Daisy's
+  // neutral sentence (A3-KODE-PEMULIHAN.md §5), rendered quiet: role="status", no error colour; the screens add the
+  // old session's panel title and its button
+  "SITTING_NOT_CONTROLLER",
 ] as const;
 export const KODE_PENGERJAAN = [...KODE_PENGERJAAN_DB, "SITTING_FAILED"] as const;
 export type KodePengerjaan = (typeof KODE_PENGERJAAN)[number];

@@ -451,6 +451,7 @@ export type HleEvent =
   | "pengerjaan.galat.window_invalid"
   | "pengerjaan.galat.window_unchanged"
   | "pengerjaan.galat.window_not_changeable"
+  | "pengerjaan.galat.sitting_not_controller"
   | "pengerjaan.galat.sitting_failed"
   // C1w: the item workbench's refusals and problems (src/lib/soal-kontrak.ts)
   | "studio.soal.galat.draft_not_allowed"
@@ -4273,6 +4274,9 @@ const table: Table = {
   "pengerjaan.galat.window_invalid": { default: "Waktu tutup harus setelah waktu buka dan setelah saat ini.", en: "The closing time must be after the opening time and after now." },
   "pengerjaan.galat.window_unchanged": { default: "Jadwalnya sudah seperti itu.", en: "The schedule is already set that way." },
   "pengerjaan.galat.window_not_changeable": { default: "Jadwal materi ini tidak dapat diubah saat ini.", en: "This material's schedule cannot be changed right now." },
+  // A3 (Daisy, A3-KODE-PEMULIHAN.md §5 on ux-1/daisy-experience): neutral under O-4, true for another device, a
+  // re-sign-in and no session alike
+  "pengerjaan.galat.sitting_not_controller": { default: "Asesmen ini sedang dilanjutkan di sesi lain, jadi jawaban dari sini tidak disimpan. Jawaban yang sudah «Tersimpan» sebelumnya tetap ada.", en: "This assessment is being continued in another session, so answers from here are not saved. Answers already «Saved» are kept." },
   "pengerjaan.galat.sitting_failed": { default: "Perubahan belum tersimpan. Coba lagi.", en: "The change was not saved. Try again." },
   // C1w (O41-10, O41-11, O41-18, O41-19): the item workbench's refusals, said to the staff who meet them
   "studio.soal.galat.draft_not_allowed": { default: "Anda tidak dapat mengubah soal dalam draf ini.", en: "You cannot change the questions in this draft." },
