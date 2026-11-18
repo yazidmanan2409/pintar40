@@ -82,3 +82,12 @@ Source: `BOB-VERIFIKASI-KATALOG-0a336a9a.md`.
 **Unchanged by design:** C2w stays «Sedang dikembangkan» with its current note until Bob confirms the merge and the staging promotion. «Laporkan masalah» was already listed in 4.0. The audit's scoring-policy prerequisite (4.5-10) is internal and is recorded in the coverage checklist, not as a feature.
 
 **Still waiting before the final export:** Bob's word on C2w, plus a check of the new misconception-mapping entry and the D-06 paraphrase.
+
+### Update · C2w accepted (18 Nov, 09:30 UTC)
+
+This follows owner ruling 53 (`4a049c7a`, claude/bob-41-master-plan) and Bob's message:
+- Both C2w entries («Catatan peninjau di samping soal», «Menarik materi dari peredaran sekolah») now read «Diterima di lingkungan uji», with the date 18 November 2026. They have moved into the accepted group, and the "waits on one automated check" note is gone.
+- 4.1 is now **15 accepted, 3 in development (A3), 1 designed (C3w)**. All 19 read «Belum tersedia di sekolah».
+- The 4.1 introduction now says eight of ten stages are on staging; one is in progress, and one is designed but not built.
+
+With this, every open point from Bob's verification is applied.

@@ -22,7 +22,7 @@ const SRC = {
   "41-admin": "HB 6.6 · ST §3 B0", "41-atur-sesi": "HB 9.8 · ST §3 A1", "41-kesempatan": "HB 7.13, 9.8 · ST §3 A1", "41-ditinggalkan": "HB 9.9, 11.10 · ST §3 A1",
   "41-ditangguhkan": "HB 6.5 · ST §3 A1", "41-meja-kerja": "HB 10.2, 10.7 · ST §3 C1w", "41-kunci": "HB 10.8 · ST §3 C1w", "41-catatan-masuk": "HB 7.16 · ST §3 B1 · THE PLAN D-4 (print requests; no school export or export event in 4.1)",
   "41-referensi-cetak": "HB 18.2 · ST §3 B2", "41-darurat": "THE PLAN D6 + owner ruling D-1 (11 Nov): held with exact remaining time · ST §3 A2a", "41-pemeliharaan": "HB 5.8, 7.12 · ST §3 A2b", "41-penolakan-seragam": "HB 5.3 · RM 4.1 corrections (S-1)",
-  "41-catatan-peninjau": "HB 10.9 · ST §3 C2w · OWNER-RETURN-18NOV 07:58 (before-read done; merge refused by a repository rule, not yet on staging)", "41-tarik-peredaran": "Bob's review 17 Nov §2.3 · ST §3 C2w", "41-satu-penulis": "HB 9.11 · ST §4 A3", "41-pemulihan-sesi": "HB 9.11, 11.11 · ST §4 A3",
+  "41-catatan-peninjau": "HB 10.9 · ST §3 C2w · owner ruling 53 (18 Nov): C2w accepted on staging at 284 migrations (Sharon PASS); Bob 09:30 UTC", "41-tarik-peredaran": "Bob's review 17 Nov §2.3 · ST §3 C2w · owner ruling 53 (accepted on staging 18 Nov)", "41-satu-penulis": "HB 9.11 · ST §4 A3", "41-pemulihan-sesi": "HB 9.11, 11.11 · ST §4 A3",
   "41-kesempatan-versi": "OR ruling 46 · ST §4 A3", "41-ai-sendiri": "OR ruling 41; X1 guide · COV 18b (standard Studio import)", "41-ai-terpadu": "OR rulings 38–44 (optional paid per-school add-on; PINTAR-qualified options) · ST §5 C3w (design approved)",
   "42-mode-ujian": "RM 4.2 A.1", "42-jabatan": "RM 4.2 B.2 (O41-8)", "42-dua-sekolah": "RM 4.2 B.2 (O41-12, principle approved)", "42-satu-orang": "RM 4.2 B.9 (Rev 3.1)",
   "42-koreksi-struktur": "RM 4.2 B.6", "42-tanpa-guru": "RM 4.2 B.10 (Rev 3.1)", "42-serah-terima": "RM 4.2 B.11 [execution plan]", "42-koreksi-pengembangan": "RM 4.2 B.6",
@@ -80,7 +80,7 @@ ${krows.join("\n")}
 
 ## Bob's verification (18 Nov 2026), applied in revision 3
 
-1. **Statuses.** 4.0 and B0–A2b confirmed. C2w stays «Sedang dikembangkan» until Bob confirms its merge and staging promotion. A3 and C3w confirmed; C3w is described as an optional, separately paid add-on offered from PINTAR-qualified options (rulings 38 and 40).
+1. **Statuses.** 4.0 and B0–A2b confirmed. C2w accepted on staging 18 Nov (owner ruling 53), so both C2w entries read «Diterima di lingkungan uji»; 4.1 is 15 accepted, 3 in development (A3), 1 designed (C3w). A3 and C3w confirmed; C3w is described as an optional, separately paid add-on offered from PINTAR-qualified options (rulings 38 and 40).
 2. **Labels.** 4.2 reads «Ditunda ke 4.2; rencana rinci belum disusun» (owner deferrals; no approved plan). 4.5 and 5.0 read «Arah disetujui; belum direncanakan» (the 11 Nov owner record: implementation needs separate planning and authorisation).
 3. **«Catatan peninjau».** Free-text, attributed, dated and immutable notes beside a sealed question; never shown to learners, printed or used in calculations; not coded misconception notes (R-3 pending).
 4. **«Laporkan masalah».** Listed in 4.0 (RM Appendix A, "Staff can report an issue and see status").

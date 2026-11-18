@@ -78,8 +78,8 @@ Status is as of 18 November 2026. Planning states (4.2, 4.5, 5.0) come from `ren
 | `41-darurat` | Penghentian darurat yang menahan sesi asesmen | 4.1 | Diterima di lingkungan uji | THE PLAN D6 + owner ruling D-1 (11 Nov): held with exact remaining time · ST §3 A2a |
 | `41-pemeliharaan` | Pemeliharaan terjadwal per kelas dan per sekolah | 4.1 | Diterima di lingkungan uji | HB 5.8, 7.12 · ST §3 A2b |
 | `41-penolakan-seragam` | Jawaban masuk yang sama untuk setiap kegagalan | 4.1 | Diterima di lingkungan uji | HB 5.3 · RM 4.1 corrections (S-1) |
-| `41-catatan-peninjau` | Catatan peninjau di samping soal | 4.1 | Sedang dikembangkan | HB 10.9 · ST §3 C2w · OWNER-RETURN-18NOV 07:58 (before-read done; merge refused by a repository rule, not yet on staging) |
-| `41-tarik-peredaran` | Menarik materi dari peredaran sekolah | 4.1 | Sedang dikembangkan | Bob's review 17 Nov §2.3 · ST §3 C2w |
+| `41-catatan-peninjau` | Catatan peninjau di samping soal | 4.1 | Diterima di lingkungan uji | HB 10.9 · ST §3 C2w · owner ruling 53 (18 Nov): C2w accepted on staging at 284 migrations (Sharon PASS); Bob 09:30 UTC |
+| `41-tarik-peredaran` | Menarik materi dari peredaran sekolah | 4.1 | Diterima di lingkungan uji | Bob's review 17 Nov §2.3 · ST §3 C2w · owner ruling 53 (accepted on staging 18 Nov) |
 | `41-satu-penulis` | Satu perangkat penulis untuk setiap sesi asesmen | 4.1 | Sedang dikembangkan | HB 9.11 · ST §4 A3 |
 | `41-pemulihan-sesi` | Melanjutkan asesmen di perangkat lain | 4.1 | Sedang dikembangkan | HB 9.11, 11.11 · ST §4 A3 |
 | `41-kesempatan-versi` | Kesempatan dihitung untuk semua versi asesmen | 4.1 | Sedang dikembangkan | OR ruling 46 · ST §4 A3 |
@@ -148,7 +148,7 @@ Status is as of 18 November 2026. Planning states (4.2, 4.5, 5.0) come from `ren
 
 ## Bob's verification (18 Nov 2026), applied in revision 3
 
-1. **Statuses.** 4.0 and B0–A2b confirmed. C2w stays «Sedang dikembangkan» until Bob confirms its merge and staging promotion. A3 and C3w confirmed; C3w is described as an optional, separately paid add-on offered from PINTAR-qualified options (rulings 38 and 40).
+1. **Statuses.** 4.0 and B0–A2b confirmed. C2w accepted on staging 18 Nov (owner ruling 53), so both C2w entries read «Diterima di lingkungan uji»; 4.1 is 15 accepted, 3 in development (A3), 1 designed (C3w). A3 and C3w confirmed; C3w is described as an optional, separately paid add-on offered from PINTAR-qualified options (rulings 38 and 40).
 2. **Labels.** 4.2 reads «Ditunda ke 4.2; rencana rinci belum disusun» (owner deferrals; no approved plan). 4.5 and 5.0 read «Arah disetujui; belum direncanakan» (the 11 Nov owner record: implementation needs separate planning and authorisation).
 3. **«Catatan peninjau».** Free-text, attributed, dated and immutable notes beside a sealed question; never shown to learners, printed or used in calculations; not coded misconception notes (R-3 pending).
 4. **«Laporkan masalah».** Listed in 4.0 (RM Appendix A, "Staff can report an issue and see status").

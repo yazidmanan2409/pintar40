@@ -297,7 +297,7 @@ export const VERSI = [
   // ════════════════════════════════════════════════════════════ 4.1
   {
     v: "4.1", judul: "Keamanan, Kendali, dan Keandalan", id: "v41",
-    pengantar: "PINTAR 4.1 menjaga bukti belajar tetap utuh ketika ada koreksi, gangguan, atau pemeliharaan. Per 18 November 2026, tujuh dari sepuluh tahap pembangunan sudah selesai dan tersedia di lingkungan uji, dan tahap kedelapan sudah selesai dibangun. Sisanya sedang diselesaikan. PINTAR 4.1 diuji sebagai satu kesatuan, termasuk enam perjalanan pengguna dari awal sampai akhir, lalu ditinjau bersama para pendidik sebelum dipakai sekolah.",
+    pengantar: "PINTAR 4.1 menjaga bukti belajar tetap utuh ketika ada koreksi, gangguan, atau pemeliharaan. Per 18 November 2026, delapan dari sepuluh tahap pembangunan sudah selesai dan tersedia di lingkungan uji. Satu tahap sedang diselesaikan, dan satu tahap sudah selesai dirancang tetapi belum dibangun. PINTAR 4.1 diuji sebagai satu kesatuan, termasuk enam perjalanan pengguna dari awal sampai akhir, lalu ditinjau bersama para pendidik sebelum dipakai sekolah.",
     kelompok: [
       { judul: "Sudah tersedia di lingkungan uji", fitur: [
         { id: "41-admin", nama: "Tidak ada sekolah tanpa admin", untuk: "Admin sekolah, Admin PINTAR",
@@ -360,18 +360,18 @@ export const VERSI = [
           manfaat: "Orang lain tidak dapat menebak keadaan akun seseorang dari luar.",
           contoh: "Seseorang mencoba masuk dengan nama pengguna temannya. PINTAR hanya menjawab bahwa data belum cocok, tanpa menyebut apakah akun itu ada.",
           status: "T" },
-      ]},
-      { judul: "Sedang diselesaikan", fitur: [
         { id: "41-catatan-peninjau", nama: "Catatan peninjau di samping soal", untuk: "Peninjau materi",
           apa: "Peninjau dapat menulis catatan bebas di samping soal yang sudah disegel, misalnya tentang apa yang diungkap sebuah pilihan jawaban yang salah. Catatan diberi nama penulis dan tanggal, dan tidak dapat diubah. Catatan ini tidak pernah tampil bagi murid, tidak pernah dicetak, dan tidak pernah dipakai dalam perhitungan. Catatan ini bukan kode pemahaman keliru yang terstruktur; kode semacam itu masih menunggu keputusan pemilik PINTAR.",
           manfaat: "Pengetahuan peninjau tentang soal tersimpan dan dapat dipakai rekan-rekannya.",
           contoh: "Bu Wulan mencatat bahwa pilihan D pada soal 5 menunjukkan murid lupa membalik pecahan saat membagi.",
-          status: "D", catatan: "Selesai dibangun dan diperiksa. Pemilik PINTAR sudah menyetujui pemindahannya ke lingkungan uji; penggabungannya masih menunggu satu pemeriksaan otomatis." },
+          status: "T", catatan: "Diterima di lingkungan uji pada 18 November 2026." },
         { id: "41-tarik-peredaran", nama: "Menarik materi dari peredaran sekolah", untuk: "Admin PINTAR",
           apa: "Pemilik materi standar dapat mencabut izin pemakaian sebuah rilis bagi sekolah tertentu, dengan alasan. Sesi asesmen yang sudah dimulai tidak terganggu.",
           manfaat: "Materi yang tidak lagi sesuai dapat dihentikan peredarannya secara tertib dan tercatat.",
           contoh: "Sebuah bab standar diganti dengan edisi baru. Admin PINTAR menarik bab lama dari peredaran sekolah-sekolah yang masih memakainya.",
-          status: "D", catatan: "Bagian dari tahap yang sama dengan catatan peninjau, dalam proses masuk ke lingkungan uji." },
+          status: "T", catatan: "Diterima di lingkungan uji pada 18 November 2026, bersama catatan peninjau." },
+      ]},
+      { judul: "Sedang diselesaikan", fitur: [
         { id: "41-satu-penulis", nama: "Satu perangkat penulis untuk setiap sesi asesmen", untuk: "Murid",
           apa: "Jawaban sebuah sesi asesmen hanya dapat ditulis dari satu tempat pada satu waktu. Jika murid membuka asesmen yang sama di tab atau perangkat kedua, jawabannya tidak dapat saling menimpa atau tercatat dua kali.",
           manfaat: "Jawaban murid tidak pernah hilang atau tertimpa karena asesmen terbuka di dua tempat.",
