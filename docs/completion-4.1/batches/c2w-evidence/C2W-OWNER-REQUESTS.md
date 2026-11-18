@@ -1,10 +1,10 @@
-# C2w · the owner's two authorisations, prepared (draft until the freeze)
+# C2w · the owner's two authorisations, READY (C2w frozen at `aa5f5741`, 18 Nov about 02:30 UTC)
 
 **These are two separate requests.** Neither is made until C2w is frozen at `aa5f5741`, and neither is used until the owner approves it. The freeze needs:
 - **CI:** run 44216101395 on `aa5f5741`, **success**;
-- **the audit journeys** on `aa5f5741`, both jobs: run 44216105919, in progress;
+- **the audit journeys** on `aa5f5741`, both jobs: run 44216105919, **success**;
 - **Sharon's delta check** on the CSS and component change: **PASS**, `210cc98e` (render order only), with the dry-run proofs;
-- the freeze recorded in TEAM-INSTRUCTIONS, with every run id.
+- the freeze recorded in TEAM-INSTRUCTIONS, with every run id: **done**.
 
 ## Request 1 · the read-only "before" preservation read on staging
 

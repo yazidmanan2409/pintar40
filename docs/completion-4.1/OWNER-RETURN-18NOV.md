@@ -16,7 +16,7 @@ This is the running record. Bob updates it as work moves; the newest entries are
    - **(a) Keep it: the same process for both providers (Ruling 48). Bob recommends this.**
    - **(b) Follow the guidance literally:** OpenAI could then lose a whole chapter that Anthropic's process would have retried.
    - **Sharon agrees with (a)** (`b52b1079`). Her condition: the report states which attempt each chapter's answer came from, for both providers. The code does not change until the owner rules.
-2. **C2w,** once frozen: the read-only "before" preservation read on staging, then the merge. These are two separate authorisations, **drafted in `batches/c2w-evidence/C2W-OWNER-REQUESTS.md`**.
+2. **C2w (READY; frozen at `aa5f5741`):** the read-only "before" preservation read on staging, then the merge. These are two separate authorisations, **drafted in `batches/c2w-evidence/C2W-OWNER-REQUESTS.md`**.
 3. **E, the free practice run (ready now; no key, no cost).** The package is attached in the session: `pintar-e-local-v4.tar.gz`, full SHA-256 **`bae2c4c72ccc67761da3b03ed8f27671f5b58e7c38495c60e5ae1aeb51c3949e`**.
    - Sharon's final confirmation: `70ffdb4f`.
    - Bob unpacked and verified the exact file: its checksums, its runner `86658dcb`, its scripts matching the repository, and its self-test passing.
@@ -51,6 +51,7 @@ This is the running record. Bob updates it as work moves; the newest entries are
 
 | When (UTC) | What |
 |---|---|
+| 02:30 | **C2w FROZEN at `aa5f5741`.** The journeys passed (run 44216105919, jobs A and B). **Both owner requests are READY** (decision 2): the before-read first, then the merge, separately. Nothing past the boundary without the owner |
 | 02:05 | **Sharon's layout delta check had already passed** at 01:18 (`210cc98e`: render order only, nothing under supabase/), together with the dry-run proofs. Bob had missed it. **Only the journeys remain before the freeze** |
 | 02:03 | **CI green on `aa5f5741`** (run 44216101395). Journeys run 44216105919 in progress. Sharon asked again for her layout delta check. Both owner requests drafted |
 | 01:30 | CI dispatched on `claude/c2w`, and the audit journeys with ref `aa5f5741` (the PR head: the candidate plus documentation only). PR #25's description updated; it stays a draft |

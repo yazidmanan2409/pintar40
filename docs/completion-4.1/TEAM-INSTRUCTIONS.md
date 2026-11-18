@@ -46,6 +46,28 @@ E's three owner decisions (providers, scoring rules, judges) stay visible in sta
 
 **Principles:** no silent scope expansion; no bypassed security or deployment gates; no false completion claims.
 
+## C2w FROZEN at `aa5f5741d0bb8574986f055458a05d9f714e277f` (18 Nov 2026, about 02:30 UTC)
+
+**The product commit is `6b6f31c548b1797509c34bff4dd8f606b9efaad9`.** `aa5f5741` adds documentation only: the candidate note and the dry-run outputs. Bob checked that no code file differs. All evidence below is on these two SHAs:
+- **Second Eye's pre-flight on `6b6f31c5`**, on a fresh reset and fresh build:
+  - lint and typecheck 0;
+  - build identity 11/0;
+  - suite 1242 passed, 0 failed;
+  - plants 175/175;
+  - red-case 11/11.
+- **Migrations:** 282 → 284 (`20270121100000`, and `20270121110000` with sha256 `54b6569d…5196`). No existing migration is edited.
+- **CI on `aa5f5741`:** run 44216101395, success.
+- **audit-journeys** (ref=claude/c2w, inputs.ref=`aa5f5741`): run 44216105919, success, jobs A and B.
+- **The preservation pair 282 → 284:** the header was checked against the built migration (`dfa542ab`). The local dry run's three proofs were checked by Bob (`7815a70a`) and by Sharon (`210cc98e`).
+- **Sharon:** the database delta check, then the delta on the CSS and component change (render order only), PASS at `210cc98e`.
+- **Daisy:** the screens cleared on `6b6f31c5`, with C-7 and C-8 passing.
+
+**Next: the owner's boundary.** **PENDING OWNER AUTHORISATION**, in two separate requests (`batches/c2w-evidence/C2W-OWNER-REQUESTS.md`):
+1. the read-only "before" preservation read on staging (`keijhmdtsgrfvnvocfvk`);
+2. then the merge of PR #25, staging's migration, the "after" read and the hosted checks.
+
+Nothing goes past the boundary without his approval. Coordination delegated to Bob does not cover these two steps (Sharon). Until then the candidate stays frozen: **no commit to `claude/c2w`.** A3 continues on its own branch.
+
 ## C2w UNFROZEN: the 06:45 freeze of `a9d303b2` was premature (Chief Architect, 17 Nov 2026, about 07:20 UTC)
 
 **My error.** `a9d303b2` holds only:
