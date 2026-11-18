@@ -6701,6 +6701,11 @@
       "proves": "executes lanjutkan_di_sini against the migrations, rolled back (S8; ruling 42, decision 2): with a work-scoped planned window active over the learner's class the recovery is allowed; with an emergency stop over the learner it is refused PR170 SITTING_CLASS_STOPPED, under the shared fence. A platform-wide window is refused at the request (D10)."
     },
     {
+      "id": "A3-A01",
+      "runner": "static",
+      "proves": "executes session_answers against the migrations, rolled back, and reads PermukaanAsesmen.tsx and ItemPlayer.tsx (D9; Sharon's ruling (a)): after a recovery the player's read holds every generation's receipts, the page folds them all into seqs, and nextSeq is one above them, so the next client_seq is above every seq held for the sitting."
+    },
+    {
       "id": "A3-P17",
       "runner": "static",
       "proves": "executes record_answer and finish_my_session against the migrations, rolled back (D9): after a recovery the new controller's manifest is judged against the answers the server holds whatever generation acknowledged them; an entry not held is refused PR006, naming it alone; the failed device's acknowledged answer stays on the paper."

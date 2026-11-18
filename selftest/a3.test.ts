@@ -514,6 +514,9 @@ begin
   ${P("P02_serah", "M", "A", "select public.submit_session(current_setting('p.s')::uuid)::text", true)}
   -- A3-P14 (S3): after the recovery, session B answers question 1 wrongly (generation 2); A had answered it rightly
   ${P("P14_jawab_B", "M", "B", `select x.outcome from public.record_answer(${S(1)}, 2, selftest.f09_answer(${S(1)}, false)) x`)}
+  -- A3-A01 (D9, Sharon's condition): what the player reads after the recovery, on session B: every receipt for question 1,
+  -- whatever generation acknowledged it (A's seq 5, generation 1; B's seq 2, generation 2)
+  ${P("A01_terima", "M", "B", `select string_agg(a.client_seq::text, ',' order by a.client_seq) from public.session_answers(current_setting('p.s')::uuid) a where a.presented_item_id = ${S(1)}`)}
   -- A3-P08 (D10): past its deadline: the rule ends it inside the act, the refusal rolls that ending back with every other
   -- write, and the act answers RECOVERY_NOTHING; the scheduled sweep ends the sitting later (as every refusing boundary)
   set local session_replication_role = replica;
@@ -2017,6 +2020,36 @@ rollback;`;
       c.expect(v.P17_kertas_2 === "2:1", `question 2's answer on the paper must be the new controller's (generation 2, seq 1): ${v.P17_kertas_2}`);
       c.expect(v.P17_status === "FINALIZED", `the sitting is finished: ${v.P17_status}`);
       return c.verdict("executes record_answer and finish_my_session against the migrations, rolled back (D9): after an Uji Penguasaan is recovered on session B, B's finish with a manifest naming an answer the server does not hold is refused PR006, naming that question alone, while the failed session A's acknowledged answer (generation 1) satisfies its entry; B's finish over both then succeeds and the paper carries A's answer for question 1 and B's for question 2");
+    },
+  },
+  {
+    // A3-A01 (D9, Sharon's ruling (a) and its condition): after a recovery the player's next client_seq is above every seq
+    // held for the sitting, across generations. The residual (a crafted, non-player manifest) is stated in A3's notes.
+    id: "A3-A01",
+    requires: ["db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const v = jalankanPulih(c, ctx.repoRoot);
+      if (!v) return c.verdict("");
+      // 1. the read: session_answers on the recovered session returns both generations' receipts
+      c.expect(v.A01_terima === "ok:2,5", `after the recovery, the player's read must hold question 1's receipts from both generations (A's 5, B's 2): ${v.A01_terima}`);
+      const diterima = (v.A01_terima ?? "").replace(/^ok:/, "").split(",").filter(Boolean).map(Number);
+      // 2. the wiring: the page folds every receipt into seqs (no generation filter); the player starts serverSeqs from it,
+      //    and nextSeq is one above serverSeqs, what this page issued and the outbox
+      const buang = (x: string) => x.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
+      const pa = buang(readFileSync(join(ctx.repoRoot, "src", "app", "belajar", "_components", "PermukaanAsesmen.tsx"), "utf8"));
+      const ip = buang(readFileSync(join(ctx.repoRoot, "src", "app", "belajar", "_components", "ItemPlayer.tsx"), "utf8"));
+      const lipat = /for \(const row of prior\) \{\s*seqs\[row\.presented_item_id\] = Math\.max\(seqs\[row\.presented_item_id\] \?\? 0, row\.client_seq\);/.test(pa)
+        && /engine\.answersSoFar\(db, sesi\)/.test(pa);
+      c.expect(lipat, "the page does not fold every receipt session_answers returns into the player's seqs");
+      c.expect(!/generasi/.test(/for \(const row of prior\) \{[\s\S]*?\n {2}\}/.exec(pa)?.[0] ?? "generasi"), "the page filters the receipts it folds by generation");
+      c.expect(/const serverSeqs = useRef<Record<string, number>>\(\{ \.\.\.props\.seqs \}\);/.test(ip), "the player does not start serverSeqs from the page's seqs");
+      const aturan = /const n = 1 \+ Math\.max\(serverSeqs\.current\[item\] \?\? 0, issued\.current\[item\] \?\? 0, outboxMax\(item\)\);/.test(ip);
+      c.expect(aturan, "nextSeq is not one above the server's held seq, this page's issued seq and the outbox");
+      // 3. the rule executed on what the read returned: the next seq is above every held seq, in every generation
+      const lanjut = 1 + Math.max(0, ...diterima);
+      c.expect(diterima.length === 2 && diterima.every((q) => lanjut > q), `the next seq ${lanjut} is not above every held seq (${diterima.join(", ")})`);
+      return c.verdict("executes session_answers against the migrations, rolled back, and reads the player's wiring (D9; Sharon's ruling (a)): after a recovery the recovered session's read holds question 1's receipts from both generations (seq 5 and 2); the page folds every receipt into the player's seqs with no generation filter, the player starts serverSeqs from them, and nextSeq is one above the held seq, the issued seq and the outbox, so the next seq (6) is above every seq held for the sitting");
     },
   },
 ];

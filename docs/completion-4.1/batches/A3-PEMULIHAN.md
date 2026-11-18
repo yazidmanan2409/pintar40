@@ -108,6 +108,8 @@ moves before the lock (A3-E01 checks it; A2A-L01 ranks `pengerjaan_izin_lanjut` 
 | A3-P14 | S3 | a later generation's answer at a lower client sequence is final over the earlier generation's, and the scored result counts it |
 | A3-P15 | S8 | ruling 42's legs: a work-scoped planned window allows a recovery; an emergency stop over the learner refuses it `SITTING_CLASS_STOPPED` |
 | A3-P16 | S7 | on real connections: two recoveries from two sessions serialise (generation 3, two audit rows; the plant without both FOR UPDATEs loses one); a recovery waits on a superseding permission and consumes the newest; a recovery racing the teacher's ending answers `RECOVERY_NOTHING` |
+| A3-P17 | D9 | after a recovery the new controller's manifest is judged against every held answer, whatever generation acknowledged it; an entry not held is refused `PR006`, naming it alone |
+| A3-A01 | D9, ruling (a) | after a recovery the player's read holds every generation's receipts and its next `client_seq` is above every seq held for the sitting |
 | A3-E01 | Sharon | the permission is written by exactly the two acts, each under the sitting `FOR UPDATE`; the two learner acts declared |
 
 **Later, in their own commits:** S3 (the scored result across generations, A3-4); S7 (the races, A3-2), **including a
@@ -122,3 +124,17 @@ recovery against a recovery from two sessions, and a recovery against a supersed
 3. **The request:** a separate `minta_izin_lanjut` (§3a), with Sharon's conditions.
 4. **Daisy, still open:** the sentence for `RECOVERY_NOT_NEEDED` (the teacher's side), and whether the request call
    changes anything on the waiting screen.
+
+## 7 · D9's residual (Sharon, ruling (a), 16:11)
+
+`finish_my_session` matches a manifest entry to any receipt at or above its seq, whatever its generation. After a
+recovery, a new-generation answer at a seq at or below an earlier generation's receipt would be satisfied by that older
+receipt while it is still in flight, so the sitting could finish over the older answer.
+
+**The guarantee is the player's sequence rule, not the database.** After a recovery the player reads every generation's
+receipts (`session_answers`) and numbers each answer one above them, so it never sends such a manifest. A3-A01 pins
+this.
+
+**What remains:** a crafted manifest sent by something other than the player. It is self-limited: only the controller
+can finish, and it can finish only the learner's own sitting, over that learner's own earlier answer. Carrying the
+generation in the manifest, option (b), was declined: it is a contract change that protects nobody else.
