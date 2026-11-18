@@ -71,14 +71,7 @@ This is the running record. Bob updates it as work moves; the newest entries are
 
 | When (UTC) | What |
 |---|---|
-| 06:45 | **C3w-1's pre-build review is complete.** Sharon accepted the design (`6a63bdee`) with five technical conditions, all adopted:
-- identity comes from the signed-in session;
-- a safe "sending" claim;
-- a forward-only lifecycle for each attempt;
-- the shared ceilings are locked in a fixed order;
-- the stand-in provider can be used only in tests, so staging can never produce fake drafts.
-
-The learner-name rule (decision 3) is settled locally if its usability evidence passes; it comes to you only if it fails. The build starts after A3 |
+| 06:45 | **C3w-1's pre-build review is complete.** Sharon accepted the design (`6a63bdee`) with five technical conditions, all adopted (design §9): identity comes from the signed-in session; a safe "sending" claim; a forward-only lifecycle for each attempt; the shared ceilings are locked in a fixed order; and the stand-in provider can be used only in tests, so staging can never produce fake drafts. The learner-name rule (decision 3) is settled locally if its usability evidence passes, and comes to you only if it fails. The build starts after A3 |
 | 06:25 | C3w-1: Daisy's words are done (`dde78004`). She found four small Studio consistency fixes not yet on main (Z-2, Z-3, N-6, N-7). Bob ruled that they land as the first commits of C3w-1's branch, before any C3w code. Within ruling 40, the model's display name may appear in staff copy only, never to learners |
 | 06:15 | Bob drafted C3w-1's pre-build design (`batches/C3W-1-DESIGN.md`). It gathers rulings 38–42, S-1 to S-8 and R-3 into the objects, codes and red-first tests. It is design only: no build, no provider call, no key. Daisy is asked for every state's words and her Studio consistency findings; Sharon reviews the design after A3's preservation query. The build starts after A3 closes |
 
