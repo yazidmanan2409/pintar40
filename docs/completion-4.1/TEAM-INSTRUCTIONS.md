@@ -48,6 +48,8 @@ E's three owner decisions (providers, scoring rules, judges) stay visible in sta
 
 ## C2w ACCEPTED on staging (18 Nov 2026, about 09:20 UTC)
 
+**Owner's confirmation (18 Nov 2026):** "C2w acceptance approved … Record C2w as accepted in staging at 284 migrations. Production remains untouched. Proceed with A3 as planned, subject to its existing verification and promotion gates."
+
 - **Sharon: promotion PASS** (`C2W-PROMOTION-7ba18b03.md` on her branch). She checked independently:
   - the merge tree equals `b57d897a` = `aa5f5741` + `C2W-MERGE-HEAD.md`;
   - the migration hash `54b6569d…`;

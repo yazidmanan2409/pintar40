@@ -57,6 +57,7 @@ This is the running record. Bob updates it as work moves; the newest entries are
 
 | When (UTC) | What |
 |---|---|
+| 09:25 | **Owner confirmed C2w's acceptance:** staging at 284 migrations; production untouched at 111. A3 proceeds under its existing gates |
 | 09:20 | **C2w ACCEPTED on staging.** Sharon: promotion PASS (`C2W-PROMOTION-7ba18b03.md`). Rule P1 is proven by the dry run's plants, since staging holds no `release_distributions`. Staging is at 284. A3 is next to merge (284 → 288) |
 | 09:12 | **C2w on staging: all evidence passes, Sharon's promotion check requested.** `staging.yml` 44272691283 passed: migrations applied and equal to the repository, sign-in boundary, live sign-in. The after-read (`5f18b25b`) shows only line 10 moved, 282 → 284, with the versions digest equal to main's; lines 65 and 66 are unchanged and line 68 is 0. pg_cron: job 5 succeeded at 09:05 and 09:10, and job 6 is active; C2w adds no job. environment-facts 44273100341 passed |
 | 09:05 | **C2w merged.** The owner chose a documentation-only head: `b57d897a`, which is `aa5f5741` plus `C2W-MERGE-HEAD.md`, checked as that one file. PR CI 44267902485 passed on it. PR #25 merged as `7ba18b03`, a merge commit whose tree is identical to `b57d897a`; main has 284 migrations. `staging.yml` run 44272691283 is running; the after-read follows |
