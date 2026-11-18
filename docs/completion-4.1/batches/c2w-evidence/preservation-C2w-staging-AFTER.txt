@@ -1,0 +1,65 @@
+# C2w · staging "after" preservation read
+# Owner authorisation: 18 Nov 2026 ("I also authorize merging PR #25 at the verified frozen candidate, promoting staging from
+# migration 282 to 284, and running the after-read and hosted checks").
+# Merge: PR #25 as 7ba18b03b47ec78f61b0e66cf1f11f1a4044534a, a merge commit whose tree is identical to b57d897a
+# (= frozen aa5f5741 + docs/completion-4.1/batches/C2W-MERGE-HEAD.md, owner's choice); PR CI 44267902485 green on b57d897a.
+# staging.yml run 44272691283 applied the migrations.
+# Project: keijhmdtsgrfvnvocfvk ("pintar-staging"), verified before the BEFORE read in this session.
+# Query: preservation-C2w.sql at dfa542ab (sha256 1b686345...), comment lines removed, with batas set to the BEFORE read's
+# printed values ('2026-11-18 07:54:50.034681+00', 10697). Read only ("set transaction read only"). Run by Bob, 18 Nov 2026,
+# The lines below are the query's output exactly as returned.
+1|2026-11-18 07:54:50.034681+00
+2|10697
+10|284 / 20270121110000; versions digest 1374521acd2befd00c9d9e0f60ee7559
+11|installed 1.6.4
+12|5: on_auth_user_created, pintar_card_email_guard, pintar_email_correction_guard, pintar_kunci_tetap_jaga, pintar_password_write_guard
+20|4
+21|10
+22|10
+23|3
+24|5
+25|1
+26|91 (6860)
+27|bd41b3c9605519cffb916d0352b5148d
+28|7deebf17f87ba3ee6bd192f776db01fb
+29|25dc4819f4dc97e50eff2f351e8a3751
+30|43f6cc69b6e8eee4854a46f88ebe0385
+31|e428cb7fc08e301b0f96864bf0487ea4
+32|f6e7a4fa62ff7ff83d3e9cd7f36b76c7
+33|d41d8cd98f00b204e9800998ecf8427e
+40|1580 4d329e5df9e056e8b07e25d30e4c60e6
+41|100 072a88136a241be4d483bbdbce1a1b72
+42|100 75532463e4f5b282c1b05b24b7e1762b
+43|1580 3e72ab2c4902dde4ccb6c18de4ac7a39
+44|1580 bfdb7202adbe6d660420a015ddb8b328
+45|1
+46|99 c9e0d5c267798cb2e4974e829ea63a75
+47|2 d9370da4ef51a649072fb9eb4894ce00
+48|2 d2340d1b7e472d7bcd0bf26dddc7ec6a
+49|1489 b5c885120c7a8e94e11e779a952255f9
+50|27 40f65e668cb06bf743f3b7dc741e9d08
+51|175 1c11a3cd3707a935d6b0e0b8f81534d1
+52|68 0a41835c199a42bdc30fb4f63058936d
+53|57 535c370fedaf670affba27cb927379a4
+54|1388 0e3c7d08a0d3bb76d788d15f967c8ef1
+55|5552 52338859938b90a302c36f50fb833085
+56|80 366c0b4108bf2460f994203ba6749b23
+57|182 f046bf7fb4c6d740b54bf7bc3ea30cdd
+58|1779 5fff235055de1af4c92b881d85fb6762
+59|1779 27080cba6c490044c2e8ae7703b78d51
+60|249 f9ab228f0c9ec5cba4ff5ba4fef26f64
+61|66 550c32200cbbd51a54c9e6385f468165
+62|10443 aed25d8673085cec1d9a40196ce00326
+63|0 d41d8cd98f00b204e9800998ecf8427e
+64|0
+65|0 d41d8cd98f00b204e9800998ecf8427e
+66|0 d41d8cd98f00b204e9800998ecf8427e
+67|0 d41d8cd98f00b204e9800998ecf8427e
+68|0
+70|0 d41d8cd98f00b204e9800998ecf8427e
+71|0
+72|0 d41d8cd98f00b204e9800998ecf8427e
+73|0 d41d8cd98f00b204e9800998ecf8427e
+74|0
+75|0 d41d8cd98f00b204e9800998ecf8427e
+76|0 
