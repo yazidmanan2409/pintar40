@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| C3w-1 pre-build design | Accepted as the starting page, with D-1 (identity from the session), D-2 (conditional sending mark), D-3 (sent-never-ended → UNRECONCILED; guarded transitions), D-4 (lock school → option → platform), D-5 (stub only under the harness flag); R-3: no hash on a refused excerpt. Answers: fold the per-educator limit; append-only acceptance; lock the platform row; 24 h / 10 min / timeout+5 min / 2 retries; reconciliation sound; decision 3 settled if the usability evidence passes | `6e3c4231cc4460b952e33c23992fe1de4480588c` | `C3W-1-DESIGN-6e3c4231.md` |
 | A3 step 0 line 4 (S0-1) | Accepted at 8a2f5d23. Bob's correction is right: compare with the list at C2w's head (284), since A3's own trigger is created after the backfill | `8a2f5d23` | `A3-PRESERVATION-8cb312ee.md` |
 | A3 step 0 (lineage pre-check) | PASS: the predicates equal garis_definisi_pendahulu, periksa and the backfill; read only, counts and ids. S0-1: add line 4, the row triggers on assessment_definitions as staging has them, which must equal the frozen head | `e5f0739c977295f2ec8b99f5c9212ef0a8cd9607` (sha256 ec10e74a…) | `A3-PRESERVATION-8cb312ee.md` |
 | E K-FLAG result | 0 flags, confirmed: flags.json re-hashed 90e753ac… (matches); Bob's record cites my answer sha256s; answers committed 05:37:40 before the flags at 05:45:29 | `ec760703d39cf8cecca0d8135ecbd2c8ba77239e` | `E-KFLAG/README.md` |
