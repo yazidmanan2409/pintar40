@@ -108,7 +108,8 @@ begin
   end if;
   v_sesi := public.sesi_saya();
   if v_sesi is null then perform public.pengerjaan_tolak('SITTING_NOT_CONTROLLER'); end if;   -- S11
-  -- D10: a held sitting is not recovered; the deadline rule runs first, and what it ends is not recovered
+  -- D10: a held sitting is not recovered. The deadline rule runs first: a sitting past its deadline answers RECOVERY_NOTHING,
+  -- and that refusal rolls the rule's ending back with every other write; the scheduled sweep ends it later
   if public.pengerjaan_ditahan(s) then perform public.pengerjaan_tolak('SITTING_FROZEN'); end if;
   perform public.pengerjaan_putus_tenggat(p_session, true);
   select * into s from public.assessment_sessions where id = p_session;

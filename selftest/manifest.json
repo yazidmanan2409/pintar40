@@ -6663,7 +6663,7 @@
     {
       "id": "A3-P08",
       "runner": "static",
-      "proves": "executes lanjutkan_di_sini against the migrations, rolled back (D10): a held sitting's recovery is refused PR170 SITTING_FROZEN. A sitting past its deadline is ended by the deadline rule first and answers RECOVERY_NOTHING. Rolled back."
+      "proves": "executes lanjutkan_di_sini against the migrations, rolled back (D10): a held sitting's recovery is refused PR170 SITTING_FROZEN. A sitting past its deadline answers RECOVERY_NOTHING and is left open and past its deadline: the rule's ending rolls back with the refusal, and the scheduled sweep ends it later. Rolled back."
     },
     {
       "id": "A3-P09",
@@ -6699,6 +6699,11 @@
       "id": "A3-P15",
       "runner": "static",
       "proves": "executes lanjutkan_di_sini against the migrations, rolled back (S8; ruling 42, decision 2): with a work-scoped planned window active over the learner's class the recovery is allowed; with an emergency stop over the learner it is refused PR170 SITTING_CLASS_STOPPED, under the shared fence. A platform-wide window is refused at the request (D10)."
+    },
+    {
+      "id": "A3-P17",
+      "runner": "static",
+      "proves": "executes record_answer and finish_my_session against the migrations, rolled back (D9): after a recovery the new controller's manifest is judged against the answers the server holds whatever generation acknowledged them; an entry not held is refused PR006, naming it alone; the failed device's acknowledged answer stays on the paper."
     },
     {
       "id": "A3-P16",

@@ -514,11 +514,14 @@ begin
   ${P("P02_serah", "M", "A", "select public.submit_session(current_setting('p.s')::uuid)::text", true)}
   -- A3-P14 (S3): after the recovery, session B answers question 1 wrongly (generation 2); A had answered it rightly
   ${P("P14_jawab_B", "M", "B", `select x.outcome from public.record_answer(${S(1)}, 2, selftest.f09_answer(${S(1)}, false)) x`)}
-  -- A3-P08 (D10): past its deadline: ended by the rule, then nothing to recover
+  -- A3-P08 (D10): past its deadline: the rule ends it inside the act, the refusal rolls that ending back with every other
+  -- write, and the act answers RECOVERY_NOTHING; the scheduled sweep ends the sitting later (as every refusing boundary)
   set local session_replication_role = replica;
   execute 'update public.assessment_sessions set authoritative_deadline = now() - interval ''2 days'' where id = $1' using v_s;
   set local session_replication_role = origin;
   ${P("P08_tenggat", "M", "C", lanjut(), true)}
+  v := v || jsonb_build_object('P08_sesudah', (select s.status || '|' || (s.authoritative_deadline < now())::text
+     from public.assessment_sessions s where s.id = v_s));
   set local session_replication_role = replica;
   execute 'update public.assessment_sessions set authoritative_deadline = $2 where id = $1'
     using v_s, nullif(split_part(v_sebelum, '|', 4), '-')::timestamptz;
@@ -545,6 +548,8 @@ begin
   v := v || jsonb_build_object('mulai_post', pg_temp.p('M', 'A', format('select public.start_learning_session(%L)::text', f.aa_post)));
   select s.id into v_post from public.assessment_sessions s where s.person_id = v_p and s.assessment_assignment_id = f.aa_post;
   perform set_config('p.post', coalesce(v_post::text, gen_random_uuid()::text), true);
+  -- A3-P17 (D9): session A, the post-test's first controller, answers its question 1 (client_seq 3) and is acknowledged
+  ${P("P17_A_jawab", "M", "A", "select x.outcome from public.record_answer((select p.id from public.presented_items p where p.session_id = current_setting('p.post')::uuid order by p.position offset 0 limit 1), 3, selftest.f09_answer((select p.id from public.presented_items p where p.session_id = current_setting('p.post')::uuid order by p.position offset 0 limit 1), true)) x")}
   -- A3-P04 (S5): no permission; the wrong teacher and an unknown id (P06); the class's teacher allows it
   ${P("P04_tanpa", "M", "B", lanjut("current_setting('p.post')::uuid"), true)}
   ${P("P06_guru_lain", "L", "L", izin(), true)}
@@ -603,6 +608,20 @@ begin
   ${P("P04_sah", "M", "B", lanjut("current_setting('p.post')::uuid"))}
   v := v || jsonb_build_object('P13_sesudah_pulih', (select coalesce(to_jsonb(s) ->> 'lanjut_diminta_pada', 'null') from public.assessment_sessions s where s.id = v_post));
   ${P("P04_terpakai", "M", "C", lanjut("current_setting('p.post')::uuid"), true)}
+  -- A3-P17 (D9): the new controller's manifest is judged against the answers the server holds, whatever generation
+  -- acknowledged them: question 1 (A's, generation 1) satisfies its entry; question 2, not yet held, is named (PR006)
+  ${P("P17_kurang", "M", "B", "select public.finish_my_session(current_setting('p.post')::uuid, jsonb_build_object((select p.id from public.presented_items p where p.session_id = current_setting('p.post')::uuid order by p.position offset 0 limit 1)::text, 3, (select p.id from public.presented_items p where p.session_id = current_setting('p.post')::uuid order by p.position offset 1 limit 1)::text, 1))::text", true)}
+  v := v || jsonb_build_object('P17_soal2', (select p.id from public.presented_items p where p.session_id = current_setting('p.post')::uuid order by p.position offset 1 limit 1)::text);
+  ${P("P17_B_jawab", "M", "B", "select x.outcome from public.record_answer((select p.id from public.presented_items p where p.session_id = current_setting('p.post')::uuid order by p.position offset 1 limit 1), 1, selftest.f09_answer((select p.id from public.presented_items p where p.session_id = current_setting('p.post')::uuid order by p.position offset 1 limit 1), false)) x")}
+  ${P("P17_selesai", "M", "B", "select public.finish_my_session(current_setting('p.post')::uuid, jsonb_build_object((select p.id from public.presented_items p where p.session_id = current_setting('p.post')::uuid order by p.position offset 0 limit 1)::text, 3, (select p.id from public.presented_items p where p.session_id = current_setting('p.post')::uuid order by p.position offset 1 limit 1)::text, 1))::text")}
+  v := v || jsonb_build_object(
+    'P17_kertas_1', (select coalesce(string_agg(r.generasi::text || ':' || r.client_seq, ','), 'none') from public.session_final_responses(current_setting('p.post')::uuid) fr
+                      join public.responses r on r.presented_item_id = fr.presented_item_id and r.value = fr.value
+                     where fr.presented_item_id = (select p.id from public.presented_items p where p.session_id = current_setting('p.post')::uuid order by p.position offset 0 limit 1)),
+    'P17_kertas_2', (select coalesce(string_agg(r.generasi::text || ':' || r.client_seq, ','), 'none') from public.session_final_responses(current_setting('p.post')::uuid) fr
+                      join public.responses r on r.presented_item_id = fr.presented_item_id and r.value = fr.value
+                     where fr.presented_item_id = (select p.id from public.presented_items p where p.session_id = current_setting('p.post')::uuid order by p.position offset 1 limit 1)),
+    'P17_status', (select s.status from public.assessment_sessions s where s.id = current_setting('p.post')::uuid));
   perform selftest.as_owner();
   v := v || jsonb_build_object('P13_registri', (select coalesce(string_agg(r.function_name, ',' order by r.function_name), '')
           from public.client_rpc_registry r where r.function_name in ('izinkan_lanjut', 'lanjutkan_di_sini', 'minta_izin_lanjut')));
@@ -1760,7 +1779,8 @@ rollback;`;
     },
   },
   {
-    // A3-P08 (D10): a held sitting is not recovered; one past its deadline is ended by the ordinary rule first
+    // A3-P08 (D10): a held sitting is not recovered; one past its deadline answers RECOVERY_NOTHING (the rule's ending rolls
+    // back with the refusal; the scheduled sweep ends it later)
     id: "A3-P08",
     requires: ["db"],
     run: async (ctx) => {
@@ -1768,8 +1788,9 @@ rollback;`;
       const v = jalankanPulih(c, ctx.repoRoot);
       if (!v) return c.verdict("");
       c.expect(v.P08_tahan === "PR170:SITTING_FROZEN", `a held sitting: ${v.P08_tahan}`);
-      c.expect(v.P08_tenggat === "PR170:RECOVERY_NOTHING", `a sitting past its deadline is ended by the rule, then has nothing to recover: ${v.P08_tenggat}`);
-      return c.verdict("a held sitting's recovery is refused PR170 SITTING_FROZEN; a sitting past its deadline is ended by the deadline rule first and answers RECOVERY_NOTHING; rolled back");
+      c.expect(v.P08_tenggat === "PR170:RECOVERY_NOTHING", `a sitting past its deadline has nothing to recover: ${v.P08_tenggat}`);
+      c.expect(/^(CREATED|IN_PROGRESS|PAUSED)\|true$/.test(v.P08_sesudah ?? ""), `the refusal writes nothing: the sitting is still open and past its deadline after the call (the sweep ends it): ${v.P08_sesudah}`);
+      return c.verdict("a held sitting's recovery is refused PR170 SITTING_FROZEN; a sitting past its deadline answers RECOVERY_NOTHING and is left as it was (open, past its deadline: the rule's ending rolls back with the refusal, and the scheduled sweep ends it later); rolled back");
     },
   },
   {
@@ -1975,6 +1996,27 @@ rollback;`;
         c.expect(!l3.ok && /RECOVERY_NOTHING/.test(l3.err) && l3.ms >= 800, `the recovery must wait for the ending, then find nothing to recover: ${l3.err} (${l3.ms} ms)`);
         return c.verdict("on real connections, each committing (P3: nothing left open): two recoveries of one sitting from two sessions serialise on the sitting row (the second waits, then moves generation 2 to 3; two audit rows), and the plant without the act's and the deadline rule's FOR UPDATE loses one; a recovery waits on the teacher's superseding permission and consumes the newest, the older staying unused; a recovery racing the teacher's ending waits and then answers RECOVERY_NOTHING");
       } finally { tutup(); }
+    },
+  },
+  {
+    // A3-P17 (D9, THE PLAN §5.5): the finishing manifest after a recovery. finish_my_session checks the finishing device's
+    // own manifest (PR006); after a recovery the new controller's manifest is judged against the answers the server holds
+    // for the sitting, whatever generation acknowledged them, so the failed device's acknowledged answers are on the paper.
+    id: "A3-P17",
+    requires: ["db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const v = jalankanPulih(c, ctx.repoRoot);
+      if (!v) return c.verdict("");
+      c.expect(/^ok:/.test(v.P17_A_jawab ?? "") && /^ok:/.test(v.P04_sah ?? ""), `session A's answer before the recovery, and the recovery: ${v.P17_A_jawab} / ${v.P04_sah}`);
+      c.expect((v.P17_kurang ?? "").startsWith("PR006:") && (v.P17_kurang ?? "").includes(v.P17_soal2 ?? "-")
+        && !(v.P17_kurang ?? "").replace(v.P17_soal2 ?? "-", "").match(/[0-9a-f]{8}-[0-9a-f]{4}-/),
+        `a manifest naming an answer the server does not hold must be refused PR006, naming that question alone (question 1 is held from generation 1): ${v.P17_kurang}`);
+      c.expect(/^ok:/.test(v.P17_B_jawab ?? "") && /^ok:/.test(v.P17_selesai ?? ""), `the new controller's answer, then its finish over both: ${v.P17_B_jawab} / ${v.P17_selesai}`);
+      c.expect(v.P17_kertas_1 === "1:3", `question 1's answer on the paper must be the failed device's acknowledged one (generation 1, seq 3): ${v.P17_kertas_1}`);
+      c.expect(v.P17_kertas_2 === "2:1", `question 2's answer on the paper must be the new controller's (generation 2, seq 1): ${v.P17_kertas_2}`);
+      c.expect(v.P17_status === "FINALIZED", `the sitting is finished: ${v.P17_status}`);
+      return c.verdict("executes record_answer and finish_my_session against the migrations, rolled back (D9): after an Uji Penguasaan is recovered on session B, B's finish with a manifest naming an answer the server does not hold is refused PR006, naming that question alone, while the failed session A's acknowledged answer (generation 1) satisfies its entry; B's finish over both then succeeds and the paper carries A's answer for question 1 and B's for question 2");
     },
   },
 ];

@@ -37,7 +37,9 @@ moves before the lock (A3-E01 checks it; A2A-L01 ranks `pengerjaan_izin_lanjut` 
 5. **Maintenance and holds** (D10, ruling 42): A2a's emergency hold or A1's hold: `SITTING_FROZEN`. A platform-wide
    planned window: the start's maintenance refusal. A work-scoped planned window **allows** it, read through
    `maintenance_draining_di(person, window)` per place.
-6. **The deadline rule runs first** (D10): `pengerjaan_putus_tenggat`. A sitting it ends is not recovered.
+6. **The deadline rule runs first** (D10): `pengerjaan_putus_tenggat`. A sitting past its deadline answers
+   `RECOVERY_NOTHING`; the refusal rolls the rule's ending back with every other write, and the scheduled sweep ends it
+   later (as at every refusing boundary since A1; Sharon R-2).
 7. **Nothing to recover:** a sitting not CREATED, IN_PROGRESS or PAUSED answers `RECOVERY_NOTHING`, writing nothing (S4).
 8. **Already the controller:** returns the current generation and writes nothing (idempotent; the player's silent
    re-attempt, D11, lands here).
@@ -97,7 +99,7 @@ moves before the lock (A3-E01 checks it; A2A-L01 ranks `pengerjaan_izin_lanjut` 
 | A3-P05 | S6 | the deadline, the answers (byte-identical), the attempt count and the status are unchanged by a recovery |
 | A3-P06 | S9 | an unknown id and another learner's sitting answer the same code; a teacher outside the sitting's place is refused like an unknown id |
 | A3-P07 | S11 | a session with no id is refused at both acts |
-| A3-P08 | D10 | a held sitting is refused `SITTING_FROZEN`; a sitting past its deadline is ended, not recovered |
+| A3-P08 | D10 | a held sitting is refused `SITTING_FROZEN`; a sitting past its deadline answers `RECOVERY_NOTHING` and is left open and past its deadline (the sweep ends it) |
 | A3-P09 | D7, S10 | the audit row (actor, generations from and to, who allowed) and the RECONNECT observation |
 | A3-P10 | S5 binding | a valid permission bound to the same learner's other sitting does not recover this one |
 | A3-P11 | S5 supersession | of two permissions the newest alone counts: with it used, the older unused one is not consulted |
