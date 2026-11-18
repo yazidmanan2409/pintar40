@@ -21,6 +21,7 @@
 --     trigger, from the verified claims (assessment_sessions_pengendali): the start itself writes no sitting, and a
 --     sitting inserted with no session (the service, the harness's copies) has none, so its learner's first write claims it.
 --     Any sitting inserted with no session, not only one open when A3 lands, stays claimable that way, once (Sharon).
+--     The claim is written only while the sitting is CREATED, IN_PROGRESS or PAUSED; an ended one is never written by it.
 --   * session_final_responses: the final answer is the highest (generation, client_seq) (D8).
 --   * pengerjaan_tolak (PR170) gains SITTING_NOT_CONTROLLER (D12). An unknown sitting reaches the boundary's own refusal.
 --
@@ -129,7 +130,10 @@ begin
   v_sesi := public.sesi_saya();
   if v_sesi is null then perform public.pengerjaan_tolak('SITTING_NOT_CONTROLLER'); end if;
   if s.pengendali_sesi is null then
-    update public.assessment_sessions set pengendali_sesi = v_sesi where id = p_session;
+    -- the claim is written only to an open sitting (Sharon V-2): an ended one is never written by a touch
+    if s.status in ('CREATED', 'IN_PROGRESS', 'PAUSED') then
+      update public.assessment_sessions set pengendali_sesi = v_sesi where id = p_session;
+    end if;
   elsif s.pengendali_sesi <> v_sesi then
     perform public.pengerjaan_tolak('SITTING_NOT_CONTROLLER');
   end if;
