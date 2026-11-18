@@ -186,8 +186,9 @@ begin
   if s.pengendali_sesi = v_sesi then perform public.pengerjaan_tolak('RECOVERY_NOTHING'); end if;
   select * into z from public.pengerjaan_izin_lanjut i
    where i.session_id = p_session and i.person_id = s.person_id order by i.dibuat_pada desc, i.id desc limit 1;
+  -- already allowed: the learner can recover directly (Sharon c0a5d7d6)
   if z.id is not null and z.dipakai_pada is null and z.berlaku_sampai > now() then
-    perform public.pengerjaan_tolak('RECOVERY_NOTHING');
+    perform public.pengerjaan_tolak('RECOVERY_NOT_NEEDED');
   end if;
   -- once: a repeat (or «Coba lagi») leaves the first request as it was
   update public.assessment_sessions set lanjut_diminta_pada = coalesce(lanjut_diminta_pada, now())
