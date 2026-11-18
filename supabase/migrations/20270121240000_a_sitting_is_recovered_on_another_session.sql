@@ -39,6 +39,10 @@ comment on table public.pengerjaan_izin_lanjut is
 create index pengerjaan_izin_lanjut_sesi on public.pengerjaan_izin_lanjut (session_id, dibuat_pada desc, id desc);
 alter table public.pengerjaan_izin_lanjut enable row level security;
 revoke all on table public.pengerjaan_izin_lanjut from public, anon, authenticated;
+-- L1-F4's registry: both person keys are bookkeeping of a sitting that already exists; neither attaches a new identity
+insert into public.orang_lampiran (tabel, kolom, kelas, alasan) values
+  ('pengerjaan_izin_lanjut', 'person_id', 'BEBAS', 'bookkeeping of an existing sitting: the permission is bound to that sitting''s own learner'),
+  ('pengerjaan_izin_lanjut', 'diizinkan_oleh', 'BEBAS', 'an actor record: the teacher who allowed the sitting to continue');
 
 CREATE OR REPLACE FUNCTION public.pengerjaan_tolak(p_code text)
  RETURNS void
@@ -188,6 +192,11 @@ begin
   -- once: a repeat (or «Coba lagi») leaves the first request as it was
   update public.assessment_sessions set lanjut_diminta_pada = coalesce(lanjut_diminta_pada, now())
    where id = p_session returning lanjut_diminta_pada into v_pada;
+  -- the first request is recorded once (a repeat writes nothing)
+  if s.lanjut_diminta_pada is null then
+    perform public.audit_write('assessment_session.recovery_requested', 'assessment_sessions', p_session::text, s.institution_id,
+      jsonb_build_object('session_id', p_session));
+  end if;
   return v_pada;
 end $$;
 
