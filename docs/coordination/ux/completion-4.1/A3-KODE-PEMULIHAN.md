@@ -89,10 +89,28 @@
   - «Coba lagi» re-checks only (§2 rule 2) and never creates a second request.
   - The teacher's row shows one request, with the time of the latest check.
 - **The teacher's row label, under O-4:**
-  - «Sedang mengerjakan · minta lanjut di sesi lain»;
+  - ~~«Sedang mengerjakan · minta lanjut di sesi lain»~~ **(corrected 18 Nov 12:35, back to O-4's approved teacher form):** «Sedang mengerjakan · minta lanjut setelah masuk lagi»;
   - «… di perangkat lain» only when the device is known to differ.
   - This replaces DESAIN-AWAL §4 (b)'s «… di perangkat lain» for the unknown case.
 
 **3 · No «Izinkan …» for a low-stakes sitting: agreed.**
 - The row never offers it, because low-stakes recovery needs no teacher (§1).
 - A direct call is refused with the existing `galat.action_not_allowed`. **No new words.**
+
+
+## 7 · Sharon's ruling (`claude/a3` at `18664491`): the sixth code, and the request act (18 Nov, 12:35)
+
+**RECOVERY_NOT_NEEDED** (teacher side only):
+- ID «Asesmen ini tidak memerlukan izin: murid dapat melanjutkannya sendiri setelah masuk lagi. Tidak ada yang diubah.»
+- EN «This assessment needs no permission: the learner can continue on their own after signing in again. Nothing was changed.»
+- **Role:** `role="status"`, in the row's result line. It is informative, not a fault.
+- **The row never offers «Izinkan …» for a low-stakes sitting** (§6.3). So this code is reached only by a stale page or a crafted call.
+
+**`minta_izin_lanjut`, the request as its own act:**
+- **The waiting screen is unchanged** from §6.2.
+- **«Coba lagi»** re-checks. If the sitting is still not authorised, it calls `minta_izin_lanjut` again. That is safe because a repeat changes nothing, and it covers a first request lost to the network.
+- The teacher still sees **one** request, with the latest check time.
+- The screen shows no extra line for the request.
+- **Refusals of the request act** (the controller's own session, an ended sitting): no learner sentence of their own.
+  - The controller's own session is the quiet return of §6.1.
+  - An ended sitting shows RECOVERY_NOTHING's screen (§1).
