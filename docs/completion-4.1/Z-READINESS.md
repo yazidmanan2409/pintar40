@@ -56,3 +56,22 @@ Bob, 18 Nov 2026, about 10:00 UTC. **One list of everything that must be true, o
 - **Bob:**
   - R-15's triage list;
   - the Z journey skeletons for J1, J2, J4, J5 and J6, mapped to existing tests.
+
+## 5 · R-15 triage (Bob, 18 Nov, 12:10 UTC). Provisional
+
+Source: `EXECUTION-PLAN.md` §5. **The disposition is provisional:** where an item was "taken with" A1 or C1w, its state is
+read from that batch's acceptance record at Z, not assumed. The owner of each check confirms with one line.
+
+| Item | Disposition | Check by |
+|---|---|---|
+| 4.0, Sharon: the school guard before `not (v_summary ? 'run_id')`; the school filter in the run check; F37-K06 by a plant | **Z, verify.** Authority ordering, so not cosmetic. If still open, fix with R-8 after A3 | Sharon |
+| 4.0, Daisy: the audit-run Tab scroll; the 15 px header strip on a phone | **Z, with R-11's sweep** (same rendered-check helper) | Daisy |
+| 4.0, Daisy: broader audit presentation | **4.2** | — |
+| 4.0, cosmetic: Kenaikan step 2's «·» line; the summary's group order; «Tambah Tingkat» suggesting «2026/2027»; titles breaking at 320 px; «Kursus» in «Cabut sertifikat» (X12) | **Z if one string or one style each, else 4.2.** The 320 px titles ride R-11's sweep | Daisy |
+| A1 R1, R2 and R4 (Daisy); A1's seven conditions (Sharon) | **Z, verify closed** against A1's acceptance | Daisy; Sharon |
+| C1w C1-R2, R4 and R5 (Daisy); C1w's six conditions (Sharon) | **Z, verify closed** against C1w's acceptance. C1-R5's email was left unbuilt (it is in-app only, as Review P's PETE-12 notes): **4.2,** unless the owner rules otherwise | Daisy; Sharon |
+| B0, Sharon: closing an account can leave a school with no usable admin | **Z, verify.** B0's guarantee is the last administrator; check that account closure is covered | Sharon |
+| Staging, Daisy: her session cannot reach staging | **Stays as R-13**, which needs a browser-capable person before the walkthrough | — |
+
+**Most of these are verification, not new work.** Each check is one read of the acceptance record or the code, done
+in A3's gaps, economically.
