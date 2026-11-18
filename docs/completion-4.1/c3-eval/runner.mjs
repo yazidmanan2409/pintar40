@@ -1701,6 +1701,29 @@ async function selfTest() {
       '(i5) the v4 package settings (openai only, max_output 48,000, caps 5.00 / 9.51, pinned prices): 30 valid drafts, every call that reached the transport streamed, no reasoning in any file');
   } catch (x) { check(false, `openai streaming scenarios threw: ${String(x?.message ?? x).slice(0, 120)}`); }
 
+
+  // Ruling 52 / Sharon (b52b1079): which attempt produced each accepted chapter, for both providers alike
+  try {
+    const aa = acceptedAttempts([a.ledger]);
+    const pick = (p, b) => aa.find((x) => x.provider === p && x.chapter === b);
+    check(aa.length === 4 && eq([1, 2].map((b) => pick('anthropic', b)?.attempt), [2, 2]) && eq([1, 2].map((b) => pick('openai', b)?.attempt), [2, 2])
+      && aa.every((x) => x.attempts_used === 2 && x.accepted === true),
+      'Ruling 52: in (a), every chapter of both providers is identified as accepted from attempt 2 of 2 (after a malformed answer, a 429, a transport error, and a stream without usage)');
+    check(aa.every((x) => x.response_sha256 === sha(readFileSync(join(a.outDir, x.provider, `bab${x.chapter}.json`)))),
+      'Ruling 52: each accepted attempt\'s response SHA-256 is the judged file\'s, so the attempt named is the one judged');
+    const ad = acceptedAttempts([d.ledger]);
+    check(ad.find((x) => x.provider === 'anthropic' && x.chapter === 1)?.accepted === false && ad.find((x) => x.provider === 'anthropic' && x.chapter === 1)?.attempt === null
+      && ad.find((x) => x.provider === 'openai' && x.chapter === 1)?.attempt === 1,
+      'Ruling 52: a chapter with no accepted answer is named as not accepted, with no attempt');
+    const split = (pv) => ({ ...a.ledger, entries: a.ledger.entries.filter((e) => e.provider === pv) });
+    const two = acceptedAttempts([split('anthropic'), split('openai')]);
+    check(two.length === 4 && eq([...new Set(two.map((x) => x.provider))].sort(), ['anthropic', 'openai']) && eq(two.map((x) => x.attempt), aa.map((x) => x.attempt)),
+      'Ruling 52: two ledgers (Anthropic\'s run and OpenAI\'s) give one line per provider and chapter, the same for both');
+    const txt = formatAcceptedAttempts(aa);
+    check(txt.split('\n').length === 4 && /^anthropic bab1: accepted from attempt 2 of 2 \(request /.test(txt) && !/Soal|stem|Pilihan/.test(txt),
+      'Ruling 52: the summary is one line per provider and chapter, metadata only, with no question text');
+  } catch (x) { check(false, `Ruling 52 checks threw: ${String(x?.message ?? x).slice(0, 120)}`); }
+
   // the adapters against E-PROVIDER-FACTS.md §6
   console.log('\n── adapters against E-PROVIDER-FACTS.md §6 (offline)');
   await adapterChecks(check, table);
