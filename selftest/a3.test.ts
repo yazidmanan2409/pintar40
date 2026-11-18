@@ -468,6 +468,35 @@ begin
   -- A3-P12 (Sharon §6.2, 547b3707): the class's teacher allowing an open LOW-STAKES sitting is refused, writing nothing
   -- (a refused call writes nothing: the refusal is raised inside the act, whose writes roll back with it)
   ${P("P12_rendah", "T", "T", izin("current_setting('p.s')::uuid"), true)}
+  -- A3-P15 (S8, ruling 42 decision 2): with a work-scoped planned window active over the learner's class, the recovery is
+  -- ALLOWED; with an emergency stop over the learner, it is refused under the shared fence (SITTING_CLASS_STOPPED). A
+  -- platform-wide window is refused before any call, at the request (D10: PT503), not here. Each rolled back.
+  begin
+    set local session_replication_role = replica;
+    insert into public.maintenance_windows (kind, platform, institution_ids, node_ids, starts_at, ends_at, reason, created_by_person_id)
+    select 'PLANNED', false, array[s.institution_id], array[v_k], now() - interval '1 minute', now() + interval '1 hour',
+           'uji S8: pemeliharaan kelas', (select a.person_id from public.accounts a where a.auth_user_id = current_setting('p.u_T')::uuid)
+      from public.assessment_sessions s where s.id = v_s;
+    set local session_replication_role = origin;
+    v := v || jsonb_build_object('P15_kelas', pg_temp.p('M', 'C', ${"$q$"}select public.lanjutkan_di_sini(current_setting('p.s')::uuid)::text${"$q$"}));
+    raise exception 's8-rollback';
+  exception when others then
+    if sqlerrm <> 's8-rollback' then v := v || jsonb_build_object('P15_kelas', 'probe-error:' || left(sqlerrm, 70)); end if;
+  end;
+  perform selftest.as_owner();
+  begin
+    set local session_replication_role = replica;
+    insert into public.maintenance_windows (kind, platform, starts_at, t_stop, reason, created_by_person_id)
+    -- t_stop = now(): inside one transaction now() is the sitting's created_at too, and a stop covers sittings created by it
+    values ('EMERGENCY', true, now() - interval '1 minute', now(), 'uji S8: penghentian darurat',
+            (select a.person_id from public.accounts a where a.auth_user_id = current_setting('p.u_T')::uuid));
+    set local session_replication_role = origin;
+    v := v || jsonb_build_object('P15_darurat', pg_temp.p('M', 'C', ${"$q$"}select public.lanjutkan_di_sini(current_setting('p.s')::uuid)::text${"$q$"}));
+    raise exception 's8-rollback';
+  exception when others then
+    if sqlerrm <> 's8-rollback' then v := v || jsonb_build_object('P15_darurat', 'probe-error:' || left(sqlerrm, 70)); end if;
+  end;
+  perform selftest.as_owner();
   -- A3-P01 (S1, S2): session B continues here; the generation rises by one and the controller is B
   ${P("P01_lanjut", "M", "B", lanjut())}
   v := v || jsonb_build_object('sesudah', ${keadaan}, 'jejak_sesudah', ${jejak},
@@ -1828,6 +1857,20 @@ rollback;`;
       // client_seq (2 < 5); the hand-in writes a final row for every presented question, unanswered ones counting nothing
       c.expect(v.P14_benar === "0", `the scored result must count the generation-2 wrong answer, not the earlier right one: ${v.P14_benar} right`);
       return c.verdict("executes record_answer, finish_my_session and session_final_responses against the migrations, rolled back: question 1, answered rightly by session A and, after a recovery, wrongly by session B, has B's answer as final although its client_seq is lower, and the scored result counts it wrong (0 right, not 1)");
+    },
+  },
+  {
+    // A3-P15 (S8; ruling 42, decision 2, Sharon's conditions 1 and 3): a recovery in a work-scoped planned window is allowed;
+    // under an emergency stop it is refused, read under the shared fence
+    id: "A3-P15",
+    requires: ["db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const v = jalankanPulih(c, ctx.repoRoot);
+      if (!v) return c.verdict("");
+      c.expect(v.P15_kelas === "ok:2", `a work-scoped planned window over the class must allow the recovery (it creates no sitting and adds no time): ${v.P15_kelas}`);
+      c.expect(v.P15_darurat === "PR170:SITTING_CLASS_STOPPED", `an emergency stop over the learner must refuse the recovery under the fence: ${v.P15_darurat}`);
+      return c.verdict("executes lanjutkan_di_sini against the migrations, rolled back: with a work-scoped planned window active over the learner's class the recovery is allowed; with an emergency stop over the learner it is refused PR170 SITTING_CLASS_STOPPED (pengerjaan_pagar, under the shared fence); a platform-wide window is refused at the request (D10)");
     },
   },
 ];
