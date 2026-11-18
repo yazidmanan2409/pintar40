@@ -96,7 +96,7 @@ backup settings. **The owner confirms them, or authorises a read.** No productio
 **Exit outline:**
 - every row has evidence and a named owner;
 - every gap has a remedy the owner has accepted, deferred or rejected;
-- the 4.0 release checklist reads GO for the intended first use;
+- Phase 8 of the recovery charter (the journey status; the 4.0 checklist was retired as the measure by D-084) holds for the intended first use;
 - R-2 is decided.
 
 ## 5 · The observed walkthrough: preparation plan

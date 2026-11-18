@@ -1,0 +1,63 @@
+# Production Readiness register (D-4)
+
+**Bob coordinates; Sharon reviews.** Ruling 55, D-4: verify existing arrangements first, then propose the smallest
+proportionate remedy for the owner's decision. **This register authorises nothing:** no build, purchase, configuration
+change, production read or deployment.
+
+**Draft 1, 18 Nov 2026.** Evidence comes from the repository, GitHub's run history (read-only) and recorded owner
+evidence. Production itself was not read.
+
+**A correction to the plan:** `POST-REVIEW-EXECUTION-18NOV.md` §4 gave "the 4.0 release checklist reads GO" as the exit.
+**That checklist was retired as the readiness measure on 1 Oct (D-084).** Go-live is Phase 8 of
+`docs/recovery/RECOVERY-CHARTER.md`, measured by the journey status on `docs/recovery/RECOVERY-BOARD.md`. This register
+feeds that phase; it does not replace it.
+
+## The register
+
+**States:** EXISTS-ON (built, switched on and evidenced) · EXISTS-OFF (built, not switched on) · PARTIAL · GAP ·
+UNKNOWN (needs the owner or a read).
+
+| # | Area | What exists | Evidence | State | Smallest proportionate remedy (for the owner) | Owner | Exit criterion |
+|---|---|---|---|---|---|---|---|
+| PR-1 | **Legal and consent** (UU PDP, PSE registration, controller and processor, parental consent, content rights, the AI policy) | Questions drafted for counsel | W9.11: "BLOCKED: external dependency" | **GAP** | Engage counsel on the W9.11 list; scope it to the first intended use (an adult pilot needs less than children's data) | Owner + counsel | Counsel's written answers, mapped to product changes |
+| PR-2 | **Retention and deletion (R-2)**, including the backup retention line (O11) and a restore resurrecting deleted data (M-2) | Designs and Sharon's D-R2 recommendation | Planning audit; W9.11 | **GAP** (an owner decision) | Decide R-2 per evidence type, with counsel | Owner; Sharon drafts | R-2 ruled; the product matches it |
+| PR-3 | **Transfer consent (OD-9)** | A transfer flow; consent is sent as `{}` | **Verified:** `konfigurasi/actions.ts:83,132` | **GAP** (a policy decision) | Rule on OD-9; then a small form change | Owner; Sharon | OD-9 ruled; the consent is recorded |
+| PR-4 | **The production watch** (hourly, read-only) | `production-watch.yml`, gated on `vars.PINTAR_PRODUCTION_WATCH == 'on'` | **Verified (GitHub run history):** runs 184–186 on 17–18 Nov all *skipped* | **EXISTS-OFF** | Switch it on (one repository variable), then make it fail once on purpose and see the alert | Owner (the variable) | One deliberate failure raises the alert |
+| PR-5 | **Off-site encrypted backup** (daily, 03:00 WIB, fails closed) | `backup-offsite.yml`, gated on `vars.PINTAR_OFFSITE_BACKUP == 'on'` and a bucket | **Verified:** runs 41–43 (15–18 Nov) all *skipped* | **EXISTS-OFF** | Switch it on once the bucket and recipients are confirmed. Its retention must agree with R-2 | Owner | One scheduled backup lands, encrypted, and its size is reported |
+| PR-6 | **The monthly restore drill** | `restore-drill.yml`, gated on `vars.PINTAR_RECOVERY_DRILL == 'on'` | **Verified:** its only scheduled run (2 Nov) was *skipped* | **EXISTS-OFF** | Switch it on after PR-5 | Owner | One drill restores the newest backup and passes the posture checks |
+| PR-7 | **Restore of the database** | A native restore rehearsed (8 min 03 s on staging); a logical restore plus the posture step gives 24/24 PASS | `JOURNEY-LOG.md` G2; W9.12 (run 42174482669) | **PARTIAL** | Repeat once on the release candidate's data shape, timed | Sharon + owner | A timed restore on the candidate |
+| PR-8 | **Restore of stored files; Auth and SMTP settings; secrets outside the database** | Metadata only; reconstruction procedures | W9.12 "still outside what it proves"; W9.9 "implemented, not verified" | **GAP** | Rehearse W9.9 (configuration reconstruction) once; one file-restore check | Second Eye + owner (billable) | Files and settings recovered in a rehearsal |
+| PR-9 | **Point-in-time recovery** | Not enabled; daily physical backups (owner screenshots, 5 Oct) | `JOURNEY-LOG.md` G1 | **UNKNOWN today** (was off) | Owner decides whether the recovery point (about 24 h) is acceptable for the first use | Owner | A recovery point stated and accepted |
+| PR-10 | **Capacity** | Both databases on the Micro tier; load test L1 failed on Micro (p95 11.7 s, pool exhausted); the 50-learner browser run passed | `A-CURRENT-STATE` §83–84; October efficiency audit | **GAP for any real class** | Size the first use's envelope (for example one class of 40); run the existing L1 or perf on the candidate tier; upgrade only if it fails | Owner (tier cost) + Second Eye | The load test passes on the chosen tier for the stated envelope |
+| PR-11 | **The leader page's unbounded fan-out** | — | Review P PETE-21, `pimpinan.ts:455-469` (cited) | **To verify** (Sharon item 7) | A cap or a stored summary, only if confirmed and the envelope needs it | Sharon → Second Eye | Measured within the envelope |
+| PR-12 | **Error capture** (application errors reaching someone) | An error page with a reference code; «Laporkan masalah» | Review P (cited); no error service in the repository | **GAP** | The smallest option: route the existing problem report and server errors to a monitored mailbox, before any paid service | Owner | One induced error reaches a named person |
+| PR-13 | **Scheduled-job failure** | Two jobs declared once and checked; a failure warns in the database | `20270116110000` | **PARTIAL** | Have PR-4's watch read the job health it already exposes | Second Eye | A failed job is seen by the watch |
+| PR-14 | **Production email** (SMTP, SPF/DKIM/DMARC, Gate 8) | In progress | W9.13 | **PARTIAL** | Finish W9.13 | Owner + Second Eye | Pass in received headers |
+| PR-15 | **Named support people** | None named | W9.16 | **GAP** | Name one first-line contact for the first use, and an escalation path | Owner | Names and hours recorded |
+| PR-16 | **A second production administrator and break-glass** | One production admin | W9.12 break-glass "NOT STARTED"; Review P | **GAP** | Name a second administrator; rehearse break-glass once | Owner | Rehearsal recorded |
+| PR-17 | **The production upgrade (111 → the 4.1 candidate)** | A rehearsal on a scratch copy | `rehearsal/PRODUCTION-UPGRADE-REHEARSAL.md`; production counts of 17 Nov | **PARTIAL** | Re-run on the final 4.1 candidate | Bob + Sharon | A green rehearsal on the candidate |
+| PR-18 | **Operating without one person** (promote, restore, approve) | Every merge, promotion and spend waits on the owner by design | Release rules | **By design** | Keep the owner's authority. Document who executes each runbook step under it, so that an execution step doesn't depend on one session | Bob | Each runbook names its executor and its approver |
+| PR-19 | **Data residency** (E-K6-1) | Pending counsel | D-182(3) | **GAP** (with PR-1) | With PR-1 | Owner + counsel | Answered |
+| PR-20 | **Real-device performance from Indonesia** | U-PERF "not met, by little" from US runners; no regional measurement | W6.2 | **GAP** | One measurement on a low-cost Android phone and a shared school line (D-4 and the plan's verification 7) | Daisy or the owner (a device in Indonesia) | p95 save and first screen recorded |
+
+## What this shows, in plain terms
+
+1. **Three safeguards are built and switched off:** the production watch, the off-site backup and the restore drill
+   (PR-4 to PR-6). They cost almost nothing to switch on, each needs one owner action, and each has a test. **This is the
+   cheapest readiness gain available.**
+2. **Most of the real gaps are not engineering:** legal advice, retention, the transfer consent decision, support
+   people and a second administrator (PR-1 to PR-3, PR-15, PR-16, PR-19).
+3. **Capacity is the one engineering gap with a known failure** (PR-10). The proportionate answer is to state the first
+   use's size and test it, not to upgrade in advance.
+4. **No new backup or monitoring architecture is proposed.**
+
+## For the owner (when convenient; none blocks 4.1)
+
+- **PRQ-1 · PR-4 to PR-6:** switch the watch on now? It is read-only, and Sharon can induce the test failure. The backup
+  and the drill wait for the bucket and recipients to be confirmed. **Bob recommends the watch now,** and the backup and
+  drill once PR-5's settings are confirmed.
+- **PRQ-2 · The first use's envelope:** for example "one adult pilot group" or "one class of 40". It sizes PR-10, PR-9 and
+  PR-15.
+- **PRQ-3 · PR-1 and PR-2:** start the counsel engagement scoped to the first use.
+
+**Sharon's review is pending.**
