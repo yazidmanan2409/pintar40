@@ -5,7 +5,11 @@
 -- functions exactly, and the copy is re-checked against the frozen head. The step records counts and ids only, never a
 -- title.
 --
--- Lines 1 and 2 must both read "0". Any other value stops the promotion before migrating. The migration would raise
+-- Lines 1 and 2 must both read "0". Line 4 (Sharon S0-1, a9d420e2) lists the row triggers on assessment_definitions as
+-- staging has them, because the backfill updates every row. A3's own trigger (assessment_definitions_lineage_root) is
+-- created at line 101, after the backfill (lines 61-81), so the triggers that fire during the backfill are those of
+-- 284. Line 4 must therefore equal the list the local dry run records at 284 (C2w's head, before A3 migrates); any
+-- extra UPDATE trigger stops the promotion for review. Any other value stops the promotion before migrating. The migration would raise
 -- on it anyway, but step 0 finds it without starting a migration.
 --
 -- Local proof (Sharon): plant an ambiguous chain (two same-titled, same-mode, non-ad-hoc definitions in the superseded
@@ -42,6 +46,10 @@ select 3, 'state: definitions, roots, with a predecessor',
        (select count(*) || ', ' || count(*) filter (where not exists (select 1 from pendahulu p where p.def = d.id)) || ', '
                || count(*) filter (where exists (select 1 from pendahulu p where p.def = d.id))
           from public.assessment_definitions d)
+union all
+select 4, 'state: row triggers on assessment_definitions (S0-1; must equal the local list at 284, before A3)',
+       (select count(*) || ': ' || coalesce(string_agg(t.tgname || ' = ' || regexp_replace(pg_get_triggerdef(t.oid), '^CREATE (CONSTRAINT )?TRIGGER \S+ ', ''), '; ' order by t.tgname), '')
+          from pg_trigger t where t.tgrelid = 'public.assessment_definitions'::regclass and not t.tgisinternal)
 order by n;
 rollback;
 -- Note: with an ambiguous definition (line 1 above 0) the migration stops at garis_definisi_periksa before the
