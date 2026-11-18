@@ -32,3 +32,16 @@ Each line of `log.tsv` gives the address and the page's horizontal overflow, plu
 **Not captured here:**
 - The author's read-only Studio view (CAN_DRAFT only). The bootstrap school's teacher has no Studio context there. C2W-B3 proves the view in the cycle school: the note is read and no form is offered.
 - «anotasi»: none. C2W-K01 reads every notes string for it.
+
+## Recapture for Daisy's C-7 and C-8 (`TINJAUAN-C2W-CATATAN-53a31d91.md`), at `ea973d70`
+
+| File | What it shows |
+|---|---|
+| `b4-studio-terbuka-390-c7` | **A:** the on-screen version's note, then «Ganti catatan» directly under it, then the dashed rule, then version 1's note under its I-5 line. **B:** no on-screen note, so «Tulis catatan» comes first, then version 1's note. «Catatan sebelumnya (1)» has space-3 (12 px) above it (C-8). |
+| `b4-form-ganti-390-c7` | The «Ganti catatan» form on A, opened in place directly under the on-screen note it replaces. Version 1's note follows it. |
+
+**Changes:**
+- **C-7:** red `540d695e`, product `ea973d70`. The block is drawn in `URUTAN_BLOK`'s order, pinned by C2W-K01.
+- **C-8:** rides the same product commit.
+- **Untouched:** no word, no database change.
+- **Stale files:** the earlier `b4-studio-terbuka-390.png` and `b4-form-ganti-390.png` show the order before C-7.
