@@ -10,12 +10,13 @@ This is the running record. Bob updates it as work moves; the newest entries are
 
 ## Decisions waiting for the owner
 
-1. **E, retrying after output (OpenAI).** OpenAI's guide says (A): "don't automatically replay a request after consuming output."
+0. ~~**E, retrying after output (OpenAI)**~~ **DECIDED: Ruling 52 (18 Nov).** The retry is kept, and Sharon's attempt condition is adopted and implemented.
+1. *(superseded)* **E, retrying after output (OpenAI).** OpenAI's guide says (A): "don't automatically replay a request after consuming output."
    - **What v4 does:** it retries a broken stream at most twice, within the caps, as Anthropic's run did.
    - **(a) Keep it: the same process for both providers (Ruling 48). Bob recommends this.**
    - **(b) Follow the guidance literally:** OpenAI could then lose a whole chapter that Anthropic's process would have retried.
    - **Sharon agrees with (a)** (`b52b1079`). Her condition: the report states which attempt each chapter's answer came from, for both providers. The code does not change until the owner rules.
-2. **C2w,** once frozen: the read-only "before" preservation read on staging, then the merge. These are two separate authorisations.
+2. **C2w,** once frozen: the read-only "before" preservation read on staging, then the merge. These are two separate authorisations, **drafted in `batches/c2w-evidence/C2W-OWNER-REQUESTS.md`**.
 3. **E, the OpenAI paid run,** after Sharon's PASS and the owner's free practice run: his authorisation and one new temporary OpenAI key.
 
 ## Progress
@@ -24,6 +25,8 @@ This is the running record. Bob updates it as work moves; the newest entries are
 
 | When (UTC) | What |
 |---|---|
+| 02:03 | **Ruling 52 implemented test first:** the runner names which attempt produced each accepted chapter, for both providers (red `3836673c`, fix `86658dcb`, self-test 267). v4 writes `untuk-bob/asal-jawaban.txt`. **Package v4 now `bae2c4c72ccc67761da3b03ed8f27671f5b58e7c38495c60e5ae1aeb51c3949e`**; rehearsal 18 paths. Sharon asked for her final confirmation |
+| 01:59 | Sharon confirmed R-1, R-2 and C-1 (`d012560f`) |
 | 01:50 | Sharon's two recommendations done, under the delegation. R-1: a reasoning item's content part is accepted, never kept (red `239a0211`, fix `88e33ec6`, self-test 262). R-2: only the two judged Anthropic files are copied for blinding, then re-hashed. **Package v4 now SHA-256 `3f2ade8464fbd54dbf6e183106e1f49c9b78721a7a0b55850bb063a011924283`**; rehearsal 18 paths. Sharon asked to confirm |
 | 01:44 | **Sharon: E v4 PASS** (`b52b1079`). The blinding matches Ruling 51 and P-1. Wording correction C-1 made |
 | 01:27 | OpenAI v4 sent to Sharon for independent review (`OPENAI-READINESS.md`) |
@@ -38,6 +41,7 @@ This is the running record. Bob updates it as work moves; the newest entries are
 
 | When (UTC) | What |
 |---|---|
+| 02:03 | **CI green on `aa5f5741`** (run 44216101395). Journeys run 44216105919 in progress. Sharon asked again for her layout delta check. Both owner requests drafted |
 | 01:30 | CI dispatched on `claude/c2w`, and the audit journeys with ref `aa5f5741` (the PR head: the candidate plus documentation only). PR #25's description updated; it stays a draft |
 | 01:24 | Daisy cleared the screens on `6b6f31c5` (C-7 and C-8 pass) |
 | 01:20 | Bob checked the final candidate `6b6f31c5` and its dry run (`BOB-CHECK-6b6f31c5.md`): only line 10 moves, and proofs 2 and 3 hold. The database is unchanged since `53a31d91` |
