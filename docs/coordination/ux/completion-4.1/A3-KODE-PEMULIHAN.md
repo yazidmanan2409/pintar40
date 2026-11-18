@@ -100,7 +100,7 @@
 
 ## 7 · Sharon's ruling (`claude/a3` at `18664491`): the sixth code, and the request act (18 Nov, 12:35)
 
-**RECOVERY_NOT_NEEDED** (teacher side only):
+**RECOVERY_NOT_NEEDED** (teacher side only): ~~own sentence below~~ **Bob ruled (12:36): it shows the existing `galat.action_not_allowed`. The sentence below is a record only.**
 - ID «Asesmen ini tidak memerlukan izin: murid dapat melanjutkannya sendiri setelah masuk lagi. Tidak ada yang diubah.»
 - EN «This assessment needs no permission: the learner can continue on their own after signing in again. Nothing was changed.»
 - **Role:** `role="status"`, in the row's result line. It is informative, not a fault.
