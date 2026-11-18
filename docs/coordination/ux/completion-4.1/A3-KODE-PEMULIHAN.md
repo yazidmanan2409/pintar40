@@ -114,3 +114,18 @@
 - **Refusals of the request act** (the controller's own session, an ended sitting): no learner sentence of their own.
   - The controller's own session is the quiet return of §6.1.
   - An ended sitting shows RECOVERY_NOTHING's screen (§1).
+
+## 8 · The teacher's four wordings, in O-4's neutral form (18 Nov, 19:15; `A3-S3-S7-S8-D9-NOTE.md` at `4079a253`)
+
+**Neutral when the device is not known to differ; «di perangkat lain» only when it is.**
+
+| # | Element | ID | EN |
+|---|---|---|---|
+| 1 | Row action | «Izinkan lanjut setelah masuk lagi» (known other device: «Izinkan lanjut di perangkat lain») | «Allow to continue after signing in again» («… on another device») |
+| 2 | Confirmation (`KonfirmasiBahaya`, primary, not red) | «Izinkan {nama} melanjutkan *{judul}* setelah masuk lagi? Sesi sebelumnya tidak menyimpan jawabannya lagi. Jawaban yang sudah tersimpan tetap ada. Tindakan ini dicatat.» [Izinkan] [Batal] | «Allow {nama} to continue *{judul}* after signing in again? The earlier session no longer saves their answers. Answers already saved are kept. This is recorded.» |
+| 3 | Result line (`role="status"`) | «{nama} dapat melanjutkan sampai pukul {jam} {zona}.» | «{nama} can continue until {jam} {zona}.» |
+| 4 | Reason field, inside the confirmation, required | Label «Alasan» · hint «10 sampai 300 karakter. Dicatat di jejak audit sekolah.» (the existing pattern of `staf.ubah.alasan_arti`) · refusal: the existing «Tuliskan alasannya, 10 sampai 300 karakter.» | «Reason» · «10 to 300 characters. Recorded in the school's audit trail.» |
+
+**Notes:**
+- {jam} {zona} uses non-breaking spaces, in the school's zone.
+- The confirmation keeps the typed reason after a refusal, as A2b's BL-1 rule requires.
