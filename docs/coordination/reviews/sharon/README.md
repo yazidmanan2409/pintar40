@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| R-15 Sharon items on main | Open: the run-guard order (mitigated); the A1 approval re-check (mitigated) and the result-report rule; C1w one-question stats (to 4.5) and the confirmer preference; B0 closure (mitigated). The rest closed, with citations | `7ba18b03b47ec78f61b0e66cf1f11f1a4044534a` | `R15-SHARON-ITEMS-7ba18b03.md` |
 | A3 recovery act: red cases and §6 | Orders accepted; the sitting lock serialises permissions (state it). (1) already the controller: return and write nothing; (2) a low-stakes allow is refused with a new code, nothing written; (3) a separate minta_izin_lanjut, with conditions. Owed red first: S5 binding and supersession, the §6.2 refusal, the request call, an L01 rank for the permission table | `547b370717d0744429155aa16d9a7d7c2288d89f` | `A3-DIFFS-671175e4.md` |
 | A3 V-2 (no claim on an ended sitting) | Met at fc7a26e5 (A3-V02 red first). Migration sha256 150984a6…, so the preservation header must restate it. All controller conditions met | `fc7a26e5db35c8c9f5217756597ce19abd47510c` | `A3-DIFFS-671175e4.md` |
 | C2w staging promotion (282 → 284) | PASS: merge tree = b57d897a = aa5f5741 + one doc; 284 migrations (54b6569d…); before-read lines 11–62 = A2b's after-read; only line 10 moves (digest 1374521a… = dry run). Notes: lines 65–68 vacuous on staging (proved by the dry run); a truncated header line | `7ba18b03b47ec78f61b0e66cf1f11f1a4044534a` | `C2W-PROMOTION-7ba18b03.md` |
