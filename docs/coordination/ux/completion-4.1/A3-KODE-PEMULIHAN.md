@@ -69,3 +69,30 @@
 - **It matches the panel's body in §1,** so when the screens arrive, the panel only adds its title and its button «Kembali ke Belajar». The words do not change.
 - **Rendered in the quiet style, not as an error colour.** Nothing went wrong for the learner. `role="status"`, as the panel's rule says.
 - **DAISY-25:** clean.
+
+---
+
+## 6 · Second Eye's recovery act proposal (`claude/a3` at `547b3707`): three points (18 Nov, 11:05)
+
+**No conflict with §1 and §2.** Two small additions follow from point 2.
+
+**1 · A quiet return when the controlling session calls again (D11): agreed.**
+- No screen and no line.
+- **Keep one thing:** the low-stakes confirmation «Lanjutkan di sini?» (§1) appears **once per new session**, never on this quiet path.
+
+**2 · A separate "request" act after `RECOVERY_NOT_AUTHORISED`: agreed, with two additions.**
+- **The learner's screen should say the request now reaches the teacher's list.** Otherwise the learner does not know it did. The body of the `RECOVERY_NOT_AUTHORISED` screen becomes:
+  - ID «Karena Anda masuk lagi atau berganti perangkat, Uji Penguasaan ini hanya dapat dilanjutkan bila guru Anda mengizinkannya. Permintaan Anda tampil di daftar kelas guru Anda. Beri tahu guru Anda juga: *{judul}*. Setelah guru mengizinkan, pilih Coba lagi.»
+  - EN «Because you signed in again or changed device, this Uji Penguasaan can only continue if your teacher allows it. Your request shows on your teacher's class list. Tell your teacher too: *{judul}*. Once your teacher allows it, choose Try again.»
+  - «Beri tahu guru Anda juga» stays: the teacher may not be looking at the list. DAISY-25 is clean, because «Beri tahu» is an imperative to the learner, not a promise.
+- **One request, not one per «Coba lagi».**
+  - «Coba lagi» re-checks only (§2 rule 2) and never creates a second request.
+  - The teacher's row shows one request, with the time of the latest check.
+- **The teacher's row label, under O-4:**
+  - «Sedang mengerjakan · minta lanjut di sesi lain»;
+  - «… di perangkat lain» only when the device is known to differ.
+  - This replaces DESAIN-AWAL §4 (b)'s «… di perangkat lain» for the unknown case.
+
+**3 · No «Izinkan …» for a low-stakes sitting: agreed.**
+- The row never offers it, because low-stakes recovery needs no teacher (§1).
+- A direct call is refused with the existing `galat.action_not_allowed`. **No new words.**
