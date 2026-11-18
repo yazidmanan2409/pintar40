@@ -1420,6 +1420,18 @@ async function openaiStreamChecks(check) {
   const renamed = assemble(OAI_STREAM.map((x, k) => (k === 1 ? ['something.else', x[1]] : x)));
   check(renamed.raw === OAI_TEXT && renamed.evidence.renamed_events === 1, 'S-3 openai (facts §1): events are read by data.type; an event: name that differs is counted, not trusted');
   check(A.verified === true && A.unverified_fields.length === 0 && A.fail_closed_fields.length >= 5, 'openai adapter (facts 3e1a09f0): verified, with every grade-B or undocumented point listed as fail-closed');
+  // Sharon R-1 (b52b1079): a content part on a reasoning item is accepted, kept nothing of, and counted as reasoning
+  const rpart = assemble(oaiSeq([...OAI_STREAM.slice(0, 3),
+    oe2('response.content_part.added', { item_id: 'rs_1', output_index: 0, content_index: 0, part: { type: 'reasoning_text', text: '' } }),
+    oe2('response.reasoning_text.delta', { item_id: 'rs_1', output_index: 0, content_index: 0, delta: THINK_CANARY + ' teks' }),
+    oe2('response.content_part.done', { item_id: 'rs_1', output_index: 0, content_index: 0, part: { type: 'reasoning_text', text: THINK_CANARY + ' teks' } }),
+    ...OAI_STREAM.slice(3)]));
+  check(rpart.raw === OAI_TEXT && !JSON.stringify(rpart).includes(THINK_CANARY) && rpart.evidence.reasoning_parts === 1,
+    'R-1 openai: a content part on a reasoning item is accepted, nothing of it is kept, and it is counted as reasoning');
+  check(refused(() => assemble(oaiSeq([...OAI_STREAM.slice(0, 3),
+    oe2('response.content_part.added', { item_id: 'rs_1', output_index: 0, content_index: 0, part: { type: 'reasoning_text', text: '' } }),
+    oe2('response.output_text.delta', { item_id: 'rs_1', output_index: 0, content_index: 0, delta: 'x' }), ...OAI_STREAM.slice(3)]))) !== null,
+    'R-1 openai: an output_text delta into a reasoning item\'s part is still refused');
   const noOut = assemble(swap(last, done({ output: undefined })));
   check(noOut.raw === OAI_TEXT, 'S-1 openai: a response.completed without the output array is accepted on the streamed text (the cross-check runs only when output is present)');
   const REFUSE = [
