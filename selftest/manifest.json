@@ -6621,6 +6621,11 @@
       "proves": "Sharon V-1 (627d66d4): executes note_item_view, assistance_state and record_answer against the migrations, in A3-R01's rolled-back transaction, as the sitting's controller, with the sitting held (frozen_at set, the A1 shape). The item view and assistance_state on an unviewed item, which views it through the gate, are not refused by the hold, as before A3. The answer is refused PR170 SITTING_FROZEN."
     },
     {
+      "id": "A3-V02",
+      "runner": "static",
+      "proves": "Sharon V-2 (f6d3a2cb): executes note_item_view against the migrations, in A3-R01's rolled-back transaction, on the learner's SUBMITTED sitting with no controller. The sitting keeps no controller: the gate's one-time claim (D6) is written only to a CREATED, IN_PROGRESS or PAUSED sitting, so nothing is written to an ended one."
+    },
+    {
       "id": "A3-E01",
       "runner": "static",
       "proves": "A3-3, the enumeration test (THE PLAN §5.5 D5; Sharon §3, condition 2): reads the function catalogue and the triggers. Every function that writes assessment_sessions or responses is declared by class: a learner boundary, which calls the gate; the start's insert; a service or staff writer; or an inner function. The triggers on the two tables are as declared. Every writer that updates or deletes a sitting takes it FOR UPDATE first, in its body or through the gate, pengerjaan_ditahan_periksa or penugasan_sesi. submit_response is reached only from record_answer. Two plants, rolled back, are reported: an undeclared writer, and pengerjaan_tahan_orang with its sitting FOR UPDATE removed."

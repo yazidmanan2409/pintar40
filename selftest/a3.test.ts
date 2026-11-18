@@ -183,6 +183,16 @@ begin
     v := v || jsonb_build_object('tahan_lihat', pg_temp.a3x('B', ${q(`select public.note_item_view(${BELUM_DILIHAT})::text`)}));
     v := v || jsonb_build_object('tahan_bantuan', pg_temp.a3x('B', ${q(`select (public.assistance_state(${BELUM_DILIHAT})).answered::text`)}));
     v := v || jsonb_build_object('tahan_jawab', pg_temp.a3x('B', ${q(jawab(3, 11, true))}));
+    -- A3-V02 (Sharon V-2, f6d3a2cb): the D6 claim is written only on an open sitting. An ENDED sitting with no controller,
+    -- touched by its learner's item view, keeps no controller: nothing is written to an ended sitting.
+    set local session_replication_role = replica;
+    execute 'update public.assessment_sessions set frozen_at = null, frozen_cause = null, unfrozen_at = null, unfrozen_by_person_id = null,
+      status = ''SUBMITTED'', pengendali_sesi = null where id = $1' using v_s;
+    set local session_replication_role = origin;
+    v := v || jsonb_build_object('selesai_lihat', pg_temp.a3('B', ${q(`select public.note_item_view(${BELUM_DILIHAT})::text`)}));
+    perform selftest.as_owner();
+    execute 'select coalesce(pengendali_sesi::text, ''null'') || ''|'' || status::text from public.assessment_sessions where id = $1' into v_t using v_s;
+    v := v || jsonb_build_object('selesai_pengendali', v_t);
   else
     v := v || jsonb_build_object('klaim_B_pengendali', 'no-column', 'gen_akhir', 'no-column');
   end if;
@@ -1179,6 +1189,20 @@ end $t$;`);
       c.expect(s1.some((x) => x.startsWith("_a3_e01_tanam writes")), `the plant (an undeclared writer) was not reported: ${s1.join("; ")}`);
       c.expect(s1.some((x) => x.startsWith("pengerjaan_tahan_orang updates a sitting without")), `the plant (pengerjaan_tahan_orang without its FOR UPDATE) was not reported: ${s1.join("; ")}`);
       return c.verdict(`reads the function catalogue and the triggers: the ${Object.keys(PENULIS).length} functions that write assessment_sessions or responses are each declared (learner boundaries ${Object.entries(PENULIS).filter(([, d]) => d.kelas === "PELAJAR").map(([f]) => f).join(", ")}, each calling the gate; the start's insert; ${Object.values(PENULIS).filter((d) => d.kelas === "LAYANAN").length} service and staff writers (D5); two inner), and the ${PEMICU.length} triggers on the two tables are as declared; every writer that updates a sitting takes it FOR UPDATE first; submit_response is reached only from record_answer; two plants (an undeclared writer, a lock removed) are reported; rolled back`);
+    },
+  },
+  {
+    // Sharon V-2 (f6d3a2cb): the gate's one-time claim (D6) writes only to an open sitting; an item view of an ended,
+    // uncontrolled sitting writes no controller to it.
+    id: "A3-V02",
+    requires: ["db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const v = jalankan(c, ctx.repoRoot);
+      if (!v) return c.verdict("");
+      c.expect((v.selesai_pengendali ?? "").endsWith("|SUBMITTED"), `the harness could not end the sitting: ${v.selesai_pengendali}`);
+      c.expect(v.selesai_pengendali === "null|SUBMITTED", `an ended sitting with no controller must keep none after its learner's item view (${v.selesai_lihat}): ${v.selesai_pengendali}`);
+      return c.verdict("executes note_item_view against the migrations, in A3-R01's rolled-back transaction, on the learner's SUBMITTED sitting with no controller: the sitting keeps no controller (the D6 claim is written only to a CREATED, IN_PROGRESS or PAUSED sitting)");
     },
   },
   {
