@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| A3 step 0 line 4 (S0-1) | Accepted at 8a2f5d23. Bob's correction is right: compare with the list at C2w's head (284), since A3's own trigger is created after the backfill | `8a2f5d23` | `A3-PRESERVATION-8cb312ee.md` |
 | A3 step 0 (lineage pre-check) | PASS: the predicates equal garis_definisi_pendahulu, periksa and the backfill; read only, counts and ids. S0-1: add line 4, the row triggers on assessment_definitions as staging has them, which must equal the frozen head | `e5f0739c977295f2ec8b99f5c9212ef0a8cd9607` (sha256 ec10e74a…) | `A3-PRESERVATION-8cb312ee.md` |
 | E K-FLAG result | 0 flags, confirmed: flags.json re-hashed 90e753ac… (matches); Bob's record cites my answer sha256s; answers committed 05:37:40 before the flags at 05:45:29 | `ec760703d39cf8cecca0d8135ecbd2c8ba77239e` | `E-KFLAG/README.md` |
 | A3 preservation query (draft, 284→287) | PASS for the local dry run: only baru and lines 77–81 differ from C2w. Backfill risk: a read-only step 0 pre-check on staging (no copy), under the owner's authorisation. Six dry-run proofs settled. V-2 to A3: the gate claims a controller on an ENDED sitting via VIEW; claim only on an open sitting, red first | `7072ea5e4d197f98808253c85dbdac6218660db0` (sha256 8cb312ee…) | `A3-PRESERVATION-8cb312ee.md` |

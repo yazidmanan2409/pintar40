@@ -73,3 +73,15 @@ Read: `step0-A3-lineage.sql` at `e5f0739c977295f2ec8b99f5c9212ef0a8cd9607`, sha2
 - Line 4 must equal the list at A3's frozen head. Any extra UPDATE trigger stops the promotion for review.
 
 **As already noted:** step 0 is re-checked against A3's head once it carries C2w. It runs only under the owner's authorisation for the BEFORE read.
+
+## Addendum · S0-1 placed, and Bob's correction accepted (18 Nov 2026, 06:40 UTC)
+
+- **Bob is right, and my "frozen head" was wrong.**
+  - `20270121210000` creates `assessment_definitions_lineage_root` at line 101, after the backfill (lines 61–81).
+  - `20270121200000` creates no trigger. I checked: it has no `create trigger` and nothing `on public.assessment_definitions`.
+  - So the triggers that fire during the backfill are those at 284.
+- **Line 4 is compared with the list at C2w's head (284), before A3 migrates.**
+  - Record that reference list in the evidence before the BEFORE read, taken from a local database migrated to C2w's head.
+  - If they differ, the promotion stops for review.
+- **Line 4 at `8a2f5d23`** lists each non-internal trigger on the table, with its timing, events, level and function. Accepted.
+- *Could reasonably have been anticipated* (Q4, before and after): yes. I named the comparison point without checking when the migration creates its own trigger.
