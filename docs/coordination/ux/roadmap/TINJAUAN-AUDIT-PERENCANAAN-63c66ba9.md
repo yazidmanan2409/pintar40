@@ -123,3 +123,36 @@
 ## 6 · Anticipation
 
 **My V-3** (Z-3's existence oracle) is the one defect found in this review. It is recorded with the 4.1 defects.
+
+---
+
+## 7 · Addendum: revision 2 (`3c1e3c7c`), 18 Nov 08:45
+
+**What holds now for revision 2:**
+- §1 to §6 above **still apply.** Revision 2 does not yet include my journeys or my vocabulary patterns. It may have crossed with my review.
+- Three new points below: **one challenge to a recommended answer that affects what the public sees (D-06)**, agreement with the rest, and a numbering clash.
+
+### 7.1 · Bob's new journeys
+
+- **J42-9 (Question Health on a schedule), J42-10 (imported external AI content), J50-5 (interrupted governed journey): agreed.**
+- **Numbering clash:** my §1 proposed J42-9 to J42-12 (an ordinary week, a mid-term transfer, a teacher leaving mid-term, a lab session with a cut) and J42-0 (the first day). **Renumber mine J42-11 to J42-14, and keep J42-0** as the first day, so it reads first.
+- **J42-10 (imported AI content):** add one outcome. **The learner sees no AI marker** on an imported question, as for C3w. The self-declared field is staff-only.
+
+### 7.2 · §5.1's recommended answers that touch what a user sees
+
+| Decision | Bob's recommendation | My position |
+|---|---|---|
+| **D-06** | Certificate stays as issued; **verification shows the current name and "name corrected on {date}"** | **Challenge. Do not show the current name on public verification.** Verification is reachable by anyone holding the link or code. Showing both names tells a stranger that a learner's name changed, and to what. That can be sensitive: a family's safety, a legal change of name. **Instead:** verification shows the certificate **as issued**, with «Sertifikat ini sah.» Nothing about later changes. The school sees the correction in its own records. **Reissue on request** (Bob's own line) is how a family gets a corrected certificate. This is a privacy point, so Sharon should see it too |
+| D-11a | Verification shows the current school name with "formerly …" | **Agree.** A school is not a person. «Sebelumnya bernama …» |
+| D-05 | Past reports **as corrected now**, with a "corrected" marker and the date | **Agree.** The marker uses §3.2's vocabulary: «Diperbaiki pada {tanggal}», with what changed on demand. The as-issued reconstruction stays 4.5-08's, with «Seperti saat diterbitkan» (§3.1) |
+| D-01 | Fixed start window, A3 recovery, A1 controls with reasons, no lockdown or monitoring, results marked "exam" | **Agree, plus §4.1:** per-learner **accommodations** (extra time) belong in this same decision. The "exam" marker is staff-facing. A learner's result page needs no label beyond the assessment's name |
+| D-04a/b | Excludes educator evidence and the B1 store; allowed before R-2 with "as of" and stated obligations | **Agree.** The screen says the obligations in plain words before download: «Berkas ini salinan per {tanggal}. Setelah diunduh, sekolah yang menjaganya: PINTAR tidak dapat menghapus atau memperbaruinya.» |
+| D-12 | Do not schedule a misleading figure; correct first, or schedule only unaffected figures with any limitation shown | **Agree.** It now matches my D-1 |
+| D-45-11 | Staff only first | **Agree** |
+| D-C3, C4 | Admit both | **Agree**, with the learner-side rule in §7.1 |
+| D-02 | Positions descriptive; acting cover a dated grant | **Agree.** The context line (§2) shows «sebagai … (pelaksana tugas, sampai {tanggal})» |
+
+### 7.3 · Owner decisions
+
+- **No new owner decision from me.** D-06's challenge is to Bob's **recommended answer**, for the owner to weigh when D-06 comes up at 4.2 planning.
+- **One addition to an existing decision:** accommodations, inside D-01.
