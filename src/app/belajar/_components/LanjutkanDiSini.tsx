@@ -10,7 +10,7 @@
  * - An Uji Penguasaan: one attempt on opening; without a valid permission the request reaches the teacher's list and
  *   the screen waits with «Coba lagi», which re-checks once and says when it checked (§2.2). Nothing retries or
  *   redirects by itself (§2.1).
- * Every refusal is role="alert"; the confirmation is a question, not an error.
+ * Every refusal is said in BarisHasil as a failure (role="alert", DAISY-18); the confirmation is a question, not an error.
  */
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -18,6 +18,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
 import { jam, kataZona } from "@/lib/tanggal";
 import { kunciKodePengerjaan, type HasilPulih, type KodePengerjaan } from "@/lib/pengerjaan-kontrak";
+import BarisHasil from "@/components/BarisHasil";
 
 /** Read once by the player's quiet line after a recovery the learner made themselves (Daisy §1, «Anda melanjutkan di sini»). */
 export const TANDA_LANJUT = (sesi: string) => `pintar.lanjut.${sesi}`;
@@ -41,7 +42,7 @@ export default function LanjutkanDiSini(props: {
   const [kode, setKode] = useState<KodePengerjaan | "OFFLINE" | null>(null);
   const [diperiksa, setDiperiksa] = useState<string | null>(null);
   const [sibuk, setSibuk] = useState(false);
-  const judulRef = useRef<HTMLHeadingElement>(null);
+  const judulRef = useRef<HTMLElement>(null);
 
   const coba = useCallback(async (dariTombol: boolean) => {
     setSibuk(true);
@@ -92,14 +93,14 @@ export default function LanjutkanDiSini(props: {
   // ---------------------------------------------------------------- the refusals (§1), each its own sentence
   const menunggu = MENUNGGU.includes(kode);
   return (
-    <section className="pin-pending" role="alert" data-pulih={kode}>
+    <section className="pin-pending" data-pulih={kode} ref={judulRef} tabIndex={-1}>
       {kode === "RECOVERY_NOT_AUTHORISED" ? (
         <>
-          <h2 ref={judulRef} tabIndex={-1}>{kata("pengerjaan.galat.recovery_not_authorised")}</h2>
-          <p>{kata("pengerjaan.pulih.perlu_izin_isi").replace("{judul}", judul)}</p>
+          <h2>{kata("pengerjaan.galat.recovery_not_authorised")}</h2>
+          <BarisHasil nada="gagal">{kata("pengerjaan.pulih.perlu_izin_isi").replace("{judul}", judul)}</BarisHasil>
         </>
       ) : (
-        <p><strong ref={judulRef} tabIndex={-1}>{kata(kode === "OFFLINE" ? "auth.card_putus" : kunciKodePengerjaan(kode))}</strong></p>
+        <BarisHasil nada="gagal">{kata(kode === "OFFLINE" ? "auth.card_putus" : kunciKodePengerjaan(kode))}</BarisHasil>
       )}
       {diperiksa ? <p className="pin-meta" data-pulih-diperiksa="">{kata("pengerjaan.pulih.diperiksa").replace("{jam}", diperiksa)}</p> : null}
       <div className="pin-actions">

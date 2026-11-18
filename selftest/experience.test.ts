@@ -307,6 +307,9 @@ const RESET_SURFACES = [
   "src/app/belajar/[tugas]/lanjut/page.tsx",
   "src/app/belajar/asesmen/[penugasan]/page.tsx",
   "src/app/belajar/_components/PermukaanAsesmen.tsx",
+  // A3 (Daisy A3-KODE-PEMULIHAN.md §1, §2): the recovery screen and the quiet line after it, on the token set from their first commit
+  "src/app/belajar/_components/LanjutkanDiSini.tsx",
+  "src/app/belajar/_components/BarisLanjut.tsx",
   // WP7C — anonymous student → educator feedback. One learner surface, one
   // educator surface and two Management surfaces, all built on the token set
   // from their first commit.
