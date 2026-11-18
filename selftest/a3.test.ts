@@ -447,7 +447,8 @@ begin
   select s.id into v_s from public.assessment_sessions s where s.person_id = v_p and s.assessment_assignment_id = f.aa_pre;
   if v_s is null then raise exception 'the sitting was not started: %', v ->> 'mulai'; end if;
   perform set_config('p.s', v_s::text, true);
-  ${P("A_jawab", "M", "A", J(1, 1))}
+  -- (client_seq 5, so A3-P14 can show a later generation winning at a LOWER sequence)
+  ${P("A_jawab", "M", "A", J(1, 5))}
   v_sebelum := ${keadaan};
   v := v || jsonb_build_object('sebelum', v_sebelum, 'jejak_sebelum', ${jejak},
     'percobaan_sebelum', (select public.percobaan_terpakai(v_p, f.aa_pre)::text));
@@ -482,6 +483,8 @@ begin
   ${P("P02_jeda", "M", "A", "select public.pause_session(current_setting('p.s')::uuid)::text", true)}
   ${P("P02_lanjut", "M", "A", "select public.resume_session(current_setting('p.s')::uuid)::text", true)}
   ${P("P02_serah", "M", "A", "select public.submit_session(current_setting('p.s')::uuid)::text", true)}
+  -- A3-P14 (S3): after the recovery, session B answers question 1 wrongly (generation 2); A had answered it rightly
+  ${P("P14_jawab_B", "M", "B", `select x.outcome from public.record_answer(${S(1)}, 2, selftest.f09_answer(${S(1)}, false)) x`)}
   -- A3-P08 (D10): past its deadline: ended by the rule, then nothing to recover
   set local session_replication_role = replica;
   execute 'update public.assessment_sessions set authoritative_deadline = now() - interval ''2 days'' where id = $1' using v_s;
@@ -503,6 +506,13 @@ begin
   set local session_replication_role = origin;
   -- the Uji Penguasaan: the Pemetaan Awal finished by its controller B, then the post-test started on A
   ${P("pre_selesai", "M", "B", "select public.finish_my_session(current_setting('p.s')::uuid, null)::text")}
+  v := v || jsonb_build_object(
+    'P14_benar', (select coalesce(sum((d.value ->> 'benar')::int), -1)::text from public.assessment_results r, jsonb_each(r.per_domain) d
+                   where r.session_id = v_s and r.supersedes_result_id is null),
+    'P14_dijawab', (select count(*)::text from public.session_final_responses(v_s) fr),
+    'P14_soal1', (select (fr.value = (select r.value from public.responses r where r.presented_item_id = ${S(1)} and r.generasi = 2
+                                       order by r.received_at desc limit 1))::text
+                    from public.session_final_responses(v_s) fr where fr.presented_item_id = ${S(1)}));
   v := v || jsonb_build_object('mulai_post', pg_temp.p('M', 'A', format('select public.start_learning_session(%L)::text', f.aa_post)));
   select s.id into v_post from public.assessment_sessions s where s.person_id = v_p and s.assessment_assignment_id = f.aa_post;
   perform set_config('p.post', coalesce(v_post::text, gen_random_uuid()::text), true);
@@ -1802,6 +1812,22 @@ rollback;`;
       c.expect(v.P13_sesudah_pulih === "null", `a recovery clears the request: ${v.P13_sesudah_pulih}`);
       c.expect(v.P13_registri === "izinkan_lanjut,lanjutkan_di_sini,minta_izin_lanjut", `the three acts must each have a registry row: ${v.P13_registri}`);
       return c.verdict("executes minta_izin_lanjut and lanjutkan_di_sini against the migrations, rolled back: an unknown id, another person and a session with no id answer SITTING_NOT_CONTROLLER; the controller's own session and a sitting that is not an open Uji Penguasaan are refused; the learner's request from a new session sets lanjut_diminta_pada, idempotently, grants nothing (the recovery still answers RECOVERY_NOT_AUTHORISED) and is cleared by a recovery; the three acts have registry rows");
+    },
+  },
+  {
+    // A3-P14 (S3; THE PLAN §5.5 D8, H): the scored result across generations follows the newest generation's answers
+    id: "A3-P14",
+    requires: ["db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const v = jalankanPulih(c, ctx.repoRoot);
+      if (!v) return c.verdict("");
+      c.expect(/^ok:/.test(v.P14_jawab_B ?? "") && /^ok:/.test(v.pre_selesai ?? ""), `the recovered session's answer and the hand-in: ${v.P14_jawab_B} / ${v.pre_selesai}`);
+      c.expect(v.P14_soal1 === "true", `question 1's final answer must be the recovered session's (generation 2), not the earlier session's: ${v.P14_soal1}`);
+      // question 1 alone was answered: rightly by session A (generation 1), then wrongly by B (generation 2) at a lower
+      // client_seq (2 < 5); the hand-in writes a final row for every presented question, unanswered ones counting nothing
+      c.expect(v.P14_benar === "0", `the scored result must count the generation-2 wrong answer, not the earlier right one: ${v.P14_benar} right`);
+      return c.verdict("executes record_answer, finish_my_session and session_final_responses against the migrations, rolled back: question 1, answered rightly by session A and, after a recovery, wrongly by session B, has B's answer as final although its client_seq is lower, and the scored result counts it wrong (0 right, not 1)");
     },
   },
 ];
