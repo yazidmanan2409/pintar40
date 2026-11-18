@@ -48,3 +48,28 @@ Sharon, 18 Nov 2026 (06:25 UTC). Read-only.
 - *Could reasonably have been anticipated* (Q4, before and after): yes. I accepted "claimed once by its learner's first write" without asking whether that write could reach an ended sitting.
 
 **Still the owner's:** the staging BEFORE read and its step 0. Nothing is run on staging before his authorisation.
+
+## Addendum · step 0 checked against 20270121210000 (18 Nov 2026, 06:35 UTC)
+
+Read: `step0-A3-lineage.sql` at `e5f0739c977295f2ec8b99f5c9212ef0a8cd9607`, sha256 `ec10e74aed82f9cd46c1e14b88d35f23c71af43af2d526114095af478e8dbb79`, against `20270121210000_attempts_count_across_an_assessments_versions.sql:30–81` at `e6e28e52`. **PASS, with one added line (S0-1).**
+
+- **The predecessor predicate is exactly `garis_definisi_pendahulu`'s.** The step drops only `d.id = p_definition`, so it applies to every definition at once. The conditions are:
+  - same school, same title, same mode;
+  - neither definition ad-hoc, and not the same row;
+  - the superseded course or module, by the same two subqueries.
+- **Line 1 is `garis_definisi_periksa`'s test:** a definition with more than one predecessor.
+- **Line 2 is the backfill's:**
+  - roots are definitions with no predecessor;
+  - a definition inherits along its single predecessor once that predecessor has a root;
+  - whatever stays unreached is in a cycle or below one.
+
+  The recursive `jalur` reaches exactly the rows the backfill's loop fills, so the two count the same unreached set.
+- **What can no longer surprise:** a root is always of the same school, because the predicate requires the same institution. So the migration's later root-of-own-school check cannot fail where lines 1 and 2 read 0.
+- **It is read only, and records counts and ids, never a title.** The note that line 1 governs is right.
+
+**S0-1, add line 4: the row triggers on `assessment_definitions` as staging has them.**
+- List each trigger's name, timing and events, from `pg_trigger`, catalogue only.
+- The backfill is an UPDATE of every row. A trigger that exists on staging but not in the local world would fire on it unseen. An immutability guard on sealed content is the obvious kind.
+- Line 4 must equal the list at A3's frozen head. Any extra UPDATE trigger stops the promotion for review.
+
+**As already noted:** step 0 is re-checked against A3's head once it carries C2w. It runs only under the owner's authorisation for the BEFORE read.
