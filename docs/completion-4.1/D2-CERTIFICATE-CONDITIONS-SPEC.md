@@ -1,75 +1,155 @@
-# D-2 · What a PINTAR certificate asserts: the policy specification
+# D-2 · What a PINTAR certificate asserts: the policy specification (revision 2)
 
-Bob, 18 Nov 2026. **Ruling 55, D-2 (A):** a certificate means **mastery under defined test conditions.**
-- **For:** Dr Gladys (educational meaning and accommodation boundaries) and Sharon (database and permissions).
-- **Status:** a specification only; nothing is built.
-- **When:** implemented and verified **before any real certificate is issued.** It is not automatically a Z blocker:
-  whether it rides Z is the owner's call by 24 Nov.
+Bob, 18 Nov 2026. **Ruling 55, D-2 (A):** a certificate means mastery under defined test conditions. **Revision 2
+incorporates Dr Gladys's educational review** (owner direction, 18 Nov).
 
-## 1 · What holds today on `main` `7ba18b03` (read by Bob)
+**This is a specification and impact assessment only:** no code, migration, template or configuration changes. It
+refines the existing certificate. It does not redesign certificates, the assessment engine, the institutional model or
+4.1's scope. Implementation must be verified **before any real certificate is issued.** Whether that happens inside Z
+is the owner's call by 24 Nov.
 
-| Fact | Evidence |
-|---|---|
-| A certificate comes only from a mode whose policy certifies. **`POST_TEST` (Uji Penguasaan) and `STANDALONE` certify with assistance allowed;** `TEST`, `EXAM` and `PAPER` certify and refuse it. `QUICK` (Uji Cepat) does not certify *(corrected by Sharon, `D2-CERT-SPEC-ed8ad32b.md`)* | `mode_policy`, `20260914093000`; `20261113100000` (BOB-50) |
-| **`POST_TEST` and `STANDALONE` allow assistance.** A lint keeps `EXAM` from allowing it | `20260914093000`:51–56, 103 |
-| **"Assistance" in a sitting is three levels, opened a step at a time:**<br>1. «arah berpikir», a thinking prompt;<br>2. «petunjuk», a hint;<br>3. a worked example from the lesson.<br>A hint that would narrow to the answer is refused when it is served (INV-02) | `open_assistance`, `20260913093000`:395–440 |
-| **The glossary and read-aloud exist only as telemetry kinds.** No server path serves them inside a sitting, and Bob found no client implementation. **The accommodation available today is extra time,** which a teacher gives through A1 | the `telemetry.assistance_kind` enum; A1 |
-| The certificate states «Sertifikat Penguasaan», a grade band (predikat), the issue date and its number. **It states no attempt number and no conditions** | `src/lib/sertifikat-lembar.ts` |
-| Attempt limits count across versions of an assessment (ruling 46, A3). Whether a retake can repeat the same questions is **not yet verified** (Sharon, verification item 2) | — |
+**Classes used throughout:**
+- **A**, already supported: keep it and verify it.
+- **B**, a small wording or presentation correction.
+- **C**, new functionality or a material policy change: returned to the owner and not placed in any batch.
 
-**Correction to the decision pack:** the pack said "keep the glossary and read-aloud". Neither is served in a sitting
-today, so there is nothing to keep. The real accessibility question is **which accommodations a certifying sitting must
-offer**, not which existing ones to preserve.
+## 1 · Current state against proposed state (read on `main` `7ba18b03`)
 
-## 2 · The proposed policy
+### 1.1 Certificate purpose, title and wording
 
-| # | Rule | Change needed |
+| Element | Today | Dr Gladys's guidance | Proposed | Class |
+|---|---|---|---|---|
+| Title | «SERTIFIKAT PENGUASAAN»: one string, `sertifikat.jenis` (hle.ts:4690), used on the card, the A4 sheet and the file name (`sertifikat.berkas`) | «SERTIFIKAT», with the meaning given by the achievement line | Change the two strings to «Sertifikat» and «Sertifikat · {kursus}» | **B** |
+| The achievement line | «telah menuntaskan» + the course name (`sertifikat.diberikan`; the English reads "has met the mastery standard in") | «Telah dinyatakan memenuhi kriteria kelulusan yang ditetapkan berdasarkan hasil asesmen pada Materi Pembelajaran: [nama materi].» | That sentence, with the existing course name as [nama materi]. Daisy checks that it fits the frozen A4 grid (it is longer than today's line), and that «kelulusan» reads as passing this assessment, not graduation | **B** |
+| Participant's name | Shown, from the sealed snapshot | Nama Peserta Didik | Unchanged. The sheet shows the name, not a label | **A** |
+| Materi Pembelajaran | The course name is shown | Name it | Covered by the new achievement line | **A/B** |
+| The specific assessment | The sheet names the course, not the assessment | Identify the assessment | The sentence's «berdasarkan hasil asesmen» states it. Naming the assessment itself (for example «Uji Penguasaan, Bab 3») needs the sheet to carry a field it doesn't today | **B** (sentence) / **C** (a named assessment field) |
+| Score | **Never shown** on the certificate or the verification page (KartuSertifikat: "no score") | No score needed | Unchanged | **A** |
+| Predikat (a grade band, shown only at 70% or above, D-121) | Shown on the certificate and the verification page | The certificate need not show numbers; the narrative carries meaning | **Owner decision (O-2):** keep the band, or remove it from the certificate and the verification page (it stays internal) | **B** |
+| Issue date, number, verification QR | Shown; verification at `/verifikasi/[token]` | Required | Unchanged | **A** |
+| The verification page | It shows only pass («Memenuhi capaian»), predikat, institution, date and validity. **Never the name** (structural; ADR-0013) **and not the Materi Pembelajaran** | Identity and verification information | The holder's identity stays off the public page. **Adding the Materi Pembelajaran to the public page changes the public-safe read contract** (doc 05) | **C** (O-3) |
+| Already-issued certificates | The title and the line are strings rendered when a certificate is viewed, not sealed. The sealed snapshot holds the name, the course and the result | — | A string change alters how every certificate reads, old ones included. **No certificate has been issued to a real learner** (production holds none), so nothing real changes. Staging's test certificates would read the new words | Note |
+
+**Verified: the change is possible by wording alone.** The title, the achievement line and the file name are three
+strings. The predikat line is one conditional block. Nothing in the certificate contract, the snapshot or the
+verification read needs to change for the B items.
+
+### 1.2 Learning objectives and certificate eligibility
+
+| What | How PINTAR does it today | Class |
 |---|---|---|
-| P-1 | **No answer-providing assistance in a certifying sitting:** levels 2 (hint) and 3 (worked example) are refused in every certifying mode, **`POST_TEST` and `STANDALONE` included** | (a) A lint derived from the policy: `certifies ⇒ not allows_assistance`, not a list of named modes. (b) **The policy is captured on the sitting at its start,** because `open_assistance` reads `mode_policy` live, and flipping the row would otherwise change sittings already open (against P-6). (c) If level 1 stays (Q-1): a per-level rule, a small schema change (Sharon) |
-| P-2 | **Accommodations stay available,** and are recorded with the result for staff only: extra time (A1, today); any other accommodation Dr Gladys requires (Q-2). **An accommodation is never shown on the certificate or the verification page,** because it can reveal a disability (Sharon; R-2) | Recording: a staff-only field. New accommodations are scope (Q-2) |
-| P-3 | **The attempt is stated:** the result records which certifying attempt produced it, counted over the lineage (ruling 46) | **The ordinal is fixed at the START, under ruling 46's lock, with the same count as `may_start`.** Open question: are endings caused by a school act (an emergency stop, maintenance) excused? **Whether the ordinal appears on the certificate and the verification page is the owner's call** (O-1 below) |
-| P-4 | **Repetition is disclosed:** if a retake presents questions already seen in an earlier attempt, the result says so (for example «sebagian soal sama dengan percobaan sebelumnya»). Alternatively the draw excludes them when the bank allows (Q-3) | Depends on Sharon's verification of the draw |
-| P-5 | **Conditions, wording and verification agree:** the conditions are stated once (Daisy's wording) and appear the same on the certificate, the verification page and the learner's result | Copy, plus the verification page |
-| P-6 | **Sealed certificates are never changed** (INV-30). The policy applies to sittings that start after it lands. Certificates issued before then (none yet exist with real learners) keep what they said | — |
+| **The passing conditions are set before the assessment** | **Yes.** The school's pass mark is **sealed on the attempt when it starts** (`assessment_sessions.pass_mark`). If no mark is sealed, nothing is certified ("nothing is certified against an invented one", `certificate_eligibility`) | **A** |
+| **Mandatory questions** | **Yes.** «Soal penting» (the safety gate) must be passed (INV-10), as well as the mark | **A** |
+| **Eligibility** | All five must hold: a certifying mode, official evidence (INV-20), the result in force (not superseded), the safety gate passed, and mastery at or above the sealed mark (`certificate_eligibility`, `20261102100000`) | **A** |
+| **Learning objectives** | Questions link to the school's objective codes (sections). Per-section mastery is computed and shown to the learner (the result's "areas to reread") and to the teacher (the evidence page). **Certification uses the overall mastery and the mandatory questions, not each objective** | **A**, described accurately |
+| **Certification requires mastery of every objective** | **Not supported, and not proposed.** It would be a changed eligibility rule | **C** (O-4) |
+| **The result in force; corrections** | One result in force; a governed key correction opens a certificate review. A reissue is a new certificate, and the old one reads DIGANTIKAN (D-06). Revocation is recorded and shown on verification | **A** |
+| **Retakes, and the certificate's validity** | Each attempt is its own sitting; attempt limits count across versions (ruling 46); further certifying attempts need the second approver (**O41-16, unchanged**) | **A** |
 
-## 3 · Questions for Dr Gladys
+### 1.3 Narrative feedback: the existing mechanisms
 
-- **Q-1 · Level 1, «arah berpikir».** It is a thinking prompt, not a hint. May it remain in a certifying sitting, or
-  does any prompt weaken "mastery"? *Bob's view: refuse all three levels. It is the simplest rule to state and verify,
-  and the learning cycle already offers all three during the lessons.*
-- **Q-2 · Accommodations.** Beyond extra time, what must a certifying sitting offer a learner who needs it (for
-  example read-aloud of the question text, larger text, a reader)? Which of these does the certificate need to
-  mention, if any? *Anything not built today is new scope and returns to the owner.*
-- **Q-3 · Repetition.** Is a retake on the same questions acceptable if it is disclosed, or must a second attempt draw
-  at least partly different questions? *The second needs more questions per chapter, which is content work.*
-- **Q-4 · Wording.** Does «Sertifikat Penguasaan» still fit once the conditions are stated, and what single sentence
-  should state them?
+| What Dr Gladys asks | What exists, built on evidence | Class |
+|---|---|---|
+| What the participant demonstrated | The result says whether the target was met (`hasil.target.*`), and the review gives each question's own reason (`session_review`) | **A** |
+| Which areas are achieved | Per-section mastery is computed. **The result lists only the sections below target,** not the achieved ones | **B** (list the achieved sections as well, from the same data; a presentation change only) |
+| Which areas need reinforcement | "Bagian yang perlu dibaca lagi", with links to the lessons (`hasil.target.ulang`) | **A** |
+| What to do next | Links to the lessons; the result's next step | **A** |
+| When the evidence is insufficient, say so | «Belum cukup data» and the withholding rules; on learners' screens, the reading map | **A** |
+| Numbers kept internally | Scores are kept for eligibility and audit; the certificate shows none | **A** |
+| AI-written narratives | **None, and none proposed** | Rejected |
 
-**For the owner (O-1):** should the attempt number appear on the certificate and the public verification page, or only on
-the learner's result and in staff views? *Bob's view: on the result and in staff views only. It shows that the
-certificate was earned under the conditions, without turning a public document into a record of failures.*
+**One known defect touches the narrative:** a multi-answer question shows no chosen answer and no reason. That is
+D-1, and it is repaired in Z.
 
-- **Q-5 · Reading before Uji Penguasaan** (from verification 3, `batches/verify-58/V3-READING-GATE.md`): must every
-  lesson be read first, or is reading advised? Today only the chapter screen requires it; the database and a typed
-  address don't.
+### 1.4 Final assessment conditions
 
-## 4 · Verification (before any real certificate)
+| Condition | Today | Dr Gladys | Proposed | Class |
+|---|---|---|---|---|
+| Thinking prompts and answer-giving help in a certifying sitting | **Available:** `POST_TEST` and `STANDALONE` allow all three levels (thinking prompt, hint, worked example) | Disabled in final or certifying assessments; kept in learning and practice | **All three levels refused in every certifying mode.** This answers Q-1: level 1 goes too, so **no per-level schema is needed**. Policy captured on the sitting at its start (Sharon); a lint `certifies ⇒ not allows_assistance` | **B** (approved by D-2; one policy row, the capture and the lint) |
+| In learning and practice | Available (lessons, PRACTICE, Pemetaan Awal) | Keep | Unchanged | **A** |
+| Conditions defined before the sitting | The mark, the attempt limit, the window and the deadline are fixed at the start; a teacher's extension is recorded (A1) | Yes | Unchanged | **A** |
+| Accessibility | **Extra time** (A1, recorded). **No glossary and no read-aloud inside a sitting today** | Keep the legitimate accommodations | Keep extra time. Record it with the result, staff-only, **never on the certificate or the verification page** (Sharon). **Any further accommodation is new functionality** | **A** (extra time) / **C** (any new one, O-5) |
+| Reading before Uji Penguasaan | Required only by the chapter screen; the database and a typed address don't require it (verification 3) | (Not addressed) | **O-6** | Open |
 
-- **Refusal:** a certifying sitting refuses each refused assistance level, through the normal entry point and by a
-  direct call (failing test first; one planted defect per mode).
-- **Lint:** fails if any certifying mode allows refused assistance.
-- **Recording:** an accommodation given through A1 is recorded with the result.
-- **The attempt:** the attempt number on the result equals the lineage count; the certificate and the verification
-  page show it.
-- **Repetition:** a retake with overlapping questions shows the disclosure; one with none doesn't.
-- **Consistency:** the learner's result, the certificate and the verification page state the same conditions (Daisy).
-- **Sharon reviews** the policy row, the lint and the fields.
+### 1.5 Retakes and repeated questions
 
-## 5 · What else it changes
+| Point | Today | Class |
+|---|---|---|
+| No universal retake policy imposed | Retakes are a school decision: the attempt limit and the second approver (O41-16) | **A** |
+| Non-certifying practice kept distinct from certifying attempts | Practice and Uji Cepat never certify (BOB-50); the 4.2 learning retry is non-certifying by ruling (D-3) | **A** |
+| Attempt history and lineage | Kept (ruling 46, A3) | **A** |
+| Whether a retake repeats the same questions | **Not yet verified.** It is verification 1, **paused** until the usage limit resets on 22 Nov. Review P infers that on imported chapters a retake draws the same questions in a new order | Open (O-7, after the check) |
+| The attempt ordinal | Fixed at the start (Sharon). Where it shows is **O-1** | **B** |
 
-- **E and C3w:** none.
-- **A3:** reads the attempt count it already builds.
-- **The walkthrough:** if P-1 lands before it, learners meet no hints in Uji Penguasaan. Daisy's script must match
-  whichever state is on the candidate.
-- **The handbook and the teacher guidance:** «hints are available in the test» becomes false.
-- **Item banks:** Q-3's stricter answer needs more questions per chapter.
+### 1.6 Institutional terminology
+
+Recorded as **educational and terminology guidance**, with no renaming started.
+
+| Concept | Dr Gladys | PINTAR's interface today (occurrences in the interface strings) | Where it stands |
+|---|---|---|---|
+| Learner | Peserta Didik | «murid» about 325; «peserta» about 36 (professional learning); «peserta didik» 1 | Not consistent |
+| Teacher or lecturer | Pendidik | «guru» about 89; «pendidik» none | Not consistent |
+| The organisation | Institusi | «sekolah» about 357; «institusi» none | Not consistent |
+| Leadership | Pimpinan | «pimpinan» 16; it is also the leader's route (`/pimpinan`) | **Already consistent** |
+| Administrator | Admin | «admin» about 98 | **Already consistent** |
+| Content | Materi Pembelajaran | «materi» about 95, «kursus» 17, «bab» 69 | Partly |
+| Categories (PAUD/TK, SD/MI, SMP/MTs, SMA/SMK/MA, Perguruan Tinggi) and identifiers (NPSN, Kode PT) | — | Jenjang SD/SMP/SMA in content; the institution code (Pendataan) | Partly |
+
+**Classification:**
+- **B on the certificate only:** the new line already uses «Materi Pembelajaran».
+- **C platform-wide (O-8):** several hundred strings, the routes, the roles, registration and institution categories,
+  and the roadmap's sector assumption (Perguruan Tinggi). A platform-wide renaming is a future scope decision, best
+  taken with Daisy's vocabulary page and the rationalisation milestone, not in 4.1.
+
+## 2 · The smallest proposed changes (class B), with their risks and dependencies
+
+| # | Change | Risk | Depends on |
+|---|---|---|---|
+| B-1 | `sertifikat.jenis` becomes «Sertifikat»; `sertifikat.berkas` becomes «Sertifikat · {kursus}» | It renames how existing test certificates read (none are real) | Daisy's copy check |
+| B-2 | `sertifikat.diberikan` becomes Dr Gladys's sentence, with the course as Materi Pembelajaran, in ID and EN | A longer line on the frozen A4 grid. **Daisy re-checks the sheet, and the rendered check R-13 covers it** | Daisy; the sheet guard (B6C-SHEET-01) |
+| B-3 | Predikat: removed from the certificate and the verification page, or kept (O-2) | Removing it changes the public verification read's output, though not its contract (the field becomes absent, as already happens below 70%) | O-2; Sharon if removed |
+| B-4 | Certifying modes refuse all assistance; the policy is captured at the start; the lint | It changes what learners meet in Uji Penguasaan. The walkthrough script and the handbook follow it | D-2 (approved); Sharon reviews |
+| B-5 | The accommodation (extra time) recorded with the result, staff-only | A small field | Sharon |
+| B-6 | The attempt ordinal fixed at the start; shown on the result and in staff views | — | O-1; A3's lineage count |
+| B-7 | The result also lists achieved sections, from existing per-section data | Presentation only | Daisy; **not 4.1 unless the owner places it** |
+
+**All B items together are about 1–1.5 days of build, plus Daisy's and Sharon's reviews.** B-1 to B-6 are D-2's
+implementation. They do not enter Z unless the owner decides so by 24 Nov.
+
+## 3 · Is any existing 4.1 acceptance requirement affected?
+
+**No accepted 4.1 requirement is broken, and no defect was found in the certificate contract:** eligibility, sealing,
+verification, revocation and reissue work as specified (A).
+
+**The decisions that would touch 4.1's acceptance, only if the owner places them there:**
+- B-1 and B-2 change an accepted 4.0 design (Daisy's frozen sheet, D-076, D-120). They need Daisy's layout check and
+  the rendered check.
+- B-4 changes the assessment conditions that learners, the walkthrough and the handbook meet.
+- **Without a ruling, all of this lands after Z and before any real certificate,** as D-2 says.
+
+## 4 · Decisions for the owner
+
+| # | Decision | Bob recommends |
+|---|---|---|
+| **O-1** | Where the attempt number shows | On the result and in staff views only; not on the certificate or the public page |
+| **O-2** | Predikat on the certificate and the verification page | **Remove it from both:** it reads as a report-card grade, which Dr Gladys's guidance avoids. Keep it internal |
+| **O-3** | Name the Materi Pembelajaran on the public verification page | **Not now.** The certificate itself names it, and the public page is deliberately minimal (privacy contract); a change needs Sharon's review |
+| **O-4** | Certification per objective (every objective mastered) | **No:** keep the overall mark plus the mandatory questions, as built and set before the assessment |
+| **O-5** | Accommodations beyond extra time | Ask Dr Gladys which, if any, are required, then decide them as separate scope |
+| **O-6** | Reading before Uji Penguasaan: required or advised | Advised, and the screen made honest; an educational call |
+| **O-7** | Repeated questions on a retake: disclose, or vary | Decide after verification 1, which resumes after 22 Nov |
+| **O-8** | Platform-wide terminology (Peserta Didik, Pendidik, Institusi) | Record as guidance now; plan it as future scope with Daisy's vocabulary work. No 4.1 renaming |
+| **Timing** | Whether B-1 to B-6 ride Z or land after it | **After Z, before any real certificate.** The pilot issues none (proposal P-3), so nothing waits on them |
+
+## 5 · Verification, when built
+
+- **Assistance refused:** a certifying sitting refuses each assistance level, through the normal entry point and by a
+  direct call, with a failing test first and a planted defect per mode.
+- **The lint** fails if a certifying mode allows assistance.
+- **Existing sittings unaffected:** a sitting open before the change keeps its captured policy.
+- **Extra time** given through A1 is recorded with the result and appears on no public surface.
+- **The attempt ordinal** equals the lineage count at the start.
+- **Wording:** the certificate, the A4 sheet, the file name and the verification page say the new words; Daisy's
+  layout check and the rendered check (R-13) pass.
+- **The predikat** follows O-2 everywhere, consistently.
+- **Sharon reviews** the policy capture, the lint and any public-surface change.
