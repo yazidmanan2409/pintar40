@@ -48,4 +48,5 @@
 | 18 Nov, 06:15 | Bob | C3w-1 words for every state; Studio consistency findings | `C3W-1-DESIGN.md`, PLAN §3.3–3.4 | `C3W-1-WORDS.md`: **done**. Four Studio items (Z-2, Z-3, N-6, N-7) not on main |
 | 18 Nov, 08:30 | Bob | Planning audit 4.2/4.5/5.0, independent UX review | `PLANNING-AUDIT-4.2-4.5-5.0.md` at `63c66ba9` | `../roadmap/TINJAUAN-AUDIT-PERENCANAAN-63c66ba9.md`: **done**; Z-3 revised (V-3, mine) |
 | 18 Nov, 08:45 | Bob | Planning audit revision 2 | `3c1e3c7c` | Addendum §7 to my review: D-06 challenge (no current name on public verification); my journeys renumbered J42-0, J42-11..14 |
-| 18 Nov, 10:15 | Bob | Z readiness: R-10, R-11, R-12, X-1 | `main` `7ba18b03` | `Z-SIAP-DAISY-7ba18b03.md`: R-10 open (spec, plus N-9), R-11 open on /siapa only (spec), R-12 table, X-1 ready (`PANDUAN-AI-SENDIRI.md`) |
+| 18 Nov, 09:56 | Bob | Z readiness: R-10, R-11, R-12, X-1 | `main` `7ba18b03` | `Z-SIAP-DAISY-7ba18b03.md`: R-10 open (spec, plus N-9), R-11 open on /siapa only (spec), R-12 table, X-1 ready (`PANDUAN-AI-SENDIRI.md`) |
+| 18 Nov, 10:00 | Bob | Vocabulary page (planning audit D-V) | — | `KOSAKATA-RIWAYAT-DAN-PENOLAKAN.md`: **done** |
