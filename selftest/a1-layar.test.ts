@@ -1027,8 +1027,11 @@ rollback;
         const r1 = await murid.kirim(`/belajar/${d.la}/penguasaan`, { form: f1 as Record<string, string> });
         const pertama = /^([0-9a-f-]{36}):(CREATED|IN_PROGRESS):-$/.exec(sesiPost())?.[1] ?? "";
         if (!c.expect(Boolean(pertama), `the learner's start: ${r1.status} ${ke(r1)}; sittings ${sesiPost()}`)) return c.verdict("");
-        // ... answers two questions (the player's own call, record_answer, as the learner) and then the power goes
-        sebagai(uid, `do $m$ declare r record; begin for r in select p.id from public.presented_items p where p.session_id = ${lit(pertama)} order by p.position limit 2 loop
+        // ... answers two questions (the player's own call, record_answer, as the learner, from the signed-in session that
+        // started the sitting: A3's controller, D2, refuses any other session) and then the power goes
+        const pengendali = psql(`select coalesce(pengendali_sesi::text, '') from public.assessment_sessions where id = ${lit(pertama)}`);
+        if (!c.expect(/^[0-9a-f-]{36}$/.test(pengendali), `the app's start did not set the sitting's controller (A3): ${pengendali || "none"}`)) return c.verdict("");
+        sebagai(uid, `select set_config('request.jwt.claims', json_build_object('sub', ${lit(uid)}, 'role', 'authenticated', 'session_id', ${lit(pengendali)})::text, true)`, `do $m$ declare r record; begin for r in select p.id from public.presented_items p where p.session_id = ${lit(pertama)} order by p.position limit 2 loop
           perform public.record_answer(r.id, 1, selftest.f09_answer(r.id, true)); end loop; end $m$`);
 
         // 2. the teacher finds the sitting on «Siapa yang sudah mengumpulkan» and ends it as not counted
