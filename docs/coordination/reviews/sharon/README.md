@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| A3 harness suite mismatch, F37 pick, may_start vs material | F37 test fix (may_start + a real start, rolled back) accepted; push gate unchanged. A3-F37-M1 is a real fail-closed defect, predates A3 (20260929), and goes to Z, not A3 | `b5cd166a6fb6199ee9b5891099966f34907240c3` (base) | `A3-DIFFS-671175e4.md` |
 | C2w final candidate 6b6f31c5 (delta from 53a31d91) | PASS: no supabase/ change, migration sha256 54b6569d… unchanged; product change is render order only (Daisy C-7, C-8) | `6b6f31c548b1797509c34bff4dd8f606b9efaad9` | `C2W-NOTES-DESIGN-be01b4f2.md` |
 | C2w preservation local dry run | PASS: all three proofs hold (only line 10 moves; function withdrawal → line 67 only; direct update → line 68 = 1). Staging BEFORE read awaits the owner | `aa5f5741d0bb8574986f055458a05d9f714e277f` | `C2W-PRESERVATION-78336be2.md` |
 | C2w preservation pair restated (282 to 284) | PASS for the local dry run (query unchanged since 2377f378; catatan_peninjau new and unread; lines 65 to 68 kept). BEFORE read only on the owner's authorisation | `dfa542abc881ad8313036e4e99010c319aed5288` (sha256 `1b686345…`) | `C2W-PRESERVATION-78336be2.md` |

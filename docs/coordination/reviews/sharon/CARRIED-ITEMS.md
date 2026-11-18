@@ -46,3 +46,5 @@ This list is updated as items arrive. Each line names where it is due.
 **Z register (added 17 Nov):** in L01, rank `learning_assignments` and `assessment_assignments` after the fence, and reorder `akhiri_penugasan`, both moves, `tegaskan_koreksi_kunci`, `assign_release` and `minta_percobaan` to persons, then the fence, then learning, then assessment. That clears the 23 violations hidden today (A3-PREBUILD addendum, 00:20).
 
 **Z, before any production release:** REH-1, the pre-upgrade EXPIRED and unscored sittings (rule per the owner; red first on a rehearsal fixture). REH-3's date-shift count decides its handling. REH-4's refusing shapes must count 0 in stage 2.
+
+**Z register (added 18 Nov):** A3-F37-M1. `may_start_assessment` does not check the material check that the start applies (`20260929100000:192`), so discovery offers «Mulai» and the start refuses. It fails closed. Fix: one shared predicate, may_start refusing with its own code, red first on a withdrawn release (A3-DIFFS addendum, 01:45).
