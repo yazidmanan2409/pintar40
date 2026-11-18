@@ -100,3 +100,19 @@ their place is acceptable, since it consolidates them. Correct "on no branch" in
 - **«Catatan peninjau»:** free-text notes, not coded.
 - **«Laporkan masalah»:** yes, list it in 4.0. Class feedback rounds and the demonstration room stay out.
 - **The roadmap sources:** they exist on `claude/roadmap-45-50`, not on `main`; Rev 3 is acceptable in their place.
+
+---
+
+# Update for Pete's 2423721a (18 Nov, about 09:15 UTC)
+
+The answers above stand for all five points. The one state that has changed since:
+
+**C2w was merged at 09:05 UTC and promoted to staging (282 → 284).** Every engineering check passed; Sharon's promotion
+check is the last item.
+- **Until Bob confirms acceptance,** use «Sudah di lingkungan uji; pemeriksaan akhir sedang berlangsung».
+- **After that,** use «Diterima di lingkungan uji».
+- **Drop the "waits on one automated check" note.**
+
+The 4.1 counts then become **15 accepted, 3 in development (A3 ×3), 1 designed (C3w)**.
+
+**Use the planning audit's revision 6** (`71a6f87e`), not revision 4, for the 4.2, 4.5 and 5.0 planning states.
