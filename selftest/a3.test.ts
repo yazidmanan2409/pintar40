@@ -524,6 +524,8 @@ begin
   v := v || jsonb_build_object('P13_tanda_2', (select coalesce(to_jsonb(s) ->> 'lanjut_diminta_pada', 'null') from public.assessment_sessions s where s.id = v_post));
   ${P("P13_masih", "M", "B", lanjut("current_setting('p.post')::uuid"), true)}
   ${P("P04_izin", "T", "T", izin())}
+  -- (Sharon c0a5d7d6) a request on an Uji Penguasaan that already has a valid permission: it can recover directly
+  ${P("P13_berizin", "M", "B", "select public.minta_izin_lanjut(current_setting('p.post')::uuid)::text", true)}
   -- A3-P10 (S5, binding): a permission for another sitting of the same learner does not recover this one
   begin
     execute 'delete from public.pengerjaan_izin_lanjut where session_id = $1' using v_post;
@@ -1790,8 +1792,10 @@ rollback;`;
       const v = jalankanPulih(c, ctx.repoRoot);
       if (!v) return c.verdict("");
       for (const k of ["P13_asing", "P13_bukan", "P13_tanpa_sesi"]) c.expect(v[k] === "PR170:SITTING_NOT_CONTROLLER", `${k} (an unknown id, another person, no session id) must answer SITTING_NOT_CONTROLLER: ${v[k]}`);
-      c.expect(/^PR170:/.test(v.P13_pengendali ?? "") && v.P13_pengendali !== "PR170:SITTING_NOT_CONTROLLER", `the controller's own session has nothing to request and is refused: ${v.P13_pengendali}`);
-      c.expect(/^PR170:/.test(v.P13_selesai ?? ""), `a sitting that is not an open Uji Penguasaan is refused: ${v.P13_selesai}`);
+      // the codes as Sharon pinned them (c0a5d7d6)
+      c.expect(v.P13_pengendali === "PR170:RECOVERY_NOTHING", `the controller's own session has nothing to request: ${v.P13_pengendali}`);
+      c.expect(v.P13_selesai === "PR170:RECOVERY_NOTHING", `an ended sitting has nothing to request: ${v.P13_selesai}`);
+      c.expect(v.P13_berizin === "PR170:RECOVERY_NOT_NEEDED", `a sitting that already has a valid permission needs no request: ${v.P13_berizin}`);
       c.expect(/^ok:/.test(v.P13_minta ?? "") && v.P13_tanda_1 !== "null", `the learner's request from a new session sets lanjut_diminta_pada: ${v.P13_minta} / ${v.P13_tanda_1}`);
       c.expect(/^ok:/.test(v.P13_lagi ?? "") && v.P13_tanda_2 === v.P13_tanda_1, `a second request is idempotent (the mark is unchanged): ${v.P13_tanda_1} / ${v.P13_tanda_2}`);
       c.expect(v.P13_masih === "PR170:RECOVERY_NOT_AUTHORISED", `the request grants nothing: the recovery still answers RECOVERY_NOT_AUTHORISED: ${v.P13_masih}`);
