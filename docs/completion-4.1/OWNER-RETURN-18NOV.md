@@ -91,6 +91,12 @@ This is the running record. Bob updates it as work moves; the newest entries are
 
 The harness commit `4f904638` was explained and pushed under `0959a62c`. A full green suite comes before A3's freeze path. **Merge order: C2w, then A3.**
 
+## Planning audit, 4.2, 4.5 and 5.0 (owner, 18 Nov)
+
+| When (UTC) | What |
+|---|---|
+| 08:04 | Bob's draft is `docs/roadmap/PLANNING-AUDIT-4.2-4.5-5.0.md` (`63c66ba9`). Sent to Sharon, Daisy and Second Eye for independent review; Second Eye's is queued after the C2w commit and V-2. Verdicts are provisional until §7 is complete. 4.2 is not ready (1 of 20 items planning-ready; 12 owner decisions open); 4.5 is blocked at its foundation; 5.0 is blocked on 4.5. The top findings are G-1 (the governing planning records are not on `main`), R-2, and G-4 (4.5 needs real evidence volume) |
+
 ## Spending to date
 
 - Anthropic: US$0.482254 of its US$5 limit.
