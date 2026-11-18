@@ -66,6 +66,12 @@ This is the running record. Bob updates it as work moves; the newest entries are
 
 **Next:** both runs green, and Sharon's delta check on the CSS and component change. Then the freeze at `aa5f5741`. Then decision 2 above.
 
+### C3w-1 (preparation while E is judged; owner, 18 Nov: "proceed with the development of pintar as planned")
+
+| When (UTC) | What |
+|---|---|
+| 06:15 | Bob drafted C3w-1's pre-build design (`batches/C3W-1-DESIGN.md`). It gathers rulings 38–42, S-1 to S-8 and R-3 into the objects, codes and red-first tests. It is design only: no build, no provider call, no key. Daisy is asked for every state's words and her Studio consistency findings; Sharon reviews the design after A3's preservation query. The build starts after A3 closes |
+
 ### A3
 
 | When (UTC) | What |
