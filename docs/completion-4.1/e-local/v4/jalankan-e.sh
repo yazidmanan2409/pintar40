@@ -80,7 +80,7 @@ echo "Node $(node --version): OK"
 if command -v shasum >/dev/null 2>&1; then shasum -a 256 -c -s SHA256SUMS || berhenti "the package does not match its checksums. Download it again."
 else sha256sum -c --quiet SHA256SUMS || berhenti "the package does not match its checksums. Download it again."; fi
 echo "Package checksums: OK"
-[ "$(cat SOURCE-COMMIT)" = "88e33ec663297e2d1436c828d95236494f2f58d4" ] || berhenti "the package is not from the v4 (OpenAI streaming) runner commit."
+[ "$(cat SOURCE-COMMIT)" = "86658dcba9e01646693e51acaaeb78ea9d18d113" ] || berhenti "the package is not from the v4 (OpenAI streaming) runner commit."
 echo "Package built from the v4 (OpenAI streaming) runner commit $(cat SOURCE-COMMIT)"
 VOID="$ROOT/../pintar-e-local/hasil/PRIVAT-simpan-jangan-dikirim/runs/ledger.json"
 [ -f "$VOID" ] || berhenti "the first (void) run's folder was not found next to this one (../pintar-e-local/hasil). Keep it in Downloads, unchanged."
@@ -228,7 +228,11 @@ node -e '
   for (const [k, v] of Object.entries(by)) lines.push(`${k}: ${v.attempts} attempts, US$${v.cost.toFixed(6)}, ${JSON.stringify(v.status)}`);
   console.log(lines.join("\n"));
 ' "$PRIVAT/runs/ledger.json" "$MODE" "$T_START" "$T_END" "$MAP_SHA" "$VOID_SHA" "$V3_SHA" > "$HASIL/untuk-bob/ringkasan.txt"
-cat "$HASIL/untuk-bob/ringkasan.txt"
+# Ruling 52: which attempt produced each accepted chapter, for both providers alike (metadata only, no question)
+if [ "$MODE" = live ]; then ANT_LEDGER="$V3RUNS/ledger.json"; else ANT_LEDGER="$PRIVAT/latihan-anthropic/ledger.json"; fi
+( cd "$EVAL" && node runner.mjs --asal "$ANT_LEDGER,$PRIVAT/runs/ledger.json" ) > "$HASIL/untuk-bob/asal-jawaban.txt" \
+  || berhenti "the list of which attempt each answer came from could not be made. Send nothing; tell Bob."
+cat "$HASIL/untuk-bob/ringkasan.txt" "$HASIL/untuk-bob/asal-jawaban.txt"
 
 # Before anything leaves this Mac (Sharon R3, and her sheet points 4 and 5):
 # 1. the exact key value, given to grep through a file descriptor (never argv), in every result file;
@@ -247,8 +251,8 @@ if grep -rIlE 'sk-(ant-|proj-)?[A-Za-z0-9_-]{16,}' "$HASIL/untuk-sharon" "$HASIL
   berhenti "something that looks like a key is in a folder to send. Send nothing; tell Bob."; fi
 if find "$HASIL/untuk-sharon" "$HASIL/untuk-juri" "$HASIL/untuk-bob" -name 'map.json' | grep -q .; then
   berhenti "the sealed map is in a folder to send. Send nothing; tell Bob."; fi
-[ "$(cd "$HASIL/untuk-bob" && ls | LC_ALL=C sort | tr '\n' ' ')" = "ledger.json ringkasan.txt summary.json " ] \
-  || berhenti "the folder for Bob holds something other than the ledger and the two summaries. Send nothing; tell Bob."
+[ "$(cd "$HASIL/untuk-bob" && ls | LC_ALL=C sort | tr '\n' ' ')" = "asal-jawaban.txt ledger.json ringkasan.txt summary.json " ] \
+  || berhenti "the folder for Bob holds something other than the ledger, the two summaries and the attempt list. Send nothing; tell Bob."
 echo "Checked: no key-like text, no incomplete answer and no sealed map in the folders to send."
 
 ( cd "$HASIL" && zip -qr untuk-sharon.zip untuk-sharon && zip -qr untuk-juri.zip untuk-juri && zip -qr untuk-bob.zip untuk-bob )

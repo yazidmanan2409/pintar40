@@ -1,33 +1,33 @@
-happy (zsh): exit=0 runs_dir=yes key_in_outputs=none key_in_process_list=none (26766 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=contacted | == Done
-happy-bash (bash): exit=0 runs_dir=yes key_in_outputs=none key_in_process_list=none (26796 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=contacted | == Done
-no-go (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (25293 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=contacted | STOPPED: you did not type RUN.
-anthropic-key (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (26030 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=none | STOPPED: this looks like an Anthropic key. This run needs the OpenAI key.
-empty (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (26012 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=none | STOPPED: the key was empty.
-key-denied (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (26723 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=contacted | STOPPED: the key or the model was not confirmed. Nothing was spent.
-tampered (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (1863 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=none | STOPPED: the package does not match its checksums. Download it again.
-old-hasil (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (2070 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=none | STOPPED: a folder 'hasil' already exists. Move it somewhere safe first; this script never overwrites results.
-dotenv (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (2161 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=none | STOPPED: a .env file is inside this folder. Use a fresh copy of the package.
-void-missing (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (1863 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=none | STOPPED: the first (void) run's folder was not found next to this one (../pintar-e-local/hasil). Keep it in Downloads, unchanged.
-void-altered (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (1976 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=none | STOPPED: the first (void) run's ledger is not the one recorded (one Anthropic attempt, US$0.129986). Tell Bob.
-v3-missing (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (1972 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=none | STOPPED: Anthropic's run 2 folder was not found next to this one (../pintar-e-local-v3/hasil). Keep it in Downloads, unchanged.
-v3-altered (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (2068 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=none | STOPPED: Anthropic's run 2 is not as recorded (two answers, US$0.352268, each file matching its fingerprint). Do not continue; tell Bob.
-latihan (zsh): exit=0 runs_dir=yes key_in_outputs=none key_in_process_list=none (29624 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=none | == Done
-latihan-realkey (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (26649 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=none | STOPPED: this is the practice run: type sk-proj-latihan at the prompt, never a real key.
-latihan-then-real (zsh): exit=0 runs_dir=yes key_in_outputs=none key_in_process_list=none (56557 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=contacted | == Done | then the real procedure: == Done
-live-beside-mock (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (1780 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=none | STOPPED: a practice run (--latihan) or its stand-in is still running. Close that Terminal window first.
-live-stray-vars (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (27358 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=none | STOPPED: the key was empty.
+happy (zsh): exit=0 runs_dir=yes key_in_outputs=none key_in_process_list=none (28583 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=contacted | == Done
+happy-bash (bash): exit=0 runs_dir=yes key_in_outputs=none key_in_process_list=none (28914 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=contacted | == Done
+no-go (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (26241 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=contacted | STOPPED: you did not type RUN.
+anthropic-key (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (26520 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=none | STOPPED: this looks like an Anthropic key. This run needs the OpenAI key.
+empty (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (27815 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=none | STOPPED: the key was empty.
+key-denied (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (27006 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=contacted | STOPPED: the key or the model was not confirmed. Nothing was spent.
+tampered (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (1880 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=none | STOPPED: the package does not match its checksums. Download it again.
+old-hasil (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (2081 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=none | STOPPED: a folder 'hasil' already exists. Move it somewhere safe first; this script never overwrites results.
+dotenv (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (2091 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=none | STOPPED: a .env file is inside this folder. Use a fresh copy of the package.
+void-missing (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (1886 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=none | STOPPED: the first (void) run's folder was not found next to this one (../pintar-e-local/hasil). Keep it in Downloads, unchanged.
+void-altered (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (1983 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=none | STOPPED: the first (void) run's ledger is not the one recorded (one Anthropic attempt, US$0.129986). Tell Bob.
+v3-missing (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (1982 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=none | STOPPED: Anthropic's run 2 folder was not found next to this one (../pintar-e-local-v3/hasil). Keep it in Downloads, unchanged.
+v3-altered (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (2094 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=none | STOPPED: Anthropic's run 2 is not as recorded (two answers, US$0.352268, each file matching its fingerprint). Do not continue; tell Bob.
+latihan (zsh): exit=0 runs_dir=yes key_in_outputs=none key_in_process_list=none (30228 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=none | == Done
+latihan-realkey (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (26925 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=none | STOPPED: this is the practice run: type sk-proj-latihan at the prompt, never a real key.
+latihan-then-real (zsh): exit=0 runs_dir=yes key_in_outputs=none key_in_process_list=none (58336 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=contacted | == Done | then the real procedure: == Done
+live-beside-mock (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (1798 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=none | STOPPED: a practice run (--latihan) or its stand-in is still running. Close that Terminal window first.
+live-stray-vars (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (27233 ps lines) thinking_in_outputs=none sealed_anthropic_in_outputs=none anthropic_mock=none harness_openai_mock=none | STOPPED: the key was empty.
 stray-rehearsal-vars (zsh): variables left after the live-mode unset = 0 (expect 0)
 --- happy path (zsh) ringkasan:
 void run 1 ledger sha256: 93d763f39a6a0d83a63efa6d027045a1402da0bda0bc885bfb270359d1b99ba7
 anthropic run 2 ledger sha256: 7165b492dbe5c86bb6fe6382dcc1765d34d957fc188acc7f99d861f763d08203
 mode: rehearse
-run window (this command): 2026-11-18T01:46:46.953Z to 2026-11-18T01:46:47.346Z
-ledger first request: 2026-11-18T01:46:47.139Z
-ledger last settlement: 2026-11-18T01:46:47.318Z
-sealed map sha256: 00a4b756cde9e1de764bbb6aa5d0f1f4fc36474a5bdd5a2c747d58fa0a422e5f
+run window (this command): 2026-11-18T01:59:20.276Z to 2026-11-18T01:59:20.767Z
+ledger first request: 2026-11-18T01:59:20.506Z
+ledger last settlement: 2026-11-18T01:59:20.734Z
+sealed map sha256: 6098dd327acaa4d3030850675004437cd044ade89ce313f5835227b2c3dd52b1
 blinded: anthropic (practice mock) and openai, together
 openai: 4 attempts, US$1.110526, {"transport_error":1,"ok":2,"stream_incomplete":1}
---- happy path: files in hasil (untuk-bob must hold only ledger.json, ringkasan.txt, summary.json; untuk-sharon and untuk-juri only the kit's blinded files):
+--- happy path: files in hasil (untuk-bob must hold only asal-jawaban.txt, ledger.json, ringkasan.txt, summary.json; untuk-sharon and untuk-juri only the kit's blinded files):
 ./PRIVAT-simpan-jangan-dikirim/blind-log.txt
 ./PRIVAT-simpan-jangan-dikirim/gabungan/anthropic/bab1.json
 ./PRIVAT-simpan-jangan-dikirim/gabungan/anthropic/bab2.json
@@ -85,6 +85,7 @@ openai: 4 attempts, US$1.110526, {"transport_error":1,"ok":2,"stream_incomplete"
 ./latihan/self-test-runner.txt
 ./latihan/self-test-score.txt
 ./untuk-bob.zip
+./untuk-bob/asal-jawaban.txt
 ./untuk-bob/ledger.json
 ./untuk-bob/ringkasan.txt
 ./untuk-bob/summary.json
@@ -104,6 +105,11 @@ openai bab2 a2: ok, max_output 48000, reserved 0.520808, cost 0.032696 (usage), 
 --- happy path: what each mock received (the auth shown is the rehearsal dummy; the Anthropic mock must be empty):
 [{"url":"/v1/models/gpt-6.1-sol","auth":"Bearer sk-proj-REHEARSALKEYOOO","ver":null,"key_text_in_process_list":false}]
 anthropic mock: nothing received
+--- happy path: which attempt produced each accepted chapter (Ruling 52, both providers):
+anthropic bab1: accepted from attempt 2 of 2 (request mock-anthropic-2, response sha256 52b3ed40cddc3b52c6230b46506849a9468452fd7431ebd1acd4e8bcfda66fbc; attempts: invalid_output, ok)
+anthropic bab2: accepted from attempt 2 of 2 (request mock-anthropic-4, response sha256 29c77be6d50f28009b8f64135e10f8ced848b30c13e58b143f025e215fbfe5a1; attempts: http_429, ok)
+openai bab1: accepted from attempt 2 of 2 (request mock-openai-2, response sha256 52b3ed40cddc3b52c6230b46506849a9468452fd7431ebd1acd4e8bcfda66fbc; attempts: transport_error, ok)
+openai bab2: accepted from attempt 2 of 2 (request mock-openai-4, response sha256 29c77be6d50f28009b8f64135e10f8ced848b30c13e58b143f025e215fbfe5a1; attempts: stream_incomplete, ok)
 --- happy path: what was copied for blinding from Anthropic (Sharon R-2: bab1.json and bab2.json only):
 bab1.json bab2.json 
 --- happy path: the blinded set (both providers, 60 items expected) and its provider codes:

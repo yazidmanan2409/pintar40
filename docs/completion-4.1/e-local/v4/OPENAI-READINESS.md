@@ -99,3 +99,18 @@ OpenAI's rate-limits guide says (A): *"An error after streaming begins can arriv
   - **R-1:** a content part on a reasoning item is accepted, counted as reasoning, and nothing of it is kept. Red first `239a0211`, fixed in `88e33ec6`; self-test 262. Without this, such a stream would have been refused and N4 would have stopped OpenAI after about US$1.57, with no answer.
   - **R-2:** Step E copies only `bab1.json` and `bab2.json` from Anthropic's run 2, then re-hashes the copies against the ledger. The live run and the practice run use one shared step, so the rehearsal exercises it. The rehearsal shows only those two files copied.
 - **Package v4, rebuilt on runner `88e33ec6`:** SHA-256 **`3f2ade8464fbd54dbf6e183106e1f49c9b78721a7a0b55850bb063a011924283`**. It supersedes `bc2f3c0c`. Rehearsal: 18 paths, all as expected.
+
+## 7 · Ruling 52: the retry is kept, and the accepted attempts are named
+
+- **The owner's decision (18 Nov):** OpenAI keeps the governed retry, consistent with Anthropic, and Sharon's condition is adopted.
+- **The runner** (red first `3836673c`, fixed in `86658dcb`; self-test 267):
+  - `acceptedAttempts` and `node runner.mjs --asal <ledger>,<ledger>` give one line per provider and chapter;
+  - each line names the first accepted attempt, the number of attempts used, the request id, the response SHA-256 (which matches the judged file), and the attempt statuses;
+  - it is metadata only, with no question text, and the same rule applies to both providers;
+  - on Anthropic's run 2 ledger it gives attempt 1 of 1 for both chapters.
+- **v4:** after blinding, `untuk-bob/asal-jawaban.txt` is written from Anthropic's run 2 ledger and OpenAI's ledger together; practice and rehearsal use the mock ledgers. `untuk-bob`'s allowlist is now these four files.
+- **Package v4, rebuilt on runner `86658dcb`:** SHA-256 **`bae2c4c72ccc67761da3b03ed8f27671f5b58e7c38495c60e5ae1aeb51c3949e`**. It supersedes `3f2ade84` and `bc2f3c0c`.
+  - Rehearsal: 18 paths, all as expected.
+  - No key, reasoning text or sealed Anthropic text in any output.
+  - Only `bab1.json` and `bab2.json` copied for blinding.
+  - 60 items blinded under two codes.
