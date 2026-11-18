@@ -52,6 +52,8 @@
 --   (5) generasi = 2 on a pre-cutoff sitting makes line 80 read 1; the same on a pre-cutoff response makes it 2;
 --   (6) a response value update on an ended sitting moves line 79.
 --   Also, the step-0 plant: an ambiguous chain makes step 0's line 1 read 1, and the migration aborts cleanly at 284.
+--   Also, step 0's line 4 reference (Sharon, S0-1, confirmed): run step 0 on a local database migrated to C2w's head
+--   (284, before A3) and record its line 4 in this evidence folder before the BEFORE read. Staging's line 4 must equal it.
 with batas as (
   select coalesce(null::timestamptz, now()) as saat,
          coalesce(null::bigint, (select max(id) from public.audit_log)) as audit_id
