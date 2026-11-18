@@ -71,3 +71,11 @@ Sharon, 18 Nov 2026 (14:00 UTC). Read-only. The local build is of `main` at `7ba
 `staging.yml` names no seed, so staging probably does not hold it. **That is unconfirmed until the D-8 query runs.**
 
 **Under ruling 56, the entry paths are contained at once,** for whatever world a walkthrough uses. Bob decides how.
+
+## Addendum · D-8 result and ruling 56: agreed (18 Nov 2026, 15:10 UTC)
+
+Bob ran the D-8 query under ruling 55, with the project verified and read only (`d1-evidence/D8-STAGING-INVENTORY-RESULT-18NOV.md`, `f28fa539`). Staging holds **0 MCQ_MULTI items and 0 final responses, of 1,388 items.** Production holds 0 items.
+- **I agree ruling 56's containment is not triggered.** The only multi-answer content is the local and CI seed's «Pecahan», which only synthetic learners use.
+- **One condition:** "walkthrough fixtures contain no MCQ_MULTI" and "a staging import before the repair is checked first" must be **checks, not promises.**
+  - A guard in the fixture or import path, or a query run before each import, refuses or reports any MCQ_MULTI until the repair is accepted.
+  - The C-2 (b) regression guard is the natural place.
