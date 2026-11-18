@@ -1079,6 +1079,109 @@ end $t$;`);
     },
   },
   {
+    // A3-3, the enumeration test (THE PLAN §5.5 D5; A3-COMPLETION.md, Sharon §3 condition 2): every function that writes
+    // assessment_sessions or responses, and every trigger on them, is declared below, by class, or the test fails; a
+    // learner boundary checks the controller (calls the gate); every writer that UPDATEs or DELETEs a sitting takes it
+    // FOR UPDATE first (in its body, or through the gate, pengerjaan_ditahan_periksa or penugasan_sesi … for update), so
+    // none interleaves with a learner write or a recovery. The response writer is inner, reached only under the gate.
+    // Two plants, rolled back: an undeclared writer, and a declared one whose FOR UPDATE is removed.
+    id: "A3-E01",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      const PENULIS: Record<string, { kelas: "PELAJAR" | "MULAI" | "LAYANAN" | "DALAM"; alasan: string }> = {
+        record_answer: { kelas: "PELAJAR", alasan: "the learner's answer" },
+        pause_session: { kelas: "PELAJAR", alasan: "the learner's pause" },
+        resume_session: { kelas: "PELAJAR", alasan: "the learner's resume" },
+        submit_session: { kelas: "PELAJAR", alasan: "the learner's hand-in (finish_my_session reaches it)" },
+        pengerjaan_gerbang: { kelas: "DALAM", alasan: "the gate itself: the controller's one-time claim (D6)" },
+        open_assessment_session: { kelas: "MULAI", alasan: "the start's insert, service role, reached from start_learning_session; the controller is set by its insert trigger (D6)" },
+        submit_response: { kelas: "DALAM", alasan: "record_answer's receipt, service role; reached only from record_answer, under the gate" },
+        finalize_session: { kelas: "LAYANAN", alasan: "scoring at the end (D5)" },
+        terminate_session: { kelas: "LAYANAN", alasan: "a staff termination (D5)" },
+        extend_session_deadline: { kelas: "LAYANAN", alasan: "a staff extension (D5)" },
+        percobaan_tandai: { kelas: "LAYANAN", alasan: "an attempt's marking by staff (D5)" },
+        akhiri_pengerjaan: { kelas: "LAYANAN", alasan: "A1's teacher ending (D5)" },
+        lanjutkan_pengerjaan: { kelas: "LAYANAN", alasan: "A1's teacher resume of a held sitting (D5)" },
+        tutup_pengerjaan_ditahan: { kelas: "LAYANAN", alasan: "A1's teacher closing of a held sitting (D5)" },
+        pengerjaan_tahan_orang: { kelas: "LAYANAN", alasan: "the suspension hold (D5)" },
+        pengerjaan_putus_tenggat: { kelas: "LAYANAN", alasan: "the deadline rule and the scheduled closer (D5)" },
+        akhiri_penugasan: { kelas: "LAYANAN", alasan: "«Akhiri penugasan», the assignment's end (D5)" },
+        tutup_asesmen_terbuka: { kelas: "LAYANAN", alasan: "the assessment assignment's closing (D5)" },
+        pengerjaan_tandai_darurat: { kelas: "LAYANAN", alasan: "the emergency stop's marking, a procedure (A2a, D5)" },
+        pengerjaan_lepas_darurat: { kelas: "LAYANAN", alasan: "the emergency release on first touch (A2a, D5)" },
+        pengerjaan_kredit_darurat: { kelas: "LAYANAN", alasan: "the emergency credit on first touch (A2a, D5)" },
+        pengerjaan_keluar_terapkan: { kelas: "LAYANAN", alasan: "a departure preserved through a stop, applied (A2a, D5)" },
+      };
+      // the triggers on the two tables: they shape the row of the statement that fires them and write no other row
+      const PEMICU = ["assessment_sessions:_l1f4_assessment_sessions_person_id", "assessment_sessions:assessment_sessions_a1_state",
+        "assessment_sessions:assessment_sessions_pengendali", "assessment_sessions:assessment_sessions_provenance",
+        "assessment_sessions:assessment_sessions_release_is_its_course", "assessment_sessions:assessment_sessions_status",
+        "assessment_sessions:assessment_sessions_tenant_immutable", "assessment_sessions:assessment_sessions_termination_provenance",
+        "assessment_sessions:assessment_sessions_the_pass_mark_is_sealed", "assessment_sessions:assessment_sessions_zz_exposed_is_not_assessed",
+        "assessment_sessions:assessment_sessions_zz_no_new_sitting_in_maintenance", "responses:responses_generasi_isi",
+        "responses:responses_tenant_immutable", "responses:responses_write"];
+      const baca = (tanam: string) => {
+        const sql = `begin; ${tanam}
+select 'f|' || p.proname || '|' || translate(encode(convert_to(p.prosrc, 'UTF8'), 'base64'), E'\\n', '') from pg_proc p
+ where p.pronamespace = 'public'::regnamespace and p.prokind in ('f', 'p')
+   and p.prosrc ~* '\\m(insert\\s+into|update|delete\\s+from)\\s+(public\\.)?(assessment_sessions|responses)\\M';
+select 't|' || c.relname || ':' || t.tgname from pg_trigger t join pg_class c on c.oid = t.tgrelid
+ where not t.tgisinternal and c.relnamespace = 'public'::regnamespace and c.relname in ('assessment_sessions', 'responses');
+select 'p|' || l.lanname || ':' || p.proretset || ':' || p.prorettype::regtype || ':' || (p.prosrc ~* '\\mfrom\\s+public\\.assessment_sessions\\M')
+  from pg_proc p join pg_language l on l.oid = p.prolang where p.oid = 'public.penugasan_sesi(uuid)'::regprocedure;
+select 'r|' || coalesce(string_agg(p.proname, ',' order by p.proname), '') from pg_proc p
+ where p.pronamespace = 'public'::regnamespace and p.proname <> 'submit_response' and p.prosrc ~ '\\msubmit_response\\(';
+rollback;`;
+        const r = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-qAt", "-c", sql, db()], { encoding: "utf8", maxBuffer: 32 * 1024 * 1024 });
+        const f: Record<string, string> = {}; const tg: string[] = []; let pg = ""; let rc = "";
+        for (const l of r.stdout.split("\n")) {
+          const [k, a, b] = l.split("|");
+          if (k === "f") f[a] = Buffer.from(b, "base64").toString("utf8");
+          else if (k === "t") tg.push(a);
+          else if (k === "p") pg = a;
+          else if (k === "r") rc = a ?? "";
+        }
+        return { r, f, tg, pg, rc };
+      };
+      const KUNCI = /(\bfrom\s+(public\.)?(assessment_sessions|penugasan_sesi\s*\([^)]*\))[^;]*?\bfor\s+update\b)|\bpengerjaan_gerbang\s*\(|\bpengerjaan_ditahan_periksa\s*\(/i;
+      const TULIS = /\b(update|delete\s+from)\s+(public\.)?assessment_sessions\b/i;
+      const periksa = (f: Record<string, string>) => {
+        const salah: string[] = [];
+        for (const [fn, src] of Object.entries(f)) {
+          const b = src.replace(/--[^\n]*/g, "");
+          const d = PENULIS[fn];
+          if (!d) { salah.push(`${fn} writes a sitting or a response and is not declared`); continue; }
+          if (d.kelas === "PELAJAR" && !/\bpengerjaan_gerbang\s*\(/.test(b)) salah.push(`${fn} is a learner boundary and does not call the gate`);
+          const w = b.search(TULIS), k = b.search(KUNCI);
+          if (w >= 0 && !(k >= 0 && k < w)) salah.push(`${fn} updates a sitting without taking it FOR UPDATE first`);
+        }
+        return salah;
+      };
+      const t0 = baca("");
+      if (!c.expect(t0.r.status === 0, `the catalogue could not be read: ${(t0.r.stderr || "").trim().split("\n").find((l) => /ERROR/.test(l))}`)) return c.verdict("");
+      for (const s of periksa(t0.f)) c.expect(false, s);
+      const basi = Object.keys(PENULIS).filter((fn) => !(fn in t0.f));
+      c.expect(basi.length === 0, `declared but no longer a writer (restate the list): ${basi.join(", ")}`);
+      c.expect(JSON.stringify([...t0.tg].sort()) === JSON.stringify([...PEMICU].sort()), `the triggers on the two tables differ from the declared list: ${t0.tg.sort().join(", ")}`);
+      c.expect(t0.pg === "sql:true:assessment_sessions:true", `penugasan_sesi must be a SQL set of sittings, so its FOR UPDATE locks them: ${t0.pg}`);
+      c.expect(t0.rc === "record_answer", `submit_response must be reached only from record_answer: ${t0.rc}`);
+      // the plants: an undeclared writer, and terminate_session's sitting FOR UPDATE removed
+      const t1 = baca(`create function public._a3_e01_tanam(p uuid) returns void language sql as $t$ update public.assessment_sessions set status = status where id = p $t$;
+do $t$ declare f oid := 'public.pengerjaan_tahan_orang(uuid,uuid)'::regprocedure; s text; begin
+  select prosrc into s from pg_proc where oid = f;
+  s := regexp_replace(s, '(from\\s+public\\.assessment_sessions[^;]*?)\\s+for\\s+update', '\\1', 'gi');
+  execute format('create or replace function public.pengerjaan_tahan_orang(%s) returns %s language plpgsql security definer set search_path = public, pg_temp as %L',
+    pg_get_function_arguments(f), pg_get_function_result(f), s);
+end $t$;`);
+      if (!c.expect(t1.r.status === 0, `the plants could not be installed: ${(t1.r.stderr || "").trim().split("\n").find((l) => /ERROR/.test(l))}`)) return c.verdict("");
+      const s1 = periksa(t1.f);
+      c.expect(s1.some((x) => x.startsWith("_a3_e01_tanam writes")), `the plant (an undeclared writer) was not reported: ${s1.join("; ")}`);
+      c.expect(s1.some((x) => x.startsWith("pengerjaan_tahan_orang updates a sitting without")), `the plant (pengerjaan_tahan_orang without its FOR UPDATE) was not reported: ${s1.join("; ")}`);
+      return c.verdict(`reads the function catalogue and the triggers: the ${Object.keys(PENULIS).length} functions that write assessment_sessions or responses are each declared (learner boundaries ${Object.entries(PENULIS).filter(([, d]) => d.kelas === "PELAJAR").map(([f]) => f).join(", ")}, each calling the gate; the start's insert; ${Object.values(PENULIS).filter((d) => d.kelas === "LAYANAN").length} service and staff writers (D5); two inner), and the ${PEMICU.length} triggers on the two tables are as declared; every writer that updates a sitting takes it FOR UPDATE first; submit_response is reached only from record_answer; two plants (an undeclared writer, a lock removed) are reported; rolled back`);
+    },
+  },
+  {
     // Sharon V-1 (627d66d4): through the gate, the item view must not be refused by A1's hold, which refuses an answer, a
     // hand-in and the learner's own pause or resume, never a view (as before A3, when the view ran only the fence).
     id: "A3-V01",
