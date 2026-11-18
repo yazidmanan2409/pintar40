@@ -13,13 +13,14 @@
 --       touches sittings);
 --     - then ownership (a caller who is not the learner is left to the boundary's own refusal, as before);
 --     - then the controller check;
---     - then A1's hold and closure checks, unchanged.
+--     - then A1's hold and closure checks, unchanged; the hold is not asked of an item view ('VIEW'), as before A3.
 --   * The controller is the verified session id in the claims (sesi_saya(), D2); no function takes it as a parameter. A
 --     null session is refused SITTING_NOT_CONTROLLER (S11), never read as "any writer". A sitting open when this lands
 --     has no controller; its learner's first write claims it, once (D6).
 --   * start_learning_session refuses a caller with no session. The new sitting's controller is set at its insert, by a
 --     trigger, from the verified claims (assessment_sessions_pengendali): the start itself writes no sitting, and a
 --     sitting inserted with no session (the service, the harness's copies) has none, so its learner's first write claims it.
+--     Any sitting inserted with no session, not only one open when A3 lands, stays claimable that way, once (Sharon).
 --   * session_final_responses: the final answer is the highest (generation, client_seq) (D8).
 --   * pengerjaan_tolak (PR170) gains SITTING_NOT_CONTROLLER (D12). An unknown sitting reaches the boundary's own refusal.
 --
@@ -132,7 +133,9 @@ begin
   elsif s.pengendali_sesi <> v_sesi then
     perform public.pengerjaan_tolak('SITTING_NOT_CONTROLLER');
   end if;
-  if public.pengerjaan_ditahan(s) then perform public.pengerjaan_tolak('SITTING_FROZEN'); end if;
+  -- A1's hold refuses an answer, a hand-in and the learner's own pause or resume, never an item view (Sharon V-1: before
+  -- A3 the view ran only the fence; D4 asked of it only the controller check)
+  if p_untuk <> 'VIEW' and public.pengerjaan_ditahan(s) then perform public.pengerjaan_tolak('SITTING_FROZEN'); end if;
   if s.closure_kind = 'TEACHER_NOT_COUNTED' and p_untuk in ('ANSWER', 'SUBMIT') then
     raise exception using errcode = case p_untuk when 'SUBMIT' then 'PR003' else 'PR002' end,
       detail = 'SESSION_ENDED_NOT_COUNTED', message = 'this session was ended by the teacher and is not counted';
