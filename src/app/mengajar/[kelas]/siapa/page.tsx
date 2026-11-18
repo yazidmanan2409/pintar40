@@ -211,10 +211,7 @@ export default async function Siapa({
             baris={halaman.isi.map((m) => denganAtur({
               kunci: m.id,
               nama: adaBuktiSoal(ctx.ini.jenis) ? <Link href={`/mengajar/${id}/murid/${m.id}`}>{m.nama}</Link> : m.nama,
-              sel: [<span key="k" className={KEADAAN[m.keadaan].badge} data-keadaan={m.keadaan}>{s(KEADAAN[m.keadaan].kunci)}</span>,
-                // A3 (Daisy §6.2, O-4): the learner asked to continue after signing in again (never «di perangkat lain»: the
-                // device is not known to differ); shown only while the sitting is open, as the read gives it
-                ...(petaA1.get(m.id)?.lanjut_diminta_pada ? [<span key="l" className="pin-meta" data-minta-lanjut=""> · {s("mengajar.siapa.minta_lanjut")}</span>] : [])],
+              sel: [<span key="k" className={KEADAAN[m.keadaan].badge} data-keadaan={m.keadaan}>{s(KEADAAN[m.keadaan].kunci)}</span>],
             }, petaA1.has(m.id) ? metaBaris(petaA1.get(m.id)!, { locale, zona }) : [],
             // one quiet link, and only where an act applies: an act that cannot apply is absent, not disabled
             petaA1.has(m.id) && tindakanUntuk(petaA1.get(m.id)!).length > 0 ? (

@@ -2145,7 +2145,9 @@ a2aDaruratTests.push({
     const { join } = await import("node:path");
     const baca = (p: string) => readFileSync(join(repoRoot, p), "utf8");
     const atur = baca("src/app/mengajar/pengerjaan-aksi.ts"), ajar = baca("src/app/mengajar/actions.ts"), naik = baca("src/app/konfigurasi/kenaikan-aksi.ts");
-    c.expect((atur.match(/if \(error\) await tolak\(db, t, /g) ?? []).length === 5 && /await catatPenolakanHenti\(db, t\.sesi, kode,/.test(atur)
+    // RESTATED FOR A3 (Daisy A3-KODE-PEMULIHAN.md §8): a sixth act, «Izinkan lanjut» (izinkanLanjutAksi), refuses through the
+    // same tolak and so records its stopped-class refusal afterwards like the other five
+    c.expect((atur.match(/if \(error\) await tolak\(db, t, /g) ?? []).length === 6 && /await catatPenolakanHenti\(db, t\.sesi, kode,/.test(atur)
       && /await catatPenolakanHenti\(db, la, kode, "jadwal"\)/.test(atur), "the teacher's sitting acts or «Ubah jadwal» do not record their refusal afterwards");
     c.expect(/await catatPenolakanHenti\(db, penugasan, kode, "akhiri"\)/.test(ajar), "ending an assignment does not record its refusal afterwards");
     c.expect(/await catatPenolakanHenti\([^)]*kelas, kodeGalat\(error\), "kenaikan"\)/.test(naik), "the promotion does not record its refusal afterwards");

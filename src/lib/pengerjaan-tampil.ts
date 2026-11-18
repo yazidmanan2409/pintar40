@@ -74,6 +74,9 @@ export function metaBaris(b: BarisPengerjaan, o: { locale: Locale; zona: string 
   else if (b.permintaan_status === "APPROVED" && (b.izin_belum_dipakai || b.percobaan_diizinkan)) {
     out.push(isi(s("atur.meta.disetujui"), { tanggal: tanggal(b.keputusan_pada, "baca", o.locale, o.zona) }));
   } else if (b.permintaan_status === "DECLINED") out.push(isi(s("atur.meta.ditolak"), { alasan: b.keputusan_alasan ?? "" }));
+  // A3 (Daisy §6.2, O-4): the learner asked to continue after signing in again; said while the sitting is open, never
+  // «di perangkat lain» (the device is not known to differ)
+  if (b.keadaan === "OPEN" && b.lanjut_diminta_pada) out.push(s("mengajar.siapa.minta_lanjut"));
   return out;
 }
 
