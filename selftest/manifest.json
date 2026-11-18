@@ -6581,6 +6581,36 @@
       "proves": "Sharon's acceptance of the harness session (8df83c47), condition 3: executes selftest.as_user and as_user_uid against the migrations, rolled back. Two personas get two different sessions. One persona gets the same session from as_user twice and from as_user_uid. Claims with no session_id give sesi_saya() null, so S11 stays expressible."
     },
     {
+      "id": "A3-C01",
+      "runner": "static",
+      "proves": "Sharon's S11 by its code (4bfdd1cb; 6e6e69d6): executes start_learning_session and record_answer against the migrations, in A3-R01's rolled-back transaction, with a verified token carrying no session id. Both are refused PR170 SITTING_NOT_CONTROLLER, the start before any other check."
+    },
+    {
+      "id": "A3-C02",
+      "runner": "static",
+      "proves": "Sharon (4bfdd1cb; 6e6e69d6): executes record_answer and submit_session against the migrations, in A3-R01's rolled-back transaction. A second signed-in session of the sitting's own learner is refused PR170 SITTING_NOT_CONTROLLER at its answer, its higher-sequence overwrite, its answer while paused and its hand-in."
+    },
+    {
+      "id": "A3-C03",
+      "runner": "static",
+      "proves": "Sharon 6e6e69d6 (b), D6 executed: in A3-R01's rolled-back transaction a sitting's controller is set null (a sitting open when A3 lands); executes assistance_state against the migrations. The first session to touch it claims it, the other session is then refused PR170 SITTING_NOT_CONTROLLER, and the claimer's next touch leaves it the controller."
+    },
+    {
+      "id": "A3-C04",
+      "runner": "static",
+      "proves": "Sharon 6e6e69d6, D8: executes record_answer and session_final_responses against the migrations, in A3-R01's rolled-back transaction. After an answer at client_seq 5 under generation 1 and, once the generation is raised, an answer at client_seq 2, the final answer is the newer generation's."
+    },
+    {
+      "id": "A3-C05",
+      "runner": "static",
+      "proves": "Sharon 6e6e69d6: executes an insert into assessment_sessions against the migrations, rolled back, the row supplying another controller and generation 7. The insert trigger assigns the verified session (sesi_saya()) and generation 1. A planted trigger that keeps supplied values, installed in the same transaction, is caught by the same check."
+    },
+    {
+      "id": "A3-C06",
+      "runner": "static",
+      "proves": "Sharon 6e6e69d6 (a): reads the catalogue (prosrc, provolatile, the function ACL) and client_rpc_registry. pengerjaan_gerbang checks the controller. Its callers are exactly record_answer, submit_session, pause_session, resume_session, finish_my_session, note_item_view, open_assistance and assistance_state, each VOLATILE. Neither anon nor authenticated may execute it, and it has no registry row."
+    },
+    {
       "id": "A3-R01",
       "runner": "static",
       "proves": "A3's first red case, written before the build (THE PLAN §5.5 G2; PLAN-A3-C3W-Z.md A3-1; C1-D125-INVESTIGATION.md §5 cases 1, 2 and 3): executes start_learning_session, record_answer, pause_session, resume_session, submit_session and session_final_responses against the migrations, in one rolled-back transaction, for a learner of the seeded learning-cycle Kelas whose two signed-in devices are two verified Auth session ids in the claims (sesi_saya()). The sitting is started and answered on session A. Session B's answer to another question, its higher-sequence answer to A's question, its answer while A has paused, and its hand-in of A's sitting are each refused, and the final answer stays A's; a caller with no verified session id is refused; A's own answers, pause and resume are accepted. It names no refusal code (D12 waits for Sharon's review). Red on ac25e9b1: every write of B's lands, the higher sequence wins from either session, and a caller with no session id writes."

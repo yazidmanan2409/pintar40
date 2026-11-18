@@ -76,9 +76,22 @@ begin
   perform selftest.as_owner();
   return v_out;
 end $f$;
+-- a probe whose effects never stay: run, then roll back to before it, keeping only its answer
+create function pg_temp.a3x(p_sesi text, p_sql text)
+returns text language plpgsql as $f$
+declare v_out text;
+begin
+  begin
+    v_out := pg_temp.a3(p_sesi, p_sql);
+    raise exception 'a3x-rollback';
+  exception when others then
+    if sqlerrm <> 'a3x-rollback' then v_out := coalesce(v_out, 'probe-error:' || sqlerrm); end if;
+  end;
+  return v_out;
+end $f$;
 create temp table a3_snap (v jsonb) on commit drop;
 do $a3$
-declare v jsonb := '{}'::jsonb; f record; v_k uuid; v_u uuid; v_p uuid; v_e uuid; v_s uuid;
+declare v jsonb := '{}'::jsonb; f record; v_k uuid; v_u uuid; v_p uuid; v_e uuid; v_s uuid; v_t text;
 begin
   perform selftest.as_owner();
   perform set_config('a3.tag', to_char(clock_timestamp(), 'HH24MISSUS'), true);
@@ -125,6 +138,36 @@ begin
   ${langkah("NONE_jawab_5", "NONE", jawab(5, 1, true))}
   -- case 2's root: B hands in A's sitting
   ${langkah("B_serahkan", "B", "select public.submit_session(current_setting('a3.s')::uuid)::text")}
+  -- A3-C01 (S11): a start with no session id, tried and rolled back (the learner's sitting already exists, so the
+  -- session check must come first to be the answer)
+  v := v || jsonb_build_object('NONE_mulai', pg_temp.a3x('NONE', format('select public.start_learning_session(%L)::text', f.aa_pre)));
+  perform selftest.as_owner();
+  if exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'assessment_sessions'
+              and column_name = 'pengendali_sesi') then
+    -- A3-C03 (D6; Sharon 6e6e69d6 (b)): a sitting with no controller (one open when A3 lands) is claimed by its first
+    -- touch, here through assistance_state, exactly once; the other session is then refused
+    execute 'update public.assessment_sessions set pengendali_sesi = null where id = $1' using v_s;
+    v := v || jsonb_build_object('klaim_B', pg_temp.a3('B', 'select public.assistance_state(current_setting(''a3.s'')::uuid)::text'));
+    perform selftest.as_owner();
+    execute 'select (pengendali_sesi = $2)::text from public.assessment_sessions where id = $1' into v_t using v_s, current_setting('a3.sesi_B')::uuid;
+    v := v || jsonb_build_object('klaim_B_pengendali', v_t);
+    v := v || jsonb_build_object('klaim_A_ditolak', pg_temp.a3('A', 'select public.assistance_state(current_setting(''a3.s'')::uuid)::text'));
+    perform selftest.as_owner();
+    v := v || jsonb_build_object('klaim_B_lagi', pg_temp.a3('B', 'select public.assistance_state(current_setting(''a3.s'')::uuid)::text'));
+    perform selftest.as_owner();
+    execute 'select (pengendali_sesi = $2)::text from public.assessment_sessions where id = $1' into v_t using v_s, current_setting('a3.sesi_B')::uuid;
+    v := v || jsonb_build_object('klaim_sekali', v_t);
+    -- A3-C04 (D8): after a generation bump, the newer generation's answer is final though its client_seq is lower
+    v := v || jsonb_build_object('gen1_jawab', pg_temp.a3('B', ${q(jawab(2, 5, false))}));
+    perform selftest.as_owner();
+    execute 'update public.assessment_sessions set generasi = generasi + 1 where id = $1' using v_s;
+    v := v || jsonb_build_object('gen2_jawab', pg_temp.a3('B', ${q(jawab(2, 2, true))}));
+    perform selftest.as_owner();
+    v := v || jsonb_build_object('gen_akhir', (select ${akhir(2)}),
+      'gen_akhir_harap', (select r.value::text from public.responses r where r.presented_item_id = ${soal(2)} and r.client_seq = 2 and r.is_final order by r.received_at desc limit 1));
+  else
+    v := v || jsonb_build_object('klaim_B_pengendali', 'no-column', 'gen_akhir', 'no-column');
+  end if;
   perform selftest.as_owner();
   insert into a3_snap values (v);
 end $a3$;
@@ -133,7 +176,19 @@ rollback;
 `;
 }
 
+let hasilSkenario: { v: Record<string, string> | null; galat: string[] } | undefined;
+/** The scenario, run once for A3-R01 and A3-C01..C04; each test reports its own reading of it. */
 function jalankan(c: Checks, repoRoot: string): Record<string, string> | null {
+  if (!hasilSkenario) {
+    const c0 = new Checks();
+    hasilSkenario = { v: jalankanSekali(c0, repoRoot), galat: [] };
+    if (!hasilSkenario.v) hasilSkenario.galat.push(c0.verdict("").detail);
+  }
+  for (const g of hasilSkenario.galat) c.expect(false, g);
+  return hasilSkenario.v;
+}
+
+function jalankanSekali(c: Checks, repoRoot: string): Record<string, string> | null {
   const gagal = siapkan(repoRoot);
   if (!c.expect(gagal === null, gagal ?? "")) return null;
   const r = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-At", "-c", skenario(), db()], { encoding: "utf8", maxBuffer: 32 * 1024 * 1024 });
@@ -291,7 +346,8 @@ export const a3DbTests: SelfTest[] = [
       const dir = join(repoRoot, "supabase", "migrations");
       const berkas = readdirSync(dir).filter((f) => f.endsWith(".sql")).sort();
       c.expect(berkas.length > 200, `only ${berkas.length} migrations read`);
-      const kena = berkas.filter((f) => /selftest\.as_user|selftest-sesi/.test(readFileSync(join(dir, f), "utf8")));
+      // RESTATED (Sharon, 6e6e69d6): nor the seed's own prefix, 'seed-sesi:' (supabase/seed/human_evaluation.sql)
+      const kena = berkas.filter((f) => /selftest\.as_user|selftest-sesi|seed-sesi/.test(readFileSync(join(dir, f), "utf8")));
       c.expect(kena.length === 0, `a migration names the harness's identity: ${kena.join(", ")}`);
       // the latest definition of sesi_saya, wherever it is
       let tubuh = "";
@@ -302,7 +358,7 @@ export const a3DbTests: SelfTest[] = [
       c.expect(tubuh.includes("request.jwt.claims") && tubuh.includes("session_id"), "sesi_saya() does not read session_id from the verified claims");
       c.expect(!/\bp_[a-z_]+|current_setting\('(?!request\.jwt\.claims)/.test(tubuh.replace(/^create (?:or replace )?function public\.sesi_saya\(\)/i, "")),
         "sesi_saya() takes a parameter or reads a setting other than the verified claims");
-      return c.verdict(`reads all ${berkas.length} migrations (the source): none defines or calls selftest.as_user or derives a session from 'selftest-sesi:'; the latest sesi_saya() reads session_id from request.jwt.claims and from nothing else`);
+      return c.verdict(`reads all ${berkas.length} migrations (the source): none defines or calls selftest.as_user or derives a session from 'selftest-sesi:' or 'seed-sesi:'; the latest sesi_saya() reads session_id from request.jwt.claims and from nothing else`);
     },
   },
   {
@@ -828,6 +884,129 @@ begin perform 1 from public.institutions i where i.id = p for update; end $t$;`)
       return c.verdict(
         "two signed-in sessions of one learner, one sitting: started and answered on session A; session B's answers, its higher-sequence overwrite, its answer while A is paused and its hand-in are each refused, and the final answer stays A's; a caller with no verified session id is refused; A's own answers, pause and resume are accepted",
       );
+    },
+  },
+  {
+    // Sharon (A3-P, 4bfdd1cb; 6e6e69d6): S11 by its code. A verified token with no session id is refused
+    // SITTING_NOT_CONTROLLER at the start and at an answer; never treated as any writer.
+    id: "A3-C01",
+    requires: ["db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const v = jalankan(c, ctx.repoRoot);
+      if (!v) return c.verdict("");
+      c.expect(v.NONE_mulai === "PR170:SITTING_NOT_CONTROLLER", `a start with no session id must be refused SITTING_NOT_CONTROLLER: ${v.NONE_mulai}`);
+      c.expect(v.NONE_jawab_5 === "PR170:SITTING_NOT_CONTROLLER", `an answer with no session id must be refused SITTING_NOT_CONTROLLER: ${v.NONE_jawab_5}`);
+      return c.verdict("executes start_learning_session and record_answer against the migrations, rolled back, with a verified token carrying no session id: both are refused PR170 SITTING_NOT_CONTROLLER (S11), the start before any other check");
+    },
+  },
+  {
+    // Sharon (4bfdd1cb; 6e6e69d6): a second session of one person is refused by name, at an answer and at a hand-in
+    id: "A3-C02",
+    requires: ["db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const v = jalankan(c, ctx.repoRoot);
+      if (!v) return c.verdict("");
+      for (const k of ["B_jawab_2", "B_timpa_1", "B_jawab_4_jeda", "B_serahkan"]) c.expect(v[k] === "PR170:SITTING_NOT_CONTROLLER", `${k}: session B must be refused SITTING_NOT_CONTROLLER: ${v[k]}`);
+      return c.verdict("executes record_answer and submit_session against the migrations, rolled back: a second signed-in session of the sitting's own learner is refused PR170 SITTING_NOT_CONTROLLER at its answer, its higher-sequence overwrite, its answer while paused and its hand-in");
+    },
+  },
+  {
+    // Sharon 6e6e69d6 (b): the D6 claim executed, not only read. A sitting with no controller (one open when A3 lands)
+    // is claimed by its first touch, here through assistance_state, exactly once; the other session is then refused.
+    id: "A3-C03",
+    requires: ["db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const v = jalankan(c, ctx.repoRoot);
+      if (!v) return c.verdict("");
+      c.expect(v.klaim_B_pengendali === "true", `the first touch (assistance_state, session B) must claim the uncontrolled sitting: ${v.klaim_B_pengendali} (${v.klaim_B})`);
+      c.expect(v.klaim_A_ditolak === "PR170:SITTING_NOT_CONTROLLER", `once claimed, session A must be refused SITTING_NOT_CONTROLLER: ${v.klaim_A_ditolak}`);
+      c.expect(/^ok:/.test(v.klaim_B_lagi ?? "") && v.klaim_sekali === "true", `the claim must be once: B touches again and stays the controller: ${v.klaim_B_lagi} / ${v.klaim_sekali}`);
+      return c.verdict("executes assistance_state against the migrations, rolled back: a sitting whose controller is null is claimed by the first session to touch it; another session is then refused PR170 SITTING_NOT_CONTROLLER; the claimer's next touch leaves it the controller (claimed once)");
+    },
+  },
+  {
+    // Sharon 6e6e69d6: D8, the final answer after a generation bump
+    id: "A3-C04",
+    requires: ["db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const v = jalankan(c, ctx.repoRoot);
+      if (!v) return c.verdict("");
+      c.expect(/^ok:/.test(v.gen1_jawab ?? "") && /^ok:/.test(v.gen2_jawab ?? ""), `the controller's two answers must be accepted: ${v.gen1_jawab} / ${v.gen2_jawab}`);
+      c.expect(!!v.gen_akhir && v.gen_akhir !== "no-column" && v.gen_akhir === v.gen_akhir_harap,
+        `after the generation bump, the newer generation's answer (client_seq 2) must be final over the older's (client_seq 5): ${v.gen_akhir}; expected ${v.gen_akhir_harap}`);
+      return c.verdict("executes record_answer and session_final_responses against the migrations, rolled back: an answer at client_seq 5 under generation 1, then, after the generation is raised, an answer at client_seq 2: the final answer is the newer generation's, though its sequence is lower");
+    },
+  },
+  {
+    // Sharon 6e6e69d6: the insert trigger ASSIGNS the controller from the verified claims and generation 1, whatever the
+    // row supplied. Executed, then a plant in the same rolled-back transaction (a variant that keeps supplied values) is
+    // shown caught by the same check.
+    id: "A3-C05",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      const sql = `begin;
+do $c5$
+declare t record; v_lain uuid := gen_random_uuid(); v_sesi uuid := gen_random_uuid(); v_id uuid; r text; p text;
+begin
+  if to_regprocedure('public.assessment_sessions_pengendali()') is null then raise notice 'C5|no-trigger'; return; end if;
+  for t in select tgname from pg_trigger where tgrelid = 'public.assessment_sessions'::regclass and not tgisinternal
+             and tgname <> 'assessment_sessions_pengendali' loop
+    execute format('alter table public.assessment_sessions disable trigger %I', t.tgname);
+  end loop;
+  perform set_config('request.jwt.claims', json_build_object('sub', gen_random_uuid(), 'role', 'authenticated', 'session_id', v_sesi)::text, true);
+  v_id := gen_random_uuid();
+  execute 'insert into public.assessment_sessions select (jsonb_populate_record(s, jsonb_build_object(''id'', $1, ''pengendali_sesi'', $2, ''generasi'', 7))).*
+             from public.assessment_sessions s limit 1' using v_id, v_lain;
+  execute 'select (pengendali_sesi = $2)::text || ''/'' || generasi from public.assessment_sessions where id = $1' into r using v_id, v_sesi;
+  -- the plant: a trigger that keeps what the writer supplied
+  execute $p$create or replace function public.assessment_sessions_pengendali() returns trigger language plpgsql as $b$
+    begin new.pengendali_sesi := coalesce(new.pengendali_sesi, public.sesi_saya()); new.generasi := coalesce(new.generasi, 1); return new; end $b$$p$;
+  v_id := gen_random_uuid();
+  execute 'insert into public.assessment_sessions select (jsonb_populate_record(s, jsonb_build_object(''id'', $1, ''pengendali_sesi'', $2, ''generasi'', 7))).*
+             from public.assessment_sessions s limit 1' using v_id, v_lain;
+  execute 'select (pengendali_sesi = $2)::text || ''/'' || generasi from public.assessment_sessions where id = $1' into p using v_id, v_sesi;
+  raise notice 'C5|%|%', r, p;
+end $c5$;
+rollback;`;
+      const o = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-qAt", "-c", sql, db()], { encoding: "utf8" });
+      const baris = (o.stderr || "").split("\n").find((l) => /C5\|/.test(l)) ?? "";
+      const [, nyata, tanam] = (/C5\|([^|]*)\|?(.*)$/.exec(baris) ?? []);
+      if (!c.expect(o.status === 0, `the probe failed: ${(o.stderr || "").split("\n").find((l) => /ERROR/.test(l))}`)) return c.verdict("");
+      c.expect(nyata === "true/1", `a sitting inserted with a supplied controller and generation 7 must get the verified session and generation 1: ${nyata || baris}`);
+      c.expect(tanam === "false/7", `the plant (a trigger keeping supplied values) must be caught by the same check: ${tanam}`);
+      return c.verdict("executes an insert into assessment_sessions against the migrations, rolled back, the row supplying another controller and generation 7: the trigger assigns the verified session (sesi_saya()) and generation 1; a planted trigger that keeps the supplied values, installed in the same transaction, reads false/7 and is caught");
+    },
+  },
+  {
+    // Sharon 6e6e69d6 (a): the gate is not a boundary. Its callers are exactly the eight she named, each VOLATILE (a
+    // STABLE caller would fail only on the claim's path); EXECUTE is revoked from public, anon and authenticated; it has
+    // no client_rpc_registry row.
+    id: "A3-C06",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      const satu = (q: string) => spawnSync("psql", ["-qAt", "-c", q, db()], { encoding: "utf8" }).stdout.trim();
+      const HARAP = ["assistance_state", "finish_my_session", "note_item_view", "open_assistance", "pause_session", "record_answer", "resume_session", "submit_session"];
+      const pemanggil = satu(`select string_agg(distinct p.proname, ',' order by p.proname) from pg_proc p
+          where p.pronamespace = 'public'::regnamespace and p.proname <> 'pengerjaan_gerbang'
+            and (p.prosrc ~ 'pengerjaan_gerbang\\(' or (p.proname in ('finish_my_session', 'assistance_state', 'open_assistance')
+                 and exists (select 1 from pg_proc q where q.proname in ('submit_session', 'record_answer', 'pause_session', 'resume_session', 'note_item_view')
+                             and p.prosrc ~ (q.proname || '\\('))))`);
+      c.expect(pemanggil === HARAP.join(","), `the gate's callers must be exactly ${HARAP.join(", ")}: ${pemanggil}`);
+      const tidakVolatile = satu(`select coalesce(string_agg(proname, ','), '') from pg_proc where pronamespace = 'public'::regnamespace
+          and proname in (${HARAP.map((x) => `'${x}'`).join(",")}) and provolatile <> 'v'`);
+      c.expect(tidakVolatile === "", `the gate's callers must all be VOLATILE: ${tidakVolatile}`);
+      const hak = satu(`select has_function_privilege('anon', 'public.pengerjaan_gerbang(uuid, text)', 'execute')::text || '|'
+          || has_function_privilege('authenticated', 'public.pengerjaan_gerbang(uuid, text)', 'execute')::text || '|'
+          || (select count(*) from public.client_rpc_registry where function_name = 'pengerjaan_gerbang')`);
+      c.expect(hak === "false|false|0", `the gate must not be a boundary (anon, authenticated, registry rows): ${hak}`);
+      c.expect(/pengendali_sesi/.test(satu("select prosrc from pg_proc where proname = 'pengerjaan_gerbang'")), "the gate does not check the controller");
+      return c.verdict("reads the catalogue (prosrc, provolatile, the function ACL) and client_rpc_registry: pengerjaan_gerbang checks the controller; its callers are exactly record_answer, submit_session, pause_session, resume_session, finish_my_session, note_item_view, open_assistance and assistance_state, each VOLATILE; neither anon nor authenticated may execute it; it has no registry row");
     },
   },
   {
