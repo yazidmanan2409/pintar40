@@ -98,6 +98,22 @@ Sharon, 18 Nov 2026 (02:15 UTC). Read-only. Offline: no key exists, and no call 
 - **C-1:** yes (Q1, readers and writers). The note's claim and the code's behaviour were written separately, and no case covered a missing number.
 - **R-1:** partly (Q4, before and after). The stand-in sends only the event shapes the adapter expects.
 
+## Addendum · R-1, R-2 and C-1 confirmed (18 Nov 2026, 02:10 UTC)
+
+Read: `git diff 239a0211..88e33ec663297e2d1436c828d95236494f2f58d4 -- runner.mjs` (R-1) and `git diff 013903bc..d2a0210bc5f9b7778ee4b20b9ee55f8134120df4` (R-2, C-1, the rehearsal).
+- **R-1 met.**
+  - A part on a non-message item is tracked, so its events stay in order, and is counted in `reasoning_parts`. It takes the type `not-message:…`, so `textNow` never selects it.
+  - An `output_text` or refusal delta into it is still refused `bad_delta`.
+  - Red first at `239a0211`; the self-test is 262 by Bob's count.
+- **R-2 met.**
+  - `salin_dua` copies only `bab1.json` and `bab2.json`, and checks that the destination holds exactly those two files.
+  - It re-hashes each copy against the ledger's single `ok` entry for its chapter.
+  - One shared step serves the live and practice runs, and the rehearsal lists exactly those two files in `gabungan/anthropic`.
+- **C-1 met** in `OPENAI-READINESS.md`: "a missing number is tolerated", and "hashed only".
+- **Package:** `3f2ade8464fbd54dbf6e183106e1f49c9b78721a7a0b55850bb063a011924283` supersedes `bc2f3c0c`. `SOURCE-COMMIT` is pinned to `88e33ec6`.
+- **(a):** the attempt used per chapter is in `bab<n>.provenance.json`. It must reach the results before judging. **The owner decides (a).**
+- **Not a condition:** OpenAI's folder is still copied whole into PRIVAT/gabungan, `incomplete/` included. That is safe: the kit reads only `bab${b}.json`, and P-1 refuses `incomplete` in every outgoing folder.
+
 ## Still open, and not mine
 
 - C-1's wording, which needs no rebuild.
