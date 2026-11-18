@@ -33,7 +33,7 @@ Bob, 18 Nov 2026, about 10:00 UTC. **One list of everything that must be true, o
 | R-11 | Phone-width overflow on `/mengajar/[kelas]/siapa`, `soal` and `bukti` | Daisy | Daisy | Open |
 | R-12 | Daisy's N-1 to N-5, plus N-6 and N-7 (Kanonik keys) | A2b acceptance; Daisy `dde78004` | Daisy | N-6 and N-7 land in C3w-1; N-1 to N-5 to confirm |
 | R-13 | The three 4.0 rendered checks on staging (a night-issued certificate's date; the integrity count line; «Materi tanpa judul») | EXECUTION-PLAN §6 | Daisy, or a browser-capable person | Outstanding; before the walkthrough |
-| R-14 | **X-15** (planning audit): four readers treat a not-yet-started role as live (`studio_capabilities`, `refuse_duplicate_active_grant`, `sertifikat_koreksi_tolak`, `orang_dipegang`) | Second Eye, 18 Nov | Bob to triage | **Triage question:** is it reachable today? Future-dated starts are 4.2, but a `valid_from` in the future can be written now if any path sets it. Second Eye to answer in one line |
+| R-14 | **X-15** (planning audit): four readers treat a not-yet-started role as live (`studio_capabilities`, `refuse_duplicate_active_grant`, `sertifikat_koreksi_tolak`, `orang_dipegang`) | Second Eye, 18 Nov | Bob | **Triaged (Bob, 18 Nov): not reachable today.** Every product path that grants a role on `main` writes `valid_from` as `now()` (for example `the_last_administrator_is_never_removed`:383), and no RPC accepts a start date; only fixtures use past dates. A future start cannot exist until 4.2-02 adds one, so the four readers are restated **before 4.2-02** (planning audit X-15). Not a Z item |
 | R-15 | Non-blocking findings carried from 4.0, A1 and C1w ("with the batch that touches the same code, or in 4.2") | EXECUTION-PLAN §5 | Bob | Triage at Z; most go to 4.2 or the rationalisation audit |
 
 ## 3 · Z's other entry items
@@ -52,7 +52,7 @@ Bob, 18 Nov 2026, about 10:00 UTC. **One list of everything that must be true, o
   - R-12: confirm N-1 to N-5;
   - the X-1 paste test;
   - her vocabulary page (planning audit D-V).
-- **Second Eye:** R-14's one-line answer, at a natural pause in A3. R-8 is small but changes app code, so it is built
+- **Second Eye:** R-8 is small but changes app code, so it is built
   after A3, before C3w-1's Z commits.
 - **Bob:**
   - R-15's triage list;
