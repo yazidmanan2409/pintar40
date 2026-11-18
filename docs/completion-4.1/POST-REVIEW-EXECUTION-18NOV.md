@@ -11,6 +11,8 @@ No review-driven work enters `claude/a3`.
 
 ## 1 · D-1 to D-9 confirmed, with two points to clarify
 
+> **Owner, 18 Nov (ruling 56): C-1 approved; C-2 approved on condition** that any multi-answer content which could reach learners before the repair has its entry paths contained at once; **D-7's checkpoint set** at 25 Nov 2026, 17:00 WIB, as a return for a decision, never an automatic activation. **The walkthrough uses existing 4.1 functionality only.**
+
 All nine rulings are confirmed as written. Two points need the owner's reading. Until he answers, the defaults below
 apply.
 
@@ -109,7 +111,7 @@ backup settings. **The owner confirms them, or authorises a read.** No productio
 | Roles | Dr Gladys reviews educational meaning. The team only observes |
 | Preconditions | Z complete and on staging. **A fresh synthetic school on staging is a bounded staging write and needs the owner's authorisation** (§7) |
 
-## 6 · D-7: the proposed trigger date (AWAITING OWNER APPROVAL)
+## 6 · D-7: the checkpoint date (APPROVED as a checkpoint, ruling 56)
 
 > **Proposed:** if, by **Wednesday 25 November 2026, 17:00 WIB**, no provider has been qualified by the owner with its
 > limits set, Bob asks the owner to activate the J3 fallback.
