@@ -74,7 +74,7 @@ ${tanam ? `select pg_temp_sp_tanam();` : ""}
 create function pg_temp.sp_coba() returns text language plpgsql as $c$
 declare s text; dt text;
 begin
-  perform set_config('request.jwt.claims', json_build_object('sub', '${d.uid}', 'role', 'authenticated')::text, true);
+  perform set_config('request.jwt.claims', json_build_object('sub', '${d.uid}', 'role', 'authenticated', 'session_id', md5('selftest-sesi:' || ('${d.uid}')::text)::uuid)::text, true);
   perform public.start_learning_session('${AA_ADHOC}');
   return 'OK';
 exception when others then get stacked diagnostics s = returned_sqlstate, dt = pg_exception_detail; return s || ':' || coalesce(dt, '');
@@ -260,7 +260,7 @@ create temp table q12a on commit drop as select aa.* from public.assessment_assi
 update q12a set id = ${lit(AA_ADHOC)}, learning_assignment_id = null, assessment_definition_id = ${lit(D_ADHOC)}, opens_at = ${buka};
 insert into public.assessment_assignments select * from q12a;
 set local session_replication_role = origin;`;
-const sebagai = (uid: string) => `select set_config('request.jwt.claims', json_build_object('sub', '${uid}', 'role', 'authenticated')::text, true);`;
+const sebagai = (uid: string) => `select set_config('request.jwt.claims', json_build_object('sub', '${uid}', 'role', 'authenticated', 'session_id', md5('selftest-sesi:' || ('${uid}')::text)::uuid)::text, true);`;
 function daftarKasus(inst: string, murid: string, lain: string, jendela: string, buka = "now() - interval '1 day'"): string {
   const r = baris(`begin;
 ${adhocSql(inst, buka)}

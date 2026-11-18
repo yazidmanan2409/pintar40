@@ -48,7 +48,7 @@ function barisKunci(db: string, sql: string): { hasil: Record<string, string>; e
   for (const l of (r.stdout ?? "").split("\n")) { const i = l.indexOf("|"); if (i > 0) hasil[l.slice(0, i)] = l.slice(i + 1); }
   return { hasil, err: r.status === 0 ? "" : (r.stderr ?? "").trim().split("\n").filter((x) => /ERROR|DETAIL/.test(x)).join(" ") };
 }
-const sebagai = (uid: string) => `select set_config('request.jwt.claims', '{"sub":"${uid}","role":"authenticated"}', true);`;
+const sebagai = (uid: string) => `select set_config('request.jwt.claims', json_build_object('sub', '${uid}', 'role', 'authenticated', 'session_id', md5('selftest-sesi:' || '${uid}')::uuid)::text, true);`;
 const tanpaOrang = `select set_config('request.jwt.claims', '', true);`;
 
 /** pg_temp.a2b_coba(sql): runs the act in a subtransaction and undoes it, returning OK or sqlstate:detail.
@@ -134,7 +134,7 @@ export function dunia(db: string): Dunia {
 /** A sitting of `orang` in `kelas`, copied from the source, open since an hour ago, its own deadline as given. */
 const sesi = (d: Dunia, id: string, orang: string, enr: string, kelas: string, inst: string, tenggat: string) => `
 insert into public.assessment_sessions
-select (jsonb_populate_record(s, jsonb_build_object('id', '${id}', 'status', 'IN_PROGRESS', 'person_id', '${orang}',
+select (jsonb_populate_record(s, jsonb_build_object('pengendali_sesi', null, 'generasi', 1, 'id', '${id}', 'status', 'IN_PROGRESS', 'person_id', '${orang}',
   'enrollment_id', '${enr}', 'institution_id', '${inst}', 'class_node_id', '${kelas}', 'cohort_node_id', null,
   'authoritative_deadline', ${tenggat}, 'created_at', now() - interval '60 minutes', 'finalized_at', null, 'submitted_at', null,
   'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
@@ -208,7 +208,7 @@ const SENDIRI = (d: Dunia) => `set local session_replication_role = replica;
 delete from public.assessment_sessions where person_id = '${d.murid}' and id not in ('${d.SA}', '${d.SB}', '${d.SY}') and status <> 'FINALIZED';
 select 'lain|' || count(*) from public.assessment_sessions where person_id = '${d.murid}' and id not in ('${d.SA}', '${d.SB}', '${d.SY}') and status <> 'FINALIZED';`;
 const mulai = (d: Dunia, orang: string, enr: string, kelas: string, tenggat: string) => `$q$insert into public.assessment_sessions
-select (jsonb_populate_record(s, jsonb_build_object('id', gen_random_uuid(), 'status', 'CREATED', 'person_id', '${orang}',
+select (jsonb_populate_record(s, jsonb_build_object('pengendali_sesi', null, 'generasi', 1, 'id', gen_random_uuid(), 'status', 'CREATED', 'person_id', '${orang}',
   'enrollment_id', '${enr}', 'institution_id', '${d.X}', 'class_node_id', '${kelas}', 'cohort_node_id', null, 'created_at', now(),
   'authoritative_deadline', ${tenggat}, 'started_at', null, 'finalized_at', null, 'submitted_at', null,
   'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,

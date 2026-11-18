@@ -684,7 +684,7 @@ const SESI_L03 = "a2a10300-0000-4000-8000-000000000001";
 function sesiL03(db: string): string {
   return psql1(db, `begin; set local session_replication_role = replica;
     insert into public.assessment_sessions
-    select (jsonb_populate_record(s, jsonb_build_object('id', '${SESI_L03}', 'status', 'IN_PROGRESS',
+    select (jsonb_populate_record(s, jsonb_build_object('pengendali_sesi', null, 'generasi', 1, 'id', '${SESI_L03}', 'status', 'IN_PROGRESS',
       'authoritative_deadline', now() - interval '1 day', 'finalized_at', null, 'submitted_at', null,
       'closure_kind', null, 'closure_at', null, 'frozen_at', null, 'unfrozen_at', null))).*
       from public.assessment_sessions s where s.status = 'FINALIZED' order by s.id limit 1;

@@ -432,7 +432,7 @@ end $r$; select current_setting('a3.r2i');`);
       };
       if (!c.expect(siap.status === 0 && !!aa && !!enrol, `the race cannot be set up: ${(siap.stderr || baris).trim().split("\n").find((l) => /ERROR/.test(l)) ?? baris}`)) { bersihkan(); return c.verdict(""); }
       try {
-        const sebagai = `select set_config('request.jwt.claims', json_build_object('sub','${uid}','role','authenticated')::text, true), set_config('request.jwt.claim.sub','${uid}',true); set local role authenticated;`;
+        const sebagai = `select set_config('request.jwt.claims', json_build_object('sub','${uid}','role','authenticated','session_id', md5('selftest-sesi:' || '${uid}')::uuid)::text, true), set_config('request.jwt.claim.sub','${uid}',true); set local role authenticated;`;
         const boleh = psql(`begin; ${sebagai} select ok::text || ':' || coalesce(reason, '') from public.may_start_assessment('${aa}'); rollback;`).stdout.trim().split("\n").pop();
         if (!c.expect(boleh === "true:OK" || boleh === "true:", `the learner cannot start the cycle's Pemetaan Awal (the race cannot be set up): ${boleh}`)) return c.verdict("");
         const tanda = `a3-r2i-s-${Date.now().toString(36)}`;

@@ -286,7 +286,7 @@ async function runEndingAndDepartureWithoutDeadlock(dbUrl: string): Promise<Outc
   const id = "F37-R05";
   const gagal = (detail: string): Outcome => ({ id, runner: "db", status: "FAIL", detail });
   const sebagai = (uid: string) =>
-    `select set_config('request.jwt.claims', json_build_object('sub','${uid}','role','authenticated')::text, true), ` +
+    `select set_config('request.jwt.claims', json_build_object('sub', '${uid}', 'role', 'authenticated', 'session_id', md5('selftest-sesi:' || ('${uid}')::text)::uuid)::text, true), ` +
     `set_config('request.jwt.claim.sub','${uid}',true); set local role authenticated;`;
   const keadaan = (tanda: string) =>
     psql(`select coalesce(wait_event_type, '') || ':' || coalesce(wait_event, '') from pg_stat_activity where query like '%${tanda}%' and pid <> pg_backend_pid()`).stdout.trim();
@@ -397,7 +397,7 @@ async function runStartsAndEndingWithoutDeadlock(dbUrl: string): Promise<Outcome
   const id = "F37-R04";
   const gagal = (detail: string): Outcome => ({ id, runner: "db", status: "FAIL", detail });
   const sebagai = (uid: string) =>
-    `select set_config('request.jwt.claims', json_build_object('sub','${uid}','role','authenticated')::text, true), ` +
+    `select set_config('request.jwt.claims', json_build_object('sub', '${uid}', 'role', 'authenticated', 'session_id', md5('selftest-sesi:' || ('${uid}')::text)::uuid)::text, true), ` +
     `set_config('request.jwt.claim.sub','${uid}',true); set local role authenticated;`;
   const keadaan = (tanda: string) =>
     psql(`select coalesce(wait_event_type, '') || ':' || coalesce(wait_event, '') from pg_stat_activity where query like '%${tanda}%' and pid <> pg_backend_pid()`).stdout.trim();
@@ -498,7 +498,7 @@ async function runAttemptLimitRaceKeyMoves(dbUrl: string): Promise<Outcome> {
   const id = "F37-R03";
   const gagal = (detail: string): Outcome => ({ id, runner: "db", status: "FAIL", detail });
   const sebagai = (uid: string) =>
-    `select set_config('request.jwt.claims', json_build_object('sub','${uid}','role','authenticated')::text, true), ` +
+    `select set_config('request.jwt.claims', json_build_object('sub', '${uid}', 'role', 'authenticated', 'session_id', md5('selftest-sesi:' || ('${uid}')::text)::uuid)::text, true), ` +
     `set_config('request.jwt.claim.sub','${uid}',true); set local role authenticated;`;
   const keadaan = (tanda: string) =>
     psql(`select coalesce(wait_event_type, '') || ':' || coalesce(wait_event, '') from pg_stat_activity where query like '%${tanda}%' and pid <> pg_backend_pid()`).stdout.trim();
@@ -623,7 +623,7 @@ async function runAttemptLimitRaceAcrossAssignments(dbUrl: string): Promise<Outc
   const id = "F37-R02";
   const gagal = (detail: string): Outcome => ({ id, runner: "db", status: "FAIL", detail });
   const sebagai = (uid: string) =>
-    `select set_config('request.jwt.claims', json_build_object('sub','${uid}','role','authenticated')::text, true), ` +
+    `select set_config('request.jwt.claims', json_build_object('sub', '${uid}', 'role', 'authenticated', 'session_id', md5('selftest-sesi:' || ('${uid}')::text)::uuid)::text, true), ` +
     `set_config('request.jwt.claim.sub','${uid}',true); set local role authenticated;`;
   // a learner one attempt short of a limit who may start now (asked of the product's own may_start_assessment)
   const calon = psql(`select a.id || '|' || ac.auth_user_id || '|' || e.person_id from public.assessment_assignments a
@@ -739,7 +739,7 @@ async function runAttemptLimitRaceAcrossRevisions(dbUrl: string): Promise<Outcom
   const id = "F37-R06";
   const gagal = (detail: string): Outcome => ({ id, runner: "db", status: "FAIL", detail });
   const sebagai = (uid: string) =>
-    `select set_config('request.jwt.claims', json_build_object('sub','${uid}','role','authenticated')::text, true), ` +
+    `select set_config('request.jwt.claims', json_build_object('sub', '${uid}', 'role', 'authenticated', 'session_id', md5('selftest-sesi:' || ('${uid}')::text)::uuid)::text, true), ` +
     `set_config('request.jwt.claim.sub','${uid}',true); set local role authenticated;`;
   // a learner one attempt short of a limit who may start now (asked of the product's own may_start_assessment)
   const calon = psql(`select a.id || '|' || ac.auth_user_id || '|' || e.person_id from public.assessment_assignments a
@@ -864,7 +864,7 @@ async function runAttemptLimitRace(dbUrl: string): Promise<Outcome> {
   const id = "F37-R01";
   const gagal = (detail: string): Outcome => ({ id, runner: "db", status: "FAIL", detail });
   const sebagai = (uid: string) =>
-    `select set_config('request.jwt.claims', json_build_object('sub','${uid}','role','authenticated')::text, true), ` +
+    `select set_config('request.jwt.claims', json_build_object('sub', '${uid}', 'role', 'authenticated', 'session_id', md5('selftest-sesi:' || ('${uid}')::text)::uuid)::text, true), ` +
     `set_config('request.jwt.claim.sub','${uid}',true); set local role authenticated;`;
   // a learner one attempt short of a limit, who may start now (asked of the product's own may_start_assessment)
   const calon = psql(`select a.id || '|' || ac.auth_user_id from public.assessment_assignments a
@@ -1109,7 +1109,7 @@ async function runIdentityConcurrency(dbUrl: string, only: string[] | null | und
       const nama = `balap.${Date.now().toString(36)}`;
       const sebagai = (uid: string) =>
         `select set_config('request.jwt.claim.sub','${uid}',true); ` +
-        `select set_config('request.jwt.claims','{"sub":"${uid}","role":"authenticated"}',true); set local role authenticated;`;
+        `select set_config('request.jwt.claims',json_build_object('sub', '${uid}', 'role', 'authenticated', 'session_id', md5('selftest-sesi:' || '${uid}')::uuid)::text,true); set local role authenticated;`;
       const marker = "pg_sleep(1.617)";
       const holder = race(`begin; ${sebagai(a)} select public.claim_username('${nama}'); select ${marker}; commit;`);
       if (!(await asleep(marker))) {
@@ -1207,7 +1207,7 @@ async function runMoveStartRace(dbUrl: string): Promise<Outcome> {
   }
   const sebagai = (uid: string) =>
     `select set_config('request.jwt.claim.sub','${uid}',true); ` +
-    `select set_config('request.jwt.claims','{"sub":"${uid}","role":"authenticated"}',true); set local role authenticated;`;
+    `select set_config('request.jwt.claims',json_build_object('sub', '${uid}', 'role', 'authenticated', 'session_id', md5('selftest-sesi:' || '${uid}')::uuid)::text,true); set local role authenticated;`;
   const marker = "pg_sleep(1.735)";
   const mover = race(`begin; ${sebagai(admin)} select public.move_learning_assignment_release('${la}', '${baru}', 'f05-c01 balapan'); ` +
     `select ${marker}; commit;`);
@@ -1334,7 +1334,7 @@ async function runStructureConcurrency(dbUrl: string, only: string[] | null | un
     if (!tingkat || !uid || !staf) { out.push(fail(`fixture returned nothing usable: ${fixture.stdout.trim()}`)); continue; }
     const claim =
       `select set_config('request.jwt.claim.sub','${uid}',true);` +
-      ` select set_config('request.jwt.claims','{"sub":"${uid}","role":"authenticated"}',true);`;
+      ` select set_config('request.jwt.claims',json_build_object('sub', '${uid}', 'role', 'authenticated', 'session_id', md5('selftest-sesi:' || '${uid}')::uuid)::text,true);`;
     const marker = `pg_sleep(1.3${k.id.slice(-1)}7)`;
     const holder = race(`begin; ${claim} ${k.holder(tingkat, uid, staf)}; select ${marker}; commit;`);
     if (!(await asleep(marker))) { await holder; out.push(fail("the holder never held its transaction open within 20 s")); continue; }
@@ -1453,7 +1453,7 @@ async function runFeedbackConcurrency(dbUrl: string): Promise<Outcome> {
   // the learner's session, set the way auth.uid() actually reads it
   const claim =
     `select set_config('request.jwt.claim.sub','${uid}',true);` +
-    ` select set_config('request.jwt.claims','{"sub":"${uid}","role":"authenticated"}',true);`;
+    ` select set_config('request.jwt.claims',json_build_object('sub', '${uid}', 'role', 'authenticated', 'session_id', md5('selftest-sesi:' || '${uid}')::uuid)::text,true);`;
   const submit = `select public.submit_feedback('${cycle}'::uuid, '${sheet}'::jsonb);`;
 
   const race = (sql: string) =>
