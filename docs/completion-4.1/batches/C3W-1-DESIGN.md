@@ -1,5 +1,7 @@
 # C3w-1 · AI-assisted question drafting, built to the local stub · the pre-build design
 
+> **Sharon's pre-build review, 18 Nov (`6a63bdee`, `C3W-1-DESIGN-6e3c4231.md`): ACCEPTED as the starting page, with five conditions.** They and her answers to §8 are adopted in §9 below, and §9 governs where it differs from §3 to §8. Daisy's words: `dde78004`.
+
 Bob, Chief Architect, 18 November 2026. **DRAFT for Sharon's and Daisy's pre-build review** (`PLAN-A3-C3W-Z.md` §3.4).
 **It adds no scope.** It gathers what is already decided into one buildable page, and names the objects, codes and red-first
 tests before the build. The governing sources are:
@@ -168,3 +170,48 @@ self-selection of an option, and a school-facing comparison.
 
 **For the owner:** nothing now. Decision 3 comes only if the review cannot settle it. C3w-2's inputs (the qualification,
 the limits, the key) come after E.
+
+## 9 · Sharon's review (`6a63bdee`): conditions and answers, adopted
+
+**Conditions:**
+- **D-1 · Identity from the session.** The requester and the school come from the verified session: authenticated
+  definers, using `current_person_id`. The service functions take only a request id or an attempt id, never a person
+  or a school.
+- **D-2 · "Sending" is a conditional claim.** The claim is `update … set dikirim_at = now() where id = $1 and keadaan =
+  'RESERVED' and dikirim_at is null`. A row count other than 1 means no call. This stops the sweep releasing an
+  attempt that is then sent.
+- **D-3 · The missing transition, and only forward.** An attempt marked as sending but never ended, older than the hard
+  timeout plus 5 minutes, becomes UNRECONCILED.
+  - Every transition is a guarded update.
+  - Nothing leaves SETTLED or RELEASED. A trigger enforces this, with a plant.
+- **D-4 · Lock the option row too.** Its ceiling is shared across schools.
+  - The lock order is school, then option, then platform. It applies to reserving, settling, releasing and
+    reconciling alike.
+  - The three tables join A2A-L01's ranks.
+  - This answers §4.1: the platform row is locked on every reservation, after the option row.
+- **D-5 · The stub only under the harness's explicit flag.** Anywhere else, a missing adapter means
+  `AI_TIDAK_TERSEDIA`, so a staging entitlement can never write fabricated drafts. This replaces §5's "selected when no
+  real adapter is configured".
+- **R-3, control 4.** `excerpt_sha256` is null on `REFUSED_PERSONAL_DATA`, by a check constraint. The bounded reference
+  holds no text.
+
+**Answers to §8:**
+1. The per-educator limit is folded into `ai_hak_sekolah` as a nullable `batas_per_pendidik`. There is no
+   `ai_batas_pendidik` table.
+2. Acceptance is an append-only log with a guard; the latest row is the current decision.
+3. The platform row is locked on every reservation, after the option row (D-4).
+4. The timings:
+   - a hold is flagged at 24 hours;
+   - RESERVED without sending is released at 10 minutes;
+   - sending with no end becomes UNRECONCILED at the hard timeout plus 5 minutes;
+   - there are at most 2 retries, so 3 attempts in all.
+5. Reconciliation is sound given D-2 and D-3. It is operator-run, audited and forward-only. Clearing the platform's
+   stop is its own audited act.
+6. **Decision 3** is settled by Sharon's rule **if its usability evidence passes**. That evidence runs in C3w-1, since
+   it is local. It goes to the owner only if tuning cannot meet the targets.
+
+**Daisy (`dde78004`):** every state and every PR220 code has a sentence. The model's display name appears in staff copy
+only (ruling 40). Z-2, Z-3, N-6 and N-7 come first on the branch (§1).
+
+**Pre-build review complete.** The build starts after A3 closes. Second Eye restates this page as the batch's own,
+§9 included.
