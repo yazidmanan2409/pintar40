@@ -430,7 +430,7 @@ export const VERSI = [
           apa: "Admin sekolah akan dapat menambahkan satu orang tanpa membuat berkas pendataan, dan membetulkan nama seseorang setelah akunnya aktif. Satu orang tetap satu identitas.",
           manfaat: "Murid pindahan atau guru baru di tengah tahun dapat didata dengan cepat.",
           contoh: "Seorang murid pindahan datang pada bulan Oktober. Admin sekolah menambahkannya langsung, tanpa menyiapkan berkas Excel.",
-          status: "P" },
+          status: "P", catatan: "Pemeriksaan keaslian sertifikat tidak pernah menampilkan nama. Ini sudah berlaku sekarang, bukan keputusan baru." },
         { id: "42-koreksi-struktur", nama: "Koreksi struktur sekolah", untuk: "Admin sekolah",
           apa: "Admin sekolah akan dapat mengaktifkan kembali atau memindahkan kelas, mengganti nama sekolah, dan membatalkan satu putaran kenaikan kelas sekaligus. Izin, jejak audit, dan catatan sejarah tetap dijaga.",
           manfaat: "Kekeliruan administrasi dapat diperbaiki tanpa bantuan tim PINTAR.",

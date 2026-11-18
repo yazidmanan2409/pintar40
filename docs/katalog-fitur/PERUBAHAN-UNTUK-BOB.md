@@ -91,3 +91,10 @@ This follows owner ruling 53 (`4a049c7a`, claude/bob-41-master-plan) and Bob's m
 - The 4.1 introduction now says eight of ten stages are on staging; one is in progress, and one is designed but not built.
 
 With this, every open point from Bob's verification is applied.
+
+### Bob's final answers (18 Nov, 09:45 UTC)
+
+- **«Pemetaan pemahaman keliru»:** confirmed.
+- **`42-satu-orang`:** confirmed, with one precision, now applied. "Verification never shows a name" is printed as a note on the entry, as today's behaviour: «Pemeriksaan keaslian sertifikat tidak pernah menampilkan nama. Ini sudah berlaku sekarang, bukan keputusan baru.» The open choice is now only what happens to certificates already issued.
+
+Bob has verified the catalogue for the final export. The owner publishes.
