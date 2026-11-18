@@ -12,6 +12,19 @@ evidence. Production itself was not read.
 `docs/recovery/RECOVERY-CHARTER.md`, measured by the journey status on `docs/recovery/RECOVERY-BOARD.md`. This register
 feeds that phase; it does not replace it.
 
+## The operating envelope (owner, 18 Nov; ruling 57)
+
+**The first use is a pilot of 10 adults:** no children; one school; one class; up to 10 people active at once;
+existing features only. Any increase needs a new owner decision.
+
+- **Capacity (PR-10): no upgrade indicated.** 10 learners starting together on Micro: database CPU 3%, save p95
+  819 ms (efficiency audit of 2 Oct, run 36963146820). The real app at 50 learners: correct, database CPU 15%.
+- **The leader page (PR-11):** about 7 requests for one class. **Not needed for the pilot**; it stays a GAP for a school
+  cohort.
+- **Support:** one named first-line contact, plus a second production administrator.
+
+The proposal is `PILOT-10-ADULTS-PROPOSAL.md`.
+
 ## The register
 
 **States:** EXISTS-ON (built, switched on and evidenced) · EXISTS-OFF (built, not switched on) · PARTIAL · GAP ·
@@ -28,7 +41,7 @@ UNKNOWN (needs the owner or a read).
 | PR-7 | **Restore of the database** | A native restore rehearsed (8 min 03 s on staging); a logical restore plus the posture step gives 24/24 PASS | `JOURNEY-LOG.md` G2; W9.12 (run 42174482669) | **PARTIAL** | Repeat once on the release candidate's data shape, timed | Sharon + owner | A timed restore on the candidate |
 | PR-8 | **Restore of stored files; Auth and SMTP settings; secrets outside the database** | Metadata only; reconstruction procedures | W9.12 "still outside what it proves"; W9.9 "implemented, not verified" | **GAP** | Rehearse W9.9 (configuration reconstruction) once; one file-restore check | Second Eye + owner (billable) | Files and settings recovered in a rehearsal |
 | PR-9 | **Point-in-time recovery** | Not enabled; daily physical backups (owner screenshots, 5 Oct) | `JOURNEY-LOG.md` G1 | **UNKNOWN today** (was off) | Owner decides whether the recovery point (about 24 h) is acceptable for the first use | Owner | A recovery point stated and accepted |
-| PR-10 | **Capacity** | Both databases on the Micro tier; load test L1 failed on Micro (p95 11.7 s, pool exhausted); the 50-learner browser run passed | `A-CURRENT-STATE` §83–84; October efficiency audit | **GAP for any real class** | Size the first use's envelope (for example one class of 40); run the existing L1 or perf on the candidate tier; upgrade only if it fails | Owner (tier cost) + Second Eye | The load test passes on the chosen tier for the stated envelope |
+| PR-10 | **Capacity** | Both databases on the Micro tier; load test L1 failed on Micro (p95 11.7 s, pool exhausted); the 50-learner browser run passed | `A-CURRENT-STATE` §83–84; October efficiency audit | **Met for the 10-adult envelope** (evidence above); a GAP for a school cohort | None for the pilot. Before any larger cohort: L1 on the candidate tier, upgrade only if it fails | Owner (tier cost) + Second Eye | The load test passes on the chosen tier for the stated envelope |
 | PR-11 | **The leader page's unbounded fan-out** | — | **Confirmed (Sharon):** 7 concurrent RPCs per class, unbounded | **GAP** | A concurrency limit, if the envelope includes a leader page | Sharon → Second Eye | Measured within the envelope |
 | PR-12 | **Error capture** (application errors reaching someone) | An error page with a reference code; «Laporkan masalah» | Review P (cited); no error service in the repository | **GAP** | The smallest option: route the existing problem report and server errors to a monitored mailbox, before any paid service | Owner | One induced error reaches a named person |
 | PR-13 | **Scheduled-job failure** | Two jobs declared once and checked; a failure warns in the database | `20270116110000` | **PARTIAL** | Have PR-4's watch read the job health it already exposes | Second Eye | A failed job is seen by the watch |
@@ -56,7 +69,7 @@ UNKNOWN (needs the owner or a read).
 - **PRQ-1 · PR-4 to PR-6:** switch the watch on now? It is read-only, and Sharon can induce the test failure. The backup
   and the drill wait for the bucket and recipients to be confirmed. **Bob recommends the watch now,** and the backup and
   drill once PR-5's settings are confirmed.
-- **PRQ-2 · The first use's envelope:** for example "one adult pilot group" or "one class of 40". It sizes PR-10, PR-9 and
+- **PRQ-2 · The first use's envelope: DECIDED** (10 adults, ruling 57). Was: for example "one adult pilot group" or "one class of 40". It sizes PR-10, PR-9 and
   PR-15.
 - **PRQ-3 · PR-1 and PR-2:** start the counsel engagement scoped to the first use.
 
