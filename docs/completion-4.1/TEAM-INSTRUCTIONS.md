@@ -46,6 +46,16 @@ E's three owner decisions (providers, scoring rules, judges) stay visible in sta
 
 **Principles:** no silent scope expansion; no bypassed security or deployment gates; no false completion claims.
 
+## C2w ON STAGING (18 Nov 2026, about 09:12 UTC); Sharon's promotion check pending
+
+- **The owner's authorisations (18 Nov):** the before-read; then the merge, the promotion 282 → 284, the after-read and the hosted checks.
+- **Before-read:** read only on `pintar-staging` at 07:54:50 UTC; 282 / `20270120240000` (`d688c7c7`).
+- **Merge:** the repository rule required the PR's own `pull_request` CI, so the owner chose a documentation-only head, `b57d897a` (= `aa5f5741` + `C2W-MERGE-HEAD.md`). PR CI 44267902485 passed. [PR #25](https://github.com/yazidmanan2409/pintar40/pull/25) was merged as `7ba18b03`, whose tree is identical to `b57d897a`.
+- **Staging:** `staging.yml` 44272691283 passed.
+- **After-read** (same cutoff and watermark; `5f18b25b`): only line 10 moved, 282 → 284 / `20270121110000`, and the versions digest equals main's. Every preserved line is identical; `release_distributions` (lines 65 and 66) is unchanged; line 68 = 0.
+- **Hosted:** pg_cron job 5 succeeded at 09:05 and 09:10 UTC; job 6 is intact; C2w adds no job. environment-facts 44273100341: success.
+- **Rollback position,** as for A2a and A2b: a reviewed forward fix, or a staging backup restore under the owner's authorisation.
+
 ## C2w FROZEN at `aa5f5741d0bb8574986f055458a05d9f714e277f` (18 Nov 2026, about 02:30 UTC)
 
 **The product commit is `6b6f31c548b1797509c34bff4dd8f606b9efaad9`.** `aa5f5741` adds documentation only: the candidate note and the dry-run outputs. Bob checked that no code file differs. All evidence below is on these two SHAs:
