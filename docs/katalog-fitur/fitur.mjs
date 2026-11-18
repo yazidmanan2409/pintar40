@@ -565,7 +565,7 @@ export const VERSI = [
   // ════════════════════════════════════════════════════════════ 5.0
   {
     v: "5.0", judul: "Bertindak dan Berkembang", id: "v50",
-    pengantar: "PINTAR 5.0 membantu pendidik bertindak atas temuan, mengamati hasilnya, dan memperbaiki praktiknya. Versi ini bergantung pada fondasi pengukuran dari 4.5. Bab ini menjelaskan arah yang sudah disetujui pemilik PINTAR. Fitur-fiturnya belum dibangun, dan rinciannya akan ditetapkan dalam rencana 5.0. Nama fitur di bab ini masih nama kerja.",
+    pengantar: "PINTAR 5.0 membantu pendidik bertindak atas temuan, mengamati hasilnya, dan memperbaiki praktiknya. Versi ini bergantung pada fondasi pengukuran dari 4.5. Bab ini menjelaskan arah yang sudah disetujui pemilik PINTAR. Fitur-fiturnya belum direncanakan dan belum dibangun; pelaksanaannya memerlukan perencanaan dan persetujuan tersendiri. Nama fitur di bab ini masih nama kerja.",
     alur: { judul: "Siklus perbaikan PINTAR", langkah: ["Memahami", "Memilih", "Bertindak", "Mengamati", "Membandingkan", "Merenungkan", "Memperbaiki"] },
     tidak: ["memeringkat guru berdasarkan pertumbuhannya", "menyusun jalur belajar sendiri tanpa guru", "menyediakan penyusun alur kerja umum", "membuat dasbor rakitan pengguna"],
     kelompok: [

@@ -93,8 +93,8 @@ tr { break-inside: avoid; }
 .tidak li { margin-bottom: .8mm; }
 .alur { margin: 2mm 0 4mm; }
 .alur figcaption { font-size: 9pt; font-weight: 800; color: var(--teal); margin-bottom: 1.6mm; }
-.alur ol { list-style: none; margin: 0; padding: 0; display: flex; gap: 1.6mm; flex-wrap: wrap; counter-reset: a; }
-.alur li { counter-increment: a; flex: 1 1 0; min-width: 20mm; border: .4mm solid var(--teal); border-radius: 2mm; padding: 2mm 2.4mm; font-size: 9pt; font-weight: 700; color: var(--teal); position: relative; }
+.alur ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(var(--kolom, 5), minmax(0, 1fr)); gap: 1.6mm; counter-reset: a; }
+.alur li { counter-increment: a; min-width: 0; overflow-wrap: anywhere; hyphens: auto; border: .4mm solid var(--teal); border-radius: 2mm; padding: 2mm 2.4mm; font-size: 9pt; font-weight: 700; color: var(--teal); position: relative; }
 .alur li::before { content: counter(a); display: block; font-size: 8pt; color: var(--tinta-2); font-weight: 600; }
 .alur li:last-child { background: var(--teal); color: #fff; }
 .alur li:last-child::before { color: #CFE3E0; }

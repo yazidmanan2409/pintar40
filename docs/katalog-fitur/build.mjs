@@ -46,7 +46,7 @@ const fitur = (f) => `
 </article>`;
 
 const alur = (a) => `
-<figure class="alur"><figcaption>${esc(a.judul)}</figcaption>
+<figure class="alur" style="--kolom:${a.langkah.length > 5 ? Math.ceil(a.langkah.length / 2) : a.langkah.length}"><figcaption>${esc(a.judul)}</figcaption>
   <ol>${a.langkah.map((l) => `<li>${esc(l)}</li>`).join("")}</ol>
 </figure>`;
 

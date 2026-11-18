@@ -11,3 +11,4 @@
 - `fonts/`: Plus Jakarta Sans and Inter Bold (wordmark), with their SIL OFL licences.
 
 Status is as of 18 November 2026. The catalogue is **not final** until Bob has verified the inventory and version assignments.
+- `cek-luapan.mjs`: overflow check for `katalog.html`. Run it after every build, at 794 px (A4) and at 650 px; it must print "no overflow".
