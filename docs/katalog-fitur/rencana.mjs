@@ -1,13 +1,13 @@
 // Planning state, open choices and dependencies for 4.2, 4.5 and 5.0 entries, in reader terms.
-// Source: Bob's planning-completeness audit for 4.2/4.5/5.0 (revision 4, 18 Nov 2026, with Sharon's and
-// Daisy's reviews), docs/roadmap/PLANNING-AUDIT-4.2-4.5-5.0.md on the 4.1 master-plan branch. Internal
+// Source: Bob's planning-completeness audit for 4.2/4.5/5.0 (revision 6, 71a6f87e, 18 Nov 2026, with Sharon's,
+// Daisy's and Second Eye's reviews), docs/roadmap/PLANNING-AUDIT-4.2-4.5-5.0.md on the 4.1 master-plan branch. Internal
 // decision codes are kept here for checking only; they are never printed.
 export const RENCANA = {
   // ── 4.2
   "42-mode-ujian": { keadaan: "UNRESOLVED", kode: "4.2-01 / D-01", terbuka: "Apa yang dimaksud Mode Ujian: aturan mulai, perangkat, dan apa yang boleh diubah guru; serta akomodasi bagi murid yang memerlukan waktu atau bantuan tambahan." },
   "42-jabatan": { keadaan: "UNRESOLVED", kode: "4.2-02 / D-02", terbuka: "Apakah jabatan memberi kewenangan atau hanya menggambarkan tanggung jawab, dan apakah pelaksana tugas mendapat kewenangan penuh." },
   "42-dua-sekolah": { keadaan: "UNRESOLVED", kode: "4.2-03 / D-03", terbuka: "Apakah penangguhan oleh Admin PINTAR, karena alasan yang muncul di satu sekolah, mengakhiri pekerjaan orang itu di semua sekolah." },
-  "42-satu-orang": { keadaan: "UNRESOLVED", kode: "4.2-06a/b / D-06", terbuka: "Siapa yang boleh membetulkan nama setelah aktivasi, dan bagaimana nama itu tampil pada catatan dan sertifikat yang sudah terbit." },
+  "42-satu-orang": { keadaan: "UNRESOLVED", kode: "4.2-06a PARTIAL / 4.2-06b UNRESOLVED (D-06)", terbuka: "Menambah satu orang dapat direncanakan sekarang, dan pembetulan nama itu sendiri dapat dirancang. Yang masih menunggu keputusan: bagaimana sertifikat yang sudah terbit diperlakukan setelah nama dibetulkan. Pemeriksaan keaslian sertifikat tidak pernah menampilkan nama, sehingga pembetulan nama tidak terlihat dari sana." },
   "42-koreksi-struktur": { keadaan: "UNRESOLVED", kode: "4.2-11 / D-11a, D-11b", terbuka: "Nama mana yang tampil di cetakan, sertifikat, dan pemeriksaan keaslian lama setelah sekolah berganti nama; dan sampai kapan satu putaran kenaikan kelas masih dapat dibatalkan." },
   "42-tanpa-guru": { keadaan: "COMPLETE", kode: "4.2-09" },
   "42-serah-terima": { keadaan: "PARTIAL", kode: "4.2-13", terbuka: "Batasnya sedang ditegaskan: hanya pekerjaan kelas, bukan draf, catatan peninjau, atau permintaan AI milik guru yang pergi." },
@@ -20,6 +20,7 @@ export const RENCANA = {
   // ── 4.5 (approved direction; design and policy work ahead)
   "45-kecerdasan-soal": { keadaan: "PARTIAL", kode: "4.5-01", terbuka: "Rancangan dan pengujian terkendali dapat dimulai; kesimpulan nyata memerlukan bukti dari kelas." },
   "45-perbaikan-statistik": { keadaan: "PARTIAL", kode: "4.5-01 / RD-4", terbuka: "Dugaan keterbatasan perhitungan harus dibuktikan dulu saat sistem berjalan." },
+  "45-pemahaman-keliru": { keadaan: "UNRESOLVED", kode: "4.5-09 / R-3, D-45-09", terbuka: "Apakah memakai kode pemahaman keliru yang terstruktur, dan apakah catatan bebas peninjau boleh menjadi sumbernya. Saat ini catatan itu tidak boleh dipakai." },
   "45-kompetensi": { keadaan: "UNRESOLVED", kode: "4.5-02, 4.5-03 / R-5", terbuka: "Jangkar identitas kompetensi, dan siapa yang boleh memetakan materi sekolah ke sebuah kompetensi." },
   "45-empat-pernyataan": { keadaan: "PARTIAL", kode: "4.5-04" },
   "45-sebaran": { keadaan: "PARTIAL", kode: "4.5-05", bergantung: "Kecerdasan Soal, kesebandingan asesmen, dan identitas kompetensi." },

@@ -80,13 +80,13 @@ const IKHTISAR = [
     status: () => `${tanda("T")}${hitung("4.1", (f) => f.status === "T")} diterima di lingkungan uji · ${tanda("D")}${hitung("4.1", (f) => f.status === "D")} sedang dikembangkan · ${tanda("R")}${hitung("4.1", (f) => f.status === "R")} selesai dirancang.<br>${tanda("S")}Belum tersedia di sekolah. Sekolah menerimanya setelah 4.1 diuji sebagai satu kesatuan, ditinjau bersama para pendidik, dan disetujui pemilik PINTAR.` },
   { v: "4.2", id: "v42", tujuan: "Melengkapi pekerjaan operasional yang ditunda.",
     kemampuan: "Mode Ujian, jabatan dan peran di dua sekolah, administrasi sekolah dan akun, serah terima kelas, ekspor data sekolah, dan laporan periode lalu.",
-    status: () => `${tanda("P")}Direncanakan. Keadaan perencanaan: ${hitungKeadaan("4.2", "COMPLETE")} siap, ${hitungKeadaan("4.2", "PARTIAL")} sebagian siap, ${hitungKeadaan("4.2", "UNRESOLVED")} menunggu keputusan.<br>Pilihan kebijakan yang masih terbuka antara lain: arti Mode Ujian dan akomodasinya, data yang boleh diekspor, tampilan laporan periode lalu, wewenang atas orang yang bekerja di dua sekolah, dan penempatan statistik Kesehatan soal terjadwal.` },
+    status: () => `${tanda("P")}Ditunda pemilik PINTAR ke 4.2; rencana rinci belum disusun. Keadaan perencanaan: ${hitungKeadaan("4.2", "COMPLETE")} siap, ${hitungKeadaan("4.2", "PARTIAL")} sebagian siap, ${hitungKeadaan("4.2", "UNRESOLVED")} menunggu keputusan.<br>Pilihan kebijakan yang masih terbuka antara lain: arti Mode Ujian dan akomodasinya, data yang boleh diekspor, tampilan laporan periode lalu, wewenang atas orang yang bekerja di dua sekolah, dan penempatan statistik Kesehatan soal terjadwal. Tidak ada pilihan terbuka yang ditulis seolah sudah diputuskan.` },
   { v: "4.5", id: "v45", tujuan: "Memahami apa yang sungguh didukung oleh bukti.",
-    kemampuan: "Kecerdasan Soal, kesebandingan asesmen, identitas kompetensi, Quiet Intelligence, sejarah yang dapat dijelaskan, dan evaluasi guru resmi yang diatur institusi beserta perlindungannya.",
-    status: () => `${tanda("A")}Arah disetujui; belum dibangun.<br>Rancangan dan kebijakan masih harus disusun, terutama kebijakan evaluasi guru resmi, kebijakan masa simpan bukti, dan jangkar identitas kompetensi.` },
+    kemampuan: "Kecerdasan Soal, kesebandingan asesmen, identitas kompetensi, pemetaan pemahaman keliru, Quiet Intelligence (nama kerja), sejarah yang dapat dijelaskan, dan evaluasi guru resmi yang diatur institusi beserta perlindungannya.",
+    status: () => `${tanda("A")}Arah disetujui; belum direncanakan dan belum dibangun. Pelaksanaannya memerlukan perencanaan dan persetujuan tersendiri.<br>Rancangan dan kebijakan masih harus disusun, terutama kebijakan evaluasi guru resmi, kebijakan masa simpan bukti, jangkar identitas kompetensi, dan kode pemahaman keliru.` },
   { v: "5.0", id: "v50", tujuan: "Bertindak atas temuan, mengamati hasilnya, dan berkembang.",
     kemampuan: "Pertumbuhan Guru, Kesepakatan Pertumbuhan Bersama, intervensi dan tindak lanjut, jalur belajar yang diatur, dan perbaikan di tingkat bagian dan sekolah.",
-    status: () => `${tanda("A")}Arah disetujui; belum dibangun.<br>Bergantung pada fondasi 4.5: Kecerdasan Soal, kesebandingan asesmen, identitas kompetensi, empat jenis pernyataan, dan perlindungan guru. Aturan intervensi (persetujuan, pemberitahuan keluarga, dan bantuan yang tetap diberikan) harus diputuskan lebih dulu.` },
+    status: () => `${tanda("A")}Arah disetujui; belum direncanakan dan belum dibangun.<br>Bergantung pada fondasi 4.5: Kecerdasan Soal, kesebandingan asesmen, identitas kompetensi, empat jenis pernyataan, dan perlindungan guru. Aturan intervensi (persetujuan, pemberitahuan keluarga, dan bantuan yang tetap diberikan) harus diputuskan lebih dulu.` },
 ];
 
 const chip = (id) => { const f = byId[id]; return `<a class="chip" href="#${id}">${tanda(f.status)}${esc(f.nama)} <span>${f.v}</span></a>`; };
@@ -163,8 +163,8 @@ const html = (hal) => `<!doctype html>
       <tr><td>${tanda("S")}${SEKOLAH.T}</td><td>Label terpisah tentang ketersediaan di sekolah. Per ${SNAPSHOT}, belum ada fitur 4.0 atau 4.1 yang tersedia di sekolah. Sekolah menerimanya setelah 4.1 diterima.</td></tr>
       <tr><td>${tanda("D")}${STATUS.D}</td><td>Sedang dibangun atau diselesaikan, dan belum diterima di lingkungan uji.</td></tr>
       <tr><td>${tanda("R")}${STATUS.R}</td><td>Rancangannya sudah ditinjau dan disetujui, tetapi pembangunannya belum dimulai.</td></tr>
-      <tr><td>${tanda("P")}${STATUS.P}</td><td>Termasuk rencana 4.2. Rincian, layar, dan urutannya ditetapkan dalam rencana 4.2 setelah 4.1 diterima.</td></tr>
-      <tr><td>${tanda("A")}${STATUS.A}</td><td>Arah 4.5 atau 5.0 yang sudah disetujui pemilik PINTAR. Rancangan dan kebijakannya masih harus disusun.</td></tr>
+      <tr><td>${tanda("P")}${STATUS.P}</td><td>Ditunda pemilik PINTAR ke 4.2. Rencana rincinya belum disusun; rincian, layar, dan urutannya ditetapkan dalam rencana 4.2 setelah 4.1 diterima.</td></tr>
+      <tr><td>${tanda("A")}${STATUS.A}</td><td>Arah 4.5 atau 5.0 yang sudah disetujui pemilik PINTAR, tetapi belum direncanakan. Pelaksanaannya memerlukan perencanaan dan persetujuan tersendiri; rancangan dan kebijakannya masih harus disusun.</td></tr>
       <tr><td>${tanda("K")}${STATUS.K}</td><td>Belum termasuk rilis mana pun. Dikumpulkan di bab tersendiri.</td></tr>
     </tbody>
   </table>

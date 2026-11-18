@@ -7,7 +7,7 @@
 //   manfaat «Apa manfaatnya?»
 //   contoh  «Contoh penggunaan» one short, fictional school scenario
 //   status  T diterima di lingkungan uji · D sedang dikembangkan · R selesai dirancang, belum dibangun ·
-//           P direncanakan (4.2) · A arah disetujui (4.5, 5.0) · K kandidat / menunggu keputusan
+//           P ditunda ke 4.2; rencana rinci belum disusun · A arah disetujui; belum direncanakan (4.5, 5.0) · K kandidat / menunggu keputusan
 //   rencana optional {keadaan: KEADAAN key, terbuka: open choices, bergantung: dependencies}
 //   catatan optional one-line note under the status (e.g. what is still being completed)
 // Every person and school named in an example is fictional.
@@ -17,8 +17,8 @@ export const STATUS = {
   T: "Diterima di lingkungan uji",
   D: "Sedang dikembangkan",
   R: "Selesai dirancang, belum dibangun",
-  P: "Direncanakan",
-  A: "Arah disetujui",
+  P: "Ditunda ke 4.2; rencana rinci belum disusun",
+  A: "Arah disetujui; belum direncanakan",
   K: "Kandidat / menunggu keputusan",
 };
 // School availability is a separate label from development status (owner, 18 Nov).
@@ -99,7 +99,7 @@ export const VERSI = [
           contoh: "Sebuah akun guru dicurigai dipakai orang lain. Admin PINTAR menangguhkannya dengan kategori keamanan, lalu memulihkannya setelah guru itu membuat password baru.",
           status: "T" },
         { id: "40-tinggalkan", nama: "Permintaan menutup akun dan menghapus data pribadi", untuk: "Staf; murid melalui sekolah",
-          apa: "Di bagian «Meninggalkan PINTAR» pada «Akun saya», staf dapat meminta akunnya ditutup atau data pribadinya dihapus. Untuk murid, permintaan ini diajukan oleh sekolah bersama keluarga.",
+          apa: "Di bagian «Meninggalkan PINTAR» pada «Akun saya», staf dapat meminta akunnya ditutup atau data pribadinya dihapus. Murid tidak mengisi permintaan sendiri: PINTAR menjelaskan bahwa permintaan seperti itu diajukan melalui sekolah bersama keluarga. Proses penghapusan data murid dan keluarga itu sendiri termasuk hal yang datang kemudian; lihat bab «Kandidat dan hal yang belum ditetapkan».",
           manfaat: "Pengguna memegang kendali atas data pribadinya, dengan proses yang tetap menjaga catatan yang wajib disimpan.",
           contoh: "Seorang guru honorer yang pindah kerja meminta akunnya ditutup. Permintaannya diproses dan tercatat.",
           status: "T" },
@@ -346,12 +346,12 @@ export const VERSI = [
           contoh: "Sebuah laporan kelas ditemukan tertinggal di ruang rapat. Admin sekolah mencari nomor referensinya dan mengembalikannya kepada guru yang mencetaknya.",
           status: "T" },
         { id: "41-darurat", nama: "Penghentian darurat yang menahan sesi asesmen", untuk: "Admin PINTAR",
-          apa: "Penghentian darurat kini dapat dilakukan untuk satu kelas, satu sekolah, atau seluruh platform. Sesi asesmen yang sedang berjalan ditahan: jawaban yang sudah diterima tersimpan, dan tidak ada yang dikumpulkan atau dinilai diam-diam. Setelah penghentian diakhiri, murid melanjutkan dengan sisa waktu yang persis sama seperti saat dihentikan. Kemampuan ini sudah diuji pada skala 50.000 sesi asesmen.",
+          apa: "4.1 menambahkan penghentian darurat untuk satu kelas, di samping satu sekolah atau seluruh platform. Sesi asesmen yang sedang berjalan ditahan: jawaban yang sudah diterima tersimpan, dan tidak ada yang dikumpulkan atau dinilai diam-diam. Setelah penghentian diakhiri, murid melanjutkan dengan sisa waktu yang persis sama seperti saat dihentikan. Kemampuan ini sudah diuji pada skala 50.000 sesi asesmen.",
           manfaat: "Gangguan yang bukan kesalahan murid tidak mengurangi waktu atau kesempatannya, dan masalah di satu tempat dapat dihentikan tanpa mengganggu sekolah lain.",
           contoh: "Jaringan di satu sekolah di Makassar terganggu pukul 09.40 WITA. Admin PINTAR menghentikan sekolah itu saja. Pukul 10.05 penghentian diakhiri, dan murid melanjutkan Uji Penguasaan dengan sisa waktu yang sama seperti pukul 09.40.",
           status: "T" },
         { id: "41-pemeliharaan", nama: "Pemeliharaan terjadwal per kelas dan per sekolah", untuk: "Admin sekolah, Admin PINTAR, semua pengguna",
-          apa: "Pemeliharaan kini dapat dijadwalkan untuk satu kelas atau lebih, dan Admin sekolah dapat menjadwalkannya untuk sekolahnya sendiri. Pengguna yang terdampak diberi tahu 60, 30, dan 15 menit sebelumnya, dengan waktu menurut zona sekolah. Asesmen baru tidak dapat dimulai menjelang pemeliharaan, tetapi asesmen yang sedang berjalan tetap dapat diselesaikan.",
+          apa: "4.1 menambahkan pemeliharaan terjadwal untuk satu kelas atau lebih dan untuk satu sekolah, dan Admin sekolah dapat menjadwalkannya untuk sekolahnya sendiri. Pengguna yang terdampak diberi tahu 60, 30, dan 15 menit sebelumnya, dengan waktu menurut zona sekolah. Asesmen baru tidak dapat dimulai menjelang pemeliharaan, tetapi asesmen yang sedang berjalan tetap dapat diselesaikan.",
           manfaat: "Murid tidak pernah terputus di tengah asesmen karena pemeliharaan yang sudah direncanakan.",
           contoh: "Kabel jaringan laboratorium akan diperbaiki pukul 13.00. Admin sekolah menjadwalkan pemeliharaan untuk dua kelas; murid yang sedang mengerjakan tetap dapat menyelesaikannya.",
           status: "T" },
@@ -363,7 +363,7 @@ export const VERSI = [
       ]},
       { judul: "Sedang diselesaikan", fitur: [
         { id: "41-catatan-peninjau", nama: "Catatan peninjau di samping soal", untuk: "Peninjau materi",
-          apa: "Peninjau dapat mencatat apa yang diungkap sebuah pilihan jawaban yang salah tentang pemahaman keliru murid. Catatan diberi nama penulis dan tanggal, tidak dapat diubah, dan tidak pernah tampil bagi murid atau di cetakan.",
+          apa: "Peninjau dapat menulis catatan bebas di samping soal yang sudah disegel, misalnya tentang apa yang diungkap sebuah pilihan jawaban yang salah. Catatan diberi nama penulis dan tanggal, dan tidak dapat diubah. Catatan ini tidak pernah tampil bagi murid, tidak pernah dicetak, dan tidak pernah dipakai dalam perhitungan. Catatan ini bukan kode pemahaman keliru yang terstruktur; kode semacam itu masih menunggu keputusan pemilik PINTAR.",
           manfaat: "Pengetahuan peninjau tentang soal tersimpan dan dapat dipakai rekan-rekannya.",
           contoh: "Bu Wulan mencatat bahwa pilihan D pada soal 5 menunjukkan murid lupa membalik pecahan saat membagi.",
           status: "D", catatan: "Selesai dibangun dan diperiksa. Pemilik PINTAR sudah menyetujui pemindahannya ke lingkungan uji; penggabungannya masih menunggu satu pemeriksaan otomatis." },
@@ -406,7 +406,7 @@ export const VERSI = [
   // ════════════════════════════════════════════════════════════ 4.2
   {
     v: "4.2", judul: "Penyempurnaan Operasional", id: "v42",
-    pengantar: "PINTAR 4.2 melengkapi pekerjaan administrasi sekolah yang ditunda dari 4.1, dan membuat asesmen serta catatan sekolah lebih lengkap. Semua fitur di bab ini direncanakan. Rincian, layar, dan urutan pengerjaannya akan ditetapkan dalam rencana 4.2 setelah 4.1 diterima. Kandidat yang belum disetujui tidak termasuk bab ini; lihat bab «Kandidat dan hal yang belum ditetapkan».",
+    pengantar: "PINTAR 4.2 melengkapi pekerjaan administrasi sekolah yang ditunda dari 4.1, dan membuat asesmen serta catatan sekolah lebih lengkap. Semua fitur di bab ini ditunda pemilik PINTAR ke 4.2; rencana rincinya belum disusun. Rincian, layar, dan urutan pengerjaannya akan ditetapkan dalam rencana 4.2 setelah 4.1 diterima. Kandidat yang belum disetujui tidak termasuk bab ini; lihat bab «Kandidat dan hal yang belum ditetapkan».",
     kelompok: [
       { judul: "Asesmen", fitur: [
         { id: "42-mode-ujian", nama: "Mode Ujian", untuk: "Guru, murid",
@@ -479,7 +479,7 @@ export const VERSI = [
           apa: "Statistik Kesehatan soal akan diperbarui secara terjadwal, sehingga pembaca tahu seberapa baru angkanya. Pembaruan ini hanya menyegarkan perhitungan yang sudah ada; perhitungan itu sendiri harus dibuktikan benar lebih dulu.",
           manfaat: "Peninjau tidak mengambil keputusan dari angka yang sudah usang.",
           contoh: "Setiap Senin pagi, Kepala departemen membaca Kesehatan soal yang diperbarui akhir pekan.",
-          status: "P", catatan: "Tercatat dalam rencana 4.2 melalui rencana pelaksanaan; penempatannya sedang ditinjau. Beberapa dugaan keterbatasan perhitungan, yang ditemukan dari pemeriksaan kode, masih harus dibuktikan saat sistem berjalan." },
+          status: "P", catatan: "Tercatat untuk 4.2 melalui rencana pelaksanaan; penempatannya sedang ditinjau. Jadwalnya bergantung pada pemeriksaan perhitungan yang sudah ada lebih dulu: beberapa dugaan keterbatasan perhitungan, yang ditemukan dari pemeriksaan kode, masih harus dibuktikan saat sistem berjalan." },
       ]},
     ],
   },
@@ -487,7 +487,7 @@ export const VERSI = [
   // ════════════════════════════════════════════════════════════ 4.5
   {
     v: "4.5", judul: "Memahami Hasil Pembelajaran", id: "v45",
-    pengantar: "PINTAR 4.5 membantu pendidik memahami apa yang benar-benar didukung oleh bukti. Bab ini menjelaskan arah yang sudah disetujui pemilik PINTAR. Fitur-fiturnya belum dibangun; rinciannya akan ditetapkan dalam rencana 4.5. Beberapa keputusan harus diambil lebih dulu, misalnya kebijakan evaluasi resmi dan kebijakan masa simpan bukti. Nama fitur di bab ini masih nama kerja.",
+    pengantar: "PINTAR 4.5 membantu pendidik memahami apa yang benar-benar didukung oleh bukti. Bab ini menjelaskan arah yang sudah disetujui pemilik PINTAR. Fitur-fiturnya belum direncanakan dan belum dibangun; pelaksanaannya memerlukan perencanaan dan persetujuan tersendiri. Beberapa keputusan harus diambil lebih dulu, misalnya kebijakan evaluasi resmi dan kebijakan masa simpan bukti. Nama fitur di bab ini masih nama kerja.",
     alur: { judul: "Cara kerja kecerdasan PINTAR", langkah: ["Bukti", "Pengukuran", "Interpretasi", "Penjelasan", "Keputusan pendidik"] },
     tidak: ["melacak perilaku murid atau guru", "membiarkan AI membuat klaim sebab-akibat", "membuat penilaian otomatis tentang orang", "meramalkan kegagalan murid", "membandingkan sekolah satu sama lain"],
     kelompok: [
@@ -501,7 +501,12 @@ export const VERSI = [
           apa: "Pemeriksaan kode menemukan beberapa dugaan keterbatasan pada perhitungan statistik soal di Kesehatan soal. Dugaan itu akan dibuktikan lebih dulu saat sistem berjalan, lalu perhitungan yang terbukti keliru dibetulkan pada awal 4.5.",
           manfaat: "Sinyal mutu soal menjadi lebih dapat dipercaya sebelum dipakai untuk kesimpulan yang lebih besar.",
           contoh: "Statistik soal dengan lebih dari satu jawaban benar akan dihitung dengan cara yang tepat.",
-          status: "A" },
+          status: "A", catatan: "Temuan dugaan dari pemeriksaan kode; belum diverifikasi saat berjalan." },
+        { id: "45-pemahaman-keliru", nama: "Pemetaan pemahaman keliru", untuk: "Peninjau, guru",
+          apa: "Sebagai bagian dari Kecerdasan Soal dan identitas kompetensi, PINTAR akan menunjukkan pemahaman keliru apa yang diungkap soal-soal, sehingga peninjau dan guru dapat melihat pola salah paham di balik jawaban murid.",
+          manfaat: "Pola salah paham yang sama dapat dikenali lintas soal dan bab, bukan hanya pada satu soal.",
+          contoh: "Beberapa soal pecahan di bab berbeda sama-sama menunjukkan murid menjumlahkan pembilang dan penyebut langsung. Peninjau melihatnya sebagai satu pola, bukan tiga masalah terpisah.",
+          status: "A", catatan: "Bergantung pada keputusan pemilik PINTAR tentang kode pemahaman keliru yang terstruktur. Catatan peninjau dari 4.1 tidak dipakai sebagai bukti." },
         { id: "45-kompetensi", nama: "Identitas kompetensi dan kesebandingan asesmen", untuk: "Penyusun, guru, pimpinan",
           apa: "PINTAR akan menghubungkan soal, tujuan pembelajaran, dan bab yang mengukur kemampuan yang sama, juga lintas tahun dan revisi kurikulum. PINTAR juga akan menentukan asesmen mana yang dapat dibandingkan, dengan konfirmasi manusia.",
           manfaat: "Hasil hanya dibandingkan bila memang sebanding, sehingga kesimpulan jangka panjang dapat dipercaya.",
@@ -523,7 +528,7 @@ export const VERSI = [
           apa: "Quiet Intelligence akan menampilkan bukti yang cukup dan relevan, beserta penjelasan yang dapat ditindaklanjuti, ketika guru membutuhkannya. Guru juga dapat mencatat dugaannya sendiri tentang kemampuan prasyarat. Tujuannya, guru dapat menentukan prioritas dalam sekitar satu menit.",
           manfaat: "Guru tidak perlu menggali banyak laporan untuk menemukan apa yang penting.",
           contoh: "Quiet Intelligence menjelaskan bahwa sekelompok murid kesulitan menjumlahkan pecahan, menunjukkan dasarnya, dan menyebut bahwa bagian lain belum cukup bukti.",
-          status: "A" },
+          status: "A", catatan: "Nama kerja berbahasa Inggris; nama akhirnya dalam bahasa Indonesia dipilih pemilik PINTAR." },
         { id: "45-sejarah", nama: "Sejarah yang dapat dijelaskan", untuk: "Sekolah, pimpinan",
           apa: "PINTAR akan dapat menyusun ulang apa yang dikatakan sebuah laporan, evaluasi, atau sertifikat pada saat diterbitkan, walaupun data sesudahnya berubah.",
           manfaat: "Pertanyaan tentang laporan lama selalu dapat dijawab dengan tepat.",

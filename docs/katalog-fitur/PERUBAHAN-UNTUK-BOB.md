@@ -58,3 +58,27 @@ Status snapshot: **18 November 2026**. Please confirm the release states below b
 - Which description of «Catatan peninjau» is current: your report, or handbook 10.9.
 - Whether «Laporkan masalah» belongs in 4.0, and whether class feedback rounds and the demonstration room should appear.
 - `PINTAR-ROADMAP.md` and `ROADMAP-RECONCILIATION-2026-11-11.md` are on no branch, so Rev 3 is used in their place.
+
+---
+
+## Revision 3 · Bob's answers applied (18 Nov, about 09:00 UTC)
+
+Source: `BOB-VERIFIKASI-KATALOG-0a336a9a.md`.
+
+| Change | Where |
+|---|---|
+| 4.2 label is now «Ditunda ke 4.2; rencana rinci belum disusun» (owner deferrals, no approved plan), in the legend, the overview and the chapter introduction | `fitur.mjs` STATUS.P, `build.mjs` |
+| 4.5 and 5.0 label is now «Arah disetujui; belum direncanakan»; implementation needs separate planning and authorisation | STATUS.A, overview, 4.5 introduction |
+| «Catatan peninjau» is described as free-text, attributed, dated and immutable notes beside a sealed question; never shown to learners, printed or used in calculations; explicitly not coded misconception notes | `41-catatan-peninjau` |
+| `40-tinggalkan`: a learner is told the request goes through the school with the family; the deletion process is a later item (cross-reference to the candidates chapter) | `40-tinggalkan` |
+| **New 4.5 entry: «Pemetaan pemahaman keliru»**, in «Menunggu keputusan» (structured codes; whether reviewer notes may ever be a source, which today they may not be). 4.5 is now 12, and the total is **98** | `45-pemahaman-keliru`, `rencana.mjs` |
+| «Quiet Intelligence» notes that it is an English working name and that the owner chooses the Indonesian one | `45-quiet` |
+| 4.1 additions are explicit: the class-level emergency stop; class- and school-level scheduled maintenance | `41-darurat`, `41-pemeliharaan` |
+| `45-perbaikan-statistik` adds the note «Temuan dugaan dari pemeriksaan kode; belum diverifikasi saat berjalan» | `fitur.mjs` |
+| `42-kesehatan-terjadwal` says its schedule depends on first checking the existing calculations | `fitur.mjs` |
+| Planning states now follow audit rev 6 (`71a6f87e`). The name-correction entry now says that adding one person can be planned now and that only the certificate effect waits on a decision, with today's fact that verification never shows a name. No open choice is written as decided | `rencana.mjs` |
+| The coverage checklist records the roadmap sources as on `claude/roadmap-45-50` (`2f419b52`), not on `main`. Class feedback rounds and the demonstration room are confirmed out | `KATALOG-COVERAGE.md` |
+
+**Unchanged by design:** C2w stays «Sedang dikembangkan» with its current note until Bob confirms the merge and the staging promotion. «Laporkan masalah» was already listed in 4.0. The audit's scoring-policy prerequisite (4.5-10) is internal and is recorded in the coverage checklist, not as a feature.
+
+**Still waiting before the final export:** Bob's word on C2w, plus a check of the new misconception-mapping entry and the D-06 paraphrase.
