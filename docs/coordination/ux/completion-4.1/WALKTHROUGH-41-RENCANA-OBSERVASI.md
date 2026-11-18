@@ -11,6 +11,7 @@
 - **Participants:** two real school staff: one admin-capable teacher for tasks 1 and 4, and one teacher for 2 and 3. **Learners are played by the team on synthetic accounts.** No real child takes part.
 - **Observers:** Daisy (notes), plus one more (time and the screen record, if consented). **Observers do not help.** A help request is answered only after "What are you looking for?", and is recorded.
 - **Think-aloud:** the participant says what they look for and what they expect. No hints, no "almost".
+- **Not final (ruling 59):** «Sertifikat Penguasaan», the Predikat and the hints in Uji Penguasaan will be refined after Z (batch D2-R). Observers do not present them as final. Observations on them are recorded **against D2-R**, not as 4.1 defects.
 - **Only approved 4.1 features are used.** A participant's wish for something else is recorded as a **feature request** (§6).
 - **Consent:** a short consent line before starting (observation, notes, any screen recording, anonymised write-up). Participants may stop at any time.
 
