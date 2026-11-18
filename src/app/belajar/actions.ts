@@ -11,7 +11,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import * as engine from "@/lib/assessment-engine";
 import type { LearnerAnswer } from "@/lib/assessment-engine";
 import { galatPemeliharaan, HALAMAN_PEMELIHARAAN, arahTolakMulai } from "@/lib/pemeliharaan-kontrak";
-import type { PengerjaanSaya } from "@/lib/pengerjaan-kontrak";
+import { kodePengerjaanDariGalat, type HasilPulih, type PengerjaanSaya } from "@/lib/pengerjaan-kontrak";
 
 async function db() {
   return (await supabaseServer()) as unknown as engine.EngineClient;
@@ -211,4 +211,26 @@ export async function mulaiAsesmen(formData: FormData) {
     throw e;
   }
   redirect(kembali);
+}
+
+/**
+ * A3 (D7; Daisy A3-KODE-PEMULIHAN.md §1, §2): the learner continues their open sitting on THIS verified session
+ * (lanjutkan_di_sini). An Uji Penguasaan without a valid permission answers RECOVERY_NOT_AUTHORISED; the request then
+ * reaches the teacher's list (minta_izin_lanjut, idempotent: «Coba lagi» may call it again and the teacher still sees
+ * one). Neither takes a session, a device or a generation; the code crosses, never the error's text (X.8).
+ */
+export async function lanjutkanDiSini(sessionId: string): Promise<HasilPulih> {
+  try {
+    const c = (await supabaseServer({ tulisJikaBerubah: true })) as unknown as { rpc: (f: string, a: Record<string, unknown>) => Promise<{ error: { code?: string; details?: string } | null }> };
+    const { error } = await c.rpc("lanjutkan_di_sini", { p_session: sessionId });
+    if (!error) return { ok: true };
+    const kode = kodePengerjaanDariGalat(error);
+    if (kode === "RECOVERY_NOT_AUTHORISED") {
+      // the request is its own act and grants nothing; a refusal of it changes nothing the learner sees (Daisy §7)
+      try { await c.rpc("minta_izin_lanjut", { p_session: sessionId }); } catch { /* the screen is the same */ }
+    }
+    return { ok: false, kode };
+  } catch {
+    return { ok: false, kode: "OFFLINE" };
+  }
 }

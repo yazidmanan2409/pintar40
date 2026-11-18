@@ -87,7 +87,16 @@ export type PengerjaanSaya = {
   dilanjutkan?: boolean;
   penutupan: "DEADLINE" | "TEACHER_SCORED" | "TEACHER_NOT_COUNTED" | "ASSIGNMENT_ENDED" | "OTHER" | null;
   dihitung: boolean; tenggat: string | null; diperpanjang: number; percobaan_diizinkan: boolean;
+  /** A3: this verified session controls the sitting (or none does yet: the first writer claims it) */
+  di_sesi_ini?: boolean;
+  /** A3 (D7): an Uji Penguasaan, whose recovery on another session needs the teacher's permission */
+  perlu_izin?: boolean;
+  /** A3 (Daisy §2.3): this generation came by a teacher's permission */
+  izin_dipakai?: boolean;
 };
+
+/** The recovery acts' answer to the learner's page (lanjutkan_di_sini, minta_izin_lanjut): never a session id. */
+export type HasilPulih = { ok: true } | { ok: false; kode: KodePengerjaan | "OFFLINE" };
 
 // ───────────────────────────────────────────────────────────── A1 on the screens (Daisy, TINJAUAN-A1-C1W Q4, §A1·N1, §A1·N2)
 

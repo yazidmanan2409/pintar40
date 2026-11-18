@@ -456,6 +456,17 @@ export type HleEvent =
   | "pengerjaan.galat.recovery_authorisation_expired"
   | "pengerjaan.galat.recovery_authorisation_used"
   | "pengerjaan.galat.recovery_nothing"
+  | "pengerjaan.pulih.lain_judul"
+  | "pengerjaan.pulih.belum_tersimpan"
+  | "pengerjaan.pulih.tanya_judul"
+  | "pengerjaan.pulih.tanya_isi"
+  | "pengerjaan.pulih.tanya_ya"
+  | "pengerjaan.pulih.batal"
+  | "pengerjaan.pulih.sendiri"
+  | "pengerjaan.pulih.guru"
+  | "pengerjaan.pulih.perlu_izin_isi"
+  | "pengerjaan.pulih.coba_lagi"
+  | "pengerjaan.pulih.diperiksa"
   | "pengerjaan.galat.sitting_failed"
   // C1w: the item workbench's refusals and problems (src/lib/soal-kontrak.ts)
   | "studio.soal.galat.draft_not_allowed"
@@ -4285,6 +4296,17 @@ const table: Table = {
   "pengerjaan.galat.recovery_authorisation_expired": { default: "Izin dari guru Anda sudah lewat waktunya. Minta guru mengizinkan sekali lagi, lalu pilih Coba lagi.", en: "Your teacher's permission has expired. Ask your teacher to allow it once more, then choose Try again." },
   "pengerjaan.galat.recovery_authorisation_used": { default: "Izin dari guru Anda sudah dipakai sekali untuk asesmen ini. Untuk melanjutkan lagi di sini, minta guru mengizinkan sekali lagi, lalu pilih Coba lagi.", en: "Your teacher's permission has already been used once for this assessment. To continue here again, ask your teacher to allow it once more, then choose Try again." },
   "pengerjaan.galat.recovery_nothing": { default: "Tidak ada yang perlu dilanjutkan: asesmen ini sudah selesai atau sudah ditutup.", en: "There is nothing to continue: this assessment is finished or closed." },
+  "pengerjaan.pulih.lain_judul": { default: "Asesmen ini dilanjutkan di sesi lain.", en: "This assessment is being continued in another session." },
+  "pengerjaan.pulih.belum_tersimpan": { default: "{n} jawaban terakhir di sini belum tersimpan.", en: "The last {n} answer(s) here were not saved." },
+  "pengerjaan.pulih.tanya_judul": { default: "Lanjutkan di sini?", en: "Continue here?" },
+  "pengerjaan.pulih.tanya_isi": { default: "Anda masuk lagi, jadi asesmen ini dilanjutkan di sesi baru. Jawaban yang sudah tersimpan tetap ada.", en: "You signed in again, so this assessment continues in a new session. Answers already saved are kept." },
+  "pengerjaan.pulih.tanya_ya": { default: "Lanjutkan di sini", en: "Continue here" },
+  "pengerjaan.pulih.batal": { default: "Batal", en: "Cancel" },
+  "pengerjaan.pulih.sendiri": { default: "Anda melanjutkan di sini. Jawaban yang tersimpan sebelumnya ada di sini.", en: "You are continuing here. The answers saved before are here." },
+  "pengerjaan.pulih.guru": { default: "Anda melanjutkan di sini. Jangan keluar dari akun sampai asesmen ini selesai: untuk melanjutkan lagi, guru perlu mengizinkan sekali lagi.", en: "You are continuing here. Do not sign out until this assessment is finished: to continue again, your teacher would need to allow it once more." },
+  "pengerjaan.pulih.perlu_izin_isi": { default: "Karena Anda masuk lagi atau berganti perangkat, Uji Penguasaan ini hanya dapat dilanjutkan bila guru Anda mengizinkannya. Permintaan Anda tampil di daftar kelas guru Anda. Beri tahu guru Anda juga: {judul}. Setelah guru mengizinkan, pilih Coba lagi.", en: "Because you signed in again or changed device, this Uji Penguasaan can only continue if your teacher allows it. Your request shows on your teacher's class list. Tell your teacher too: {judul}. Once your teacher allows it, choose Try again." },
+  "pengerjaan.pulih.coba_lagi": { default: "Coba lagi", en: "Try again" },
+  "pengerjaan.pulih.diperiksa": { default: "Diperiksa pukul {jam}.", en: "Checked at {jam}." },
   "pengerjaan.galat.sitting_failed": { default: "Perubahan belum tersimpan. Coba lagi.", en: "The change was not saved. Try again." },
   // C1w (O41-10, O41-11, O41-18, O41-19): the item workbench's refusals, said to the staff who meet them
   "studio.soal.galat.draft_not_allowed": { default: "Anda tidak dapat mengubah soal dalam draf ini.", en: "You cannot change the questions in this draft." },

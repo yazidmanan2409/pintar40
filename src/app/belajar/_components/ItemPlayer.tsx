@@ -156,7 +156,8 @@ function dropEntry(sessionId: string, e: Entry) {
 }
 
 /** What one delivery attempt came to. */
-type Delivery = "acked" | "pending" | "offline" | "closed";
+// A3 (D12): "lain", the sitting continues on another session; terminal for this page, never retried (Daisy §2.4)
+type Delivery = "acked" | "pending" | "offline" | "closed" | "lain";
 
 export default function ItemPlayer(props: ItemPlayerProps) {
   const { sessionId, paper, mode, stage, allowsPause, actions, finishHref, memintaSertifikat } = props;
@@ -185,6 +186,9 @@ export default function ItemPlayer(props: ItemPlayerProps) {
   // the server has closed the session under this page (another tab finished).
   const [notice, setNotice] = useState<HleEvent | null>(null);
   const [closed, setClosed] = useState(false);
+  // A3 (Daisy A3-KODE-PEMULIHAN.md §1, §2.4, §5): the sitting continues on another session; the question area gives way
+  // to the neutral panel, nothing is sent or retried from here, and nothing here shows a refusal
+  const [lain, setLain] = useState(false);
   // Daisy (bcecb425, B4): a sitting the school ended stays ended on this page. Nothing under the notice can be pressed,
   // and focus moves to the notice, so its «Kembali ke Belajar» is the next stop
   const [diakhiri, setDiakhiri] = useState(false);
@@ -221,16 +225,20 @@ export default function ItemPlayer(props: ItemPlayerProps) {
     if (!r.ok) return;
     const a = akhirDariKeadaan(r.keadaan);
     if (a) { akhiri(a); return; }
+    if (r.keadaan.di_sesi_ini === false) { setLain(true); return; }
     const baru = r.keadaan.tenggat, lama = tenggat.current;
     if (lama && baru && Date.parse(baru) > Date.parse(lama)) setTambahan(Math.round((Date.parse(baru) - Date.parse(lama)) / 60_000));
     tenggat.current = baru;
   }, [actions, akhiri, sessionId]);
   useEffect(() => {
-    if (diakhiri) return;
+    if (diakhiri || lain) return;
     const awal = window.setTimeout(() => { void periksaKeadaan(); }, 0);
     const jeda = window.setInterval(() => { void periksaKeadaan(); }, 45_000);
     return () => { window.clearTimeout(awal); window.clearInterval(jeda); };
-  }, [diakhiri, periksaKeadaan]);
+  }, [diakhiri, lain, periksaKeadaan]);
+  // A3: once the sitting continues elsewhere nothing is sent from here again: no replay, no probe, no online flush
+  const lainRef = useRef(false);
+  useEffect(() => { lainRef.current = lain; }, [lain]);
   // THE SEQUENCE RULE (R1, F-07). Two sources of truth, never one:
   //   serverSeqs — the highest client_seq the server is known to hold per item
   //                (the page's read, raised by every acknowledgement);
@@ -300,6 +308,8 @@ export default function ItemPlayer(props: ItemPlayerProps) {
         if (a === "dinilai" || a === "tidak_dihitung") akhiri(a);
         return "closed";
       }
+      // A3: another session controls the sitting; the entry stays held (counted on the panel), and nothing retries it
+      if (r.code === "PR170" && r.detail === "SITTING_NOT_CONTROLLER") return "lain";
       return "pending";
     }
     return "pending";
@@ -307,10 +317,12 @@ export default function ItemPlayer(props: ItemPlayerProps) {
 
   /** Every entry still held, oldest first per item. Stops at the first lost request. */
   const flush = useCallback(async (): Promise<Delivery | "clear"> => {
+    if (lainRef.current) return "lain";
     let result: Delivery | "clear" = "clear";
     for (const e of readEntries(sessionId)) {
       const o = await deliver(e, "REPLAYED");
       if (o === "offline") { result = "offline"; break; }
+      if (o === "lain") { setLain(true); break; }
       if (o === "closed") result = "closed";
       else if (o === "pending" && result === "clear") result = "pending";
     }
@@ -354,6 +366,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
     setPending(readEntries(sessionId).length);
     setOnline(o !== "offline");
     if (o === "closed") setClosed(true);
+    if (o === "lain") { setLain(true); return; }
     // A1 (A1-R1): and on every send
     if (o !== "offline") void periksaKeadaan();
   }, [accepted, deliver, nextSeq, periksaKeadaan, sessionId]);
@@ -393,6 +406,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
       // A1 (A1-B1): the teacher ended this one sitting as not counted; its own notice, never the assignment's
       if (!r.ok && r.detail === "SESSION_ENDED_NOT_COUNTED") { akhiri("tidak_dihitung"); return; }
       if (!r.ok && r.code === "PR003") { setNotice("sync.diakhiri_sekolah"); setDiakhiri(true); setAsking(false); return; }
+      if (!r.ok && r.code === "PR170" && r.detail === "SITTING_NOT_CONTROLLER") { setLain(true); setAsking(false); return; }
       if (r.ok || r.code === "PR002") {
         // doc 04 §7: the system issues a certificate for a certifying pass. Asked
         // at once, never awaited: the results view must not wait on issuance,
@@ -595,6 +609,18 @@ export default function ItemPlayer(props: ItemPlayerProps) {
   }, [choose, current, diakhiri, go, index]);
 
   if (!current) return null;
+  // A3 (Daisy §1, §4 (c), §5): the old session's neutral panel, in place of the question area. Not an error colour and
+  // not an alert: nothing went wrong for the learner. The answers still held here are counted; none is sent again
+  if (lain) {
+    return (
+      <section className="pin-pending" role="status" data-dilanjutkan-lain="">
+        <h2>{kata("pengerjaan.pulih.lain_judul")}</h2>
+        <p>{kata("pengerjaan.galat.sitting_not_controller")}</p>
+        {pending > 0 ? <p data-belum-tersimpan={pending}>{kata("pengerjaan.pulih.belum_tersimpan").replace("{n}", format.number(pending, props.locale))}</p> : null}
+        <div className="pin-actions"><Link className="pin-btn" href="/belajar" data-lain-kembali="">{kata("tolak.kembali")}</Link></div>
+      </section>
+    );
+  }
   const chosen = answerOf(current);
   const selected = (posisi: number) =>
     Array.isArray((chosen as { posisi: number[] } | undefined)?.posisi)
@@ -647,8 +673,8 @@ export default function ItemPlayer(props: ItemPlayerProps) {
               onClick={async () => {
                 // the server decides; the screen follows what it said
                 try {
-                  if (paused) { if ((await actions.resumeSession(sessionId)).ok) setPaused(false); }
-                  else if ((await actions.pauseSession(sessionId)).ok) setPaused(true);
+                  if (paused) { if ((await actions.resumeSession(sessionId)).ok) setPaused(false); else void periksaKeadaan(); }
+                  else if ((await actions.pauseSession(sessionId)).ok) setPaused(true); else void periksaKeadaan();
                 } catch {
                   setOnline(false);
                 }

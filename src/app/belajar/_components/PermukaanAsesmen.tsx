@@ -15,6 +15,8 @@ import { peranSaya } from "@/lib/tur-negara";
 import { personaPembelajaran } from "@/lib/pembelajaran";
 import { zonaSimpulBanyak } from "@/lib/zona-sekolah";
 import ItemPlayer from "./ItemPlayer";
+import LanjutkanDiSini from "./LanjutkanDiSini";
+import BarisLanjut from "./BarisLanjut";
 import { pengerjaanSaya } from "@/lib/pengerjaan";
 import { arahTolakMulai } from "@/lib/pemeliharaan-kontrak";
 
@@ -87,6 +89,27 @@ export default async function PermukaanAsesmen({
   }
   const tidakDihitung = keadaan?.penutupan === "TEACHER_NOT_COUNTED";
   const sesi = tidakDihitung ? null : sesiDiberikan;
+
+  // A3 (D7, D11; Daisy A3-KODE-PEMULIHAN.md §1, §2): an open sitting another session controls is not played here. The
+  // learner continues it here (low-stakes: one confirmation) or, for an Uji Penguasaan, once a teacher allows it
+  if (sesi && keadaan && keadaan.di_sesi_ini === false && ["CREATED", "IN_PROGRESS", "PAUSED"].includes(keadaan.status)) {
+    const zona = await engine.openAssessments(db)
+      .then(async (rows) => {
+        const node = rows.find((r) => r.assessment_assignment_id === penugasan)?.node_id ?? null;
+        return (await zonaSimpulBanyak(db, [node]))(node);
+      })
+      .catch(() => "Asia/Jakarta");
+    return (
+      <>
+        <CangkangPengalaman locale={locale} kind="focus" />
+        <main id="isi" tabIndex={-1} className="pin-col">
+          <p className="pin-meta">{eyebrow}</p>
+          <LanjutkanDiSini sesi={sesi} perluIzin={keadaan.perlu_izin === true} judul={eyebrow} zona={zona} locale={locale}
+            lanjutkan={actions.lanjutkanDiSini} />
+        </main>
+      </>
+    );
+  }
 
   // ---------------------------------------------------------- D. orientation
   if (!sesi) {
@@ -188,6 +211,8 @@ export default async function PermukaanAsesmen({
               : s("pengerjaan.dilepas_henti_tanpa")}
           </p>
         ) : null}
+        {/* A3 (Daisy §1, §2.3): after a recovery, its quiet line */}
+        <BarisLanjut sesi={sesi} izinDipakai={keadaan?.izin_dipakai === true} locale={locale} />
         <ItemPlayer
           sessionId={sesi}
           paper={paper}
