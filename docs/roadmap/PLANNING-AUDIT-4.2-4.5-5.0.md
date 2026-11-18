@@ -3,7 +3,11 @@
 **Bob, Chief Architect, 18 November 2026.** Requested by the owner on 18 Nov. It is a planning and verification
 assignment. **It authorises no implementation and does not change the approved 4.1 schedule.**
 
-**Status: Bob's audit, complete as a draft. Independent reviews are IN PROGRESS** (§7). Sharon, Daisy and Second Eye
+**Revision 2 (18 Nov, about 08:30 UTC):** targeted revisions after the owner's adviser review (§9). Verdicts now name
+the exact decision, proof or delivery dependency for each feature instead of release-wide blocks; journeys and
+decision outcomes are marked provisional; each owner decision carries a recommended answer.
+
+**Status: Bob's audit, revision 2. Independent reviews are IN PROGRESS** (§7). Sharon, Daisy and Second Eye
 each challenge it from their own discipline. Their findings are recorded in §7 as they arrive, disagreements included.
 None is resolved silently. The readiness verdicts in §8 are final only once all three reviews are recorded.
 
@@ -49,6 +53,10 @@ The question asked is not "is it built?" but "can detailed execution planning st
 When more than one class applies, the worst one is shown. A feature is never classed COMPLETE because its first action
 is clear.
 
+**A class describes one feature, not its release.** An open decision on one feature never stops planning of another.
+Where one feature contains a settled part and an open part, it is split (for example 4.2-06a and 4.2-06b). The release
+verdicts in §8 state what may be planned now and what waits, feature by feature.
+
 ### 0.4 The modules used in the cross-module matrix
 
 | Code | Module |
@@ -82,13 +90,14 @@ The owner's deferrals, items 01–11 in S-c's order, then the two [execution pla
 | 4.2-03 | **One person holding roles at two schools** | A teacher or admin works in two schools from one identity | O41-12 (principle approved); 4.1 "no obstructing assumption" | H-02's minimum boundary; 4.2-02; A2b's work-scoped rule (R-1, ruling 31); A3's controller | Principle only. Rev 3 sets the minimum future-compatible boundary (identity ≠ membership, school-scoped dated grants, context selection, attributable audit) | Within authority: the context-switch design and the per-surface recheck. **No owner decision unless** it widens into the broader institution model | **PARTIAL** |
 | 4.2-04 | **School data export** | Authorised staff obtain their school's data within their mandate | §4 deferral; THE PLAN D-4 (the export and its event arrive together); D-110 (school owns its data) | B1 event store; PRM; HIS; R-2 | `SCHOOL-DATA-EXPORT-4.0.md` exists as a 4.0 product note; datasets, formats and recipients are not designed | **D-04a:** which datasets, including learners' personal data and educator-related evidence (which 4.5 A5 will protect). **D-04b:** whether an export of educational evidence may precede R-2. An export creates a copy outside every retention rule (H-04) | **UNRESOLVED** |
 | 4.2-05 | **Opening past reports; a period selector** | Report readers revisit an earlier period | §4 deferral; THE PLAN §5.2 | RES (correction chain, O41-21/22); REP; MEM (rollover, transfers); 4.5 A6 | Not designed. Rev 3 H-01 asks for the correction semantics | **D-05:** whether a past period shows the result *as it was then* or *as corrected now*. That is the line between this feature and 4.5's explainable history; if "as it was then", it pre-empts A6 | **UNRESOLVED** |
-| 4.2-06 | **A school admin adding one person outside an import; correcting a name after activation** | School admins handle one person; fix a name | §4 deferral | ID (one identity per person; ruling 21, anonymised is terminal); CRT (sealed certificates carry the name); REP (prints); AUD | Single add: the import's rules exist, so it is a reuse. Name correction: not designed | **D-06:** a name corrected after a certificate was issued. Is the certificate reissued, reviewed (O41-19 covers score changes, not names), or left as issued with verification showing the current name? Only the owner can set what a sealed artefact means | **UNRESOLVED** |
+| 4.2-06a | **A school admin adding one person outside an import** | School admins add a single person without a bulk file | §4 deferral | ID (one identity per person; the import's duplicate rule; ruling 21, anonymised is terminal); MEM; AUD | A reuse of the import's existing identity and duplicate rules | Within authority | **PARTIAL** *(plannable now)* |
+| 4.2-06b | **Correcting a name after activation** | School admins fix a misspelt name | §4 deferral | ID; CRT (sealed certificates carry the name); REP (prints); AUD | The correction itself can be designed now; only its effect on issued certificates is open | **D-06:** the effect on a certificate already issued (recommendation in §5.1) | **UNRESOLVED** *(certificate effect only)* |
 | 4.2-07 | **Declining an account request** | Admins resolve a request; the requester learns the outcome | §4 deferral | ID; rulings 17 and 20 (sign-in must not disclose state); AUD | Not designed | Within authority: neutral wording (Daisy) consistent with rulings 17 and 20; repeated requests; audit. No owner decision expected | **PARTIAL** |
 | 4.2-08 | **Password change while signed in** | A signed-in user changes their own credential | §4 deferral | ID; L-1 (neutral sign-in); the B1 events; sessions | Not designed. Learners sign in with a class card and PIN, so the audience is presumably staff | Within authority: re-authentication, ending other sessions, the B1 event, the audience (staff; and learners with a password?). **Confirm the audience in planning;** escalate only if learners are meant | **PARTIAL** |
 | 4.2-09 | **The "classes without a teacher" view** | School admins find classes with no assigned teacher | §4 deferral | MEM; PRM; rollover | Read-only within school scope. Rev 3 asks which classes count | Within authority: current year, active classes, rollover behaviour | **COMPLETE** *(for planning)* |
 | 4.2-10 | **PD corrections:** end a programme, remove a participant, the school ending its own PD sittings | Authorised admins correct professional-learning records | §4 deferral | PD records; CRT (PD certificates); AUD; the PD/academic separation | Not designed | Within authority mostly. **One owner question, D-10:** does removing a participant after a PD certificate was issued send it to review (as O41-19 does for scores)? | **UNRESOLVED** *(narrow)* |
 | 4.2-11 | **Structure corrections:** reactivate or move a class; rename a school; undo a promotion run as a whole | Authorised admins correct structural mistakes | §4 deferral | MEM (rollover); RES; REP; CRT; ASM (open sittings); AUD; HIS | Not designed. Reactivate and move are bounded. Rename and undo are not | **D-11a:** after a school is renamed, which name do historical prints, certificates and verification show? **D-11b:** whether a promotion run can be undone once new-year work exists (new sittings, enrolments, results), or only before. It is a lifecycle rule with evidence consequences | **UNRESOLVED** |
-| 4.2-12 | **Scheduled Question Health statistics** [execution plan] | Readers get a predictable refresh of existing outputs | EXECUTION-PLAN §4; RD-4 (four known defects; 4.1 not reopened); H-05 | JOB (shared installer, restore, DR-S14–16); REP | Scheduling is easy; **the figures it refreshes are known to be wrong in three ways** (RD-4) | **D-12:** whether to schedule known-defective figures before early 4.5's repair, with a disclosed limitation, or to move this item to 4.5 behind the repair. Owner, because it changes an assignment | **UNRESOLVED** |
+| 4.2-12 | **Scheduled Question Health statistics** [execution plan] | Readers get a predictable refresh of existing outputs | EXECUTION-PLAN §4; RD-4 (three **suspected** calculation defects and one absent capability, from static inspection; 4.1 not reopened); H-05 | JOB (shared installer, restore, DR-S14–16); REP | Scheduling is simple. **Whether the refreshed figures are affected is not yet established:** RD-4's findings are unverified at runtime | **First, proof (team):** Second Eye reproduces each RD-4 finding and classes it as confirmed defect, missing capability or disproved concern, naming the Question Health outputs affected. **Then D-12** (recommendation in §5.1) | **UNRESOLVED** *(pending the runtime proof)* |
 | 4.2-13 | **A teacher's handover view after a colleague leaves** [execution plan] | A new teacher sees the departed colleague's open work | EXECUTION-PLAN §4 (not the owner's list) | PRM; MEM; ASM (A1 controls on open sittings); AUD; 4.2-03 | Not designed | Within authority: the new teacher gains no access beyond the class; original attribution is kept. **Confirm it is in scope**, since only the execution plan assigned it | **PARTIAL** |
 | 4.2-C1 | **Assessment-specific time limits** *(candidate)* | Educators set a duration; learners see the time available | None. R-C explicitly does not authorise it | ASM (deadline vs duration, R-C); A1 extensions; A2a stop time; A2b drain; A3 recovery | Semantics not designed | **D-C1:** admit it to 4.2 or not. If admitted, its timing semantics need approval | **UNRESOLVED** |
 | 4.2-C2 | **X-2, a paste-friendly import route** *(candidate)* | Teachers import AI-drafted content without an .xlsx | Ruling 41 | CON (the import); C3w provenance boundary | Assessed (`EXTERNAL-AI-CONTENT-ASSESSMENT.md`). Decided after the walkthrough | **D-C2:** admit it after the walkthrough evidence | **BLOCKED** *(on the walkthrough)* |
@@ -107,11 +116,11 @@ owner after 4.1's acceptance (Rev 3, "Owner decisions" table).
 
 | ID | Feature | Purpose · users | Owner rulings | Dependencies | Current design status | Unresolved decisions | Class |
 |---|---|---|---|---|---|---|---|
-| 4.5-01 | **Question Intelligence** (difficulty, option and distractor behaviour, discrimination where sufficient, revision effects, reliability where supportable) | Authors, reviewers and teachers judge question quality | RD-1, RD-3, RD-4 | 4.1: item lineage (C1w), the result chain, the provenance, the raw responses (`is_final`, first view); D-060 | Direction only. **The four RD-4 findings are unverified at runtime.** Which Question Health figures depend on them is unknown | Team: runtime reproduction, then corrected calculations. **Evidence:** sufficiency needs real sittings, and staging data is synthetic (G-4) | **BLOCKED** *(on runtime verification of RD-4)* |
+| 4.5-01 | **Question Intelligence** (difficulty, option and distractor behaviour, discrimination where sufficient, revision effects, reliability where supportable) | Authors, reviewers and teachers judge question quality | RD-1, RD-3, RD-4 | 4.1: item lineage (C1w), the result chain, the provenance, the raw responses (`is_final`, first view); D-060 | Direction only. **The four RD-4 findings are unverified at runtime.** Which Question Health figures depend on them is unknown | Team, under 4.5's planning approval: reproduce RD-4; verify formulas against known answers on controlled data; prove version handling and the "insufficient evidence" path. **Useful conclusions** on real classes need real sittings (G-4 restated) | **PARTIAL** *(foundation design and controlled verification can proceed; conclusions need real evidence)* |
 | 4.5-02 | **Instrument comparability** (deterministic, human-confirmed) | Reviewers decide which assessments or revisions may be read together | RD-1; roadmap A1 | 4.5-01; C1w lineage; ruling 46 (attempts across versions, which is a different "same assessment" notion) | Direction only | Team: the deterministic rule. **Note:** ruling 46 already treats published versions as "the same assessment" for attempts. Comparability must not inherit that sameness (G-6) | **PARTIAL** |
 | 4.5-03 | **Stable competency identity** (identity, equivalence and comparability kept separate) | One competency across lessons, items, years, schools and curriculum revisions | RD-9; R-5 pending | **R-5** (the national curriculum anchor); CON; O41-18 (who owns platform vs school content) | Direction only; the investigation has not started | **R-5.** Also **D-45-03:** who may map a school's own content to a competency, and whether a mapping is school-owned (D-110) | **UNRESOLVED** *(R-5)* |
 | 4.5-04 | **The evidence and insight classification** (recorded, derived, inferred, not concluded) | Every statement PINTAR makes | RD-7 | REP and INT; versioned rules (D-060) | Principle adopted; structure not designed | Team | **PARTIAL** |
-| 4.5-05 | **Quiet Intelligence,** including Performance Distribution, longitudinal patterns, educator-authored prerequisite hypotheses and recommendations | Teachers learn in about a minute what needs attention | RD-1, RD-2; the A3 direction | 4.5-01 to 4.5-04 | Direction only | Team: the screens (Daisy). **Source gap M-03:** a separate usefulness-measurement requirement is unverified. Rev 3 proposes walkthroughs and voluntary feedback | **BLOCKED** *(on 4.5-01 to 4.5-03)* |
+| 4.5-05 | **Quiet Intelligence,** including Performance Distribution, longitudinal patterns, educator-authored prerequisite hypotheses and recommendations | Teachers learn in about a minute what needs attention | RD-1, RD-2; the A3 direction | 4.5-01 to 4.5-04 | Direction only | Team: the screens (Daisy). **Source gap M-03:** a separate usefulness-measurement requirement is unverified. Rev 3 proposes walkthroughs and voluntary feedback | **PARTIAL** *(design can proceed in parallel; release depends on 4.5-01 to 4.5-03)* |
 | 4.5-06 | **Governed formal educator evaluation** (seven steps, ten safeguards) | Institutions evaluate educators; humans finalise and seal | RD-5; R-1 pending | **R-1**; 4.5-04; 4.5-07; 4.5-08; R-2; PRM (assessor authority); 4.2-02 (positions) | Architecture approved; policy absent | **R-1** in full (assessor, period, rubric, response window, sealing of the response, readership, retention). Also **D-45-06:** evaluation after the educator changes school, or holds roles at two (4.2-03) | **UNRESOLVED** *(R-1)* |
 | 4.5-07 | **Educator protections** (visibility, layered access, access audit, developmental vs formal separation, correction and response, no unsupported comparison) | Educators, before any educator-related evidence is shared | RD-6 | PRM; AUD; R-1; R-2 | Requirements listed; no design | Team, inside R-1's bounds | **PARTIAL** *(design follows R-1)* |
 | 4.5-08 | **Explainable history:** immutable snapshots, "as of" reconstruction, versioned templates; snapshot-rendered certificates | Anyone authorised sees what a report, evaluation or certificate said when issued | RD-1 (Context Passport split); reconciliation §1 | HIS; R-2 (what is kept); 4.2-05 (past reports, D-05); CRT | Direction only | **R-2** (how long a snapshot lives); D-05's boundary with 4.2 | **UNRESOLVED** *(R-2, D-05)* |
@@ -128,18 +137,25 @@ owner after 4.1's acceptance (Rev 3, "Owner decisions" table).
 | 5.0-01 | **Educator Growth and the Shared Growth Compact** | Educators pursue evidence-linked objectives under agreed visibility | RD-6; roadmap B1 | All of 4.5; 4.5-07 (protections); R-1 (separation from formal) | Direction only | **D-50-01:** the Compact's terms: who sees growth evidence, when it may be used, and how it is withdrawn | **BLOCKED** *(on 4.5)* + **UNRESOLVED** |
 | 5.0-02 | **Interventions and follow-up** (recorded, for whom, when; longitudinal measurement; staggered starts) | Educators choose and examine actions | RD-8; roadmap B2; R-4 pending | 4.5-01 to 4.5-05; **R-4** | Direction only | **R-4** (approver, family communication, "necessary assistance"). It is research involving children, so it likely needs an ethics review the records do not yet name | **BLOCKED** *(R-4; 4.5)* |
 | 5.0-03 | **The three intervention claims** | Every intervention statement | RD-8 | 4.5-04 (classification); 4.5-02 (comparability) | Principle adopted | Team, once 4.5 exists | **BLOCKED** *(on 4.5)* |
-| 5.0-04 | **Governed journey shapes and server-enforced progression** | Learners follow intervention and prerequisite journeys | Reconciliation §1 (composer split) | ASM; the learning cycle; CON | Direction only. Today's progression is partly enforced in pages (the Horizon Review's friction 2) | Team: the small set of shapes. **Note:** server-side progression is needed regardless of interventions, as an integrity fix. Consider moving it earlier (G-8) | **PARTIAL** |
+| 5.0-04 | **Governed journey shapes and server-enforced progression** | Learners follow intervention and prerequisite journeys | Reconciliation §1 (composer split) | ASM; the learning cycle; CON | Direction only. The reconciliation cites the Horizon Review's "friction 2" (progression enforced in pages); that review was unavailable to this audit, and **no current bypass has been demonstrated** | Team: the small set of shapes. **G-8 is an investigation, not a finding:** one reachable example, the rule it breaks and its consequence. If one exists, it is a defect with its own priority; if not, 5.0 placement stands | **PARTIAL** |
 | 5.0-05 | **Institution-level improvement** (departments and schools, on aggregates) | Department heads and school leaders | Roadmap B5 | INT; PRM (department scope); small-cell aggregation (studied, not assigned); the broader institution model (unassigned) | Direction only | **D-50-05:** the minimum aggregate size and the department scope. **The broader institution model** is unassigned | **UNRESOLVED** |
 
 ### 1.4 · Totals
 
-| Version | COMPLETE | PARTIAL | UNRESOLVED | BLOCKED | Not classed |
-|---|---|---|---|---|---|
-| **4.2** (20 items: the owner's list, the execution-plan items, the candidates, the register, U-01; U-02 not classed) | 1 | 5 | 11 | 3 | 1 group (U-02) |
-| **4.5** (13 items) | 0 | 4 | 6 | 3 | — |
-| **5.0** (5 items) | 0 | 1 | 1 | 3 | — |
+Committed scope, candidates and unassigned work are counted separately, so that optional or unassigned items do not
+make the committed release look less mature than it is.
 
-*(5.0-01 is counted as BLOCKED.)*
+| Version and group | COMPLETE | PARTIAL | UNRESOLVED | BLOCKED |
+|---|---|---|---|---|
+| **4.2 committed** (the owner's §4 list and the two execution-plan items; 4.2-06 split: 14 items) | 1 (09) | 5 (03, 06a, 07, 08, 13) | 8 (01, 02, 04, 05, 06b, 10, 11, 12) | 0 |
+| 4.2 register (4.2-R) | — | 1 | — | — |
+| 4.2 candidates (C1–C5) | — | — | 3 (admission: C1, C3, C4) | 2 (C2 on the walkthrough; C5 on E) |
+| Unassigned (U-01 retention enforcement) | — | — | — | 1 (R-2) |
+| **4.5** (13 items) | 0 | 6 (01, 02, 04, 05, 07, 10) | 6 (03, 06, 08, 09, 11, 12) | 1 (S, source) |
+| **5.0** (5 items) | 0 | 1 (04) | 1 (05) | 3 (01, 02, 03: on 4.5 by design; R-4) |
+
+**Most of 4.2's eight UNRESOLVED items have a plannable part** (§8 lists them): the open decision is narrow, and a
+recommended answer is in §5.1.
 
 ---
 
@@ -160,7 +176,7 @@ owner after 4.1's acceptance (Rev 3, "Owner decisions" table).
 | 4.2-09 Classes without a teacher | | R | R | | | | C (view) | | | | | | |
 | 4.2-10 PD corrections | | R | M | M (PD sittings) | | M (PD) | A | **A** (PD certificates) | C | A | | | |
 | 4.2-11 Structure corrections | | R | **M** | **A** (open sittings) | | A | A | **A** (school name) | C | **A** | A | | |
-| 4.2-12 Scheduled QH | | | | | R | R | **M** | | | | **A** (known defects) | | **C** |
+| 4.2-12 Scheduled QH | | | | | R | R | **M** | | | | **A** (suspected defects, RD-4) | | **C** |
 | 4.2-13 Handover view | | **R** | R | R | | R | C (view) | | C | | | | |
 | 4.2-C1 Time limits | | | | **C M** | M (definition) | A | A | A | C | | A | | maybe |
 | 4.2-C2–C4 Import, AI field | | R | | | **C M** | | | | C | | A (provenance) | **A** | |
@@ -186,16 +202,16 @@ owner after 4.1's acceptance (Rev 3, "Owner decisions" table).
 |---|---|---|---|---|
 | X-1 | Correction chain → past reports → explainable history | 4.1 C1w → 4.2-05 → 4.5-08 | 4.2's "past report" and 4.5's "as of" both claim to show the past. Unless D-05 is decided, 4.2 either duplicates 4.5 or builds a weaker version 4.5 must replace | Owner D-05; the H-01 contract in both plans |
 | X-2 | Effective-dated grants → assessor authority → evaluation readership | 4.2-02/03 → 4.5-06/07 | 4.5's assessor and readership rules assume a role model 4.2 has not designed. If 4.2 makes positions purely descriptive (D-02), 4.5 needs a separate assessor grant | Decide D-02 with 4.5-06 in view |
-| X-3 | Question Health schedule → Question Intelligence | 4.2-12 → 4.5-01 | 4.2 schedules figures that 4.5 must first prove wrong, then repair (RD-4) | Owner D-12 |
-| X-4 | Export → retention → explainable history | 4.2-04 → U-01 → 4.5-08 | An export before R-2 creates uncontrolled copies; 4.5 snapshots assume a retention rule that does not exist | R-2 before export of educational evidence (D-04b) |
+| X-3 | Question Health schedule → Question Intelligence | 4.2-12 → 4.5-01 | 4.2 would refresh figures whose correctness RD-4 questions on static inspection only | Runtime proof first, then D-12 |
+| X-4 | Export → retention → explainable history | 4.2-04 → U-01 → 4.5-08 | An exported file leaves PINTAR's technical control; it stays subject to the applicable handling obligations, and no retention policy can make it remotely revocable. 4.5 snapshots assume a retention rule that is not yet decided | Design now: authorised datasets and recipients, an export timestamp, the audit record, educator material excluded unless permitted. R-2 governs production use and disposition (D-04b) |
 | X-5 | Same-assessment notion (ruling 46) → comparability | 4.1 A3 → 4.5-02 | A3 groups published versions as "the same assessment" for attempts. Comparability must be decided per pair and human-confirmed (RD-1). Reusing A3's lineage root as a comparability key would silently assert equivalence | Write the distinction into 4.5-02's plan (G-6) |
-| X-6 | Unusual-access signals → the no-behaviour-tracking rule | 4.5-12 ↔ 4.5 governance | Contradiction in the same version unless the signals are ruled out of the evidence boundary | Owner D-45-12 (G-7) |
+| X-6 | Unusual-access signals → the no-behaviour-tracking rule | 4.5-12 ↔ 4.5 governance | **A boundary to design, not a demonstrated contradiction.** Security events and learning-behaviour tracking differ in purpose, access and retention | Team proposes the minimum signals, who inspects them, retention, and their exclusion from analytics and evaluation; escalate only a proposal that crosses an existing prohibition (G-7) |
 | X-7 | Reviewer notes → misconception mapping | 4.1 C2w → 4.5-09 | C2w notes are "never evidence, never a taxonomy" (C2w D-rules). 4.5 might assume them as a mapping source | Keep them excluded unless R-3 rules otherwise |
 | X-8 | Two-school roles → A3's controller, A2b's work scope | 4.1 → 4.2-03 | None found. A2b reads the place, not the person's only school; A3 binds the controller to the Auth session, not to a school. Verify both in 4.2's tests | Test only |
 | X-9 | Name correction → sealed certificates → snapshot certificates | 4.2-06 → CRT → 4.5-08 | 4.2 changes a name that 4.1 seals and 4.5 re-renders | Owner D-06 |
 | X-10 | School rename → print references, verification | 4.2-11 → B2, CRT | B2 prints carry the school as it was; verification shows status. The rename semantics decide which is "true" | Owner D-11a |
-| X-11 | Server progression → interventions | 5.0-04 → 5.0-02 | Progression enforced in pages is an integrity weakness today, yet it waits for 5.0 | Consider earlier (G-8) |
-| X-12 | Real evidence volume → all of 4.5 | Production use → 4.5-01, 02, 05 | 4.5 assumes years of sittings. **Production is at migration 111 with no real schools on 4.x.** Staging data is synthetic | G-4: production release and adoption are a hidden prerequisite |
+| X-11 | Server progression → interventions | 5.0-04 → 5.0-02 | Unverified: whether any current approved completion or permission condition can be bypassed | Investigate (G-8) |
+| X-12 | Real evidence → useful 4.5 conclusions | Production use → 4.5-01, 02, 05 | Building and verifying measurement needs only controlled data. **Conclusions about real classes** need real sittings, and production is at migration 111 with no real school on 4.x. Requirements differ by claim (G-4) | Treat adoption as a value and validation dependency, not a build prerequisite |
 | X-13 | E's outcome → C3w-2 → the commercial items | 4.1 E → 4.2-C5 | Ruling 44: if no provider permits the educator-only workflow, integrated AI leaves the roadmap. 4.2-C5 then disappears | Wait for E (judging in progress) |
 
 ---
@@ -228,21 +244,25 @@ a decision.
 - *What else changed?* Every permission check; report audiences; the B1 events; 4.5 assessor eligibility.
 - *Failure?* A grant expires while a view is open or an export is running. Rev 3's rule: recheck at the effect boundary.
   **Open:** which operations recheck mid-way (exports, long reports).
-- *After expiry, revocation, transfer or suspension?* Suspension is person-level (ruling 19) and covers all schools.
-  **Open:** whether suspension in school A suspends the person's role in school B. Rulings 17 and 19 are person-level,
-  so presumably yes; **(proposed)** confirm in planning.
+- *After expiry, revocation, transfer or suspension?* **Checked in the code (`main`):** account suspension
+  (`tangguhkan_akun`) requires `is_system_admin()`, so **only a platform administrator can suspend a person**, and the
+  suspension is person-wide. A school admin cannot suspend anyone. In a two-school design a school admin **ends their own
+  school's grant**; that never touches the person's grant in the other school. Platform suspension stays a separate,
+  platform-level act. This settles the authority question from existing decisions; no owner decision is needed unless
+  a school-level suspension is wanted.
 - *Authority?* Each school's admin over its own grants only. **Open:** who may grant an acting appointment that spans a
   head-of-department scope.
 - *What the user sees?* A context selector; Daisy.
 - *Evidence?* Switching, revocation, expiry during an action, history retained, and no cross-school leak (H-02).
 
 **4.2-04 School data export**
-- *And then what?* A file leaves PINTAR. **PINTAR loses all control over it.** The B1 event is the only record.
+- *And then what?* A file leaves PINTAR's technical control. It remains subject to the applicable handling
+  obligations, which the export screen states. The B1 event records who, what scope and when.
 - *What else changed?* Retention (a copy exists outside every rule), educator protections (4.5-07, if educator evidence
   is included).
 - *Failure or interruption?* A partial file; a repeated request; authority expiring during generation. **Open.**
-- *After a later correction or deletion?* The export is stale. **Open:** whether exports are labelled "as of" and
-  whether a later deletion request reaches them (it cannot technically; the policy must say so).
+- *After a later correction or deletion?* The export is stale. **(Proposed)** every export carries its "as of"
+  timestamp; a later deletion cannot reach a downloaded file, and the handling obligations say so.
 - *Authority?* **Open** (D-04a): school admin only, or the principal?
 - *What the user sees?* Open.
 - *Evidence?* Scope, refusal and audit paths, and a test that no other school's row is in a file.
@@ -274,14 +294,14 @@ a decision.
 **4.2-10 / 4.2-11 PD and structure corrections**
 - *And then what?* A record changes or is superseded. Certificates and history may refer to it.
 - *Undo a promotion run:* if any new-year sitting, enrolment change or result exists, **an undo would orphan or misplace
-  evidence.** **(Proposed:)** undo only while no new-year evidence exists; otherwise per-learner corrections. That is
-  owner D-11b.
+  evidence.** **(Proposed:)** undo only while no new-year evidence exists; otherwise per-learner corrections. Owner D-11b.
 - *Rename a school:* history keeps the name as issued **(proposed)**; current views show the new name. D-11a.
 - *Reactivate a class:* its old sittings stay closed; it gains new work only.
 - *Evidence?* Each correction with a dependent certificate, report and open sitting present.
 
 **4.2-12 Scheduled Question Health**
-- *And then what?* Readers trust fresher figures. **Known defective (RD-4).**
+- *And then what?* Readers trust fresher figures. **Whether those figures are affected by RD-4 is unproven** until
+  the runtime reproduction. **(Proposed)** no automatic refresh of a figure found misleading.
 - *Failure?* A failed run leaves stale figures. Freshness must be visible.
 - *After restore?* The job must be in the shared installer (DR-S14–16, A1-K01).
 - *Evidence?* Freshness shown; a failed run visible; the limitation disclosed.
@@ -363,20 +383,24 @@ a decision.
 
 ## 4 · Integrated acceptance journeys for each version
 
-These are **planning definitions**. Each version's execution plan restates them as tests on its exact candidate.
+These are **planning definitions, provisional**. Each version's execution plan restates them as tests on its exact
+candidate, against the scope finally admitted. Any outcome that depends on an open decision is marked **(per D-…)** or
+**(proposed)** and is not a settled outcome.
 
 ### 4.2 · eight journeys
 
 | # | Journey | Covers | Success, refusals, recovery, history |
 |---|---|---|---|
 | **J42-1** | **First day at a new school year, with a new head of department** | 4.2-02, 4.2-09, 4.2-11, 4.2-13 | The admin rolls over the year; finds classes without a teacher; appoints an acting head (future-dated start); a departing teacher's classes are handed over. Refused: an expired grant. Undo of the run before any work exists **(per D-11b)**. History: last year's reports still name last year's teacher |
-| **J42-2** | **A teacher at two schools** | 4.2-03 | One identity, two dated grants, a context switch. Refused: reading school B's report from school A's context. Suspension covers both schools. History: work keeps its original school |
+| **J42-2** | **A teacher at two schools** | 4.2-03 | One identity, two dated grants, a context switch. Refused: reading school B's report from school A's context. School A's admin ends their grant: school B is unaffected. A platform suspension (platform admin only) covers both. History: work keeps its original school |
 | **J42-3** | **An exam day, with an interruption and a maintenance window announced** | 4.2-01, A3, A2b, A1 | Learners sit under exam conditions; one device fails and is recovered with authorisation; a planned window drains correctly; results reported. Refused: an unauthorised device switch. **Depends on D-01** |
 | **J42-4** | **A school exports its data, then a correction lands** | 4.2-04, 4.2-05 | Export with its event; then a key correction; the past report shows the agreed semantics (D-05); the export is visibly "as of". Refused: another school's data; an expired role mid-export |
 | **J42-5** | **A name mistake found after a certificate was issued** | 4.2-06, CRT | The name is corrected; the certificate is handled per D-06; verification shows the governed status |
-| **J42-6** | **An account request declined; a password changed; a suspended user** | 4.2-07, 4.2-08, L-1 | Neutral wording throughout; sessions ended; nothing disclosed |
+| **J42-6** | **An account request declined; a password changed; a suspended user** | 4.2-07, 4.2-08, L-1 | Neutral wording throughout; other sessions ended **(proposed)**; nothing disclosed |
 | **J42-7** | **A PD programme ended early** | 4.2-10 | Participants' records and certificates follow D-10 |
 | **J42-8** | **A school renamed mid-year** | 4.2-11 | Prints, certificates and verification follow D-11a |
+| **J42-9** | **Question Health on a schedule** *(only if admitted after the runtime proof)* | 4.2-12 | A refresh runs; freshness is shown; a failed run is visible; a restore reinstalls the job; any figure with a confirmed limitation says so |
+| **J42-10** | **External AI content imported** *(only for the candidates admitted)* | 4.2-C2–C4 | A teacher imports AI-drafted questions (paste route or questions-only), records the AI as self-declared, and the questions go through review, publication and a key correction like any other |
 
 ### 4.5 · six journeys
 
@@ -397,6 +421,7 @@ These are **planning definitions**. Each version's execution plan restates them 
 | **J50-2** | **A staggered start, ended for one learner** | 5.0-02 under R-4: necessary assistance preserved |
 | **J50-3** | **An educator's growth year** | 5.0-01: objectives, a shared record, a withdrawal per the Compact, and no path into formal evaluation |
 | **J50-4** | **A department reviews its aggregates** | 5.0-05: small groups suppressed; no individual reachable from an aggregate |
+| **J50-5** | **A learner on a governed journey shape, interrupted** | 5.0-04: a step interrupted and resumed; a scope change; accepted progress never lost; the server refuses an out-of-order step |
 
 ---
 
@@ -407,29 +432,34 @@ These are **planning definitions**. Each version's execution plan restates them 
 Grouped by when they are needed. **None is needed for 4.1.** None is raised for decision now. They come back at each
 version's planning window, as Rev 3 and DECISIONS-TO-TRACK already arrange.
 
-| ID | Decision | Version | Needed by |
+Each is within the owner's remit: educational behaviour, authority, commercial scope or historical meaning.
+Implementation mechanics stay with the team. **Every decision carries a concrete choice and Bob's recommended answer,
+for the owner to accept, amend or reject.** None is asked now.
+
+| ID | Decision | Bob's recommended answer | Needed by |
 |---|---|---|---|
-| **G-1** | **Merge the governing planning records into `main`** through the protected process. The 11 Nov roadmap (S-b) is only on `claude/roadmap-45-50`; Rev 3.3 and DECISIONS-TO-TRACK are only on `claude/bob-41-master-plan`. The owner's own rule (11 Nov): "Planning records become the authoritative repository record once merged into main." | All | **Before 4.2 planning.** Documentation-only; it can ride with any later docs PR |
-| D-01 | What Exam Mode is | 4.2 | 4.2 planning |
-| D-02 | Positions: permission-bearing or descriptive; acting cover | 4.2 (and 4.5-06) | 4.2 planning |
-| D-04a/b | Export datasets; whether an export of educational evidence may precede R-2 | 4.2 | 4.2 planning |
-| D-05 | Past reports: as then, or as corrected now (the 4.2/4.5 boundary) | 4.2 / 4.5 | 4.2 planning |
-| D-06 | A name corrected after a certificate | 4.2 | 4.2 planning |
-| D-10 | A PD participant removed after a PD certificate | 4.2 | 4.2 planning |
-| D-11a/b | School rename semantics; promotion-run undo after new-year work | 4.2 | 4.2 planning |
-| D-12 | Schedule Question Health before or after its repair | 4.2 / 4.5 | 4.2 planning |
-| D-C1, C3, C4 | Admit the candidates (time limits; question-only import; the AI field) | 4.2 | 4.2 planning |
-| D-C2 | Admit X-2 | 4.2 | After the walkthrough |
-| R-1 | Formal evaluation policy | 4.5 | 4.5 planning |
-| **R-2** | Retention, deletion and pseudonymisation | All | **Before production data** |
-| R-3 | Structured misconception codes | 4.5 | 4.5 planning (C2w closed without it) |
-| R-5 | Competency anchor | 4.5 | During 4.5 planning |
-| D-45-03 | Who maps content to competencies | 4.5 | 4.5 planning |
-| D-45-11 | WhatsApp audience (learners?) | 4.5 | 4.5 planning |
-| D-45-12 | Which signals adaptive checks may use, given the no-tracking rule | 4.5 | 4.5 planning |
-| R-4 | Staggered starts | 5.0 | 5.0 planning |
-| D-50-01 | The Compact's terms | 5.0 | 5.0 planning |
-| D-50-05 | Aggregate minimums; department scope | 5.0 | 5.0 planning |
+| **G-1** | Publish the governing planning records on `main` | A bounded documentation-only PR carrying the 11 Nov roadmap set, Rev 3.3 and DECISIONS-TO-TRACK. **This is a repository requirement; it does not make any approved ruling absent meanwhile** (see G-1 in §5.2) | Before 4.2 planning |
+| D-01 | What Exam Mode is | A teacher-scheduled sitting with a fixed start window; device change only by A3's teacher-authorised recovery; A1 controls kept, each with a reason; **no lockdown or monitoring technology** (no behaviour tracking); results marked "exam" so 4.5 does not compare them with practice by default | 4.2 planning |
+| D-02 | Positions: permission-bearing or descriptive; acting cover | **Descriptive.** Permission stays in scoped, dated grants; an acting appointment is a dated grant with a reason that expires on its own | 4.2 planning |
+| D-04a/b | Export datasets; timing against R-2 | The school's own structure, people and academic records; **excluded:** educator-related evidence, the B1 store, other schools' data. Allowed before R-2 with an "as of" timestamp, the audit event and stated handling obligations (the school owns its data, D-110) | 4.2 planning |
+| D-05 | Past reports: as then, or as corrected now | **As corrected now,** with a visible "corrected" marker and the date, consistent with O41-21. Exact as-issued reconstruction stays 4.5-08's | 4.2 planning |
+| D-06 | A name corrected after a certificate | The certificate stays as issued (sealed). Verification shows the current name and "name corrected on {date}". Reissue only on request, through the existing review | 4.2 planning |
+| D-10 | A PD participant removed after a PD certificate | The certificate goes to review, as O41-19 does for corrected scores | 4.2 planning |
+| D-11a/b | Rename semantics; promotion-run undo | (a) History and issued artefacts keep the name as issued; current views show the new name; verification shows the current name with "formerly …". (b) Undo only while no new-year evidence exists; otherwise per-learner corrections | 4.2 planning |
+| D-12 | Scheduling Question Health | Do not schedule a figure the runtime proof finds misleading. Correct it first (early 4.5 work brought forward only if small), or schedule the unaffected figures with any limitation shown | 4.2 planning, after the proof |
+| D-C1 | Admit assessment-specific time limits | Not in 4.2 unless the walkthrough shows a need; R-C stands | 4.2 planning |
+| D-C2 | Admit X-2 | Decide on the walkthrough's evidence | After the walkthrough |
+| D-C3, C4 | Admit the questions-only import and the AI field | Admit both: small, they reuse C1w and C3w's self-declared boundary | 4.2 planning |
+| R-1 | Formal evaluation policy | Bob prepares one policy proposal with options at 4.5 planning | 4.5 planning |
+| **R-2** | Retention, deletion and pseudonymisation | **Bob prepares one recommended policy, with legal input and its consequences across the affected features,** for the owner to decide once | **Before production data** |
+| R-3 | Structured misconception codes | Keep C2w notes outside evidence; decide codes inside 4.5-09's design | 4.5 planning |
+| R-5 | Competency anchor | After the 4.5 investigation reports | During 4.5 planning |
+| D-45-03 | Who maps content to competencies | The content owner of each item (O41-18), with independent confirmation | 4.5 planning |
+| D-45-11 | WhatsApp audience | Staff only at first; learners only after a separate eligibility check, as ruling 44 did for AI | 4.5 planning |
+| D-45-12 | Adaptive-check signals | Only if the team's design crosses a prohibition | 4.5 planning |
+| R-4 | Staggered starts | A policy proposal at 5.0 planning, with an ethics review route | 5.0 planning |
+| D-50-01 | The Compact's terms | A proposal at 5.0 planning | 5.0 planning |
+| D-50-05 | Aggregate minimums; department scope | A minimum group size and the department scope, set with Sharon at 5.0 planning | 5.0 planning |
 | — | The broader institution model; Parent Portal; Share & Learn (source); unassigned items | Unassigned | Only if taken forward |
 | — | The commercial side of AI drafting (rulings 38–40) | Unassigned | After E's cost evidence |
 
@@ -437,14 +467,14 @@ version's planning window, as Rev 3 and DECISIONS-TO-TRACK already arrange.
 
 | ID | Risk or finding | Severity | Effect | Mitigation |
 |---|---|---|---|---|
-| **G-1** | Governing planning records not on `main` | **High** (authority) | By the owner's own rule they are not yet the authoritative record | Merge, documentation only |
-| G-2 | 4.2 has 12 open owner decisions and 1 planning-ready feature | High (schedule) | 4.2 planning will stall without a decision session | One structured decision pack at 4.1's Z, not piecemeal |
+| **G-1** | Governing planning records not on `main` | Medium (record-keeping) | The rule is the completion-folder `OWNER-DECISIONS-2026-11-11.md` (on `main`), "Also ruled the same day": *"Planning records become the authoritative repository record once merged into `main` through the protected process."* It concerns the repository record. **The owner's explicit decisions stand regardless of where they are filed**, and the team does not treat an approved ruling as absent | A bounded documentation-only PR |
+| G-2 | 4.2 has 12 open owner decisions, each now with a recommended answer | High (schedule) | 4.2 planning will stall without a decision session | One structured decision pack at 4.1's Z, not piecemeal |
 | G-3 | The rationalisation audit sits between 4.1 and 4.2 with no measures or time-box agreed | Medium | It can delay 4.2 indefinitely, or be skipped | Agree its measures and time-box at Z |
-| **G-4** | **4.5 needs real evidence volume; production is at 111, and no real school runs 4.x** | **High** (value) | 4.5 Question Intelligence would produce "insufficient evidence" everywhere | Make production release and adoption an explicit milestone before 4.5's measurement work; R-2 is needed first anyway |
-| G-5 | Retention (R-2) gates production data, export, snapshots, evaluation and deletion | High | It sits under five features in three versions | Bring R-2 forward as one policy decision with legal input |
+| **G-4** | **Useful 4.5 conclusions need real school evidence; production is at 111 and no real school runs 4.x** | High (value) | Building, repairing and verifying measurement can use controlled data with known answers. What needs real sittings is **conclusions about real classes**, and the requirement differs by claim: item difficulty needs enough responses per item; discrimination needs more, across a range of ability; reliability needs enough complete sittings of one instrument; longitudinal improvement needs comparable instruments over time. This audit sets no number | Treat adoption as a **value and validation** dependency. Evidence collection starts with an authorised production rollout (after R-2). Foundation design and controlled verification can proceed under 4.5's planning approval |
+| G-5 | Retention (R-2) governs production data and every irreversible disposition | High | **What it blocks:** production use of educational evidence, and any deletion, pseudonymisation or snapshot expiry. **What it does not block:** designing export permissions, historical record structures and retention dependencies | Bob brings one recommended policy, with legal input |
 | G-6 | Ruling 46's "same assessment" could leak into comparability | Medium | Silent equivalence | State the distinction in 4.5-02's plan |
-| G-7 | Adaptive access checks vs the no-tracking principle | Medium | A contradiction inside 4.5 | D-45-12 |
-| G-8 | Server-enforced progression waits for 5.0 though it is an integrity issue now | Medium | A known weakness persists through 4.2 and 4.5 | Consider it in the rationalisation audit or 4.2, as a defect, not a feature (owner decides if scope moves) |
+| G-7 | Adaptive access checks beside the no-tracking principle | Low | A boundary to design, not a demonstrated contradiction | The team proposes signals, access, retention and separation; escalate only if a prohibition is crossed |
+| G-8 | Whether current progression can be bypassed | Unknown until investigated | If a current client can bypass an approved completion or permission condition, it is a defect | Second Eye looks for one reachable example (the rule, the path, the consequence). A demonstrated defect is classed and prioritised; otherwise 5.0 placement stands. **The rationalisation audit introduces no new educational behaviour without a scope decision** |
 | G-9 | E's outcome may remove integrated AI (ruling 44) | Medium | 4.2-C5 and C3w-2 disappear | None needed; known by design |
 | G-10 | Share & Learn's source is unverified | Low | Possible lost commitment | Owner restates it, or it stays unassigned |
 | G-11 | Educator evidence crosses export (4.2), evaluation (4.5) and growth (5.0) | High | 4.2 may ship an export that 4.5's protections then forbid | Decide D-04a with A5 in view |
@@ -474,47 +504,74 @@ recorded here verbatim in substance. Disagreements are listed, not resolved.**
 
 ---
 
-## 8 · Readiness verdicts (provisional until §7 is complete)
+## 8 · Readiness verdicts (revision 2; provisional until §7 is complete)
 
-### 4.2 · **NOT READY for detailed execution planning. READY for a scoping and decision session.**
-- **1 of 20 items is planning-ready** (4.2-09); 5 are PARTIAL and can be planned by the team.
-- **11 need an owner decision** (D-01, D-02, D-04, D-05, D-06, D-10, D-11, D-12, and admitting candidates C1, C3 and C4).
-- **3 are BLOCKED:** X-2 on the walkthrough, retention on R-2, the commercial items on E.
-- **Before implementation can be authorised:**
-  1. 4.1 accepted;
-  2. the rationalisation audit's measures agreed and the audit done;
-  3. G-1 merged;
-  4. one decision session on the D-items;
-  5. the 4.2 plan written, reviewed by Sharon and Daisy, and approved by the owner.
+### 4.2 · **Ready for scope selection and detailed planning of bounded features. Final implementation approval awaits the identified decisions.**
+- **Plannable now, by the team:** 4.2-09 (classes without a teacher); 4.2-03 (two-school permission cases, with the
+  suspension authority settled from the code); 4.2-06a (adding one person); 4.2-07 (declining a request); 4.2-08
+  (password change); 4.2-13 (handover view); and the register.
+- **Plannable in part now; one narrow decision for the rest** (recommended answers in §5.1):
+  - 4.2-02: the grant mechanics now, D-02 for positions;
+  - 4.2-04: datasets, recipients and audit now, D-04;
+  - 4.2-05: the selector and access rules now, D-05 for correction semantics;
+  - 4.2-06b: the correction now, D-06 for certificates;
+  - 4.2-10: D-10;
+  - 4.2-11: reactivating or moving a class now, D-11 for rename and undo.
+- **Waiting on proof:** 4.2-12, until the runtime reproduction of RD-4.
+- **Waiting on a scope decision:** 4.2-01 Exam Mode (D-01), and the candidates.
+- **Delivery sequence before 4.2 development:** 4.1 accepted; the rationalisation audit's measures agreed and the audit
+  done; the 4.2 plan approved.
 
-### 4.5 · **NOT READY. BLOCKED at its foundation.**
-- Its first group (Question Intelligence) is BLOCKED on RD-4's runtime verification, and in practice on real evidence
-  volume (G-4).
-- R-1, R-2, R-3 and R-5 are all pending.
-- The carried capabilities need D-45-11 and D-45-12.
-- **Before implementation can be authorised:**
-  1. RD-4 reproduced at runtime (no-cost; can be scheduled after 4.1);
-  2. R-2 decided (before production data in any case);
-  3. R-1 and R-5 decided;
-  4. a production-adoption path that yields evidence;
-  5. the 4.5 plan approved.
+### 4.5 · **Foundation design and controlled verification can be planned. Useful conclusions and the policy-bound features cannot yet.**
+- **Plannable now under a 4.5 planning approval:**
+  - the RD-4 runtime reproduction;
+  - measurement formulas verified on controlled data;
+  - the classification;
+  - comparability rules;
+  - Quiet Intelligence's design;
+  - the protections' design;
+  - the scoring-policy check.
+- **Waiting on owner policy:**
+  - R-1 (formal evaluation);
+  - R-2 (retention: snapshots and production evidence);
+  - R-3 (misconception codes);
+  - R-5 (competency anchor);
+  - D-45-11 (WhatsApp audience).
+- **Waiting on evidence:** conclusions on real classes, which need an authorised production rollout (G-4).
+- **Waiting on its source:** Share & Learn.
 
-### 5.0 · **NOT READY. BLOCKED on 4.5 by design.**
-- Every 5.0 group depends on 4.5's measurement, comparability, competency identity, classification and protections.
-- R-4 and the Compact's terms are pending.
-- **The only item that could be planned earlier** is server-enforced progression (G-8), and only if the owner chooses
-  to treat it as an integrity fix.
+### 5.0 · **Not ready for detailed planning, by design: it builds on 4.5's outputs.**
+- **Can be prepared:** the R-4 and Compact proposals; the G-8 investigation; the governed journey shapes.
+- **Waiting on 4.5's delivered foundations:** everything else.
 
 ### Overall
-The direction for all three versions is **coherent**: I found no circular dependency, and no contradiction between owner
-rulings, except G-7, which is a tension inside 4.5's own text. The gaps are **decisions and evidence, not design
-errors.** The most consequential are:
-- **G-1:** the governing records are not yet on `main`;
-- **R-2:** retention gates production data and five later features;
-- **G-4:** 4.5 needs real data that production does not yet have.
+The direction is **coherent**:
+- no circular dependency;
+- no contradiction between owner rulings (G-7 is reclassified as a design boundary).
+
+The gaps are decisions and evidence, not design errors. The most consequential are:
+- **R-2**, which governs production data and disposition;
+- **useful 4.5 conclusions need real school evidence** (G-4);
+- **one 4.2 decision session**, with the recommended answers of §5.1, near Z.
+
+## 9 · The owner's adviser review (18 Nov), and how revision 2 answers it
+
+| # | Point | Response |
+|---|---|---|
+| 1 | Replace release-wide "not ready" with specific limits; split features; separate candidates and unassigned work from the headline | Adopted: §0.3, §1.4, §8; 4.2-06 split |
+| 2 | Real data is a condition for useful conclusions, not a prerequisite for building measurement; requirements differ by claim | Adopted: G-4, X-12, 4.5-01, §8 |
+| 3 | The four RD-4 findings are suspected, not known; prove each first; avoid refreshing misleading figures | Adopted: 4.2-12, X-3, §3.1, D-12. Second Eye's runtime reproduction is the proof step |
+| 4 | Investigate server progression before calling it a defect | Adopted: G-8, X-11, 5.0-04 |
+| 5 | Describe exactly what R-2 blocks; export precision; bring one recommended policy | Adopted: G-5, X-4, §3.1, R-2 row |
+| 6 | Resolve who may suspend across schools | **Settled from the code:** only a platform admin can suspend (`tangguhkan_akun` requires `is_system_admin()`); a school admin ends their own school's grant only. §3.1, J42-2 |
+| 7 | Unusual-access checks are a boundary to design | Adopted: G-7, X-6 |
+| 8 | Journeys and outcomes provisional; coverage for admitted scope; recommendations with each owner decision | Adopted: §4 (J42-9, J42-10, J50-5 added), §5.1 |
+| — | G-1 needs a precise citation; rulings are not absent meanwhile | Adopted: G-1 rows |
+| — | Protect C2w's candidate; explain the extra commit | Answered to the owner in the session and recorded in `OWNER-RETURN-18NOV.md` |
 
 ## Revision record
 
 | Date | Change |
 |---|---|
 | 18 Nov 2026 | Bob's audit. Reviews requested (§7) |
+| 18 Nov 2026, revision 2 | Targeted revisions after the owner's adviser review (§9): feature-level verdicts, 4.2-06 split, counts separated, G-4 restated, RD-4 status corrected, G-7 and G-8 recast, R-2's reach stated, suspension authority checked in the code, journeys provisional with three added, every owner decision given a recommended answer, G-1 cited precisely |
