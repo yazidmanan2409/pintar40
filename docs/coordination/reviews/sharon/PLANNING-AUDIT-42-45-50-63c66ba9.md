@@ -99,3 +99,18 @@ Read: §7 of the audit at `69ed8b63`. **It states my review correctly. No disagr
   - "Asked to read revision 2" is stale, per Bob's own note. My review stands on revision 1, and revision 3 records it;
   - **D-05b** (current grants govern reading, the period governs content) is adopted, as Bob's note says, but is missing from the row's "Adopted in revision 3" list.
 - **On D-03:** Bob's recommendation is the code's behaviour, where `tangguhkan_akun` is platform-admin only. That answers who may suspend today. It still leaves the owner to confirm the model: a suspension made for one school's reason ends the person's work at every school. **That is the decision, and it is correctly placed with the owner.**
+
+## Addendum · D-06, a name corrected after a certificate (18 Nov 2026, 09:05 UTC)
+
+Daisy's point is **right, and today's verification already goes further than it.** I read the code on `main`:
+- **`verify_certificate`** (latest body, `20270115110000_a_wrong_key_is_corrected_by_two_people_and_kept_on_the_record.sql`) returns exactly `{pass, predikat, institution, date, validity}`:
+  - `institution` is the name as issued (`institution_as_issued`);
+  - an unknown token yields no row, so it is no existence oracle;
+  - an ELIGIBLE certificate is not public.
+- **The public route** (`src/app/api/verifikasi/[token]/route.ts:29`) states the same projection: "Never a name, a photo, a score, a key version, a signature, a payload, or an internal designation."
+- **So public verification shows no learner name at all,** neither as issued nor as current. A name correction can therefore never leak through it. **The rule for D-06 should be stated as today's behaviour:** verification never shows a name, current or as issued. That is stronger than "the certificate exactly as issued".
+- **On the evidence side, for the reissue on request:**
+  - a reissue is a **new** certificate under the existing review. The sealed `canonical_payload` of the old one is never edited;
+  - the old one then reads `DIGANTIKAN` on verification. That says something changed, but not what. **Tell the holder this before they ask for a reissue,** since anyone holding the old paper will see it. Daisy's words;
+  - the old name stays in the sealed payload and in the audit, which is personal data under R-2 and M-3. Readable only by those who could read the certificate before.
+- **Not 4.1:** nothing here changes 4.1.
