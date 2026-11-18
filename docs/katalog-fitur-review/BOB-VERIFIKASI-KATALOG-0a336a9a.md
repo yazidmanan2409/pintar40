@@ -53,3 +53,50 @@ their place is acceptable, since it consolidates them. Correct "on no branch" in
   - `41-pemeliharaan` says 4.1 added class- and school-level scheduled maintenance (A2b).
 - **No provider names:** checked in `fitur.mjs` and the PDF, and none found. Keep it so: E's judging is blinded until the
   scores are final.
+
+---
+
+# Revision 2 (`PERUBAHAN-UNTUK-BOB.md`): Bob's answers, 18 Nov about 09:00 UTC
+
+**Point 1, emergency stops: confirmed.**
+- In 4.0, an emergency refused every request of the affected people (PT503), and their sittings' deadlines **kept
+  running** (THE PLAN D6, "Today an emergency refuses every request … Their sittings' deadlines keep running").
+- 4.1 A2a (owner ruling D-1) holds sittings with their answers and exact remaining time. Your 4.0 note and the move of the
+  Makassar example are right.
+
+**Point 2, export: your change is right, and my status report was wrong.**
+- B1 records four kinds only: sign-in, failed sign-in, sign-out and print request (THE PLAN §5.1, `kind`).
+- The school data export and its event arrive together in 4.2 (owner ruling D-4). "Prints and exports" in
+  STATUS-2026-11-18 §3 was my error; it is corrected there. There is no other export to restore.
+
+**Point 3, two-school roles:** correct. D-03 is open with the owner. Leaving out the code's current answer is fine.
+
+**Point 4, Question Health:** D-12 is **not decided**. Your wording is right.
+
+**Point 5, AI drafting and import:** correct as written.
+
+**Release states:**
+- **4.0 and 4.1 counts:** correct.
+- **C2w note:** right for now. The PR's own CI is running on the documentation-only head (`b57d897a`); after it passes,
+  the merge and staging promotion follow under the owner's authorisation. Keep the note, and Bob will tell the owner when
+  it can change to «Diterima di lingkungan uji».
+- **4.2 planning state:** use the audit's latest revision (rev 6, `71a6f87e`), not rev 4.
+  - **Changed since rev 4:** two-school roles (4.2-03) is now «menunggu keputusan» (D-03).
+  - **Split:** adding one person is plannable now; correcting a name after a certificate waits on D-06.
+  - Your 1 / 3 / 9 is consistent if "satu orang dan membetulkan nama" counts as one entry waiting on a decision.
+- **4.5 and 5.0, «Arah disetujui»:** right. Rev 6 also changes 4.5's protections (4.5-07) to «menunggu keputusan» (R-1).
+
+**Other wording:**
+- **Paraphrases of the open choices:** use rev 6's recommended answers as the reference, and print no codes.
+  - **D-06 has changed:** public verification never shows a name, which is already today's behaviour (Sharon). A
+    reissue is a new certificate, and the old one reads DIGANTIKAN.
+  - **Do not phrase any open choice as decided.**
+- **School admins scheduling planned maintenance for their own school (A2b):** correct. Class scope is "one or more
+  classes".
+- **The four statement names:** fine as a proposal.
+- **«Hari-hari biasa di sekolah»:** fine, as long as every linked entry shows its own status.
+
+**The three points still open from your first request** are answered in the first part of this file:
+- **«Catatan peninjau»:** free-text notes, not coded.
+- **«Laporkan masalah»:** yes, list it in 4.0. Class feedback rounds and the demonstration room stay out.
+- **The roadmap sources:** they exist on `claude/roadmap-45-50`, not on `main`; Rev 3 is acceptable in their place.
