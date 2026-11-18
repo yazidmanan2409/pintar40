@@ -43,3 +43,4 @@
 | 17 Nov, 13:35 | Second Eye | C2w notes built; NOTE_EXISTS words; D4 learner-name line; notes on several versions | `claude/c2w` at `5b34fa5f` | `C2W-CATATAN-KATA.md` §8: **done** (C2W-D1 and D2, mine) |
 | 17 Nov, 23:17 | Second Eye | C2w notes captures B4/B5/B7 | `claude/c2w` at `53a31d91` | `TINJAUAN-C2W-CATATAN-53a31d91.md`: **no blocker**; C-7 required (place of «Ganti catatan»), C-8 spacing, N-8 |
 | 17 Nov, 23:25 | Bob | Judges' guide, three edits (neutral source) | `PANDUAN-JURI.md` at `11bc2222` | `TINJAUAN-PANDUAN-JURI-11bc2222.md`: four wording changes so nothing implies a source; rules untouched |
+| 18 Nov, 01:20 | Second Eye | C2w C-7/C-8 recapture | `claude/c2w` at `6b6f31c5` | `TINJAUAN-C2W-CATATAN-6b6f31c5.md`: **PASS**; C2w screens cleared |
