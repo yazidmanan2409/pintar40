@@ -436,6 +436,8 @@ begin
   insert into public.memberships (enrollment_id, node_id, academic_period_id)
   select v_e, v_k, e.academic_period_id from public.enrollments e where e.id = v_e;
   perform set_config('p.u_M', v_u::text, true);
+  perform set_config('p.kelas', v_k::text, true);
+  perform set_config('p.aa_post', f.aa_post::text, true);
   perform set_config('p.u_T', (select id::text from auth.users where email = 'siklus-guru@synthetic.pintar.test'), true);
   perform set_config('p.u_L', (select id::text from auth.users where email = 'alpha-guru@synthetic.pintar.test'), true);
   set local session_replication_role = replica;
@@ -513,6 +515,9 @@ begin
   ${P("P02_lanjut", "M", "A", "select public.resume_session(current_setting('p.s')::uuid)::text", true)}
   ${P("P02_serah", "M", "A", "select public.submit_session(current_setting('p.s')::uuid)::text", true)}
   -- A3-P14 (S3): after the recovery, session B answers question 1 wrongly (generation 2); A had answered it rightly
+  -- A3-L01 (the screens' reads): after the low-stakes recovery, A is no longer the controller and B is; no permission
+  ${P("L01_pre_A", "M", "A", `select concat_ws(',', x ->> 'di_sesi_ini', x ->> 'perlu_izin', x ->> 'izin_dipakai') from public.pengerjaan_saya(current_setting('p.s')::uuid) x`)}
+  ${P("L01_pre_B", "M", "B", `select concat_ws(',', x ->> 'di_sesi_ini', x ->> 'perlu_izin', x ->> 'izin_dipakai') from public.pengerjaan_saya(current_setting('p.s')::uuid) x`)}
   ${P("P14_jawab_B", "M", "B", `select x.outcome from public.record_answer(${S(1)}, 2, selftest.f09_answer(${S(1)}, false)) x`)}
   -- A3-A01 (D9, Sharon's condition): what the player reads after the recovery, on session B: every receipt for question 1,
   -- whatever generation acknowledged it (A's seq 5, generation 1; B's seq 2, generation 2)
@@ -569,8 +574,13 @@ begin
   v := v || jsonb_build_object('P13_tanda_1', (select coalesce(to_jsonb(s) ->> 'lanjut_diminta_pada', 'null') from public.assessment_sessions s where s.id = v_post));
   ${P("P13_lagi", "M", "B", "select public.minta_izin_lanjut(current_setting('p.post')::uuid)::text")}
   v := v || jsonb_build_object('P13_tanda_2', (select coalesce(to_jsonb(s) ->> 'lanjut_diminta_pada', 'null') from public.assessment_sessions s where s.id = v_post));
+  -- A3-L01: the teacher's row shows the request; the learner's read says this session (B) is not the controller
+  ${P("L01_daftar_minta", "T", "T", `select concat_ws(',', d.mode_asesmen, (d.lanjut_diminta_pada is not null)::text, (d.izin_berlaku_sampai is not null)::text) from public.daftar_pengerjaan(current_setting('p.kelas')::uuid, current_setting('p.aa_post')::uuid) d where d.person_id = (select a.person_id from public.accounts a where a.auth_user_id = current_setting('p.u_M')::uuid)`)}
+  ${P("L01_post_B_sebelum", "M", "B", `select concat_ws(',', x ->> 'di_sesi_ini', x ->> 'perlu_izin', x ->> 'izin_dipakai') from public.pengerjaan_saya(current_setting('p.post')::uuid) x`)}
   ${P("P13_masih", "M", "B", lanjut("current_setting('p.post')::uuid"), true)}
   ${P("P04_izin", "T", "T", izin())}
+  -- A3-L01: the teacher's row shows the valid permission
+  ${P("L01_daftar_izin", "T", "T", `select concat_ws(',', d.mode_asesmen, (d.lanjut_diminta_pada is not null)::text, (d.izin_berlaku_sampai is not null)::text) from public.daftar_pengerjaan(current_setting('p.kelas')::uuid, current_setting('p.aa_post')::uuid) d where d.person_id = (select a.person_id from public.accounts a where a.auth_user_id = current_setting('p.u_M')::uuid)`)}
   -- (Sharon c0a5d7d6) a request on an Uji Penguasaan that already has a valid permission: it can recover directly
   ${P("P13_berizin", "M", "B", "select public.minta_izin_lanjut(current_setting('p.post')::uuid)::text", true)}
   -- A3-P10 (S5, binding): a permission for another sitting of the same learner does not recover this one
@@ -609,6 +619,10 @@ begin
   end;
   perform selftest.as_owner();
   ${P("P04_sah", "M", "B", lanjut("current_setting('p.post')::uuid"))}
+  -- A3-L01: after the allowed recovery, B is the controller by a teacher's permission; the row's request and permission are gone
+  ${P("L01_post_B", "M", "B", `select concat_ws(',', x ->> 'di_sesi_ini', x ->> 'perlu_izin', x ->> 'izin_dipakai') from public.pengerjaan_saya(current_setting('p.post')::uuid) x`)}
+  ${P("L01_post_A", "M", "A", `select concat_ws(',', x ->> 'di_sesi_ini', x ->> 'perlu_izin', x ->> 'izin_dipakai') from public.pengerjaan_saya(current_setting('p.post')::uuid) x`)}
+  ${P("L01_daftar_sesudah", "T", "T", `select concat_ws(',', d.mode_asesmen, (d.lanjut_diminta_pada is not null)::text, (d.izin_berlaku_sampai is not null)::text) from public.daftar_pengerjaan(current_setting('p.kelas')::uuid, current_setting('p.aa_post')::uuid) d where d.person_id = (select a.person_id from public.accounts a where a.auth_user_id = current_setting('p.u_M')::uuid)`)}
   v := v || jsonb_build_object('P13_sesudah_pulih', (select coalesce(to_jsonb(s) ->> 'lanjut_diminta_pada', 'null') from public.assessment_sessions s where s.id = v_post));
   ${P("P04_terpakai", "M", "C", lanjut("current_setting('p.post')::uuid"), true)}
   -- A3-P17 (D9): the new controller's manifest is judged against the answers the server holds, whatever generation
@@ -2050,6 +2064,31 @@ rollback;`;
       const lanjut = 1 + Math.max(0, ...diterima);
       c.expect(diterima.length === 2 && diterima.every((q) => lanjut > q), `the next seq ${lanjut} is not above every held seq (${diterima.join(", ")})`);
       return c.verdict("executes session_answers against the migrations, rolled back, and reads the player's wiring (D9; Sharon's ruling (a)): after a recovery the recovered session's read holds question 1's receipts from both generations (seq 5 and 2); the page folds every receipt into the player's seqs with no generation filter, the player starts serverSeqs from them, and nextSeq is one above the held seq, the issued seq and the outbox, so the next seq (6) is above every seq held for the sitting");
+    },
+  },
+  {
+    // A3-L01 (the screens' reads; Daisy A3-KODE-PEMULIHAN.md §1, §2.3, §6.2): pengerjaan_saya tells the learner's page
+    // whether this session is the controller (di_sesi_ini), whether a teacher must allow a recovery (perlu_izin), and
+    // whether this generation came by a teacher's permission (izin_dipakai, for §2.3's quiet line); daftar_pengerjaan
+    // tells the teacher's row the mode (mode_asesmen), the learner's request and a valid permission
+    id: "A3-L01",
+    requires: ["db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const v = jalankanPulih(c, ctx.repoRoot);
+      if (!v) return c.verdict("");
+      const lihat: [string, string, string][] = [
+        ["L01_pre_A", "ok:false,false,false", "the low-stakes sitting read from the old session A after the recovery"],
+        ["L01_pre_B", "ok:true,false,false", "the low-stakes sitting read from the recovering session B"],
+        ["L01_post_B_sebelum", "ok:false,true,false", "the Uji Penguasaan read from session B before any permission"],
+        ["L01_daftar_minta", "ok:POST_TEST,true,false", "the teacher's row after the learner's request"],
+        ["L01_daftar_izin", "ok:POST_TEST,true,true", "the teacher's row with a valid permission (the request still stands until a recovery clears it)"],
+        ["L01_post_B", "ok:true,true,true", "the Uji Penguasaan read from B after the allowed recovery"],
+        ["L01_post_A", "ok:false,true,true", "the Uji Penguasaan read from the old session A after it"],
+        ["L01_daftar_sesudah", "ok:POST_TEST,false,false", "the teacher's row after the recovery (request cleared, permission used)"],
+      ];
+      for (const [k, mau, apa] of lihat) c.expect(v[k] === mau, `${apa}: ${v[k]} (expected ${mau.slice(3)})`);
+      return c.verdict("executes pengerjaan_saya and daftar_pengerjaan against the migrations, rolled back: the learner's read says whether this session controls the sitting, whether a teacher must allow a recovery and whether this generation came by a teacher's permission, for the old and the new session, low-stakes and Uji Penguasaan; the teacher's row carries the mode, the learner's request and a valid permission, and loses both after the recovery");
     },
   },
 ];

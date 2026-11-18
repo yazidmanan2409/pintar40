@@ -6701,6 +6701,11 @@
       "proves": "executes lanjutkan_di_sini against the migrations, rolled back (S8; ruling 42, decision 2): with a work-scoped planned window active over the learner's class the recovery is allowed; with an emergency stop over the learner it is refused PR170 SITTING_CLASS_STOPPED, under the shared fence. A platform-wide window is refused at the request (D10)."
     },
     {
+      "id": "A3-L01",
+      "runner": "static",
+      "proves": "executes pengerjaan_saya and daftar_pengerjaan against the migrations, rolled back: the learner's read says whether this session controls the sitting, whether a teacher must allow a recovery and whether this generation came by a teacher's permission; the teacher's row carries the mode, the learner's request and a valid permission."
+    },
+    {
       "id": "A3-A01",
       "runner": "static",
       "proves": "executes session_answers against the migrations, rolled back, and reads PermukaanAsesmen.tsx and ItemPlayer.tsx (D9; Sharon's ruling (a)): after a recovery the player's read holds every generation's receipts, the page folds them all into seqs, and nextSeq is one above them, so the next client_seq is above every seq held for the sitting."
