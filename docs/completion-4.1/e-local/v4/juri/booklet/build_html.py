@@ -12,8 +12,34 @@ for line in open(lembar_path, encoding='utf-8'):
         for part in line[len('Tujuan: '):].rstrip('\n').split(' · '):
             m = re.match(r'(B\d-T\d+) (.*)$', part)
             if m: obj[m.group(1)] = m.group(2)
+SEP = re.compile(r'^\|[\s:|-]+\|\s*$')
+def cells(line):
+    return [c.strip() for c in line.strip().strip('|').split('|')]
+def render_stem(stem):
+    # Markdown-style tables ("| a | b |") become real tables; the "|---|" separator is formatting only.
+    out, buf = [], []
+    def flush():
+        if buf:
+            rows = [cells(l) for l in buf if not SEP.match(l)]
+            h = ''.join(f'<th>{e(c)}</th>' for c in rows[0])
+            body = ''.join('<tr>' + ''.join(f'<td>{e(c)}</td>' for c in r) + '</tr>' for r in rows[1:])
+            out.append(f'<table class="tbl"><thead><tr>{h}</tr></thead><tbody>{body}</tbody></table>')
+            buf.clear()
+    text = []
+    for line in stem.split('\n'):
+        if line.strip().startswith('|'):
+            if text: out.append('<div class="stemtxt">' + e('\n'.join(text)) + '</div>'); text = []
+            buf.append(line)
+        else:
+            flush(); text.append(line)
+    flush()
+    if text: out.append('<div class="stemtxt">' + e('\n'.join(text)) + '</div>')
+    return ''.join(out)
 chapters = {1: 'Bab 1 · Pola Bilangan', 2: 'Bab 2 · Data Sederhana'}
-e = lambda s: html.escape(s, quote=False)
+def e(s):
+    # escape, then keep hyphenated tokens (ke-6, SINT5-B1-03) on one line; the characters are unchanged
+    t = html.escape(s, quote=False)
+    return re.sub(r'[^\s<>]*-[^\s<>]*', lambda m: '<span class="nb">' + m.group(0) + '</span>', t)
 cards = []
 cur = None
 for n, it in enumerate(items, 1):
@@ -25,10 +51,10 @@ for n, it in enumerate(items, 1):
     ot = obj.get(oc, '')
     opts = ''.join(f'<li><span class="lbl">{e(o["label"])}.</span><span class="txt">{e(o["body"])}</span></li>' for o in it['options'])
     dis = ''.join(f'<li><span class="lbl">{e(d["label"])}</span><span class="txt">{e(d["misconception"])} <span class="code">({e(d["misconception_code"])})</span></span></li>' for d in it['distractors'])
-    cards.append(f'''<section class="soal" data-item="{e(it["item_id"])}">
+    cards.append(f'''<section class="soal" data-item="{html.escape(it["item_id"])}">
   <div class="head"><span class="id">Soal {n}</span><span class="no">kode {e(it["item_id"])}</span></div>
   <div class="tujuan"><b>Tujuan {e(oc)}</b>{(" · " + e(ot)) if ot else ""}</div>
-  <div class="stem">{e(it["stem"])}</div>
+  <div class="stem">{render_stem(it["stem"])}</div>
   <ol class="opsi">{opts}</ol>
   <div class="kunci"><div><b>Usulan kunci jawaban: {e(it["key"])}</b><br><span class="txt">{e(it["key_rationale"])}</span></div>
     <div class="peng"><b>Pemahaman keliru di balik setiap pengecoh</b><ul>{dis}</ul></div></div>
@@ -54,7 +80,11 @@ h2.bab {{ color:var(--teal); font-size:13pt; border-bottom:1.5pt solid var(--tea
 .no {{ color:#8a9494; font-size:7.5pt; }}
 .tujuan {{ font-size:8.8pt; color:var(--mut); margin-bottom:2.5mm; line-height:1.4; }}
 .tujuan b {{ color:var(--ink); font-weight:600; }}
-.stem, .txt {{ white-space: pre-wrap; }}
+.stemtxt, .txt {{ white-space: pre-wrap; }}
+table.tbl {{ border-collapse:collapse; margin:1.5mm 0 2.5mm; font-size:10pt; }}
+table.tbl th, table.tbl td {{ border:1px solid var(--line); padding:1mm 2.5mm; text-align:center; }}
+table.tbl th {{ background:var(--soft); font-weight:600; }}
+table.tbl td:first-child, table.tbl th:first-child {{ text-align:left; }}
 .stem {{ font-size:11pt; line-height:1.5; margin-bottom:2.5mm; }}
 ol.opsi {{ list-style:none; margin:0 0 3mm; padding:0; }}
 ol.opsi li {{ display:flex; gap:2.5mm; margin:0 0 1.2mm; line-height:1.45; }}
@@ -64,6 +94,7 @@ ol.opsi li {{ display:flex; gap:2.5mm; margin:0 0 1.2mm; line-height:1.45; }}
 .peng ul {{ list-style:none; margin:1mm 0 0; padding:0; }}
 .peng li {{ display:flex; gap:2mm; margin-bottom:0.8mm; }}
 .code {{ color:var(--mut); }}
+.nb {{ white-space:nowrap; }}
 </style></head><body>
 <div class="cover">
 <div class="over">PINTAR · Evaluasi soal</div>
