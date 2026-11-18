@@ -29,3 +29,20 @@ reach a multi-answer question before the Z repair.
 3. **Any content import to staging before the repair is accepted is checked for `MCQ_MULTI` first.** Every staging
    write already needs the owner's authorisation; this check is added to the request.
 4. **The repair's regression cases use `learning_cycle.sql`'s «Pecahan» items.** They are the natural fixture.
+
+## Sharon's condition (18 Nov, 13:03): checks, not promises
+
+Sharon agrees that ruling 56 is not triggered, on one condition: points 2 and 3 above are enforced by checks.
+
+1. **Before any staging write that adds content** (a walkthrough fixture, an import, a golden-school run): this
+   read-only query runs first, and its result goes in the authorisation request. **A non-zero count stops the write**
+   until the repair is accepted. The count must be **0 after the write as well.**
+
+   ```sql
+   set transaction read only;
+   select count(*) as mcq_multi_items from public.items where item_type = 'MCQ_MULTI';
+   ```
+
+2. **The C-2(b) guard is extended** (Second Eye, in the Z window, with the repair's red cases). It fails if any
+   walkthrough or pilot fixture, or any content file staged for import, holds `MCQ_MULTI` or «Pilihan ganda banyak
+   jawaban». It is lifted with the containment, once the repair is accepted (ruling 56, C-1).
