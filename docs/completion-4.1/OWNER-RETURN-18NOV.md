@@ -8,6 +8,8 @@ This is the running record. Bob updates it as work moves; the newest entries are
 - **The gates are unchanged.** There is no paid API call, new paid-run authorisation, staging merge, production deployment or release without the owner's approval.
 - Escalate only material blockers, scope changes, security concerns, or decisions that need the owner.
 
+**18 Nov, about 09:50 UTC:** the owner is resting. "Continue as planned … maintain course and speed." He will bring J1's and J2's feedback. Nothing is waiting on him: the next owner gates are A3's staging promotion and the returned sheets.
+
 ## Decisions waiting for the owner
 
 0. ~~**E, retrying after output (OpenAI)**~~ **DECIDED: Ruling 52 (18 Nov).** The retry is kept, and Sharon's attempt condition is adopted and implemented.
