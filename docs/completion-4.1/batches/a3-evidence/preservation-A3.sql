@@ -8,7 +8,8 @@
 --   * 20270121200000_the_start_lock_covers_what_the_attempt_count_counts (sha256 17a8c527f2bfeb51...);
 --   * 20270121210000_attempts_count_across_an_assessments_versions (sha256 c88630e7a3fba12d...);
 --   * 20270121220000_a_sitting_has_one_writer (sha256 a08a491afd546569fdd658d4f849741a78b13eca0d24834983cb8f77307387c6 at
---     4c5f6383, after V-1; it was 370d5c0a…b688 at e6e28e52. V-2 will change it again: the hashes are restated at the freeze).
+--     4c5f6383, after V-1; it was 370d5c0a…b688 at e6e28e52. After V-2, at fc7a26e5: 150984a6400d7ceb6a088d43187cbe306fd3a1d7ad2f756defc630060110d09d.
+--     The hashes are restated at the freeze).
 --   * 20270121230000_every_sitting_writer_takes_its_row (sha256 7b60e23362d9e209557f847e5cb31aba74e2c60ec11a29b6716b0258bfb314a7 at
 --     d19c9a6b): redefines terminate_session, extend_session_deadline, finalize_session and percobaan_tandai in full, each
 --     now taking the sitting FOR UPDATE. No column, no data change at migration time, so no preserved line can see it.
