@@ -46,3 +46,4 @@
 | 18 Nov, 01:20 | Second Eye | C2w C-7/C-8 recapture | `claude/c2w` at `6b6f31c5` | `TINJAUAN-C2W-CATATAN-6b6f31c5.md`: **PASS**; C2w screens cleared |
 | 18 Nov, 02:55 | Second Eye | A3 contract sentence for SITTING_NOT_CONTROLLER | local `claude/a3` | `A3-KODE-PEMULIHAN.md` §5: **done**. Put it in the contract now |
 | 18 Nov, 06:15 | Bob | C3w-1 words for every state; Studio consistency findings | `C3W-1-DESIGN.md`, PLAN §3.3–3.4 | `C3W-1-WORDS.md`: **done**. Four Studio items (Z-2, Z-3, N-6, N-7) not on main |
+| 18 Nov, 08:30 | Bob | Planning audit 4.2/4.5/5.0, independent UX review | `PLANNING-AUDIT-4.2-4.5-5.0.md` at `63c66ba9` | `../roadmap/TINJAUAN-AUDIT-PERENCANAAN-63c66ba9.md`: **done**; Z-3 revised (V-3, mine) |

@@ -68,6 +68,7 @@
 | # | Error | Anticipable? | Question | Correction |
 |---|---|---|---|---|
 | V-2 | My D4 line («Asesmen ini memerlukan {d} menit», `A2-KATA-DESAIN.md` B2) and my Slice-2 condition assumed an assessment has its own time limit. None does: a sitting's deadline is the assignment's `closes_at` (Second Eye, 16 Nov) | **Yes** | **1** | I did not read what D4's check reads. Corrected in `A2B-SLICE2-PUTUSAN.md`: the lines drop the duration |
+| V-3 | My Z-3 (13 Nov) asked that an unknown key-correction id answer «not found» while a forbidden one is refused, which is an existence oracle, against the no-oracle rule 4.1 later settled (A2b S-1, C2w «Tarik izin») | **Yes** | **2** | Revised in `../roadmap/TINJAUAN-AUDIT-PERENCANAAN-63c66ba9.md` §3.4: one answer for both, neutral wording. Must replace Z-3 before C3w-1's first commit |
 | V-1 | My F-1 review (`TINJAUAN-F1-4131d7a2.md` §3) said no learner screen tied to a sitting shows a rationale. The Uji Penguasaan result does | **Yes** | **1** | I listed screens from memory and the player's comment, not from a search of every reader of `session_review` and `rationale`. Corrected in place; Bob's brief had it right |
 
 ## Found during these reviews but older than the batch (listed, not counted)

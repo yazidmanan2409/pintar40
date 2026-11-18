@@ -59,6 +59,8 @@
 
 ## Z-3 · X-3: an unknown key-correction id is refused, not «not found»
 
+> **Superseded (18 Nov):** the fix below would create an existence oracle. **Revised:** keep one answer for an unknown and a forbidden id, with neutral wording: «Koreksi ini tidak dapat dibuka. Mungkin sudah tidak ada, atau bukan untuk Anda.» See `../roadmap/TINJAUAN-AUDIT-PERENCANAAN-63c66ba9.md` §3.4 (V-3, mine).
+
 **What:** `src/app/studio/tinjau/kunci/[koreksi]/page.tsx` answers a correction id that does not exist (or no longer exists) with `HalamanPenolakan`, the "not allowed" page.
 
 **The correction:**
