@@ -106,6 +106,7 @@ The harness commit `4f904638` was explained and pushed under `0959a62c`. A full 
 
 | When (UTC) | What |
 |---|---|
+| 12:45 | **Owner's rulings D-1 to D-9 recorded as ruling 55.** Execution plan in `POST-REVIEW-EXECUTION-18NOV.md`. Two clarifications (C-1, C-2) and the proposed D-7 date (25 Nov, 17:00 WIB) await the owner. Z is now likely 4–6 days (the D-1 repair plus the classed Z fixes). Sharon starts the D-1 and D-8 inventories and the feedback review, after A3's reviews |
 | 10:15 | **Daisy's Z readiness items all done** (ux-1 `1166d8bf`, `6c59a0f8`), checked on a local build of `main` `7ba18b03`. R-10 open, with a fix spec and a sibling N-9 (a staff page shows the certificate page's refusal); R-11 open on `/siapa` only, with a spec; N-1 and N-2 open for Z, N-3 and N-5 for 4.2, N-4 closed. **The teachers' own-AI guide is final** and placed at `docs/onboarding/PANDUAN-AI-SENDIRI.md` (its column headers match the import contract); the paste test passed 16 Nov. The fixes are small app changes Second Eye builds after A3. Nothing needs the owner |
 
 ## Planning audit, 4.2, 4.5 and 5.0 (owner, 18 Nov)

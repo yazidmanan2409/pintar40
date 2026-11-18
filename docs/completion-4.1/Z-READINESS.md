@@ -35,6 +35,9 @@ Bob, 18 Nov 2026, about 10:00 UTC. **One list of everything that must be true, o
 | R-13 | The three 4.0 rendered checks on staging (a night-issued certificate's date; the integrity count line; «Materi tanpa judul») | EXECUTION-PLAN §6 | Daisy, or a browser-capable person | Outstanding; before the walkthrough |
 | R-14 | **X-15** (planning audit): four readers treat a not-yet-started role as live (`studio_capabilities`, `refuse_duplicate_active_grant`, `sertifikat_koreksi_tolak`, `orang_dipegang`) | Second Eye, 18 Nov | Bob | **Triaged (Bob, 18 Nov): not reachable today.** Every product path that grants a role on `main` writes `valid_from` as `now()` (for example `the_last_administrator_is_never_removed`:383), and no RPC accepts a start date; only fixtures use past dates. A future start cannot exist until 4.2-02 adds one, so the four readers are restated **before 4.2-02** (planning audit X-15). Not a Z item |
 | R-15 | Non-blocking findings carried from 4.0, A1 and C1w ("with the batch that touches the same code, or in 4.2") | EXECUTION-PLAN §5 | Bob | Triage at Z; most go to 4.2 or the rationalisation audit |
+| R-16 | **D-1:** multi-answer readers repaired, with containment until then (ruling 55) | `POST-REVIEW-EXECUTION-18NOV.md` §3 | Sharon (inventory); Second Eye (repair) | **Z, approved.** The inventory runs now |
+| R-17 | **D-6:** the anonymous feedback round hidden pending Sharon's review; no deletion | ruling 55 | Sharon, then Second Eye | Review now; containment in the Z window |
+| R-18 | **D-2:** certificate conditions. Before any real certificate; whether it rides Z is the owner's call by 24 Nov | ruling 55 | Bob (specification); Dr Gladys; Sharon | Specification by 20 Nov |
 
 ## 3 · Z's other entry items
 
