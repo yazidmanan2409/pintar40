@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panduan penilaian untuk juri · Evaluasi soal PINTAR</title>
+<style>
+/* Same design grammar as the PINTAR handbook (design language v0.1): one typeface (Plus Jakarta Sans),
+   deep teal #075056 for structure only, ink #16262A / #44585C, hairlines #D5DFDF, teal tint #E4F0EF for
+   panels, role tab top right, running head top left, page number on the outer edge. Text is PANDUAN-JURI.md
+   word for word; only layout is added. Column names stay as written in the source. */
+@font-face { font-family: "Plus Jakarta Sans"; font-weight: 200 800; src: url("fonts/plus-jakarta-sans-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+2000-206F, U+2190-21FF, U+2200-22FF; }
+@font-face { font-family: "Plus Jakarta Sans"; font-weight: 200 800; src: url("fonts/plus-jakarta-sans-latin-ext.woff2") format("woff2"); unicode-range: U+0100-024F, U+1E00-1EFF; }
+@font-face { font-family: "Inter"; font-weight: 700; src: url("fonts/inter-700-latin.woff2") format("woff2"); }
+:root { --teal: #075056; --tint: #E4F0EF; --tinta: #16262A; --tinta-2: #44585C; --garis: #D5DFDF; --sans: "Plus Jakarta Sans", "Helvetica Neue", Arial, sans-serif; }
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; background: #E7E9E8; font-family: var(--sans); color: var(--tinta); font-size: 10.5pt; line-height: 1.55; }
+.halaman { width: 210mm; height: 297mm; margin: 10mm auto; background: #fff; position: relative; overflow: hidden; padding: 22mm 20mm 20mm; break-after: page; }
+@media print { body { background: #fff; } .halaman { margin: 0; } }
+.tab { position: absolute; top: 0; right: 0; background: var(--teal); color: #fff; font-size: 8pt; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: 1.9mm 3.8mm 1.7mm; border-bottom-left-radius: 2mm; }
+.kepala { position: absolute; top: 11mm; left: 20mm; font-size: 8pt; font-weight: 500; color: var(--tinta-2); }
+.kaki { position: absolute; bottom: 9mm; left: 20mm; right: 20mm; display: flex; justify-content: space-between; border-top: .25mm solid var(--garis); padding-top: 2mm; font-size: 8pt; font-weight: 500; color: var(--tinta-2); }
+
+/* opening */
+.merek { font-family: Inter, Arial, Helvetica, sans-serif; font-weight: 700; color: #075056; font-size: 15pt; letter-spacing: .01em; margin: 0 0 14mm; }
+.label { font-size: 9.5pt; font-weight: 800; color: var(--teal); margin: 0 0 1.5mm; }
+h1 { font-size: 25pt; line-height: 1.12; font-weight: 800; color: var(--teal); margin: 0 0 4mm; letter-spacing: -.01em; }
+.lede { font-size: 11.5pt; line-height: 1.5; color: var(--tinta-2); margin: 0 0 8mm; max-width: 150mm; }
+.isi-singkat { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2.4mm; margin: 0 0 11mm; }
+.isi-singkat a { display: block; background: var(--tint); border-radius: 2mm; padding: 2.6mm 3mm 2.4mm; color: var(--teal); text-decoration: none; }
+.isi-singkat .n { display: block; font-size: 8.5pt; font-weight: 700; }
+.isi-singkat .v { display: block; font-size: 10pt; font-weight: 800; line-height: 1.25; }
+
+/* sections */
+h2 { display: flex; align-items: baseline; gap: 2.6mm; font-size: 14pt; font-weight: 800; color: var(--teal); margin: 0 0 4mm; padding-bottom: 1.6mm; border-bottom: .53mm solid var(--teal); break-after: avoid; }
+h2 .n { font-size: 10pt; font-weight: 700; }
+h3 { font-size: 11pt; font-weight: 800; margin: 5mm 0 1.6mm; break-after: avoid; }
+p { margin: 0 0 2.6mm; }
+ul { margin: 0 0 3mm; padding-left: 5mm; }
+li { margin-bottom: 1.1mm; }
+li > ul { margin: 1.2mm 0 0; }
+strong { font-weight: 800; }
+code { font-family: var(--sans); font-weight: 700; background: #F1F4F3; border: .2mm solid var(--garis); border-radius: .8mm; padding: 0 1mm; font-size: .95em; white-space: nowrap; }
+.sec { margin-top: 9mm; }
+
+/* tables */
+table { width: 100%; border-collapse: collapse; margin: 1mm 0 4mm; font-size: 10pt; line-height: 1.45; }
+th { text-align: left; font-size: 9pt; font-weight: 800; color: var(--teal); border-bottom: .53mm solid var(--teal); padding: 0 3.5mm 1.8mm 0; }
+td { vertical-align: top; padding: 2.8mm 3.5mm 2.8mm 0; border-bottom: .25mm solid var(--garis); }
+tr { break-inside: avoid; }
+td:last-child, th:last-child { padding-right: 0; }
+.kriteria td:first-child { width: 31mm; }
+.kriteria td:last-child { width: 44mm; }
+.kriteria .kolom { display: inline-block; font-weight: 800; color: var(--teal); font-size: 10.5pt; }
+.lembar td:first-child { width: 62mm; }
+
+/* panels */
+.panel { background: var(--tint); border-radius: 2mm; padding: 4mm 5mm 3mm; margin: 0 0 4mm; break-inside: avoid; }
+.panel h3 { margin-top: 0; color: var(--teal); }
+.panel ul, .panel p:last-child { margin-bottom: 0; }
+.garis-tepi { border: .45mm solid var(--teal); border-radius: 2mm; padding: 4mm 5mm 3mm; margin: 0 0 4mm; break-inside: avoid; }
+.garis-tepi h3 { margin-top: 0; color: var(--teal); }
+.garis-tepi ul:last-child, .garis-tepi p:last-child { margin-bottom: 0; }
+.peran { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-bottom: 4mm; align-items: start; }
+.peran > div { margin: 0; }
+.penutup { margin-top: 10mm; font-size: 11pt; color: var(--teal); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ HALAMAN 1 ═══════════════ -->
+<section class="halaman">
+  <div class="tab">Juri</div>
+  <div class="kepala">PINTAR · Evaluasi soal</div>
+
+  <p class="merek">PINTAR</p>
+  <p class="label">Evaluasi soal PINTAR</p>
+  <h1>Panduan penilaian untuk juri</h1>
+  <p class="lede">Untuk tiga guru juri (J1, J2, J3). Panduan ini menjelaskan aturan penilaian yang sudah ditetapkan; panduan ini tidak mengubah aturan apa pun.</p>
+
+  <nav class="isi-singkat" aria-label="Isi panduan">
+    <a href="#bagian-1"><span class="n">1</span><span class="v">Apa yang Anda nilai</span></a>
+    <a href="#bagian-2"><span class="n">2</span><span class="v">Lima hal yang dinilai</span></a>
+    <a href="#bagian-3"><span class="n">3</span><span class="v">Cara bekerja</span></a>
+    <a href="#bagian-4"><span class="n">4</span><span class="v">Mengisi lembar nilai</span></a>
+    <a href="#bagian-5"><span class="n">5</span><span class="v">Yang perlu diingat</span></a>
+  </nav>
+
+  <h2 id="bagian-1"><span class="n">1</span>Apa yang Anda nilai</h2>
+  <p>Anda menerima 60 soal pilihan ganda untuk Matematika SD Kelas 5, dari dua bab:</p>
+  <ul>
+    <li><strong>Bab 1:</strong> Pola Bilangan;</li>
+    <li><strong>Bab 2:</strong> Data Sederhana.</li>
+  </ul>
+  <p>Setiap soal mencantumkan:</p>
+  <ul>
+    <li>tujuan pembelajarannya;</li>
+    <li>pokok soal (pertanyaannya);</li>
+    <li>empat pilihan jawaban;</li>
+    <li>kunci jawaban, dengan alasan singkat;</li>
+    <li>untuk setiap pengecoh (pilihan yang salah), pemahaman keliru yang diwakilinya.</li>
+  </ul>
+  <div class="garis-tepi">
+    <p>Nilailah setiap soal apa adanya, seperti Anda menilai soal yang diajukan rekan guru: apakah soal ini layak dipakai untuk murid Anda?</p>
+  </div>
+
+  <div class="kaki"><span>Panduan penilaian untuk juri · Evaluasi soal PINTAR</span><span>1</span></div>
+</section>
+
+<!-- ═══════════════ HALAMAN 2 · rujukan saat menilai ═══════════════ -->
+<section class="halaman">
+  <div class="tab">Juri</div>
+  <div class="kepala">Panduan penilaian untuk juri</div>
+
+  <h2 id="bagian-2"><span class="n">2</span>Lima hal yang dinilai untuk setiap soal</h2>
+  <table class="kriteria">
+    <thead><tr><th>Kolom</th><th>Yang dinilai</th><th>Nilai</th></tr></thead>
+    <tbody>
+      <tr><td><span class="kolom">benar</span></td>
+          <td><strong>Ketepatan isi.</strong> Kuncinya benar, pokok soalnya tidak ambigu, dan <strong>tepat satu</strong> pilihan yang benar</td>
+          <td><strong>1</strong> = ya;<br><strong>0</strong> = tidak</td></tr>
+      <tr><td><span class="kolom">keselarasan</span></td>
+          <td><strong>Kesesuaian dengan tujuan.</strong> Soal mengukur tujuan yang tertulis, pada tingkat yang tepat untuk Kelas 5</td>
+          <td>0, 1 atau 2</td></tr>
+      <tr><td><span class="kolom">pengecoh</span></td>
+          <td><strong>Mutu pilihan yang salah.</strong> Masuk akal bagi murid, masing-masing berasal dari pemahaman keliru yang nyata, dan tidak ada yang ternyata juga benar</td>
+          <td>0, 1 atau 2</td></tr>
+      <tr><td><span class="kolom">bahasa</span></td>
+          <td><strong>Bahasa Indonesia.</strong> Benar, wajar, sesuai untuk anak Kelas 5, dan memakai istilah yang lazim di kelas</td>
+          <td>0, 1 atau 2</td></tr>
+      <tr><td><span class="kolom">beban_tinjau</span></td>
+          <td><strong>Seberapa banyak perbaikan yang diperlukan</strong> sebelum Anda mau menyetujui soal ini</td>
+          <td><strong>2</strong> = setujui apa adanya;<br><strong>1</strong> = cukup suntingan ringan;<br><strong>0</strong> = harus ditulis ulang atau ditolak</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>Untuk semua kolom: makin tinggi nilainya, makin baik.</strong></p>
+
+  <div class="peran">
+    <div class="panel">
+      <h3>Patokan untuk nilai 0–2:</h3>
+      <ul>
+        <li><strong>2:</strong> baik; tidak ada yang perlu diperbaiki untuk hal ini.</li>
+        <li><strong>1:</strong> ada kekurangan kecil yang mudah diperbaiki.</li>
+        <li><strong>0:</strong> kekurangannya serius, atau hal ini tidak terpenuhi.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Tentang kolom benar.</h3>
+      <p style="margin-bottom:1.2mm">Beri <strong>0</strong> bila:</p>
+      <ul>
+        <li>kuncinya salah;</li>
+        <li>ada lebih dari satu jawaban yang benar;</li>
+        <li>tidak ada jawaban yang benar;</li>
+        <li>pokok soalnya bisa dibaca dengan dua cara sehingga jawabannya berubah.</li>
+      </ul>
+      <p style="margin-top:2mm">Nilai 0 di kolom ini dianggap kesalahan serius, jadi periksalah dengan teliti. Bila ragu, hitung sendiri jawabannya.</p>
+    </div>
+  </div>
+
+  <div class="garis-tepi" style="margin-top:4mm">
+    <p><strong>Kolom alasan wajib diisi untuk setiap soal,</strong> satu atau dua kalimat. Bila Anda memberi nilai 0 atau 1 di kolom mana pun, sebutkan kekurangannya. Alasan Anda akan dibaca oleh J3 bila penilaian J1 dan J2 berbeda.</p>
+  </div>
+
+  <div class="kaki"><span>2</span><span>Panduan penilaian untuk juri · Evaluasi soal PINTAR</span></div>
+</section>
+
+<!-- ═══════════════ HALAMAN 3 ═══════════════ -->
+<section class="halaman">
+  <div class="tab">Juri</div>
+  <div class="kepala">Panduan penilaian untuk juri</div>
+
+  <h2 id="bagian-3"><span class="n">3</span>Cara bekerja</h2>
+  <div class="peran">
+    <div class="panel">
+      <h3>J1 dan J2</h3>
+      <p><strong>J1 dan J2</strong> menilai <strong>semua</strong> soal, kelima kolomnya, <strong>secara mandiri</strong>.</p>
+      <ul>
+        <li>Jangan berdiskusi dengan juri lain tentang soal mana pun sampai lembar Anda diserahkan.</li>
+        <li>Jangan memakai alat AI untuk membantu menilai.</li>
+      </ul>
+    </div>
+    <div class="garis-tepi">
+      <h3>J3</h3>
+      <p><strong>J3</strong> tidak menilai semua soal. Setelah lembar J1 dan J2 dicatat, J3 menerima daftar soal yang perlu diputuskan, bersama alasan kedua juri:</p>
+      <ul>
+        <li>soal yang nilai <strong>benar</strong>-nya berbeda antara J1 dan J2;</li>
+        <li>soal yang ditandai oleh pemeriksa kunci, dengan catatan alasannya. Pemeriksa kunci adalah pemeriksaan terpisah oleh tim PINTAR: setiap soal dijawab tanpa melihat kuncinya, lalu ditandai bila jawabannya berbeda dari kunci. Catatan itu hanya bahan pertimbangan, sama bobotnya dengan alasan seorang juri;</li>
+        <li>soal yang, di salah satu kolom 0–2, nilainya dari J1 dan J2 berbeda <strong>dua</strong> angka (misalnya 0 dan 2).</li>
+      </ul>
+      <p style="margin-top:2.4mm">Untuk soal-soal itu saja, J3 mengisi kolom yang diminta. <strong>Keputusan J3 untuk kolom benar bersifat final.</strong></p>
+    </div>
+  </div>
+  <p><strong>Waktu:</strong> kira-kira 2–3 jam untuk J1 dan J2. J3 bekerja setelah lembar J1 dan J2 dicatat, kira-kira satu jam. Pak Yazid akan menyampaikan tanggal dan jamnya.</p>
+
+
+  <div class="kaki"><span>Panduan penilaian untuk juri · Evaluasi soal PINTAR</span><span>3</span></div>
+</section>
+
+<!-- ═══════════════ HALAMAN 4 ═══════════════ -->
+<section class="halaman">
+  <div class="tab">Juri</div>
+  <div class="kepala">Panduan penilaian untuk juri</div>
+
+  <h2 id="bagian-4"><span class="n">4</span>Mengisi lembar nilai</h2>
+  <p>Anda menerima lembar nilai dalam bentuk tabel (CSV, dapat dibuka dengan Excel atau Google Sheets), satu baris per soal:</p>
+  <table class="lembar">
+    <thead><tr><th>Kolom</th><th>Isi</th></tr></thead>
+    <tbody>
+      <tr><td><code>item_id</code></td><td>Sudah terisi, misalnya <code>B1-001</code>. Jangan diubah</td></tr>
+      <tr><td><code>juri</code></td><td>Sudah terisi: J1, J2 atau J3</td></tr>
+      <tr><td><code>benar</code></td><td>0 atau 1</td></tr>
+      <tr><td><code>keselarasan</code>, <code>pengecoh</code>, <code>bahasa</code>, <code>beban_tinjau</code></td><td>0, 1 atau 2</td></tr>
+      <tr><td><code>alasan</code></td><td>Kalimat Anda</td></tr>
+    </tbody>
+  </table>
+  <p>Simpan sebagai CSV dengan nama yang sama, lalu kirimkan kepada Pak Yazid.</p>
+
+  <h2 id="bagian-5" class="sec"><span class="n">5</span>Yang perlu diingat</h2>
+  <ul>
+    <li>Nilailah soalnya, bukan gaya penulisnya.</li>
+    <li>Bila lembar Anda berisi kurang dari 60 soal, itu disengaja dan sudah diperhitungkan.</li>
+    <li>Pertanyaan tentang cara menilai dapat diajukan kepada Pak Yazid. Pertanyaan tentang isi sebuah soal jangan didiskusikan.</li>
+  </ul>
+
+  <p class="penutup">Terima kasih atas waktu dan keahlian Anda.</p>
+
+  <div class="kaki"><span>4</span><span>Panduan penilaian untuk juri · Evaluasi soal PINTAR</span></div>
+</section>
+
+</body>
+</html>
