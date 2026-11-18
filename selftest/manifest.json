@@ -6701,6 +6701,16 @@
       "proves": "executes lanjutkan_di_sini against the migrations, rolled back (S8; ruling 42, decision 2): with a work-scoped planned window active over the learner's class the recovery is allowed; with an emergency stop over the learner it is refused PR170 SITTING_CLASS_STOPPED, under the shared fence. A platform-wide window is refused at the request (D10)."
     },
     {
+      "id": "A3-S10",
+      "runner": "static",
+      "proves": "reads the source files ItemPlayer.tsx, LanjutkanDiSini.tsx, PermukaanAsesmen.tsx, actions.ts and hle.ts (Daisy A3-KODE-PEMULIHAN.md §1, §2, §4 (c), §5; O-4): a save another session's control refuses is terminal for the old session, whose panel is a quiet status with no way to take the sitting back; the new session calls the recovery act only on opening, on «Lanjutkan di sini» and on «Coba lagi»; no recovery sentence says «perangkat lain»."
+    },
+    {
+      "id": "A3-J01",
+      "runner": "app",
+      "proves": "selftest/a3-layar.test.ts, reading the rendered html of the running app's route: a learner opening a Pemetaan Awal another session controls is asked «Lanjutkan di sini?» in O-4's neutral words, nothing is played and the sitting does not move; an Uji Penguasaan another session controls plays nothing and starts its one check; rendering writes nothing."
+    },
+    {
       "id": "A3-L01",
       "runner": "static",
       "proves": "executes pengerjaan_saya and daftar_pengerjaan against the migrations, rolled back: the learner's read says whether this session controls the sitting, whether a teacher must allow a recovery and whether this generation came by a teacher's permission; the teacher's row carries the mode, the learner's request and a valid permission."

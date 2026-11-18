@@ -42,7 +42,7 @@ const ADMIN = { identitas: "siklus-admin@synthetic.pintar.test", password: "Sint
 const GURU_LAIN = { identitas: "alpha-guru@synthetic.pintar.test", password: "Sintetis-AlphaGuru-52!" };
 const ALASAN = "uji A1: alasan yang cukup panjang";
 /** The sign-in of the fixture's own learner (synthetic, made and removed with the fixture's class). */
-const muridUji = (tag: string) => ({ identitas: `a1-murid-${tag}@synthetic.pintar.test`, password: `Sintetis-A1Murid-${tag}!` });
+export const muridUji = (tag: string) => ({ identitas: `a1-murid-${tag}@synthetic.pintar.test`, password: `Sintetis-A1Murid-${tag}!` });
 
 const id = (k: string, untuk: "educator" | "staff" | "learner" = "educator") => t(k as HleEvent, untuk, { locale: "id" });
 const en = (k: string, untuk: "educator" | "staff" | "learner" = "educator") => t(k as HleEvent, untuk, { locale: "en" });
@@ -51,17 +51,17 @@ const en = (k: string, untuk: "educator" | "staff" | "learner" = "educator") => 
  * <table hidden><tbody><tr id="S:x">…</tr></tbody></table> for its <template id="P:x">; which cells arrive late is the
  * size of the page, not its shape.
  */
-function rapi(html: string): string {
+export function rapi(html: string): string {
   return tersusun(html).replace(/<template id="P:([0-9a-z]+)"><\/template>/g, (semua, x: string) => {
     const m = new RegExp(`<(tr|tbody|thead|table|colgroup)\\b[^>]*\\bid="S:${x}"[^>]*>([\\s\\S]*?)</\\1>`).exec(html);
     return m ? m[2] : semua;
   });
 }
-const teks = (html: string) => rapi(html).replace(/<!-- -->/g, "").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/\s+/g, " ");
+export const teks = (html: string) => rapi(html).replace(/<!-- -->/g, "").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/\s+/g, " ");
 const baca = (root: string, f: string) => { try { return readFileSync(join(root, f), "utf8"); } catch { return ""; } };
 
 /** A form of a rendered page, found by a mark it holds, as a browser would send it: its hidden fields, then `isi`. */
-function formDengan(html: string, penanda: string, isi: Record<string, string>): Record<string, string> | string {
+export function formDengan(html: string, penanda: string, isi: Record<string, string>): Record<string, string> | string {
   const bentuk = rapi(html).split(/<form\b/).slice(1).map((b) => b.split(/<\/form>/)[0]).filter((b) => b.includes(penanda));
   if (bentuk.length !== 1) return `${bentuk.length} form(s) hold ${penanda}`;
   const out: Record<string, string> = {};
