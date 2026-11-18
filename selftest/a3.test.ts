@@ -147,13 +147,15 @@ begin
     -- A3-C03 (D6; Sharon 6e6e69d6 (b)): a sitting with no controller (one open when A3 lands) is claimed by its first
     -- touch, here through assistance_state, exactly once; the other session is then refused
     execute 'update public.assessment_sessions set pengendali_sesi = null where id = $1' using v_s;
-    v := v || jsonb_build_object('klaim_B', pg_temp.a3('B', 'select public.assistance_state(current_setting(''a3.s'')::uuid)::text'));
+    v := v || jsonb_build_object('klaim_B', pg_temp.a3('B', 'select public.assistance_state((select p.id from public.presented_items p where p.session_id = current_setting(''a3.s'')::uuid order by p.position limit 1))::text'));
     perform selftest.as_owner();
     execute 'select (pengendali_sesi = $2)::text from public.assessment_sessions where id = $1' into v_t using v_s, current_setting('a3.sesi_B')::uuid;
     v := v || jsonb_build_object('klaim_B_pengendali', v_t);
-    v := v || jsonb_build_object('klaim_A_ditolak', pg_temp.a3('A', 'select public.assistance_state(current_setting(''a3.s'')::uuid)::text'));
+    -- the other session's next WRITE is refused (assistance_state reaches the gate only on an item's first view, through
+    -- note_item_view; after that it is a read, which the controller does not refuse: D4 is about writes)
+    v := v || jsonb_build_object('klaim_A_ditolak', pg_temp.a3('A', ${q(jawab(3, 7, true))}));
     perform selftest.as_owner();
-    v := v || jsonb_build_object('klaim_B_lagi', pg_temp.a3('B', 'select public.assistance_state(current_setting(''a3.s'')::uuid)::text'));
+    v := v || jsonb_build_object('klaim_B_lagi', pg_temp.a3('B', 'select public.assistance_state((select p.id from public.presented_items p where p.session_id = current_setting(''a3.s'')::uuid order by p.position limit 1))::text'));
     perform selftest.as_owner();
     execute 'select (pengendali_sesi = $2)::text from public.assessment_sessions where id = $1' into v_t using v_s, current_setting('a3.sesi_B')::uuid;
     v := v || jsonb_build_object('klaim_sekali', v_t);
@@ -922,9 +924,9 @@ begin perform 1 from public.institutions i where i.id = p for update; end $t$;`)
       const v = jalankan(c, ctx.repoRoot);
       if (!v) return c.verdict("");
       c.expect(v.klaim_B_pengendali === "true", `the first touch (assistance_state, session B) must claim the uncontrolled sitting: ${v.klaim_B_pengendali} (${v.klaim_B})`);
-      c.expect(v.klaim_A_ditolak === "PR170:SITTING_NOT_CONTROLLER", `once claimed, session A must be refused SITTING_NOT_CONTROLLER: ${v.klaim_A_ditolak}`);
+      c.expect(v.klaim_A_ditolak === "PR170:SITTING_NOT_CONTROLLER", `once claimed, session A's answer must be refused SITTING_NOT_CONTROLLER: ${v.klaim_A_ditolak}`);
       c.expect(/^ok:/.test(v.klaim_B_lagi ?? "") && v.klaim_sekali === "true", `the claim must be once: B touches again and stays the controller: ${v.klaim_B_lagi} / ${v.klaim_sekali}`);
-      return c.verdict("executes assistance_state against the migrations, rolled back: a sitting whose controller is null is claimed by the first session to touch it; another session is then refused PR170 SITTING_NOT_CONTROLLER; the claimer's next touch leaves it the controller (claimed once)");
+      return c.verdict("executes assistance_state against the migrations, rolled back: a sitting whose controller is null is claimed by the first session to touch it (assistance_state on an unviewed item, through note_item_view and the gate); the other session's answer is then refused PR170 SITTING_NOT_CONTROLLER; the claimer's next touch leaves it the controller (claimed once)");
     },
   },
   {
@@ -992,11 +994,13 @@ rollback;`;
       const c = new Checks();
       const satu = (q: string) => spawnSync("psql", ["-qAt", "-c", q, db()], { encoding: "utf8" }).stdout.trim();
       const HARAP = ["assistance_state", "finish_my_session", "note_item_view", "open_assistance", "pause_session", "record_answer", "resume_session", "submit_session"];
-      const pemanggil = satu(`select string_agg(distinct p.proname, ',' order by p.proname) from pg_proc p
-          where p.pronamespace = 'public'::regnamespace and p.proname <> 'pengerjaan_gerbang'
-            and (p.prosrc ~ 'pengerjaan_gerbang\\(' or (p.proname in ('finish_my_session', 'assistance_state', 'open_assistance')
-                 and exists (select 1 from pg_proc q where q.proname in ('submit_session', 'record_answer', 'pause_session', 'resume_session', 'note_item_view')
-                             and p.prosrc ~ (q.proname || '\\('))))`);
+      // every public function that reaches the gate, directly or through another that does (the lock report's reach)
+      const pemanggil = satu(`with recursive r(nama) as (
+            select 'pengerjaan_gerbang'::text collate "C"
+            union
+            select p.proname::text collate "C" from pg_proc p join r on p.prosrc ~ ('\\m' || r.nama || '\\(')
+             where p.pronamespace = 'public'::regnamespace)
+          select string_agg(nama, ',' order by nama) from r where nama <> 'pengerjaan_gerbang'`);
       c.expect(pemanggil === HARAP.join(","), `the gate's callers must be exactly ${HARAP.join(", ")}: ${pemanggil}`);
       const tidakVolatile = satu(`select coalesce(string_agg(proname, ','), '') from pg_proc where pronamespace = 'public'::regnamespace
           and proname in (${HARAP.map((x) => `'${x}'`).join(",")}) and provolatile <> 'v'`);
