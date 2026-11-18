@@ -75,3 +75,11 @@ read from that batch's acceptance record at Z, not assumed. The owner of each ch
 
 **Most of these are verification, not new work.** Each check is one read of the acceptance record or the code, done
 in A3's gaps, economically.
+
+**Sharon's items, checked (18 Nov, 12:19):** `R15-SHARON-ITEMS-7ba18b03.md` on her branch. Still open, each mitigated:
+- the run-guard order (`audit_run_parent_check`);
+- A1's re-check at approval (`may_start`), and the rule for which result reports use when attempts are granted;
+- C1w's statistics after a one-question revision (goes to 4.5), and the preference for a confirmer who is not the author;
+- B0's account closure (platform admin only, and recoverable).
+
+Everything else is closed, with citations. The open items are classed at Z. Daisy's lines are pending.
