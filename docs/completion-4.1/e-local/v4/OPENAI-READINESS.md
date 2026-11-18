@@ -139,3 +139,51 @@ The owner ran `zsh jalankan-e.sh --latihan` on the package `bae2c4c7…49e`. Exi
 - the practice run on the Mac.
 
 **What remains is the owner's authorisation of the paid run.**
+
+## 9 · E run 3, OpenAI (live, 18 Nov, 05:27–05:30 UTC): completed, verified by Bob; both providers blinded together
+
+The owner ran package v4 (`bae2c4c7…49e`) live, then revoked the key. Bob checked `untuk-bob.zip`:
+- **It holds exactly the four allowlisted files.** There is no key-like text, no reasoning text, no dummy key and no map.
+- **The run:**
+  - mode `live`, exit 0, no abort, no failed request;
+  - pack `ecb0d3c4`;
+  - OpenAI only, 48,000 output tokens;
+  - caps 5.00 / 9.51;
+  - one call in flight at a time; no open reservation.
+- **The earlier runs, unchanged by fingerprint:**
+  - void run 1's ledger is `58f03b89…`;
+  - Anthropic run 2's ledger is `69a9a702…`.
+- **SEALED MAP FINGERPRINT (recorded): `112714f445ffc21731df68db70a0e038e33180e9ba6794cf734ea3a914315e59`.** The map stays in PRIVAT on the owner's Mac, and is opened only after every score is final.
+- **OpenAI run 3's ledger** (`untuk-bob/ledger.json`) sha256: `02d3ddf9a955c26ae9da4a27fcf9d1c91cc7ac9712d98bd0e298f333f0f32747`.
+
+| | bab1, attempt 1 | bab2, attempt 1 |
+|---|---|---|
+| Status | ok, 15 of 15 schema-valid | ok, 15 of 15 schema-valid |
+| Model (as reported) | `gpt-6.1-sol` | `gpt-6.1-sol` |
+| Request id | `req_0f25ff6220a44aafaa4bdc54b2d078ce` | `req_43dd71cd8c30440d9354c78d0ee484ca` |
+| Finish | `completed`, no refusal | `completed`, no refusal |
+| Input tokens (bound) | 2,729 (21,865) | 2,129 (20,404) |
+| Output reported, of which reasoning | 6,013, of which 1,034 | 6,026, of which 1,150 |
+| Output costed (output + reasoning, the fail-closed bound) | 7,047 | 7,176 |
+| Cost (reserved) | US$0.075928 (0.523730) | US$0.076018 (0.520808) |
+| Duration | 74 s | 87 s |
+| Stream | 4,980 events, 1,414,791 bytes, 0 unknown, 0 renamed | 4,879 events, 1,397,180 bytes, 0 unknown, 0 renamed |
+
+- **The costs check out:**
+  - bab1: 2,729 × 2 + 7,047 × 10 = 75,928 micro-dollars;
+  - bab2: 2,129 × 2 + 7,176 × 10 = 76,018 micro-dollars;
+  - in all **US$0.151946**, as the owner reported.
+- **The costed figure is deliberately high.** The recorded output counts reasoning twice, because whether `output_tokens` includes reasoning is only B (the B-graded point in §1).
+- **For Sharon, a note, not a blocker:** the usage shows `input_tokens_details.cache_write_tokens` of 2,726 and 2,126. The automatic prompt cache wrote them. prices.json prices no cache write separately. All input is costed at the full input price, and any cache-write premium on about 2,700 tokens is a fraction of a cent, far inside the double-counted reasoning margin.
+- **Spending to date:**
+  - Anthropic US$0.482254, of which US$0.129986 was the void run;
+  - OpenAI US$0.151946;
+  - **total US$0.634200 of US$10.**
+- **The accepted attempts** (`asal-jawaban.txt`, Ruling 52): **attempt 1 of 1 for every chapter of both providers.** Neither provider used a retry.
+- **Blinded together, on the Mac, with the frozen `kit.mjs blind`:** Anthropic run 2's sealed answers and OpenAI run 3's, under Ruling 51.
+
+**Next, in the v2 flow's order:**
+1. The owner sends `untuk-sharon.zip` (questions and options only, no provider) for Sharon's key check (Ruling 48). Her flags are recorded before any score is revealed.
+2. The owner keeps `untuk-juri.zip` until Bob says Sharon's check is recorded and sends the judges' guide (`PANDUAN-JURI.md`, neutral per the owner's clarification).
+3. Judging, J1 and J2, then J3.
+4. The map is unsealed only after every score is final.

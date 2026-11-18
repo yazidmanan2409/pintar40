@@ -34,6 +34,7 @@ This is the running record. Bob updates it as work moves; the newest entries are
 
 | When (UTC) | What |
 |---|---|
+| 05:35 | **E run 3 (OpenAI, live) verified:** 2 calls, 30 schema-valid drafts, US$0.151946, no retry. **Both providers blinded together. Sealed map fingerprint recorded: `112714f4…5e59`.** Total spend US$0.634200 of US$10. Next: `untuk-sharon.zip` to Sharon for the key check |
 | 05:25 | **The owner's v4 practice run passed** (exit 0; no call, no spend). `untuk-bob.zip` checked: the four allowed files only, no key text, the reviewed settings, and both earlier runs unchanged by fingerprint (`58f03b89`, `69a9a702`). Mock blinding and the attempt list worked. **Only the owner's paid-run authorisation remains** (decision 4) |
 | 02:10 | **Sharon's final confirmation of v4** (`70ffdb4f`): her condition is met. Package `bae2c4c7` verified and attached for the free practice run (decision 3) |
 | 02:03 | **Ruling 52 implemented test first:** the runner names which attempt produced each accepted chapter, for both providers (red `3836673c`, fix `86658dcb`, self-test 267). v4 writes `untuk-bob/asal-jawaban.txt`. **Package v4 now `bae2c4c72ccc67761da3b03ed8f27671f5b58e7c38495c60e5ae1aeb51c3949e`**; rehearsal 18 paths. Sharon asked for her final confirmation |
@@ -76,6 +77,6 @@ The harness commit `4f904638` was explained and pushed under `0959a62c`. A full 
 ## Spending to date
 
 - Anthropic: US$0.482254 of its US$5 limit.
-- OpenAI: US$0.
-- Total: US$0.482254 of US$10.
+- OpenAI: US$0.151946 (run 3, 18 Nov).
+- Total: US$0.634200 of US$10.
 - No other spend.
