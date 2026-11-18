@@ -23,6 +23,10 @@ export const KODE_PENGERJAAN_DB = [
   // neutral sentence (A3-KODE-PEMULIHAN.md §5), rendered quiet: role="status", no error colour; the screens add the
   // old session's panel title and its button
   "SITTING_NOT_CONTROLLER",
+  // A3 (D7, D12): the recovery's refusals, in Daisy's words (A3-KODE-PEMULIHAN.md §1); RECOVERY_NOT_NEEDED is the
+  // teacher's, said with the existing galat.action_not_allowed (Bob, 18 Nov: no new words)
+  "RECOVERY_NOT_AUTHORISED", "RECOVERY_AUTHORISATION_EXPIRED", "RECOVERY_AUTHORISATION_USED", "RECOVERY_NOTHING",
+  "RECOVERY_NOT_NEEDED",
 ] as const;
 export const KODE_PENGERJAAN = [...KODE_PENGERJAAN_DB, "SITTING_FAILED"] as const;
 export type KodePengerjaan = (typeof KODE_PENGERJAAN)[number];
@@ -35,6 +39,7 @@ export function kodePengerjaanDariGalat(e: { code?: string | null; details?: str
 }
 
 export function kunciKodePengerjaan(kode: KodePengerjaan): HleEvent {
+  if (kode === "RECOVERY_NOT_NEEDED") return "galat.action_not_allowed";
   return `pengerjaan.galat.${kode.toLowerCase()}` as HleEvent;
 }
 

@@ -452,6 +452,10 @@ export type HleEvent =
   | "pengerjaan.galat.window_unchanged"
   | "pengerjaan.galat.window_not_changeable"
   | "pengerjaan.galat.sitting_not_controller"
+  | "pengerjaan.galat.recovery_not_authorised"
+  | "pengerjaan.galat.recovery_authorisation_expired"
+  | "pengerjaan.galat.recovery_authorisation_used"
+  | "pengerjaan.galat.recovery_nothing"
   | "pengerjaan.galat.sitting_failed"
   // C1w: the item workbench's refusals and problems (src/lib/soal-kontrak.ts)
   | "studio.soal.galat.draft_not_allowed"
@@ -4277,6 +4281,10 @@ const table: Table = {
   // A3 (Daisy, A3-KODE-PEMULIHAN.md §5 on ux-1/daisy-experience): neutral under O-4, true for another device, a
   // re-sign-in and no session alike
   "pengerjaan.galat.sitting_not_controller": { default: "Asesmen ini sedang dilanjutkan di sesi lain, jadi jawaban dari sini tidak disimpan. Jawaban yang sudah «Tersimpan» sebelumnya tetap ada.", en: "This assessment is being continued in another session, so answers from here are not saved. Answers already «Saved» are kept." },
+  "pengerjaan.galat.recovery_not_authorised": { default: "Asesmen ini perlu diizinkan guru Anda untuk dilanjutkan.", en: "This assessment needs your teacher's permission to continue." },
+  "pengerjaan.galat.recovery_authorisation_expired": { default: "Izin dari guru Anda sudah lewat waktunya. Minta guru mengizinkan sekali lagi, lalu pilih Coba lagi.", en: "Your teacher's permission has run out. Ask your teacher to allow it once more, then choose Try again." },
+  "pengerjaan.galat.recovery_authorisation_used": { default: "Izin dari guru Anda sudah dipakai sekali untuk asesmen ini. Untuk melanjutkan lagi di sini, minta guru mengizinkan sekali lagi, lalu pilih Coba lagi.", en: "Your teacher's permission has already been used once for this assessment. To continue here again, ask your teacher to allow it once more, then choose Try again." },
+  "pengerjaan.galat.recovery_nothing": { default: "Tidak ada yang perlu dilanjutkan: asesmen ini sudah selesai atau sudah ditutup.", en: "There is nothing to continue: this assessment is finished or closed." },
   "pengerjaan.galat.sitting_failed": { default: "Perubahan belum tersimpan. Coba lagi.", en: "The change was not saved. Try again." },
   // C1w (O41-10, O41-11, O41-18, O41-19): the item workbench's refusals, said to the staff who meet them
   "studio.soal.galat.draft_not_allowed": { default: "Anda tidak dapat mengubah soal dalam draf ini.", en: "You cannot change the questions in this draft." },
