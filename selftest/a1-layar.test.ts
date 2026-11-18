@@ -686,7 +686,9 @@ rollback;
         const sesudah = psql(`select (authoritative_deadline = ${lit(sebelum)}::timestamptz + interval '10 minutes')::text || '|' || deadline_extended_count from public.assessment_sessions where id = ${lit(s.buka)}`);
         c.expect(/hasil=waktu/.test(ke(r1)) && sesudah === "true|1", `«Tambah waktu»: ${r1.status} ${ke(r1)}; the deadline moved by ten minutes and counted once: ${sesudah}`);
         const h1 = await (await guru.halaman(ke(r1))).text();
-        c.expect(new RegExp(`Waktu ${m.buka.nama} ditambah 10 menit\\. Batas baru \\d\\d\\.\\d\\d \\S+\\.`).test(teks(h1)), "the result line does not say the minutes and the new deadline");
+        // the new deadline is said as waktuSekolah says it: the time alone on the school's day, with the date before it
+        // when it falls on another day (after midnight in the school's zone), so the line is checked for both forms
+        c.expect(new RegExp(`Waktu ${m.buka.nama} ditambah 10 menit\\. Batas baru (?:[^.,]+, )?\\d\\d\\.\\d\\d \\S+\\.`).test(teks(h1)), `the result line does not say the minutes and the new deadline: ${(/Waktu [^<]*Batas baru[^<]*/.exec(teks(h1)) ?? [""])[0]}`);
         c.expect(/sisa (39|40) menit/.test(garis(h1, m.buka.nama)), `the row does not show the added time: «${garis(h1, m.buka.nama)}»`);
 
         // ---- the race: the sitting ended (the learner handed in) between opening the panel and confirming
