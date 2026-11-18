@@ -1,4 +1,4 @@
-# D-2 · What a PINTAR certificate asserts: the policy specification (revision 2)
+# D-2 · What a PINTAR certificate asserts: the policy specification (revision 3)
 
 Bob, 18 Nov 2026. **Ruling 55, D-2 (A):** a certificate means mastery under defined test conditions. **Revision 2
 incorporates Dr Gladys's educational review** (owner direction, 18 Nov).
@@ -7,6 +7,20 @@ incorporates Dr Gladys's educational review** (owner direction, 18 Nov).
 refines the existing certificate. It does not redesign certificates, the assessment engine, the institutional model or
 4.1's scope. Implementation must be verified **before any real certificate is issued.** Whether that happens inside Z
 is the owner's call by 24 Nov.
+
+> **Owner decisions, 18 Nov (ruling 59):**
+> - **O-1:** the attempt number on results and staff views only.
+> - **O-2:** public «Predikat» removed; internal band kept.
+> - **O-3:** the verification boundary is unchanged.
+> - **O-4:** overall mark plus mandatory questions, kept.
+> - **O-5 deferred:** extra time only; other accommodations go to a separate review.
+> - **O-6:** reading is advised.
+> - **O-7 pending** verification 1.
+> - **O-8:** terminology as future guidance.
+> - **Timing:** after Z, before the first real certificate.
+> - **B-7 (achieved sections) is not implemented now.**
+>
+> §6 is the implementation gate.
 
 **Classes used throughout:**
 - **A**, already supported: keep it and verify it.
@@ -153,3 +167,70 @@ verification, revocation and reissue work as specified (A).
   layout check and the rendered check (R-13) pass.
 - **The predikat** follows O-2 everywhere, consistently.
 - **Sharon reviews** the policy capture, the lint and any public-surface change.
+
+## 6 · The approved refinement and its implementation gate (ruling 59)
+
+### 6.1 Scope: exactly these, nothing more
+
+| # | Change | From |
+|---|---|---|
+| R-a | `sertifikat.jenis` becomes «Sertifikat»; `sertifikat.berkas` becomes «Sertifikat · {kursus}» | B-1 |
+| R-b | `sertifikat.diberikan` becomes «Telah dinyatakan memenuhi kriteria kelulusan yang ditetapkan berdasarkan hasil asesmen pada Materi Pembelajaran: {kursus}.» (ID; EN to match). Daisy's final wording, checked against the frozen A4 grid | B-2 |
+| R-c | «Predikat» no longer rendered on the certificate (card and A4 sheet) or on `/verifikasi/[token]`. **The band stays in `certificate_eligibility`, the snapshot and internal reports.** The public read keeps its contract; its presentation drops one field | B-3, O-2 |
+| R-d | **All three assistance levels refused in every certifying mode** (`POST_TEST`, `STANDALONE`, and the modes that already refuse). The policy is captured on the sitting at its start; a lint enforces `certifies ⇒ not allows_assistance` | B-4 |
+| R-e | Extra time given through A1 is recorded with the result, staff-only, on no public surface | B-5 |
+| R-f | The attempt ordinal is fixed at the start, under ruling 46's lock, and shown on the learner's result and in authorised staff views only | B-6, O-1 |
+| R-g | **Reading advised (O-6): the smallest consistency correction.** The inconsistency is behaviour as well as words: the chapter page offers Uji Penguasaan only once every lesson is read (`siklus.ts`). The smallest correction is for that page to offer Uji Penguasaan once Pemetaan Awal is done, beside "continue reading", with one advisory line (Daisy's wording, for example «Disarankan membaca semua pelajaran lebih dulu»). The database and the test page are unchanged (they already allow it) | O-6 |
+
+**Not in scope:**
+- B-7 (achieved sections);
+- any new accommodation (O-5);
+- the material name on the public page (O-3);
+- per-objective eligibility (O-4);
+- any repetition rule (O-7);
+- any terminology change beyond R-a and R-b (O-8).
+
+**Preserved unchanged:**
+- `certificate_eligibility`;
+- the sealed pass mark and the safety gate;
+- official evidence;
+- correction, review, reissue (DIGANTIKAN) and revocation;
+- certificate identity and number;
+- the verification contract (`verify_certificate`, `assert_public_surface()`);
+- the name never appearing on the public page.
+
+### 6.2 Regression proof (red first)
+
+- **Certifying modes:** each refuses each of the three levels, through the player and by a direct `open_assistance`
+  call, with one planted defect per mode.
+- **Non-certifying activities keep their behaviour:** lessons, PRACTICE, Pemetaan Awal (`PRE_TEST`) and Uji Cepat
+  (`QUICK`) still serve each level they serve today, each pinned by a test. This is the owner's explicit condition.
+- **Open sittings:** a sitting started before the change keeps its captured policy.
+- **The lint** fails if any certifying mode allows assistance.
+- **Predikat:** absent from the card, the A4 sheet and the verification page; still present in the eligibility output
+  and the snapshot.
+- **The public surface:** `assert_public_surface()` and F04-S01 stay green, with no new field.
+- **The attempt ordinal:** equals the lineage count at the start, and appears on no public surface.
+- **Extra time:** recorded, staff-only.
+- **The reading guidance:** after Pemetaan Awal the chapter page offers Uji Penguasaan, with the advisory line.
+- **Wording:** Daisy's copy check; the sheet guard (B6C-SHEET-01); the rendered check (R-13) on the new sheet.
+
+### 6.3 The gate
+
+1. **When:** a bounded post-Z batch, **D2-R**. It opens after Z's candidate is accepted, and must be on staging and
+   accepted **before the first certificate is issued to a real participant.** It does not need to precede the 10-adult
+   pilot, because the pilot issues no certificates (pilot proposal P-3). It does not belong to the rationalisation
+   milestone (ruling 54), which is optimisation, not behaviour, but it may run beside it.
+2. **Before any code:** Daisy reviews R-a, R-b and R-g against the A4 grid; Sharon reviews R-c to R-f for integrity and
+   privacy.
+3. **Then:** the usual batch process: red first, one uninterrupted pre-flight, CI, Sharon's and Daisy's reviews, a
+   staging preservation pair, and **the owner's staging authorisation.**
+4. **Effort:** about 1–1.5 days of build, plus the reviews.
+
+### 6.4 What else it changes
+
+- **The 4.1 walkthrough runs on the Z candidate, before D2-R.** Observers will see today's title, the Predikat and
+  hints in Uji Penguasaan. Daisy's script must not present these as final, and observations on them are recorded
+  against D2-R, not as 4.1 defects.
+- **The handbook and the teacher guidance:** "hints are available in the test" becomes false after D2-R.
+- **The pilot:** none, because it issues no certificates.
