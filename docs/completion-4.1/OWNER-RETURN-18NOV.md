@@ -17,7 +17,16 @@ This is the running record. Bob updates it as work moves; the newest entries are
    - **(b) Follow the guidance literally:** OpenAI could then lose a whole chapter that Anthropic's process would have retried.
    - **Sharon agrees with (a)** (`b52b1079`). Her condition: the report states which attempt each chapter's answer came from, for both providers. The code does not change until the owner rules.
 2. **C2w,** once frozen: the read-only "before" preservation read on staging, then the merge. These are two separate authorisations, **drafted in `batches/c2w-evidence/C2W-OWNER-REQUESTS.md`**.
-3. **E, the OpenAI paid run,** after Sharon's PASS and the owner's free practice run: his authorisation and one new temporary OpenAI key.
+3. **E, the free practice run (ready now; no key, no cost).** The package is attached in the session: `pintar-e-local-v4.tar.gz`, full SHA-256 **`bae2c4c72ccc67761da3b03ed8f27671f5b58e7c38495c60e5ae1aeb51c3949e`**.
+   - Sharon's final confirmation: `70ffdb4f`.
+   - Bob unpacked and verified the exact file: its checksums, its runner `86658dcb`, its scripts matching the repository, and its self-test passing.
+   - **To practise:**
+     1. Save the file in Downloads, next to `pintar-e-local` and `pintar-e-local-v3`.
+     2. Check it: `shasum -a 256 pintar-e-local-v4.tar.gz`.
+     3. Unpack it: `tar -xzf pintar-e-local-v4.tar.gz`, then `cd pintar-e-local-v4`.
+     4. Run `zsh jalankan-e.sh --latihan`. At the key prompt, type `sk-proj-latihan`. Then type `RUN`.
+     5. Send Bob **only** `hasil-latihan/untuk-bob.zip`.
+4. **E, the OpenAI paid run,** after a clean practice run: the owner's authorisation and one new temporary OpenAI key.
 
 ## Progress
 
@@ -25,6 +34,7 @@ This is the running record. Bob updates it as work moves; the newest entries are
 
 | When (UTC) | What |
 |---|---|
+| 02:10 | **Sharon's final confirmation of v4** (`70ffdb4f`): her condition is met. Package `bae2c4c7` verified and attached for the free practice run (decision 3) |
 | 02:03 | **Ruling 52 implemented test first:** the runner names which attempt produced each accepted chapter, for both providers (red `3836673c`, fix `86658dcb`, self-test 267). v4 writes `untuk-bob/asal-jawaban.txt`. **Package v4 now `bae2c4c72ccc67761da3b03ed8f27671f5b58e7c38495c60e5ae1aeb51c3949e`**; rehearsal 18 paths. Sharon asked for her final confirmation |
 | 01:59 | Sharon confirmed R-1, R-2 and C-1 (`d012560f`) |
 | 01:50 | Sharon's two recommendations done, under the delegation. R-1: a reasoning item's content part is accepted, never kept (red `239a0211`, fix `88e33ec6`, self-test 262). R-2: only the two judged Anthropic files are copied for blinding, then re-hashed. **Package v4 now SHA-256 `3f2ade8464fbd54dbf6e183106e1f49c9b78721a7a0b55850bb063a011924283`**; rehearsal 18 paths. Sharon asked to confirm |
