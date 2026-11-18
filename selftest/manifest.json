@@ -6711,6 +6711,11 @@
       "proves": "selftest/a3-layar.test.ts, reading the rendered html of the running app's route: a learner opening a Pemetaan Awal another session controls is asked «Lanjutkan di sini?» in O-4's neutral words, nothing is played and the sitting does not move; an Uji Penguasaan another session controls plays nothing and starts its one check; rendering writes nothing."
     },
     {
+      "id": "A3-J02",
+      "runner": "app",
+      "proves": "selftest/a3-layar.test.ts, reading the rendered html of the running app's route: the class's teacher sees the learner's request on the Uji Penguasaan's row in O-4's neutral words; «Izinkan lanjut setelah masuk lagi» is offered only there, with its reason inside it; a short reason is refused with the typed reason kept; a full one writes one valid permission and the result line says until when."
+    },
+    {
       "id": "A3-L01",
       "runner": "static",
       "proves": "executes pengerjaan_saya and daftar_pengerjaan against the migrations, rolled back: the learner's read says whether this session controls the sitting, whether a teacher must allow a recovery and whether this generation came by a teacher's permission; the teacher's row carries the mode, the learner's request and a valid permission."

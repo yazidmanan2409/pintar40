@@ -36,7 +36,7 @@ import {
 } from "../src/lib/pengerjaan-kontrak";
 import { lencanaA1, metaBaris } from "../src/lib/pengerjaan-tampil";
 
-const GURU = { identitas: "siklus-guru@synthetic.pintar.test", password: "Sintetis-SiklusGuru-11!" };
+export const GURU = { identitas: "siklus-guru@synthetic.pintar.test", password: "Sintetis-SiklusGuru-11!" };
 const KADEP = { identitas: "siklus-kaprodi@synthetic.pintar.test", password: "Sintetis-SiklusKaprodi-22!" };
 const ADMIN = { identitas: "siklus-admin@synthetic.pintar.test", password: "Sintetis-SiklusAdmin-33!" };
 const GURU_LAIN = { identitas: "alpha-guru@synthetic.pintar.test", password: "Sintetis-AlphaGuru-52!" };
@@ -73,8 +73,8 @@ export function formDengan(html: string, penanda: string, isi: Record<string, st
   return { ...out, ...isi };
 }
 /** One learner's row of the rendered Table (its <tr>), by the name it carries. */
-const baris = (html: string, nama: string) => (rapi(html).match(/<tr\b[\s\S]*?<\/tr>/g) ?? []).find((r) => r.includes(nama)) ?? "";
-const ke = (r: Response) => (r.headers.get("location") ?? "").replace(/&amp;/g, "&");
+export const baris = (html: string, nama: string) => (rapi(html).match(/<tr\b[\s\S]*?<\/tr>/g) ?? []).find((r) => r.includes(nama)) ?? "";
+export const ke = (r: Response) => (r.headers.get("location") ?? "").replace(/&amp;/g, "&");
 
 export async function masuk(asal: string, siapa: { identitas: string; password: string }, konteks: string): Promise<Komputer | string> {
   const k = new Komputer(asal, ipUji());
@@ -234,7 +234,7 @@ export function bersihkan(): void {
     commit;`);
 }
 
-const siapa = (d: Dunia, aa = d.pre) => `/mengajar/${d.kelas}/siapa?penugasan=${aa}`;
+export const siapa = (d: Dunia, aa = d.pre) => `/mengajar/${d.kelas}/siapa?penugasan=${aa}`;
 
 
 // ------------------------------------------------------------------ the scheduler (owner's Option A)
