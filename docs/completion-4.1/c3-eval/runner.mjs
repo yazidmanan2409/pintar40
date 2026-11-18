@@ -360,10 +360,10 @@ export function anthropicAssembler() {
 //   response.failed, or an `error` event                  a stream_error;
 //   anything else, or nothing                             stream_incomplete.
 export function openaiAssembler({ maxOutput } = {}) {
-  const st = { events: 0, unknown: 0, pings: 0, thinking: 0, started: false, terminal: null, model: null, seq: null, items: new Map(), parts: new Map(), refusal: 0, resp: null };
+  const st = { events: 0, unknown: 0, renamed: 0, pings: 0, thinking: 0, started: false, terminal: null, model: null, seq: null, items: new Map(), parts: new Map(), refusal: 0, resp: null };
   const textNow = () => [...st.parts.entries()].sort((x, y) => (x[1].o - y[1].o) || (x[1].c - y[1].c)).filter(([, q]) => q.type === 'output_text').map(([, q]) => q.text.join('')).join('');
   const evidence = () => { const t = textNow(); return { events: st.events, pings: 0, unknown_events: st.unknown, thinking_blocks: st.thinking, blocks: st.parts.size,
-    started: st.started, stopped: !!st.terminal, stop_reason: st.terminal, final_usage_seen: !!st.resp?.usage, text_chars: t.length, text_sha256: sha(t) }; };
+    started: st.started, stopped: !!st.terminal, stop_reason: st.terminal, final_usage_seen: !!st.resp?.usage, renamed_events: st.renamed, text_chars: t.length, text_sha256: sha(t) }; };
   const fail = (reason, msg) => { const x = new StreamIncomplete(reason, msg, evidence()); x.partial = textNow(); return x; };
   const err = (e) => { const x = new StreamError({ type: e?.code ?? null, message: e?.message }, evidence(), OPENAI_STREAM_RETRY); x.partial = textNow(); return x; };
   const part = (j) => { const q = st.parts.get(`${j.output_index}:${j.content_index}`); if (!q || !q.open) throw fail('bad_order', `${j.type} for part ${j.output_index}:${j.content_index}, which is not open`); return q; };
@@ -378,7 +378,9 @@ export function openaiAssembler({ maxOutput } = {}) {
       if (st.terminal) throw fail('after_stop', `event "${event}" after ${st.terminal}`);
       let j; try { j = JSON.parse(data); } catch { throw fail('bad_json', `event "${event}": its data is not JSON`); }
       const type = j?.type;
-      if (typeof type !== 'string' || (event !== 'message' && event !== type)) throw fail('bad_event', `event "${event}" carries data of type ${JSON.stringify(type)}`);
+      // facts 3e1a09f0 §1 (B): parse data.type, don't rely on the event: line. A differing name is counted, not trusted.
+      if (typeof type !== 'string') throw fail('bad_event', `event "${event}" carries no data type`);
+      if (event !== 'message' && event !== type) st.renamed++;
       if (j.sequence_number !== undefined) {
         if (!Number.isInteger(j.sequence_number) || (st.seq !== null && j.sequence_number <= st.seq)) throw fail('bad_order', `sequence_number ${j.sequence_number} after ${st.seq}`);
         st.seq = j.sequence_number;
@@ -547,10 +549,21 @@ const ADAPTERS = {
     // Every relied-on field is grade A (§6b, §6c). Content-Type: A as documented in every reference example (whether it
     // is required is B, but it is always sent). Output usage: whether output_tokens includes reasoning_tokens is B, so
     // the adapter does not rely on it: it settles on a bound that holds either way (below).
-    // v4: streams (openaiAssembler). The streaming event shapes are not yet grade A in this repository, so the adapter is
-    // unverified and a real run refuses it until E-PROVIDER-FACTS-OPENAI-STREAM.md confirms them.
-    verified: false,
-    unverified_fields: ['streaming: the Responses API event names, payload fields, terminal events, usage placement, error event and sequence_number (to be quoted, grade A)'],
+    // v4: streams (openaiAssembler), checked against E-PROVIDER-FACTS-OPENAI-STREAM.md (claude/e-openai-stream-facts,
+    // 3e1a09f0, read 17 Nov 2026): stream true, the 21 event schemas the adapter uses, response.usage on
+    // response.completed, the status and incomplete_details values, the error event's fields and response.failed's codes,
+    // and gpt-6.1-sol's 128,000 max output, default effort medium, streaming and structured outputs: all grade A.
+    verified: true,
+    unverified_fields: [],
+    fail_closed_fields: [
+      'event framing: event: names are not documented to equal data.type; events are read by data.type (B)',
+      'sequence_number: present on every event (A), strictly increasing not documented; a repeat or a step back is refused (B)',
+      'usage on response.incomplete and response.failed: the examples print null; without usage the stream is not a response and its reservation is kept',
+      'error-event codes: not documented; only server_error is retried (the analogue of the documented retryable 500); every other code stops the provider',
+      'one terminal event per stream: not documented; an event after the terminal event, or none, is refused',
+      'billing on a dropped stream: not documented; its full reservation is kept',
+      'output_tokens includes reasoning_tokens: B (example arithmetic); output is settled at output + reasoning, never above max_output_tokens (an over-estimate)',
+    ],
     streaming: true, assembler: openaiAssembler, request_id_header: 'x-request-id', rl_headers: OPENAI_RL,
     endpoint: 'https://api.openai.com/v1/responses', api_version: 'v1',
     build({ model, text, schema, maxOutput, key, clientRequestId }) {
@@ -1696,8 +1709,9 @@ async function selfTest() {
   const gg = liveGate(table, ['google'], {});
   check(!('google' in ADAPTERS) && !PROVIDERS.includes('google') && gg.length === 1 && /^google: excluded: Not eligible .*§20\(d\)/.test(gg[0]), 'google: no adapter; refused with the §20(d) reason from prices.json');
   // the --live flag: required in addition to the gate
-  check(liveGate(table, ['openai'], dummyKeys).some((x) => /^openai: API adapter not verified.*streaming/.test(x)) && !liveGate(table, ['openai'], dummyKeys).some((x) => /no streaming transport/.test(x)) && liveGate(table, ['anthropic'], dummyKeys).length === 0,
-    'v4 gate: openai now streams, but a real run refuses it while its streaming facts are not grade A; anthropic alone passes the gate with a key');
+  check(liveGate(table, ['openai'], dummyKeys).length === 0 && liveGate(table, ['anthropic'], dummyKeys).length === 0
+    && liveGate(table, ['openai'], dummyKeys, { ...ADAPTERS, openai: { ...ADAPTERS.openai, verified: false, unverified_fields: ['streaming: x'] } }).some((x) => /^openai: API adapter not verified.*streaming/.test(x)),
+    'v4 gate: openai, streaming and verified against the facts (3e1a09f0), passes the gate alone with a key, as anthropic does; marked unverified it is refused');
   check(liveGate(table, ['openai'], dummyKeys, { ...ADAPTERS, openai: { ...ADAPTERS.openai, streaming: false, verified: true, unverified_fields: [] } }).some((x) => /^openai: no streaming transport/.test(x)),
     'v4 gate: a provider without a streaming transport is still refused');
   const allVerified = Object.fromEntries(Object.entries(ADAPTERS).map(([p, x]) => [p, { ...x, verified: true, streaming: true }]));   // test-only override
