@@ -16,7 +16,7 @@ closed, and A2 is built as A2a then A2b.)*
 
 ## Owner directive, 16 November 2026: proceed through 4.1; a pending owner click is not a standstill
 
-**Sequence:** A2b → C2w → A3 → C3w → Z, then the post-4.1 rationalisation and performance audit, then 4.2 planning.
+**Sequence:** A2b → C2w → A3 → C3w → Z → the educator walkthrough → the owner's 4.1 acceptance → **the Post-4.1 Codebase Rationalisation & Performance Optimisation milestone** (DEFERRED; it opens only on formal 4.1 acceptance and closes with verified results before substantive 4.2 development, unless the owner approves otherwise: ruling 54, `docs/post-4.1/RATIONALISATION-MILESTONE.md`) → 4.2.
 Development, tests, reviews and internal verification continue without waiting for owner instructions. Escalate only
 material decisions, genuine blockers, spending approvals or production actions.
 

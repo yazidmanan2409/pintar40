@@ -18,6 +18,7 @@ Everything else below is already decided.
 
 ```
 A2b (building) ─► C2w ─► A3 ─► C3w-1 ─────────► C3w-2 ─► Z ─► staging (owner) ─► walkthrough (owner)
+   ─► owner's 4.1 acceptance ─► Post-4.1 Rationalisation & Performance milestone (ruling 54; DEFERRED until then) ─► 4.2
                                    E (owner's decisions, then the paid run) ──┘
 ```
 

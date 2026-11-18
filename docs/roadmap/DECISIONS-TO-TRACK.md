@@ -34,6 +34,9 @@ belongs in the execution records, not here.
 
 ## C · Needed for 4.2 planning (near Z)
 
+**Sequence (ruling 54, 18 Nov):** substantive 4.2 development starts only after the Post-4.1 Rationalisation & Performance milestone has closed with verified results, unless the owner approves otherwise. The milestone opens on formal 4.1 acceptance (Z, the walkthrough and the owner's acceptance). Its implementation scope needs the owner's approval (`docs/post-4.1/RATIONALISATION-MILESTONE.md`).
+
+
 | Decision | State |
 |---|---|
 | The 4.2 plan and its sequencing | Not yet due |
