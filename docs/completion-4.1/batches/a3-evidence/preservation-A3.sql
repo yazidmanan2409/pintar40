@@ -7,7 +7,8 @@
 -- has landed, staging holds 284 and A3 adds:
 --   * 20270121200000_the_start_lock_covers_what_the_attempt_count_counts (sha256 17a8c527f2bfeb51...);
 --   * 20270121210000_attempts_count_across_an_assessments_versions (sha256 c88630e7a3fba12d...);
---   * 20270121220000_a_sitting_has_one_writer (sha256 370d5c0a54c7fc253048c40b8c3c83c8e214fbac6dac143a7ab90cae0cd8b688).
+--   * 20270121220000_a_sitting_has_one_writer (sha256 a08a491afd546569fdd658d4f849741a78b13eca0d24834983cb8f77307387c6 at
+--     4c5f6383, after V-1; it was 370d5c0a…b688 at e6e28e52. V-2 will change it again: the hashes are restated at the freeze).
 -- Their timestamps sort after C2w's two (20270121100000, 110000), and no function is defined by both batches (Bob,
 -- checked at e6e28e52 against aa5f5741). A3's candidate must be brought up to C2w before its freeze; the pair is
 -- then re-checked against that head. Line 10 is expected to read "284 / 20270121110000" BEFORE and
