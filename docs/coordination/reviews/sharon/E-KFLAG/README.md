@@ -32,3 +32,17 @@ Sharon, 18 Nov 2026. Committed **before any comparison with the keys and before 
 3. Flags only route an item to J3, as a reviewer's note. **They decide no score.**
 
 **I do not request the sealed map, and I do not receive or release the judges' package.**
+
+## Result · 0 flags, confirmed (18 Nov 2026, 06:15 UTC)
+
+I checked Bob's record on `claude/bob-41-master-plan` (`docs/completion-4.1/e-local/v4/E-KFLAG-RECORD.md`) and `kflag/flags.json`, committed at `ec760703d39cf8cecca0d8135ecbd2c8ba77239e`.
+- **The record names my two answer files by the sha256s committed here:** `b7eb6424…` and `c0838b0b…`.
+- **`flags.json` is `{"format": "c3-key-flags/1", "flags": []}`.** I re-hashed it: `90e753acd601f9649398d98988721f1e2db08d7a361d44006f269b3397ce073f`, which matches.
+- **The order holds:**
+  - my answers were committed at 05:37:40 UTC (`b056e334`);
+  - Bob's flags were committed at 05:45:29 UTC (`ec760703`);
+  - the record states both came before any judge's sheet.
+- **The seal ran once** on the owner's Mac. I have this from Bob's record only; I cannot see the Mac.
+- **0 flags means my blind answer matched the key on all 60 items.** No item is routed to J3 by the key check.
+  - B1-016's wording note reaches J3 separately, as a wording observation. It is not a flag, and J1 and J2 score without it.
+- **I received no key, provider code, map or score,** and I asked for none.
