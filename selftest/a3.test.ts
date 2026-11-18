@@ -1014,6 +1014,55 @@ rollback;`;
     },
   },
   {
+    // Sharon's case 3 for A2A-L01's report (b94b3909, A3-DIFFS-671175e4.md): the gate's sitting appears at strength 2
+    // before the gate's own FOR UPDATE (token 29, pengerjaan_keluar_terapkan's UPDATE), only inside pengerjaan_pagar's
+    // branches, each of which takes the sitting FOR UPDATE before it updates it. That is the exception, pinned here: each
+    // of the four functions takes `select … from public.assessment_sessions where id = p_session for update` before any
+    // UPDATE of assessment_sessions in its body. A plant moving an UPDATE above the FOR UPDATE, rolled back, is reported.
+    id: "A3-C07",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      const FUNGSI = ["pengerjaan_lepas_darurat", "pengerjaan_kredit_darurat", "pengerjaan_keluar_terapkan", "pengerjaan_putus_tenggat"];
+      const baca = (tanam: string) => {
+        const sql = `begin; ${tanam}
+select proname || '|' || translate(encode(convert_to(prosrc, 'UTF8'), 'base64'), E'\\n', '') from pg_proc
+ where pronamespace = 'public'::regnamespace and proname in (${FUNGSI.map((f) => `'${f}'`).join(",")});
+rollback;`;
+        const r = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-qAt", "-c", sql, db()], { encoding: "utf8" });
+        const v: Record<string, string> = {};
+        for (const l of r.stdout.split("\n")) { const i = l.indexOf("|"); if (i > 0) v[l.slice(0, i)] = Buffer.from(l.slice(i + 1).replace(/\s/g, ""), "base64").toString("utf8"); }
+        return { r, v };
+      };
+      // the first sitting FOR UPDATE on p_session, and the first UPDATE of assessment_sessions, in the body without comments
+      const urutan = (src: string) => {
+        const b = src.replace(/--[^\n]*/g, "");
+        const fu = b.search(/\bselect\b[^;]*?\bfrom\s+public\.assessment_sessions\s+where\s+id\s*=\s*p_session\s+for\s+update\b/i);
+        const up = b.search(/\bupdate\s+public\.assessment_sessions\b/i);
+        return { fu, up, baik: fu >= 0 && (up < 0 || fu < up) };
+      };
+      const { r, v } = baca("");
+      if (!c.expect(r.status === 0, `the catalogue could not be read: ${(r.stderr || "").trim().split("\n").find((l) => /ERROR/.test(l))}`)) return c.verdict("");
+      for (const f of FUNGSI) {
+        if (!c.expect(f in v, `${f} is not in the catalogue`)) continue;
+        const u = urutan(v[f]);
+        c.expect(u.baik, `${f} must take the sitting FOR UPDATE (where id = p_session) before any UPDATE of assessment_sessions: FOR UPDATE at ${u.fu}, first UPDATE at ${u.up}`);
+        c.expect(u.up >= 0, `${f} no longer updates the sitting; the case-3 exception names it, so restate the exception`);
+      }
+      // the plant: pengerjaan_kredit_darurat with an UPDATE of the sitting moved above its FOR UPDATE
+      const t = baca(`do $t$ declare f oid := 'public.pengerjaan_kredit_darurat(uuid)'::regprocedure; s text; begin
+  select prosrc into s from pg_proc where oid = f;
+  s := regexp_replace(s, '(\\mbegin\\M)', E'\\\\1\\n  update public.assessment_sessions set darurat_dikredit_sampai = darurat_dikredit_sampai where id = p_session;');
+  execute format('create or replace function public.pengerjaan_kredit_darurat(%s) returns %s language plpgsql security definer set search_path = public, pg_temp as %L',
+    pg_get_function_arguments(f), pg_get_function_result(f), s);
+end $t$;`);
+      if (!c.expect(t.r.status === 0, `the plant could not be installed: ${(t.r.stderr || "").trim().split("\n").find((l) => /ERROR/.test(l))}`)) return c.verdict("");
+      const tu = urutan(t.v.pengerjaan_kredit_darurat ?? "");
+      c.expect(tu.fu >= 0 && tu.up >= 0 && tu.up < tu.fu && !tu.baik, `the plant (an UPDATE of the sitting above pengerjaan_kredit_darurat's FOR UPDATE) was not reported: FOR UPDATE at ${tu.fu}, first UPDATE at ${tu.up}`);
+      return c.verdict(`reads the function catalogue: each of ${FUNGSI.join(", ")} takes the sitting FOR UPDATE (select … from public.assessment_sessions where id = p_session for update) before any UPDATE of assessment_sessions in its body, so the gate's sitting at strength 2 before the gate's FOR UPDATE in A2A-L01's report (pengerjaan_pagar's branches) is always already held FOR UPDATE (Sharon's case 3, b94b3909); a plant moving an UPDATE above the FOR UPDATE is reported; rolled back`);
+    },
+  },
+  {
     // A3, ruling 46 (Sharon's lineage design, 478c8750): REPLACES A3-R1V, whose claim was false (a sat ad-hoc definition's
     // version is NOT immutable: enforce_taught_content_immutable exempts ad-hoc definitions; the full suite on 8861ffc3
     // found one). The start's key and may_start's count use the lineage root instead, which this pins.

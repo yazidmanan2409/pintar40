@@ -261,6 +261,9 @@ export const KELAS_PENULIS: Record<string, { kelas: Kelas; alasan: string; baru?
   pengerjaan_putus_tenggat: { kelas: "SYSTEM", alasan: "A1's decider: the drain's own end" },
   tutup_asesmen_terbuka: { kelas: "SYSTEM", alasan: "the closure of open sittings, reached from departures and promotions" },
   open_assessment_session: { kelas: "INNER", alasan: "the insert of a start, reached only from start paths; the trigger guards the row" },
+  // A3 (Sharon, 6e6e69d6): the gate writes only the controller's one-time claim of a sitting open before A3 (D6); it is
+  // not a boundary (no client grant, no registry row) and is reached only from the eight learner paths below
+  pengerjaan_gerbang: { kelas: "INNER", alasan: "A3's one-time claim of an uncontrolled sitting (D6), reached only from record_answer, submit_session, pause_session, resume_session, finish_my_session, note_item_view, open_assistance and assistance_state" },
   percobaan_tandai: { kelas: "INNER", alasan: "writes only attempt_request_id, at a start" },
   pengerjaan_lepas_darurat: { kelas: "INNER", alasan: "A2a's release of a stop's mark (first touch, the batch)" },
   pengerjaan_kredit_darurat: { kelas: "INNER", alasan: "A2a's credit of a lifted stop" },
@@ -308,6 +311,19 @@ export function inventaris(db: string, tanam = ""): { fungsi: string[]; salah: s
       salah.push(`${f} is a system closure and asks the place question: a window must never keep work open`);
   }
   for (const f of Object.keys(KELAS_PENULIS)) if (!fungsi.includes(f)) salah.push(`${f} is classed but no longer writes a class's work`);
+  // Sharon 6e6e69d6 (a): the gate's callers are exactly the eight its class names, and none of them is the gate's peer
+  {
+    const PEMANGGIL_GERBANG = ["assistance_state", "finish_my_session", "note_item_view", "open_assistance", "pause_session", "record_answer", "resume_session", "submit_session"];
+    const capai = (g: string, lihat = new Set<string>()): boolean => {
+      if (g === "pengerjaan_gerbang") return true;
+      if (lihat.has(g)) return false;
+      lihat.add(g);
+      return (panggil.get(g) ?? []).some((h) => capai(h, lihat));
+    };
+    const nyata = [...src.keys()].filter((f) => f !== "pengerjaan_gerbang" && capai(f)).sort();
+    if (JSON.stringify(nyata) !== JSON.stringify(PEMANGGIL_GERBANG))
+      salah.push(`pengerjaan_gerbang's callers are ${nyata.join(", ")}; its class names exactly ${PEMANGGIL_GERBANG.join(", ")}`);
+  }
   return { fungsi, salah };
 }
 const TANAM_INV = `create function public._a2b_i01_tanam(p uuid) returns void language plpgsql as $t$
