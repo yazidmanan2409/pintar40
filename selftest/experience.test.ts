@@ -2254,7 +2254,9 @@ export const experienceTests: SelfTest[] = [
       // function bodies; no brand or copy change
       // MOVED 286 -> 287, RESTATED, A3: 20270121240000 (a sitting is recovered on another session, D7): no brand or copy
       // change in the institution mark
-      c.expect(migrations.length === 287, `${migrations.length} migrations; the frozen baseline has 287`);
+      // MOVED 287 -> 288, RESTATED, A3: 20270121250000 (a recovery is shown): two reads gain fields; no brand or copy
+      // change in the institution mark
+      c.expect(migrations.length === 288, `${migrations.length} migrations; the frozen baseline has 288`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4178,7 +4180,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 284 -> 285, RESTATED, A3, for 20270121220000 (a sitting has one writer): no tour RPC.
       // MOVED 285 -> 286, RESTATED, A3, for 20270121230000 (every writer of a sitting takes its row): no tour RPC.
       // MOVED 286 -> 287, RESTATED, A3, for 20270121240000 (a sitting is recovered on another session): no tour RPC.
-      c.expect(migs.length === 287, `${migs.length} migrations; the baseline has 287`);
+      // MOVED 287 -> 288, RESTATED, A3, for 20270121250000 (a recovery is shown): no tour RPC.
+      c.expect(migs.length === 288, `${migs.length} migrations; the baseline has 288`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

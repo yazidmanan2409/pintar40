@@ -437,6 +437,7 @@ begin
   select v_e, v_k, e.academic_period_id from public.enrollments e where e.id = v_e;
   perform set_config('p.u_M', v_u::text, true);
   perform set_config('p.kelas', v_k::text, true);
+  perform set_config('p.p', v_p::text, true);
   perform set_config('p.aa_post', f.aa_post::text, true);
   perform set_config('p.u_T', (select id::text from auth.users where email = 'siklus-guru@synthetic.pintar.test'), true);
   perform set_config('p.u_L', (select id::text from auth.users where email = 'alpha-guru@synthetic.pintar.test'), true);
@@ -575,12 +576,12 @@ begin
   ${P("P13_lagi", "M", "B", "select public.minta_izin_lanjut(current_setting('p.post')::uuid)::text")}
   v := v || jsonb_build_object('P13_tanda_2', (select coalesce(to_jsonb(s) ->> 'lanjut_diminta_pada', 'null') from public.assessment_sessions s where s.id = v_post));
   -- A3-L01: the teacher's row shows the request; the learner's read says this session (B) is not the controller
-  ${P("L01_daftar_minta", "T", "T", `select concat_ws(',', d.mode_asesmen, (d.lanjut_diminta_pada is not null)::text, (d.izin_berlaku_sampai is not null)::text) from public.daftar_pengerjaan(current_setting('p.kelas')::uuid, current_setting('p.aa_post')::uuid) d where d.person_id = (select a.person_id from public.accounts a where a.auth_user_id = current_setting('p.u_M')::uuid)`)}
+  ${P("L01_daftar_minta", "T", "T", `select concat_ws(',', d.mode_asesmen, (d.lanjut_diminta_pada is not null)::text, (d.izin_berlaku_sampai is not null)::text) from public.daftar_pengerjaan(current_setting('p.kelas')::uuid, current_setting('p.aa_post')::uuid) d where d.person_id = current_setting('p.p')::uuid`)}
   ${P("L01_post_B_sebelum", "M", "B", `select concat_ws(',', x ->> 'di_sesi_ini', x ->> 'perlu_izin', x ->> 'izin_dipakai') from public.pengerjaan_saya(current_setting('p.post')::uuid) x`)}
   ${P("P13_masih", "M", "B", lanjut("current_setting('p.post')::uuid"), true)}
   ${P("P04_izin", "T", "T", izin())}
   -- A3-L01: the teacher's row shows the valid permission
-  ${P("L01_daftar_izin", "T", "T", `select concat_ws(',', d.mode_asesmen, (d.lanjut_diminta_pada is not null)::text, (d.izin_berlaku_sampai is not null)::text) from public.daftar_pengerjaan(current_setting('p.kelas')::uuid, current_setting('p.aa_post')::uuid) d where d.person_id = (select a.person_id from public.accounts a where a.auth_user_id = current_setting('p.u_M')::uuid)`)}
+  ${P("L01_daftar_izin", "T", "T", `select concat_ws(',', d.mode_asesmen, (d.lanjut_diminta_pada is not null)::text, (d.izin_berlaku_sampai is not null)::text) from public.daftar_pengerjaan(current_setting('p.kelas')::uuid, current_setting('p.aa_post')::uuid) d where d.person_id = current_setting('p.p')::uuid`)}
   -- (Sharon c0a5d7d6) a request on an Uji Penguasaan that already has a valid permission: it can recover directly
   ${P("P13_berizin", "M", "B", "select public.minta_izin_lanjut(current_setting('p.post')::uuid)::text", true)}
   -- A3-P10 (S5, binding): a permission for another sitting of the same learner does not recover this one
@@ -622,7 +623,7 @@ begin
   -- A3-L01: after the allowed recovery, B is the controller by a teacher's permission; the row's request and permission are gone
   ${P("L01_post_B", "M", "B", `select concat_ws(',', x ->> 'di_sesi_ini', x ->> 'perlu_izin', x ->> 'izin_dipakai') from public.pengerjaan_saya(current_setting('p.post')::uuid) x`)}
   ${P("L01_post_A", "M", "A", `select concat_ws(',', x ->> 'di_sesi_ini', x ->> 'perlu_izin', x ->> 'izin_dipakai') from public.pengerjaan_saya(current_setting('p.post')::uuid) x`)}
-  ${P("L01_daftar_sesudah", "T", "T", `select concat_ws(',', d.mode_asesmen, (d.lanjut_diminta_pada is not null)::text, (d.izin_berlaku_sampai is not null)::text) from public.daftar_pengerjaan(current_setting('p.kelas')::uuid, current_setting('p.aa_post')::uuid) d where d.person_id = (select a.person_id from public.accounts a where a.auth_user_id = current_setting('p.u_M')::uuid)`)}
+  ${P("L01_daftar_sesudah", "T", "T", `select concat_ws(',', d.mode_asesmen, (d.lanjut_diminta_pada is not null)::text, (d.izin_berlaku_sampai is not null)::text) from public.daftar_pengerjaan(current_setting('p.kelas')::uuid, current_setting('p.aa_post')::uuid) d where d.person_id = current_setting('p.p')::uuid`)}
   v := v || jsonb_build_object('P13_sesudah_pulih', (select coalesce(to_jsonb(s) ->> 'lanjut_diminta_pada', 'null') from public.assessment_sessions s where s.id = v_post));
   ${P("P04_terpakai", "M", "C", lanjut("current_setting('p.post')::uuid"), true)}
   -- A3-P17 (D9): the new controller's manifest is judged against the answers the server holds, whatever generation
