@@ -58,3 +58,13 @@ Read: `preservation-C2w.sql` at `dfa542abc881ad8313036e4e99010c319aed5288`, sha2
   3. a planted direct update with no audit row makes line 68 read 1.
 
   **The staging BEFORE read still waits for the owner's authorisation.**
+
+## Addendum · the local dry run on the final candidate (18 Nov 2026, 01:30 UTC)
+
+Read: `docs/completion-4.1/batches/c2w-dryrun-6b6f31c5/` at `aa5f5741d0bb8574986f055458a05d9f714e277f` on `claude/c2w`. I diffed the outputs myself.
+- **The AFTER query differs from `dfa542ab` only in `batas`:** lines 59 and 60 hold cutoff `2026-11-18 01:13:44.128096+00` and watermark 336.
+- **Before (282) and the start:** lines 65 to 68 read 0, 2, 0 and 0.
+- **Proof 1 holds.** From before to after only line 10 moves: 282 / 20270120240000 → 284 / 20270121110000, with the versions digest `a5b762d4…` → `1374521a…`.
+- **Proof 2 holds.** A withdrawal through the function moves only line 67, from 0 to 1. Line 68 stays 0.
+- **Proof 3 holds.** A direct update with no audit row moves line 67 from 1 to 2, and line 68 reads 1. Line 66 does not move in either proof, as designed (the four withdrawal columns are excluded).
+- **The preservation pair is PASS.** The staging BEFORE read still waits for the owner's authorisation.

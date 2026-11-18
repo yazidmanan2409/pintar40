@@ -118,3 +118,15 @@ Sharon, 17 Nov 2026 (08:30 UTC). Read-only.
 - **the preservation pair restated for 282 → 284,** to my requirement: `catatan_peninjau` as a new table, and lines 65 to 68 kept. I check it before the dry run;
 - **Bob's header check;**
 - **the "before" read,** on the owner's authorisation only.
+
+## Addendum · delta check, final candidate 6b6f31c548b1797509c34bff4dd8f606b9efaad9 against 53a31d91 (18 Nov 2026, 01:30 UTC)
+
+Read: `git diff 53a31d911aaa74e74240cbf41ff790e256bde235 6b6f31c548b1797509c34bff4dd8f606b9efaad9`, 9 files, on `claude/c2w`. **PASS.**
+- **Nothing under `supabase/` changed.** I re-hashed the reviewer-notes migration (20270121110000): sha256 `54b6569d…196`, unchanged.
+- **The product change is display order only:**
+  - `CatatanPeninjau.tsx` draws each block in the order `URUTAN_BLOK`: the on-screen version's note, the act, the other versions' notes, then the replaced notes;
+  - the two filters (`item === item` and `!==`) split the same `b.kini`, so no note is lost or shown twice;
+  - no new data, action or authority;
+  - Daisy's C-7 and C-8 are carried by `experience.css`.
+- **The test (C2W-K01, red first at `540d695e`) encodes the order Daisy asked for.**
+- I have not re-run the pre-flight. The figures 1242/0, 175/175 and 11/11 are Second Eye's.

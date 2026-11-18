@@ -8,6 +8,8 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| C2w final candidate 6b6f31c5 (delta from 53a31d91) | PASS: no supabase/ change, migration sha256 54b6569d… unchanged; product change is render order only (Daisy C-7, C-8) | `6b6f31c548b1797509c34bff4dd8f606b9efaad9` | `C2W-NOTES-DESIGN-be01b4f2.md` |
+| C2w preservation local dry run | PASS: all three proofs hold (only line 10 moves; function withdrawal → line 67 only; direct update → line 68 = 1). Staging BEFORE read awaits the owner | `aa5f5741d0bb8574986f055458a05d9f714e277f` | `C2W-PRESERVATION-78336be2.md` |
 | C2w preservation pair restated (282 to 284) | PASS for the local dry run (query unchanged since 2377f378; catatan_peninjau new and unread; lines 65 to 68 kept). BEFORE read only on the owner's authorisation | `dfa542abc881ad8313036e4e99010c319aed5288` (sha256 `1b686345…`) | `C2W-PRESERVATION-78336be2.md` |
 | E v3 P-1 and P-2 | Met; P-4 decision accepted | `11bc2222d1a5e91d026122cd88f164aab4a82fee` | `E-V3-f9e38d69.md` |
 | E v3 (Anthropic only, streamed; ruling 50) | PASS on mechanics, with P-1 to P-4 (self-test re-run 204/0; reservation recomputed at US$3.133614 within 4.87). (a) Preservation accepted over my S-1 (PRIVAT only, never read by judges or me before final). (b) and (c) accepted. (d) The frozen kit can't judge one provider: option B is consistent with the frozen rules and rulings 48 and 50(6c); A needs the owner's amendment. (e) Judge texts clean | `f9e38d696a9b7ffb3883dbbb1807c13eb2371e01` / `792a7a923b5296e955528daf42426c2316a7589e` | `E-V3-f9e38d69.md` |
