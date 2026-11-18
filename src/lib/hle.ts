@@ -457,6 +457,14 @@ export type HleEvent =
   | "pengerjaan.galat.recovery_authorisation_used"
   | "pengerjaan.galat.recovery_nothing"
   | "pengerjaan.pulih.lain_judul"
+  | "atur.izinkan.judul"
+  | "atur.izinkan.tanya"
+  | "atur.izinkan.ya"
+  | "atur.izinkan.ok"
+  | "atur.izinkan.alasan"
+  | "atur.izinkan.alasan_arti"
+  | "atur.izinkan.tidak_ada"
+  | "mengajar.siapa.minta_lanjut"
   | "pengerjaan.pulih.belum_tersimpan"
   | "pengerjaan.pulih.tanya_judul"
   | "pengerjaan.pulih.tanya_isi"
@@ -4296,6 +4304,14 @@ const table: Table = {
   "pengerjaan.galat.recovery_authorisation_expired": { default: "Izin dari guru Anda sudah lewat waktunya. Minta guru mengizinkan sekali lagi, lalu pilih Coba lagi.", en: "Your teacher's permission has expired. Ask your teacher to allow it once more, then choose Try again." },
   "pengerjaan.galat.recovery_authorisation_used": { default: "Izin dari guru Anda sudah dipakai sekali untuk asesmen ini. Untuk melanjutkan lagi di sini, minta guru mengizinkan sekali lagi, lalu pilih Coba lagi.", en: "Your teacher's permission has already been used once for this assessment. To continue here again, ask your teacher to allow it once more, then choose Try again." },
   "pengerjaan.galat.recovery_nothing": { default: "Tidak ada yang perlu dilanjutkan: asesmen ini sudah selesai atau sudah ditutup.", en: "There is nothing to continue: this assessment is finished or closed." },
+  "atur.izinkan.judul": { default: "Izinkan lanjut setelah masuk lagi", en: "Allow to continue after signing in again" },
+  "atur.izinkan.tanya": { default: "Izinkan {nama} melanjutkan {judul} setelah masuk lagi? Sesi sebelumnya tidak menyimpan jawabannya lagi. Jawaban yang sudah tersimpan tetap ada. Tindakan ini dicatat.", en: "Allow {nama} to continue {judul} after signing in again? The earlier session no longer saves their answers. Answers already saved are kept. This is recorded." },
+  "atur.izinkan.ya": { default: "Izinkan", en: "Allow" },
+  "atur.izinkan.ok": { default: "{nama} dapat melanjutkan sampai pukul {waktu}.", en: "{nama} can continue until {waktu}." },
+  "atur.izinkan.alasan": { default: "Alasan", en: "Reason" },
+  "atur.izinkan.alasan_arti": { default: "10 sampai 300 karakter. Dicatat di jejak audit sekolah.", en: "10 to 300 characters. Recorded in the school's audit trail." },
+  "atur.izinkan.tidak_ada": { default: "Murid ini tidak sedang mengerjakan asesmen ini lagi. Tidak ada yang diizinkan.", en: "This learner is no longer working on this assessment. Nothing was allowed." },
+  "mengajar.siapa.minta_lanjut": { default: "minta lanjut setelah masuk lagi", en: "asks to continue after signing in again" },
   "pengerjaan.pulih.lain_judul": { default: "Asesmen ini dilanjutkan di sesi lain.", en: "This assessment is being continued in another session." },
   "pengerjaan.pulih.belum_tersimpan": { default: "{n} jawaban terakhir di sini belum tersimpan.", en: "The last {n} answer(s) here were not saved." },
   "pengerjaan.pulih.tanya_judul": { default: "Lanjutkan di sini?", en: "Continue here?" },

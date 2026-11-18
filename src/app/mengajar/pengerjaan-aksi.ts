@@ -33,11 +33,12 @@ const siapa = (t: Tujuan, isi: Record<string, string>, jangkar: string): never =
   redirect(`/mengajar/${encodeURIComponent(t.kelas)}/siapa?${new URLSearchParams({ penugasan: t.penugasan, ...isi }).toString()}#${jangkar}`);
 /** A refusal returns to the open panel with its code; a success to the list with its result line. An O1 refusal (the
  *  class stopped) is recorded first, afterwards, by its second call (A2a D6.9). */
-const tolak = async (db: any, t: Tujuan, tindakan: string, error: { code?: string | null; details?: string | null; message?: string } | null): Promise<never> => {
+const tolak = async (db: any, t: Tujuan, tindakan: string, error: { code?: string | null; details?: string | null; message?: string } | null,
+  isian: Record<string, string> = {}): Promise<never> => {
   const kode = kodePengerjaanDariGalat(error);
   if (kode === "SITTING_FAILED") console.error(`[atur] ${tindakan} failed`, error?.code, error?.message);
   await catatPenolakanHenti(db, t.sesi, kode, `atur ${tindakan}`);
-  return siapa(t, { sesi: t.sesi, tindakan, kode }, "atur");
+  return siapa(t, { sesi: t.sesi, tindakan, kode, ...isian }, "atur");
 };
 const berhasil = (t: Tujuan, hasil: string, lagi: Record<string, string> = {}): never => siapa(t, { hasil, untuk: t.sesi, ...lagi }, "pin-siapa-hasil");
 
@@ -111,4 +112,18 @@ export async function ubahJadwalAksi(fd: FormData): Promise<void> {
     redirect(`/mengajar/${encodeURIComponent(kelas)}?${new URLSearchParams({ jadwal: la, kode }).toString()}#jadwal`);
   }
   redirect(`/mengajar/${encodeURIComponent(kelas)}?jadwal_diubah=ok#materi`);
+}
+
+/**
+ * A3 (D7; Daisy A3-KODE-PEMULIHAN.md §8): «Izinkan lanjut setelah masuk lagi». izinkan_lanjut decides it all (the class's
+ * CAN_MANAGE_SITTINGS, an open Uji Penguasaan, the 10 to 300 character reason) and lets the sitting continue on another
+ * session once, for 10 minutes. A refusal comes back with the typed reason (A2b's BL-1), a success to the result line.
+ */
+export async function izinkanLanjutAksi(fd: FormData): Promise<void> {
+  const t = await baca(fd);
+  const alasan = bersih(fd.get("alasan"));
+  const db = (await supabaseServer()) as any;
+  const { error } = await db.rpc("izinkan_lanjut", { p_session: t.sesi, p_alasan: alasan });
+  if (error) await tolak(db, t, "izinkan", error, alasan ? { alasan: alasan.slice(0, 300) } : {});
+  berhasil(t, "diizinkan");
 }

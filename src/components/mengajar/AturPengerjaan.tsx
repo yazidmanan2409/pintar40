@@ -2,7 +2,7 @@ import Link from "next/link";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
 import { MENIT_TAMBAHAN, kunciKodePengerjaan, menitDari, tindakanUntuk, type BarisPengerjaan, type KodePengerjaan, type Tindakan } from "@/lib/pengerjaan-kontrak";
 import { isi, waktuSekolah } from "@/lib/pengerjaan-tampil";
-import { akhiriSesiAksi, lanjutkanSesiAksi, mintaKesempatanAksi, tambahWaktuAksi, tutupDitahanAksi } from "@/app/mengajar/pengerjaan-aksi";
+import { akhiriSesiAksi, izinkanLanjutAksi, lanjutkanSesiAksi, mintaKesempatanAksi, tambahWaktuAksi, tutupDitahanAksi } from "@/app/mengajar/pengerjaan-aksi";
 import KonfirmasiBahaya from "@/components/KonfirmasiBahaya";
 import TombolKirim from "@/components/TombolKirim";
 import BarisHasil from "@/components/BarisHasil";
@@ -20,7 +20,7 @@ import FokusPanel from "@/components/FokusPanel";
  *
  * A HELD SITTING IS «DITAHAN». The teacher is never told why it is held; only that it waits for them.
  */
-export default function AturPengerjaan({ kelasId, kelasNama, penugasan, baris, instrumen, sertifikat, zona, locale, kode, tindakan, kembali }: {
+export default function AturPengerjaan({ kelasId, kelasNama, penugasan, baris, instrumen, sertifikat, zona, locale, kode, tindakan, kembali, alasanTadi }: {
   /** A2a: the class's name, for the stopped-class refusal («Kelas {kelas} …») */
   kelasNama?: string;
   kelasId: string;
@@ -36,6 +36,8 @@ export default function AturPengerjaan({ kelasId, kelasNama, penugasan, baris, i
   /** the act a refusal came back from */
   tindakan: string | null;
   kembali: string;
+  /** A3 (A2b's BL-1): the reason a refused «Izinkan» was sent with, drawn again */
+  alasanTadi?: string | null;
 }) {
   const s = (k: HleEvent) => t(k, "educator", { locale });
   const ada = tindakanUntuk(baris);
@@ -56,7 +58,9 @@ export default function AturPengerjaan({ kelasId, kelasNama, penugasan, baris, i
       <p id={`atur-${untuk}-alasan-arti`} className="pin-hint">{s("mengajar.akhiri.alasan.arti")}</p>
     </div>
   );
-  const pesan = (k: KodePengerjaan) => s(kunciKodePengerjaan(k)).replace("{kelas}", kelasNama ?? "");
+  // A3 (Daisy §1): the teacher meets RECOVERY_NOTHING in their own sentence (the sitting finished or closed meanwhile)
+  const pesan = (k: KodePengerjaan) => (k === "RECOVERY_NOTHING" ? s("atur.izinkan.tidak_ada")
+    : s(kunciKodePengerjaan(k)).replace("{kelas}", kelasNama ?? ""));
   const galat = (untuk: Tindakan) => (kode && tindakan === untuk ? <BarisHasil nada="gagal">{pesan(kode)}</BarisHasil> : null);
   const pilihan = (kunci: HleEvent, nilai: string) => {
     const [depan, ...sisa] = s(kunci).split(": ");
@@ -163,6 +167,26 @@ export default function AturPengerjaan({ kelasId, kelasNama, penugasan, baris, i
           {sertifikat ? <p className="pin-sub">{s("atur.minta.sertifikat")}</p> : null}
           {alasan("minta")}
           <div className="pin-actions"><TombolKirim className="pin-btn pin-primary" sibuk={s("tombol.mengirim")}>{s("atur.minta.tombol")}</TombolKirim></div>
+        </form>
+      ) : null}
+
+      {ada.includes("izinkan") ? (
+        // A3 (Daisy §8): not destructive, so a primary act, not the red confirmation; the reason sits inside it
+        <form action={izinkanLanjutAksi} className="pin-atur-tindakan" data-atur-tindakan="izinkan">
+          {tersembunyi}
+          <h3>{s("atur.izinkan.judul")}</h3>
+          {galat("izinkan")}
+          <p className="pin-sub" id={`atur-izinkan-tanya-${sesi}`}>{isi(s("atur.izinkan.tanya"), { nama, judul: instrumen })}</p>
+          <div className="pin-isian">
+            <label htmlFor="atur-izinkan-alasan">{s("atur.izinkan.alasan")}</label>
+            <textarea id="atur-izinkan-alasan" name="alasan" className="pin-input" rows={3} minLength={10} maxLength={300} required
+              aria-describedby="atur-izinkan-alasan-arti" defaultValue={tindakan === "izinkan" ? alasanTadi ?? "" : ""} />
+            <p id="atur-izinkan-alasan-arti" className="pin-hint">{s("atur.izinkan.alasan_arti")}</p>
+          </div>
+          <div className="pin-actions">
+            <TombolKirim className="pin-btn pin-primary" sibuk={s("tombol.menyimpan")}>{s("atur.izinkan.ya")}</TombolKirim>
+            <Link className="pin-btn pin-quiet" href={kembali} data-izinkan-batal="">{s("mengajar.akhiri.batal")}</Link>
+          </div>
         </form>
       ) : null}
 

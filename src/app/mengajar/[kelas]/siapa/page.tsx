@@ -18,6 +18,7 @@ import { daftarPengerjaan, instrumenSaudara } from "@/lib/pengerjaan";
 import { kodePengerjaanDari, tindakanUntuk, type BarisPengerjaan } from "@/lib/pengerjaan-kontrak";
 import TandaTautan from "@/components/TandaTautan";
 import { isi, lencanaA1, metaBaris, waktuSekolah } from "@/lib/pengerjaan-tampil";
+import { jam, kataZona } from "@/lib/tanggal";
 import type { BarisKoleksi } from "@/components/koleksi/Koleksi";
 import { supabaseServer } from "@/lib/supabase/server";
 import { zonaSekolah } from "@/lib/zona-sekolah";
@@ -71,6 +72,8 @@ const KEADAAN: Record<"sudah" | "sedang" | "belum" | "ditahan" | "dinilai" | "ti
 };
 const HASIL_ATUR: Record<string, HleEvent> = {
   waktu: "atur.waktu.ok", dinilai: "atur.akhiri.ok_nilai", tidak_dihitung: "atur.akhiri.ok_tidak", diminta: "atur.minta.ok", dilanjutkan: "atur.lanjut.ok",
+  // A3 (Daisy §8 item 3): «{nama} dapat melanjutkan sampai pukul {jam} {zona}.»
+  diizinkan: "atur.izinkan.ok",
 };
 
 /**
@@ -96,7 +99,7 @@ export default async function Siapa({
 }: {
   params: Promise<{ kelas: string }>;
   searchParams: Promise<{ penugasan?: string; cari?: string | string[]; saring?: string | string[]; saring_tadi?: string | string[]; hal?: string | string[];
-    sesi?: string; tindakan?: string; kode?: string; hasil?: string; untuk?: string; n?: string }>;
+    sesi?: string; tindakan?: string; kode?: string; hasil?: string; untuk?: string; n?: string; alasan?: string }>;
 }) {
   const { kelas: id } = await params;
   const sp = await searchParams;
@@ -192,7 +195,9 @@ export default async function Siapa({
           <h2 id="pin-siapa-daftar">{s(kataAnggota("mengajar.bukti.murid", ctx.ini.jenis))}</h2>
           {kunciHasil && untuk ? (
             <BarisHasil nada="ok" id="pin-siapa-hasil">
-              {isi(s(kunciHasil), { nama: untuk.nama, n: menitHasil, waktu: waktuSekolah(untuk.tenggat, zona, locale) })}
+              {isi(s(kunciHasil), { nama: untuk.nama, n: menitHasil, waktu: sp.hasil === "diizinkan"
+                ? (untuk.izin_berlaku_sampai ? `${jam(untuk.izin_berlaku_sampai, zona)}\u00a0${kataZona(zona)}` : "")
+                : waktuSekolah(untuk.tenggat, zona, locale) })}
             </BarisHasil>
           ) : null}
           <Koleksi
@@ -206,7 +211,10 @@ export default async function Siapa({
             baris={halaman.isi.map((m) => denganAtur({
               kunci: m.id,
               nama: adaBuktiSoal(ctx.ini.jenis) ? <Link href={`/mengajar/${id}/murid/${m.id}`}>{m.nama}</Link> : m.nama,
-              sel: [<span key="k" className={KEADAAN[m.keadaan].badge} data-keadaan={m.keadaan}>{s(KEADAAN[m.keadaan].kunci)}</span>],
+              sel: [<span key="k" className={KEADAAN[m.keadaan].badge} data-keadaan={m.keadaan}>{s(KEADAAN[m.keadaan].kunci)}</span>,
+                // A3 (Daisy §6.2, O-4): the learner asked to continue after signing in again (never «di perangkat lain»: the
+                // device is not known to differ); shown only while the sitting is open, as the read gives it
+                ...(petaA1.get(m.id)?.lanjut_diminta_pada ? [<span key="l" className="pin-meta" data-minta-lanjut=""> · {s("mengajar.siapa.minta_lanjut")}</span>] : [])],
             }, petaA1.has(m.id) ? metaBaris(petaA1.get(m.id)!, { locale, zona }) : [],
             // one quiet link, and only where an act applies: an act that cannot apply is absent, not disabled
             petaA1.has(m.id) && tindakanUntuk(petaA1.get(m.id)!).length > 0 ? (
@@ -231,7 +239,8 @@ export default async function Siapa({
 
         {dipilih ? (
           <AturPengerjaan kelasId={id} kelasNama={ctx.ini.nama} penugasan={tugasId} baris={dipilih} instrumen={namaInstrumen} sertifikat={modeIni === "POST_TEST"}
-            zona={zona} locale={locale} kode={kodePengerjaanDari(sp.kode)} tindakan={sp.tindakan ?? null} kembali={`${dasar}#pin-siapa-daftar`} />
+            zona={zona} locale={locale} kode={kodePengerjaanDari(sp.kode)} tindakan={sp.tindakan ?? null} kembali={`${dasar}#pin-siapa-daftar`}
+            alasanTadi={typeof sp.alasan === "string" ? sp.alasan.slice(0, 300) : null} />
         ) : null}
 
         <p className="pin-foot">{s("mengajar.cepat.hidup.catatan")}</p>

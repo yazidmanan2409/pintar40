@@ -76,6 +76,8 @@ export type BarisPengerjaan = {
   percobaan_terpakai: number; batas_percobaan: number | null; percobaan_diizinkan: boolean; izin_belum_dipakai: boolean;
   permintaan_id: string | null; permintaan_status: "PENDING" | "APPROVED" | "DECLINED" | null; permintaan_pada: string | null;
   permintaan_alasan: string | null; permintaan_oleh_saya: boolean | null; keputusan_pada: string | null; keputusan_alasan: string | null;
+  /** A3 (the screens' reads): the sitting's mode; while it is open, the learner's request and a valid permission's end */
+  mode_asesmen?: string | null; lanjut_diminta_pada?: string | null; izin_berlaku_sampai?: string | null;
 };
 
 /** pengerjaan_saya's answer: the learner's own sitting, how it stands and how it ended; never why, never who. */
@@ -101,7 +103,8 @@ export type HasilPulih = { ok: true } | { ok: false; kode: KodePengerjaan | "OFF
 // ───────────────────────────────────────────────────────────── A1 on the screens (Daisy, TINJAUAN-A1-C1W Q4, §A1·N1, §A1·N2)
 
 /** The acts of the «Atur» panel. */
-export const TINDAKAN = ["waktu", "akhiri", "minta", "lanjut", "tutup"] as const;
+// A3 (Daisy A3-KODE-PEMULIHAN.md §8): «izinkan», allowing an open Uji Penguasaan to continue after signing in again
+export const TINDAKAN = ["waktu", "akhiri", "minta", "lanjut", "tutup", "izinkan"] as const;
 export type Tindakan = (typeof TINDAKAN)[number];
 
 /** «Tambah waktu» offers these minutes and no others. */
@@ -117,9 +120,12 @@ export const MENIT_TAMBAHAN = [5, 10, 15, 30] as const;
  *   not started                            nothing
  */
 export function tindakanUntuk(b: Pick<BarisPengerjaan, "keadaan" | "tenggat" | "diperpanjang" | "murid_aktif" | "percobaan_terpakai"
-  | "batas_percobaan" | "permintaan_status" | "izin_belum_dipakai" | "sesi_id">): Tindakan[] {
+  | "batas_percobaan" | "permintaan_status" | "izin_belum_dipakai" | "sesi_id" | "mode_asesmen" | "izin_berlaku_sampai">): Tindakan[] {
   if (!b.sesi_id) return [];
-  if (b.keadaan === "OPEN") return [...(b.tenggat !== null && (b.diperpanjang ?? 0) < 3 ? ["waktu" as const] : []), "akhiri"];
+  // A3 (D7; Daisy §6.3, §8): an open Uji Penguasaan without a valid permission may be allowed to continue; a low-stakes
+  // sitting never offers it (it needs no teacher), and one already allowed offers it again only once that lapses
+  if (b.keadaan === "OPEN") return [...(b.tenggat !== null && (b.diperpanjang ?? 0) < 3 ? ["waktu" as const] : []), "akhiri",
+    ...(b.mode_asesmen === "POST_TEST" && !b.izin_berlaku_sampai ? ["izinkan" as const] : [])];
   if (b.keadaan === "FROZEN") return b.murid_aktif ? ["lanjut", "tutup"] : [];
   if (b.keadaan === "NOT_STARTED" || b.keadaan === "HELD_STOP") return [];   // A2a: no «Atur» during a stop (Daisy)
   const habis = b.batas_percobaan !== null && b.percobaan_terpakai >= b.batas_percobaan;
