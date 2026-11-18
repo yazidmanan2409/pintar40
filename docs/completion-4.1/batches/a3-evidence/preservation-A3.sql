@@ -22,9 +22,12 @@
 --     without that column; line 78 is its state (BEFORE: every row without a root; AFTER: 0 without a root). The
 --     backfill fires the existing BEFORE UPDATE trigger assessment_definitions_quick_rules_fixed, whose column list
 --     does not include the new column, so it passes; the table has no updated_at.
---     RISK (for the dry run): garis_definisi_periksa() raises before the backfill if staging's course or module chain
---     is ambiguous, and the backfill raises on a cycle. Either aborts the migration. The dry run must run on a
---     staging-shaped copy, and Sharon may want a read-only pre-check of the predecessor rule on staging first.
+--     RISK: garis_definisi_periksa() raises before the backfill if staging's course or module chain is ambiguous, and
+--     the backfill raises on a cycle. Either aborts the migration. Sharon's ruling (f6d3a2cb): no staging copy, which
+--     would be a data transfer of its own. Instead, STEP 0 of the BEFORE read, under the owner's same authorisation and
+--     read only: step0-A3-lineage.sql, the same predicates as plain SELECTs, counts and ids only. Any hit stops the
+--     promotion before migrating. Bob ran step 0 on a local scratch database: clean 0/0, a planted ambiguous chain
+--     flags its id, and a planted cycle flags its three ids.
 --   * 20270121220000 ADDS assessment_sessions.pengendali_sesi (nullable), assessment_sessions.generasi and
 --     responses.generasi (int not null default 1, check >= 1); two BEFORE INSERT triggers; redefines pengerjaan_tolak,
 --     pengerjaan_gerbang, start_learning_session, note_item_view and session_final_responses. It deletes no data.
@@ -38,10 +41,17 @@
 -- WHAT DIFFERS FROM C2w's QUERY: `baru` (two columns), line 10's expectation, and lines 77 to 81. Every other line is
 -- C2w's, unchanged.
 --
--- Not yet rehearsed. Before the BEFORE read, a local dry run at 284 -> 287 must show (proposed; Sharon to settle):
---   * only lines 10, 78 and 81 move (81 only after a planted first write on an open sitting);
---   * a planted direct update of a definition's title (not the lineage column) moves line 77;
---   * a planted response with generasi 2 on a sitting created before the cutoff makes line 80 read 1.
+-- REVIEWED by Sharon (f6d3a2cb, A3-PRESERVATION-8cb312ee.md): PASS for a local dry run, with 284 -> 287 accepted
+-- (to be re-checked against A3's head once it carries C2w, with its three migration sha256s). Not yet rehearsed.
+-- The local dry run at 284 -> 287 must show (Sharon's six proofs):
+--   (1) no plants: only lines 10 and 78 move; line 81 reads 0, ended 0, on both reads;
+--   (2) a first record_answer on an open pre-cutoff sitting: line 81 reads 1, ended 0;
+--   (3) note_item_view on an ENDED pre-cutoff sitting: at e6e28e52 it claims (ended 1); after V-2 it must read 0.
+--       Both are recorded;
+--   (4) a definition's title update moves line 77 only;
+--   (5) generasi = 2 on a pre-cutoff sitting makes line 80 read 1; the same on a pre-cutoff response makes it 2;
+--   (6) a response value update on an ended sitting moves line 79.
+--   Also, the step-0 plant: an ambiguous chain makes step 0's line 1 read 1, and the migration aborts cleanly at 284.
 with batas as (
   select coalesce(null::timestamptz, now()) as saat,
          coalesce(null::bigint, (select max(id) from public.audit_log)) as audit_id
