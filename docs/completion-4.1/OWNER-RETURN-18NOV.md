@@ -84,6 +84,7 @@ This is the running record. Bob updates it as work moves; the newest entries are
 
 | When (UTC) | What |
 |---|---|
+| 09:50 | **The package was handed to J1 and J2** (owner): each received the booklet (`68d4da18…`), the Petunjuk (`5f02d142…`) and their own Excel sheet (J1 `e5e7c000…`, J2 `07692b2d…`). Their completed sheets are expected tonight WIB at the earliest |
 | 09:45 | **E judges' package delivered to the owner,** at his direction: teacher-first, with Excel in place of CSV. It has four files (checksums in `e-local/v4/juri/README.md`): the question booklet (identical for both judges), the one-page Petunjuk, and one Excel sheet each for J1 and J2. The source zip was proven to be the evaluated file: the 0-flag result reproduces exactly. The five criteria are confirmed authoritative; the kit's four-criteria `judgements-template.csv` is not used. The returned Excel files are converted on our side (`lembar_penilaian.py tocsv`) |
 | 07:10 | **E timing (owner):** J1's and J2's sheets are expected tonight (WIB) at the earliest and tomorrow at the latest, per the initial schedule. Nothing in E is pending before then |
 | 09:30 | A3: **V-2 done** at `fc7a26e5`, verified. The D6 claim is written only to an open sitting; migration 220000 sha is now `150984a6…`. The pre-flight is green (1258/0, 175/175, 11/11). Next: the recovery act's red cases go to Sharon before any product code |
