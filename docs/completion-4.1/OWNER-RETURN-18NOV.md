@@ -41,6 +41,7 @@ This is the running record. Bob updates it as work moves; the newest entries are
 
 | When (UTC) | What |
 |---|---|
+| 02:05 | **Sharon's layout delta check had already passed** at 01:18 (`210cc98e`: render order only, nothing under supabase/), together with the dry-run proofs. Bob had missed it. **Only the journeys remain before the freeze** |
 | 02:03 | **CI green on `aa5f5741`** (run 44216101395). Journeys run 44216105919 in progress. Sharon asked again for her layout delta check. Both owner requests drafted |
 | 01:30 | CI dispatched on `claude/c2w`, and the audit journeys with ref `aa5f5741` (the PR head: the candidate plus documentation only). PR #25's description updated; it stays a draft |
 | 01:24 | Daisy cleared the screens on `6b6f31c5` (C-7 and C-8 pass) |
