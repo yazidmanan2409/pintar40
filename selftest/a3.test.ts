@@ -464,6 +464,9 @@ begin
   set local session_replication_role = replica;
   execute 'update public.assessment_sessions set frozen_at = null, frozen_cause = null where id = $1' using v_s;
   set local session_replication_role = origin;
+  -- A3-P12 (Sharon §6.2, 547b3707): the class's teacher allowing an open LOW-STAKES sitting is refused, writing nothing
+  -- (a refused call writes nothing: the refusal is raised inside the act, whose writes roll back with it)
+  ${P("P12_rendah", "T", "T", izin("current_setting('p.s')::uuid"), true)}
   -- A3-P01 (S1, S2): session B continues here; the generation rises by one and the controller is B
   ${P("P01_lanjut", "M", "B", lanjut())}
   v := v || jsonb_build_object('sesudah', ${keadaan}, 'jejak_sesudah', ${jejak},
@@ -508,7 +511,45 @@ begin
   ${P("P06_guru_lain", "L", "L", izin(), true)}
   ${P("P06_guru_asing", "T", "T", izin("gen_random_uuid()"), true)}
   ${P("P07_guru_tanpa_sesi", "T", "NONE", izin(), true)}
+  -- A3-P13 (Sharon §6.3): the request, minta_izin_lanjut: only the learner, from a session that is not the controller, on
+  -- an open Uji Penguasaan with no valid permission; it sets lanjut_diminta_pada once, idempotently, and grants nothing
+  ${P("P13_pengendali", "M", "A", "select public.minta_izin_lanjut(current_setting('p.post')::uuid)::text", true)}
+  ${P("P13_asing", "M", "B", "select public.minta_izin_lanjut(gen_random_uuid())::text", true)}
+  ${P("P13_bukan", "T", "T", "select public.minta_izin_lanjut(current_setting('p.post')::uuid)::text", true)}
+  ${P("P13_tanpa_sesi", "M", "NONE", "select public.minta_izin_lanjut(current_setting('p.post')::uuid)::text", true)}
+  ${P("P13_selesai", "M", "B", "select public.minta_izin_lanjut(current_setting('p.s')::uuid)::text", true)}
+  ${P("P13_minta", "M", "B", "select public.minta_izin_lanjut(current_setting('p.post')::uuid)::text")}
+  v := v || jsonb_build_object('P13_tanda_1', (select coalesce(to_jsonb(s) ->> 'lanjut_diminta_pada', 'null') from public.assessment_sessions s where s.id = v_post));
+  ${P("P13_lagi", "M", "B", "select public.minta_izin_lanjut(current_setting('p.post')::uuid)::text")}
+  v := v || jsonb_build_object('P13_tanda_2', (select coalesce(to_jsonb(s) ->> 'lanjut_diminta_pada', 'null') from public.assessment_sessions s where s.id = v_post));
+  ${P("P13_masih", "M", "B", lanjut("current_setting('p.post')::uuid"), true)}
   ${P("P04_izin", "T", "T", izin())}
+  -- A3-P10 (S5, binding): a permission for another sitting of the same learner does not recover this one
+  begin
+    execute 'delete from public.pengerjaan_izin_lanjut where session_id = $1' using v_post;
+    execute 'insert into public.pengerjaan_izin_lanjut (session_id, person_id, diizinkan_oleh, alasan, berlaku_sampai)
+             values ($1, $2, (select a.person_id from public.accounts a where a.auth_user_id = $3), ''izin untuk sesi lain'', now() + interval ''10 minutes'')'
+      using v_s, v_p, current_setting('p.u_T')::uuid;
+    v := v || jsonb_build_object('P10_lain', pg_temp.p('M', 'B', ${"$q$"}select public.lanjutkan_di_sini(current_setting('p.post')::uuid)::text${"$q$"}));
+    raise exception 'ikat-rollback';
+  exception when others then
+    if sqlerrm <> 'ikat-rollback' then v := v || jsonb_build_object('P10_lain', 'probe-error:' || left(sqlerrm, 70)); end if;
+  end;
+  perform selftest.as_owner();
+  -- A3-P11 (S5, supersession): of two permissions the newest alone counts: with the newer one used, the older unused one,
+  -- still inside its 10 minutes, does not recover the sitting
+  begin
+    execute 'update public.pengerjaan_izin_lanjut set dibuat_pada = now() - interval ''1 minute'' where session_id = $1' using v_post;
+    v := v || jsonb_build_object('P11_izin_baru', pg_temp.p('T', 'T', ${"$q$"}select public.izinkan_lanjut(current_setting('p.post')::uuid, 'izin kedua untuk sesi yang sama')::text${"$q$"}));
+    perform selftest.as_owner();
+    execute 'update public.pengerjaan_izin_lanjut set dipakai_pada = now() where id = (select z.id from public.pengerjaan_izin_lanjut z
+             where z.session_id = $1 order by z.dibuat_pada desc limit 1)' using v_post;
+    v := v || jsonb_build_object('P11_lama', pg_temp.p('M', 'B', ${"$q$"}select public.lanjutkan_di_sini(current_setting('p.post')::uuid)::text${"$q$"}));
+    raise exception 'ganti-rollback';
+  exception when others then
+    if sqlerrm <> 'ganti-rollback' then v := v || jsonb_build_object('P11_lama', 'probe-error:' || left(sqlerrm, 70)); end if;
+  end;
+  perform selftest.as_owner();
   -- a lapsed permission: backdated by the harness, probed, rolled back (the variable keeps the answer)
   begin
     execute 'update public.pengerjaan_izin_lanjut set berlaku_sampai = now() - interval ''1 minute'' where session_id = $1' using v_post;
@@ -519,8 +560,11 @@ begin
   end;
   perform selftest.as_owner();
   ${P("P04_sah", "M", "B", lanjut("current_setting('p.post')::uuid"))}
+  v := v || jsonb_build_object('P13_sesudah_pulih', (select coalesce(to_jsonb(s) ->> 'lanjut_diminta_pada', 'null') from public.assessment_sessions s where s.id = v_post));
   ${P("P04_terpakai", "M", "C", lanjut("current_setting('p.post')::uuid"), true)}
   perform selftest.as_owner();
+  v := v || jsonb_build_object('P13_registri', (select coalesce(string_agg(r.function_name, ',' order by r.function_name), '')
+          from public.client_rpc_registry r where r.function_name in ('izinkan_lanjut', 'lanjutkan_di_sini', 'minta_izin_lanjut')));
   insert into p_snap values (v);
 end $p$;
 select 'P' || chr(9) || v::text from p_snap;
@@ -1284,7 +1328,9 @@ end $t$;`);
     requires: ["db"],
     run: async () => {
       const c = new Checks();
-      const PENULIS: Record<string, { kelas: "PELAJAR" | "MULAI" | "LAYANAN" | "DALAM"; alasan: string }> = {
+      const PENULIS: Record<string, { kelas: "PELAJAR" | "PULIH" | "MULAI" | "LAYANAN" | "DALAM"; alasan: string }> = {
+        lanjutkan_di_sini: { kelas: "PULIH", alasan: "the learner's recovery (D7): its own order, the gate's, without the controller check it replaces" },
+        minta_izin_lanjut: { kelas: "PULIH", alasan: "the learner's request for a teacher's permission (Sharon §6.3): sets lanjut_diminta_pada only" },
         record_answer: { kelas: "PELAJAR", alasan: "the learner's answer" },
         pause_session: { kelas: "PELAJAR", alasan: "the learner's pause" },
         resume_session: { kelas: "PELAJAR", alasan: "the learner's resume" },
@@ -1327,17 +1373,21 @@ select 'p|' || l.lanname || ':' || p.proretset || ':' || p.prorettype::regtype |
   from pg_proc p join pg_language l on l.oid = p.prolang where p.oid = 'public.penugasan_sesi(uuid)'::regprocedure;
 select 'r|' || coalesce(string_agg(p.proname, ',' order by p.proname), '') from pg_proc p
  where p.pronamespace = 'public'::regnamespace and p.proname <> 'submit_response' and p.prosrc ~ '\\msubmit_response\\(';
+select 'i|' || p.proname || '|' || translate(encode(convert_to(p.prosrc, 'UTF8'), 'base64'), E'\\n', '') from pg_proc p
+ where p.pronamespace = 'public'::regnamespace and p.prokind in ('f', 'p')
+   and p.prosrc ~* '\\m(insert\\s+into|update|delete\\s+from)\\s+(public\\.)?pengerjaan_izin_lanjut\\M';
 rollback;`;
         const r = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-qAt", "-c", sql, db()], { encoding: "utf8", maxBuffer: 32 * 1024 * 1024 });
-        const f: Record<string, string> = {}; const tg: string[] = []; let pg = ""; let rc = "";
+        const f: Record<string, string> = {}; const iz: Record<string, string> = {}; const tg: string[] = []; let pg = ""; let rc = "";
         for (const l of r.stdout.split("\n")) {
           const [k, a, b] = l.split("|");
           if (k === "f") f[a] = Buffer.from(b, "base64").toString("utf8");
           else if (k === "t") tg.push(a);
           else if (k === "p") pg = a;
           else if (k === "r") rc = a ?? "";
+          else if (k === "i") iz[a] = Buffer.from(b, "base64").toString("utf8");
         }
-        return { r, f, tg, pg, rc };
+        return { r, f, iz, tg, pg, rc };
       };
       const KUNCI = /(\bfrom\s+(public\.)?(assessment_sessions|penugasan_sesi\s*\([^)]*\))[^;]*?\bfor\s+update\b)|\bpengerjaan_gerbang\s*\(|\bpengerjaan_ditahan_periksa\s*\(/i;
       const TULIS = /\b(update|delete\s+from)\s+(public\.)?assessment_sessions\b/i;
@@ -1361,6 +1411,15 @@ rollback;`;
       c.expect(JSON.stringify([...t0.tg].sort()) === JSON.stringify([...PEMICU].sort()), `the triggers on the two tables differ from the declared list: ${t0.tg.sort().join(", ")}`);
       c.expect(t0.pg === "sql:true:assessment_sessions:true", `penugasan_sesi must be a SQL set of sittings, so its FOR UPDATE locks them: ${t0.pg}`);
       c.expect(t0.rc === "record_answer", `submit_response must be reached only from record_answer: ${t0.rc}`);
+      // the recovery permission (Sharon, 547b3707): written only by the two acts, each under its sitting's row lock, which
+      // is what makes a permission single-use and only the newest count under concurrency
+      const IZIN = ["izinkan_lanjut", "lanjutkan_di_sini"];
+      c.expect(JSON.stringify(Object.keys(t0.iz).sort()) === JSON.stringify(IZIN), `the recovery permission must be written by exactly ${IZIN.join(", ")}: ${Object.keys(t0.iz).sort().join(", ") || "none"}`);
+      for (const [fn, src] of Object.entries(t0.iz)) {
+        const b = src.replace(/--[^\n]*/g, "");
+        const w = b.search(/\b(insert\s+into|update|delete\s+from)\s+(public\.)?pengerjaan_izin_lanjut\b/i), k = b.search(KUNCI);
+        c.expect(k >= 0 && k < w, `${fn} writes the recovery permission without taking the sitting FOR UPDATE first`);
+      }
       // the plants: an undeclared writer, and terminate_session's sitting FOR UPDATE removed
       const t1 = baca(`create function public._a3_e01_tanam(p uuid) returns void language sql as $t$ update public.assessment_sessions set status = status where id = p $t$;
 do $t$ declare f oid := 'public.pengerjaan_tahan_orang(uuid,uuid)'::regprocedure; s text; begin
@@ -1683,6 +1742,62 @@ rollback;`;
       c.expect(v.P09_audit === "1", `one assessment_session.recovered audit row for the recovery: ${v.P09_audit}`);
       c.expect(v.P09_integritas === "1", `one RECONNECT integrity signal for the recovery: ${v.P09_integritas}`);
       return c.verdict("a recovery writes one assessment_session.recovered audit row and one RECONNECT integrity signal, and the controller's repeat writes none; rolled back");
+    },
+  },
+  {
+    // A3-P10 (S5, binding; Sharon 547b3707): a permission for another sitting of the same learner recovers nothing here
+    id: "A3-P10",
+    requires: ["db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const v = jalankanPulih(c, ctx.repoRoot);
+      if (!v) return c.verdict("");
+      c.expect(v.P10_lain === "PR170:RECOVERY_NOT_AUTHORISED", `a valid permission bound to the learner's other sitting must not recover this one: ${v.P10_lain}`);
+      return c.verdict("executes lanjutkan_di_sini against the migrations, rolled back: with the only valid permission bound to the same learner's other sitting, the Uji Penguasaan's recovery is refused PR170 RECOVERY_NOT_AUTHORISED");
+    },
+  },
+  {
+    // A3-P11 (S5, supersession; Sharon 547b3707): only the newest permission counts
+    id: "A3-P11",
+    requires: ["db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const v = jalankanPulih(c, ctx.repoRoot);
+      if (!v) return c.verdict("");
+      c.expect(/^ok:\d{4}-/.test(v.P11_izin_baru ?? ""), `the teacher's second permission: ${v.P11_izin_baru}`);
+      c.expect(v.P11_lama === "PR170:RECOVERY_AUTHORISATION_USED", `with the newer permission used, the older unused one inside its 10 minutes must not recover the sitting: ${v.P11_lama}`);
+      return c.verdict("executes izinkan_lanjut and lanjutkan_di_sini against the migrations, rolled back: of two permissions for one sitting the newest alone counts; with it used, the older unused one, still inside its 10 minutes, is not consulted and the recovery is refused RECOVERY_AUTHORISATION_USED");
+    },
+  },
+  {
+    // A3-P12 (Sharon §6.2, 547b3707): a teacher allowing a low-stakes sitting is refused with its own code
+    id: "A3-P12",
+    requires: ["db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const v = jalankanPulih(c, ctx.repoRoot);
+      if (!v) return c.verdict("");
+      c.expect(v.P12_rendah === "PR170:RECOVERY_NOT_NEEDED", `the class's teacher allowing an open low-stakes sitting: ${v.P12_rendah}`);
+      return c.verdict("executes izinkan_lanjut against the migrations, rolled back: the class's teacher allowing an open low-stakes (Pemetaan Awal) sitting is refused PR170 RECOVERY_NOT_NEEDED, after the authority check, writing nothing");
+    },
+  },
+  {
+    // A3-P13 (Sharon §6.3, 547b3707): the request, minta_izin_lanjut, and its conditions
+    id: "A3-P13",
+    requires: ["db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const v = jalankanPulih(c, ctx.repoRoot);
+      if (!v) return c.verdict("");
+      for (const k of ["P13_asing", "P13_bukan", "P13_tanpa_sesi"]) c.expect(v[k] === "PR170:SITTING_NOT_CONTROLLER", `${k} (an unknown id, another person, no session id) must answer SITTING_NOT_CONTROLLER: ${v[k]}`);
+      c.expect(/^PR170:/.test(v.P13_pengendali ?? "") && v.P13_pengendali !== "PR170:SITTING_NOT_CONTROLLER", `the controller's own session has nothing to request and is refused: ${v.P13_pengendali}`);
+      c.expect(/^PR170:/.test(v.P13_selesai ?? ""), `a sitting that is not an open Uji Penguasaan is refused: ${v.P13_selesai}`);
+      c.expect(/^ok:/.test(v.P13_minta ?? "") && v.P13_tanda_1 !== "null", `the learner's request from a new session sets lanjut_diminta_pada: ${v.P13_minta} / ${v.P13_tanda_1}`);
+      c.expect(/^ok:/.test(v.P13_lagi ?? "") && v.P13_tanda_2 === v.P13_tanda_1, `a second request is idempotent (the mark is unchanged): ${v.P13_tanda_1} / ${v.P13_tanda_2}`);
+      c.expect(v.P13_masih === "PR170:RECOVERY_NOT_AUTHORISED", `the request grants nothing: the recovery still answers RECOVERY_NOT_AUTHORISED: ${v.P13_masih}`);
+      c.expect(v.P13_sesudah_pulih === "null", `a recovery clears the request: ${v.P13_sesudah_pulih}`);
+      c.expect(v.P13_registri === "izinkan_lanjut,lanjutkan_di_sini,minta_izin_lanjut", `the three acts must each have a registry row: ${v.P13_registri}`);
+      return c.verdict("executes minta_izin_lanjut and lanjutkan_di_sini against the migrations, rolled back: an unknown id, another person and a session with no id answer SITTING_NOT_CONTROLLER; the controller's own session and a sitting that is not an open Uji Penguasaan are refused; the learner's request from a new session sets lanjut_diminta_pada, idempotently, grants nothing (the recovery still answers RECOVERY_NOT_AUTHORISED) and is cleared by a recovery; the three acts have registry rows");
     },
   },
 ];

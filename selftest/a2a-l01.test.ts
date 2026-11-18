@@ -50,6 +50,9 @@ export const URUTAN: Record<string, number> = {
   FENCE: 7,
   maintenance_windows: 8,
   assessment_sessions: 9,
+  // A3 (Sharon, 547b3707): the recovery permission is read and written only under its sitting's row lock, which is
+  // what makes it single-use and "only the newest counts" hold under concurrency; so it ranks after the sitting
+  pengerjaan_izin_lanjut: 10,
 };
 /** B1: the fence is the first lock after ranks 1 to 6, for every table. */
 const SIKLUS_HIDUP = 6;

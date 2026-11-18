@@ -6671,9 +6671,29 @@
       "proves": "executes lanjutkan_di_sini against the migrations and reads the audit log and integrity_signals, rolled back (D7, S10): a recovery writes one assessment_session.recovered audit row and one RECONNECT integrity signal, and the controller's repeat writes none, rolled back."
     },
     {
+      "id": "A3-P10",
+      "runner": "static",
+      "proves": "executes lanjutkan_di_sini against the migrations, rolled back (S5, binding; Sharon 547b3707): with the only valid permission bound to the same learner's other sitting, the Uji Penguasaan's recovery is refused PR170 RECOVERY_NOT_AUTHORISED."
+    },
+    {
+      "id": "A3-P11",
+      "runner": "static",
+      "proves": "executes izinkan_lanjut and lanjutkan_di_sini against the migrations, rolled back (S5, supersession): of two permissions for one sitting the newest alone counts. With it used, the older unused one, still inside its 10 minutes, is not consulted, and the recovery is refused RECOVERY_AUTHORISATION_USED."
+    },
+    {
+      "id": "A3-P12",
+      "runner": "static",
+      "proves": "executes izinkan_lanjut against the migrations, rolled back (Sharon §6.2): the class's teacher allowing an open low-stakes sitting is refused PR170 RECOVERY_NOT_NEEDED, after the authority check, writing nothing."
+    },
+    {
+      "id": "A3-P13",
+      "runner": "static",
+      "proves": "executes minta_izin_lanjut and lanjutkan_di_sini against the migrations and reads client_rpc_registry, rolled back (Sharon §6.3). An unknown id, another person and a session with no id answer SITTING_NOT_CONTROLLER. The controller's own session and a sitting that is not an open Uji Penguasaan are refused. The learner's request from a new session sets lanjut_diminta_pada, idempotently, grants nothing (the recovery still answers RECOVERY_NOT_AUTHORISED) and is cleared by a recovery. The three acts have registry rows."
+    },
+    {
       "id": "A3-E01",
       "runner": "static",
-      "proves": "A3-3, the enumeration test (THE PLAN §5.5 D5; Sharon §3, condition 2): reads the function catalogue and the triggers. Every function that writes assessment_sessions or responses is declared by class: a learner boundary, which calls the gate; the start's insert; a service or staff writer; or an inner function. The triggers on the two tables are as declared. Every writer that updates or deletes a sitting takes it FOR UPDATE first, in its body or through the gate, pengerjaan_ditahan_periksa or penugasan_sesi. submit_response is reached only from record_answer. Two plants, rolled back, are reported: an undeclared writer, and pengerjaan_tahan_orang with its sitting FOR UPDATE removed."
+      "proves": "A3-3, the enumeration test (THE PLAN §5.5 D5; Sharon §3, condition 2): reads the function catalogue and the triggers. Every function that writes assessment_sessions or responses is declared by class: a learner boundary, which calls the gate; the start's insert; a service or staff writer; or an inner function. The triggers on the two tables are as declared. Every writer that updates or deletes a sitting takes it FOR UPDATE first, in its body or through the gate, pengerjaan_ditahan_periksa or penugasan_sesi. submit_response is reached only from record_answer. Two plants, rolled back, are reported: an undeclared writer, and pengerjaan_tahan_orang with its sitting FOR UPDATE removed. The recovery permission (pengerjaan_izin_lanjut) is written by exactly izinkan_lanjut and lanjutkan_di_sini, each taking the sitting FOR UPDATE first; lanjutkan_di_sini and minta_izin_lanjut are declared learner recovery boundaries."
     },
     {
       "id": "A3-R01",

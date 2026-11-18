@@ -1,18 +1,25 @@
 # A3 · The recovery act and the teacher's authorisation: the proposal the red cases aim at
 
-> **PROPOSAL, for Sharon (mechanism) and Daisy (words). Nothing of it is built.**
+> **PROPOSAL, orders accepted by Sharon (11:03, recorded in her A3-DIFFS-671175e4.md). Nothing of it is built.** Daisy's
+> words for the new code are awaited.
 > - On `claude/a3`, after the controller (`fc7a26e5`). The red cases in `selftest/a3.test.ts` (A3-P01 to A3-P09) are
 >   written against the names and orders below, and are red because none of it exists yet.
 > - Governs: THE PLAN §5.5 D7, D10, D11, D12 and F; owner rulings D-2 and D-3; ruling 42 (decision 2); Sharon's
 >   S1 to S11 (A3-COMPLETION.md, A3-1); Daisy's `A3-KODE-PEMULIHAN.md` (`ux-1/daisy-experience`).
 > - **Please rule on:** the two names, the order of checks (§2), the request record (§4), and §6's open points.
 
-## 1 · Two acts, no others
+**Why the row lock carries the permission (Sharon):** every act reads and writes the permission only after it holds
+the sitting `FOR UPDATE`. That lock is what makes a permission single-use, and "only the newest counts", hold under
+concurrency: two recoveries, or a recovery and a new permission, serialise on the sitting. The permission read never
+moves before the lock (A3-E01 checks it; A2A-L01 ranks `pengerjaan_izin_lanjut` after `assessment_sessions`).
+
+## 1 · Three acts, no others
 
 | Act | Who | Signature | Returns |
 |---|---|---|---|
 | **The learner continues here** | the sitting's learner, signed in on any session | `public.lanjutkan_di_sini(p_session uuid) returns integer` | the new generation |
 | **The teacher allows it** (Uji Penguasaan only) | the class's teacher: `CAN_MANAGE_SITTINGS` over the sitting's place (`boleh_atas_sesi`) | `public.izinkan_lanjut(p_session uuid, p_alasan text) returns timestamptz` | when the permission lapses |
+| **The learner asks for it** (Sharon §6.3) | the sitting's learner, from a session that is not the controller | `public.minta_izin_lanjut(p_session uuid) returns timestamptz` | when it was asked (unchanged by a repeat) |
 
 - **Neither takes a session, device or generation as a parameter** (D2, D3; S1, S2). The new controller is `sesi_saya()`;
   the new generation is the old one plus one, computed under the row lock.
@@ -53,11 +60,23 @@
    `SITTING_NOT_CONTROLLER` (S9; the same code as an unknown id).
 3. A reason of 10 to 300 characters, as A1's acts.
 4. **Only an open Uji Penguasaan:** a sitting not CREATED, IN_PROGRESS or PAUSED answers `RECOVERY_NOTHING` (Daisy:
-   «Murid ini tidak sedang mengerjakan asesmen ini lagi. Tidak ada yang diizinkan.»). A low-stakes sitting needs no
-   permission; asking for one is refused as not applicable (§6, question 2).
+   «Murid ini tidak sedang mengerjakan asesmen ini lagi. Tidak ada yang diizinkan.»). An open **low-stakes** sitting
+   is refused with its own code, **`RECOVERY_NOT_NEEDED`**, writing nothing (Sharon §6.2: not a no-op, which would leave
+   meaningless rows and hide a wrong target). Daisy's sentence is awaited.
 5. A new permission row: the sitting, its learner, the teacher, the reason, `berlaku_sampai = now() + 10 minutes`
    (D-3), unused. A newer permission supersedes an unused older one (only the newest counts).
 6. An audit row `assessment_session.recovery_allowed`.
+
+## 3a · The learner's request, `minta_izin_lanjut` (Sharon §6.3)
+
+- The same order as §2: the person and fence, the sitting `FOR UPDATE`, ownership first (`SITTING_NOT_CONTROLLER`),
+  a null session refused (`SITTING_NOT_CONTROLLER`).
+- Only an **open Uji Penguasaan with no valid permission**, asked by its learner from a session that is **not** the
+  controller. Anything else is refused, writing nothing: the controller's own session and an ended sitting
+  `RECOVERY_NOTHING`; a low-stakes sitting `RECOVERY_NOT_NEEDED`.
+- It sets `lanjut_diminta_pada` once (a repeat leaves it as it was) and grants nothing: the recovery still answers
+  `RECOVERY_NOT_AUTHORISED` until a teacher allows it.
+- A recovery clears it. The teacher's row shows it only while the sitting is open.
 
 ## 4 · The tables
 
@@ -65,9 +84,7 @@
   `diizinkan_oleh`, `alasan`, `dibuat_pada`, `berlaku_sampai`, `dipakai_pada`, `dipakai_generasi`. Written only by
   the two acts; no client role writes it; RLS reads for the teacher's row and the learner's own.
 - **The request** (THE PLAN F, Daisy's «minta lanjut» row): `assessment_sessions.lanjut_diminta_pada timestamptz`,
-  set by a refused `RECOVERY_NOT_AUTHORISED`, cleared by a recovery. It grants nothing; the teacher's row reads it.
-  A refused call must still commit this one column, so the refusal is raised **after** the write is made durable in
-  the same call's outer block (§6, question 3).
+  set only by `minta_izin_lanjut` (§3a), cleared by a recovery. It grants nothing; the teacher's row reads it.
 
 ## 5 · What the red cases cover now, and what follows
 
@@ -82,17 +99,21 @@
 | A3-P07 | S11 | a session with no id is refused at both acts |
 | A3-P08 | D10 | a held sitting is refused `SITTING_FROZEN`; a sitting past its deadline is ended, not recovered |
 | A3-P09 | D7, S10 | the audit row (actor, generations from and to, who allowed) and the RECONNECT observation |
+| A3-P10 | S5 binding | a valid permission bound to the same learner's other sitting does not recover this one |
+| A3-P11 | S5 supersession | of two permissions the newest alone counts: with it used, the older unused one is not consulted |
+| A3-P12 | §6.2 | the class's teacher allowing an open low-stakes sitting: `RECOVERY_NOT_NEEDED`, nothing written |
+| A3-P13 | §6.3 | the request's conditions (S9, S11, the controller, an ended sitting), its idempotent mark, that it grants nothing, that a recovery clears it; the three acts' registry rows |
+| A3-E01 | Sharon | the permission is written by exactly the two acts, each under the sitting `FOR UPDATE`; the two learner acts declared |
 
-**Later, in their own commits:** S3 (the scored result across generations, A3-4), S7 (the races, A3-2), S8 (ruling
-42's legs, with A2b's windows), and the screens (S10's superseded-device state in the built app; Daisy's five).
+**Later, in their own commits:** S3 (the scored result across generations, A3-4); S7 (the races, A3-2), **including a
+recovery against a recovery from two sessions, and a recovery against a superseding permission** (Sharon); S8 (ruling
+42's legs, with A2b's windows); and the screens (S10's superseded-device state in the built app; Daisy's five).
 
-## 6 · Open, for the reviewers
+## 6 · Ruled (Sharon, 11:03)
 
-1. **Sharon:** is step 8 (already the controller: return, write nothing) right, or should it answer `RECOVERY_NOTHING`?
-   Daisy's player re-attempts silently for low-stakes modes, so idempotent seems kinder.
-2. **Sharon and Daisy:** a teacher allowing a **low-stakes** sitting: refuse (my proposal; nothing to allow), or accept
-   as a no-op?
-3. **Sharon:** the request record (§4) needs a refused call to keep one write. The alternative is a separate
-   `minta_izin_lanjut(p_session)` the player calls on that refusal; cleaner, one more boundary. I lean to the separate
-   call.
-4. **Daisy:** confirmed by your §3: the permission given and the sitting ended meanwhile reaches `RECOVERY_NOTHING`.
+1. **Already the controller:** return the current generation and write nothing. It sits before step 9, so no permission
+   is consumed, and after the hold and the deadline. Accepted.
+2. **A teacher allowing a low-stakes sitting:** refused with its own code, `RECOVERY_NOT_NEEDED`, writing nothing (§3).
+3. **The request:** a separate `minta_izin_lanjut` (§3a), with Sharon's conditions.
+4. **Daisy, still open:** the sentence for `RECOVERY_NOT_NEEDED` (the teacher's side), and whether the request call
+   changes anything on the waiting screen.
