@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| A3 controller: L01 report position | (b) examine first: (0) is KEY SHARE; token 29 is assessment_sessions(2) before the gate FOR UPDATE, a possible 2→3 on one sitting the checker misses. If it is the same row, take FOR UPDATE first (defensive, no race needed); if not, a named exception. Z: the checker should report 2→3 | local only | `A3-DIFFS-671175e4.md` |
 | A3 controller: A2B-I01 class and L01 report (rulings, before the commit) | (1) INNER accepted: all 8 callers named, not a boundary, the claim executed via assistance_state, all 8 VOLATILE. (2) L01 report restated test-only: exactly 9 lines, sitting(3),(2) after FENCE(3), no red head. Plus: the trigger assigns, seed-sesi kept out of migrations, S11 and second-session cases, a generasi-ordering case | local only (d0a49dcb, b1c812b6) | `A3-DIFFS-671175e4.md` |
 | A3 harness session + F37 pick (test only) | PASS: conditions 1–4 met (A3-H01, A3-H02; outcome diff = 2 added PASS). The controller still owes S11 and the SITTING_NOT_CONTROLLER red cases | `0959a62c0b60f374afbcbd982f61db402b12a2a5` | `A3-DIFFS-671175e4.md` |
 | E v4 ruling 52 (the attempt used per chapter) | Met: one rule for both providers, metadata only, inside the outgoing scans; package bae2c4c7 supersedes 3f2ade84 | `86658dcba9e01646693e51acaaeb78ea9d18d113` / `7a83c7ac164c689c863951769c39f863eb0e9269` | `E-V4-d4adbeb6.md` |
