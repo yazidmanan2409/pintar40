@@ -44,3 +44,4 @@
 | 17 Nov, 23:17 | Second Eye | C2w notes captures B4/B5/B7 | `claude/c2w` at `53a31d91` | `TINJAUAN-C2W-CATATAN-53a31d91.md`: **no blocker**; C-7 required (place of «Ganti catatan»), C-8 spacing, N-8 |
 | 17 Nov, 23:25 | Bob | Judges' guide, three edits (neutral source) | `PANDUAN-JURI.md` at `11bc2222` | `TINJAUAN-PANDUAN-JURI-11bc2222.md`: four wording changes so nothing implies a source; rules untouched |
 | 18 Nov, 01:20 | Second Eye | C2w C-7/C-8 recapture | `claude/c2w` at `6b6f31c5` | `TINJAUAN-C2W-CATATAN-6b6f31c5.md`: **PASS**; C2w screens cleared |
+| 18 Nov, 02:55 | Second Eye | A3 contract sentence for SITTING_NOT_CONTROLLER | local `claude/a3` | `A3-KODE-PEMULIHAN.md` §5: **done**. Put it in the contract now |

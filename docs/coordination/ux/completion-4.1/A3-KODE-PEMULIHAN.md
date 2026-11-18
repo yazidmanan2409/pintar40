@@ -52,3 +52,20 @@
 ## 4 · Anticipation
 
 **Found before the build**, by **question 2** (the neighbouring act: signing out and in) and **question 4** (before and after a permission is used).
+
+---
+
+## 5 · The contract sentence for SITTING_NOT_CONTROLLER (18 Nov, 02:55; for `pengerjaan-kontrak.ts`, A1-K01)
+
+**Second Eye asked:** the line shown where a save is refused, separate from the old session's panel, which comes with A3's screens. **Put it in the contract now.** Do not hold the code out.
+
+| | |
+|---|---|
+| **ID** | «Asesmen ini sedang dilanjutkan di sesi lain, jadi jawaban dari sini tidak disimpan. Jawaban yang sudah «Tersimpan» sebelumnya tetap ada.» |
+| **EN** | «This assessment is being continued in another session, so answers from here are not saved. Answers already «Saved» are kept.» |
+
+- **Neutral under O-4:** «di sesi lain», never «di perangkat lain».
+- **It is true for all three causes:** another device, the same device after signing in again, and a request with no session.
+- **It matches the panel's body in §1,** so when the screens arrive, the panel only adds its title and its button «Kembali ke Belajar». The words do not change.
+- **Rendered in the quiet style, not as an error colour.** Nothing went wrong for the learner. `role="status"`, as the panel's rule says.
+- **DAISY-25:** clean.
