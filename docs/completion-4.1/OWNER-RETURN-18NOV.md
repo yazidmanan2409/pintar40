@@ -65,6 +65,7 @@ This is the running record. Bob updates it as work moves; the newest entries are
 
 | When (UTC) | What |
 |---|---|
+| 05:05 | A3: Second Eye's full suite is running on a new local commit, `e6e28e52`. It ended its turn while the suite was still running, the fourth time it has done so. It is told to watch its suites to the end within the turn, and is woken at 05:30 to push when green. A process issue only; no blocker |
 | 04:05 | A3: Second Eye pushed `d0a49dcb` and `b1c812b6` (the harness sessions), and is running a full pre-flight. Sharon gave two more L01 rulings (`cd0a6584`, `b94b3909`). Second Eye is nudged at 04:40 to push when green and name the candidate |
 | 03:05 | A3 under way among the team. Second Eye pushed `0959a62c` (F37: a candidate learner must really start). Sharon ruled on A3's controller (`6e6e69d6`: A2B-I01 is an INNER class, with conditions; the L01 report may be restated). Daisy supplied the SITTING_NOT_CONTROLLER sentence (`caa3782b`). Three A3 tests are red, awaiting those rulings, which are now given |
 | 02:35 | Second Eye told that C2w is frozen; it continues A3 |
