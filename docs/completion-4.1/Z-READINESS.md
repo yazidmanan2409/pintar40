@@ -29,9 +29,9 @@ Bob, 18 Nov 2026, about 10:00 UTC. **One list of everything that must be true, o
 | R-7 | **X-1:** a Studio refusal renders two `<main id="isi">` | TEAM-INSTRUCTIONS register | Daisy verifies | **Lands as Z-2** in C3w-1's first commits |
 | R-8 | **X-2:** six `/belajar/[tugas]/` sub-pages don't check that the id belongs to the learner (they show the generic error page) | same | Second Eye; Daisy verifies | Open |
 | R-9 | **X-3:** an unknown correction id shows "not allowed" | same | Daisy verifies | **Lands as Z-3, revised:** ONE answer for unknown and forbidden (Daisy's V-3) |
-| R-10 | **X-4:** a Konfigurasi sub-page shows a shorter navigation than the index | same | Daisy verifies | Open |
-| R-11 | Phone-width overflow on `/mengajar/[kelas]/siapa`, `soal` and `bukti` | Daisy | Daisy | Open |
-| R-12 | Daisy's N-1 to N-5, plus N-6 and N-7 (Kanonik keys) | A2b acceptance; Daisy `dde78004` | Daisy | N-6 and N-7 land in C3w-1; N-1 to N-5 to confirm |
+| R-10 | **X-4:** a Konfigurasi sub-page shows a shorter navigation than the index | same | Second Eye builds; Daisy verifies | **Open on `main` `7ba18b03`** (Daisy, ux-1 `1166d8bf`, `Z-SIAP-DAISY-7ba18b03.md` §1). Spec: every sub-page renders `/konfigurasi`'s navigation from one source, with `aria-current`; test over seven sub-pages × two admins × 1280 and 390. **Sibling N-9:** `/konfigurasi/staf` with an unknown person shows the certificate page's refusal; it gets Z-3's neutral form, one answer for unknown and forbidden |
+| R-11 | Phone-width overflow on `/mengajar/[kelas]/siapa`, `soal` and `bukti` | Daisy | Second Eye builds; Daisy verifies | **Open on `/siapa` only;** `/soal` and `/bukti` clean (same record §2). Spec: stacked rows below 640, the mode switch wraps below 360, and a framed-overflow assertion added to the rendered-check helper and swept over every `pin-tabel-bingkai` and `pin-seg` page (N-8 rides that sweep) |
+| R-12 | Daisy's N-1 to N-5, plus N-6 and N-7 (Kanonik keys) | A2b acceptance; Daisy `dde78004`, `1166d8bf` §3 | Second Eye builds; Daisy verifies | **Confirmed:** N-1 and N-2 open, **Z** (one string each); N-3 and N-5 open, **4.2**; N-4 **closed, not a defect**; N-6 and N-7 land in C3w-1; N-8 with R-11's sweep |
 | R-13 | The three 4.0 rendered checks on staging (a night-issued certificate's date; the integrity count line; «Materi tanpa judul») | EXECUTION-PLAN §6 | Daisy, or a browser-capable person | Outstanding; before the walkthrough |
 | R-14 | **X-15** (planning audit): four readers treat a not-yet-started role as live (`studio_capabilities`, `refuse_duplicate_active_grant`, `sertifikat_koreksi_tolak`, `orang_dipegang`) | Second Eye, 18 Nov | Bob | **Triaged (Bob, 18 Nov): not reachable today.** Every product path that grants a role on `main` writes `valid_from` as `now()` (for example `the_last_administrator_is_never_removed`:383), and no RPC accepts a start date; only fixtures use past dates. A future start cannot exist until 4.2-02 adds one, so the four readers are restated **before 4.2-02** (planning audit X-15). Not a Z item |
 | R-15 | Non-blocking findings carried from 4.0, A1 and C1w ("with the batch that touches the same code, or in 4.2") | EXECUTION-PLAN §5 | Bob | Triage at Z; most go to 4.2 or the rationalisation audit |
@@ -40,18 +40,17 @@ Bob, 18 Nov 2026, about 10:00 UTC. **One list of everything that must be true, o
 
 | Item | State |
 |---|---|
-| The external-AI guide and prompts (onboarding X-1) ready for the walkthrough | Written (Daisy), data warning reviewed (Sharon); **one paste test open** |
+| The external-AI guide and prompts (onboarding X-1) ready for the walkthrough | **Ready.** Written (Daisy), data warning reviewed (Sharon), paste test done 16 Nov; final text placed at `docs/onboarding/PANDUAN-AI-SENDIRI.md` (column headers checked against `main`'s import contract). The message table (§5) is confirmed at the walkthrough |
 | The six integrated journeys (PLAN §4.3, Addendum 1) | J3 needs C3w-2 on staging. J1, J2, J4, J5 and J6 can be written against main as batches land |
 | A fresh-built schema equal to migrated staging; restore yields both scheduled jobs | At Z |
 | The owner's decisions | Staging promotion at Z; the walkthrough date (O41-7) |
 
 ## 4 · What can move now, without waiting for A3
 
-- **Daisy:**
-  - R-10 and R-11: check on main whether each is still open, and write each fix's specification;
-  - R-12: confirm N-1 to N-5;
-  - the X-1 paste test;
-  - her vocabulary page (planning audit D-V).
+- **Daisy: all done (18 Nov, ux-1 `1166d8bf` and `6c59a0f8`).** R-10, R-11 and R-12 confirmed with specs; X-1 closed;
+  the vocabulary page (planning audit D-V) is `KOSAKATA-RIWAYAT-DAN-PENOLAKAN.md` on her branch.
+- **The fixes that follow** (R-10 with N-9, R-11 with N-8, N-1, N-2) are app code, so Second Eye builds them after A3,
+  with R-8, before C3w-1's Z commits.
 - **Second Eye:** R-8 is small but changes app code, so it is built
   after A3, before C3w-1's Z commits.
 - **Bob:**

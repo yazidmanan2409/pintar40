@@ -101,6 +101,12 @@ This is the running record. Bob updates it as work moves; the newest entries are
 
 The harness commit `4f904638` was explained and pushed under `0959a62c`. A full green suite comes before A3's freeze path. **Merge order: C2w, then A3.**
 
+### Z readiness (`Z-READINESS.md`)
+
+| When (UTC) | What |
+|---|---|
+| 10:15 | **Daisy's Z readiness items all done** (ux-1 `1166d8bf`, `6c59a0f8`), checked on a local build of `main` `7ba18b03`. R-10 open, with a fix spec and a sibling N-9 (a staff page shows the certificate page's refusal); R-11 open on `/siapa` only, with a spec; N-1 and N-2 open for Z, N-3 and N-5 for 4.2, N-4 closed. **The teachers' own-AI guide is final** and placed at `docs/onboarding/PANDUAN-AI-SENDIRI.md` (its column headers match the import contract); the paste test passed 16 Nov. The fixes are small app changes Second Eye builds after A3. Nothing needs the owner |
+
 ## Planning audit, 4.2, 4.5 and 5.0 (owner, 18 Nov)
 
 | When (UTC) | What |

@@ -1,5 +1,7 @@
 # X-1 · Using your own AI to prepare content for PINTAR: guide and sample prompts (DRAFT)
 
+> **Superseded (18 Nov 2026).** The final teacher text is `docs/onboarding/PANDUAN-AI-SENDIRI.md` (Daisy, ux-1 `1166d8bf`). This draft is kept as the brief it was.
+
 **Bob's draft, 16 November 2026, for Daisy (the Indonesian, the teacher's voice and the final form) and Sharon (the
 data warning). Ruling 41; `docs/completion-4.1/EXTERNAL-AI-CONTENT-ASSESSMENT.md` X-1.** No product change. Not for
 schools until Daisy and Sharon have passed it.
