@@ -109,7 +109,7 @@ The answers above stand for all five points. The one state that has changed sinc
 
 **C2w was merged at 09:05 UTC and promoted to staging (282 → 284).** Every engineering check passed; Sharon's promotion
 check is the last item.
-- **Until Bob confirms acceptance,** use «Sudah di lingkungan uji; pemeriksaan akhir sedang berlangsung».
+- **Accepted at 09:20 UTC (Sharon PASS).** Use «Diterima di lingkungan uji» now.
 - **After that,** use «Diterima di lingkungan uji».
 - **Drop the "waits on one automated check" note.**
 

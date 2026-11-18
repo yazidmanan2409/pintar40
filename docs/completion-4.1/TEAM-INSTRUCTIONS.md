@@ -46,7 +46,15 @@ E's three owner decisions (providers, scoring rules, judges) stay visible in sta
 
 **Principles:** no silent scope expansion; no bypassed security or deployment gates; no false completion claims.
 
-## C2w ON STAGING (18 Nov 2026, about 09:12 UTC); Sharon's promotion check pending
+## C2w ACCEPTED on staging (18 Nov 2026, about 09:20 UTC)
+
+- **Sharon: promotion PASS** (`C2W-PROMOTION-7ba18b03.md` on her branch). She checked independently:
+  - the merge tree equals `b57d897a` = `aa5f5741` + `C2W-MERGE-HEAD.md`;
+  - the migration hash `54b6569d…`;
+  - the before-read against A2b's after-read;
+  - before → after: only line 10 moved, with the digest equal to the dry run's.
+- **Her note, stated here:** lines 65–68 read 0 on staging because staging holds no `release_distributions`. Rule P1 (an unaudited withdrawal makes line 68 read 1) is proven by the local dry run's plants (`7815a70a`, `210cc98e`), not by staging.
+- The after-read's truncated header line is restored; the data lines are unchanged.
 
 - **The owner's authorisations (18 Nov):** the before-read; then the merge, the promotion 282 → 284, the after-read and the hosted checks.
 - **Before-read:** read only on `pintar-staging` at 07:54:50 UTC; 282 / `20270120240000` (`d688c7c7`).

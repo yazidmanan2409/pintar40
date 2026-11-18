@@ -7,6 +7,7 @@
 # Project: keijhmdtsgrfvnvocfvk ("pintar-staging"), verified before the BEFORE read in this session.
 # Query: preservation-C2w.sql at dfa542ab (sha256 1b686345...), comment lines removed, with batas set to the BEFORE read's
 # printed values ('2026-11-18 07:54:50.034681+00', 10697). Read only ("set transaction read only"). Run by Bob, 18 Nov 2026,
+# about 09:08 UTC. (Header line restored 18 Nov 09:20: the first commit cut it off; the data lines are unchanged.)
 # The lines below are the query's output exactly as returned.
 1|2026-11-18 07:54:50.034681+00
 2|10697
