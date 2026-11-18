@@ -63,7 +63,12 @@ This is the running record. Bob updates it as work moves; the newest entries are
 
 ### A3
 
-Second Eye's harness commit `4f904638` is held locally until the F37-R03/R06 change is explained, with a green full suite before any push. It comes after C2w.
+| When (UTC) | What |
+|---|---|
+| 03:05 | A3 under way among the team. Second Eye pushed `0959a62c` (F37: a candidate learner must really start). Sharon ruled on A3's controller (`6e6e69d6`: A2B-I01 is an INNER class, with conditions; the L01 report may be restated). Daisy supplied the SITTING_NOT_CONTROLLER sentence (`caa3782b`). Three A3 tests are red, awaiting those rulings, which are now given |
+| 02:35 | Second Eye told that C2w is frozen; it continues A3 |
+
+The harness commit `4f904638` was explained and pushed under `0959a62c`. A full green suite comes before A3's freeze path. **Merge order: C2w, then A3.**
 
 ## Spending to date
 
