@@ -29,7 +29,7 @@ UNKNOWN (needs the owner or a read).
 | PR-8 | **Restore of stored files; Auth and SMTP settings; secrets outside the database** | Metadata only; reconstruction procedures | W9.12 "still outside what it proves"; W9.9 "implemented, not verified" | **GAP** | Rehearse W9.9 (configuration reconstruction) once; one file-restore check | Second Eye + owner (billable) | Files and settings recovered in a rehearsal |
 | PR-9 | **Point-in-time recovery** | Not enabled; daily physical backups (owner screenshots, 5 Oct) | `JOURNEY-LOG.md` G1 | **UNKNOWN today** (was off) | Owner decides whether the recovery point (about 24 h) is acceptable for the first use | Owner | A recovery point stated and accepted |
 | PR-10 | **Capacity** | Both databases on the Micro tier; load test L1 failed on Micro (p95 11.7 s, pool exhausted); the 50-learner browser run passed | `A-CURRENT-STATE` §83–84; October efficiency audit | **GAP for any real class** | Size the first use's envelope (for example one class of 40); run the existing L1 or perf on the candidate tier; upgrade only if it fails | Owner (tier cost) + Second Eye | The load test passes on the chosen tier for the stated envelope |
-| PR-11 | **The leader page's unbounded fan-out** | — | Review P PETE-21, `pimpinan.ts:455-469` (cited) | **To verify** (Sharon item 7) | A cap or a stored summary, only if confirmed and the envelope needs it | Sharon → Second Eye | Measured within the envelope |
+| PR-11 | **The leader page's unbounded fan-out** | — | **Confirmed (Sharon):** 7 concurrent RPCs per class, unbounded | **GAP** | A concurrency limit, if the envelope includes a leader page | Sharon → Second Eye | Measured within the envelope |
 | PR-12 | **Error capture** (application errors reaching someone) | An error page with a reference code; «Laporkan masalah» | Review P (cited); no error service in the repository | **GAP** | The smallest option: route the existing problem report and server errors to a monitored mailbox, before any paid service | Owner | One induced error reaches a named person |
 | PR-13 | **Scheduled-job failure** | Two jobs declared once and checked; a failure warns in the database | `20270116110000` | **PARTIAL** | Have PR-4's watch read the job health it already exposes | Second Eye | A failed job is seen by the watch |
 | PR-14 | **Production email** (SMTP, SPF/DKIM/DMARC, Gate 8) | In progress | W9.13 | **PARTIAL** | Finish W9.13 | Owner + Second Eye | Pass in received headers |
@@ -60,4 +60,12 @@ UNKNOWN (needs the owner or a read).
   PR-15.
 - **PRQ-3 · PR-1 and PR-2:** start the counsel engagement scoped to the first use.
 
-**Sharon's review is pending.**
+## Sharon's review (18 Nov, `READINESS-REGISTER-899d3aef.md`)
+
+- **PR-4 to PR-6:** "off" covers only the schedule. **Each job also runs on `workflow_dispatch` against production,** so
+  anyone with dispatch rights can run it today. Record who holds those rights (the owner confirms). The switch-on test
+  must also prove that **a missing secret fails closed.**
+- **PR-7:** the restore is the owner's to authorise and someone else's to execute, not Sharon's.
+- **PR-11: CONFIRMED.** `buktiPerKelasDari` (`pimpinan.ts:454–469`) makes 7 concurrent RPCs per class, unbounded: about
+  210 for 30 classes, against the Micro pool. **The smallest fix is a concurrency limit.**
+- **PR-10:** the envelope must state whether a leader page is in scope.

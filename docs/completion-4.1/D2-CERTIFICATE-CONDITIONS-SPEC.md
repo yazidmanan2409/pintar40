@@ -10,8 +10,8 @@ Bob, 18 Nov 2026. **Ruling 55, D-2 (A):** a certificate means **mastery under de
 
 | Fact | Evidence |
 |---|---|
-| A certificate comes only from a mode whose policy certifies: `POST_TEST` (Uji Penguasaan), `TEST` and `EXAM`. `QUICK` (Uji Cepat) does not certify | `mode_policy`, `20260914093000`; `20261113100000` (BOB-50) |
-| **`POST_TEST` allows assistance** (`allows_assistance = true`). Only `EXAM` refuses it, and a lint keeps `EXAM` that way | `20260914093000`:51–56, 103 |
+| A certificate comes only from a mode whose policy certifies. **`POST_TEST` (Uji Penguasaan) and `STANDALONE` certify with assistance allowed;** `TEST`, `EXAM` and `PAPER` certify and refuse it. `QUICK` (Uji Cepat) does not certify *(corrected by Sharon, `D2-CERT-SPEC-ed8ad32b.md`)* | `mode_policy`, `20260914093000`; `20261113100000` (BOB-50) |
+| **`POST_TEST` and `STANDALONE` allow assistance.** A lint keeps `EXAM` from allowing it | `20260914093000`:51–56, 103 |
 | **"Assistance" in a sitting is three levels, opened a step at a time:**<br>1. «arah berpikir», a thinking prompt;<br>2. «petunjuk», a hint;<br>3. a worked example from the lesson.<br>A hint that would narrow to the answer is refused when it is served (INV-02) | `open_assistance`, `20260913093000`:395–440 |
 | **The glossary and read-aloud exist only as telemetry kinds.** No server path serves them inside a sitting, and Bob found no client implementation. **The accommodation available today is extra time,** which a teacher gives through A1 | the `telemetry.assistance_kind` enum; A1 |
 | The certificate states «Sertifikat Penguasaan», a grade band (predikat), the issue date and its number. **It states no attempt number and no conditions** | `src/lib/sertifikat-lembar.ts` |
@@ -25,9 +25,9 @@ offer**, not which existing ones to preserve.
 
 | # | Rule | Change needed |
 |---|---|---|
-| P-1 | **No answer-providing assistance in a certifying sitting:** levels 2 (hint) and 3 (worked example) are refused in every certifying mode | If level 1 is also refused: one `mode_policy` row (`POST_TEST.allows_assistance = false`), plus a lint naming every certifying mode. If level 1 stays (Q-1): a per-level rule, which is a small schema change |
-| P-2 | **Accommodations stay available,** and are recorded with the result: extra time (A1, today); any other accommodation Dr Gladys requires (Q-2) | Recording: a field on the result or sitting. New accommodations are scope (Q-2) |
-| P-3 | **The attempt is stated:** the result and the certificate record which certifying attempt produced them, counted over the lineage (ruling 46) | A field written at finalisation; one line on the certificate and the verification page |
+| P-1 | **No answer-providing assistance in a certifying sitting:** levels 2 (hint) and 3 (worked example) are refused in every certifying mode, **`POST_TEST` and `STANDALONE` included** | (a) A lint derived from the policy: `certifies ⇒ not allows_assistance`, not a list of named modes. (b) **The policy is captured on the sitting at its start,** because `open_assistance` reads `mode_policy` live, and flipping the row would otherwise change sittings already open (against P-6). (c) If level 1 stays (Q-1): a per-level rule, a small schema change (Sharon) |
+| P-2 | **Accommodations stay available,** and are recorded with the result for staff only: extra time (A1, today); any other accommodation Dr Gladys requires (Q-2). **An accommodation is never shown on the certificate or the verification page,** because it can reveal a disability (Sharon; R-2) | Recording: a staff-only field. New accommodations are scope (Q-2) |
+| P-3 | **The attempt is stated:** the result records which certifying attempt produced it, counted over the lineage (ruling 46) | **The ordinal is fixed at the START, under ruling 46's lock, with the same count as `may_start`.** Open question: are endings caused by a school act (an emergency stop, maintenance) excused? **Whether the ordinal appears on the certificate and the verification page is the owner's call** (O-1 below) |
 | P-4 | **Repetition is disclosed:** if a retake presents questions already seen in an earlier attempt, the result says so (for example «sebagian soal sama dengan percobaan sebelumnya»). Alternatively the draw excludes them when the bank allows (Q-3) | Depends on Sharon's verification of the draw |
 | P-5 | **Conditions, wording and verification agree:** the conditions are stated once (Daisy's wording) and appear the same on the certificate, the verification page and the learner's result | Copy, plus the verification page |
 | P-6 | **Sealed certificates are never changed** (INV-30). The policy applies to sittings that start after it lands. Certificates issued before then (none yet exist with real learners) keep what they said | — |
@@ -44,6 +44,10 @@ offer**, not which existing ones to preserve.
   at least partly different questions? *The second needs more questions per chapter, which is content work.*
 - **Q-4 · Wording.** Does «Sertifikat Penguasaan» still fit once the conditions are stated, and what single sentence
   should state them?
+
+**For the owner (O-1):** should the attempt number appear on the certificate and the public verification page, or only on
+the learner's result and in staff views? *Bob's view: on the result and in staff views only. It shows that the
+certificate was earned under the conditions, without turning a public document into a record of failures.*
 
 ## 4 · Verification (before any real certificate)
 
