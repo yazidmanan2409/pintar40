@@ -78,7 +78,7 @@ export const a3LayarAppTests: SelfTest[] = [
         const tanya = /<section[^>]*data-pulih="tanya"[\s\S]*?<\/section>/.exec(h1)?.[0] ?? "";
         c.expect(teks(tanya).includes("Lanjutkan di sini?") && teks(tanya).includes("Anda masuk lagi, jadi asesmen ini dilanjutkan di sesi baru. Jawaban yang sudah tersimpan tetap ada."),
           `the low-stakes sitting another session controls does not ask «Lanjutkan di sini?»: ${teks(tanya).slice(0, 200) || teks(h1).slice(0, 200)}`);
-        c.expect(/data-pulih-ya=""[^>]*>Lanjutkan di sini</.test(tanya) && /href="\/belajar"[^>]*data-pulih-batal=""[^>]*>Batal</.test(tanya), "the confirmation lacks «Lanjutkan di sini» or «Batal» back to Belajar");
+        c.expect(/data-pulih-ya=""[^>]*>Lanjutkan di sini</.test(tanya) && /<a(?=[^>]*href="\/belajar")(?=[^>]*data-pulih-batal="")[^>]*>Batal</.test(tanya), `the confirmation lacks «Lanjutkan di sini» or «Batal» back to Belajar: ${tanya.replace(/\s+/g, " ").slice(0, 700)}`);
         c.expect(!/pin-player/.test(h1) && !/role="alert"/.test(tanya), "the sitting is played here before the learner chose, or the question is an alert");
         c.expect(psql(`select generasi::text from public.assessment_sessions where id = ${lit(pre)}`) === "1", "opening the page moved the sitting (it must wait for the learner's choice)");
         // the Uji Penguasaan, started by the harness's session after the Pemetaan Awal is finished
