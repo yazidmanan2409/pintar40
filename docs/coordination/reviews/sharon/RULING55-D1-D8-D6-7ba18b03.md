@@ -56,3 +56,18 @@ Sharon, 18 Nov 2026 (14:00 UTC). Read-only. The local build is of `main` at `7ba
   3. hide the links and routes, which is a screen change and secondary.
 
   Every table and row is untouched, and a re-grant restores it. **A test is needed:** each revoked function is not executable by `authenticated`, and the row counts are unchanged.
+
+## Addendum · ruling 56 trigger: multi-answer content that can reach a learner (18 Nov 2026, 14:20 UTC)
+
+**Found, in the repository's seed** (`supabase/seed/learning_cycle.sql`, the only seed file naming MCQ_MULTI), on the local build of `7ba18b03`:
+- **All 3 MCQ_MULTI items** (`67943acd…`, `1fa89222…`, `0a463174…`, status APPROVED) are in lessons of the course **«Pecahan»** (`560c7f7d…`).
+- That course has release `ec0d8036…`: **PUBLISHED, not withdrawn, with 1 learning assignment.**
+- 0 have been presented yet. **But a seeded learner can be given them,** and any sitting would then meet the 7 affected readers.
+
+**Where this matters:**
+- **local and CI worlds,** which hold this seed;
+- **any walkthrough built from this seed.** «Pecahan» is the fractions example in the roadmap's journeys.
+
+`staging.yml` names no seed, so staging probably does not hold it. **That is unconfirmed until the D-8 query runs.**
+
+**Under ruling 56, the entry paths are contained at once,** for whatever world a walkthrough uses. Bob decides how.
