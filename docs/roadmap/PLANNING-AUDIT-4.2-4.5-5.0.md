@@ -7,7 +7,7 @@ assignment. **It authorises no implementation and does not change the approved 4
 the exact decision, proof or delivery dependency for each feature instead of release-wide blocks; journeys and
 decision outcomes are marked provisional; each owner decision carries a recommended answer.
 
-**Status: Bob's audit, revision 3. Independent reviews: Sharon DONE (`72b964db`, recorded in §7); Daisy and Second Eye IN PROGRESS** (§7). Sharon, Daisy and Second Eye
+**Status: Bob's audit, revision 3. Independent reviews: Sharon DONE (`72b964db`) and Daisy DONE (`f77bc2d6`), both recorded in §7 (revision 4); Second Eye IN PROGRESS** (§7). Sharon, Daisy and Second Eye
 each challenge it from their own discipline. Their findings are recorded in §7 as they arrive, disagreements included.
 None is resolved silently. The readiness verdicts in §8 are final only once all three reviews are recorded.
 
@@ -393,7 +393,8 @@ candidate, against the scope finally admitted. Any outcome that depends on an op
 
 | # | Journey | Covers | Success, refusals, recovery, history |
 |---|---|---|---|
-| **J42-1** | **First day at a new school year, with a new head of department** | 4.2-02, 4.2-09, 4.2-11, 4.2-13 | The admin rolls over the year; finds classes without a teacher; appoints an acting head (future-dated start); a departing teacher's classes are handed over. Refused: an expired grant. Undo of the run before any work exists **(per D-11b)**. History: last year's reports still name last year's teacher |
+| **J42-0** *(Daisy)* | **The teacher's and the learner's actual first day** | 4.2-09, 4.2-13, existing 4.1 paths | A teacher signs in for the first time in the new year, finds their classes, and assigns the first work; a learner with a new card signs in and starts it. This is the first-day experience; J42-1 is the admin's |
+| **J42-1** | **First day at a new school year, with a new head of department** *(the admin's side)* | 4.2-02, 4.2-09, 4.2-11, 4.2-13 | The admin rolls over the year; finds classes without a teacher; appoints an acting head (future-dated start); a departing teacher's classes are handed over. Refused: an expired grant. Undo of the run before any work exists **(per D-11b)**. History: last year's reports still name last year's teacher |
 | **J42-2** | **A teacher at two schools** | 4.2-03 | One identity, two dated grants, a context switch. Refused: reading school B's report from school A's context. School A's admin ends their grant: school B is unaffected. A platform suspension (platform admin only) covers both. History: work keeps its original school |
 | **J42-3** | **An exam day, with an interruption and a maintenance window announced** | 4.2-01, A3, A2b, A1 | Learners sit under exam conditions; one device fails and is recovered with authorisation; a planned window drains correctly; results reported. Refused: an unauthorised device switch. **Depends on D-01** |
 | **J42-4** | **A school exports its data, then a correction lands** | 4.2-04, 4.2-05 | Export with its event; then a key correction; the past report shows the agreed semantics (D-05); the export is visibly "as of". Refused: another school's data; an expired role mid-export |
@@ -402,6 +403,10 @@ candidate, against the scope finally admitted. Any outcome that depends on an op
 | **J42-7** | **A PD programme ended early** | 4.2-10 | Participants' records and certificates follow D-10 |
 | **J42-8** | **A school renamed mid-year** | 4.2-11 | Prints, certificates and verification follow D-11a |
 | **J42-9** | **Question Health on a schedule** *(only if admitted after the runtime proof)* | 4.2-12 | A refresh runs; freshness is shown; a failed run is visible; a restore reinstalls the job; any figure with a confirmed limitation says so |
+| **J42-11** *(Daisy)* | **An ordinary week**, the regression baseline | All committed 4.2 features | Assign, sit, mark, report and print across one week, with nothing unusual. Every 4.2 change must leave it identical |
+| **J42-12** *(Daisy)* | **A mid-term transfer** | MEM, 4.2-05, ruling 25 | A learner moves school mid-term with open and finished work; past reports show each school's evidence only |
+| **J42-13** *(Daisy)* | **A teacher leaving mid-term** | 4.2-13, M-4 (offboarding), 4.2-09 | Offboarding as one act; the class appears without a teacher; the handover view; the leaver's drafts and notes stay theirs |
+| **J42-14** *(Daisy)* | **A lab session with a power or network cut** | 4.2-01, A3, A2a | A whole room loses power mid-sitting; recovery, time preserved, nothing double-recorded |
 | **J42-10** | **External AI content imported** *(only for the candidates admitted)* | 4.2-C2–C4 | A teacher imports AI-drafted questions (paste route or questions-only), records the AI as self-declared, and the questions go through review, publication and a key correction like any other |
 
 ### 4.5 · six journeys
@@ -413,6 +418,8 @@ candidate, against the scope finally admitted. Any outcome that depends on an op
 | **J45-3** | **A teacher's minute** | 4.5-05: priorities in about a minute, with denominators, exclusions and a recommended next step the teacher may ignore |
 | **J45-4** | **A formal evaluation period, end to end** | 4.5-06/07: opened by the institution, draft, assessor adjustment with rationale, seal, educator receipt, response, access audit. Includes the educator transferring mid-period **(per R-1)** |
 | **J45-5** | **What did that certificate say?** | 4.5-08: a certificate and a report re-rendered as issued, after a later correction and a school rename |
+| **J45-7** *(Daisy)* | **Nothing needs attention, and a second visit** | 4.5-05: the quiet outcome, said plainly; a return visit shows what changed since |
+| **J45-8** *(Daisy)* | **An author's Studio journey** | 4.5-01, 4.5-09: an author sees a question's quality and misconception evidence while revising it |
 | **J45-6** | **Staff sign-in under the carried capabilities** | 4.5-11/12: WhatsApp sign-in (per D-45-11), a provider outage fallback, an unusual-access challenge, the last admin never locked out |
 
 ### 5.0 · four journeys
@@ -423,6 +430,7 @@ candidate, against the scope finally admitted. Any outcome that depends on an op
 | **J50-2** | **A staggered start, ended for one learner** | 5.0-02 under R-4: necessary assistance preserved |
 | **J50-3** | **An educator's growth year** | 5.0-01: objectives, a shared record, a withdrawal per the Compact, and no path into formal evaluation |
 | **J50-4** | **A department reviews its aggregates** | 5.0-05: small groups suppressed; no individual reachable from an aggregate |
+| **J50-6** *(Daisy)* | **The family's side of a staggered start** | 5.0-02 under R-4: what a family is told, when, and what they can ask |
 | **J50-5** | **A learner on a governed journey shape, interrupted** | 5.0-04: a step interrupted and resumed; a scope change; accepted progress never lost; the server refuses an out-of-order step |
 
 ---
@@ -441,7 +449,7 @@ for the owner to accept, amend or reject.** None is asked now.
 | ID | Decision | Bob's recommended answer | Needed by |
 |---|---|---|---|
 | **G-1** | Publish the governing planning records on `main` | A bounded documentation-only PR carrying the 11 Nov roadmap set, Rev 3.3 and DECISIONS-TO-TRACK. **This is a repository requirement; it does not make any approved ruling absent meanwhile** (see G-1 in §5.2) | Before 4.2 planning |
-| D-01 | What Exam Mode is | A teacher-scheduled sitting with a fixed start window; device change only by A3's teacher-authorised recovery; A1 controls kept, each with a reason; **no lockdown or monitoring technology** (no behaviour tracking); results marked "exam" so 4.5 does not compare them with practice by default | 4.2 planning |
+| D-01 | What Exam Mode is | A teacher-scheduled sitting with a fixed start window; device change only by A3's teacher-authorised recovery; A1 controls kept, each with a reason; **no lockdown or monitoring technology** (no behaviour tracking); results marked "exam" so 4.5 does not compare them with practice by default. **Accommodations (Daisy):** extra time as an accessibility accommodation stays available in Exam Mode, recorded with its reason | 4.2 planning |
 | D-02 | Positions: permission-bearing or descriptive; acting cover | **Descriptive.** Permission stays in scoped, dated grants; an acting appointment is a dated grant with a reason that expires on its own | 4.2 planning |
 | D-03 | Authority over a two-school person (Sharon) | A school admin ends only their own school's grant and work context; suspension stays a platform-admin act and is person-wide, as the code does today (`tangguhkan_akun` requires `is_system_admin()`) | 4.2 planning |
 | D-R2 | Assign R-2 to a version (Sharon: make it a 4.2 deliverable) | **Agree with Sharon:** prepare R-2 as a 4.2 deliverable, since it gates production adoption and every later conclusion (G-4/G-5). This is a version assignment, so it is the owner's | 4.2 planning, or earlier if production is sooner |
@@ -490,6 +498,8 @@ for the owner to accept, amend or reject.** None is asked now.
 | M-6 (Sharon) | **Who may read the past (D-05b):** current grants govern who reads; the period governs the content | Medium | Missing from D-05 | Adopted into D-05 |
 | M-7 (Sharon) | The 111 → 4.x production upgrade as a named prerequisite | High | Precedes production adoption (G-4/5 path) | Named in §8 |
 | M-8 (Sharon) | Small-cell suppression must start in 4.5 (Quiet Intelligence), not 5.0 | Medium | Small classes could identify individuals | Moved to 4.5-05's plan |
+| D-V (Daisy) | Four reading patterns must be fixed once, before 4.2 planning, on one vocabulary page: «Keadaan per …», «Seperti saat diterbitkan», «diperbaiki», and «Belum dapat disimpulkan» with why and what would help. Refusals answer "unknown" and "forbidden" alike | Medium | Inconsistent history and refusal wording across 4.2, 4.5 and 5.0 | Daisy writes the page before 4.2 planning |
+| D-A (Daisy) | Eight accessibility risks in the review, one of them inside D-01 (accommodations) | Medium | — | Carried into each version's plan from Daisy's review |
 | G-11 | Educator evidence crosses export (4.2), evaluation (4.5) and growth (5.0) | High | 4.2 may ship an export that 4.5's protections then forbid | Decide D-04a with A5 in view |
 
 ---
@@ -512,7 +522,7 @@ recorded here verbatim in substance. Disagreements are listed, not resolved.**
 | Reviewer | Brief | State | Findings | Disagreements with Bob |
 |---|---|---|---|---|
 | **Sharon** | Security, permissions, data integrity and evidence: §1 classes, §2 matrix, §3 failure answers, X-1 to X-13, G-1 to G-11 | **Done on revision 1** (`63c66ba9`): `72b964db`, `docs/coordination/reviews/sharon/PLANNING-AUDIT-42-45-50-63c66ba9.md`. Asked to read revision 2 | The §8 verdicts stand (on revision 1). G-7 is resolvable with a stated boundary; G-8 should be checked now. Gaps M-1 to M-8 added to §5.2. 4.2-13 agreed with a boundary. Proposed answers agreed except suspension (D-03); the promotion undo needs a broad definition of evidence and a bounded lock scope. **Adopted in revision 3:** 4.2-03 and 4.5-07 to UNRESOLVED; the G-11 default; the G-4/5 single path with both refinements; the G-7 boundary; G-8 checked now; M-1 to M-8; the D-11b qualification | **1. Suspension authority:** Bob held it settled by the code (revision 2); Sharon holds it an inter-institution authority rule for the owner (D-03). **Revision 3 follows Sharon** and takes D-03 to the owner, with the code's behaviour as the recommendation. **2. R-2's version:** Sharon recommends making it a 4.2 deliverable; Bob agrees, but it is the owner's assignment (D-R2). No disagreement remains open between Bob and Sharon; both points are now owner decisions |
-| **Daisy** | Journeys, consistency, explanations, accessibility, next actions: §3's "what the user sees", §4's journeys | Requested | — | — |
+| **Daisy** | Journeys, consistency, explanations, accessibility, next actions: §3's "what the user sees", §4's journeys | **Done on revision 1** (`63c66ba9`): `f77bc2d6`, `docs/coordination/ux/roadmap/TINJAUAN-AUDIT-PERENCANAAN-63c66ba9.md` on `ux-1/daisy-experience` | Agrees with all three verdicts. Five 4.2 journeys missing, plus two for 4.5 and one for 5.0: **added in revision 4** (J42-0, J42-11 to J42-14, J45-7, J45-8, J50-6; renumbered where revision 2 had used the numbers). "Open; Daisy": **no new owner decision**; each item is within planning or waits on D-01, D-04a, D-05, D-06, D-12 or D-45-11. The vocabulary page (D-V) and eight accessibility risks (D-A), including accommodations in Exam Mode (now in D-01). Agrees on 4.2-09 (with mid-term vacancies included) and strongly agrees on G-8. **Her own V-3 (4.1):** Z-3 as designed would answer an unknown correction id differently from a forbidden one, an existence oracle. It must be revised before it lands as C3w-1's first commit; passed to Second Eye | **D-1 (Daisy):** move 4.2-12 to 4.5 rather than schedule figures that may be wrong. Bob's revision 2 recommendation is conditional: decide after the runtime proof, scheduling only figures shown sound. **Both go to the owner under D-12.** **D-2 (Daisy):** J42-1 is not the first-day experience. **Accepted:** J42-0 added. **D-3 (Daisy):** "about one minute" is a goal to be measured, not asserted. **Accepted:** 4.5-05's acceptance must measure it, consistent with the usefulness-measurement reconciliation (M-03) |
 | **Second Eye** | Dependencies, failure scenarios, hidden assumptions, testability. Time-boxed so A3 is not delayed (owner: 4.1 continues independently) | Requested, after the C2w commit and V-2 | — | — |
 
 ---
@@ -591,5 +601,6 @@ The gaps are decisions and evidence, not design errors. The most consequential a
 | Date | Change |
 |---|---|
 | 18 Nov 2026 | Bob's audit. Reviews requested (§7) |
+| 18 Nov 2026, revision 4 | Daisy's review (`f77bc2d6`) recorded in §7: eight journeys added, D-V and D-A, accommodations in D-01, her three disagreements (one to the owner under D-12, two accepted) |
 | 18 Nov 2026, revision 3 | Sharon's review (`72b964db`) recorded in §7: two classes changed, D-03 and D-R2 added, the G-11 default, the G-4/5 path, the G-7 boundary, G-8 checked now, M-1 to M-8, the D-05b reader rule, the D-11b qualification |
 | 18 Nov 2026, revision 2 | Targeted revisions after the owner's adviser review (§9): feature-level verdicts, 4.2-06 split, counts separated, G-4 restated, RD-4 status corrected, G-7 and G-8 recast, R-2's reach stated, suspension authority checked in the code, journeys provisional with three added, every owner decision given a recommended answer, G-1 cited precisely |
