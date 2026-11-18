@@ -307,7 +307,9 @@ async function runEndingAndDepartureWithoutDeadlock(dbUrl: string): Promise<Outc
   let aa = "", uid = "", orang = "", daftar = "", la = "";
   for (const c of calon) {
     const [x, u, p, e, l] = c.split("|");
-    const r = psql(`begin; ${sebagai(u)} select ok from public.may_start_assessment('${x}'); rollback;`).stdout.trim().split("\n").pop();
+    // the candidate must really start, not only be told it may: may_start_assessment can say yes where the start refuses
+    // (an earlier test's quick assessment over material no longer shared; 4f904638's suite). Tried, then rolled back.
+    const r = psql(`begin; ${sebagai(u)} select (select ok from public.may_start_assessment('${x}')) and (public.start_learning_session('${x}') is not null); rollback;`).stdout.trim().split("\n").pop();
     if (r === "t") { aa = x; uid = u; orang = p; daftar = e; la = l; break; }
   }
   if (!aa) return gagal("the world holds no learner who may start an assessment of a learning assignment (the check cannot be set up)");
@@ -415,7 +417,9 @@ async function runStartsAndEndingWithoutDeadlock(dbUrl: string): Promise<Outcome
   let aa = "", uid = "", la = "";
   for (const c of calon) {
     const [x, u, l] = c.split("|");
-    const r = psql(`begin; ${sebagai(u)} select ok from public.may_start_assessment('${x}'); rollback;`).stdout.trim().split("\n").pop();
+    // the candidate must really start, not only be told it may: may_start_assessment can say yes where the start refuses
+    // (an earlier test's quick assessment over material no longer shared; 4f904638's suite). Tried, then rolled back.
+    const r = psql(`begin; ${sebagai(u)} select (select ok from public.may_start_assessment('${x}')) and (public.start_learning_session('${x}') is not null); rollback;`).stdout.trim().split("\n").pop();
     if (r === "t") { aa = x; uid = u; la = l; break; }
   }
   if (!aa) return gagal("the world holds no learner with no sitting of a limit-1 definition who may start it (the check cannot be set up)");
@@ -515,7 +519,9 @@ async function runAttemptLimitRaceKeyMoves(dbUrl: string): Promise<Outcome> {
   let aa = "", uid = "", orang = "";
   for (const c of calon) {
     const [x, u, p] = c.split("|");
-    const r = psql(`begin; ${sebagai(u)} select ok from public.may_start_assessment('${x}'); rollback;`).stdout.trim().split("\n").pop();
+    // the candidate must really start, not only be told it may: may_start_assessment can say yes where the start refuses
+    // (an earlier test's quick assessment over material no longer shared; 4f904638's suite). Tried, then rolled back.
+    const r = psql(`begin; ${sebagai(u)} select (select ok from public.may_start_assessment('${x}')) and (public.start_learning_session('${x}') is not null); rollback;`).stdout.trim().split("\n").pop();
     if (r === "t") { aa = x; uid = u; orang = p; break; }
   }
   if (!aa) return gagal("the world holds no learner with no sitting of a limit-1 definition who may start it (the race cannot be set up)");
@@ -633,7 +639,9 @@ async function runAttemptLimitRaceAcrossAssignments(dbUrl: string): Promise<Outc
   let aa = "", uid = "", orang = "";
   for (const c of calon) {
     const [x, u, p] = c.split("|");
-    const r = psql(`begin; ${sebagai(u)} select ok from public.may_start_assessment('${x}'); rollback;`).stdout.trim().split("\n").pop();
+    // the candidate must really start, not only be told it may: may_start_assessment can say yes where the start refuses
+    // (an earlier test's quick assessment over material no longer shared; 4f904638's suite). Tried, then rolled back.
+    const r = psql(`begin; ${sebagai(u)} select (select ok from public.may_start_assessment('${x}')) and (public.start_learning_session('${x}') is not null); rollback;`).stdout.trim().split("\n").pop();
     if (r === "t") { aa = x; uid = u; orang = p; break; }
   }
   if (!aa) return gagal("the world holds no learner one attempt short of an attempt limit who may start (the race cannot be set up)");
@@ -747,7 +755,9 @@ async function runAttemptLimitRaceAcrossRevisions(dbUrl: string): Promise<Outcom
   let aa = "", uid = "", orang = "";
   for (const c of calon) {
     const [x, u, p] = c.split("|");
-    const r = psql(`begin; ${sebagai(u)} select ok from public.may_start_assessment('${x}'); rollback;`).stdout.trim().split("\n").pop();
+    // the candidate must really start, not only be told it may: may_start_assessment can say yes where the start refuses
+    // (an earlier test's quick assessment over material no longer shared; 4f904638's suite). Tried, then rolled back.
+    const r = psql(`begin; ${sebagai(u)} select (select ok from public.may_start_assessment('${x}')) and (public.start_learning_session('${x}') is not null); rollback;`).stdout.trim().split("\n").pop();
     if (r === "t") { aa = x; uid = u; orang = p; break; }
   }
   if (!aa) return gagal("the world holds no learner one attempt short of an attempt limit who may start (the race cannot be set up)");
@@ -869,7 +879,9 @@ async function runAttemptLimitRace(dbUrl: string): Promise<Outcome> {
   let aa = "", uid = "";
   for (const c of calon) {
     const [x, u] = c.split("|");
-    const r = psql(`begin; ${sebagai(u)} select ok from public.may_start_assessment('${x}'); rollback;`).stdout.trim().split("\n").pop();
+    // the candidate must really start, not only be told it may: may_start_assessment can say yes where the start refuses
+    // (an earlier test's quick assessment over material no longer shared; 4f904638's suite). Tried, then rolled back.
+    const r = psql(`begin; ${sebagai(u)} select (select ok from public.may_start_assessment('${x}')) and (public.start_learning_session('${x}') is not null); rollback;`).stdout.trim().split("\n").pop();
     if (r === "t") { aa = x; uid = u; break; }
   }
   if (!aa) return gagal("the world holds no learner one attempt short of an attempt limit who may start (the race cannot be set up)");
