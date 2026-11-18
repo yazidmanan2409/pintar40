@@ -6616,6 +6616,11 @@
       "proves": "Sharon's case 3 for A2A-L01's report (b94b3909): reads the function catalogue. Each of pengerjaan_lepas_darurat, pengerjaan_kredit_darurat, pengerjaan_keluar_terapkan and pengerjaan_putus_tenggat takes the sitting FOR UPDATE (select ... from public.assessment_sessions where id = p_session for update) before any UPDATE of assessment_sessions in its body. So the gate's sitting, seen at strength 2 before the gate's own FOR UPDATE in pengerjaan_pagar's branches, is always already held FOR UPDATE. A plant moving an UPDATE above pengerjaan_kredit_darurat's FOR UPDATE, in a rolled-back transaction, is reported."
     },
     {
+      "id": "A3-V01",
+      "runner": "static",
+      "proves": "Sharon V-1 (627d66d4): executes note_item_view, assistance_state and record_answer against the migrations, in A3-R01's rolled-back transaction, as the sitting's controller, with the sitting held (frozen_at set, the A1 shape). The item view and assistance_state on an unviewed item, which views it through the gate, are not refused by the hold, as before A3. The answer is refused PR170 SITTING_FROZEN."
+    },
+    {
       "id": "A3-R01",
       "runner": "static",
       "proves": "A3's first red case, written before the build (THE PLAN §5.5 G2; PLAN-A3-C3W-Z.md A3-1; C1-D125-INVESTIGATION.md §5 cases 1, 2 and 3): executes start_learning_session, record_answer, pause_session, resume_session, submit_session and session_final_responses against the migrations, in one rolled-back transaction, for a learner of the seeded learning-cycle Kelas whose two signed-in devices are two verified Auth session ids in the claims (sesi_saya()). The sitting is started and answered on session A. Session B's answer to another question, its higher-sequence answer to A's question, its answer while A has paused, and its hand-in of A's sitting are each refused, and the final answer stays A's; a caller with no verified session id is refused; A's own answers, pause and resume are accepted. It names no refusal code (D12 waits for Sharon's review). Red on ac25e9b1: every write of B's lands, the higher sequence wins from either session, and a caller with no session id writes."

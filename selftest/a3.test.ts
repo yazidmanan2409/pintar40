@@ -49,6 +49,9 @@ const langkah = (k: string, sesi: "A" | "B" | "NONE", sql: string) => `v := v ||
 const soal = (n: number) => `(select p.id from public.presented_items p where p.session_id = current_setting('a3.s')::uuid order by p.position offset ${n - 1} limit 1)`;
 const jawab = (n: number, seq: number, benar: boolean) =>
   `select x.outcome from public.record_answer(${soal(n)}, ${seq}, selftest.f09_answer(${soal(n)}, ${benar})) x`;
+/** The sitting's first presented item that has not been viewed yet (assistance_state reaches note_item_view only then). */
+const BELUM_DILIHAT = `(select p.id from public.presented_items p where p.session_id = current_setting('a3.s')::uuid
+  and not exists (select 1 from public.presented_item_views w where w.presented_item_id = p.id) order by p.position limit 1)`;
 /** The sitting's final answer to question `n`, as scoring reads it. */
 const akhir = (n: number) =>
   `(select fr.value::text from public.session_final_responses(current_setting('a3.s')::uuid) fr where fr.presented_item_id = ${soal(n)})`;
@@ -167,6 +170,19 @@ begin
     perform selftest.as_owner();
     v := v || jsonb_build_object('gen_akhir', (select ${akhir(2)}),
       'gen_akhir_harap', (select r.value::text from public.responses r where r.presented_item_id = ${soal(2)} and r.client_seq = 2 and r.is_final order by r.received_at desc limit 1));
+    -- A3-V01 (Sharon V-1, 627d66d4): a HELD sitting. Before A3 the item view ran only the fence, and A1's hold refuses an
+    -- answer, a hand-in and the learner's own pause or resume (20270114100000, its codes' table), never a view. Through the
+    -- gate the view must still not be refused by the hold, directly or through assistance_state on an unviewed item; the
+    -- controller's answer is (the control). Each probe rolls back.
+    set local session_replication_role = replica;
+    execute 'update public.assessment_sessions set frozen_at = now(), frozen_cause = ''ACCOUNT_SUSPENDED'', unfrozen_at = null, unfrozen_by_person_id = null where id = $1' using v_s;
+    set local session_replication_role = origin;
+    execute 'select public.pengerjaan_ditahan(s)::text from public.assessment_sessions s where s.id = $1' into v_t using v_s;
+    v := v || jsonb_build_object('tahan', v_t, 'tahan_belum_dilihat', (select count(*)::text from public.presented_items p
+          where p.session_id = v_s and not exists (select 1 from public.presented_item_views w where w.presented_item_id = p.id)));
+    v := v || jsonb_build_object('tahan_lihat', pg_temp.a3x('B', ${q(`select public.note_item_view(${BELUM_DILIHAT})::text`)}));
+    v := v || jsonb_build_object('tahan_bantuan', pg_temp.a3x('B', ${q(`select (public.assistance_state(${BELUM_DILIHAT})).answered::text`)}));
+    v := v || jsonb_build_object('tahan_jawab', pg_temp.a3x('B', ${q(jawab(3, 11, true))}));
   else
     v := v || jsonb_build_object('klaim_B_pengendali', 'no-column', 'gen_akhir', 'no-column');
   end if;
@@ -1060,6 +1076,23 @@ end $t$;`);
       const tu = urutan(t.v.pengerjaan_kredit_darurat ?? "");
       c.expect(tu.fu >= 0 && tu.up >= 0 && tu.up < tu.fu && !tu.baik, `the plant (an UPDATE of the sitting above pengerjaan_kredit_darurat's FOR UPDATE) was not reported: FOR UPDATE at ${tu.fu}, first UPDATE at ${tu.up}`);
       return c.verdict(`reads the function catalogue: each of ${FUNGSI.join(", ")} takes the sitting FOR UPDATE (select … from public.assessment_sessions where id = p_session for update) before any UPDATE of assessment_sessions in its body, so the gate's sitting at strength 2 before the gate's FOR UPDATE in A2A-L01's report (pengerjaan_pagar's branches) is always already held FOR UPDATE (Sharon's case 3, b94b3909); a plant moving an UPDATE above the FOR UPDATE is reported; rolled back`);
+    },
+  },
+  {
+    // Sharon V-1 (627d66d4): through the gate, the item view must not be refused by A1's hold, which refuses an answer, a
+    // hand-in and the learner's own pause or resume, never a view (as before A3, when the view ran only the fence).
+    id: "A3-V01",
+    requires: ["db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const v = jalankan(c, ctx.repoRoot);
+      if (!v) return c.verdict("");
+      if (!c.expect(v.tahan === "true", `the harness could not hold the sitting: ${v.tahan}`)) return c.verdict("");
+      if (!c.expect(Number(v.tahan_belum_dilihat) > 0, `the sitting has no unviewed item to view: ${v.tahan_belum_dilihat}`)) return c.verdict("");
+      c.expect(/^ok:/.test(v.tahan_lihat ?? ""), `a held sitting's item view (note_item_view, its controller) must not be refused: ${v.tahan_lihat}`);
+      c.expect(/^ok:/.test(v.tahan_bantuan ?? ""), `a held sitting's assistance_state on an unviewed item (which views it) must not be refused: ${v.tahan_bantuan}`);
+      c.expect(v.tahan_jawab === "PR170:SITTING_FROZEN", `the control: a held sitting's answer must still be refused SITTING_FROZEN: ${v.tahan_jawab}`);
+      return c.verdict("executes note_item_view, assistance_state and record_answer against the migrations, in A3-R01's rolled-back transaction, as the sitting's controller, with the sitting held (frozen_at set): the item view and assistance_state on an unviewed item (which views it, through the gate) are not refused by the hold; the answer is refused PR170 SITTING_FROZEN");
     },
   },
   {
