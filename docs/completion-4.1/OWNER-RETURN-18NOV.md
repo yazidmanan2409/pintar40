@@ -36,6 +36,7 @@ This is the running record. Bob updates it as work moves; the newest entries are
 
 | When (UTC) | What |
 |---|---|
+| 19 Nov 09:00 | **J1's and J2's sheets: Friday 20 Nov at the earliest** (owner: the teachers are in meetings today). The D-7 checkpoint (25 Nov 10:00 UTC) still leaves time for the conversion, J3's adjudication and the results. No action until the sheets arrive |
 | 06:06 | Sharon confirmed K-FLAG independently (`11319b4f`): she re-hashed `flags.json` (`90e753ac…073f`, a match) and checked the order: her answers were committed at 05:37:40, the flags at 05:45:29. She received no key, code, map or score |
 | 06:05 | **The judges' guide as sent** to J1 and J2: `e-local/PANDUAN-JURI-PINTAR.pdf`, 4 pages, SHA-256 `69954b381ec5bfe65fba4f2c2daa083f092886c634d6adf56596f9fc46a8b961`. Bob checked it against `PANDUAN-JURI.md` (`8002a69b`): the text matches section by section, the five criteria and their scales are the same, and every key sentence is present. It names no provider or model, and its metadata names no author. It is a typeset copy of the approved guide; no rule changed. J3 receives the same PDF |
 | 05:56 | **E judging started.** J1 and J2 have their packages and score independently: all 60 questions, five criteria each, with a reason per question. Neither judge sees the other's sheet. Both CSVs come to Bob, who records their SHA-256 fingerprints and then builds J3's list (`nilai-juri.mjs j3`, against flags `90e753ac…`, with B1-016's wording note for J3 only). J3 is on standby. The provider map stays sealed until every score is final |
