@@ -10,7 +10,8 @@ domain, merge, deployment or spend. It goes to the owner for review and approval
 - the independent review of 19 Nov (**Review X**);
 - the follow-up review's three requirements (**Review Y**: freedom of exploration, one demonstration truth, honest
   capability representation);
-- the owner's addition of the same day: **context-aware «Bagikan PINTAR»** (§F.1).
+- the owner's additions of the same day: **context-aware «Bagikan PINTAR»** and the **discovery cycle**, "share the
+  discovery, not the session" (§F.1).
 
 **Checked against:**
 - `PINTAR-ROADMAP.md` (on `claude/roadmap-45-50`, approved 11 Nov);
@@ -87,7 +88,7 @@ production or staging databases.
 made in their own browser and shared through the device's share sheet. A separate interactive link opens the same
 feature for the recipient in their own fresh sandbox. There is no server storage and no upload.
 
-**Effort:** about **30–38 person-days** across six batches (§J). Placement in 4.5 is in §I.
+**Effort:** about **31–39 person-days** across six batches (§J). Placement in 4.5 is in §I.
 
 ---
 
@@ -335,6 +336,39 @@ The share text makes the difference between a picture and a link plain, for exam
 - the specimen certificate;
 - the perspective screen.
 
+**The discovery cycle (owner, 19 Nov): "Share the discovery, not the session."**
+
+```
+Visitor A explores → finds a report → «Bagikan PINTAR»
+   └─► one share: the picture (or PDF) + a feature link, together in one message
+Visitor B opens the link → own fresh sandbox → lands on that report, canonical data
+   └─► explores freely, switches perspective, finds something else → «Bagikan PINTAR»
+Visitor C … and so on, with no registration anywhere in the loop
+```
+
+- **One message carries both.** With file sharing, the share sheet gets the picture plus a short text holding the
+  feature link. Without it, the visitor downloads the file and copies the link, which is given in the same panel. So the
+  recipient always gets both what the sender saw and a way to try it.
+- **Every hop is independent.** A link carries only a feature name, so B's and C's sandboxes are new copies of the
+  canonical school. The cycle can't accumulate or leak state, however long it runs.
+- **The landing page explains itself.** A recipient who arrives through a feature link sees one line above the feature:
+  «Seseorang membagikan fitur ini. Ini sekolah contoh milik Anda sendiri: silakan coba.» Their perspective is set to the
+  feature's role. Everything else, including switching and sharing onward, is available at once.
+- **Nothing tracks the chain.** No referral codes, sender ids or hop counts. This keeps the roadmap's no-tracking rule,
+  and the cycle needs none of them.
+
+**Stable, maintainable feature links:**
+
+| Rule | How |
+|---|---|
+| Names describe the feature, not the route | `laporan-kelas`, `bukti-kelas`, `ringkasan-sekolah`, `hasil-belajar`, `studio`, `sertifikat-contoh`. Lower-case Indonesian nouns; never a URL path, id or query |
+| One registry, versioned with the dataset | One table: name → perspective, the page in the template school, and a status. It is reviewed in every release's exploration step |
+| Moved | The name stays and its target is updated. Old links keep working |
+| Renamed | The old name becomes an alias of the new one, never deleted |
+| Retired or unavailable | The name stays as a tombstone pointing to the closest living feature (or that perspective's home). The landing line says «Fitur yang dibagikan sudah berubah; ini yang paling dekat.» |
+| Unknown or malformed | Perspective selection, with no error page |
+| A release check | A test opens every registry name and fails the release if any name resolves to a missing page (G-S12) |
+
 **Boundaries:**
 - **Context-aware sharing exists only in exploration mode.** In the real product, a picture of a class report would
   carry real learners' data into WhatsApp, outside every retention and access rule. It is off there, and turning it on
@@ -458,10 +492,10 @@ journeys run (§K).
 | **G2 · The canonical dataset** | Extend the seed into a versioned template; generate cohort sittings through the engine; the sparse class; Studio items in every state | G1's template format | Bob drafts; Dr Gladys checks meaning; Second Eye builds | Dataset build script, version, checksums | G07, G24 green; Dr Gladys's note | 4–5 d |
 | **G3 · Entry, perspectives and the band** | The eight new screens and controls (§F) | G1; Daisy's designs | Daisy designs; Second Eye builds | Screens, `hle.ts` words | Daisy PASS; G01–G06, G11–G16, G20 green | 6–7 d |
 | **G4 · Simulation seams** | Prepared AI drafts; on-screen email; specimen certificate and verification; «Laporkan masalah» explained | G1; D2-R; C3w-1 accepted | Second Eye; Daisy words; Sharon H-9, H-10 | Seams, each labelled | G21, G22 green; Sharon PASS | 3–4 d |
-| **G3s · Context-aware sharing** | §F.1: the options per screen; browser-side PNG and PDF with the frame; native file share and fallbacks; the feature-link allowlist | G3; the A4 print layouts (exist) | Daisy (frame, options, readability); Second Eye builds; Sharon H-11 | Share control, frame, allowlist | G12–G14, G-S1 to G-S8 green; Daisy and Sharon PASS | 4–5 d |
+| **G3s · Context-aware sharing and the discovery cycle** | §F.1: the options per screen; browser-side PNG and PDF with the frame; native file share and fallbacks; the versioned feature-link registry with aliases and tombstones; the recipient's landing line | G3; the A4 print layouts (exist) | Daisy (frame, options, readability, landing line); Second Eye builds; Sharon H-11 | Share control, frame, registry | G12–G14, G-S1 to G-S13 green; Daisy and Sharon PASS | 5–6 d |
 | **G5 · Verification and human acceptance** | Full matrix; a load test on the pool; observed self-service sessions | G1–G4, G3s | Second Eye (matrix); Daisy (sessions); Sharon (final security PASS) | Evidence pack | §K's acceptance | 3–5 d |
 
-**Total: about 30–38 person-days.**
+**Total: about 31–39 person-days.**
 
 **Parallel work:**
 - G2's design can run beside G1;
@@ -504,6 +538,11 @@ dataset, which the journeys run checks.
 | G-S6 | No file sharing | Download plus copy link; then a selectable link if copying fails |
 | G-S7 | Certificate specimen | «CONTOH — TIDAK BERLAKU»; no verification address or code anywhere in the file |
 | G-S8 | Real product unchanged | With exploration off, no picture, PDF-share or feature-link option exists anywhere |
+| G-S9 | **The discovery cycle A → B → C** | A changes data and shares a class report. B opens the link in a separate browser and lands on the class report in a new sandbox, showing canonical figures, none of A's changes. B switches perspective, shares a learner result. C lands on it in a third new sandbox. No step asks for registration |
+| G-S10 | Isolation across the cycle | After the chain, A's, B's and C's sandboxes are three different schools. Nothing written in one is readable from another (independent read-only check) |
+| G-S11 | One message carries both | The share sheet's payload holds the file and the feature link. On the fallback, the same panel offers download and copy |
+| G-S12 | Link stability | Every registry name (including aliases and tombstones) resolves to a living page on the release candidate; a deliberately retired name lands on its fallback with the "berubah" line |
+| G-S13 | No tracking | The link and the landing request carry no sender, referral or hop data (inspect the URL and logs) |
 
 **Human acceptance (owner's measure):**
 - At least six observed visitors across the perspectives, each given only the entry address. Adults only; any minor
@@ -518,6 +557,9 @@ dataset, which the journeys run checks.
   - every one says the data was fictional;
   - every one found and could explain the Share and perspective controls;
   - no one needed the team to explain a step.
+- **The discovery cycle, observed:** in at least three of the sessions, the visitor shares something they chose. The
+  next participant starts from that message alone. **Pass:** the recipient understands from the picture what the sender
+  found valuable, opens the link, reaches the same feature, and goes on to explore something else, without help.
 - Daisy runs it, and Dr Gladys reviews the questions.
 
 ---
