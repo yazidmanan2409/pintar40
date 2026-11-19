@@ -12,7 +12,7 @@ Bob, 18 Nov 2026, about 10:00 UTC. **One list of everything that must be true, o
 |---|---|---|
 | B0, A1, C1w, B1, B2, A2a, A2b | Accepted on staging | — |
 | **C2w** | **Accepted on staging at 284** (ruling 53) | — |
-| **A3** | Building; head `fc7a26e5`, 286 migrations; V-1 and V-2 done | The recovery act (red cases to Sharon first), the teacher's authorisation and the finish manifest. Then merge main (now with C2w) into it: pins to 288 and a full pre-flight. Then the dry run (Sharon's six proofs; step 0's line-4 reference at 284), the reviews, CI, the journeys, the freeze and the promotion (owner) |
+| **A3** | Building; head `fc7a26e5`, 286 migrations; V-1 and V-2 done | The recovery act (red cases to Sharon first), the teacher's authorisation and the finish manifest. Then merge main (now with C2w) into it: pins to **290** (284 + A3's six; Sharon, 19 Nov) and a full pre-flight. Then the dry run (Sharon's six proofs; step 0's line-4 reference at 284), the reviews, CI, the journeys, the freeze and the promotion (owner) |
 | **C3w-1** | Pre-build review complete (`C3W-1-DESIGN.md` §9) | Built after A3. Daisy's Z-2, Z-3 (one answer for unknown and forbidden, V-3), N-6 and N-7 come first |
 | **C3w-2** | Waits for E's results, the owner's qualification and limits, egress and the key | — |
 

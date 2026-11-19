@@ -2,7 +2,8 @@
 -- preservation-C2w.sql, frozen at aa5f5741) restated for A3, with the same method, lines and rules. Read A2b's header
 -- for the method and C2w's for lines 63 to 68. Only what differs is stated here.
 --
--- THE PAIR IS 284 -> 288 (restated 18 Nov 08:35 for A3's fourth migration; first written 284 -> 287). A3 merges after C2w (the plan). claude/a3 at e6e28e52 branches from main
+-- THE PAIR IS 284 -> 290 (restated 19 Nov 00:12 after Sharon's check: claude/a3 now carries SIX migrations, so main's 284
+-- plus six is 290; earlier 284 -> 288 for four, first written 284 -> 287). A3 merges after C2w (the plan). claude/a3 at e6e28e52 branches from main
 -- (1b1cada8, 282) and carries four migrations (three at e6e28e52), so Second Eye's "284 -> 285" counts A3's own chain from main. Once C2w
 -- has landed, staging holds 284 and A3 adds:
 --   * 20270121200000_the_start_lock_covers_what_the_attempt_count_counts (sha256 17a8c527f2bfeb51...);
@@ -13,10 +14,15 @@
 --   * 20270121230000_every_sitting_writer_takes_its_row (sha256 7b60e23362d9e209557f847e5cb31aba74e2c60ec11a29b6716b0258bfb314a7 at
 --     d19c9a6b): redefines terminate_session, extend_session_deadline, finalize_session and percobaan_tandai in full, each
 --     now taking the sitting FOR UPDATE. No column, no data change at migration time, so no preserved line can see it.
+--   * 20270121240000_a_sitting_is_recovered_on_another_session (the recovery act, the teacher's authorisation,
+--     minta_izin_lanjut);
+--   * 20270121250000_a_recovery_is_shown (the screens' reads).
+--   For the two new ones, whether either adds a column or changes data at migration time that a preserved line could
+--   see is checked against the merged head before the freeze (Sharon). All six sha256s are restated at the freeze.
 -- Their timestamps sort after C2w's two (20270121100000, 110000), and no function is defined by both batches (Bob,
 -- checked at e6e28e52 against aa5f5741). A3's candidate must be brought up to C2w before its freeze; the pair is
 -- then re-checked against that head. Line 10 is expected to read "284 / 20270121110000" BEFORE and
--- "288 / 20270121230000" AFTER.
+-- "290 / 20270121250000" AFTER.
 --
 -- READ ONLY, run exactly as C2w's: in a read-only transaction, BEFORE with the two `batas` values null, AFTER with the
 -- two printed values written in.
@@ -48,7 +54,7 @@
 --
 -- REVIEWED by Sharon (f6d3a2cb, A3-PRESERVATION-8cb312ee.md): PASS for a local dry run, with 284 -> 287 accepted (now 288 with the fourth migration; re-checked at the freeze)
 -- (to be re-checked against A3's head once it carries C2w, with its three migration sha256s). Not yet rehearsed.
--- The local dry run at 284 -> 288 must show (Sharon's six proofs):
+-- The local dry run at 284 -> 290 must show (Sharon's six proofs):
 --   (1) no plants: only lines 10 and 78 move; line 81 reads 0, ended 0, on both reads;
 --   (2) a first record_answer on an open pre-cutoff sitting: line 81 reads 1, ended 0;
 --   (3) note_item_view on an ENDED pre-cutoff sitting: at e6e28e52 it claims (ended 1); after V-2 it must read 0.
@@ -78,7 +84,7 @@ sidik(n, garis, nilai) as (
   select 1, 'cutoff (write into batas.saat after the merge)', (select saat::text from batas)
   union all select 2, 'audit_log watermark (write into batas.audit_id after the merge)', (select audit_id::text from batas)
 
-  -- ── state: expected to move from 284 to 288 by the promotion (line 10; the header)
+  -- ── state: expected to move from 284 to 290 by the promotion (line 10; the header)
   union all select 10, 'state · migrations',
     (select count(*) || ' / ' || max(version) || '; versions digest ' || md5(string_agg(version, ',' order by version))
        from supabase_migrations.schema_migrations)
