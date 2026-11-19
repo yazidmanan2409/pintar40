@@ -124,9 +124,9 @@ create function pg_temp.c3_percobaan(p_keadaan text, p_cadang interval, p_kirim 
 declare v uuid;
 begin
   set local session_replication_role = replica;
-  insert into public.ai_percobaan (permintaan, opsi, model_ident, harga_dasar, dicadangkan, keadaan, dicadangkan_at, dikirim_at, berakhir_at)
-  values (current_setting('c3.minta')::uuid, current_setting('c3.opsi')::uuid, 'stub-1', '{"masuk": 1, "keluar": 1}'::jsonb, 100, p_keadaan,
-          now() - p_cadang, now() - p_kirim, now() - p_akhir)
+  insert into public.ai_percobaan (permintaan, opsi, model_ident, harga_dasar, dicadangkan, diselesaikan, keadaan, dicadangkan_at, dikirim_at, berakhir_at)
+  values (current_setting('c3.minta')::uuid, current_setting('c3.opsi')::uuid, 'stub-1', '{"masuk": 1, "keluar": 1}'::jsonb, 100,
+          case when p_keadaan = 'SETTLED' then 90 end, p_keadaan, now() - p_cadang, now() - p_kirim, now() - p_akhir)
   returning id into v;
   set local session_replication_role = origin;
   return v;
@@ -173,11 +173,12 @@ begin
   ${p("d3_gantung", `select ${keadaan("gantung")}`)}
   ${p("d3_gantung_muda", `select ${keadaan("gantung_muda")}`)}
 
-  -- D-3: forward only, by any writer (the owner, triggers on)
+  -- D-3: forward only, by any writer (the owner, triggers on). A move out of SETTLED also clears the settled cost, so
+  -- the ledger's own SETTLED-has-a-cost check cannot be what refuses it: the guard trigger alone is under test
   ${buat("s1", "SETTLED", "1 hour", "1 hour", "1 hour")}
-  ${p("d3_settled_released", ubah("s1", "keadaan = 'RELEASED'"))}
-  ${p("d3_settled_reserved", ubah("s1", "keadaan = 'RESERVED'"))}
-  ${p("d3_settled_unrec", ubah("s1", "keadaan = 'UNRECONCILED'"))}
+  ${p("d3_settled_released", ubah("s1", "keadaan = 'RELEASED', diselesaikan = null"))}
+  ${p("d3_settled_reserved", ubah("s1", "keadaan = 'RESERVED', diselesaikan = null"))}
+  ${p("d3_settled_unrec", ubah("s1", "keadaan = 'UNRECONCILED', diselesaikan = null"))}
   ${buat("r1", "RELEASED", "1 hour", null, "1 hour")}
   ${p("d3_released_settled", ubah("r1", "keadaan = 'SETTLED'"))}
   ${p("d3_released_reserved", ubah("r1", "keadaan = 'RESERVED'"))}
@@ -217,7 +218,7 @@ begin
   if v ->> 'tanam_drop' like 'ok:drop trigger%' then
     execute substr(v ->> 'tanam_drop', 4);
   end if;
-  ${p("tanam_settled_released", ubah("tanam", "keadaan = 'RELEASED'"))}
+  ${p("tanam_settled_released", ubah("tanam", "keadaan = 'RELEASED', diselesaikan = null"))}
   -- the plant (D-1b), caught: the shape check accepting any jsonb lets a usage naming a school settle
   ${buat("u_tanam", "RESERVED", "1 minute", "1 minute")}
   if to_regprocedure('public.${SAH_PENGGUNAAN}(jsonb)') is not null then
