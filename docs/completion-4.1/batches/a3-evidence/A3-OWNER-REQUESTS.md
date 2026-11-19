@@ -16,6 +16,13 @@ until the owner approves it.
 | **The audit journeys on `5ae2d406`** | ✘ run 44443171111 **failure**: job A, b8-jalan **J1.6**. Under a work-scoped maintenance window a new start is refused `PR170 SITTING_NOT_CONTROLLER` instead of `PR040 MAINTENANCE_PLACE`. Job B passed. **The freeze is reopened for that fix only; Request 1 is held** (ruling 60's condition is not met) |
 | **Daisy: the recovery screens' UX review** | ✔ **PASS, no blocker** (`TINJAUAN-A3-LAYAR-5ae2d406.md`, ux-1 `9700d450`); 3 minors go to Z (M1 to M3) |
 
+## Request 1 · DONE (19 Nov, 05:18–05:20 UTC; rulings 60 and 61)
+
+**Run on `5755c6c2`**, after CI 44457494622 and journeys 44457507933 passed and Sharon accepted the J1.6 fix. Read only.
+- **Step 0: CLEAN** (`step0-A3-staging-RESULT.txt`). Lines 1 and 2 read 0; line 4 is identical to the reference at 284.
+- **BEFORE: recorded** (`preservation-A3-staging-BEFORE.txt`). Line 10 reads `284 / 20270121110000`; the batas for the
+  AFTER read are `('2026-11-19 05:19:09.606585+00', 10697)`.
+
 ## Request 1 · the read-only staging "before" read, and step 0
 
 - **What:** run `step0-A3-lineage.sql` and then `preservation-A3.sql` exactly as committed, each in a read-only
