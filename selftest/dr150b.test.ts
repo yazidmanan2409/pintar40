@@ -160,7 +160,7 @@ type BackupModul = {
   writeManifest: (dir: string) => Promise<number>;
   keyInfo: (file: string, home: string) => Masalah & { fpr: string | null; subkeys: string[] };
 };
-async function backupModul(repoRoot: string): Promise<BackupModul | null> {
+export async function backupModul(repoRoot: string): Promise<BackupModul | null> {
   try { return (await import(pathToFileURL(join(repoRoot, BACKUP)).href)) as BackupModul; } catch { return null; }
 }
 
@@ -240,7 +240,7 @@ export function localStorage(repoRoot: string) {
       STORAGE_S3_SECRET: val("S3_PROTOCOL_ACCESS_KEY_SECRET") || "850181e4652dd023b7a98c58ae0d2d34bd487ee0cc3254aed6eda37307425907" },
   };
 }
-async function storageRest(st: { api: string; service: string }, method: string, path: string, body?: Buffer | string, type = "application/json") {
+export async function storageRest(st: { api: string; service: string }, method: string, path: string, body?: Buffer | string, type = "application/json") {
   const r = await fetch(`${st.api}/storage/v1/${path}`, { method, headers: { authorization: `Bearer ${st.service}`, apikey: st.service, "content-type": type },
     body: typeof body === "string" || body === undefined ? body : new Uint8Array(body) });
   return { status: r.status, text: await r.text() };
