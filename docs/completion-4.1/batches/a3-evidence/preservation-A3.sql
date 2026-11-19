@@ -14,11 +14,19 @@
 --   * 20270121230000_every_sitting_writer_takes_its_row (sha256 7b60e23362d9e209557f847e5cb31aba74e2c60ec11a29b6716b0258bfb314a7 at
 --     d19c9a6b): redefines terminate_session, extend_session_deadline, finalize_session and percobaan_tandai in full, each
 --     now taking the sitting FOR UPDATE. No column, no data change at migration time, so no preserved line can see it.
---   * 20270121240000_a_sitting_is_recovered_on_another_session (the recovery act, the teacher's authorisation,
---     minta_izin_lanjut);
---   * 20270121250000_a_recovery_is_shown (the screens' reads).
---   For the two new ones, whether either adds a column or changes data at migration time that a preserved line could
---   see is checked against the merged head before the freeze (Sharon). All six sha256s are restated at the freeze.
+--   * 20270121240000_a_sitting_is_recovered_on_another_session: the recovery act, the teacher's authorisation and
+--     minta_izin_lanjut. It ADDS assessment_sessions.lanjut_diminta_pada (timestamptz, nullable, no default, so no
+--     existing row changes) and CREATES pengerjaan_izin_lanjut (a new table, so no preserved line reads it).
+--   * 20270121250000_a_recovery_is_shown: the screens' reads. Functions only: no column, no table, no data change.
+--
+-- THE SIX MIGRATIONS AT THE FREEZE (claude/a3 5ae2d406, product at merge 05354e4f; Sharon PASS, A3-DIFFS-671175e4.md):
+--   20270121200000  17a8c527f2bfeb51f9247028747166655162b9ab676251ff704a6ce4d401abd7
+--   20270121210000  c88630e7a3fba12d6d825037d4eed410a21cbd0b80f507c924ef37628f43dbb0
+--   20270121220000  150984a6400d7ceb6a088d43187cbe306fd3a1d7ad2f756defc630060110d09d
+--   20270121230000  7b60e23362d9e209557f847e5cb31aba74e2c60ec11a29b6716b0258bfb314a7
+--   20270121240000  361b8f3ff56948a90ad52e93a2a3ca2fb42b34f92d44ede8427d1a74d045262b
+--   20270121250000  4064fa73172851b780ad8dcda36b9b4a0f79aea03142bb42481bff34974958e2
+--   The promotion checks each against the deployed file before migrating; any difference stops it.
 -- Their timestamps sort after C2w's two (20270121100000, 110000), and no function is defined by both batches (Bob,
 -- checked at e6e28e52 against aa5f5741). A3's candidate must be brought up to C2w before its freeze; the pair is
 -- then re-checked against that head. Line 10 is expected to read "284 / 20270121110000" BEFORE and
@@ -42,14 +50,20 @@
 --   * 20270121220000 ADDS assessment_sessions.pengendali_sesi (nullable), assessment_sessions.generasi and
 --     responses.generasi (int not null default 1, check >= 1); two BEFORE INSERT triggers; redefines pengerjaan_tolak,
 --     pengerjaan_gerbang, start_learning_session, note_item_view and session_final_responses. It deletes no data.
---     `baru` leaves both new session columns out of line 58; line 79 (new) fingerprints responses on ended sittings
+--     `baru` leaves the THREE new session columns (pengendali_sesi, generasi and, from 240000, lanjut_diminta_pada) out
+--     of line 58; line 79 (new) fingerprints responses on ended sittings
 --     without generasi; line 80 must read 0 on both reads (the default fills 1); line 81 is state: a sitting open at
 --     the merge has no controller, and the learner's first write claims it once (D6), so it moves only on open
 --     sittings. Its "ended" count must stay 0.
 --   * 20270121200000 redefines four functions and changes no row at migration time.
---   No other column is added, altered or retyped. If the frozen head does otherwise, this header is restated first.
+--   No other column is added, altered or retyped (checked at the frozen head, 5ae2d406).
 --
--- WHAT DIFFERS FROM C2w's QUERY: `baru` (two columns), line 10's expectation, and lines 77 to 81. Every other line is
+-- IF A MIGRATION FAILS PART-WAY (Sharon's ruling (a), 19 Nov: step 0 is the gate). Step 0 exists so that 210000's
+-- lineage check cannot fail on staging. If it fails all the same, staging is left at 285: 200000 applied, which only
+-- replaces functions and changes no row. A re-run after the cause is fixed applies the remaining five. **On any failure:
+-- stop and report to the owner; no AFTER read is taken,** and nothing is retried without the owner.
+--
+-- WHAT DIFFERS FROM C2w's QUERY: `baru` (three columns), line 10's expectation, and lines 77 to 81. Every other line is
 -- C2w's, unchanged.
 --
 -- REVIEWED by Sharon (f6d3a2cb, A3-PRESERVATION-8cb312ee.md): PASS for a local dry run, with 284 -> 287 accepted (now 288 with the fourth migration; re-checked at the freeze)
@@ -69,8 +83,8 @@ with batas as (
   select coalesce(null::timestamptz, now()) as saat,
          coalesce(null::bigint, (select max(id) from public.audit_log)) as audit_id
 ),
--- A3 adds two columns to assessment_sessions (the header): left out of line 58
-baru as (select array['pengendali_sesi', 'generasi']::text[] as k),
+-- A3 adds three columns to assessment_sessions (the header): left out of line 58
+baru as (select array['pengendali_sesi', 'generasi', 'lanjut_diminta_pada']::text[] as k),
 mw_keluar as (select array[]::text[] as k),
 -- an unfinished window: the seven columns a legitimate act writes (the header, line 75)
 mw_jalan as (select array['starts_at', 'ends_at', 'ended_at', 'ended_by_person_id', 'end_reason',
