@@ -54,3 +54,4 @@
 | 18 Nov, 12:20 | Bob | R-15 Daisy items | Z-READINESS §5 at `a6bc556e` | `R15-DAISY-7ba18b03.md`: 6 closed, 6 Z, 1 4.2 |
 | 18 Nov, 12:45 | Bob | Ruling 55: walkthrough observation plan | `POST-REVIEW-EXECUTION-18NOV.md` §5 | `WALKTHROUGH-41-RENCANA-OBSERVASI.md`: **draft done** (due 21 Nov) |
 | 19 Nov, 02:29 | Bob | A3 recovery screens at 5ae2d406 | `claude/a3` | `TINJAUAN-A3-LAYAR-5ae2d406.md`: **PASS**, 3 minors for Z |
+| 19 Nov, 11:00 | Bob | C3w-1 step 1: Z-3, N-6, N-7 sentences; Z-2 condition (a) | `claude/c3w-1` at `6153f050` | All three sentences PASS, word for word. Z-2 (a) met, provided each Studio refusal page has exactly one <h1> |
