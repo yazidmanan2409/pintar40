@@ -6751,6 +6751,41 @@
       "proves": "selftest/c3w-z.test.ts, reading the rendered html of the running app's Studio routes: all seven Studio pages and five refusal paths each draw one <main>, the only id=\"isi\", the skip link's target, and exactly one <h1> (Daisy, 19 Nov); on each refusal the first heading in that <main> is the refusal's; the unknown correction gets Daisy's one neutral answer; a learner opening Studio meets the layout's refusal with its own <main>."
     },
     {
+      "id": "C3W-D1",
+      "runner": "static",
+      "proves": "Sharon's D-1, red first (C3W-1-DESIGN.md §9, 8831d62a): reads the catalogue. The six service functions take one request or attempt id (settle and reconcile also the closed-shape p_penggunaan) and are executable by service_role only; no ai_ or c3w_ function takes a person or a school; every one authenticated can execute is a definer with a fixed search_path reading public.current_person_id(); anon and authenticated write none of the seven AI tables."
+    },
+    {
+      "id": "C3W-D1b",
+      "runner": "static",
+      "proves": "Sharon's ruling on the usage (19 Nov, via Bob), red first: ai_selesaikan and ai_rekonsiliasi take one closed-shape p_penggunaan: exactly token_masuk, token_keluar and biaya_mikro as non-negative integers, plus an optional id_penyedia of ^[A-Za-z0-9_-]{1,128}$. A school, a requester, free text, a count as a string, a negative or fractional or missing count, a bad id_penyedia and a non-object are refused PR220 AI_PENGGUNAAN_TIDAK_SAH. Both check through ai_penggunaan_sah, whose plant (accept any jsonb) is caught."
+    },
+    {
+      "id": "C3W-D2",
+      "runner": "static",
+      "proves": "Sharon's D-2, red first: executes ai_tandai_kirim and ai_sapu in one rolled-back transaction. The claim is true once on a RESERVED, unsent attempt and false after; false on a RELEASED one; the sweep releases a RESERVED, unsent attempt at 11 minutes, not at 9, and a claim after it is false; a claimed attempt is never released. The claim's source is the one conditional update with its row count."
+    },
+    {
+      "id": "C3W-D3",
+      "runner": "static",
+      "proves": "Sharon's D-3, red first: the sweep makes a claimed attempt with no end past the hard timeout plus 5 minutes UNRECONCILED, reading the one constant ai_batas_kirim_tanpa_akhir(), at least 5 minutes above penyedia.ts's BATAS_PANGGILAN_MS; nothing leaves SETTLED or RELEASED, UNRECONCILED never returns to RESERVED and a sending mark is never cleared, by any writer; the five forward moves stay allowed; the plant (the guard trigger dropped) is caught in the same transaction; every update of keadaan in an AI body is guarded on keadaan."
+    },
+    {
+      "id": "C3W-D4",
+      "runner": "static",
+      "proves": "Sharon's D-4, red first: A2A-L01 ranks ai_hak_sekolah, ai_opsi and ai_plafon_platform in that order; ai_cadangkan, ai_selesaikan, ai_lepaskan and ai_rekonsiliasi each take the three FOR UPDATE, school, then option, then platform."
+    },
+    {
+      "id": "C3W-D5",
+      "runner": "static",
+      "proves": "Sharon's D-5, red first: pilihPenyedia answers AI_TIDAK_TERSEDIA without PINTAR_AI_STUB_HARNESS=1 (no flag, NODE_ENV=development, any other value, an adapter named while none is built) and selects the stub only with it; it never reads NODE_ENV; the flag is read in one module and set only by the harness; the stub is imported by the provider module alone."
+    },
+    {
+      "id": "C3W-R34",
+      "runner": "static",
+      "proves": "Sharon's R-3 control 4, red first: a REFUSED_PERSONAL_DATA request with an excerpt_sha256 is refused 23514 by a check constraint naming both; an excerpt_sha256 that is not 64 hex characters is refused; neither the request nor the attempt has a column for the excerpt's or the output's text."
+    },
+    {
       "id": "A3-L01",
       "runner": "static",
       "proves": "executes pengerjaan_saya and daftar_pengerjaan against the migrations, rolled back: the learner's read says whether this session controls the sitting, whether a teacher must allow a recovery and whether this generation came by a teacher's permission; the teacher's row carries the mode, the learner's request and a valid permission."

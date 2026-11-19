@@ -64,6 +64,7 @@ import { a2bMulaiDbTests } from "./a2b-mulai.test";
 import { a3DbTests } from "./a3.test";
 import { a3LayarStaticTests } from "./a3-layar.test";
 import { c3wZStaticTests } from "./c3w-z.test";
+import { c3wSyaratTests } from "./c3w-syarat.test";
 import { adm02Tests } from "./adm02.test";
 import { adm09Tests } from "./adm09.test";
 import { d088iTests } from "./d088i.test";
@@ -2193,6 +2194,7 @@ export const staticTests: SelfTest[] = [
   ...a3DbTests,
   ...a3LayarStaticTests,
   ...c3wZStaticTests,
+  ...c3wSyaratTests,
   ...adm02Tests,
   ...adm09Tests,
   ...d088iTests,
