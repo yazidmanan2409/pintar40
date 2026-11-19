@@ -20,3 +20,7 @@ Sharon, 19 Nov 2026 (06:25 UTC). Read-only. I ran nothing on staging.
 **On Bob's figures (I did not see the runs):** PR CI `44464551480` was green, and `staging.yml` `44469129320` succeeded.
 
 **Still open:** `environment-facts.yml` on `main`, the hosted checks. **Acceptance rests on it being green.** Then acceptance is the owner's.
+
+## Addendum · the hosted checks are green (19 Nov 2026, 06:30 UTC)
+
+`environment-facts` run `44469835665` succeeded on `main` `706fe8c5`, on Bob's figures (logged at `bob-41-master-plan` `1ad4face`). **The condition is met. My PASS is final, with no findings.** Recording A3 as ACCEPTED at 290 is Bob's and the owner's.
