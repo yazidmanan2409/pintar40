@@ -81,8 +81,8 @@ D-1, and it is repaired in Z.
 |---|---|---|---|---|
 | Thinking prompts and answer-giving help in a certifying sitting | **Available:** `POST_TEST` and `STANDALONE` allow all three levels (thinking prompt, hint, worked example) | Disabled in final or certifying assessments; kept in learning and practice | **All three levels refused in every certifying mode.** This answers Q-1: level 1 goes too, so **no per-level schema is needed**. Policy captured on the sitting at its start (Sharon); a lint `certifies ⇒ not allows_assistance` | **B** (approved by D-2; one policy row, the capture and the lint) |
 | In learning and practice | Available (lessons, PRACTICE, Pemetaan Awal) | Keep | Unchanged | **A** |
-| Conditions defined before the sitting | The mark, the attempt limit, the window and the deadline are fixed at the start; a teacher's extension is recorded (A1) | Yes | Unchanged | **A** |
-| Accessibility | **Extra time** (A1, recorded). **No glossary and no read-aloud inside a sitting today** | Keep the legitimate accommodations | Keep extra time. Record it with the result, staff-only, **never on the certificate or the verification page** (Sharon). **Any further accommodation is new functionality** | **A** (extra time) / **C** (any new one, O-5) |
+| Conditions defined before the sitting | **Fixed before or at the start:** the pass mark (sealed on the attempt), the attempt limit, the mandatory questions, and the **assignment window** (opens and closes, set by the teacher). **Time (corrected 19 Nov):** PINTAR has **no per-assessment duration; every sitting is untimed** (`20270120120000`'s header, R-C). The only time limit is the effective deadline: the sitting's own `authoritative_deadline` where one is set, otherwise the assignment's `closes_at`. A short late-sync grace applies to answers already given; an abandoned sitting is closed on a schedule (A1) | Defined in advance and enforced consistently | Unchanged. **No new duration feature is proposed:** Dr Gladys's guidance asks that time rules be defined and enforced, not that a per-assessment duration be added. A duration would be **C** | **A** |
+| Accessibility | **"Extra time" means an authorised extension of one learner's deadline** (A1: capability-gated, bounded, audited, with the old and new deadline and the actor recorded), not added minutes on a timed test, since sittings are untimed. **No glossary and no read-aloud inside a sitting today** | Keep the legitimate accommodations | Keep the authorised extension. Record it with the result, staff-only, **never on the certificate or the verification page** (Sharon). **Any further accommodation is new functionality** | **A** (extension) / **C** (any new one, O-5) |
 | Reading before Uji Penguasaan | Required only by the chapter screen; the database and a typed address don't require it (verification 3) | (Not addressed) | **O-6** | Open |
 
 ### 1.5 Retakes and repeated questions
@@ -226,6 +226,16 @@ verification, revocation and reissue work as specified (A).
 3. **Then:** the usual batch process: red first, one uninterrupted pre-flight, CI, Sharon's and Daisy's reviews, a
    staging preservation pair, and **the owner's staging authorisation.**
 4. **Effort:** about 1–1.5 days of build, plus the reviews.
+
+### 6.3a Consistency check: conditions, certificate wording and public verification
+
+Before D2-R's code, as part of the reviews in §6.3 step 2:
+- **Daisy:** the conditions the learner is shown before starting (the window's close, attempts, what counts, and from
+  D2-R, no help) agree with the certificate's achievement line and the verification page's words («Memenuhi capaian»).
+- **Sharon:** that nothing on the certificate or the public page implies a timed test, a duration or an accommodation,
+  and that the public read's contract is unchanged.
+
+Sharon's part waits until after A3's freeze (ruling 58).
 
 ### 6.4 What else it changes
 
