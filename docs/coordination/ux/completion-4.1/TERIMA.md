@@ -53,3 +53,4 @@
 | 18 Nov, 11:05 | Second Eye | A3 recovery act proposal, three points | `claude/a3` at `547b3707` | `A3-KODE-PEMULIHAN.md` §6: no conflict; NOT_AUTHORISED body says the request reaches the list; one request; row «minta lanjut di sesi lain» |
 | 18 Nov, 12:20 | Bob | R-15 Daisy items | Z-READINESS §5 at `a6bc556e` | `R15-DAISY-7ba18b03.md`: 6 closed, 6 Z, 1 4.2 |
 | 18 Nov, 12:45 | Bob | Ruling 55: walkthrough observation plan | `POST-REVIEW-EXECUTION-18NOV.md` §5 | `WALKTHROUGH-41-RENCANA-OBSERVASI.md`: **draft done** (due 21 Nov) |
+| 19 Nov, 02:40 | Bob | A3 recovery screens at 5ae2d406 | `claude/a3` | `TINJAUAN-A3-LAYAR-5ae2d406.md`: **PASS**, 3 minors for Z |
