@@ -88,7 +88,9 @@ export default async function Kanonik({ searchParams }: { searchParams: Search }
       pustaka.length
         ? supabase.from("plp_releases").select("id, version_label, course_id").eq("status", "PUBLISHED").in("institution_id", pustaka)
         : Promise.resolve({ data: [] as Array<{ id: string; version_label: string; course_id: string }> }),
-      supabase.from("release_distributions").select("id, plp_release_id, institution_id").eq("status", "ACTIVE"),
+      // A2B-R2 (C2w): the open grants through distribusi_berlaku, the controller-only read under withdraw's own rule; a
+      // staff client cannot select release_distributions, so this list was always empty
+      supabase.rpc("distribusi_berlaku"),
     ]);
     const rilisSemua = (rilis ?? []) as Array<{ id: string; version_label: string; course_id: string }>;
     const { data: kursus } = rilisSemua.length

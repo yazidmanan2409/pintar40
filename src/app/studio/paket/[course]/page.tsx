@@ -39,6 +39,8 @@ import {
 import { buangDrafAksi } from "../../soal-actions";
 import { bacaMasalah, kalimatKodeC1 } from "@/lib/soal-layar";
 import { kodeKoreksiDariGalat, kunciKodeKoreksi, type DampakKoreksi } from "@/lib/soal-kontrak";
+import CatatanPeninjau from "@/components/studio/CatatanPeninjau";
+import { KODE_CATATAN, bacaCatatan, bacaSasaranCatatan, kunciKodeCatatan, tanggalUtuh, type Catatan, type KodeCatatan } from "@/lib/catatan-kontrak";
 
 export const generateMetadata = judulHalaman("/studio/paket/[course]");
 
@@ -82,7 +84,9 @@ type Params = Promise<{ course: string }>;
 type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string; baris?: string; pelajaran?: string;
   // C1w: the editor and the key correction, carried in the address (Daisy Q5, Q6)
   ubah?: string; tambah?: string; kunci?: string; langkah?: string; baru?: string; alasan?: string;
-  c1?: string; c1h?: string; c1s?: string; c1m?: string }>;
+  c1?: string; c1h?: string; c1s?: string; c1m?: string;
+  // C2w: the note form the address opens, and a note's answer (Daisy, C2W-CATATAN-KATA.md)
+  catatan?: string; c2?: string; c2h?: string; c2s?: string }>;
 
 type Finding = Temuan;
 
@@ -221,12 +225,23 @@ export default async function Paket({ params, searchParams }: { params: Params; 
   const koreksiDari = new Map(((koreksiData ?? []) as KoreksiTerakhir[]).map((k) => [k.item, k]));
   // «Riwayat soal», per published or sealed question (Daisy Q5); a read refused or failed is said, never left out
   const riwayatDari = new Map<string, VersiSoal[] | null>();
+  // C2w «Catatan peninjau», per published or sealed question: riwayat_soal's readers (catatan_peninjau_studio decides)
+  const catatanDari = new Map<string, Catatan[] | null>();
   if (terkunci) {
     await Promise.all(idSoalKini.map(async (q) => {
-      const { data, error } = await supabase.rpc("riwayat_soal", { p_item: q });
+      const [{ data, error }, { data: cd, error: ce }] = await Promise.all([
+        supabase.rpc("riwayat_soal", { p_item: q }),
+        supabase.rpc("catatan_peninjau_studio", { p_item: q }),
+      ]);
       riwayatDari.set(q, error ? null : ((data as { versi?: VersiSoal[] } | null)?.versi ?? []));
+      catatanDari.set(q, ce ? null : bacaCatatan(cd));
     }));
   }
+  // the forms are for a reviewer of the package's school (catatan_peninjau_tulis decides); one open at a time
+  const bolehCatatan = can(inst, "CAN_REVIEW");
+  const bukaCatatan = bolehCatatan ? bacaSasaranCatatan(sp.catatan) : null;
+  const simpanCatatan = bolehCatatan && sp.c2h === "ok" ? bacaSasaranCatatan(sp.c2s) : null;
+  const kodeCatatan = sp.c2h === "gagal" && (KODE_CATATAN as readonly string[]).includes(sp.c2 ?? "") ? (sp.c2 as KodeCatatan) : null;
   // «Kunci jawaban keliru?» is the owner's (ajukan_koreksi_kunci decides): the newest version of a published package
   const bolehKoreksi = can(inst, "CAN_PUBLISH") && terbitIni && !penerus;
   const ubahIni = dapatDiubah && sp.ubah && UUIDRE.test(sp.ubah) ? sp.ubah : null;
@@ -510,6 +525,19 @@ export default async function Paket({ params, searchParams }: { params: Params; 
                                 </p>
                               ) : null}
                               {terkunci ? <RiwayatSoal s={sl} versi={riwayatDari.has(q.id) ? riwayatDari.get(q.id)! : []} day={day} /> : null}
+                              {/* C2w: a sibling of «Riwayat soal», after it (Daisy §5) */}
+                              {terkunci ? (
+                                <CatatanPeninjau s={sl} mode="studio" item={q.id} label={q.opsi.map((o) => o.label)}
+                                  catatan={catatanDari.get(q.id) ?? null} day={(iso) => (iso ? tanggalUtuh(tanggal(iso, "baca", locale, zona)) : "—")}
+                                  form={bolehCatatan ? {
+                                    course: courseId, pelajaran: iniPelajaran, pemilik,
+                                    buka: bukaCatatan?.item === q.id ? bukaCatatan.label : null,
+                                    galat: bukaCatatan?.item === q.id && kodeCatatan
+                                      ? `${sl(kunciKodeCatatan(kodeCatatan))}${sp.ref && /^[A-Z0-9]{6}$/.test(sp.ref) ? ` ${sl("galat.rujukan")}: ${sp.ref}.` : ""}` : null,
+                                    tersimpan: simpanCatatan?.item === q.id ? simpanCatatan.label : null,
+                                    alamat: (x, jangkar) => `/studio/paket/${encodeURIComponent(courseId)}?pelajaran=${iniPelajaran}${x.catatan ? `&catatan=${x.catatan}` : ""}#${jangkar}`,
+                                  } : null} />
+                              ) : null}
                             </article>
                             {kunciIni === q.id ? (
                               <PerbaikiKunci s={sl} locale={locale} course={courseId} pelajaran={iniPelajaran} soal={q}

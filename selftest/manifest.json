@@ -3586,7 +3586,7 @@
     {
       "id": "F22-P05",
       "runner": "static",
-      "proves": "L3 §2.11 (D-132(k)), read from the source files: every exported server action of the six context-bound files (Studio, Konfigurasi, Pendataan, Pimpinan, umpan balik, Mengajar) checks its target against the active context before its first database act (the one re-read exempt by name), and the four context-bound API routes (activation, class-card re-issue, PIN recovery reset, media upload) before their act, each saying CONTEXT_OTHER_PLACE; every other server-action file and API route is exempt by name with its reason (signing in, the chooser, Belajar's own work, a person's own account, personas, public pages, and the explicitly platform-scoped test email and its history); the checker catches a removed check and a check moved after its act; the check uses no service key and makes no device session. RESTATED (A2b S-1; the Chief Architect, 16 Nov 11:51), part 6: the check reads what it checks: no app read names a table the session role cannot select (TAK_TERBACA, held equal to the catalogue by A2B-S1G) unless through the service client, named with its reason; every .from names its table literally (SUMBER_SEKOLAH's values are each checked); the plants (S-1's variable read of two unreadable tables, a literal read of maintenance_windows) are each caught. A2B-R2 (the Chief Architect, 16 Nov 11:59, option (b), placed as C2w's first item): Studio's three reads of release_distributions (studio/actions.ts:328, studio/kanonik/page.tsx:91, konteks-server.ts:160 SUMBER_SEKOLAH.distribusi) are named exceptions by file, line and table, each held to its line, removed in C2w."
+      "proves": "L3 §2.11 (D-132(k)), read from the source files: every exported server action of the six context-bound files (Studio, Konfigurasi, Pendataan, Pimpinan, umpan balik, Mengajar) checks its target against the active context before its first database act (the one re-read exempt by name), and the four context-bound API routes (activation, class-card re-issue, PIN recovery reset, media upload) before their act, each saying CONTEXT_OTHER_PLACE; every other server-action file and API route is exempt by name with its reason (signing in, the chooser, Belajar's own work, a person's own account, personas, public pages, and the explicitly platform-scoped test email and its history); the checker catches a removed check and a check moved after its act; the check uses no service key and makes no device session. RESTATED (A2b S-1; the Chief Architect, 16 Nov 11:51), part 6: the check reads what it checks: no app read names a table the session role cannot select (TAK_TERBACA, held equal to the catalogue by A2B-S1G) unless through the service client, named with its reason; every .from names its table literally (SUMBER_SEKOLAH's values are each checked); the plants (S-1's variable read of two unreadable tables, a literal read of maintenance_windows) are each caught. A2B-R2 (the Chief Architect, 16 Nov 11:59, option (b), placed as C2w's first item): Studio's three reads of release_distributions were named exceptions by file, line and table, each held to its line; C2w removed them with the fix (distribusi_tempat, distribusi_berlaku), so no exception remains, and any later one is held to its line the same way."
     },
     {
       "id": "BOB50-A01",
@@ -6551,6 +6551,26 @@
       "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K12, a planned and an emergency window over one class: the emergency governs (the teacher's act refused PR170 SITTING_CLASS_STOPPED; the learner stopped as a person); after the lift, with the planned window still on, the planned guard refuses nothing A2a allows (the learner's answer, the first-touch release, a departure) and refuses the teacher's act by place. Emergency windows in the hosted shape (K12-1)."
     },
     {
+      "id": "A2B-R2D",
+      "runner": "static",
+      "proves": "A2B-R2 (Second Eye's S-1 sweep, 16 Nov; the Chief Architect, 16 Nov 11:59: C2w's first item); executes in a rolled-back transaction with a planted library course, published release and grant to Alpha: distribusi_tempat(p_distribution) gives Admin platform (withdraw_release_distribution's rule: SYSTEM_ADMIN or CAN_PUBLISH in the owning library) the grant's release, owning library and receiving school; Alpha's admin, and an unknown id, are refused alike with withdraw's own sentence (no existence oracle); distribusi_berlaku() lists the open grant to Admin platform and nothing to Alpha's admin; both PLATFORM in the registry, stable, executable by authenticated alone; the control: authenticated holds no select on release_distributions. Red on 3c58620e (neither function exists)."
+    },
+    {
+      "id": "A2B-R2A",
+      "runner": "app",
+      "proves": "A2B-R2 (Second Eye's S-1 sweep, 16 Nov; the Chief Architect, 16 Nov 11:59: C2w's first item); executed against the running build, each server action posted as a browser without script posts it, with its id from the build's manifest: Admin platform working in Sekolah Sintetis Alpha is refused for the context (the chooser) on «Tarik izin» of the library's grant to Alpha, with nothing written; an unknown grant is refused ACTION_NOT_ALLOWED before any write; working in Pustaka PINTAR, the Kanonik «Tarik izin» form offers the open grant, and the same act withdraws it (DISTRIBUTION_WITHDRAWN). Red on 3c58620e: the context check read nothing, and the form offered no grant."
+    },
+    {
+      "id": "C2W-F4R",
+      "runner": "static",
+      "proves": "F-4 (THE PLAN §7.7; PLAN-A2B-C2W.md §3.2, before C2w and before C3w's build), on two real connections with the shared helper (selftest/balapan.ts), in both orders: two teachers of the draft's class save revision 1 of one draft question at once; the first holds the question's row (ubah_soal_draf's FOR UPDATE) for 2.5 s, the second starts while it holds it, waits, and is refused PR180 DRAFT_EDIT_CONFLICT; the question is then at revision 2 with the first's words and editor; item_draft_edits holds exactly one ITEM_EDITED row, 1 to 2, by the first (no edit lost, none duplicated); a race that did not overlap proves nothing and fails. Two locks serialise a save, draf_kunci's FOR UPDATE on the course and ubah_soal_draf's on the question, either alone enough; the plant removes both, so the second save passes the revision check and is no longer refused DRAFT_EDIT_CONFLICT (it fails on item_options' unique key, a refusal with no name, or succeeds), and is caught; both functions are put back and checked. Committed rows are removed and proved gone."
+    },
+    {
+      "id": "C2W-F3D",
+      "runner": "static",
+      "proves": "F-3 (THE PLAN §7.7; PLAN-A2B-C2W.md §3.2, before C2w), selftest/c1w.test.ts; executes against the migrations in one rolled-back transaction: the bootstrap learner's sitting, its sealed certificate under review through a governed key correction, its course made Professional Development by the fixture (session_is_professional true): the issuing school's Admin sekolah (CAN_PUBLISH, who decides an academic review), its head of department and another school's Admin sekolah are each refused PR190 CERT_REVIEW_NOT_ALLOWED; Admin platform's queue (tinjauan_sertifikat_antrean) offers the review as theirs to decide, and putuskan_tinjauan_sertifikat confirms it, recorded as decided by Admin platform and audited once. The plant, boleh_putuskan_tinjauan's PD branch given the school's rule, is caught. C1W-S06 holds the academic half."
+    },
+    {
       "id": "A2B-SP1",
       "runner": "static",
       "proves": "A2b reopened for the start path (the Chief Architect, 16 Nov 16:21; Sharon f1e969a1): executes start_learning_session against migration 20270120240000, in rolled-back transactions, as the Siklus learner on the journey fixture (a standalone copy of the class's Pemetaan Awal whose definition is marked ad-hoc, so its attempts are its own and no sitting another test leaves refuses it first): with no window it starts (the control); inside a planned school window under way it raises PR040 with DETAIL MAINTENANCE_PLACE; with a planned school window, and a platform-wide one, starting in 10 minutes it raises PR110 with DETAIL MAINTENANCE_NO_NEW_START, as the sitting-insert trigger does. The plant, the fix's marked lines removed from the function (the generic P0001 'cannot start this assessment' raise back), is caught. Red on 3c58620e (P0001 for every maintenance case)."
@@ -6804,6 +6824,56 @@
       "id": "A3-R05N",
       "runner": "static",
       "proves": "Sharon's A3-P2 item 1 (4d5cd5f6): executes against the migrations on two real connections, each rolled back, on Alpha's teacher. The teacher's account_setup is put back to REQUIRED with the name unconfirmed, committed and restored exactly. confirm_my_name, which holds account_setup before the person, is raced in both orders against tangguhkan_akun, the lock path. It is then raced against aktifkan_kembali_akun, the reactivation path, on a suspension the harness makes through the product and the product lifts afterwards. No connection is aborted as a deadlock. This is recorded as the reason item 1 is a named exception."
+    },
+    {
+      "id": "C2W-B1",
+      "runner": "static",
+      "proves": "PLAN-A2B-C2W.md §3.4 B1, red first: executes against the migrations, in one rolled-back transaction, on C1w's scenario (the seeded cycle school, a package published by its seeded people, real sittings). Before and after a note and its replacement, the package's fingerprint, the question's options, two sittings' evidence and current results, the result count and metric_evaluate('class.misconceptions') are byte-identical."
+    },
+    {
+      "id": "C2W-B2",
+      "runner": "static",
+      "proves": "PLAN-A2B-C2W.md §3.4 B2, red first: executes against the migrations, in one rolled-back transaction. A teacher with CAN_DRAFT only, a learner, another school's administrator and an unknown item are refused alike (PR210 NOTE_NOT_ALLOWED). A missing option, an empty or over-long text and an unsealed draft are refused by name. A school's CAN_REVIEW writes and replaces. No UPDATE or DELETE of catatan_peninjau stands, even as the owner. Declaring it a metric source is refused. A learner reads no note, and neither their own sitting outcome nor their assignment list carries one."
+    },
+    {
+      "id": "C2W-B4",
+      "runner": "static",
+      "proves": "PLAN-A2B-C2W.md §3.4 B4 (I-5 in Studio), red first: executes against the migrations, in one rolled-back transaction. A note on option B of version 1 (key A) is replaced once, and the key is corrected to B by C1w's governed correction. Read against version 2 with catatan_peninjau_studio, both notes predate the correction, with the key then, the key now and their version. A note written on version 2 carries no such line. Read against version 1, nothing predates. Another school and an unknown item are refused alike."
+    },
+    {
+      "id": "C2W-B5",
+      "runner": "static",
+      "proves": "PLAN-A2B-C2W.md §3.4 B5 (I-5 beside the class report), red first: executes against the migrations, in one rolled-back transaction. The class's teacher reads the current note through catatan_peninjau_kelas under teacher_question_evidence's own gate, with the key then and the key in force. A class the assignment was not set for, and an unknown assignment, are refused alike."
+    },
+    {
+      "id": "C2W-B6",
+      "runner": "static",
+      "proves": "PLAN-A2B-C2W.md §3.4 B6 with Sharon's addition (3a2de775), red first: executes against the migrations, in one rolled-back transaction, with a platform package distributed to the school. A school's head of department and administrator are refused NOTE_LIBRARY_CONTENT. The library's own administrator writes. A teacher of the school that received the release reads the note beside the class report. A teacher of a school without the release is refused exactly as for an unknown assignment."
+    },
+    {
+      "id": "C2W-D2",
+      "runner": "static",
+      "proves": "Sharon's D2 (3a2de775), red first: executes against the migrations, in one rolled-back transaction. A note inserted directly into catatan_peninjau as the owner is refused by the table's trigger, not only by the function, by name: NOTE_OWNER_MISMATCH when it names another owner than the item's, NOTE_NOT_SEALED when it sits on an unsealed item. A direct insert for the item's own owner on a sealed item stands (the control)."
+    },
+    {
+      "id": "C2W-D3",
+      "runner": "static",
+      "proves": "Sharon's D3 (3a2de775), red first: reads the function source (pg_proc) and the catalogue's indexes. The chain walk catatan_peninjau_garis has a depth cap and a cycle guard. Neither notes read takes a row lock. An index leads with items.supersedes_item_id."
+    },
+    {
+      "id": "C2W-D1R",
+      "runner": "static",
+      "proves": "Sharon's D1 (3a2de775), red first: executes against the migrations on two real connections, as the seeded cycle school's head of programme on one of its sealed questions, removing the test's notes afterwards. Two first notes on one option at once leave one, the second refused NOTE_EXISTS. Two replacements of that note at once leave one, the second refused NOTE_NOT_CURRENT."
+    },
+    {
+      "id": "C2W-K01",
+      "runner": "static",
+      "proves": "PLAN-A2B-C2W.md §3.4 B3, the screens' contract, red first: reads migration 20270121110000 and src/lib/catatan-kontrak.ts. Every code catatan_tolak (PR210) raises is the contract's, and the reverse. Daisy's words (C2W-CATATAN-KATA.md at 535561ed, and the I-5 lines of A2B-C2W-KATA.md §3) are in the copy table word for word, each with her English. No notes string says «anotasi». The notes' disclosures are pin-noprint (O-3) and hold the nested «Catatan sebelumnya»."
+    },
+    {
+      "id": "C2W-B3",
+      "runner": "app",
+      "proves": "PLAN-A2B-C2W.md §3.4 B3 with Sharon's D4 (3a2de775), red first, selftest/c2w-catatan-layar.test.ts, the running app, read from the rendered html of the production build on a package the seeded cycle school's people publish: the head of department finds «Catatan peninjau (0)» after «Riwayat soal», never printed, with «Tulis catatan» on each option; the form has Daisy's label, hint and a 1000-character bound; an empty note is refused in her words and nothing is saved; a note with markup is saved («Catatan tersimpan.»), shown as text and attributed with version 1; «Ganti catatan» says the old note stays, and the old one moves under «Catatan sebelumnya (1)» with «Diganti pada …»; the package's author (CAN_DRAFT only) reads the note with no form; the class's learner's pages carry none."
     }
   ]
 }

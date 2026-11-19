@@ -321,14 +321,25 @@ export async function grantDistributionAction(fd: FormData): Promise<void> {
   back("/studio/kanonik", "izin-beri", error ? ditolak("grant_release_distribution", error) : { ok: true, kode: "DISTRIBUTION_GRANTED" });
 }
 
+/** A2B-R2 (C2w): a grant's owning library, read through distribusi_tempat, the controller-only read under
+ *  withdraw_release_distribution's own rule. A staff client cannot select release_distributions, and a read that
+ *  comes back empty must not pass the context check (§2.11): refused, unknown, or with no library named, the act is
+ *  refused before any write (fail closed). */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function tempatDistribusi(supabase: any, distribution: string): Promise<string> {
+  const { data, error } = await supabase.rpc("distribusi_tempat", { p_distribution: distribution });
+  if (error) back("/studio/kanonik", "izin-tarik", ditolak("distribusi_tempat", error));
+  const milik = (data as { pemilik?: unknown } | null)?.pemilik;
+  const pemilik = typeof milik === "string" ? uuidOrNull(milik) : null;
+  if (!pemilik) back("/studio/kanonik", "izin-tarik", { ok: false, kode: "ACTION_NOT_ALLOWED" });
+  return pemilik;
+}
+
 export async function withdrawDistributionAction(fd: FormData): Promise<void> {
   const distribution = uuidOrNull(str(fd, "distribusi"));
   if (!distribution) back("/studio/kanonik", "izin-tarik", TIDAK_DIKENALI);
-  {
-    const { data: izin } = await (await supabaseServer()).from("release_distributions").select("plp_release_id").eq("id", distribution).limit(1);
-    await wajibDalamKonteks({ sekolah: await sekolahDari("terbitan", (izin?.[0] as { plp_release_id?: string } | undefined)?.plp_release_id) }, "izin-tarik");
-  }
   const supabase = await supabaseServer();
+  await wajibDalamKonteks({ sekolah: await tempatDistribusi(supabase, distribution!) }, "izin-tarik");
   const { error } = await supabase.rpc("withdraw_release_distribution", {
     p_distribution: distribution, p_reason: str(fd, "alasan"),
   });

@@ -2247,6 +2247,10 @@ export const experienceTests: SelfTest[] = [
       // MOVED 280 -> 281, RESTATED, A2b batch 2: 20270120230000 (a notice's place for its controller, S-1).
       // MOVED 281 -> 282, RESTATED, A2b reopened: 20270120240000 (a start refused for maintenance says its code): a
       // replaced function body; no table, no column.
+      // MOVED 282 -> 283, RESTATED, C2w A2B-R2 on main after A2b: 20270121100000 (a distribution's place for its controller): two
+      // functions and two registry rows; no table, no column.
+      // MOVED 283 -> 284, RESTATED, C2w reviewer notes: 20270121110000 (a reviewer notes what a wrong option reveals): one
+      // table (catatan_peninjau: item, option, owner, text, writer, time, replaced note); no column named for a mark.
       // MOVED 282 -> 283, RESTATED, A3: 20270121200000 (the start lock covers what the attempt count counts, A3-R1): a
       // replaced function body; no table, no column.
       // MOVED 283 -> 284, RESTATED, A3: 20270121210000 (attempts count across an assessment's versions, ruling 46): a
@@ -2259,7 +2263,8 @@ export const experienceTests: SelfTest[] = [
       // change in the institution mark
       // MOVED 287 -> 288, RESTATED, A3: 20270121250000 (a recovery is shown): two reads gain fields; no brand or copy
       // change in the institution mark
-      c.expect(migrations.length === 288, `${migrations.length} migrations; the frozen baseline has 288`);
+      // MOVED TO 290, RESTATED, the merge of main into claude/a3 (Sharon's pin correction): 282 + C2w's 2 + A3's 6
+      c.expect(migrations.length === 290, `${migrations.length} migrations; the frozen baseline has 290`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4178,13 +4183,16 @@ export const experienceTests: SelfTest[] = [
       // MOVED 279 -> 280, RESTATED, A2b batch 2, for 20270120220000 (a window's place for its controller): no tour RPC.
       // MOVED 280 -> 281, RESTATED, A2b batch 2, for 20270120230000 (a notice's place for its controller, S-1): no tour RPC.
       // MOVED 281 -> 282, RESTATED, A2b reopened, for 20270120240000 (a start refused for maintenance says its code): no tour RPC.
+      // MOVED 282 -> 283, RESTATED, C2w A2B-R2 on main after A2b, for 20270121100000 (a distribution's place for its controller): no tour RPC.
+      // MOVED 283 -> 284, RESTATED, C2w reviewer notes, for 20270121110000: no tour RPC.
       // MOVED 282 -> 283, RESTATED, A3, for 20270121200000 (the start lock covers what the attempt count counts): no tour RPC.
       // MOVED 283 -> 284, RESTATED, A3, for 20270121210000 (attempts count across an assessment's versions): no tour RPC.
       // MOVED 284 -> 285, RESTATED, A3, for 20270121220000 (a sitting has one writer): no tour RPC.
       // MOVED 285 -> 286, RESTATED, A3, for 20270121230000 (every writer of a sitting takes its row): no tour RPC.
       // MOVED 286 -> 287, RESTATED, A3, for 20270121240000 (a sitting is recovered on another session): no tour RPC.
       // MOVED 287 -> 288, RESTATED, A3, for 20270121250000 (a recovery is shown): no tour RPC.
-      c.expect(migs.length === 288, `${migs.length} migrations; the baseline has 288`);
+      // MOVED TO 290, RESTATED, the merge of main into claude/a3: no tour RPC in any of the eight.
+      c.expect(migs.length === 290, `${migs.length} migrations; the baseline has 290`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

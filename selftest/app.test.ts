@@ -18,6 +18,7 @@ import { bob26AppTests } from "./bob26.test";
 import { akunTerkunciAppTests } from "./akun-terkunci.test";
 import { b2AppTests } from "./b2-layar.test";
 import { a2bS1Tests } from "./a2b-s1.test";
+import { a2bR2AppTests } from "./a2b-r2.test";
 import { a2bMulaiAppTests } from "./a2b-mulai.test";
 import { l1f2AppTests } from "./l1f2-layar.test";
 import { bob27AppTests } from "./bob27.test";
@@ -36,6 +37,7 @@ import { b0LayarTests } from "./b0-layar.test";
 import { a1LayarTests } from "./a1-layar.test";
 import { a3LayarAppTests } from "./a3-layar.test";
 import { c1wLayarTests } from "./c1w-layar.test";
+import { c2wCatatanLayarTests } from "./c2w-catatan-layar.test";
 import { b1AppTests } from "./b1-layar.test";
 
 /** Synthetic personas (supabase/seed/synthetic.sql). Passwords are seed constants, not secrets. */
@@ -3532,10 +3534,12 @@ export const appTests: SelfTest[] = [
   ...a1LayarTests.filter((x) => !["A1-K02", "A1-S08", "A1-S09"].includes(x.id)),
   ...a3LayarAppTests,
   ...c1wLayarTests.filter((x) => x.id !== "C1W-K02"),
+  ...c2wCatatanLayarTests.filter((x) => x.id !== "C2W-K01"),
   // B1 · accountability events through the running app (every sign-in path, a failing writer, the reader)
   ...b1AppTests,
   ...b2AppTests,
   ...a2bS1Tests,
+  ...a2bR2AppTests,
   ...a2bMulaiAppTests,
   ...l1f2AppTests,
   // BOB-50 (D-082(d)): a single Uji Cepat issues no certificate, through the running app

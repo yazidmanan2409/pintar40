@@ -157,7 +157,6 @@ const SUMBER_SEKOLAH = {
   soal: "items",
   sinyal: "integrity_signals",
   definisi: "assessment_definitions",
-  distribusi: "release_distributions",
   keputusan: "management_decisions",
   siklus: "feedback_cycles",
 } as const;

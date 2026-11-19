@@ -9,6 +9,7 @@ import {
   kodeKoreksiDariGalat, kodeSoalDariGalat, type MasalahSoal, type SoalDraf,
 } from "@/lib/soal-kontrak";
 import { LABEL_PILIHAN, alamatSoal, kemasMasalah, soalDariIsian } from "@/lib/soal-layar";
+import { kodeCatatanDariGalat } from "@/lib/catatan-kontrak";
 
 /**
  * C1w on the screens: the item workbench's acts (Daisy, TINJAUAN-A1-C1W Q5 and Q6, O41-19).
@@ -192,4 +193,35 @@ export async function putuskanTinjauanAksi(fd: FormData): Promise<void> {
     back({ tinjau: "gagal", kode, ref: kode === "CORRECTION_FAILED" ? catat("putuskan_tinjauan_sertifikat", error) : undefined, baris: tinjauan ?? undefined });
   }
   back({ tinjau: keputusan === "REVOKED" ? "dicabut" : "dikonfirmasi" });
+}
+
+// ───────────────────────────────────────────────────────────── C2w · «Catatan peninjau» (Daisy, C2W-CATATAN-KATA.md)
+
+/**
+ * One note on one option of a published question, or its replacement: catatan_peninjau_tulis, as the signed-in person.
+ * Who may write (the owning school's CAN_REVIEW; the library's own reviewers), the seal, the option, the text, and the
+ * neighbour who replaced it first are the database's (PR210). The text is never put in the address: a refused form gets
+ * it back from the tab's own storage (SimpanIsian, CR-84 (3)).
+ */
+export async function tulisCatatanAksi(fd: FormData): Promise<void> {
+  const course = id(fd, "course");
+  const item = id(fd, "item");
+  const opsi = /^[A-E]$/.test(str(fd, "opsi")) ? str(fd, "opsi") : null;
+  if (!course) redirect("/studio");
+  const pelajaran = pelajaranDari(fd);
+  if (!item || !opsi) redirect(alamatSoal(course, { pelajaran, c2h: "gagal", c2: "NOTE_NOT_ALLOWED" }));
+  const sasaran = `${item}:${opsi}`;
+  const jangkar = `catatan-${item}-${opsi}`;
+  await wajibDalamKonteks({ sekolah: await sekolahDari("soal", item) }, jangkar);
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc("catatan_peninjau_tulis", {
+    p_item: item, p_opsi: opsi, p_isi: String(fd.get("isi") ?? ""), p_menggantikan: id(fd, "menggantikan"),
+  });
+  if (error) {
+    const kode = kodeCatatanDariGalat(error);
+    const ref = kode === "NOTE_FAILED" ? catat("catatan_peninjau_tulis", error) : undefined;
+    // the form stays open, with its sentence, and the tab puts back what was typed
+    redirect(alamatSoal(course, { pelajaran, c2h: "gagal", c2: kode, catatan: sasaran, ref, jangkar }));
+  }
+  redirect(alamatSoal(course, { pelajaran, c2h: "ok", c2: "TERSIMPAN", c2s: sasaran, jangkar }));
 }
