@@ -53,6 +53,11 @@ export const URUTAN: Record<string, number> = {
   // A3 (Sharon, 547b3707): the recovery permission is read and written only under its sitting's row lock, which is
   // what makes it single-use and "only the newest counts" hold under concurrency; so it ranks after the sitting
   pengerjaan_izin_lanjut: 10,
+  // C3w-1 (Sharon's D-4, C3W-1-DESIGN.md §9; ranks 11 to 13 accepted 19 Nov): every act that moves the AI sums takes the
+  // school's entitlement, then the option (its ceiling is shared across schools), then the platform row
+  ai_hak_sekolah: 11,
+  ai_opsi: 12,
+  ai_plafon_platform: 13,
 };
 /** B1: the fence is the first lock after ranks 1 to 6, for every table. */
 const SIKLUS_HIDUP = 6;
