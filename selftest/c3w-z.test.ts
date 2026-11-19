@@ -97,6 +97,10 @@ export const c3wZAppTests: SelfTest[] = [
         const main = (h.match(/<main\b/g) ?? []).length, isi = (h.match(/\bid="isi"/g) ?? []).length;
         const mainIsi = /<main\b[^>]*\bid="isi"/.test(h);
         const lewati = /<a[^>]*href="#isi"[^>]*>Langsung ke isi</.test(h);
+        // Daisy (via Bob, 19 Nov 11:10): exactly one <h1> on the page, whether the refusal's heading sits under Studio's
+        // header h1 as an h2 or the header steps aside (the key-correction page)
+        const h1 = (h.match(/<h1\b/g) ?? []).length;
+        c.expect(h1 === 1, `${alamat}: ${h1} <h1> on the page (exactly one)`);
         c.expect(main === 1 && isi === 1 && mainIsi && lewati,
           `${alamat}: ${main} <main>, ${isi} id="isi", id="isi" ${mainIsi ? "is" : "is not"} the <main>, skip link ${lewati ? "present" : "absent"} (one of each; the skip link lands on the <main>)`);
         return /<main\b[^>]*\bid="isi"[^>]*>([\s\S]*)<\/main>/.exec(h)?.[1] ?? "";
@@ -129,7 +133,7 @@ export const c3wZAppTests: SelfTest[] = [
       landmark("/studio as a learner (the layout's refusal, outside the frame)", hs);
       c.expect(/<main\b[^>]*\bid="isi"[^>]*class="pin-col"/.test(hs) || /<main\b[^>]*class="pin-col"[^>]*\bid="isi"/.test(hs),
         "outside Studio's frame the refusal no longer draws its own <main id=\"isi\" class=\"pin-col\">");
-      return c.verdict("renders, in the running app (Daisy's three Z-2 conditions): as the bootstrap school's admin, all seven Studio pages and five refusal paths (an unknown and a malformed correction, an unknown package, Kanonik release and lesson preview) each draw exactly one <main>, and it is the only id=\"isi\", the skip link's target; on each refusal the first heading in that <main> is the refusal's, the unknown correction's in Daisy's words with its way back to «Antrean Tinjauan»; a learner opening Studio meets the layout's refusal outside the frame, with its own <main id=\"isi\">");
+      return c.verdict("renders, in the running app (Daisy's three Z-2 conditions): as the bootstrap school's admin, all seven Studio pages and five refusal paths (an unknown and a malformed correction, an unknown package, Kanonik release and lesson preview) each draw exactly one <main>, and it is the only id=\"isi\", the skip link's target, and exactly one <h1>; on each refusal the first heading in that <main> is the refusal's, the unknown correction's in Daisy's words with its way back to «Antrean Tinjauan»; a learner opening Studio meets the layout's refusal outside the frame, with its own <main id=\"isi\">");
     },
   },
 ];

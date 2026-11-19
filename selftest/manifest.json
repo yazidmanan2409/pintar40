@@ -6748,7 +6748,7 @@
     {
       "id": "Z-J01",
       "runner": "app",
-      "proves": "selftest/c3w-z.test.ts, reading the rendered html of the running app's Studio routes: an unknown key correction, an unknown package and a malformed id each draw one <main> and one id=\"isi\"; the unknown correction gets Daisy's one neutral answer."
+      "proves": "selftest/c3w-z.test.ts, reading the rendered html of the running app's Studio routes: all seven Studio pages and five refusal paths each draw one <main>, the only id=\"isi\", the skip link's target, and exactly one <h1> (Daisy, 19 Nov); on each refusal the first heading in that <main> is the refusal's; the unknown correction gets Daisy's one neutral answer; a learner opening Studio meets the layout's refusal with its own <main>."
     },
     {
       "id": "A3-L01",
