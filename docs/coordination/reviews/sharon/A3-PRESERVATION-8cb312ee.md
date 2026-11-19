@@ -93,3 +93,23 @@ Read: `preservation-A3.sql` at `cd7a381c`, sha256 `1bd8b3286c7cdd169ee786a874a2d
 - **All six migration sha256s in the header match `5ae2d406`,** re-hashed by me.
 - **Ruling (a) is stated** (header lines 62–63): 285 left with 200000 applied, a re-run applies the remaining five, and on any failure it stops and reports.
 - **One stale header line, cosmetic:** line 7 says A3 "carries four migrations (three at e6e28e52)". It carries **six**. Fix it in the same follow-up; the query is unaffected.
+
+## Addendum · staging step 0 and the BEFORE read, checked (19 Nov 2026, 05:35 UTC)
+
+Read: `a3-evidence/step0-A3-staging-RESULT.txt` and `preservation-A3-staging-BEFORE.txt` at `38bc0c0b`, both run by Bob under rulings 60 and 61. **Nothing is off.**
+- **Step 0:**
+  - lines 1 and 2 read 0 and 0;
+  - line 4 is **character-identical** to the local 284 reference (`step0-284.txt` at `5ae2d406`);
+  - line 3 reads 158 definitions, 138 roots and 20 with a predecessor.
+- **The BEFORE read is continuous with C2w's AFTER read:**
+  - of 55 shared lines, only line 1 differs, which is the cutoff time, as expected;
+  - line 10 reads 284 / 20270121110000, digest `1374521a…`;
+  - lines 77 to 81 are new. Line 78 reads "158 without a root", line 80 reads 0, and line 81 reads "0 of 1779, ended 0".
+- **The query is the body I re-checked** (`cd7a381c`, with only the header comment corrected).
+- **For the AFTER read, expect:**
+  - line 10 → 290 / 20270121250000;
+  - line 78 → **"0 without a root; 138 are their own root"**, the same as step 0's 138 roots, with the 20 chains each inheriting a root;
+  - lines 80 and 81 still 0;
+  - every other line unchanged.
+
+  Anything else stops the promotion for review.
