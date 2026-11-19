@@ -12,8 +12,8 @@ until the owner approves it.
 | A full uninterrupted pre-flight on the merged head | ✔ 1294/0; plants 175/175; red cases 11/11; DR-D02 passed |
 | The local preservation dry run 284 → 290, with Sharon's six proofs and step 0 | ✔ Sharon diffed it proof by proof |
 | `preservation-A3.sql` re-checked against the frozen head | ✔ Sharon, `A3-PRESERVATION-8cb312ee.md`. **After her check, one header comment was corrected (comment only; the body is unchanged)** |
-| **CI on `5ae2d406`** | ◐ dispatched 19 Nov 02:20 (run id to record) |
-| **The audit journeys on `5ae2d406`** | ◐ dispatched 19 Nov 02:20 (run id to record) |
+| **CI on `5ae2d406`** | ◐ dispatched 19 Nov 02:17 by Bob (CI run 44443166748) |
+| **The audit journeys on `5ae2d406`** | ◐ dispatched 19 Nov 02:17 by Bob (journeys run 44443171111) |
 | **Daisy: the recovery screens' UX review** | ◐ asked 02:16 (a blocker reopens the freeze; minors go to Z) |
 
 ## Request 1 · the read-only staging "before" read, and step 0
