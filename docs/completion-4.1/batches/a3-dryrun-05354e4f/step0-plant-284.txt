@@ -1,0 +1,8 @@
+BEGIN
+n|garis|nilai
+1|definitions with more than one predecessor (must be 0)|1: c45945de-2a47-4606-a5fb-e11577f7730d (2)
+2|definitions that reach no root (a cycle; must be 0)|0
+3|state: definitions, roots, with a predecessor|6, 5, 1
+4|state: row triggers on assessment_definitions (S0-1; must equal the local list at 284, before A3)|4: assessment_definitions_quick_rules_fixed = BEFORE UPDATE ON public.assessment_definitions FOR EACH ROW EXECUTE FUNCTION enforce_quick_rules_fixed_once_sat(); assessment_definitions_status_guard = BEFORE INSERT OR UPDATE ON public.assessment_definitions FOR EACH ROW EXECUTE FUNCTION enforce_content_status(); assessment_definitions_taught_immutable = BEFORE INSERT OR DELETE OR UPDATE ON public.assessment_definitions FOR EACH ROW EXECUTE FUNCTION enforce_taught_content_immutable(); assessment_definitions_tenant_immutable = BEFORE UPDATE ON public.assessment_definitions FOR EACH ROW EXECUTE FUNCTION enforce_record_tenant_immutable()
+(4 rows)
+ROLLBACK
