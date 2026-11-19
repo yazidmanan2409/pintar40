@@ -36,6 +36,7 @@ import { kenaikanAppTests } from "./kenaikan.test";
 import { b0LayarTests } from "./b0-layar.test";
 import { a1LayarTests } from "./a1-layar.test";
 import { a3LayarAppTests } from "./a3-layar.test";
+import { c3wZAppTests } from "./c3w-z.test";
 import { c1wLayarTests } from "./c1w-layar.test";
 import { c2wCatatanLayarTests } from "./c2w-catatan-layar.test";
 import { b1AppTests } from "./b1-layar.test";
@@ -3533,6 +3534,7 @@ export const appTests: SelfTest[] = [
   ...b0LayarTests.filter((x) => x.id !== "B0-K02"),
   ...a1LayarTests.filter((x) => !["A1-K02", "A1-S08", "A1-S09"].includes(x.id)),
   ...a3LayarAppTests,
+  ...c3wZAppTests,
   ...c1wLayarTests.filter((x) => x.id !== "C1W-K02"),
   ...c2wCatatanLayarTests.filter((x) => x.id !== "C2W-K01"),
   // B1 · accountability events through the running app (every sign-in path, a failing writer, the reader)

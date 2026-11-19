@@ -6741,6 +6741,16 @@
       "proves": "executes start_learning_session and may_start_assessment against the migrations, rolled back (the journey J1.6 on 5ae2d406): in a work-scoped planned window over the class a new start with a verified session is refused PR040 MAINTENANCE_PLACE; with no session it is refused first, PR170 SITTING_NOT_CONTROLLER (S11)."
     },
     {
+      "id": "Z-S01",
+      "runner": "static",
+      "proves": "reads the source files of Studio's layout, HalamanPenolakan, every page under src/app/studio, the key-correction page, Kanonik's page and the copy table (Daisy's Z-2, Z-3 revised by V-3, N-6, N-7): every Studio refusal draws inside the layout's one <main id=\"isi\">; the key-correction page gives one neutral answer for an unknown and a forbidden id; Kanonik's withdraw confirmation and select say what Daisy set, word for word."
+    },
+    {
+      "id": "Z-J01",
+      "runner": "app",
+      "proves": "selftest/c3w-z.test.ts, reading the rendered html of the running app's Studio routes: an unknown key correction, an unknown package and a malformed id each draw one <main> and one id=\"isi\"; the unknown correction gets Daisy's one neutral answer."
+    },
+    {
       "id": "A3-L01",
       "runner": "static",
       "proves": "executes pengerjaan_saya and daftar_pengerjaan against the migrations, rolled back: the learner's read says whether this session controls the sitting, whether a teacher must allow a recovery and whether this generation came by a teacher's permission; the teacher's row carries the mode, the learner's request and a valid permission."
