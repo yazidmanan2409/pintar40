@@ -163,7 +163,7 @@ Nothing needs re-planning.
 |---|---|---|
 | `main` | `706fe8c5` | A3's merge |
 | `claude/bob-41-master-plan` | *(this commit)* | All records |
-| `claude/c3w-1` | *(awaiting Second Eye's reply)* | Was `6c10181f` before the WIP push |
+| `claude/c3w-1` | `cd409d03` | Chunk 1 at `d5d69543` (WIP: C3W-D1 red until chunk 2), plus the resume note `batches/c3w-1-RESUME.md`; all pushed (22:56 UTC) |
 | `claude/gracious-lamport-0m1qjr` (Sharon) | `96e86fd2` | Paused, clean and pushed (22:51 UTC) |
 | `ux-1/daisy-experience` (Daisy) | `16b348c0` | Paused, everything pushed, TERIMA included (22:56 UTC) |
 
