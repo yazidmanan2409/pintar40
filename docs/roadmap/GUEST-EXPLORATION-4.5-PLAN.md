@@ -177,9 +177,10 @@ feature for the recipient in their own fresh sandbox. There is no server storage
 
 | # | Decision | Why it is the owner's | Bob recommends |
 |---|---|---|---|
-| **K5** | **Confirm the Vercel plan** the team is on | A Hobby plan is for non-commercial use. A public product evaluation site may need Pro (US$20 / month platform fee, if not already paid) | Confirm. If already Pro: no change |
-| **K6** | **A spending ceiling for the exploration environment** | Recurring spend | A hard ceiling of US$20 / month across both providers (Supabase spend cap on; Vercel on-demand budget with pause), reviewed after the first month |
----
+| **K5** | **Confirm the Vercel plan** (Vercel → Team Settings → Billing) | Bob has no Vercel access, and the repository doesn't record it. If Pro: the exploration site adds no fee, and a **project** budget gives a near-hard cap on it alone. If Hobby: production itself may be outside Hobby's non-commercial terms, which is a matter for the owner beyond Guest Mode | Confirm. No new subscription is assumed |
+| **K6** | **Operating budget: US$20 / month target (owner)** | Recurring spend | **S1, a separate Free-plan Supabase organisation** (US$0, inherently capped, its quotas apart from production's), plus a Vercel project budget with pause and alerts. **No new recurring charge.** S2 or S3 only later, measured, and separately approved |
+| **K7** | **Creating that Free organisation** (when provisioning is authorised) | The coordinator brief forbids new organisations without the owner (D-039) | Approve with the provisioning authorisation; nothing now |
+| **K8** | **The 11 Sep `pintar` project** | It still costs about US$10 / month, and is kept pending the owner's decision. Deleting is irreversible | Separate from Guest Mode. Bob can check, read-only, whether anything still uses it, if the owner wishes |
 
 ## D · Architecture
 
@@ -269,28 +270,56 @@ per fully explored sandbox: 1,000 visitors a month is about 6,000 monthly active
 
 ### D.6 · Recurring cost, resource controls and isolation guarantees (before any provisioning)
 
-**Estimated recurring cost** (list prices, 19 Nov; to confirm on the account's billing pages before provisioning):
+**What we already pay for (verified 19 Nov, read-only):**
+- **Supabase:** one **Pro** organisation with **three** active projects: production, staging, and the original
+  `pintar` project of 11 Sep.
+  - At list prices that is about US$25 for the plan plus about US$10 compute per project, less the US$10 compute
+    credit: **about US$45 a month today.**
+  - The 11 Sep project was kept pending the owner's decision (D-039; the coordinator brief: "do not delete").
+- **Vercel:** **the plan is not recorded anywhere in the repository,** and Bob has no Vercel access. The last clue is
+  29 Sep: staging was frozen by "the plan's daily [deployment] allowance" (D-062), which matches the Hobby plan at that
+  time. D-039 noted that production "needs Vercel Pro before 1 Nov, because the Hobby plan is for non-commercial use".
+  **The owner confirms** under Vercel → Team Settings → Billing (K5).
 
-| Item | Estimate | Note |
+**Spending limits: what is genuinely hard**
+
+| Provider | Hard limit available? | Effect for the exploration environment |
 |---|---|---|
-| Supabase: one more project, default compute size (Micro) | **about US$10 / month** | Pro organisations pay about US$10 per extra project, billed hourly; the included compute credit already covers one project |
-| Supabase: disk, auth users, egress | US$0 at the expected scale | Inside the per-project inclusions (8 GB disk, 100,000 MAU) |
-| Vercel: a third project on the existing team | **US$0 fixed** | The Pro plan has no per-project fee. Usage draws on the team's shared monthly credit, with on-demand billing beyond it. **The team's current plan must be confirmed** (a Hobby plan is for non-commercial use) |
-| The exploration address | US$0 | A subdomain of the existing domain |
-| **Total at launch scale** | **about US$10 / month,** plus any Vercel usage beyond the shared credit | Bounded by the controls below |
+| Supabase compute | **No.** Compute hours are never covered by the spend cap | Fixed and predictable: about US$10 a month per project on a paid organisation |
+| Supabase usage (disk, egress, MAU, storage) | **Yes,** the spend cap. But it acts on **organisation-wide** quotas | In the Pro organisation, a busy public site could use up quotas production depends on (egress, MAU), and the cap would then restrict production too. **A real cross-effect: avoid it** |
+| Vercel (Pro) | **Near-hard:** a **project** budget pauses that project only, a few minutes after reaching the amount | Set on the exploration project alone, below the real maximum because of the lag. Production is untouched |
+| Vercel (Hobby) | Inherent limits, no billing | Non-commercial use only; not suitable for a public product-evaluation site |
 
-**Resource controls:**
+**The hosting options for the exploration database:**
+
+| Option | New recurring cost | Hard limit | Separation | Bob's view |
+|---|---|---|---|---|
+| **S1 · A separate Free-plan Supabase organisation** | **US$0** | **Yes, inherent:** the Free plan cannot be billed | Full: its own quotas, so nothing it does can touch production's | **Recommended for launch.** Limits to respect: a 500 MB database (the lean template fits, §D.5); smaller shared compute; about 50,000 MAU (about 8,000 fully explored visits a month); 5 GB egress; a pause after 7 days without activity (a public site stays active; the watch reports a pause). Its capacity is measured in G5. Creating an organisation needs the owner (coordinator brief, D-039) |
+| S2 · Replace the 11 Sep project inside the Pro organisation | **US$0 net** | Compute no; usage yes, but organisation-wide | Shares production's organisation quotas: needs in-app caps well below them | Only if S1's capacity proves too small. Deleting the old project is irreversible: owner |
+| S3 · A new project in the Pro organisation | **About +US$10 / month** | As S2 | As S2 | Needs separate approval of the new charge |
+
+**At launch, with S1 and a Vercel Pro project budget: about US$0 of new recurring cost.** The US$20 / month target is
+headroom, not an expected charge. Moving to S2 or S3 is a later, measured decision.
+
+**Resource controls (revised for shared school networks):**
+
+A school's whole computer lab may sit behind one public address, so a low per-address limit would block exactly the
+visitors we want. The scarce resources are **live sandboxes and database load,** not claims. Controls therefore centre
+on those:
 
 | Control | Setting (proposed; Sharon to confirm) |
 |---|---|
-| Live sandboxes | Hard cap of 200. At the cap, entry says «Eksplorasi sedang penuh» |
-| Claims | At most 5 an hour per address, and a global hourly cap |
-| Per-sandbox quotas | Studio items, imports (size and count), assignments and sittings, each capped at a few times the template's size |
-| Request rate | A per-address limit at the proxy, plus Vercel's spend controls (a hard on-demand budget that pauses the project at 100%) |
-| Supabase spend cap | On (the default), so usage-based overage can't accrue |
-| Lifetime and purge | 2 h idle, 24 h maximum, a purge every 15 minutes, and an idempotent retry |
-| A kill switch | One setting turns the entry page into «Eksplorasi ditutup sementara» while leaving live sandboxes to expire |
-| Operational counts only | Claims, live sandboxes, database size and purge results, read daily. No behaviour data |
+| **One sandbox per browser** | A second «Jelajahi PINTAR» click in the same browser resumes the same exploration. A real person never holds many |
+| **Unused sandboxes recycled fast** | A sandbox with no action in its first 10 minutes is purged early, so automated claim-and-leave traffic costs little |
+| **Per-address ceiling: generous** | Up to 60 live sandboxes per address (a full computer lab), and up to 60 new claims per 10 minutes. Beyond that, a calm sentence: «Banyak yang sedang mencoba dari jaringan ini. Silakan coba lagi sebentar lagi.» Never an error page, and never a block on later visits |
+| **A global capacity guard** | A cap on live sandboxes (start at 200, sized to S1's database and measured). At the cap, entry pauses with «Eksplorasi sedang penuh» and reopens automatically below it |
+| **Per-sandbox quotas** | Studio items, imports (size and count), assignments, sittings; each a few times the template's size |
+| **Request rate per guest session** | A per-session limit at the proxy, which an abuser can't widen by sharing an address |
+| **No CAPTCHA by default** | It adds friction, a third party and a privacy question for children. An invisible challenge is held in reserve, only if abuse is actually observed (an owner decision then) |
+| **Lifetime and purge** | 2 h idle, 24 h maximum, a purge every 15 minutes, idempotent retry |
+| **Spending** | S1's inherent Free limits. A Vercel **project** budget on the exploration project only, with pause on and set below the target to allow for the lag, plus Vercel's usage alerts at 50%, 75% and 100% |
+| **A reliable entry shutdown** | A single flag **in the exploration database** (not a deployment setting, which would need a redeploy), read on every entry. It is flipped by an owner-dispatched workflow and by the automatic guards (the capacity cap; the database-size threshold). Closing entry leaves live sandboxes to finish and expire |
+| **Alerts** | A scheduled read-only check (the production-watch pattern, PR-4) reports claims, live sandboxes, database size, purge health and a paused project. It fails visibly, which notifies the owner, when a threshold is crossed |
 
 **Isolation guarantees, and how each is proved:**
 
@@ -302,6 +331,24 @@ per fully explored sandbox: 1,000 visitors a month is about 6,000 monthly active
 | Guests can't see each other | The school tenant boundary and RLS | G18, G-S10 |
 | A signed-in real user stays untouched | Another address, so other cookies | G23 |
 
+
+### D.7 · The guest-checkout principle (owner, 19 Nov)
+
+**A visitor clicks and is exploring immediately: no account, no registration, no setup, no unnecessary waiting.**
+
+- **The first click is the choice.** The exploration page shows the four perspective cards themselves, each its own
+  «Jelajahi sebagai …» action. One click claims a pooled sandbox, mints the session and opens that role's home. No
+  intermediate screen, form, terms click or tour is forced.
+- **A notice, not a gate.** One quiet line under the cards («Data contoh; perubahan Anda tidak disimpan permanen.»).
+  Any notice counsel requires (K4) is shown the same way, never as a click-through, unless counsel says otherwise.
+- **Speed targets:**
+  - **p95 under 2 s** from click to the role's home, from the pool;
+  - **under 5 s** if the pool is empty but capacity remains, because the copy is then made on the spot, with a quiet
+    «Menyiapkan sekolah contoh…» line rather than a refusal.
+- **"Full" only at the global cap.** A visitor is refused only when capacity is truly exhausted, and told when to try
+  again.
+- **A feature link is just as direct.** One click on the shared link opens the feature in the recipient's new sandbox.
+- **Nothing is asked of the visitor at any point:** no name, email, school or age. The personas carry fictional names.
 ---
 
 ## E · Human journeys (free first; suggestions optional)
@@ -635,6 +682,12 @@ dataset, which the journeys run checks.
 | **G-R9** | **Abuse: hostile content** | Script or markup typed into Studio renders as text on screen, in the PNG and in the PDF |
 | **G-R10** | **The kill switch** | Turning it on closes entry with the sentence. Live sandboxes keep working until they expire. Turning it off restores entry |
 | **G-R11** | **Spend controls** | With a test budget set low, reaching it pauses the exploration project's usage. The real projects are unaffected |
+| **G-R12** | **A school lab behind one address** | 40 claims from one address within 5 minutes all succeed. Each browser gets its own sandbox |
+| **G-R13** | **The entry shutdown** | The owner's workflow closes entry within a minute, without a redeploy. The automatic guard closes it at the cap and reopens below it |
+| **G-R14** | **Alerts** | A crossed threshold (forced in a test) makes the scheduled check fail visibly |
+| **G-T1** | **Guest checkout: speed** | From the pool, click to the role's home in under 2 s at p95 (measured on the exploration environment, from Indonesia where possible, PR-20) |
+| **G-T2** | **Guest checkout: an empty pool** | With capacity left, an on-the-spot copy opens the home in under 5 s, with the «Menyiapkan…» line |
+| **G-T3** | **Guest checkout: no gate** | From the exploration page to a working role home in exactly one click; no form, field, consent click or forced tour |
 
 **Human acceptance (owner's measure):**
 - At least six observed visitors across the perspectives, each given only the entry address. Adults only; any minor
