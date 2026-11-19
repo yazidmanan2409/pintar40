@@ -163,6 +163,22 @@ feature for the recipient in their own fresh sandbox. There is no server storage
 | **K3** | **What "register" means today** (no self-registration exists) | (a) **A contact route:** the PINTAR team's published contact (email or WhatsApp) shown on «Gunakan PINTAR». No data is collected in PINTAR. (b) An **institution inquiry form:** new personal-data collection, so counsel first (PR-1). (c) **Self-service school founding:** a new capability; large; not 4.5-sized | **(a) for the first release,** (b) later if counsel clears it. A visitor's guest work never carries over (directed) |
 | **K4** | **Children on a public page** | The Peserta Didik perspective is open to anyone, including children. Guest Mode collects no personal data: fictional identities only, no free-text fields beyond answers and Studio content, no contact, no tracking. It still becomes a public online service in Indonesia | **Allow, as designed,** and add three questions to the pilot's legal list (§H): PSE registration for a public service; whether minors may use an anonymous demonstration; the hosting notice |
 
+
+**Owner's direction, 19 Nov (ruling 66; planning only):**
+- **K1: approved as the preferred direction,** subject to security, feasibility and operational verification. The
+  necessity of a school per visitor is examined in §D.5.
+- **K2: approved in principle.** Costs, controls and guarantees are in §D.6, and come before any provisioning.
+- **K3: the existing contact route.** «Gunakan PINTAR» says plainly: «Ini bukan pendaftaran. Hubungi tim PINTAR untuk
+  menggunakan PINTAR di institusi Anda.» No form; nothing collected.
+- **K4: supported in principle,** subject to privacy, safeguarding and legal review before release (§H; pilot legal
+  list).
+
+**Still open, and the owner's (needed before provisioning, not before planning):**
+
+| # | Decision | Why it is the owner's | Bob recommends |
+|---|---|---|---|
+| **K5** | **Confirm the Vercel plan** the team is on | A Hobby plan is for non-commercial use. A public product evaluation site may need Pro (US$20 / month platform fee, if not already paid) | Confirm. If already Pro: no change |
+| **K6** | **A spending ceiling for the exploration environment** | Recurring spend | A hard ceiling of US$20 / month across both providers (Supabase spend cap on; Vercel on-demand budget with pause), reviewed after the first month |
 ---
 
 ## D · Architecture
@@ -220,6 +236,71 @@ Public site ──► «Jelajahi PINTAR» (exploration address, separate project
 | Studio free text | A visitor can type anything | Only that visitor sees it, and it is purged | No moderation is needed. No publication leaves the sandbox. No print carries a real school's identity |
 | Two-person approval | A guest wants to publish their own draft | The real rule needs a second educator | The guest switches to the reviewer persona, labelled «Anda kini bertindak sebagai peninjau (orang kedua)». It shows the rule rather than bypassing it |
 | Account lifecycle actions (deactivate, anonymise) | A guest anonymises a persona | That persona becomes unusable for the rest of the exploration | Allowed. «Mulai ulang» gives a fresh school. The perspective screen offers only intact personas |
+
+### D.5 · Is a school per visitor necessary? (owner, ruling 66)
+
+**Yes, as the unit of isolation. But the school is small and short-lived, so its marginal cost is close to nothing.
+The recurring cost is the project itself (§D.6), not the visitors.**
+
+| Model | What visitors share | Fidelity | Verdict |
+|---|---|---|---|
+| **M1 · A school per visitor** (from a lean template) | Nothing | Full, for all four perspectives | **Recommended** |
+| M2 · A class per visitor in one shared school | The school's pass mark, roles, maintenance windows, Studio content (school-owned) and every school-level figure | The leader's and admin's views mix strangers' actions. One guest's pass-mark change alters everyone's results. Studio edits leak between guests | Rejected: fails isolation and the Institusi perspective |
+| M3 · One shared school, read-only, with personal sittings only | Everything except a learner's own sitting | Educators can't edit, publish or assign; admins can't administer | Rejected: fails the self-service objective |
+| M4 · A database branch or schema per visitor | Nothing | Full | Rejected: far heavier to create and remove than rows, for no gain over M1 |
+
+**Why the school is the right unit.** In PINTAR the school is already the tenant boundary. RLS, settings, the pass mark,
+Studio content, roles and every aggregate are school-scoped. Anything smaller than a school forces strangers to share
+state; anything larger adds machinery.
+
+**How M1 is kept cheap:**
+1. **A lean template:** one school, two classes, about 30 fictional learners, one chapter, a few hundred items and
+   sittings. Bob's estimate is a few thousand rows and well under 1 MB per sandbox, to be measured in G1.
+2. **Personas created lazily.** A visitor who stays a learner never gets the other personas. Each perspective's persona
+   is created the first time it is opened.
+3. **A small pool** (10, refilled in the background), so the copy is never on the visitor's path.
+4. **A short lifetime** (2 h idle, 24 h maximum) and a complete purge.
+5. **Shared platform content, if the schema allows it.** Where content is platform-level (O41-18), the sandbox reads the
+   one shared copy instead of copying it. G1 opens with a one-day feasibility spike to establish what may safely be
+   shared read-only, and that nothing a guest can change is shared.
+
+**At a cap of 200 live sandboxes:** a few hundred MB at most, inside the plan's included 8 GB disk. About 6 auth users
+per fully explored sandbox: 1,000 visitors a month is about 6,000 monthly active users, inside the included 100,000.
+
+### D.6 · Recurring cost, resource controls and isolation guarantees (before any provisioning)
+
+**Estimated recurring cost** (list prices, 19 Nov; to confirm on the account's billing pages before provisioning):
+
+| Item | Estimate | Note |
+|---|---|---|
+| Supabase: one more project, default compute size (Micro) | **about US$10 / month** | Pro organisations pay about US$10 per extra project, billed hourly; the included compute credit already covers one project |
+| Supabase: disk, auth users, egress | US$0 at the expected scale | Inside the per-project inclusions (8 GB disk, 100,000 MAU) |
+| Vercel: a third project on the existing team | **US$0 fixed** | The Pro plan has no per-project fee. Usage draws on the team's shared monthly credit, with on-demand billing beyond it. **The team's current plan must be confirmed** (a Hobby plan is for non-commercial use) |
+| The exploration address | US$0 | A subdomain of the existing domain |
+| **Total at launch scale** | **about US$10 / month,** plus any Vercel usage beyond the shared credit | Bounded by the controls below |
+
+**Resource controls:**
+
+| Control | Setting (proposed; Sharon to confirm) |
+|---|---|
+| Live sandboxes | Hard cap of 200. At the cap, entry says «Eksplorasi sedang penuh» |
+| Claims | At most 5 an hour per address, and a global hourly cap |
+| Per-sandbox quotas | Studio items, imports (size and count), assignments and sittings, each capped at a few times the template's size |
+| Request rate | A per-address limit at the proxy, plus Vercel's spend controls (a hard on-demand budget that pauses the project at 100%) |
+| Supabase spend cap | On (the default), so usage-based overage can't accrue |
+| Lifetime and purge | 2 h idle, 24 h maximum, a purge every 15 minutes, and an idempotent retry |
+| A kill switch | One setting turns the entry page into «Eksplorasi ditutup sementara» while leaving live sandboxes to expire |
+| Operational counts only | Claims, live sandboxes, database size and purge results, read daily. No behaviour data |
+
+**Isolation guarantees, and how each is proved:**
+
+| Guarantee | Mechanism | Proof |
+|---|---|---|
+| No real data can be present | A separate project. The template is built only from repository seed files. No workflow can read staging or production into it | Sharon's review; the dataset build script; G-X4 |
+| Exploration mode can't run elsewhere | A guard in code and a database trigger refuse the production and staging refs. The normal deployment never has the setting | G-X4, G-X5 |
+| No credentials of other environments | The exploration deployment holds only its own project's keys. No SMTP, no AI keys | Sharon's environment check; G-X7 |
+| Guests can't see each other | The school tenant boundary and RLS | G18, G-S10 |
+| A signed-in real user stays untouched | Another address, so other cookies | G23 |
 
 ---
 
@@ -488,7 +569,7 @@ journeys run (§K).
 | Batch | Objective and scope | Depends on | Owner(s) | Deliverables | Completion gate | Effort |
 |---|---|---|---|---|---|---|
 | **G0 · Decide and record** | K1–K4; ADR-0021 (exploration environment); the roadmap amendment; ADR-0006's note | Owner | Bob; Sharon reviews the ADR | ADR, amendment, rulings | Owner approval | 2 d |
-| **G1 · The exploration environment** | Project and deployment setting; the production guard; sandbox template, pool, claim and purge; guest sessions on ADR-0020's path; email and AI absent; rate limits | G0; the project (owner) | Second Eye builds; Sharon reviews (H-1 to H-8, H-15) | Workflow, migrations behind the setting, red-first tests | Sharon PASS; G17, G18, G-X1 to G-X6 green | 8–10 d |
+| **G1 · The exploration environment** | A one-day feasibility spike (§D.5: what may be shared read-only; template size; copy time). Then the project and deployment setting; the production guard; sandbox template, pool, claim and purge; guest sessions on ADR-0020's path; email and AI absent; rate limits | G0; the project (owner) | Second Eye builds; Sharon reviews (H-1 to H-8, H-15) | Workflow, migrations behind the setting, red-first tests | Sharon PASS; G17, G18, G-X1 to G-X6 green | 8–10 d |
 | **G2 · The canonical dataset** | Extend the seed into a versioned template; generate cohort sittings through the engine; the sparse class; Studio items in every state | G1's template format | Bob drafts; Dr Gladys checks meaning; Second Eye builds | Dataset build script, version, checksums | G07, G24 green; Dr Gladys's note | 4–5 d |
 | **G3 · Entry, perspectives and the band** | The eight new screens and controls (§F) | G1; Daisy's designs | Daisy designs; Second Eye builds | Screens, `hle.ts` words | Daisy PASS; G01–G06, G11–G16, G20 green | 6–7 d |
 | **G4 · Simulation seams** | Prepared AI drafts; on-screen email; specimen certificate and verification; «Laporkan masalah» explained | G1; D2-R; C3w-1 accepted | Second Eye; Daisy words; Sharon H-9, H-10 | Seams, each labelled | G21, G22 green; Sharon PASS | 3–4 d |
@@ -543,6 +624,17 @@ dataset, which the journeys run checks.
 | G-S11 | One message carries both | The share sheet's payload holds the file and the feature link. On the fallback, the same panel offers download and copy |
 | G-S12 | Link stability | Every registry name (including aliases and tombstones) resolves to a living page on the release candidate; a deliberately retired name lands on its fallback with the "berubah" line |
 | G-S13 | No tracking | The link and the landing request carry no sender, referral or hop data (inspect the URL and logs) |
+| **G-R1** | **Resource exhaustion: sandbox cap** | Claims beyond 200 live sandboxes get «Eksplorasi sedang penuh». No partial school is created. Existing guests are unaffected |
+| **G-R2** | **Resource exhaustion: a burst** | 300 claims in a minute from many addresses: the pool drains, then the global cap holds. The database stays under its connection limit. The site recovers once the pool refills |
+| **G-R3** | **Per-sandbox quota** | A script creating Studio items and imports past the quota is refused with a plain sentence. Other sandboxes' response times stay within target |
+| **G-R4** | **Abandoned sessions** | A sandbox left idle for 2 h is purged on the next run. One with an open sitting is purged only after the sitting ends or its own limit passes. An independent count shows no remaining rows |
+| **G-R5** | **Purge failure** | A purge interrupted mid-way leaves the sandbox unreachable and is completed by the next run (idempotent). No orphan rows after two runs |
+| **G-R6** | **Failed provisioning** | A copy failing mid-way (forced in a test) rolls back completely. The visitor gets the next pooled school or the "full" sentence. Never a half-built school |
+| **G-R7** | **Abuse: one address** | Repeated claims from one address are refused after 5 an hour. The claims of other addresses are unaffected |
+| **G-R8** | **Abuse: reaching beyond the sandbox** | Direct API calls with a guest token to another sandbox's ids, to operator functions and to staff-only RPCs are all refused (RLS and grants) |
+| **G-R9** | **Abuse: hostile content** | Script or markup typed into Studio renders as text on screen, in the PNG and in the PDF |
+| **G-R10** | **The kill switch** | Turning it on closes entry with the sentence. Live sandboxes keep working until they expire. Turning it off restores entry |
+| **G-R11** | **Spend controls** | With a test budget set low, reaching it pauses the exploration project's usage. The real projects are unaffected |
 
 **Human acceptance (owner's measure):**
 - At least six observed visitors across the perspectives, each given only the entry address. Adults only; any minor
@@ -595,8 +687,8 @@ dataset, which the journeys run checks.
 
 ## M · Final recommendation
 
-1. **The owner decides K1–K4.** Bob recommends a real-engine disposable sandbox, a separate project and address, a
-   contact route for "register", and children allowed subject to the legal questions.
+1. **K1–K4 are directed** (ruling 66). **K5 and K6** (the Vercel plan and a spending ceiling) are needed before any
+   provisioning, not before planning.
 2. On approval, G0 is recorded (ADR-0021, the roadmap amendment).
 3. Sharon reviews §H and Daisy §F/§E **after their 4.1 work, without delaying C3w-1 or Z.**
 4. The build (G1–G5) starts early in 4.5, after 4.1's acceptance, under 4.5's own implementation authorisation.
