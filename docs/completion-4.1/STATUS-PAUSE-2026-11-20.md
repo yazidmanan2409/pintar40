@@ -165,7 +165,7 @@ Nothing needs re-planning.
 | `claude/bob-41-master-plan` | *(this commit)* | All records |
 | `claude/c3w-1` | *(awaiting Second Eye's reply)* | Was `6c10181f` before the WIP push |
 | `claude/gracious-lamport-0m1qjr` (Sharon) | `96e86fd2` | Paused, clean and pushed (22:51 UTC) |
-| `ux-1/daisy-experience` (Daisy) | *(awaiting reply)* | |
+| `ux-1/daisy-experience` (Daisy) | `16b348c0` | Paused, everything pushed, TERIMA included (22:56 UTC) |
 
 ---
 
