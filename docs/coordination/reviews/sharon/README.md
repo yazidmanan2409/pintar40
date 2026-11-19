@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| A3 staging promotion (284 → 290) | PASS: merge tree = 5755c6c2 exactly; 290 migrations; only lines 10 (digest 112cb5e9… = dry run) and 78 (0 without a root; 138 roots) move. Acceptance rests on the hosted checks (environment-facts) being green | `706fe8c5af8ed4ad3908cd556472938538dff087` | `A3-PROMOTION-706fe8c5.md` |
 | A3 chunk 2: merge and dry run 284→290 | PASS; A3 MAY FREEZE at 5ae2d406. The merge is clean (A3 migrations identical; hle a union; L01 +1 C2w line); pre-flight green, DR-D02 passed. All six proofs and step 0 hold. Accepted: add lanjut_diminta_pada to baru (I missed it). Ruled (a): a failure at 210000 leaves 285, gated by step 0 | `5ae2d406` / `05354e4ff9032054e71f089d5347988dc1aacf82` | `A3-DIFFS-671175e4.md` |
 | A3 S3, S7, S8, D9 (381aa196..c0cce607) | PASS. R-1 and R-2 met; P14–P17 as asked. c0cce607 needs its own full pre-flight. D9: (a), with an app test that the next seq after a recovery is above all held; the residual is stated as self-limited | `c0cce607` | `A3-DIFFS-671175e4.md` |
 | A3 recovery acts built (20270121240000) | PASS on the mechanism; orders match §2, §3 and §3a; the permission is consumed last. R-1: minta's valid-permission leg must be RECOVERY_NOT_NEEDED. R-2: P08's description over-claims (the refusal rolls the deadline ending back; the sweep ends it) | `381aa196e1e34629f32dee70b56cddd81ed04164` | `A3-DIFFS-671175e4.md` |
