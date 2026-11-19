@@ -141,7 +141,8 @@ export const retroTests: SelfTest[] = [
       c.expect(sebaris <= Object.keys(SEBARIS).length + 1, `${sebaris} bare empty sentences found; ${Object.keys(SEBARIS).length} are declared`);
       // a package that is not there, or not the reader's, is refused, never said as empty (Kosong's rule)
       const paketHal = readFileSync(join(repoRoot, "src/app/studio/paket/[course]/page.tsx"), "utf8");
-      c.expect(/if \(!course\) \{[\s\S]{0,300}?return <HalamanPenolakan locale=\{locale\} persona="staff" backHref="\/studio" backKey="studio\.nav\.beranda" \/>;/.test(paketHal),
+      // RESTATED FOR Z-2 (C3w-1): the refusal draws inside Studio's own <main> (dalamBingkai)
+      c.expect(/if \(!course\) \{[\s\S]{0,300}?return <HalamanPenolakan locale=\{locale\} persona="staff" backHref="\/studio" backKey="studio\.nav\.beranda" dalamBingkai \/>;/.test(paketHal),
         "a package that cannot be read is said as «Belum ada paket di sini.», an empty state standing for a refusal");
       // the refusal is never drawn as empty (Kosong's rule; S-2)
       const ub = readFileSync(join(repoRoot, "src/app/pimpinan/[simpul]/umpan-balik/kelas/[kelas]/page.tsx"), "utf8");
