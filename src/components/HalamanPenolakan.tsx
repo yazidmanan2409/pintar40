@@ -28,6 +28,7 @@ export default function HalamanPenolakan({
   backHref = "/belajar",
   backKey,
   backLabel,
+  dalamBingkai = false,
 }: {
   messageKey?: HleEvent;
   locale?: Locale;
@@ -36,10 +37,14 @@ export default function HalamanPenolakan({
   backKey?: HleEvent;
   /** E-K1: the destination's own name, already in the reader's language, when it is a page and not a place (a class). */
   backLabel?: string;
+  /** Z-2 (Daisy, X-1): drawn inside a layout that already provides <main id="isi"> (Studio's), so a <div>, never a
+   *  second main landmark or skip-link target; MemuatHalaman's own dalamBingkai does the same for the loading shell */
+  dalamBingkai?: boolean;
 }) {
   const s = (k: HleEvent) => t(k, persona, { locale });
+  const Bungkus = dalamBingkai ? "div" : "main";
   return (
-    <main id="isi" tabIndex={-1} className="pin-col">
+    <Bungkus id={dalamBingkai ? undefined : "isi"} tabIndex={dalamBingkai ? undefined : -1} className="pin-col">
       <section className="pin-refusal">
         <MerekPintar standalone />
         <h1>{s(messageKey)}</h1>
@@ -52,6 +57,6 @@ export default function HalamanPenolakan({
       </section>
 
       <KakiPintar className="pin-noprint" />
-    </main>
+    </Bungkus>
   );
 }

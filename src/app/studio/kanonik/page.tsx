@@ -169,7 +169,7 @@ export default async function Kanonik({ searchParams }: { searchParams: Search }
           {izinBerlaku.length > 0 ? (
             <form action={withdrawDistributionAction} id="izin-tarik" className="pin-baris-aksi">
               <label className={label}>
-                <span>{s("studio.paket.judul")}</span>
+                <span>{s("studio.kanonik.izin_berlaku")}</span>
                 <select className={field} name="distribusi" defaultValue="" required>
                   <option value="" disabled>—</option>
                   {izinBerlaku.map((d) => <option key={d.id} value={d.id}>{d.nama}</option>)}
@@ -180,7 +180,7 @@ export default async function Kanonik({ searchParams }: { searchParams: Search }
                 <input className={field} name="alasan" required />
               </label>
               <KonfirmasiBahaya sibuk={s("tombol.memproses")} id="izin-tarik" tombol={s("studio.paket.tarik")} tanya={s("studio.kanonik.tarik.tanya")}
-                akibat={<p>{s("studio.kanonik.ditarik")}</p>} ya={s("studio.paket.tarik")} batal={s("bahaya.batal")} />
+                akibat={<p>{s("studio.kanonik.tarik.akibat")}</p>} ya={s("studio.paket.tarik")} batal={s("bahaya.batal")} />
             </form>
           ) : null}
           {izinBerlaku.length > 0 ? <SimpanIsian form="izin-tarik" ditolak={ditolak("izin-tarik")} pemilik={pemilik} /> : null}

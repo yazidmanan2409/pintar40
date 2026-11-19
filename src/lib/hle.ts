@@ -668,6 +668,9 @@ export type HleEvent =
   | "studio.kunci.tolak.ok"
   | "studio.kunci.halaman"
   | "studio.kunci.kembali_antrean"
+  | "studio.kunci.tidak_dapat_dibuka"
+  | "studio.kanonik.tarik.akibat"
+  | "studio.kanonik.izin_berlaku"
   | "studio.kunci.tidak_ada"
   | "config.tinjau_sertifikat.judul"
   | "config.tinjau_sertifikat.arti"
@@ -4543,6 +4546,9 @@ const table: Table = {
   "studio.kunci.terkirim": { default: "Perbaikan terkirim untuk dikonfirmasi orang kedua.", en: "The correction was sent for a second person to confirm." },
   "studio.kunci.tolak.ok": { default: "Perbaikan ditolak. Pengusulnya melihat alasan Anda.", en: "The correction was declined. Its proposer sees your reason." },
   "studio.kunci.halaman": { default: "Perbaikan kunci jawaban", en: "Answer-key correction" },
+  "studio.kunci.tidak_dapat_dibuka": { default: "Koreksi ini tidak dapat dibuka. Mungkin sudah tidak ada, atau bukan untuk Anda.", en: "This correction cannot be opened. It may no longer exist, or it is not for you." },
+  "studio.kanonik.tarik.akibat": { default: "Sekolah itu tidak dapat membuka pengerjaan baru dengan paket ini lagi. Murid yang sedang mengerjakan tetap bisa menyelesaikannya.", en: "That school can no longer open new sittings with this package. Students already working on it can still finish." },
+  "studio.kanonik.izin_berlaku": { default: "Izin yang berlaku", en: "Current permissions" },
   "studio.kunci.kembali_antrean": { default: "Antrean Tinjauan", en: "Review queue" },
   "studio.kunci.tidak_ada": { default: "Perbaikan ini tidak ditemukan.", en: "This correction was not found." },
   "config.tinjau_sertifikat.judul": { default: "Sedang ditinjau ({n})", en: "Under review ({n})" },

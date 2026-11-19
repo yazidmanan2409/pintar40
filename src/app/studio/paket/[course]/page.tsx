@@ -109,7 +109,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
   if (!course) {
     // a package that is not there, or not this reader's (row security hides both alike), is refused, never said as
     // empty (Kosong's rule; the same answer Mengajar gives a class it cannot read)
-    return <HalamanPenolakan locale={locale} persona="staff" backHref="/studio" backKey="studio.nav.beranda" />;
+    return <HalamanPenolakan locale={locale} persona="staff" backHref="/studio" backKey="studio.nav.beranda" dalamBingkai />;
   }
   // the owner's ruling (10 Nov): every moment of the package on its school's clock
   const zona = await zonaSekolah(supabase, course.institution_id);
