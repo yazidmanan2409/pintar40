@@ -4,7 +4,7 @@
 --
 -- THE PAIR IS 284 -> 290 (restated 19 Nov 00:12 after Sharon's check: claude/a3 now carries SIX migrations, so main's 284
 -- plus six is 290; earlier 284 -> 288 for four, first written 284 -> 287). A3 merges after C2w (the plan). claude/a3 at e6e28e52 branches from main
--- (1b1cada8, 282) and carries four migrations (three at e6e28e52), so Second Eye's "284 -> 285" counts A3's own chain from main. Once C2w
+-- (1b1cada8, 282) and now carries six migrations (four earlier, three at e6e28e52), so Second Eye's "284 -> 285" counts A3's own chain from main. Once C2w
 -- has landed, staging holds 284 and A3 adds:
 --   * 20270121200000_the_start_lock_covers_what_the_attempt_count_counts (sha256 17a8c527f2bfeb51...);
 --   * 20270121210000_attempts_count_across_an_assessments_versions (sha256 c88630e7a3fba12d...);
