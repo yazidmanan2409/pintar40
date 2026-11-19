@@ -344,19 +344,23 @@ create temp table j16 on commit drop as select aa.* from public.assessment_assig
  where aa.institution_id = ${lit(siklus)} and d.mode = 'PRE_TEST' and aa.status = 'OPEN' order by aa.id limit 1;
 create temp table j16d on commit drop as select d.* from public.assessment_definitions d where d.id = (select assessment_definition_id from j16);
 update j16d set id = gen_random_uuid(), title = title || ' (jalan J1.6)';
+update j16d set lineage_root_definition_id = id;
 insert into public.assessment_definitions select * from j16d;
 update j16 set id = gen_random_uuid(), assessment_definition_id = (select id from j16d);
 insert into public.assessment_assignments select * from j16;
 set local session_replication_role = origin;
+-- A3 (S11; A3-M01): every signed-in request carries its Auth session; a start with none is no writer and is refused
+-- first. The learner's claims are given one, as the app's own token gives it
+select set_config('j16.sesi', gen_random_uuid()::text, true);
 create function pg_temp.j16_mulai() returns text language plpgsql as $c$
 declare s text; d text;
 begin
-  perform set_config('request.jwt.claims', json_build_object('sub', (select id from auth.users where email = ${lit(MURID.email)}), 'role', 'authenticated')::text, true);
+  perform set_config('request.jwt.claims', json_build_object('sub', (select id from auth.users where email = ${lit(MURID.email)}), 'role', 'authenticated', 'session_id', (select current_setting('j16.sesi')))::text, true);
   perform public.start_learning_session((select id from j16));
   return 'OK';
 exception when others then get stacked diagnostics s = returned_sqlstate, d = pg_exception_detail; return s || ':' || coalesce(d, '');
 end $c$;
-select 'klaim|' || set_config('request.jwt.claims', json_build_object('sub', (select id from auth.users where email = ${lit(MURID.email)}), 'role', 'authenticated')::text, true);
+select 'klaim|' || set_config('request.jwt.claims', json_build_object('sub', (select id from auth.users where email = ${lit(MURID.email)}), 'role', 'authenticated', 'session_id', (select current_setting('j16.sesi')))::text, true);
 select 'boleh|' || (select m.reason from public.may_start_assessment((select id from j16)) m);
 select 'mulai|' || pg_temp.j16_mulai();
 rollback;`);

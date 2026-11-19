@@ -19,6 +19,14 @@ export const KODE_PENGERJAAN_DB = [
   // A2a D6.2: the class is stopped (Daisy's teacher line, «{kelas}» filled by the screen); the fence busy (her line);
   // held by a stop (the guard's code: it reaches a screen only through a path no act takes, said as the stopped class)
   "SITTING_CLASS_STOPPED", "SITTING_FENCE_BUSY", "SITTING_EMERGENCY_HELD",
+  // A3 (D12): the sitting is written by another signed-in session (another device, a re-sign-in, or none). Daisy's
+  // neutral sentence (A3-KODE-PEMULIHAN.md §5), rendered quiet: role="status", no error colour; the screens add the
+  // old session's panel title and its button
+  "SITTING_NOT_CONTROLLER",
+  // A3 (D7, D12): the recovery's refusals, in Daisy's words (A3-KODE-PEMULIHAN.md §1); RECOVERY_NOT_NEEDED is the
+  // teacher's, said with the existing galat.action_not_allowed (Bob, 18 Nov: no new words)
+  "RECOVERY_NOT_AUTHORISED", "RECOVERY_AUTHORISATION_EXPIRED", "RECOVERY_AUTHORISATION_USED", "RECOVERY_NOTHING",
+  "RECOVERY_NOT_NEEDED",
 ] as const;
 export const KODE_PENGERJAAN = [...KODE_PENGERJAAN_DB, "SITTING_FAILED"] as const;
 export type KodePengerjaan = (typeof KODE_PENGERJAAN)[number];
@@ -31,6 +39,7 @@ export function kodePengerjaanDariGalat(e: { code?: string | null; details?: str
 }
 
 export function kunciKodePengerjaan(kode: KodePengerjaan): HleEvent {
+  if (kode === "RECOVERY_NOT_NEEDED") return "galat.action_not_allowed";
   return `pengerjaan.galat.${kode.toLowerCase()}` as HleEvent;
 }
 
@@ -67,6 +76,8 @@ export type BarisPengerjaan = {
   percobaan_terpakai: number; batas_percobaan: number | null; percobaan_diizinkan: boolean; izin_belum_dipakai: boolean;
   permintaan_id: string | null; permintaan_status: "PENDING" | "APPROVED" | "DECLINED" | null; permintaan_pada: string | null;
   permintaan_alasan: string | null; permintaan_oleh_saya: boolean | null; keputusan_pada: string | null; keputusan_alasan: string | null;
+  /** A3 (the screens' reads): the sitting's mode; while it is open, the learner's request and a valid permission's end */
+  mode_asesmen?: string | null; lanjut_diminta_pada?: string | null; izin_berlaku_sampai?: string | null;
 };
 
 /** pengerjaan_saya's answer: the learner's own sitting, how it stands and how it ended; never why, never who. */
@@ -78,12 +89,22 @@ export type PengerjaanSaya = {
   dilanjutkan?: boolean;
   penutupan: "DEADLINE" | "TEACHER_SCORED" | "TEACHER_NOT_COUNTED" | "ASSIGNMENT_ENDED" | "OTHER" | null;
   dihitung: boolean; tenggat: string | null; diperpanjang: number; percobaan_diizinkan: boolean;
+  /** A3: this verified session controls the sitting (or none does yet: the first writer claims it) */
+  di_sesi_ini?: boolean;
+  /** A3 (D7): an Uji Penguasaan, whose recovery on another session needs the teacher's permission */
+  perlu_izin?: boolean;
+  /** A3 (Daisy §2.3): this generation came by a teacher's permission */
+  izin_dipakai?: boolean;
 };
+
+/** The recovery acts' answer to the learner's page (lanjutkan_di_sini, minta_izin_lanjut): never a session id. */
+export type HasilPulih = { ok: true } | { ok: false; kode: KodePengerjaan | "OFFLINE" };
 
 // ───────────────────────────────────────────────────────────── A1 on the screens (Daisy, TINJAUAN-A1-C1W Q4, §A1·N1, §A1·N2)
 
 /** The acts of the «Atur» panel. */
-export const TINDAKAN = ["waktu", "akhiri", "minta", "lanjut", "tutup"] as const;
+// A3 (Daisy A3-KODE-PEMULIHAN.md §8): «izinkan», allowing an open Uji Penguasaan to continue after signing in again
+export const TINDAKAN = ["waktu", "akhiri", "minta", "lanjut", "tutup", "izinkan"] as const;
 export type Tindakan = (typeof TINDAKAN)[number];
 
 /** «Tambah waktu» offers these minutes and no others. */
@@ -99,9 +120,12 @@ export const MENIT_TAMBAHAN = [5, 10, 15, 30] as const;
  *   not started                            nothing
  */
 export function tindakanUntuk(b: Pick<BarisPengerjaan, "keadaan" | "tenggat" | "diperpanjang" | "murid_aktif" | "percobaan_terpakai"
-  | "batas_percobaan" | "permintaan_status" | "izin_belum_dipakai" | "sesi_id">): Tindakan[] {
+  | "batas_percobaan" | "permintaan_status" | "izin_belum_dipakai" | "sesi_id" | "mode_asesmen" | "izin_berlaku_sampai">): Tindakan[] {
   if (!b.sesi_id) return [];
-  if (b.keadaan === "OPEN") return [...(b.tenggat !== null && (b.diperpanjang ?? 0) < 3 ? ["waktu" as const] : []), "akhiri"];
+  // A3 (D7; Daisy §6.3, §8): an open Uji Penguasaan without a valid permission may be allowed to continue; a low-stakes
+  // sitting never offers it (it needs no teacher), and one already allowed offers it again only once that lapses
+  if (b.keadaan === "OPEN") return [...(b.tenggat !== null && (b.diperpanjang ?? 0) < 3 ? ["waktu" as const] : []), "akhiri",
+    ...(b.mode_asesmen === "POST_TEST" && !b.izin_berlaku_sampai ? ["izinkan" as const] : [])];
   if (b.keadaan === "FROZEN") return b.murid_aktif ? ["lanjut", "tutup"] : [];
   if (b.keadaan === "NOT_STARTED" || b.keadaan === "HELD_STOP") return [];   // A2a: no «Atur» during a stop (Daisy)
   const habis = b.batas_percobaan !== null && b.percobaan_terpakai >= b.batas_percobaan;

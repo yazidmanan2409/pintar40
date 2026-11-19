@@ -838,6 +838,19 @@ export const c1wTests: SelfTest[] = [
         langkah("tegas", "kadep", `select concat_ws('|', x ->> 'ok', x ->> 'dihitung_ulang', x ->> 'hasil_berubah_tercatat', x ->> 'sesi_terbuka', x ->> 'penugasan_dipindah', x ->> 'versi')
              from public.tegaskan_koreksi_kunci(${G("k1")}) x`),
         langkah("tegas_lagi", "kadep2", tegaskan("k1")),
+        // A3 (the owner, 17 Nov, ruling 46: "Attempt limits apply across published versions of the same assessment"; Sharon's
+        // lineage design, 478c8750): a learner who sat revision 1 is refused on revision 2 once the limit is reached.
+        // m1 sat the Pemetaan Awal (s1, limit 1) on the revision k1 replaced. On the moved assignment itself m1 is already
+        // refused, by the same-assignment clause of the count; the fresh attempt comes through ANOTHER assignment of the
+        // corrected revision (a second class, or a reassignment), here the harness's copy of the moved assignment (new id,
+        // same learning assignment, now on revision 2). Before the lineage count: allowed. After it: refused.
+        langkah("a3_revisi_m1", "m1", `select string_agg(x.ok || ',' || x.reason, '') from public.may_start_assessment(${G("p1_pre")}) x`),
+        `perform set_config('c1.p1_pre_v2', gen_random_uuid()::text, true);`,
+        paksa(`insert into public.assessment_assignments select (jsonb_populate_record(a, jsonb_build_object('id', current_setting('c1.p1_pre_v2')))).* from public.assessment_assignments a where a.id = current_setting('c1.p1_pre')::uuid`),
+        langkah("a3_revisi_v2", null, `select (select d.version from public.assessment_assignments a join public.assessment_definitions d on d.id = a.assessment_definition_id where a.id = ${G("p1_pre_v2")})
+             || '|' || ((select assessment_definition_id from public.assessment_assignments where id = ${G("p1_pre_v2")})
+                        <> (select assessment_definition_id from public.assessment_sessions where id = ${G("s1")}))`),
+        langkah("a3_revisi_lain", "m1", `select string_agg(x.ok || ',' || x.reason, '') from public.may_start_assessment(${G("p1_pre_v2")}) x`),
         // the originals: byte-identical
         langkah("asli", null, `select (pg_temp.c1_sidik_sesi(${G("s1")}) = ${S("sidik1")}) || '|' || (pg_temp.c1_sidik_kursus(${G("p1")}) = ${S("sidik_kursus")})
              || '|' || (pg_temp.c1_sidik_sesi(${G("s1_post")}) = ${S("sidik_post")})`),
@@ -987,6 +1000,10 @@ export const c1wTests: SelfTest[] = [
       harap("tegas_lain", "PR190:CORRECTION_CONFIRM_NOT_ALLOWED", "another school's administrator confirming");
       harap("tegas", "ok:true|3|3|2|1|1.1.0", "the head of department confirming through CAN_REVIEW (recalculated, changed as counted, one open, the assignment moved, the corrected release)");
       harap("tegas_lagi", "PR190:CORRECTION_ALREADY_DECIDED", "a second confirmation");
+      // A3, ruling 46: attempts count across published versions of one assessment
+      harap("a3_revisi_m1", "ok:false,ATTEMPT_LIMIT_REACHED", "A3, ruling 46: m1, who sat revision 1 (limit 1), on the moved assignment (now revision 2)");
+      harap("a3_revisi_v2", "ok:2|true", "A3: the second assignment sits on the corrected revision 2, not on the definition m1 sat");
+      harap("a3_revisi_lain", "ok:false,ATTEMPT_LIMIT_REACHED", "A3, ruling 46: m1, who sat revision 1 (limit 1), on another assignment of revision 2 — attempts count across published versions, so no fresh attempt");
       harap("asli", "ok:true|true|true", "the original sealed content, the original result, responses and paper, and the unaffected sitting (byte-identical)");
       harap("hasil", "ok:2|1|0.6667", "the affected sitting's results (the sealed original and one superseding result, which is current)");
       harap("dasar", `ok:true|true|["B"]|true|true|["A"]|true|KOREKSI_KUNCI: ${ALASAN}`, "the recalculated result's basis (what it supersedes, its correction, the corrected key, its question and release, the others' keys, the corrections in force, its reason)");

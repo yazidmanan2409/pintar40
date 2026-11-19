@@ -50,6 +50,9 @@ export const URUTAN: Record<string, number> = {
   FENCE: 7,
   maintenance_windows: 8,
   assessment_sessions: 9,
+  // A3 (Sharon, 547b3707): the recovery permission is read and written only under its sitting's row lock, which is
+  // what makes it single-use and "only the newest counts" hold under concurrency; so it ranks after the sitting
+  pengerjaan_izin_lanjut: 10,
 };
 /** B1: the fence is the first lock after ranks 1 to 6, for every table. */
 const SIKLUS_HIDUP = 6;
@@ -326,6 +329,8 @@ export const PENGECUALIAN: { penulis: string; lewat: Lewat; alasan: string; syar
   samaBaris("hitung_ulang_koreksi_kunci", "the recalculated result's person_id is the sitting's learner, taken FOR KEY SHARE first (row 3, migration 20270118130000)"),
   samaBaris("pengerjaan_pagar", "the learner and the shared fence, already held by the act's own first call to pengerjaan_pagar (a shared advisory lock re-taken by its holder does not wait)"),
   samaBaris("tambah_waktu_pengerjaan", "the learner of p_session, already taken FOR KEY SHARE by pengerjaan_pagar before the fence (change A's line, now a re-lock)"),
+  // A3 (D7): the permission names the sitting's learner (taken FOR KEY SHARE by pengerjaan_pagar) and the teacher
+  samaBaris("izinkan_lanjut", "the permission's person_id is the sitting's learner, taken FOR KEY SHARE by pengerjaan_pagar before the fence; diizinkan_oleh is v_guru, taken FOR KEY SHARE before the fence (as stop_pintar_now's actor)"),
   samaBaris("stop_pintar_now", "the window's created_by_person_id is v_me, taken FOR KEY SHARE before the fence (required change 3: no person row is waited on after it)"),
   samaBaris("recompute_result", "the new result's person_id is the sitting's learner, taken FOR KEY SHARE first (row 4, migration 20270118140000)"),
   samaBaris("transfer_minta", "the transfer's person_id is e.person_id, taken FOR KEY SHARE first (C1, migration 20270118120000)"),
@@ -684,9 +689,9 @@ const SESI_L03 = "a2a10300-0000-4000-8000-000000000001";
 function sesiL03(db: string): string {
   return psql1(db, `begin; set local session_replication_role = replica;
     insert into public.assessment_sessions
-    select (jsonb_populate_record(s, jsonb_build_object('id', '${SESI_L03}', 'status', 'IN_PROGRESS',
+    select (jsonb_populate_record(s, jsonb_build_object('pengendali_sesi', null, 'generasi', 1, 'id', '${SESI_L03}', 'status', 'IN_PROGRESS',
       'authoritative_deadline', now() - interval '1 day', 'finalized_at', null, 'submitted_at', null,
-      'closure_kind', null, 'closure_at', null, 'frozen_at', null, 'unfrozen_at', null))).*
+      'closure_kind', null, 'closure_deadline', null, 'closure_by_person_id', null, 'closure_reason', null, 'closure_at', null, 'frozen_at', null, 'unfrozen_at', null))).*
       from public.assessment_sessions s where s.status = 'FINALIZED' order by s.id limit 1;
     commit;
     select person_id from public.assessment_sessions where id = '${SESI_L03}';`).split("\n").pop()!;

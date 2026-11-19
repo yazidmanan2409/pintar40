@@ -307,6 +307,9 @@ const RESET_SURFACES = [
   "src/app/belajar/[tugas]/lanjut/page.tsx",
   "src/app/belajar/asesmen/[penugasan]/page.tsx",
   "src/app/belajar/_components/PermukaanAsesmen.tsx",
+  // A3 (Daisy A3-KODE-PEMULIHAN.md §1, §2): the recovery screen and the quiet line after it, on the token set from their first commit
+  "src/app/belajar/_components/LanjutkanDiSini.tsx",
+  "src/app/belajar/_components/BarisLanjut.tsx",
   // WP7C — anonymous student → educator feedback. One learner surface, one
   // educator surface and two Management surfaces, all built on the token set
   // from their first commit.
@@ -2248,7 +2251,20 @@ export const experienceTests: SelfTest[] = [
       // functions and two registry rows; no table, no column.
       // MOVED 283 -> 284, RESTATED, C2w reviewer notes: 20270121110000 (a reviewer notes what a wrong option reveals): one
       // table (catatan_peninjau: item, option, owner, text, writer, time, replaced note); no column named for a mark.
-      c.expect(migrations.length === 284, `${migrations.length} migrations; the frozen baseline has 284`);
+      // MOVED 282 -> 283, RESTATED, A3: 20270121200000 (the start lock covers what the attempt count counts, A3-R1): a
+      // replaced function body; no table, no column.
+      // MOVED 283 -> 284, RESTATED, A3: 20270121210000 (attempts count across an assessment's versions, ruling 46): a
+      // column on assessment_definitions (lineage_root_definition_id), its guard, and four replaced function bodies.
+      // MOVED 284 -> 285, RESTATED, A3: 20270121220000 (a sitting has one writer: the controller, D1–D8): no brand or
+      // copy change; the frozen baseline follows the migration count
+      // MOVED 285 -> 286, RESTATED, A3: 20270121230000 (every writer of a sitting takes its row, A3-3): four replaced
+      // function bodies; no brand or copy change
+      // MOVED 286 -> 287, RESTATED, A3: 20270121240000 (a sitting is recovered on another session, D7): no brand or copy
+      // change in the institution mark
+      // MOVED 287 -> 288, RESTATED, A3: 20270121250000 (a recovery is shown): two reads gain fields; no brand or copy
+      // change in the institution mark
+      // MOVED TO 290, RESTATED, the merge of main into claude/a3 (Sharon's pin correction): 282 + C2w's 2 + A3's 6
+      c.expect(migrations.length === 290, `${migrations.length} migrations; the frozen baseline has 290`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4169,7 +4185,14 @@ export const experienceTests: SelfTest[] = [
       // MOVED 281 -> 282, RESTATED, A2b reopened, for 20270120240000 (a start refused for maintenance says its code): no tour RPC.
       // MOVED 282 -> 283, RESTATED, C2w A2B-R2 on main after A2b, for 20270121100000 (a distribution's place for its controller): no tour RPC.
       // MOVED 283 -> 284, RESTATED, C2w reviewer notes, for 20270121110000: no tour RPC.
-      c.expect(migs.length === 284, `${migs.length} migrations; the baseline has 284`);
+      // MOVED 282 -> 283, RESTATED, A3, for 20270121200000 (the start lock covers what the attempt count counts): no tour RPC.
+      // MOVED 283 -> 284, RESTATED, A3, for 20270121210000 (attempts count across an assessment's versions): no tour RPC.
+      // MOVED 284 -> 285, RESTATED, A3, for 20270121220000 (a sitting has one writer): no tour RPC.
+      // MOVED 285 -> 286, RESTATED, A3, for 20270121230000 (every writer of a sitting takes its row): no tour RPC.
+      // MOVED 286 -> 287, RESTATED, A3, for 20270121240000 (a sitting is recovered on another session): no tour RPC.
+      // MOVED 287 -> 288, RESTATED, A3, for 20270121250000 (a recovery is shown): no tour RPC.
+      // MOVED TO 290, RESTATED, the merge of main into claude/a3: no tour RPC in any of the eight.
+      c.expect(migs.length === 290, `${migs.length} migrations; the baseline has 290`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

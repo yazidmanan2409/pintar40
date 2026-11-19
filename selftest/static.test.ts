@@ -61,6 +61,8 @@ import { c2wF4Tests } from "./c2w-f4.test";
 import { c2wCatatanTests } from "./c2w-catatan.test";
 import { c2wCatatanLayarTests } from "./c2w-catatan-layar.test";
 import { a2bMulaiDbTests } from "./a2b-mulai.test";
+import { a3DbTests } from "./a3.test";
+import { a3LayarStaticTests } from "./a3-layar.test";
 import { adm02Tests } from "./adm02.test";
 import { adm09Tests } from "./adm09.test";
 import { d088iTests } from "./d088i.test";
@@ -2187,6 +2189,8 @@ export const staticTests: SelfTest[] = [
   ...c2wCatatanTests,
   ...c2wCatatanLayarTests.filter((x) => x.id === "C2W-K01"),
   ...a2bMulaiDbTests,
+  ...a3DbTests,
+  ...a3LayarStaticTests,
   ...adm02Tests,
   ...adm09Tests,
   ...d088iTests,

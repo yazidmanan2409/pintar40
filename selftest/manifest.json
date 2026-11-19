@@ -5487,7 +5487,32 @@
     {
       "id": "F37-R01",
       "runner": "db",
-      "proves": "SI-D02 (System Integrity, 9 Nov) under real concurrency (runAttemptLimitRace in selftest/run.ts) against supabase/migrations/20270112120000_one_start_at_a_time.sql; strengthened after Sharon's review of 89374424 (finding 2), so it tells a correct fix from one that counts before it locks. A learner one attempt short of an assignment's attempt_limit, chosen from the world and allowed to start by may_start_assessment, starts on connection A, which holds its transaction open and then COMMITS. Connection B's start waits on the per-(learner, assignment) advisory lock while A holds, and after A's commit is refused ATTEMPT_LIMIT_REACHED; the learner then holds exactly attempt_limit sittings. A's sitting and the rows its start wrote are removed afterwards (the test's own rows, triggers suspended for that teardown; audit rows stay). The migration's verification block also checks that the lock is taken before may_start_assessment is called."
+      "proves": "SI-D02 (System Integrity, 9 Nov) under real concurrency (runAttemptLimitRace in selftest/run.ts) against supabase/migrations/20270112120000_one_start_at_a_time.sql; strengthened after Sharon's review of 89374424 (finding 2), so it tells a correct fix from one that counts before it locks. A learner one attempt short of an assignment's attempt_limit, chosen from the world and allowed to start by may_start_assessment, starts on connection A, which holds its transaction open and then COMMITS. Connection B's start waits on the start's advisory lock while A holds (per learner and assignment from 20270112120000; per learner, definition and version since A3-R1, 20270121200000, which F37-R02 proves across two assignments), and after A's commit is refused ATTEMPT_LIMIT_REACHED; the learner then holds exactly attempt_limit sittings. A's sitting and the rows its start wrote are removed afterwards (the test's own rows, triggers suspended for that teardown; audit rows stay). The migration's verification block also checks that the lock is taken before may_start_assessment is called."
+    },
+    {
+      "id": "F37-R02",
+      "runner": "db",
+      "proves": "Sharon's N-5 (A3-PREBUILD-ac25e9b1.md §2, at a58eae49), red first, under real concurrency (runAttemptLimitRaceAcrossAssignments in selftest/run.ts). It executes start_learning_session against the migrations (20270112120000's lock, 20270113140000's count). A learner one attempt short of a definition's attempt_limit, who may start, is given a second OPEN assignment of the same definition (the harness's own committed copy). Connection A starts the first, holds its transaction open, then COMMITS. Connection B starts the second meanwhile. B must wait on the lock while A holds, then be refused ATTEMPT_LIMIT_REACHED, and the learner must hold exactly attempt_limit sittings of the definition: the lock covers what may_start counts. The test's own rows (both sittings and the copied assignment) are removed afterwards; audit rows stay. Red on ac25e9b1: the lock is keyed (person, assignment), so B completes while A holds and two attempts are made against the limit."
+    },
+    {
+      "id": "F37-R03",
+      "runner": "db",
+      "proves": "Sharon's ruling of 16 Nov 22:37 (5ac3645d), red first, under real concurrency (runAttemptLimitRaceKeyMoves in selftest/run.ts): start_learning_session executes against the migrations, and an assignment's definition can be moved (the release move and koreksi_kunci_pindah update it holding the row FOR UPDATE; here a direct UPDATE of that row, the same lock). A learner with no sitting of a limit-1 definition D; a second OPEN assignment of D; a copy D' of D. T0 starts the second assignment and holds D's key; A's start of the first waits; the first is moved to D' meanwhile; T0 rolls back; B starts the first while A holds. Required: at most attempt_limit sittings per definition for the learner, and no deadlock. Red on cd5b37c3, whose key is read before the share lock: both A and B sit D'. The test's rows are removed and the assignment restored afterwards."
+    },
+    {
+      "id": "F37-R04",
+      "runner": "db",
+      "proves": "Sharon's deadlock check for her start order (16 Nov 22:37, 5ac3645d), under real concurrency (runStartsAndEndingWithoutDeadlock in selftest/run.ts): start_learning_session (the assignment FOR SHARE, then the (learner, definition, version) key, then the sitting) and akhiri_penugasan (the learning assignment FOR UPDATE, then its assessment assignments FOR UPDATE) execute against the migrations at once. A learner starts the first of two OPEN assignments of one definition and holds; a staff member who may end the learning assignment (CAN_ASSIGN_LEARNING over its place, which boleh_akhiri_penugasan reads) ends it meanwhile; the learner starts the second. None of the three dies in a deadlock or hangs to its timeout. All three roll back; the copied second assignment is removed afterwards."
+    },
+    {
+      "id": "F37-R05",
+      "runner": "db",
+      "proves": "Sharon's sweep condition (16 Nov 22:54, a1b66843), under real concurrency (runEndingAndDepartureWithoutDeadlock in selftest/run.ts): akhiri_pendaftaran (a departure: the person FOR UPDATE, then the fence, then the learner's sittings) and akhiri_penugasan («Akhiri»: the persons of its open sittings FOR KEY SHARE before any sitting, and a KEY SHARE of the same rows after one, through its deadline path) execute against the migrations, for a learner with an open sitting. A third connection holds the emergency fence exclusively for 1.2 s, so each function parks at its fence in turn while the other runs into it, in both orders. Neither dies in a deadlock. Both roll back; the learner's test sitting is removed afterwards."
+    },
+    {
+      "id": "F37-R06",
+      "runner": "db",
+      "proves": "The owner's ruling 46 (17 Nov: attempt limits apply across published versions of the same assessment), with Sharon's lineage design (478c8750), red first under real concurrency (runAttemptLimitRaceAcrossRevisions in selftest/run.ts): start_learning_session executes against the migrations. A learner one attempt short of a definition's limit, who may start, is given an OPEN assignment of revision 2 of that definition (a new definition row, version + 1, copied whole, as salin_kursus_revisi makes one; the harness's committed copy). Connection A starts revision 1, holds, then COMMITS; connection B starts revision 2 meanwhile. B must wait, then be refused ATTEMPT_LIMIT_REACHED, and the learner must hold exactly attempt_limit sittings across the two revisions. The test's rows are removed afterwards."
     },
     {
       "id": "LAPORAN-KELAS-01",
@@ -6564,6 +6589,246 @@
       "id": "A2B-SP3",
       "runner": "static",
       "proves": "The Chief Architect (16 Nov 16:27) and Sharon (9b68fcad, T-SP): across every server-action file under src/app (\"use server\"), no exported action starts a sitting (engine.startSession, start_learning_session, open_assessment_session) except src/app/belajar/actions.ts's mulaiAsesmen, which maps PR110 MAINTENANCE_NO_NEW_START and PR040 MAINTENANCE_PLACE; the unused, postable startSession action (3c58620e) is gone; two plants, startSession restored and a start in another server file, are each caught."
+    },
+    {
+      "id": "A3-H01",
+      "runner": "static",
+      "proves": "Sharon's acceptance of the harness session (8df83c47), conditions 1 and 2: reads every migration (the source). None defines or calls selftest.as_user, or derives a session from 'selftest-sesi:'. The latest sesi_saya() reads session_id from request.jwt.claims and from nothing else: no parameter, no other setting."
+    },
+    {
+      "id": "A3-H02",
+      "runner": "static",
+      "proves": "Sharon's acceptance of the harness session (8df83c47), condition 3: executes selftest.as_user and as_user_uid against the migrations, rolled back. Two personas get two different sessions. One persona gets the same session from as_user twice and from as_user_uid. Claims with no session_id give sesi_saya() null, so S11 stays expressible."
+    },
+    {
+      "id": "A3-C01",
+      "runner": "static",
+      "proves": "Sharon's S11 by its code (4bfdd1cb; 6e6e69d6): executes start_learning_session and record_answer against the migrations, in A3-R01's rolled-back transaction, with a verified token carrying no session id. Both are refused PR170 SITTING_NOT_CONTROLLER, the start before any other check."
+    },
+    {
+      "id": "A3-C02",
+      "runner": "static",
+      "proves": "Sharon (4bfdd1cb; 6e6e69d6): executes record_answer and submit_session against the migrations, in A3-R01's rolled-back transaction. A second signed-in session of the sitting's own learner is refused PR170 SITTING_NOT_CONTROLLER at its answer, its higher-sequence overwrite, its answer while paused and its hand-in."
+    },
+    {
+      "id": "A3-C03",
+      "runner": "static",
+      "proves": "Sharon 6e6e69d6 (b), D6 executed: in A3-R01's rolled-back transaction a sitting's controller is set null (a sitting open when A3 lands); executes assistance_state against the migrations. The first session to touch it claims it, the other session is then refused PR170 SITTING_NOT_CONTROLLER, and the claimer's next touch leaves it the controller."
+    },
+    {
+      "id": "A3-C04",
+      "runner": "static",
+      "proves": "Sharon 6e6e69d6, D8: executes record_answer and session_final_responses against the migrations, in A3-R01's rolled-back transaction. After an answer at client_seq 5 under generation 1 and, once the generation is raised, an answer at client_seq 2, the final answer is the newer generation's."
+    },
+    {
+      "id": "A3-C05",
+      "runner": "static",
+      "proves": "Sharon 6e6e69d6: executes an insert into assessment_sessions against the migrations, rolled back, the row supplying another controller and generation 7. The insert trigger assigns the verified session (sesi_saya()) and generation 1. A planted trigger that keeps supplied values, installed in the same transaction, is caught by the same check."
+    },
+    {
+      "id": "A3-C06",
+      "runner": "static",
+      "proves": "Sharon 6e6e69d6 (a): reads the catalogue (prosrc, provolatile, the function ACL) and client_rpc_registry. pengerjaan_gerbang checks the controller. Its callers are exactly record_answer, submit_session, pause_session, resume_session, finish_my_session, note_item_view, open_assistance and assistance_state, each VOLATILE. Neither anon nor authenticated may execute it, and it has no registry row."
+    },
+    {
+      "id": "A3-C07",
+      "runner": "static",
+      "proves": "Sharon's case 3 for A2A-L01's report (b94b3909): reads the function catalogue. Each of pengerjaan_lepas_darurat, pengerjaan_kredit_darurat, pengerjaan_keluar_terapkan and pengerjaan_putus_tenggat takes the sitting FOR UPDATE (select ... from public.assessment_sessions where id = p_session for update) before any UPDATE of assessment_sessions in its body. So the gate's sitting, seen at strength 2 before the gate's own FOR UPDATE in pengerjaan_pagar's branches, is always already held FOR UPDATE. A plant moving an UPDATE above pengerjaan_kredit_darurat's FOR UPDATE, in a rolled-back transaction, is reported."
+    },
+    {
+      "id": "A3-V01",
+      "runner": "static",
+      "proves": "Sharon V-1 (627d66d4): executes note_item_view, assistance_state and record_answer against the migrations, in A3-R01's rolled-back transaction, as the sitting's controller, with the sitting held (frozen_at set, the A1 shape). The item view and assistance_state on an unviewed item, which views it through the gate, are not refused by the hold, as before A3. The answer is refused PR170 SITTING_FROZEN."
+    },
+    {
+      "id": "A3-V02",
+      "runner": "static",
+      "proves": "Sharon V-2 (f6d3a2cb): executes note_item_view against the migrations, in A3-R01's rolled-back transaction, on the learner's SUBMITTED sitting with no controller. The sitting keeps no controller: the gate's one-time claim (D6) is written only to a CREATED, IN_PROGRESS or PAUSED sitting, so nothing is written to an ended one."
+    },
+    {
+      "id": "A3-P01",
+      "runner": "static",
+      "proves": "S1, S2 (THE PLAN §5.5 D7): executes lanjutkan_di_sini against the migrations, rolled back. A learner's second verified session continues a low-stakes sitting: the generation rises by one and the controller becomes that session, from the verified claims; the act takes no session parameter. Continuing again from it writes nothing."
+    },
+    {
+      "id": "A3-P02",
+      "runner": "static",
+      "proves": "executes record_answer, pause_session, resume_session and submit_session against the migrations, in the recovery scenario's rolled-back transaction (S2): after a recovery, the superseded session's answer, pause, resume and hand-in are each refused PR170 SITTING_NOT_CONTROLLER, rolled back."
+    },
+    {
+      "id": "A3-P03",
+      "runner": "static",
+      "proves": "executes lanjutkan_di_sini against the migrations, rolled back (S4): lanjutkan_di_sini on a SUBMITTED, FINALIZED, EXPIRED and TERMINATED sitting answers PR170 RECOVERY_NOTHING, rolled back."
+    },
+    {
+      "id": "A3-P04",
+      "runner": "static",
+      "proves": "executes lanjutkan_di_sini and izinkan_lanjut against the migrations, rolled back (S5, owner ruling D-3): an Uji Penguasaan's recovery is refused RECOVERY_NOT_AUTHORISED with no permission and RECOVERY_AUTHORISATION_EXPIRED with a lapsed one. The class's teacher allows it with izinkan_lanjut. It then succeeds once, and a third session is refused RECOVERY_AUTHORISATION_USED. Rolled back."
+    },
+    {
+      "id": "A3-P05",
+      "runner": "static",
+      "proves": "executes lanjutkan_di_sini against the migrations and reads the sitting and its responses, rolled back (S6, ruling 42 condition 2): a recovery leaves the sitting's status and deadline, every earlier response (id, client_seq, value, received_at) and the attempt count unchanged, rolled back."
+    },
+    {
+      "id": "A3-P06",
+      "runner": "static",
+      "proves": "executes lanjutkan_di_sini and izinkan_lanjut against the migrations, rolled back (S9, Sharon 7fa4de5d): an unknown sitting id and another person's sitting answer PR170 SITTING_NOT_CONTROLLER at lanjutkan_di_sini. At izinkan_lanjut, another school's teacher and an unknown id answer the same. Rolled back."
+    },
+    {
+      "id": "A3-P07",
+      "runner": "static",
+      "proves": "executes lanjutkan_di_sini and izinkan_lanjut against the migrations, rolled back (S11): a verified token with no session id is refused PR170 SITTING_NOT_CONTROLLER at lanjutkan_di_sini and at izinkan_lanjut, rolled back."
+    },
+    {
+      "id": "A3-P08",
+      "runner": "static",
+      "proves": "executes lanjutkan_di_sini against the migrations, rolled back (D10): a held sitting's recovery is refused PR170 SITTING_FROZEN. A sitting past its deadline answers RECOVERY_NOTHING and is left open and past its deadline: the rule's ending rolls back with the refusal, and the scheduled sweep ends it later. Rolled back."
+    },
+    {
+      "id": "A3-P09",
+      "runner": "static",
+      "proves": "executes lanjutkan_di_sini against the migrations and reads the audit log and integrity_signals, rolled back (D7, S10): a recovery writes one assessment_session.recovered audit row and one RECONNECT integrity signal, and the controller's repeat writes none, rolled back."
+    },
+    {
+      "id": "A3-P10",
+      "runner": "static",
+      "proves": "executes lanjutkan_di_sini against the migrations, rolled back (S5, binding; Sharon 547b3707): with the only valid permission bound to the same learner's other sitting, the Uji Penguasaan's recovery is refused PR170 RECOVERY_NOT_AUTHORISED."
+    },
+    {
+      "id": "A3-P11",
+      "runner": "static",
+      "proves": "executes izinkan_lanjut and lanjutkan_di_sini against the migrations, rolled back (S5, supersession): of two permissions for one sitting the newest alone counts. With it used, the older unused one, still inside its 10 minutes, is not consulted, and the recovery is refused RECOVERY_AUTHORISATION_USED."
+    },
+    {
+      "id": "A3-P12",
+      "runner": "static",
+      "proves": "executes izinkan_lanjut against the migrations, rolled back (Sharon §6.2): the class's teacher allowing an open low-stakes sitting is refused PR170 RECOVERY_NOT_NEEDED, after the authority check, writing nothing."
+    },
+    {
+      "id": "A3-P13",
+      "runner": "static",
+      "proves": "executes minta_izin_lanjut and lanjutkan_di_sini against the migrations and reads client_rpc_registry, rolled back (Sharon §6.3). An unknown id, another person and a session with no id answer SITTING_NOT_CONTROLLER. The controller's own session and a sitting that is not an open Uji Penguasaan are refused. The learner's request from a new session sets lanjut_diminta_pada, idempotently, grants nothing (the recovery still answers RECOVERY_NOT_AUTHORISED) and is cleared by a recovery. The three acts have registry rows."
+    },
+    {
+      "id": "A3-P14",
+      "runner": "static",
+      "proves": "executes record_answer, finish_my_session and session_final_responses against the migrations, rolled back (S3; THE PLAN §5.5 D8): after a recovery, the recovered session's later answer to a question the earlier session had answered is final, and the scored result counts exactly the final answers that are right."
+    },
+    {
+      "id": "A3-P15",
+      "runner": "static",
+      "proves": "executes lanjutkan_di_sini against the migrations, rolled back (S8; ruling 42, decision 2): with a work-scoped planned window active over the learner's class the recovery is allowed; with an emergency stop over the learner it is refused PR170 SITTING_CLASS_STOPPED, under the shared fence. A platform-wide window is refused at the request (D10)."
+    },
+    {
+      "id": "A3-S10",
+      "runner": "static",
+      "proves": "reads the source files ItemPlayer.tsx, LanjutkanDiSini.tsx, PermukaanAsesmen.tsx, actions.ts and hle.ts (Daisy A3-KODE-PEMULIHAN.md §1, §2, §4 (c), §5; O-4): a save another session's control refuses is terminal for the old session, whose panel is a quiet status with no way to take the sitting back; the new session calls the recovery act only on opening, on «Lanjutkan di sini» and on «Coba lagi»; no recovery sentence says «perangkat lain»."
+    },
+    {
+      "id": "A3-J01",
+      "runner": "app",
+      "proves": "selftest/a3-layar.test.ts, reading the rendered html of the running app's route: a learner opening a Pemetaan Awal another session controls is asked «Lanjutkan di sini?» in O-4's neutral words, nothing is played and the sitting does not move; an Uji Penguasaan another session controls plays nothing and starts its one check; rendering writes nothing."
+    },
+    {
+      "id": "A3-J02",
+      "runner": "app",
+      "proves": "selftest/a3-layar.test.ts, reading the rendered html of the running app's route: the class's teacher sees the learner's request on the Uji Penguasaan's row in O-4's neutral words; «Izinkan lanjut setelah masuk lagi» is offered only there, with its reason inside it; a short reason is refused with the typed reason kept; a full one writes one valid permission and the result line says until when."
+    },
+    {
+      "id": "A3-M01",
+      "runner": "static",
+      "proves": "executes start_learning_session and may_start_assessment against the migrations, rolled back (the journey J1.6 on 5ae2d406): in a work-scoped planned window over the class a new start with a verified session is refused PR040 MAINTENANCE_PLACE; with no session it is refused first, PR170 SITTING_NOT_CONTROLLER (S11)."
+    },
+    {
+      "id": "A3-L01",
+      "runner": "static",
+      "proves": "executes pengerjaan_saya and daftar_pengerjaan against the migrations, rolled back: the learner's read says whether this session controls the sitting, whether a teacher must allow a recovery and whether this generation came by a teacher's permission; the teacher's row carries the mode, the learner's request and a valid permission."
+    },
+    {
+      "id": "A3-A01",
+      "runner": "static",
+      "proves": "executes session_answers against the migrations, rolled back, and reads PermukaanAsesmen.tsx and ItemPlayer.tsx (D9; Sharon's ruling (a)): after a recovery the player's read holds every generation's receipts, the page folds them all into seqs, and nextSeq is one above them, so the next client_seq is above every seq held for the sitting."
+    },
+    {
+      "id": "A3-P17",
+      "runner": "static",
+      "proves": "executes record_answer and finish_my_session against the migrations, rolled back (D9): after a recovery the new controller's manifest is judged against the answers the server holds whatever generation acknowledged them; an entry not held is refused PR006, naming it alone; the failed device's acknowledged answer stays on the paper."
+    },
+    {
+      "id": "A3-P16",
+      "runner": "static",
+      "proves": "executes lanjutkan_di_sini, izinkan_lanjut and akhiri_pengerjaan against the migrations on real connections, each committing (S7; Sharon 11:03): two recoveries of one sitting from two sessions serialise on the sitting row (generation 3, two audit rows) and the plant without the act's and the deadline rule's FOR UPDATE loses one; a recovery waits on a superseding permission and consumes the newest; a recovery racing the teacher's ending answers RECOVERY_NOTHING. The fixture's sittings are ended and its permissions removed."
+    },
+    {
+      "id": "A3-E01",
+      "runner": "static",
+      "proves": "A3-3, the enumeration test (THE PLAN §5.5 D5; Sharon §3, condition 2): reads the function catalogue and the triggers. Every function that writes assessment_sessions or responses is declared by class: a learner boundary, which calls the gate; the start's insert; a service or staff writer; or an inner function. The triggers on the two tables are as declared. Every writer that updates or deletes a sitting takes it FOR UPDATE first, in its body or through the gate, pengerjaan_ditahan_periksa or penugasan_sesi. submit_response is reached only from record_answer. Two plants, rolled back, are reported: an undeclared writer, and pengerjaan_tahan_orang with its sitting FOR UPDATE removed. The recovery permission (pengerjaan_izin_lanjut) is written by exactly izinkan_lanjut and lanjutkan_di_sini, each taking the sitting FOR UPDATE first; lanjutkan_di_sini and minta_izin_lanjut are declared learner recovery boundaries."
+    },
+    {
+      "id": "A3-R01",
+      "runner": "static",
+      "proves": "A3's first red case, written before the build (THE PLAN §5.5 G2; PLAN-A3-C3W-Z.md A3-1; C1-D125-INVESTIGATION.md §5 cases 1, 2 and 3): executes start_learning_session, record_answer, pause_session, resume_session, submit_session and session_final_responses against the migrations, in one rolled-back transaction, for a learner of the seeded learning-cycle Kelas whose two signed-in devices are two verified Auth session ids in the claims (sesi_saya()). The sitting is started and answered on session A. Session B's answer to another question, its higher-sequence answer to A's question, its answer while A has paused, and its hand-in of A's sitting are each refused, and the final answer stays A's; a caller with no verified session id is refused; A's own answers, pause and resume are accepted. It names no refusal code (D12 waits for Sharon's review). Red on ac25e9b1: every write of B's lands, the higher sequence wins from either session, and a caller with no session id writes."
+    },
+    {
+      "id": "A3-L1P",
+      "runner": "static",
+      "proves": "Sharon's L01 ruling (b) for A3 (16 Nov 22:54, a1b66843): reads every function and trigger in the migrations' catalogue with A2A-L01's own lock reader (bacaUrutan), with learning_assignments and assessment_assignments ranked for this check only and A2A-L01's ranks restored afterwards. Every function that locks both takes learning_assignments first (as «Akhiri penugasan», both moves and, since A3-R1, start_learning_session do), so no start holds an assessment assignment while waiting on a learning assignment. A plant locking them the other way round, inside the reader's rolled-back transaction, is reported. The two tables stay unranked in A2A-L01; their full ranking is registered for Z."
+    },
+    {
+      "id": "A3-LN1",
+      "runner": "static",
+      "proves": "The owner's ruling 46 with Sharon's lineage design (478c8750), red first; it replaces A3-R1V, whose claim (a sat definition's version is immutable) the full suite on 8861ffc3 showed false for ad-hoc definitions. Executes against the migrations, in a rolled-back transaction: assessment_definitions.lineage_root_definition_id exists and is NOT NULL; every definition's root is itself a root of the same school; garis_definisi_periksa finds no definition with more than one predecessor; a definition inserted without a root is its own root; an UPDATE of a root is refused; an insert naming a root that is not a root is refused; the plant (the root's guard trigger disabled) lets the update through."
+    },
+    {
+      "id": "A3-LN2",
+      "runner": "static",
+      "proves": "Ruling 46's backfill strictness (Sharon, 478c8750: every non-root revision finds exactly one predecessor, or the migration refuses), red first: executes garis_definisi_periksa against the migrations, in a rolled-back transaction, on a revision the harness makes (a course copied with supersedes_course_id, its module with supersedes_module_id, the module's definition copied into it at a higher version): with exactly one predecessor the check passes; with a second same-titled, same-mode definition in the superseded module it must refuse, naming the predecessor."
+    },
+    {
+      "id": "A3-PT1",
+      "runner": "static",
+      "proves": "Ruling 46, a sibling the lineage sweep missed, red first: executes against the migrations, in a rolled-back transaction. A learner's counted sitting on revision 1 of a limited assessment; the harness adds revision 2 on the same line and an OPEN assignment of it in the same school and year. percobaan_terpakai (A1's count of an attempt, used by percobaan_tandai, minta_percobaan and both request lists) must count the revision-1 sitting under revision 2's assignment as it does under its own, as may_start_assessment does."
+    },
+    {
+      "id": "A3-L2P",
+      "runner": "static",
+      "proves": "Sharon's sweep acceptance (7cd65cba), pin 1: read by A2A-L01's own lock reader over the migrations' catalogue, akhiri_penugasan takes a person lock of its own before its first sitting lock, and its source shows that lock as one ordered statement (FOR KEY SHARE, by id) over the persons of all its open sittings, before its sitting loop. A plant that locks a sitting and then its person, inside the reader's rolled-back transaction, is reported."
+    },
+    {
+      "id": "A3-R02I",
+      "runner": "static",
+      "proves": "Sharon's ruling (b) on pin 2 (561bcf9d), red first: executes against the migrations on two real connections, with committed rows of the harness's own removed afterwards (a learner of its own in the cycle's Kelas with no number at its school, and a namespace on that school). The start's transaction holds the person FOR KEY SHARE across a pause; issue_institutional_id takes the school and waits on the person; then start_learning_session inserts its sitting, whose foreign key takes FOR KEY SHARE on the school. Neither connection is aborted as a deadlock; both commit, and the learner holds one sitting and one number at the school."
+    },
+    {
+      "id": "A3-P2",
+      "runner": "static",
+      "proves": "Sharon's pin 2 as she restated it (561bcf9d), red first: read by A2A-L01's own lock reader over the migrations' catalogue (foreign keys included: an insert's or update's foreign key is read as KEY SHARE on the table it names). Every function that takes persons FOR UPDATE in its own body either takes the person as its first lock, or holds before it only locks that no person-first function requests at a conflicting strength. Three named exceptions (Sharon, dd03a300), each exactly one function holding one table: confirm_my_name holding account_setup (evidence A3-R05N; its premise, that the email guard returns on hapus_data_pribadi's anonymisation before it writes, is checked in the function source), handle_new_auth_user holding account_activation_grants (its premise checked in the source: minta_akun is the only product writer of CLOSED_AT_REQUEST and needs a signed-in person, and handle_new_auth_user refuses a person with an account before its person lock), and issue_institutional_id holding institutions (evidence A3-R04X). An exception no longer needed fails the check, and a new conflict in the same function is still reported. A plant that locks a sitting and then its person FOR UPDATE, inside the reader's rolled-back transaction, is reported."
+    },
+    {
+      "id": "A3-PG1",
+      "runner": "static",
+      "proves": "Sharon's answer to Q2 (17 Nov): an approved further attempt spans the lineage, school and year, as the count does. Red first; executes against the migrations, as a learner of its own, in one rolled-back transaction. The learner is at a limit of one through revision 1 (handed in). An approved request is on revision 1's assignment, and an OPEN assignment of revision 2 is on the same line. percobaan_izin_jumlah counts the grant on revision 2's assignment. percobaan_saya tells the learner it waits. start_learning_session gives exactly one start through revision 2, which percobaan_tandai marks with the grant. Then nothing waits, a further start is refused ATTEMPT_LIMIT_REACHED, and the learner holds two sittings."
+    },
+    {
+      "id": "A3-PG2",
+      "runner": "static",
+      "proves": "Sharon's condition for keeping attempt_requests_one_pending per assignment (17 Nov): read from the function catalogue (pg_proc's source) and the table grants, in a rolled-back transaction. minta_percobaan is the only function that inserts into attempt_requests, so its lineage-root advisory lock serialises every request. putuskan_percobaan is the only one that updates it. None deletes from it, and none names it in dynamic SQL. anon and authenticated hold no INSERT, UPDATE, DELETE or TRUNCATE on it. A plant that inserts a request from a second function is reported."
+    },
+    {
+      "id": "A3-R04X",
+      "runner": "static",
+      "proves": "Sharon's A3-P2 item 3 (4d5cd5f6), the pair that fits the last-administrator guard's removal branch: executes against the migrations on two real connections, each rolled back, on the seeded Alpha school. The harness makes Alpha's head of department a second administrator with no number there and gives Alpha a namespace, both committed and removed afterwards. akhiri_tugas_staf and revoke_role are each raced against issue_institutional_id for that person and school, in both orders: the removal holding the person first, and the issue holding the school first. No connection is aborted as a deadlock. This is recorded as the reason item 3 is a named exception."
+    },
+    {
+      "id": "A3-I1",
+      "runner": "static",
+      "proves": "Sharon's defensive change (4d5cd5f6), red first: no function takes institutions FOR UPDATE except the last-administrator guard's removal branch (peran_terakhir_kode under p_kunci). It is read two ways over the migrations' catalogue: A2A-L01's own lock reader, which records each lock's strength and the path to it, and the function source (pg_proc's prosrc). A plant that takes a school FOR UPDATE, inside a rolled-back transaction, is reported by both."
+    },
+    {
+      "id": "A3-R05N",
+      "runner": "static",
+      "proves": "Sharon's A3-P2 item 1 (4d5cd5f6): executes against the migrations on two real connections, each rolled back, on Alpha's teacher. The teacher's account_setup is put back to REQUIRED with the name unconfirmed, committed and restored exactly. confirm_my_name, which holds account_setup before the person, is raced in both orders against tangguhkan_akun, the lock path. It is then raced against aktifkan_kembali_akun, the reactivation path, on a suspension the harness makes through the product and the product lifts afterwards. No connection is aborted as a deadlock. This is recorded as the reason item 1 is a named exception."
     },
     {
       "id": "C2W-B1",

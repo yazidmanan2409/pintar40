@@ -24,7 +24,11 @@ begin
   reset role;
   select id into v_uid from auth.users where email = p_email;
   if v_uid is null then raise exception 'persona % not found', p_email; end if;
-  perform set_config('request.jwt.claims', json_build_object('sub', v_uid, 'role', 'authenticated', 'email', p_email)::text, true);
+  -- A3 (Sharon, 8df83c47): a real token always carries its Auth session id; the harness gives each person one, fixed, so
+  -- repeated calls for one learner are one session (one device). A test that needs a second session, or none (S11),
+  -- sets the claims itself. Harness only: no migration defines or calls this, or derives this id (A3-H01).
+  perform set_config('request.jwt.claims', json_build_object('sub', v_uid, 'role', 'authenticated', 'email', p_email,
+    'session_id', md5('selftest-sesi:' || v_uid::text)::uuid)::text, true);
   perform set_config('request.jwt.claim.sub', v_uid::text, true);
   set local role authenticated;
 end $$;

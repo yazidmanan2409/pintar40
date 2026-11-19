@@ -48,7 +48,7 @@ function barisKunci(db: string, sql: string): { hasil: Record<string, string>; e
   for (const l of (r.stdout ?? "").split("\n")) { const i = l.indexOf("|"); if (i > 0) hasil[l.slice(0, i)] = l.slice(i + 1); }
   return { hasil, err: r.status === 0 ? "" : (r.stderr ?? "").trim().split("\n").filter((x) => /ERROR|DETAIL/.test(x)).join(" ") };
 }
-const sebagai = (uid: string) => `select set_config('request.jwt.claims', '{"sub":"${uid}","role":"authenticated"}', true);`;
+const sebagai = (uid: string) => `select set_config('request.jwt.claims', json_build_object('sub', '${uid}', 'role', 'authenticated', 'session_id', md5('selftest-sesi:' || '${uid}')::uuid)::text, true);`;
 const tanpaOrang = `select set_config('request.jwt.claims', '', true);`;
 
 /** pg_temp.a2b_coba(sql): runs the act in a subtransaction and undoes it, returning OK or sqlstate:detail.
@@ -134,10 +134,10 @@ export function dunia(db: string): Dunia {
 /** A sitting of `orang` in `kelas`, copied from the source, open since an hour ago, its own deadline as given. */
 const sesi = (d: Dunia, id: string, orang: string, enr: string, kelas: string, inst: string, tenggat: string) => `
 insert into public.assessment_sessions
-select (jsonb_populate_record(s, jsonb_build_object('id', '${id}', 'status', 'IN_PROGRESS', 'person_id', '${orang}',
+select (jsonb_populate_record(s, jsonb_build_object('pengendali_sesi', null, 'generasi', 1, 'id', '${id}', 'status', 'IN_PROGRESS', 'person_id', '${orang}',
   'enrollment_id', '${enr}', 'institution_id', '${inst}', 'class_node_id', '${kelas}', 'cohort_node_id', null,
   'authoritative_deadline', ${tenggat}, 'created_at', now() - interval '60 minutes', 'finalized_at', null, 'submitted_at', null,
-  'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
+  'closure_kind', null, 'closure_deadline', null, 'closure_by_person_id', null, 'closure_reason', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
   'termination_cause', null, 'termination_reason', null, 'terminated_by_person_id', null, 'attempt_request_id', null,
   'deadline_extended_count', 0, 'darurat_sejak', null, 'darurat_jendela_id', null, 'darurat_dikredit_sampai', null,
   'darurat_keluar', null))).*
@@ -208,10 +208,10 @@ const SENDIRI = (d: Dunia) => `set local session_replication_role = replica;
 delete from public.assessment_sessions where person_id = '${d.murid}' and id not in ('${d.SA}', '${d.SB}', '${d.SY}') and status <> 'FINALIZED';
 select 'lain|' || count(*) from public.assessment_sessions where person_id = '${d.murid}' and id not in ('${d.SA}', '${d.SB}', '${d.SY}') and status <> 'FINALIZED';`;
 const mulai = (d: Dunia, orang: string, enr: string, kelas: string, tenggat: string) => `$q$insert into public.assessment_sessions
-select (jsonb_populate_record(s, jsonb_build_object('id', gen_random_uuid(), 'status', 'CREATED', 'person_id', '${orang}',
+select (jsonb_populate_record(s, jsonb_build_object('pengendali_sesi', null, 'generasi', 1, 'id', gen_random_uuid(), 'status', 'CREATED', 'person_id', '${orang}',
   'enrollment_id', '${enr}', 'institution_id', '${d.X}', 'class_node_id', '${kelas}', 'cohort_node_id', null, 'created_at', now(),
   'authoritative_deadline', ${tenggat}, 'started_at', null, 'finalized_at', null, 'submitted_at', null,
-  'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
+  'closure_kind', null, 'closure_deadline', null, 'closure_by_person_id', null, 'closure_reason', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
   'termination_cause', null, 'darurat_sejak', null, 'darurat_jendela_id', null, 'darurat_dikredit_sampai', null,
   'darurat_keluar', null))).* from public.assessment_sessions s where s.id = '${d.sumber}'$q$`;
 
@@ -248,6 +248,11 @@ export const KELAS_PENULIS: Record<string, { kelas: Kelas; alasan: string; baru?
   akhiri_pendaftaran: { kelas: "ALLOWED", alasan: "a departure: a person leaving is not the class's work being changed" },
   transfer_execute: { kelas: "ALLOWED", alasan: "a transfer: a person moving" },
   tangguhkan_akun: { kelas: "ALLOWED", alasan: "a suspension acts on a person, not on the class's work", baru: true },
+  // A3 (ruling 42, decision 2): a recovery of a draining sitting is allowed in a work-scoped window; its platform-wide
+  // and emergency refusals are S8's commit. The request grants nothing; the teacher's permission is the recovery's half
+  lanjutkan_di_sini: { kelas: "ALLOWED", alasan: "A3 D7: the learner continues a running sitting on another session (ruling 42)", baru: true },
+  minta_izin_lanjut: { kelas: "ALLOWED", alasan: "A3: the learner's request for a permission; it grants nothing", baru: true },
+  izinkan_lanjut: { kelas: "ALLOWED", alasan: "A3 D7: the teacher's permission, the Uji Penguasaan recovery's half (ruling 42)", baru: true },
   record_answer: { kelas: "ALLOWED", alasan: "the drain (D5, K5): a running sitting is worked on to its deadline and grace", baru: true },
   pause_session: { kelas: "ALLOWED", alasan: "the drain (D5, K5)", baru: true },
   resume_session: { kelas: "ALLOWED", alasan: "the drain (D5, K5)", baru: true },
@@ -261,6 +266,9 @@ export const KELAS_PENULIS: Record<string, { kelas: Kelas; alasan: string; baru?
   pengerjaan_putus_tenggat: { kelas: "SYSTEM", alasan: "A1's decider: the drain's own end" },
   tutup_asesmen_terbuka: { kelas: "SYSTEM", alasan: "the closure of open sittings, reached from departures and promotions" },
   open_assessment_session: { kelas: "INNER", alasan: "the insert of a start, reached only from start paths; the trigger guards the row" },
+  // A3 (Sharon, 6e6e69d6): the gate writes only the controller's one-time claim of a sitting open before A3 (D6); it is
+  // not a boundary (no client grant, no registry row) and is reached only from the eight learner paths below
+  pengerjaan_gerbang: { kelas: "INNER", alasan: "A3's one-time claim of an uncontrolled sitting (D6), reached only from record_answer, submit_session, pause_session, resume_session, finish_my_session, note_item_view, open_assistance and assistance_state" },
   percobaan_tandai: { kelas: "INNER", alasan: "writes only attempt_request_id, at a start" },
   pengerjaan_lepas_darurat: { kelas: "INNER", alasan: "A2a's release of a stop's mark (first touch, the batch)" },
   pengerjaan_kredit_darurat: { kelas: "INNER", alasan: "A2a's credit of a lifted stop" },
@@ -308,6 +316,19 @@ export function inventaris(db: string, tanam = ""): { fungsi: string[]; salah: s
       salah.push(`${f} is a system closure and asks the place question: a window must never keep work open`);
   }
   for (const f of Object.keys(KELAS_PENULIS)) if (!fungsi.includes(f)) salah.push(`${f} is classed but no longer writes a class's work`);
+  // Sharon 6e6e69d6 (a): the gate's callers are exactly the eight its class names, and none of them is the gate's peer
+  {
+    const PEMANGGIL_GERBANG = ["assistance_state", "finish_my_session", "note_item_view", "open_assistance", "pause_session", "record_answer", "resume_session", "submit_session"];
+    const capai = (g: string, lihat = new Set<string>()): boolean => {
+      if (g === "pengerjaan_gerbang") return true;
+      if (lihat.has(g)) return false;
+      lihat.add(g);
+      return (panggil.get(g) ?? []).some((h) => capai(h, lihat));
+    };
+    const nyata = [...src.keys()].filter((f) => f !== "pengerjaan_gerbang" && capai(f)).sort();
+    if (JSON.stringify(nyata) !== JSON.stringify(PEMANGGIL_GERBANG))
+      salah.push(`pengerjaan_gerbang's callers are ${nyata.join(", ")}; its class names exactly ${PEMANGGIL_GERBANG.join(", ")}`);
+  }
   return { fungsi, salah };
 }
 const TANAM_INV = `create function public._a2b_i01_tanam(p uuid) returns void language plpgsql as $t$

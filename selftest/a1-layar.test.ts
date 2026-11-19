@@ -36,13 +36,13 @@ import {
 } from "../src/lib/pengerjaan-kontrak";
 import { lencanaA1, metaBaris } from "../src/lib/pengerjaan-tampil";
 
-const GURU = { identitas: "siklus-guru@synthetic.pintar.test", password: "Sintetis-SiklusGuru-11!" };
+export const GURU = { identitas: "siklus-guru@synthetic.pintar.test", password: "Sintetis-SiklusGuru-11!" };
 const KADEP = { identitas: "siklus-kaprodi@synthetic.pintar.test", password: "Sintetis-SiklusKaprodi-22!" };
 const ADMIN = { identitas: "siklus-admin@synthetic.pintar.test", password: "Sintetis-SiklusAdmin-33!" };
 const GURU_LAIN = { identitas: "alpha-guru@synthetic.pintar.test", password: "Sintetis-AlphaGuru-52!" };
 const ALASAN = "uji A1: alasan yang cukup panjang";
 /** The sign-in of the fixture's own learner (synthetic, made and removed with the fixture's class). */
-const muridUji = (tag: string) => ({ identitas: `a1-murid-${tag}@synthetic.pintar.test`, password: `Sintetis-A1Murid-${tag}!` });
+export const muridUji = (tag: string) => ({ identitas: `a1-murid-${tag}@synthetic.pintar.test`, password: `Sintetis-A1Murid-${tag}!` });
 
 const id = (k: string, untuk: "educator" | "staff" | "learner" = "educator") => t(k as HleEvent, untuk, { locale: "id" });
 const en = (k: string, untuk: "educator" | "staff" | "learner" = "educator") => t(k as HleEvent, untuk, { locale: "en" });
@@ -51,17 +51,17 @@ const en = (k: string, untuk: "educator" | "staff" | "learner" = "educator") => 
  * <table hidden><tbody><tr id="S:x">…</tr></tbody></table> for its <template id="P:x">; which cells arrive late is the
  * size of the page, not its shape.
  */
-function rapi(html: string): string {
+export function rapi(html: string): string {
   return tersusun(html).replace(/<template id="P:([0-9a-z]+)"><\/template>/g, (semua, x: string) => {
     const m = new RegExp(`<(tr|tbody|thead|table|colgroup)\\b[^>]*\\bid="S:${x}"[^>]*>([\\s\\S]*?)</\\1>`).exec(html);
     return m ? m[2] : semua;
   });
 }
-const teks = (html: string) => rapi(html).replace(/<!-- -->/g, "").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/\s+/g, " ");
+export const teks = (html: string) => rapi(html).replace(/<!-- -->/g, "").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/\s+/g, " ");
 const baca = (root: string, f: string) => { try { return readFileSync(join(root, f), "utf8"); } catch { return ""; } };
 
 /** A form of a rendered page, found by a mark it holds, as a browser would send it: its hidden fields, then `isi`. */
-function formDengan(html: string, penanda: string, isi: Record<string, string>): Record<string, string> | string {
+export function formDengan(html: string, penanda: string, isi: Record<string, string>): Record<string, string> | string {
   const bentuk = rapi(html).split(/<form\b/).slice(1).map((b) => b.split(/<\/form>/)[0]).filter((b) => b.includes(penanda));
   if (bentuk.length !== 1) return `${bentuk.length} form(s) hold ${penanda}`;
   const out: Record<string, string> = {};
@@ -73,8 +73,8 @@ function formDengan(html: string, penanda: string, isi: Record<string, string>):
   return { ...out, ...isi };
 }
 /** One learner's row of the rendered Table (its <tr>), by the name it carries. */
-const baris = (html: string, nama: string) => (rapi(html).match(/<tr\b[\s\S]*?<\/tr>/g) ?? []).find((r) => r.includes(nama)) ?? "";
-const ke = (r: Response) => (r.headers.get("location") ?? "").replace(/&amp;/g, "&");
+export const baris = (html: string, nama: string) => (rapi(html).match(/<tr\b[\s\S]*?<\/tr>/g) ?? []).find((r) => r.includes(nama)) ?? "";
+export const ke = (r: Response) => (r.headers.get("location") ?? "").replace(/&amp;/g, "&");
 
 export async function masuk(asal: string, siapa: { identitas: string; password: string }, konteks: string): Promise<Komputer | string> {
   const k = new Komputer(asal, ipUji());
@@ -234,7 +234,7 @@ export function bersihkan(): void {
     commit;`);
 }
 
-const siapa = (d: Dunia, aa = d.pre) => `/mengajar/${d.kelas}/siapa?penugasan=${aa}`;
+export const siapa = (d: Dunia, aa = d.pre) => `/mengajar/${d.kelas}/siapa?penugasan=${aa}`;
 
 
 // ------------------------------------------------------------------ the scheduler (owner's Option A)
@@ -686,7 +686,9 @@ rollback;
         const sesudah = psql(`select (authoritative_deadline = ${lit(sebelum)}::timestamptz + interval '10 minutes')::text || '|' || deadline_extended_count from public.assessment_sessions where id = ${lit(s.buka)}`);
         c.expect(/hasil=waktu/.test(ke(r1)) && sesudah === "true|1", `«Tambah waktu»: ${r1.status} ${ke(r1)}; the deadline moved by ten minutes and counted once: ${sesudah}`);
         const h1 = await (await guru.halaman(ke(r1))).text();
-        c.expect(new RegExp(`Waktu ${m.buka.nama} ditambah 10 menit\\. Batas baru \\d\\d\\.\\d\\d \\S+\\.`).test(teks(h1)), "the result line does not say the minutes and the new deadline");
+        // the new deadline is said as waktuSekolah says it: the time alone on the school's day, with the date before it
+        // when it falls on another day (after midnight in the school's zone), so the line is checked for both forms
+        c.expect(new RegExp(`Waktu ${m.buka.nama} ditambah 10 menit\\. Batas baru (?:[^.,]+, )?\\d\\d\\.\\d\\d \\S+\\.`).test(teks(h1)), `the result line does not say the minutes and the new deadline: ${(/Waktu [^<]*Batas baru[^<]*/.exec(teks(h1)) ?? [""])[0]}`);
         c.expect(/sisa (39|40) menit/.test(garis(h1, m.buka.nama)), `the row does not show the added time: «${garis(h1, m.buka.nama)}»`);
 
         // ---- the race: the sitting ended (the learner handed in) between opening the panel and confirming
@@ -1027,8 +1029,11 @@ rollback;
         const r1 = await murid.kirim(`/belajar/${d.la}/penguasaan`, { form: f1 as Record<string, string> });
         const pertama = /^([0-9a-f-]{36}):(CREATED|IN_PROGRESS):-$/.exec(sesiPost())?.[1] ?? "";
         if (!c.expect(Boolean(pertama), `the learner's start: ${r1.status} ${ke(r1)}; sittings ${sesiPost()}`)) return c.verdict("");
-        // ... answers two questions (the player's own call, record_answer, as the learner) and then the power goes
-        sebagai(uid, `do $m$ declare r record; begin for r in select p.id from public.presented_items p where p.session_id = ${lit(pertama)} order by p.position limit 2 loop
+        // ... answers two questions (the player's own call, record_answer, as the learner, from the signed-in session that
+        // started the sitting: A3's controller, D2, refuses any other session) and then the power goes
+        const pengendali = psql(`select coalesce(pengendali_sesi::text, '') from public.assessment_sessions where id = ${lit(pertama)}`);
+        if (!c.expect(/^[0-9a-f-]{36}$/.test(pengendali), `the app's start did not set the sitting's controller (A3): ${pengendali || "none"}`)) return c.verdict("");
+        sebagai(uid, `select set_config('request.jwt.claims', json_build_object('sub', ${lit(uid)}, 'role', 'authenticated', 'session_id', ${lit(pengendali)})::text, true)`, `do $m$ declare r record; begin for r in select p.id from public.presented_items p where p.session_id = ${lit(pertama)} order by p.position limit 2 loop
           perform public.record_answer(r.id, 1, selftest.f09_answer(r.id, true)); end loop; end $m$`);
 
         // 2. the teacher finds the sitting on «Siapa yang sudah mengumpulkan» and ends it as not counted

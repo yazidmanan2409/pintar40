@@ -451,6 +451,30 @@ export type HleEvent =
   | "pengerjaan.galat.window_invalid"
   | "pengerjaan.galat.window_unchanged"
   | "pengerjaan.galat.window_not_changeable"
+  | "pengerjaan.galat.sitting_not_controller"
+  | "pengerjaan.galat.recovery_not_authorised"
+  | "pengerjaan.galat.recovery_authorisation_expired"
+  | "pengerjaan.galat.recovery_authorisation_used"
+  | "pengerjaan.galat.recovery_nothing"
+  | "pengerjaan.pulih.lain_judul"
+  | "atur.izinkan.judul"
+  | "atur.izinkan.tanya"
+  | "atur.izinkan.ya"
+  | "atur.izinkan.ok"
+  | "atur.izinkan.alasan"
+  | "atur.izinkan.alasan_arti"
+  | "atur.izinkan.tidak_ada"
+  | "mengajar.siapa.minta_lanjut"
+  | "pengerjaan.pulih.belum_tersimpan"
+  | "pengerjaan.pulih.tanya_judul"
+  | "pengerjaan.pulih.tanya_isi"
+  | "pengerjaan.pulih.tanya_ya"
+  | "pengerjaan.pulih.batal"
+  | "pengerjaan.pulih.sendiri"
+  | "pengerjaan.pulih.guru"
+  | "pengerjaan.pulih.perlu_izin_isi"
+  | "pengerjaan.pulih.coba_lagi"
+  | "pengerjaan.pulih.diperiksa"
   | "pengerjaan.galat.sitting_failed"
   // C1w: the item workbench's refusals and problems (src/lib/soal-kontrak.ts)
   | "studio.soal.galat.draft_not_allowed"
@@ -4296,6 +4320,32 @@ const table: Table = {
   "pengerjaan.galat.window_invalid": { default: "Waktu tutup harus setelah waktu buka dan setelah saat ini.", en: "The closing time must be after the opening time and after now." },
   "pengerjaan.galat.window_unchanged": { default: "Jadwalnya sudah seperti itu.", en: "The schedule is already set that way." },
   "pengerjaan.galat.window_not_changeable": { default: "Jadwal materi ini tidak dapat diubah saat ini.", en: "This material's schedule cannot be changed right now." },
+  // A3 (Daisy, A3-KODE-PEMULIHAN.md §5 on ux-1/daisy-experience): neutral under O-4, true for another device, a
+  // re-sign-in and no session alike
+  "pengerjaan.galat.sitting_not_controller": { default: "Asesmen ini sedang dilanjutkan di sesi lain, jadi jawaban dari sini tidak disimpan. Jawaban yang sudah «Tersimpan» sebelumnya tetap ada.", en: "This assessment is being continued in another session, so answers from here are not saved. Answers already «Saved» are kept." },
+  "pengerjaan.galat.recovery_not_authorised": { default: "Asesmen ini perlu diizinkan guru Anda untuk dilanjutkan.", en: "This assessment needs your teacher's permission to continue." },
+  "pengerjaan.galat.recovery_authorisation_expired": { default: "Izin dari guru Anda sudah lewat waktunya. Minta guru mengizinkan sekali lagi, lalu pilih Coba lagi.", en: "Your teacher's permission has expired. Ask your teacher to allow it once more, then choose Try again." },
+  "pengerjaan.galat.recovery_authorisation_used": { default: "Izin dari guru Anda sudah dipakai sekali untuk asesmen ini. Untuk melanjutkan lagi di sini, minta guru mengizinkan sekali lagi, lalu pilih Coba lagi.", en: "Your teacher's permission has already been used once for this assessment. To continue here again, ask your teacher to allow it once more, then choose Try again." },
+  "pengerjaan.galat.recovery_nothing": { default: "Tidak ada yang perlu dilanjutkan: asesmen ini sudah selesai atau sudah ditutup.", en: "There is nothing to continue: this assessment is finished or closed." },
+  "atur.izinkan.judul": { default: "Izinkan lanjut setelah masuk lagi", en: "Allow to continue after signing in again" },
+  "atur.izinkan.tanya": { default: "Izinkan {nama} melanjutkan {judul} setelah masuk lagi? Sesi sebelumnya tidak menyimpan jawabannya lagi. Jawaban yang sudah tersimpan tetap ada. Tindakan ini dicatat.", en: "Allow {nama} to continue {judul} after signing in again? The earlier session no longer saves their answers. Answers already saved are kept. This is recorded." },
+  "atur.izinkan.ya": { default: "Izinkan", en: "Allow" },
+  "atur.izinkan.ok": { default: "{nama} dapat melanjutkan sampai pukul {waktu}.", en: "{nama} can continue until {waktu}." },
+  "atur.izinkan.alasan": { default: "Alasan", en: "Reason" },
+  "atur.izinkan.alasan_arti": { default: "10 sampai 300 karakter. Dicatat di jejak audit sekolah.", en: "10 to 300 characters. Recorded in the school's audit trail." },
+  "atur.izinkan.tidak_ada": { default: "Murid ini tidak sedang mengerjakan asesmen ini lagi. Tidak ada yang diizinkan.", en: "This learner is no longer working on this assessment. Nothing was allowed." },
+  "mengajar.siapa.minta_lanjut": { default: "minta lanjut setelah masuk lagi", en: "asks to continue after signing in again" },
+  "pengerjaan.pulih.lain_judul": { default: "Asesmen ini dilanjutkan di sesi lain.", en: "This assessment is being continued in another session." },
+  "pengerjaan.pulih.belum_tersimpan": { default: "{n} jawaban terakhir di sini belum tersimpan.", en: "The last {n} answer(s) here were not saved." },
+  "pengerjaan.pulih.tanya_judul": { default: "Lanjutkan di sini?", en: "Continue here?" },
+  "pengerjaan.pulih.tanya_isi": { default: "Anda masuk lagi, jadi asesmen ini dilanjutkan di sesi baru. Jawaban yang sudah tersimpan tetap ada.", en: "You signed in again, so this assessment continues in a new session. Answers already saved are kept." },
+  "pengerjaan.pulih.tanya_ya": { default: "Lanjutkan di sini", en: "Continue here" },
+  "pengerjaan.pulih.batal": { default: "Batal", en: "Cancel" },
+  "pengerjaan.pulih.sendiri": { default: "Anda melanjutkan di sini. Jawaban yang tersimpan sebelumnya ada di sini.", en: "You are continuing here. The answers saved before are here." },
+  "pengerjaan.pulih.guru": { default: "Anda melanjutkan di sini. Jangan keluar dari akun sampai asesmen ini selesai: untuk melanjutkan lagi, guru perlu mengizinkan sekali lagi.", en: "You are continuing here. Do not sign out until this assessment is finished: to continue again, your teacher would need to allow it once more." },
+  "pengerjaan.pulih.perlu_izin_isi": { default: "Karena Anda masuk lagi atau berganti perangkat, Uji Penguasaan ini hanya dapat dilanjutkan bila guru Anda mengizinkannya. Permintaan Anda tampil di daftar kelas guru Anda. Beri tahu guru Anda juga: {judul}. Setelah guru mengizinkan, pilih Coba lagi.", en: "Because you signed in again or changed device, this Uji Penguasaan can only continue if your teacher allows it. Your request shows on your teacher's class list. Tell your teacher too: {judul}. Once your teacher allows it, choose Try again." },
+  "pengerjaan.pulih.coba_lagi": { default: "Coba lagi", en: "Try again" },
+  "pengerjaan.pulih.diperiksa": { default: "Diperiksa pukul {jam}.", en: "Checked at {jam}." },
   "pengerjaan.galat.sitting_failed": { default: "Perubahan belum tersimpan. Coba lagi.", en: "The change was not saved. Try again." },
   // C1w (O41-10, O41-11, O41-18, O41-19): the item workbench's refusals, said to the staff who meet them
   "studio.soal.galat.draft_not_allowed": { default: "Anda tidak dapat mengubah soal dalam draf ini.", en: "You cannot change the questions in this draft." },

@@ -234,6 +234,9 @@ export const a1Tests: SelfTest[] = [
       for (const n of readdirSync(migDir).filter((x) => x.endsWith(".sql") && x > MIGRASI.split("/").pop()!).sort()) {
         const m = readFileSync(join(migDir, n), "utf8");
         if (/pengerjaan_tolak\(text\)/.test(m)) for (const x of m.matchAll(/when ''([A-Z_]+)''\s+then/g)) if (!kode.includes(x[1])) kode.push(x[1]);
+        // RESTATED, A3 (20270121220000): a later migration may redefine pengerjaan_tolak in full (single-quoted codes)
+        const ulang = /create or replace function public\.pengerjaan_tolak\(p_code text\)[\s\S]*?\$function\$;/i.exec(m)?.[0] ?? "";
+        for (const x of ulang.matchAll(/when '([A-Z_]+)'\s+then/g)) if (!kode.includes(x[1])) kode.push(x[1]);
         for (const x of m.matchAll(/pengerjaan_tolak\('{1,2}([A-Z_]+)'{1,2}\)/g)) dipakai.add(x[1]);
       }
       for (const k of dipakai) c.expect(kode.includes(k), `${k} is raised without a message of its own`);
