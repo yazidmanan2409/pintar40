@@ -85,3 +85,11 @@ Read: `step0-A3-lineage.sql` at `e5f0739c977295f2ec8b99f5c9212ef0a8cd9607`, sha2
   - If they differ, the promotion stops for review.
 - **Line 4 at `8a2f5d23`** lists each non-internal trigger on the table, with its timing, events, level and function. Accepted.
 - *Could reasonably have been anticipated* (Q4, before and after): yes. I named the comparison point without checking when the migration creates its own trigger.
+
+## Addendum · restated for 284 → 290, re-checked against the frozen head 5ae2d406 (19 Nov 2026, 02:35 UTC)
+
+Read: `preservation-A3.sql` at `cd7a381c`, sha256 `1bd8b3286c7cdd169ee786a874a2d29057e659de5dae0a07eceefe207ef397b2`. **PASS: ready for the owner's BEFORE read and step 0.**
+- **The query body is the one the dry run proved,** `a3-dryrun-05354e4f/preservation-A3-after-baru3.sql` at `5ae2d406`. Every non-comment line is identical except `batas`, which is null here, as a BEFORE read needs. `baru` carries the three columns.
+- **All six migration sha256s in the header match `5ae2d406`,** re-hashed by me.
+- **Ruling (a) is stated** (header lines 62–63): 285 left with 200000 applied, a re-run applies the remaining five, and on any failure it stops and reports.
+- **One stale header line, cosmetic:** line 7 says A3 "carries four migrations (three at e6e28e52)". It carries **six**. Fix it in the same follow-up; the query is unaffected.
