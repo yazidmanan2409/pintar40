@@ -46,6 +46,18 @@ E's three owner decisions (providers, scoring rules, judges) stay visible in sta
 
 **Principles:** no silent scope expansion; no bypassed security or deployment gates; no false completion claims.
 
+## A3 ACCEPTED on staging at 290 (19 Nov 2026, about 06:20 UTC)
+
+**Owner (19 Nov): "when done and verified, proceed to next task as planned."** Ruling 63.
+
+- **Sharon: promotion PASS** (`A3-PROMOTION-706fe8c5.md` on her branch). The tree of `706fe8c5` equals the frozen `5755c6c2`
+  exactly, with 290 migrations; BEFORE → AFTER moves only lines 10 and 78, as predicted.
+- **Hosted checks:** environment-facts run 44469835665 success on `706fe8c5`.
+- **Production untouched** at 111.
+- **Next: C3w-1** (Second Eye), per `batches/C3W-1-DESIGN.md` §9. Daisy's Z-2, Z-3 (V-3), N-6 and N-7 first. AI output
+  stays single-answer until the D-1 repair is accepted. Red cases go to Sharon before product code. No provider call,
+  no key.
+
 ## C2w ACCEPTED on staging (18 Nov 2026, about 09:20 UTC)
 
 **Owner's confirmation (18 Nov 2026):** "C2w acceptance approved … Record C2w as accepted in staging at 284 migrations. Production remains untouched. Proceed with A3 as planned, subject to its existing verification and promotion gates."
