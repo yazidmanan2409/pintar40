@@ -482,6 +482,22 @@ begin
       from public.assessment_sessions s where s.id = v_s;
     set local session_replication_role = origin;
     v := v || jsonb_build_object('P15_kelas', pg_temp.p('M', 'C', ${"$q$"}select public.lanjutkan_di_sini(current_setting('p.s')::uuid)::text${"$q$"}));
+    -- A3-M01 (journey J1.6 on 5ae2d406): a NEW start in the same window. A copy of the Pemetaan Awal's assignment on its
+    -- own copy of the definition (as J1.6 makes it, so no attempt is counted against it): with a verified session it is
+    -- refused for the window (PR040 MAINTENANCE_PLACE); with no session it is refused first as no writer at all (S11)
+    set local session_replication_role = replica;
+    perform set_config('p.m01_def', gen_random_uuid()::text, true);
+    perform set_config('p.m01_aa', gen_random_uuid()::text, true);
+    insert into public.assessment_definitions select (jsonb_populate_record(d, jsonb_build_object('id', current_setting('p.m01_def'),
+        'title', d.title || ' (A3-M01)', 'lineage_root_definition_id', current_setting('p.m01_def')))).*
+      from public.assessment_definitions d join public.assessment_assignments aa on aa.assessment_definition_id = d.id where aa.id = f.aa_pre;
+    insert into public.assessment_assignments select (jsonb_populate_record(aa, jsonb_build_object('id', current_setting('p.m01_aa'),
+        'assessment_definition_id', current_setting('p.m01_def')))).*
+      from public.assessment_assignments aa where aa.id = f.aa_pre;
+    set local session_replication_role = origin;
+    v := v || jsonb_build_object('M01_sesi', pg_temp.p('M', 'C', ${"$q$"}select public.start_learning_session(current_setting('p.m01_aa')::uuid)::text${"$q$"}));
+    v := v || jsonb_build_object('M01_tanpa', pg_temp.p('M', 'NONE', ${"$q$"}select public.start_learning_session(current_setting('p.m01_aa')::uuid)::text${"$q$"}));
+    v := v || jsonb_build_object('M01_boleh', pg_temp.p('M', 'C', ${"$q$"}select m.reason from public.may_start_assessment(current_setting('p.m01_aa')::uuid) m${"$q$"}));
     raise exception 's8-rollback';
   exception when others then
     if sqlerrm <> 's8-rollback' then v := v || jsonb_build_object('P15_kelas', 'probe-error:' || left(sqlerrm, 70)); end if;
@@ -2090,6 +2106,24 @@ rollback;`;
       ];
       for (const [k, mau, apa] of lihat) c.expect(v[k] === mau, `${apa}: ${v[k]} (expected ${mau.slice(3)})`);
       return c.verdict("executes pengerjaan_saya and daftar_pengerjaan against the migrations, rolled back: the learner's read says whether this session controls the sitting, whether a teacher must allow a recovery and whether this generation came by a teacher's permission, for the old and the new session, low-stakes and Uji Penguasaan; the teacher's row carries the mode, the learner's request and a valid permission, and loses both after the recovery");
+    },
+  },
+  {
+    // A3-M01 (the audit journey J1.6, red on 5ae2d406): which refusal a NEW start meets in a work-scoped planned window.
+    // With a verified session the window refuses it, PR040 MAINTENANCE_PLACE (R-1). With no session at all it is refused
+    // first, PR170 SITTING_NOT_CONTROLLER (S11: a call with no session is no writer, ahead of every other rule). J1.6 asked
+    // the start with hand-written claims that carried no session_id, which no signed-in request lacks; the journey's claims
+    // are restated (audit/b8-jalan.mjs), not the order.
+    id: "A3-M01",
+    requires: ["db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const v = jalankanPulih(c, ctx.repoRoot);
+      if (!v) return c.verdict("");
+      c.expect(v.M01_sesi === "PR040:MAINTENANCE_PLACE", `a new start with a verified session, in a work-scoped window over the class, must meet the window (PR040 MAINTENANCE_PLACE): ${v.M01_sesi}`);
+      c.expect(v.M01_tanpa === "PR170:SITTING_NOT_CONTROLLER", `the same start with no session is no writer, refused first (S11): ${v.M01_tanpa}`);
+      c.expect(v.M01_boleh === "ok:MAINTENANCE_PLACE", `may_start's own answer for it is the window: ${v.M01_boleh}`);
+      return c.verdict("executes start_learning_session and may_start_assessment against the migrations, rolled back: in a work-scoped planned window over the learner's class, a new start with a verified session is refused PR040 MAINTENANCE_PLACE (may_start says MAINTENANCE_PLACE), and the same start with no session is refused first, PR170 SITTING_NOT_CONTROLLER (S11)");
     },
   },
 ];

@@ -6736,6 +6736,11 @@
       "proves": "selftest/a3-layar.test.ts, reading the rendered html of the running app's route: the class's teacher sees the learner's request on the Uji Penguasaan's row in O-4's neutral words; «Izinkan lanjut setelah masuk lagi» is offered only there, with its reason inside it; a short reason is refused with the typed reason kept; a full one writes one valid permission and the result line says until when."
     },
     {
+      "id": "A3-M01",
+      "runner": "static",
+      "proves": "executes start_learning_session and may_start_assessment against the migrations, rolled back (the journey J1.6 on 5ae2d406): in a work-scoped planned window over the class a new start with a verified session is refused PR040 MAINTENANCE_PLACE; with no session it is refused first, PR170 SITTING_NOT_CONTROLLER (S11)."
+    },
+    {
       "id": "A3-L01",
       "runner": "static",
       "proves": "executes pengerjaan_saya and daftar_pengerjaan against the migrations, rolled back: the learner's read says whether this session controls the sitting, whether a teacher must allow a recovery and whether this generation came by a teacher's permission; the teacher's row carries the mode, the learner's request and a valid permission."
