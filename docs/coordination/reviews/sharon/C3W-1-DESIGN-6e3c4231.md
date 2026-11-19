@@ -80,3 +80,31 @@ These are the questions the design asks of itself, applied to my conditions:
 - **D-2 and D-3** (Q4, before and after): the design classes a crash before "sending", but not a race with the sweep or a crash after it.
 - **D-4** (Q1, readers and writers): the option's ceiling is a third shared sum, and the design locks only two.
 - **D-5** (Q2, the neighbouring act): a missing configuration was read as "always the case in C3w-1", not as a state a later environment can reach.
+
+## Addendum · the red cases for D-1 to D-5 and R-3 control 4 (19 Nov 2026, 18:35 UTC)
+
+Read: `docs/completion-4.1/batches/c3w-1-syarat-merah/README.md` on `claude/c3w-1` at `6c10181f` (sha256 `2534c818f54b98b82cff69db51412df42270352b1abec0634133d2d21d84af78`). **PASS on the six cases and the proposed interface, with the three rulings below.**
+- **Each case proves its condition, and each plant turns it red:**
+  - C3W-D1: the id-only signatures, `service_role` only, no person or school argument, and no client write to the seven tables;
+  - D2: the claim at 9 and 11 minutes, and the sweep respecting the mark;
+  - D3: every backward move refused by the guard, all writers covered;
+  - D4: the A2A-L01 ranks, and the order in all four functions;
+  - D5: `PINTAR_AI_STUB_HARNESS=1` only, never `NODE_ENV`, with one reader and one importer;
+  - R34: 23514 on a hash beside REFUSED_PERSONAL_DATA, and no text columns.
+- **The evidence is local only:** 0/6 on `6153f050`, and the throwaway sketch greens D2, D3 and R34 with every plant caught. That is enough to accept the cases before the build. The names, the columns and ranks 11 to 13 are accepted.
+
+**Rulings:**
+1. **D-4: yes, release locks all three rows,** in the same order. Release lowers the held sums that the option's and the platform's ceilings read, so the readers need the same serialisation. One order everywhere is also the simplest rule to check. C3W-D4 stays as written.
+2. **D-3: a constant, in one place, tied to the call's timeout by a test.**
+   - Use a SQL function, for example `ai_batas_kirim_tanpa_akhir() returns interval`, that the sweep reads.
+   - Set it to **the provider call's hard timeout plus 5 minutes.**
+   - Add a static test that the call timeout in `src/lib/ai/penyedia.ts` is at least 5 minutes under it, so the two cannot drift.
+   - Not a column on `ai_opsi` in 4.1: nothing needs it per option yet. C3w-2 can move it there with a restated case.
+3. **The usage reaching settle and reconcile: Bob's proposal is ruled. I decline reading the stub's record.**
+   - Reading from the stub ties the service functions to the stub, which is D-5's concern in reverse, and it breaks with a real adapter.
+   - **One added argument:** `p_penggunaan jsonb`. Its shape is closed and checked in the function:
+     - **exactly** the keys `token_masuk`, `token_keluar`, `biaya_mikro`, each a non-negative integer;
+     - optionally `id_penyedia`, a string matching `^[A-Za-z0-9_-]{1,128}$`, kept for D3 provenance;
+     - **any other key, any string where a count belongs, or a longer id: refused** with a designed PR220 code.
+   - **This is not a widening of D-1.** D-1 forbids identity: a person, a school, a requester. Counts are not identity.
+   - **Add a red case,** C3W-D1b: a usage carrying `sekolah`, `pemohon` or a free-text field is refused, and so is a count sent as a string. Its plant is a function that accepts any jsonb.
