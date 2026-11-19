@@ -15,7 +15,7 @@ import { randomUUID } from "node:crypto";
 import { Checks, type SelfTest } from "./lib";
 import { psql } from "./bob26.test";
 import { Komputer } from "./bob29.test";
-import { BOOT_ADMIN, masuk } from "./c1w-layar.test";
+import { BOOT_ADMIN, BOOT_SISWA, masuk } from "./c1w-layar.test";
 import { t, type HleEvent } from "../src/lib/hle";
 
 const buang = (x: string) => x.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
@@ -89,16 +89,47 @@ export const c3wZAppTests: SelfTest[] = [
       const admin0 = await masuk(asal, BOOT_ADMIN, `MENGELOLA:${sekolah}`);
       if (!c.expect(typeof admin0 !== "string", String(admin0))) return c.verdict("");
       const admin = admin0 as Komputer;
-      const hitung = (h: string) => ({ main: (h.match(/<main\b/g) ?? []).length, isi: (h.match(/\bid="isi"/g) ?? []).length });
-      for (const alamat of [`/studio/tinjau/kunci/${randomUUID()}`, `/studio/paket/${randomUUID()}`, "/studio/tinjau/kunci/bukan-uuid"]) {
+      // Daisy's three conditions (her Z-2 acceptance, via Bob 19 Nov): (a) inside Studio a refusal draws no <main> of its
+      // own, its heading is the first heading in Studio's <main>, and the skip link lands on that <main id="isi"> (the
+      // only id="isi"); (b) outside Studio a refusal keeps its own <main id="isi">; (c) every Studio route and refusal
+      // path is read, and two main landmarks anywhere fail
+      const landmark = (alamat: string, h: string) => {
+        const main = (h.match(/<main\b/g) ?? []).length, isi = (h.match(/\bid="isi"/g) ?? []).length;
+        const mainIsi = /<main\b[^>]*\bid="isi"/.test(h);
+        const lewati = /<a[^>]*href="#isi"[^>]*>Langsung ke isi</.test(h);
+        c.expect(main === 1 && isi === 1 && mainIsi && lewati,
+          `${alamat}: ${main} <main>, ${isi} id="isi", id="isi" ${mainIsi ? "is" : "is not"} the <main>, skip link ${lewati ? "present" : "absent"} (one of each; the skip link lands on the <main>)`);
+        return /<main\b[^>]*\bid="isi"[^>]*>([\s\S]*)<\/main>/.exec(h)?.[1] ?? "";
+      };
+      const kepala = (isiMain: string) => (/<h[1-6]\b[^>]*>([\s\S]*?)<\/h[1-6]>/.exec(isiMain)?.[1] ?? "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+      // every Studio page as the school's admin (c)
+      for (const alamat of ["/studio", "/studio/bank", "/studio/definisi", "/studio/integritas", "/studio/kanonik", "/studio/tinjau", "/studio/unggah"]) {
+        landmark(alamat, await (await admin.halaman(alamat)).text());
+      }
+      // every Studio refusal path (a, c): the addressed pages with an id that is not there, or not an id
+      const tolakan: Array<[string, string | null]> = [
+        [`/studio/tinjau/kunci/${randomUUID()}`, "Koreksi ini tidak dapat dibuka. Mungkin sudah tidak ada, atau bukan untuk Anda."],
+        ["/studio/tinjau/kunci/bukan-uuid", "Koreksi ini tidak dapat dibuka. Mungkin sudah tidak ada, atau bukan untuk Anda."],
+        [`/studio/paket/${randomUUID()}`, null],
+        [`/studio/kanonik/${randomUUID()}`, null],
+        [`/studio/pratinjau/${randomUUID()}`, null],
+      ];
+      for (const [alamat, kalimat] of tolakan) {
         const h = await (await admin.halaman(alamat)).text();
-        const n = hitung(h);
-        c.expect(n.main === 1 && n.isi === 1, `${alamat}: ${n.main} <main> and ${n.isi} id="isi" (one of each, the Studio frame's)`);
+        const isiMain = landmark(alamat, h);
+        const k = kepala(isiMain);
+        c.expect(k !== "" && (kalimat === null || k === kalimat), `${alamat}: the first heading in Studio's <main> is «${k}»${kalimat ? `, not «${kalimat}»` : ""}`);
       }
       const k = (await (await admin.halaman(`/studio/tinjau/kunci/${randomUUID()}`)).text()).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
-      c.expect(k.includes("Koreksi ini tidak dapat dibuka. Mungkin sudah tidak ada, atau bukan untuk Anda.") && k.includes("Antrean Tinjauan"),
-        `an unknown correction does not get Daisy's one neutral answer with its way back to the review queue (Antrean Tinjauan): ${k.slice(0, 200)}`);
-      return c.verdict("renders, in the running app, as the bootstrap school's admin: an unknown key correction, an unknown package and a malformed correction id each draw exactly one <main> and one id=\"isi\" (Studio's own), and the unknown correction says «Koreksi ini tidak dapat dibuka. Mungkin sudah tidak ada, atau bukan untuk Anda.» with its way back to «Antrean Tinjauan»");
+      c.expect(k.includes("Antrean Tinjauan"), `an unknown correction offers no way back to «Antrean Tinjauan»: ${k.slice(0, 200)}`);
+      // (b) and the layout's own refusal: a learner opening Studio meets the refusal OUTSIDE the frame, with its own main
+      const siswa0 = await masuk(asal, BOOT_SISWA, "BELAJAR");
+      if (!c.expect(typeof siswa0 !== "string", String(siswa0))) return c.verdict("");
+      const hs = await (await (siswa0 as Komputer).halaman("/studio")).text();
+      landmark("/studio as a learner (the layout's refusal, outside the frame)", hs);
+      c.expect(/<main\b[^>]*\bid="isi"[^>]*class="pin-col"/.test(hs) || /<main\b[^>]*class="pin-col"[^>]*\bid="isi"/.test(hs),
+        "outside Studio's frame the refusal no longer draws its own <main id=\"isi\" class=\"pin-col\">");
+      return c.verdict("renders, in the running app (Daisy's three Z-2 conditions): as the bootstrap school's admin, all seven Studio pages and five refusal paths (an unknown and a malformed correction, an unknown package, Kanonik release and lesson preview) each draw exactly one <main>, and it is the only id=\"isi\", the skip link's target; on each refusal the first heading in that <main> is the refusal's, the unknown correction's in Daisy's words with its way back to «Antrean Tinjauan»; a learner opening Studio meets the layout's refusal outside the frame, with its own <main id=\"isi\">");
     },
   },
 ];
