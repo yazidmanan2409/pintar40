@@ -55,7 +55,7 @@ Ruled on Bob's message, which names F-1 fixed at `d5d23f09`. I review that fix i
 - **Addition 1 · re-check authority and the package's state at the moment of writing, not only at the request.**
   - Between the request and the provider's reply, the requester's CAN_DRAFT can be revoked, or the package can be submitted or sealed.
   - The internal path keeps every check that does not depend on the caller, and `ai_tulis_draf` re-checks the requester's CAN_DRAFT on the package (`draf_boleh_tulis` for that person).
-  - Any failure writes nothing and releases the attempt.
+  - ~~Any failure writes nothing and releases the attempt.~~ *(Corrected 21 Nov, 08:45: a failure at write time writes nothing and **leaves the attempt claimed**. The route then settles it at the reported usage, or the sweep holds it UNRECONCILED. **A sent attempt is never released** (D-2 and D-3, forward only). My wording contradicted my own D-3. Second Eye and Bob caught it.)*
   - **A red case:** the role is revoked after the claim, and the write is refused with nothing written.
 - **Addition 2 · `p_soal` is a closed shape, with bounded sizes.**
   - It follows `item-schema.json` with `additionalProperties: false` at every level. **No author, person, school or status field can ride in it.**
@@ -64,3 +64,5 @@ Ruled on Bob's message, which names F-1 fixed at `d5d23f09`. I review that fix i
 - **Addition 3 · the provenance hash is of the content as stored.** The sha256 in `ai_asal_soal` is computed **after** the write, from the stored item, so a later edit is detectable against it. The C2w lineage carries revisions, as the design says.
 - **Bob's four proposed red cases are accepted as stated,** including the plant: the author taken from an argument.
 - **Q2 and Q3:** no addition. They stand as accepted in the design (§3; §9, answer 2; C3-1).
+
+**Second Eye's four readings at `feafc7d6`: all confirmed.** (1) `ai_tulis_draf` takes the closed `p_penggunaan` and settles under the three locks, in order. (2) As corrected above. (3) A VALIDATED package is refused. (4) Every request names its target lesson, fixed at insert and re-checked at write. **Also noted for the hand-off:** the provenance and decision rows keep `item_id` as a plain id, because HAPUS removes drafts; `ai_draf_belum_diputuskan` returns a count only, with the person from the session and CAN_DRAFT required.
