@@ -10,7 +10,7 @@
  *                 append-only (plant: its guard dropped, an update lands).
  *   C3W-T02 (Q3)  langkah_konten refuses the submit, AI_BELUM_DITERIMA, while a generated draft in the package has no
  *                 latest decision ACCEPTED or EDITED; once every one has, the submit goes through. The author cannot
- *                 approve their own generated draft. Plant: the gate (ai_gerbang_diterima) a no-op, the undecided submit lands.
+ *                 approve their own generated draft. Plant: the gate's check replaced by false, the undecided submit lands.
  *   C3W-T03 (Q1, its code waits for Sharon's ruling)  ai_tulis_draf(p_percobaan, p_soal), service_role only: refused
  *                 on an attempt that is not a claimed sending, and on a bad p_soal (two keys; the wrong count), each
  *                 writing nothing; on a claimed attempt it writes the count asked, authored by the requester, one
@@ -65,11 +65,16 @@ function skenario(c: Checks, repoRoot: string): Record<string, string> | null {
     langkah("t2_awal", "guru", `select public.langkah_konten(${G("d1")}, 'STRUCTURED')::text`),
     langkah("t2_valid", "guru", `select public.langkah_konten(${G("d1")}, 'VALIDATED')::text`),
     langkah("t2_tolak", "guru", `select public.langkah_konten(${G("d1")}, 'IN_REVIEW')::text`),
-    // the gate's plant, undone at once: its check made a no-op, the undecided submit lands
-    `declare x text; begin
-       execute 'create or replace function public.ai_gerbang_diterima(p_course uuid, p_ke text) returns void language sql as $t$ select $t$';
-       x := pg_temp.c1(${G("u_guru")}, $p$select public.langkah_konten(current_setting('c1.d1')::uuid, 'IN_REVIEW')::text$p$);
-       v := v || jsonb_build_object('tanam_gerbang', x);
+    // the gate's plant, undone at once: its check replaced by false in langkah_konten, the undecided submit lands
+    `declare x text; d text; begin
+       d := pg_get_functiondef('public.langkah_konten(uuid,text)'::regprocedure);
+       if position('public.ai_draf_belum_diputuskan(p_course) > 0' in d) = 0 then
+         v := v || jsonb_build_object('tanam_gerbang', 'ERR:langkah_konten has no gate to plant');
+       else
+         execute replace(d, 'public.ai_draf_belum_diputuskan(p_course) > 0', 'false');
+         x := pg_temp.c1(${G("u_guru")}, $p$select public.langkah_konten(current_setting('c1.d1')::uuid, 'IN_REVIEW')::text$p$);
+         v := v || jsonb_build_object('tanam_gerbang', x);
+       end if;
        raise exception 'c3w-batal';
      exception when others then if sqlerrm <> 'c3w-batal' then v := v || jsonb_build_object('tanam_gerbang', 'ERR:' || sqlerrm); end if;
      end;`,
@@ -90,6 +95,8 @@ function skenario(c: Checks, repoRoot: string): Record<string, string> | null {
     langkah("t1_ubah_log", null, `update public.ai_penerimaan set keputusan = 'ACCEPTED' where item_id = ${G("y")} returning keputusan`),
     langkah("t1_hapus_log", null, `delete from public.ai_penerimaan where item_id = ${G("x")} returning keputusan`),
     // ---- T02 after every generated draft is decided: the submit goes through; the author cannot approve
+    // the edit and the removal sent the checked package back to be checked (draf_kembali_periksa), so it is checked again
+    langkah("t2_valid2", "guru", `select public.langkah_konten(${G("d1")}, 'VALIDATED')::text`),
     langkah("t2_lolos", "guru", `select public.langkah_konten(${G("d1")}, 'IN_REVIEW')::text`),
     langkah("t2_status", null, `select status::text from public.courses where id = ${G("d1")}`),
     langkah("t2_setuju_sendiri", "guru", `select public.langkah_konten(${G("d1")}, 'APPROVED')::text`),
@@ -155,9 +162,9 @@ export const c3wTerimaTests: SelfTest[] = [
       c.expect(h!.t2_valid === "ok:", `stepping the draft to VALIDATED: ${h!.t2_valid}`);
       c.expect(h!.t2_tolak === "PR220:AI_BELUM_DITERIMA", `the submit with three generated drafts undecided: ${h!.t2_tolak} (PR220:AI_BELUM_DITERIMA)`);
       c.expect(h!.t2_lolos === "ok:" && h!.t2_status === "ok:IN_REVIEW", `the submit once each is ACCEPTED, EDITED or DELETED: ${h!.t2_lolos}, status ${h!.t2_status} (IN_REVIEW)`);
-      c.expect(h!.tanam_gerbang === "ok:", `the plant (the gate's check a no-op) was not caught: ${h!.tanam_gerbang}`);
+      c.expect(h!.tanam_gerbang === "ok:", `the plant (the gate's check replaced by false) was not caught: ${h!.tanam_gerbang}`);
       c.expect(refused(h!.t2_setuju_sendiri), `the author approving their own generated draft: ${h!.t2_setuju_sendiri} (refused: two people)`);
-      return c.verdict("executes langkah_konten against the migrations in one rolled-back transaction, as the package's teacher (C3-1, Bob's Q3): the submit to IN_REVIEW is refused PR220 AI_BELUM_DITERIMA while generated drafts have no decision, and goes through once each is ACCEPTED, EDITED or DELETED; the author cannot approve their own generated draft; the plant, ai_gerbang_diterima made a no-op, lets the undecided submit through");
+      return c.verdict("executes langkah_konten against the migrations in one rolled-back transaction, as the package's teacher (C3-1, Bob's Q3): the submit to IN_REVIEW is refused PR220 AI_BELUM_DITERIMA while generated drafts have no decision, and goes through once each is ACCEPTED, EDITED or DELETED; the author cannot approve their own generated draft; the plant, the gate's check replaced by false in langkah_konten, lets the undecided submit through");
     },
   },
   {

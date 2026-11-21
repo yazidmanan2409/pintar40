@@ -6833,7 +6833,7 @@
     {
       "id": "C3W-T02",
       "runner": "static",
-      "proves": "C3-1 and Bob's Q3, red first: executes langkah_konten against the migrations in one rolled-back transaction: the submit to IN_REVIEW is refused PR220 AI_BELUM_DITERIMA while generated drafts are undecided, and goes through once each is ACCEPTED, EDITED or DELETED; the author cannot approve their own generated draft; the plant (ai_gerbang_diterima a no-op) lets the undecided submit through."
+      "proves": "C3-1 and Bob's Q3, red first: executes langkah_konten against the migrations in one rolled-back transaction: the submit to IN_REVIEW is refused PR220 AI_BELUM_DITERIMA while generated drafts are undecided, and goes through once each is ACCEPTED, EDITED or DELETED; the author cannot approve their own generated draft; the plant (the gate's check replaced by false in langkah_konten) lets the undecided submit through."
     },
     {
       "id": "C3W-T03",
