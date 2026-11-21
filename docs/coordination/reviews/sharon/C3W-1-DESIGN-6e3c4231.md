@@ -132,3 +132,27 @@ Ruled on Bob's message about `claude/c3w-1` at `a47ed5da` (WIP, not a hand-off).
 - **R3-07's outbound fixture must deep-compare the schema too,** so only the count lives there and no other field is added.
 
 *Could reasonably have been anticipated* (Q5, who checks): yes. My 13 Nov design chose a NOLOGIN owner without checking it against the restore gates (DR-D01/D02) that every function must pass.
+
+## Addendum · (b) with B1–B4 assessed against the original objective, for the owner (21 Nov 2026, 05:45 UTC)
+
+**Ruling: (b) with B1–B4, plus two changes (B4 extended to production; tightening 2 kept). It meets control 1's objective.**
+
+**The objective (13 Nov):** the excerpt reader can read content only, so that even an edited body cannot read learner data.
+- (a) enforced it by refusing at runtime.
+- (b) enforces it by refusing at build and promotion: no migration carrying a non-content dependency can pass, and a deployed one is detected.
+- **The ends are the same for every path except a privileged change made outside the migration process.**
+- **That residual exists under (a) too.** A privileged actor able to edit the function out of process can equally `grant select on persons to c3w_pembaca`. So (a)'s runtime refusal does not stop the one actor (b) cannot stop. **(b) gives up nothing material.**
+
+**The owner's three questions:**
+1. **Direct and indirect access: yes.**
+   - B2's allow-list admits only the four content tables (and their columns and types) and built-in `pg_catalog` objects.
+   - **No view and no user-defined function may appear at all,** so indirection is not merely traced but impossible.
+   - B1 closes the one way round it: a string body or plpgsql records no dependencies. The case therefore asserts `prolang = sql` and `prosqlbody is not null`.
+   - With tightening 2 (`SECURITY INVOKER`), even a reader that slipped through would see only what the teacher's own RLS allows.
+2. **The deployed definition cannot change without the protected verification: yes, within the migration process,** because functions change only by migration through CI and review. **Change:** B4's read-only assertion runs after **every staging and every production promotion,** not staging only, so drift on either is visible. The out-of-process privileged change is the stated residual above.
+3. **A deliberately introduced dependency is detected: yes, by B3.** Each of four plants must turn the case red: a direct `persons` read; a read through a view; a call to a `public` helper; and a switch to a string body or plpgsql. The test is proven to fail, not merely seen to pass.
+
+**Unchanged from 05:35:**
+- **`SECURITY INVOKER`** (tightening 2), after the route's CAN_DRAFT check;
+- **no row policy keyed on a transaction-local setting,** since `set_config` is caller-controlled;
+- **the count in `itemSchema` is accepted,** with R3-07 deep-comparing the schema.
