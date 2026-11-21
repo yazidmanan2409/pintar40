@@ -40,3 +40,27 @@ The checks below are on Bob's figures: CI `44876692877`, journeys `44876695240`,
   - for a lesson, it sends exactly the text it checked, never a fresh `c3w_bahan` read;
   - a red case: a request checked on one text and sent with another is refused before any call.
 - Otherwise a lesson's own text, which could hold a class list (my 13 Nov control 2), could reach the provider unchecked.
+
+## Addendum · chunk 3, Q1: how generated drafts are written (21 Nov 2026, 08:25 UTC)
+
+Ruled on Bob's message, which names F-1 fixed at `d5d23f09`. I review that fix in the hand-off diff. **`ai_tulis_draf(p_percobaan uuid, p_soal jsonb)` is accepted, with three additions.**
+- **What holds:**
+  - identity comes from the attempt's own rows (D-1);
+  - it is `service_role` only;
+  - it requires a claimed, unsettled attempt;
+  - it writes items, provenance and the settlement in one transaction, and any failure writes nothing;
+  - **"AI-generated" means an `ai_asal_soal` row**, which no client can write.
+
+  A teacher's ordinary draft can never pass as an AI draft. F-2 sits in front of it.
+- **Addition 1 · re-check authority and the package's state at the moment of writing, not only at the request.**
+  - Between the request and the provider's reply, the requester's CAN_DRAFT can be revoked, or the package can be submitted or sealed.
+  - The internal path keeps every check that does not depend on the caller, and `ai_tulis_draf` re-checks the requester's CAN_DRAFT on the package (`draf_boleh_tulis` for that person).
+  - Any failure writes nothing and releases the attempt.
+  - **A red case:** the role is revoked after the claim, and the write is refused with nothing written.
+- **Addition 2 · `p_soal` is a closed shape, with bounded sizes.**
+  - It follows `item-schema.json` with `additionalProperties: false` at every level. **No author, person, school or status field can ride in it.**
+  - The stem, option and rationale lengths are bounded, so storage is bounded.
+  - **A red case:** an item carrying `author_person_id` (or any extra key) is refused, and nothing is written.
+- **Addition 3 · the provenance hash is of the content as stored.** The sha256 in `ai_asal_soal` is computed **after** the write, from the stored item, so a later edit is detectable against it. The C2w lineage carries revisions, as the design says.
+- **Bob's four proposed red cases are accepted as stated,** including the plant: the author taken from an argument.
+- **Q2 and Q3:** no addition. They stand as accepted in the design (§3; §9, answer 2; C3-1).
