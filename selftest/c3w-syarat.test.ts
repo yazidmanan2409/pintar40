@@ -146,8 +146,9 @@ begin
   insert into public.ai_plafon_platform (plafon, berhenti) values (1000000, false);
   insert into public.ai_hak_sekolah (sekolah, opsi, aktif, jatah, batas_per_pendidik, mulai, berakhir)
   values (v_sekolah, v_id, true, 100000, null, now() - interval '1 day', null);
-  insert into public.ai_permintaan (sekolah, pemohon, course_id, sumber_jenis, excerpt_sha256, tujuan, jumlah, kunci_idempoten, hak_sumber_dikonfirmasi_at, hasil)
-  values (v_sekolah, v_orang, v_kursus, 'TEMPEL', repeat('a', 64), 'Membandingkan pecahan', 3, 'c3w-uji-1', now(), null) returning id into v_id;
+  insert into public.ai_permintaan (sekolah, pemohon, course_id, sumber_jenis, lesson_id, excerpt_sha256, tujuan, jumlah, kunci_idempoten, hak_sumber_dikonfirmasi_at, hasil)
+  values (v_sekolah, v_orang, v_kursus, 'TEMPEL', (select l.id from public.lessons l order by l.id limit 1), repeat('a', 64), 'Membandingkan pecahan', 3,
+          'c3w-uji-1', now(), null) returning id into v_id;
   perform set_config('c3.minta', v_id::text, true);
   set local session_replication_role = origin;
 
@@ -213,9 +214,9 @@ begin
   -- settle at its true worst case stays within the reservation and the platform's stop stays off
   begin
     set local session_replication_role = replica;
-    insert into public.ai_permintaan (sekolah, pemohon, course_id, sumber_jenis, excerpt_sha256, tujuan, jumlah, kunci_idempoten,
+    insert into public.ai_permintaan (sekolah, pemohon, course_id, sumber_jenis, lesson_id, excerpt_sha256, tujuan, jumlah, kunci_idempoten,
                                       hak_sumber_dikonfirmasi_at, diperiksa_at, panjang_karakter)
-    select m.sekolah, m.pemohon, m.course_id, 'TEMPEL', repeat('b', 64), 'Membandingkan pecahan', 3, 'c3w-uji-panjang', now(), now(), 20000
+    select m.sekolah, m.pemohon, m.course_id, 'TEMPEL', m.lesson_id, repeat('b', 64), 'Membandingkan pecahan', 3, 'c3w-uji-panjang', now(), now(), 20000
       from public.ai_permintaan m where m.id = current_setting('c3.minta')::uuid
     returning id::text into v_id_teks;
     set local session_replication_role = origin;
