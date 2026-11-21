@@ -212,7 +212,7 @@ begin
   begin
     set local session_replication_role = replica;
     insert into public.ai_permintaan (sekolah, pemohon, course_id, sumber_jenis, excerpt_sha256, tujuan, jumlah, kunci_idempoten,
-                                      hak_sumber_dikonfirmasi_at, diperiksa_at, panjang_excerpt)
+                                      hak_sumber_dikonfirmasi_at, diperiksa_at, panjang_karakter)
     select m.sekolah, m.pemohon, m.course_id, 'TEMPEL', repeat('b', 64), 'Membandingkan pecahan', 3, 'c3w-uji-panjang', now(), now(), 20000
       from public.ai_permintaan m where m.id = current_setting('c3.minta')::uuid
     returning id::text into v_id_teks;
@@ -232,10 +232,10 @@ begin
   -- the plant: a reservation that ignores the length (its input term set to the prompt bound alone)
   declare d text; begin
     d := pg_get_functiondef('public.ai_cadangkan(uuid)'::regprocedure);
-    if position('ceil(m.panjang_excerpt * public.ai_token_per_karakter())::bigint' in d) = 0 then
+    if position('ceil(m.panjang_karakter * public.ai_token_per_karakter())::bigint' in d) = 0 then
       v := v || jsonb_build_object('f1_tanam', 'ERR:the reservation has no length term to plant');
     else
-      execute replace(d, 'ceil(m.panjang_excerpt * public.ai_token_per_karakter())::bigint', '0::bigint');
+      execute replace(d, 'ceil(m.panjang_karakter * public.ai_token_per_karakter())::bigint', '0::bigint');
       perform set_config('c3.f1t', public.ai_cadangkan(current_setting('c3.panjang')::uuid)::text, true);
       perform public.ai_tandai_kirim(current_setting('c3.f1t')::uuid);
       v := v || jsonb_build_object('f1_tanam', (select public.ai_selesaikan(current_setting('c3.f1t')::uuid, jsonb_build_object(
