@@ -29,8 +29,8 @@ Addendum §5d leaves to me and Daisy.
 - **One module** builds every provider request: `src/lib/ai/permintaan.ts`, server-only.
   - Its output type is a closed record: `{ excerpt, objectives[], itemSchema, promptVersion }`.
   - Nothing else is accepted: the type has no index signature, and the runtime check rejects an extra key.
-- **Database reads go through one definer function**, `c3w_bahan(p_lesson, p_objectives)`, owned by a **dedicated
-  NOLOGIN role** (for example `c3w_pembaca`). That role holds SELECT on the content tables only: `lessons`,
+- *(Superseded 21 Nov 2026 by the ruling in `C3W-1-DESIGN-6e3c4231.md`: `c3w_bahan` is owned by `postgres`, a `BEGIN ATOMIC` SQL function, `SECURITY INVOKER`, with a red case allow-listing its dependencies to the four content tables and `pg_catalog`. The role-owned design below conflicts with the DR-D01/D02 restore gates.)* ~~**Database reads go through one definer function**, `c3w_bahan(p_lesson, p_objectives)`, owned by a **dedicated
+  NOLOGIN role**~~ (for example `c3w_pembaca`). That role holds SELECT on the content tables only: `lessons`,
   `learning_objectives`, `modules`, `courses`.
   - Even an edited function body cannot read `persons`, `responses`, `assessment_sessions`, results, enrolments or
     accounts: **the database refuses it.**

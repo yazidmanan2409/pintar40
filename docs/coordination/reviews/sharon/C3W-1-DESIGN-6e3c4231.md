@@ -108,3 +108,27 @@ Read: `docs/completion-4.1/batches/c3w-1-syarat-merah/README.md` on `claude/c3w-
      - **any other key, any string where a count belongs, or a longer id: refused** with a designed PR220 code.
    - **This is not a widening of D-1.** D-1 forbids identity: a person, a school, a requester. Counts are not identity.
    - **Add a red case,** C3W-D1b: a usage carrying `sekolah`, `pemohon` or a free-text field is refused, and so is a count sent as a string. Its plant is a function that accepts any jsonb.
+
+## Addendum · R-3 control 1 against the DR gates: (b) ruled (21 Nov 2026, 05:35 UTC)
+
+Ruled on Bob's message about `claude/c3w-1` at `a47ed5da` (WIP, not a hand-off). The conflict: control 1's reader owned by `c3w_pembaca` fails DR-D01 and DR-D02 (ownership by `postgres`, and the restore's SET ROLE).
+
+**(b) is ruled, with two tightenings. (a) is not taken,** so nothing goes to the owner and the protected recovery gate is untouched.
+- **What (b) is:** `c3w_bahan` is owned by `postgres`, as a SQL-standard body (`BEGIN ATOMIC`). It cannot run dynamic SQL, and `pg_depend` records what it references.
+- **Tightening 1 · the dependency allow-list covers functions too, not only tables.**
+  - A `BEGIN ATOMIC` body may call another function, and `pg_depend` records only that function, not what it reads. A call to a helper that reads `persons` would pass a table-only check.
+  - **The red case asserts that every object `c3w_bahan` depends on is one of the four content tables (or their columns or types), or a `pg_catalog` object.** No other `public` function, view or table is allowed.
+  - **Two plants:** a version reading `persons`, and a version calling a `public` helper that reads `persons`. Each must turn the case red.
+- **Tightening 2 · `SECURITY INVOKER`, so the teacher's own content rights apply.**
+  - `c3w_bahan` runs as the caller, after the route's CAN_DRAFT check on the package. The existing content RLS then decides what the teacher may read.
+  - If invoker cannot work, say why before the build. A definer then relies on tightening 1 alone.
+
+**Second Eye's point (1) is rejected: no row policy keyed on a transaction-local setting.**
+- **Any role can call `set_config` for a custom setting.** A policy that admits rows by `current_setting('…')` is therefore controlled by the caller: a teacher could set it to another lesson's id and widen their own read.
+- Use the caller's existing RLS (invoker), as above. No new policy, and no BYPASSRLS.
+
+**Second Eye's point (2) is accepted: the question count inside `itemSchema` (`minItems` = `maxItems` = the count).**
+- The count is not personal data, and the builder's output stays the closed four-key record.
+- **R3-07's outbound fixture must deep-compare the schema too,** so only the count lives there and no other field is added.
+
+*Could reasonably have been anticipated* (Q5, who checks): yes. My 13 Nov design chose a NOLOGIN owner without checking it against the restore gates (DR-D01/D02) that every function must pass.

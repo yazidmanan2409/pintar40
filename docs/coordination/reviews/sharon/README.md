@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| C3w-1 R-3 control 1 vs the DR gates | (b) ruled: a postgres-owned BEGIN ATOMIC reader, SECURITY INVOKER, its dependency allow-list covering functions too (two plants). A setting-keyed row policy is rejected (set_config is caller-controlled). The count in itemSchema is accepted, with R3-07 deep-comparing it | `a47ed5da` | `C3W-1-DESIGN-6e3c4231.md` |
 | A3 staging promotion (284 → 290) | PASS: merge tree = 5755c6c2 exactly; 290 migrations; only lines 10 (digest 112cb5e9… = dry run) and 78 (0 without a root; 138 roots) move. Acceptance rests on the hosted checks (environment-facts) being green | `706fe8c5af8ed4ad3908cd556472938538dff087` | `A3-PROMOTION-706fe8c5.md` |
 | A3 chunk 2: merge and dry run 284→290 | PASS; A3 MAY FREEZE at 5ae2d406. The merge is clean (A3 migrations identical; hle a union; L01 +1 C2w line); pre-flight green, DR-D02 passed. All six proofs and step 0 hold. Accepted: add lanjut_diminta_pada to baru (I missed it). Ruled (a): a failure at 210000 leaves 285, gated by step 0 | `5ae2d406` / `05354e4ff9032054e71f089d5347988dc1aacf82` | `A3-DIFFS-671175e4.md` |
 | A3 S3, S7, S8, D9 (381aa196..c0cce607) | PASS. R-1 and R-2 met; P14–P17 as asked. c0cce607 needs its own full pre-flight. D9: (a), with an app test that the next seq after a recovery is above all held; the residual is stated as self-limited | `c0cce607` | `A3-DIFFS-671175e4.md` |
