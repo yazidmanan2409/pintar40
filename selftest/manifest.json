@@ -6818,7 +6818,7 @@
     {
       "id": "R3-07",
       "runner": "static",
-      "proves": "Sharon's R3-07 restated by her ruling (b) (625d52c1) with Bob's B1, B3 and B4: executes docs/completion-4.1/batches/c3w-1-r3-bahan-check.sql (the staging check) against the migrations: c3w_bahan is LANGUAGE sql with a SQL-standard body, SECURITY INVOKER and owned by postgres, and depends only on the four content tables and pg_catalog objects; five plants (a persons read, a public helper reading persons, a view over persons, a string body, plpgsql) are each caught; as the invoker it returns the teacher's own lesson and nothing of another school's. Reads the source: src/lib/ai/permintaan.ts deep-equals its fixture, the item schema with the count included, and refuses a fifth key; src/lib/ai imports only itself, server-only and node:crypto, and calls no fetch."
+      "proves": "Sharon's R3-07 restated by her ruling (b) (625d52c1) with Bob's B1, B3 and B4: executes scripts/release/after-promotion/c3w-r3-bahan.sql (C3W-R3-BAHAN, the check after every promotion) against the migrations: c3w_bahan is LANGUAGE sql with a SQL-standard body, SECURITY INVOKER and owned by postgres, and depends only on the four content tables and pg_catalog objects; five plants (a persons read, a public helper reading persons, a view over persons, a string body, plpgsql) are each caught; as the invoker it returns the teacher's own lesson and nothing of another school's. Reads the source: src/lib/ai/permintaan.ts deep-equals its fixture, the item schema with the count included, and refuses a fifth key; src/lib/ai imports only itself, server-only and node:crypto, and calls no fetch."
     },
     {
       "id": "A3-L01",

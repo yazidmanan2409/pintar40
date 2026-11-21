@@ -5,7 +5,7 @@
 --
 --   * c3w_bahan (Sharon's ruling (b), 625d52c1): the lesson's text and the chosen objectives, owned by postgres,
 --     LANGUAGE sql with a SQL-standard body (BEGIN ATOMIC), SECURITY INVOKER. Its reads are recorded in pg_depend, and no
---     dynamic SQL is possible, so docs/completion-4.1/batches/c3w-1-r3-bahan-check.sql can hold it to the four content
+--     dynamic SQL is possible, so scripts/release/after-promotion/c3w-r3-bahan.sql can hold it to the four content
 --     tables (R3-07, and on staging after promotion). As the invoker it reads with the teacher's own content RLS.
 --   * c3w_periksa_bahan(text): the check on the final excerpt, whatever its source (control 2), as the signed-in
 --     educator. Three classes block: IDENTIFIER (a PINTAR ID, an email, an Indonesian phone number, a 10- or 16-digit

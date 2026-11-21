@@ -28,7 +28,7 @@
  *   R3-06  the check's answer holds exactly boleh, kelas and rentang, and never the name, the PINTAR ID or the person id.
  *   R3-07  controls 1, 3 and 4 (Sharon's ruling (b), 625d52c1, with Bob's B1, B3 and B4): c3w_bahan is LANGUAGE sql with
  *          a SQL-standard body, SECURITY INVOKER and owned by postgres, and everything it depends on is a content table
- *          (or its columns or types) or a pg_catalog object, by docs/completion-4.1/batches/c3w-1-r3-bahan-check.sql
+ *          (or its columns or types) or a pg_catalog object, by scripts/release/after-promotion/c3w-r3-bahan.sql
  *          (the staging check, run here). Five plants each turn it red: a read of persons, a public helper reading
  *          persons, a view over persons, a string body and plpgsql. As the invoker it returns the teacher's own lesson
  *          and nothing of another school's. The builder's record deep-equals its fixture (the schema too) and refuses
@@ -51,8 +51,8 @@ const baris = (...l: string[]) => l.map(t).join(" || chr(10) || ");
 /** R3-01's plant: the check answering «allowed» to everything, as a SQL text literal for EXECUTE. */
 const TANAM_PERIKSA = t(`create or replace function public.c3w_periksa_bahan(p_teks text) returns jsonb language sql as 'select ''{"boleh": true, "kelas": [], "rentang": []}''::jsonb'`);
 
-/** B4's staging check, run here on the real function and on each plant (one source, so the two cannot drift). */
-const CEK = (repoRoot: string) => readFileSync(join(repoRoot, "docs", "completion-4.1", "batches", "c3w-1-r3-bahan-check.sql"), "utf8");
+/** B4's check after every promotion (C3W-R3-BAHAN), run here on the real function and on each plant (one source, so the two cannot drift). */
+const CEK = (repoRoot: string) => readFileSync(join(repoRoot, "scripts", "release", "after-promotion", "c3w-r3-bahan.sql"), "utf8");
 const BAHAN = "create or replace function public.c3w_bahan(p_lesson uuid, p_objectives uuid[]) returns jsonb language ";
 /** R3-07's plants (Sharon's two and Bob's B3): each replaces c3w_bahan, the check runs, and everything is undone. */
 const TANAM_BAHAN: Array<[string, string[], string]> = [
@@ -299,7 +299,7 @@ export const c3wR3Tests: SelfTest[] = [
         c.expect(luar.length === 0, `${relative(repoRoot, f)} imports ${luar.join(", ")} (src/lib/ai imports only itself, server-only and node:crypto)`);
         c.expect(!/\bfetch\s*\(/.test(src), `${relative(repoRoot, f)} calls fetch (no provider is reached in C3w-1)`);
       }
-      return c.verdict("reads the catalogue in one rolled-back transaction and the source (Sharon's R3-07): by docs/completion-4.1/batches/c3w-1-r3-bahan-check.sql, c3w_bahan is LANGUAGE sql with a SQL-standard body, SECURITY INVOKER and owned by postgres, and depends only on the four content tables and pg_catalog objects; five plants (a persons read, a public helper reading persons, a view over persons, a string body, plpgsql) are each caught; as the invoker it returns the teacher's own lesson and nothing of another school's; the one builder, src/lib/ai/permintaan.ts, deep-equals its fixture, the item schema with the count included, and refuses a fifth key; src/lib/ai imports only itself, server-only and node:crypto, and calls no fetch");
+      return c.verdict("reads the catalogue in one rolled-back transaction and the source (Sharon's R3-07): by scripts/release/after-promotion/c3w-r3-bahan.sql, c3w_bahan is LANGUAGE sql with a SQL-standard body, SECURITY INVOKER and owned by postgres, and depends only on the four content tables and pg_catalog objects; five plants (a persons read, a public helper reading persons, a view over persons, a string body, plpgsql) are each caught; as the invoker it returns the teacher's own lesson and nothing of another school's; the one builder, src/lib/ai/permintaan.ts, deep-equals its fixture, the item schema with the count included, and refuses a fifth key; src/lib/ai imports only itself, server-only and node:crypto, and calls no fetch");
     },
   },
 ];

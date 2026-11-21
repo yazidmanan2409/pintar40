@@ -1,6 +1,9 @@
--- C3w-1 · R-3 control 1, as Sharon ruled it (625d52c1; Bob's B1 and B4): what c3w_bahan may read.
--- READ ONLY. Runnable against staging after promotion (B4); not run there now. selftest/c3w-r3.test.ts (R3-07) runs
--- this same query locally, on the real function and on each plant, so the two cannot drift.
+-- C3W-R3-BAHAN · after every promotion, to staging and to production (Sharon's ruling (b), 625d52c1; Bob's B1 and B4
+-- as amended 21 Nov). READ ONLY: it changes nothing and needs no write right. A promotion checklist runs it after the
+-- migrations are applied and before the promotion is called done; anything but 'OK' stops the promotion.
+--   psql "$DB_URL" -At -f scripts/release/after-promotion/c3w-r3-bahan.sql      # expect: OK
+-- selftest/c3w-r3.test.ts (R3-07) runs this same file locally, on the real function and on each plant, so the two
+-- cannot drift. What c3w_bahan may read (R-3 control 1):
 --
 -- One row, one column: 'OK', or every problem found, separated by '; '.
 --   * c3w_bahan(uuid, uuid[]) exists, is LANGUAGE sql with a SQL-standard body (prosqlbody is not null, so pg_depend
