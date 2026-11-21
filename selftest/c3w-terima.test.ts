@@ -11,7 +11,7 @@
  *   C3W-T02 (Q3)  langkah_konten refuses the submit, AI_BELUM_DITERIMA, while a generated draft in the package has no
  *                 latest decision ACCEPTED or EDITED; once every one has, the submit goes through. The author cannot
  *                 approve their own generated draft. Plant: the gate's check replaced by false, the undecided submit lands.
- *   C3W-T03 (Q1, its code waits for Sharon's ruling)  ai_tulis_draf(p_percobaan, p_soal), service_role only: refused
+ *   C3W-T03 (Q1, Sharon's ruling with three additions)  ai_tulis_draf(p_percobaan, p_soal, p_penggunaan), service_role only: refused
  *                 on an attempt that is not a claimed sending, and on a bad p_soal (two keys; the wrong count), each
  *                 writing nothing; on a claimed attempt it writes the count asked, authored by the requester, one
  *                 provenance row each with the content's hash, and settles the attempt.
@@ -34,6 +34,8 @@ const asal = (it: string) => `
   insert into public.ai_asal_soal (item_id, permintaan, percobaan, model_ident, versi_prompt, excerpt_sha256, pemohon, isi_sha256)
   values (${it}, current_setting('c1.t_minta')::uuid, current_setting('c1.t_coba')::uuid, 'stub-1', 'c3w-1.1', repeat('c', 64),
           ${G("p_guru")}, public.ai_isi_soal_sha256(${it}));`;
+/** The usage the route reports for the call (Sharon's closed shape). */
+const PAKAI = `'{"token_masuk": 200, "token_keluar": 80, "biaya_mikro": 280}'::jsonb`;
 const soalJson = (stem: string, kunci: string) => `jsonb_build_object('stem', '${stem}', 'options', jsonb_build_array(
     jsonb_build_object('label', 'A', 'body', 'Pilihan A', 'is_correct', '${kunci}' = 'A', 'rationale', 'Alasan A.'),
     jsonb_build_object('label', 'B', 'body', 'Pilihan B', 'is_correct', '${kunci}' = 'B', 'rationale', 'Alasan B.')))`;
@@ -100,25 +102,50 @@ function skenario(c: Checks, repoRoot: string): Record<string, string> | null {
     langkah("t2_lolos", "guru", `select public.langkah_konten(${G("d1")}, 'IN_REVIEW')::text`),
     langkah("t2_status", null, `select status::text from public.courses where id = ${G("d1")}`),
     langkah("t2_setuju_sendiri", "guru", `select public.langkah_konten(${G("d1")}, 'APPROVED')::text`),
-    // ---- T03: writing the drafts (Q1), service_role's alone
-    langkah("t3_hak", null, `select has_function_privilege('authenticated', to_regprocedure('public.ai_tulis_draf(uuid,jsonb)'), 'execute')::text
-        || '|' || has_function_privilege('service_role', to_regprocedure('public.ai_tulis_draf(uuid,jsonb)'), 'execute')::text`),
-    langkah("t3_belum_kirim", null, `select public.ai_tulis_draf(public.ai_cadangkan(current_setting('c1.t_minta')::uuid),
-        jsonb_build_array(${soalJson("Satu", "A")}, ${soalJson("Dua", "B")}))::text`),
-    langkah("t3_dua_kunci", null, `select public.ai_tulis_draf(current_setting('c1.t_coba')::uuid, jsonb_build_array(
+    // ---- T03: writing the drafts (Q1, Sharon's three additions), service_role's alone, on a draft package of its own
+    `perform pg_temp.c1_draf('d2');`,
+    langkah("t3_minta", "guru", `select set_config('c1.t3_minta', (public.ai_minta_draf(${G("d2")}, (select l.id from public.lessons l join public.modules md on md.id = l.module_id where md.course_id = ${G("d2")} order by l.ordinal limit 1), 'Budi membeli lima apel.',
+        'Membandingkan pecahan', 2, 't3-satu', true) ->> 'permintaan'), true)`),
+    langkah("t3_coba", null, `select set_config('c1.t3_coba', public.ai_cadangkan(current_setting('c1.t3_minta')::uuid)::text, true)`),
+    langkah("t3_kirim", null, `select public.ai_tandai_kirim(current_setting('c1.t3_coba')::uuid)::text`),
+    langkah("t3_hak", null, `select has_function_privilege('authenticated', to_regprocedure('public.ai_tulis_draf(uuid,jsonb,jsonb)'), 'execute')::text
+        || '|' || has_function_privilege('service_role', to_regprocedure('public.ai_tulis_draf(uuid,jsonb,jsonb)'), 'execute')::text`),
+    langkah("t3_belum_kirim", null, `select public.ai_tulis_draf(public.ai_cadangkan(current_setting('c1.t3_minta')::uuid),
+        jsonb_build_array(${soalJson("Belum dikirim satu", "A")}, ${soalJson("Belum dikirim dua", "B")}), ${PAKAI})::text`),
+    langkah("t3_dua_kunci", null, `select public.ai_tulis_draf(current_setting('c1.t3_coba')::uuid, jsonb_build_array(
         jsonb_build_object('stem', 'Dua kunci', 'options', jsonb_build_array(
           jsonb_build_object('label', 'A', 'body', 'A', 'is_correct', true, 'rationale', 'a'),
-          jsonb_build_object('label', 'B', 'body', 'B', 'is_correct', true, 'rationale', 'b'))), ${soalJson("Dua", "B")}))::text`),
-    langkah("t3_jumlah", null, `select public.ai_tulis_draf(current_setting('c1.t_coba')::uuid, jsonb_build_array(${soalJson("Hanya satu", "A")}))::text`),
-    langkah("t3_tak_tertulis", null, `select count(*)::text from public.items i where i.stem in ('Dua kunci', 'Hanya satu')`),
-    langkah("t3_tulis", null, `select public.ai_tulis_draf(current_setting('c1.t_coba')::uuid,
-        jsonb_build_array(${soalJson("Soal AI satu", "A")}, ${soalJson("Soal AI dua", "B")}))::text`),
+          jsonb_build_object('label', 'B', 'body', 'B', 'is_correct', true, 'rationale', 'b'))), ${soalJson("Dua", "B")}), ${PAKAI})::text`),
+    langkah("t3_jumlah", null, `select public.ai_tulis_draf(current_setting('c1.t3_coba')::uuid, jsonb_build_array(${soalJson("Hanya satu", "A")}), ${PAKAI})::text`),
+    langkah("t3_penulis", null, `select public.ai_tulis_draf(current_setting('c1.t3_coba')::uuid, jsonb_build_array(
+        ${soalJson("Penulis disisipkan", "A")} || jsonb_build_object('author_person_id', ${G("p_m1")}), ${soalJson("Dua", "B")}), ${PAKAI})::text`),
+    langkah("t3_opsi_lebih", null, `select public.ai_tulis_draf(current_setting('c1.t3_coba')::uuid, jsonb_build_array(
+        jsonb_build_object('stem', 'Opsi berkunci lebih', 'options', jsonb_build_array(
+          jsonb_build_object('label', 'A', 'body', 'A', 'is_correct', true, 'rationale', 'a', 'catatan', 'x'),
+          jsonb_build_object('label', 'B', 'body', 'B', 'is_correct', false, 'rationale', 'b'))), ${soalJson("Dua", "B")}), ${PAKAI})::text`),
+    langkah("t3_panjang", null, `select public.ai_tulis_draf(current_setting('c1.t3_coba')::uuid, jsonb_build_array(
+        ${soalJson("Panjang", "A")} || jsonb_build_object('stem', repeat('x', 2001)), ${soalJson("Dua", "B")}), ${PAKAI})::text`),
+    langkah("t3_tak_tertulis", null, `select (select count(*) from public.items i join public.lessons l on l.id = i.lesson_id join public.modules md on md.id = l.module_id
+        where md.course_id = ${G("d2")} and (i.stem in ('Belum dikirim satu', 'Dua kunci', 'Hanya satu', 'Penulis disisipkan', 'Opsi berkunci lebih', 'Dua')
+          or length(i.stem) > 2000))::text || '|' || (select keadaan from public.ai_percobaan where id = current_setting('c1.t3_coba')::uuid)`),
+    langkah("t3_tulis", null, `select public.ai_tulis_draf(current_setting('c1.t3_coba')::uuid,
+        jsonb_build_array(${soalJson("Soal AI satu", "A")}, ${soalJson("Soal AI dua", "B")}), ${PAKAI})::text`),
     langkah("t3_hasil", null, `select concat_ws('|',
         (select count(*) from public.items i where i.stem in ('Soal AI satu', 'Soal AI dua') and i.author_person_id = ${G("p_guru")}),
         (select count(*) from public.ai_asal_soal a join public.items i on i.id = a.item_id
           where i.stem in ('Soal AI satu', 'Soal AI dua') and a.isi_sha256 = public.ai_isi_soal_sha256(i.id)
-            and a.percobaan = current_setting('c1.t_coba')::uuid and a.pemohon = ${G("p_guru")}),
-        (select keadaan from public.ai_percobaan where id = current_setting('c1.t_coba')::uuid))`),
+            and a.percobaan = current_setting('c1.t3_coba')::uuid and a.pemohon = ${G("p_guru")}),
+        (select keadaan from public.ai_percobaan where id = current_setting('c1.t3_coba')::uuid))`),
+    // Sharon's addition 1: the requester's CAN_DRAFT re-checked at write time (the role revoked after the claim)
+    langkah("t3b_minta", "guru", `select set_config('c1.t3b_minta', (public.ai_minta_draf(${G("d2")}, (select l.id from public.lessons l join public.modules md on md.id = l.module_id where md.course_id = ${G("d2")} order by l.ordinal limit 1), 'Ani membeli dua jeruk.',
+        'Membandingkan pecahan', 2, 't3-dua', true) ->> 'permintaan'), true)`),
+    langkah("t3b_coba", null, `select set_config('c1.t3b_coba', public.ai_cadangkan(current_setting('c1.t3b_minta')::uuid)::text, true)`),
+    langkah("t3b_kirim", null, `select public.ai_tandai_kirim(current_setting('c1.t3b_coba')::uuid)::text`),
+    `update public.role_assignments set revoked_at = now() where person_id = ${G("p_guru")} and revoked_at is null;`,
+    langkah("t3b_tulis", null, `select public.ai_tulis_draf(current_setting('c1.t3b_coba')::uuid,
+        jsonb_build_array(${soalJson("Setelah dicabut satu", "A")}, ${soalJson("Setelah dicabut dua", "B")}), ${PAKAI})::text`),
+    langkah("t3b_tak", null, `select (select count(*) from public.items i where i.stem like 'Setelah dicabut%')::text || '|'
+        || (select keadaan from public.ai_percobaan where id = current_setting('c1.t3b_coba')::uuid)`),
     // ---- the plants, last: the log's guard dropped; the gate's check removed
     `begin execute 'drop trigger ai_penerimaan_tetap on public.ai_penerimaan'; exception when others then null; end;`,
     langkah("tanam_log", null, `update public.ai_penerimaan set keputusan = 'ACCEPTED' where item_id = ${G("y")} returning keputusan`),
@@ -176,12 +203,14 @@ export const c3wTerimaTests: SelfTest[] = [
       if (!c.expect(h !== null, "the scenario did not run")) return c.verdict("");
       c.expect(h!.t3_hak === "ok:false|true", `ai_tulis_draf executable by authenticated|service_role: ${h!.t3_hak} (false|true)`);
       c.expect(refused(h!.t3_belum_kirim), `writing for an attempt that is not a claimed sending: ${h!.t3_belum_kirim} (refused)`);
-      c.expect((h!.t3_dua_kunci ?? "").startsWith("PR220:") && (h!.t3_jumlah ?? "").startsWith("PR220:"),
-        `a draft with two keys: ${h!.t3_dua_kunci}; the wrong count: ${h!.t3_jumlah} (each refused PR220)`);
-      c.expect(h!.t3_tak_tertulis === "ok:0", `questions written by the refused calls: ${h!.t3_tak_tertulis} (none)`);
+      for (const k of ["t3_dua_kunci", "t3_jumlah", "t3_penulis", "t3_opsi_lebih", "t3_panjang"]) {
+        c.expect((h![k] ?? "").startsWith("PR220:"), `${k}: ${h![k]} (refused PR220: the closed shape, the single key, the count, the bounds)`);
+      }
+      c.expect(h!.t3_tak_tertulis === "ok:0|RESERVED", `questions written by the refused calls|the attempt after them: ${h!.t3_tak_tertulis} (0|RESERVED: nothing written, the claim left for the route to settle)`);
       c.expect((h!.t3_tulis ?? "").startsWith("ok:") && h!.t3_hasil === "ok:2|2|SETTLED",
-        `writing two drafts on the claimed attempt: ${h!.t3_tulis}; authored by the requester|with provenance and the content hash|the attempt: ${h!.t3_hasil} (2|2|SETTLED)`);
-      return c.verdict("executes ai_tulis_draf against the migrations in one rolled-back transaction (Bob's Q1, its code after Sharon's ruling): service_role alone may call it; an attempt that is not a claimed sending, a draft with two keys and the wrong count are each refused and write nothing; on the claimed attempt it writes the two questions asked, authored by the requester, each with a provenance row carrying the content's hash, and settles the attempt");
+        `writing two drafts on the claimed attempt: ${h!.t3_tulis}; authored by the requester|with provenance hashed from the stored item|the attempt: ${h!.t3_hasil} (2|2|SETTLED)`);
+      c.expect(refused(h!.t3b_tulis) && h!.t3b_tak === "ok:0|RESERVED", `writing after the requester's role was revoked: ${h!.t3b_tulis}; written|attempt: ${h!.t3b_tak} (refused; 0|RESERVED)`);
+      return c.verdict("executes ai_tulis_draf against the migrations in one rolled-back transaction (Bob's Q1 as Sharon accepted it, with her three additions): service_role alone may call it; an attempt that is not a claimed sending, two keys, the wrong count, an item carrying author_person_id, an option with an extra key and an over-long stem are each refused PR220 and write nothing, leaving the claim RESERVED for the route to settle; on the claimed attempt it writes the two questions asked, authored by the requester, each with provenance hashed from the stored item, and settles; after the requester's role is revoked the write is refused");
     },
   },
 ];

@@ -43,6 +43,8 @@ const LAYANAN: Record<string, string[]> = {
   ai_selesaikan: ["p_percobaan uuid", "p_penggunaan jsonb"],
   ai_lepaskan: ["p_percobaan uuid"],
   ai_rekonsiliasi: ["p_percobaan uuid", "p_penggunaan jsonb"],
+  // Bob's Q1 as Sharon accepted it: the drafts written and the attempt settled in one transaction
+  ai_tulis_draf: ["p_percobaan uuid", "p_soal jsonb", "p_penggunaan jsonb"],
   ai_sapu: [],
 };
 /** The usage's one shape check (D-1b): both usage takers call it, so its plant (accept any jsonb) reaches both. */
@@ -65,7 +67,7 @@ const TOLAK_PENGGUNAAN = "PR220:AI_PENGGUNAAN_TIDAK_SAH";
 /** D-3: the one constant the sweep reads, the call's hard timeout plus 5 minutes (Sharon's ruling 2). */
 const BATAS_KIRIM = "ai_batas_kirim_tanpa_akhir";
 /** Functions that lock the three ceilings (D-4), in Sharon's order. */
-const PENGUNCI = ["ai_cadangkan", "ai_selesaikan", "ai_lepaskan", "ai_rekonsiliasi"];
+const PENGUNCI = ["ai_cadangkan", "ai_selesaikan", "ai_lepaskan", "ai_rekonsiliasi", "ai_tulis_draf"];
 const URUT_KUNCI = ["ai_hak_sekolah", "ai_opsi", "ai_plafon_platform"];
 const TABEL = ["ai_opsi", "ai_plafon_platform", "ai_hak_sekolah", "ai_permintaan", "ai_percobaan", "ai_asal_soal", "ai_penerimaan"];
 /** An argument that names a person or a school (D-1: those come from the session, never from the caller). */
@@ -350,7 +352,7 @@ export const c3wSyaratTests: SelfTest[] = [
       c.expect((h.tanam_d1b ?? "").startsWith("ok:"), `the plant (${SAH_PENGGUNAAN} accepting any jsonb) was not caught: ${h.tanam_d1b}`);
       const fs = fungsiAi();
       if (typeof fs !== "string") {
-        for (const nama of ["ai_selesaikan", "ai_rekonsiliasi"]) {
+        for (const nama of ["ai_selesaikan", "ai_rekonsiliasi", "ai_tulis_draf"]) {
           const b = tanpaKomentar(fs.find((x) => x.nama === nama)?.src ?? "");
           c.expect(new RegExp(`public\\.${SAH_PENGGUNAAN}\\(p_penggunaan\\)`).test(b), `${nama} does not check p_penggunaan through public.${SAH_PENGGUNAAN}(p_penggunaan)`);
         }

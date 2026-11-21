@@ -6838,7 +6838,7 @@
     {
       "id": "C3W-T03",
       "runner": "static",
-      "proves": "Bob's Q1, red first (its code waits for Sharon's ruling): executes ai_tulis_draf against the migrations in one rolled-back transaction: service_role alone may call it; an unclaimed attempt, a draft with two keys and the wrong count are refused and write nothing; on a claimed attempt it writes the count asked, authored by the requester, with provenance carrying the content hash, and settles the attempt."
+      "proves": "Bob's Q1 as Sharon accepted it (C3W-1-BUILD-992b568f.md), red first: executes ai_tulis_draf(p_percobaan, p_soal, p_penggunaan) against the migrations in one rolled-back transaction: service_role alone may call it; an unclaimed attempt, two keys, the wrong count, an item carrying author_person_id, an option with an extra key and an over-long stem are each refused PR220 and write nothing, the claim left RESERVED; on a claimed attempt it writes the count asked, authored by the requester, with provenance hashed from the stored item, and settles; after the requester's role is revoked the write is refused."
     },
     {
       "id": "A3-L01",
