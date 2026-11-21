@@ -6826,6 +6826,21 @@
       "proves": "Sharon's R3-07 restated by her ruling (b) (625d52c1) with Bob's B1, B3 and B4: executes scripts/release/after-promotion/c3w-r3-bahan.sql (C3W-R3-BAHAN, the check after every promotion) against the migrations: c3w_bahan is LANGUAGE sql with a SQL-standard body, SECURITY INVOKER and owned by postgres, and depends only on the four content tables and pg_catalog objects; five plants (a persons read, a public helper reading persons, a view over persons, a string body, plpgsql) are each caught; as the invoker it returns the teacher's own lesson and nothing of another school's. Reads the source: src/lib/ai/permintaan.ts deep-equals its fixture, the item schema with the count included, and refuses a fifth key; src/lib/ai imports only itself, server-only and node:crypto, and calls no fetch."
     },
     {
+      "id": "C3W-T01",
+      "runner": "static",
+      "proves": "Bob's Q2 (design §3, §9 answer 2), red first: executes ai_putuskan against the migrations in one rolled-back transaction: a decision by another school's administrator, a learner, on a hand-written question or of an unknown kind is refused; Terima records ACCEPTED on a draft kept as generated and EDITED after an edit (derived from the content hash); Hapus removes the draft through hapus_soal_draf and records DELETED, its provenance kept; the log is append-only, and its plant (the guard dropped) is caught."
+    },
+    {
+      "id": "C3W-T02",
+      "runner": "static",
+      "proves": "C3-1 and Bob's Q3, red first: executes langkah_konten against the migrations in one rolled-back transaction: the submit to IN_REVIEW is refused PR220 AI_BELUM_DITERIMA while generated drafts are undecided, and goes through once each is ACCEPTED, EDITED or DELETED; the author cannot approve their own generated draft; the plant (ai_gerbang_diterima a no-op) lets the undecided submit through."
+    },
+    {
+      "id": "C3W-T03",
+      "runner": "static",
+      "proves": "Bob's Q1, red first (its code waits for Sharon's ruling): executes ai_tulis_draf against the migrations in one rolled-back transaction: service_role alone may call it; an unclaimed attempt, a draft with two keys and the wrong count are refused and write nothing; on a claimed attempt it writes the count asked, authored by the requester, with provenance carrying the content hash, and settles the attempt."
+    },
+    {
       "id": "A3-L01",
       "runner": "static",
       "proves": "executes pengerjaan_saya and daftar_pengerjaan against the migrations, rolled back: the learner's read says whether this session controls the sitting, whether a teacher must allow a recovery and whether this generation came by a teacher's permission; the teacher's row carries the mode, the learner's request and a valid permission."
