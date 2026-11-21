@@ -1,6 +1,7 @@
 # C3w-1 · Words for AI-drafted questions in Studio, and the Studio consistency findings (Daisy, 18 Nov 2026)
 
 > **What holds now:**
+> - **21 Nov:** additions for the states built since (target lesson, two-action decision, VALIDATED, failed write) are in `C3W-1-WORDS-TAMBAHAN.md`; two rows here are superseded in place.
 > - **Words for every state and every code** of `C3W-1-DESIGN.md` §3 (PR220):
 >   - the form, generating and success (§1);
 >   - the refusals (§2);
@@ -89,9 +90,9 @@
 |---|---|---|
 | Chip, before any action (`pin-pill`, neutral) | «Draf dari AI» | «AI draft» |
 | Provenance line (`pin-meta`) | «Disusun dengan AI ({model}) dari {sumber} · diminta oleh {nama}, {waktu}» | «Drafted with AI ({model}) from {sumber} · requested by {nama}, {waktu}» |
-| Actions | «Terima» (primary) · «Ubah» · «Hapus» (`pin-quiet`) | «Accept» · «Edit» · «Delete» |
+| Actions | ~~«Terima» (primary) · «Ubah» · «Hapus» (`pin-quiet`)~~ Superseded: «Terima» · «Hapus», see `C3W-1-WORDS-TAMBAHAN.md` §2 | ~~«Accept» · «Edit» · «Delete»~~ |
 | After «Terima»: the chip | «Diterima oleh {nama}» | «Accepted by {nama}» |
-| After «Ubah» and saving: the chip | «Diubah oleh {nama}» | «Edited by {nama}» |
+| ~~After «Ubah» and saving: the chip~~ | ~~«Diubah oleh {nama}»~~ Superseded: «Diubah lalu diterima oleh {nama}», `C3W-1-WORDS-TAMBAHAN.md` §2 | ~~«Edited by {nama}»~~ |
 | «Hapus»: confirmation (`KonfirmasiBahaya`) | «Hapus draf ini? Draf yang dihapus tidak dapat dikembalikan.» [Hapus] [Batal] | «Delete this draft? A deleted draft cannot be brought back.» |
 | After «Hapus» (`role="status"`) | «Draf dihapus.» | «Draft deleted.» |
 
@@ -100,7 +101,7 @@
 - **{waktu}** is in the school's zone, with non-breaking spaces as in A2b.
 
 **The held submit step (`AI_BELUM_DITERIMA`), in «Langkah menuju terbit»** (O-5's sentence, unchanged):
-- «**{n} soal masih draf dari AI.** Setiap soal perlu diterima, diubah atau dihapus oleh pendidik sebelum paket diajukan.»
+- ~~«**{n} soal masih draf dari AI.** Setiap soal perlu diterima, diubah atau dihapus oleh pendidik sebelum paket diajukan.»~~ Superseded: «… diterima atau dihapus …», `C3W-1-WORDS-TAMBAHAN.md` §3
 - n=1: «**1 soal masih draf dari AI.** …»
 - **The step is shown with its reason** and tied by `aria-describedby`, per finding #10 (`AlasanNonaktif`).
 - **If submitted anyway** (stale page, the database's refusal), the same sentence appears in the result line, `role="alert"`.
