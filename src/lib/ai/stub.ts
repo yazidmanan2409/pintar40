@@ -3,6 +3,7 @@
  * deterministic from a seed in the excerpt's hash, and it counts its calls so a test can prove "zero provider calls".
  * Selected only through src/lib/ai/penyedia.ts under the harness's flag (D-5).
  */
+import { createHash } from "node:crypto";
 import type { HasilPenyedia, PermintaanPenyedia } from "@/lib/ai/kontrak";
 
 let panggilan = 0;
@@ -12,18 +13,19 @@ export function jumlahPanggilanStub(): number {
   return panggilan;
 }
 
-/** A deterministic, valid single-answer draft set; the count asked, each with one correct key (D6). */
+/** A deterministic, valid single-answer draft set: the count the schema asks, each with one correct key (D6). */
 export async function panggilStub(p: PermintaanPenyedia): Promise<HasilPenyedia> {
   panggilan += 1;
-  const benih = Number.parseInt(p.excerptSha256.slice(0, 8), 16) || 1;
-  const soal = Array.from({ length: p.jumlah }, (_, i) => {
+  const benih = Number.parseInt(createHash("sha256").update(p.excerpt).digest("hex").slice(0, 8), 16);
+  const tujuan = p.objectives[0] ?? "";
+  const soal = Array.from({ length: p.itemSchema.maxItems }, (_, i) => {
     const kunci = ["A", "B", "C", "D"][(benih + i) % 4];
     return {
-      stem: `Soal latihan ${i + 1}: ${p.tujuan}`,
+      stem: `Soal latihan ${i + 1}: ${tujuan}`,
       options: ["A", "B", "C", "D"].map((label) => ({ label, text: `Pilihan ${label}`, correct: label === kunci })),
     };
   });
-  const keluar = 40 * p.jumlah;
+  const keluar = 40 * soal.length;
   return {
     ok: true,
     soal,

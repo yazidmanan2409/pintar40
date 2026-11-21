@@ -1,12 +1,20 @@
 /**
- * C3w-1 · THE ONE PROVIDER INTERFACE (D8). Pure types: no network, no database, no React. The request carries content
- * only (R-3 control 1 and 4): never a person, a school or a learner-derived value.
+ * C3w-1 · THE ONE PROVIDER INTERFACE (D8). Pure types: no network, no database, no React. The request is R-3's closed
+ * record (control 1): content only, never a person, a school or a learner-derived value (controls 3 and 4).
  */
 export type PermintaanPenyedia = {
   excerpt: string;
-  excerptSha256: string;
-  tujuan: string;
-  jumlah: number;
+  objectives: string[];
+  /** The JSON shape of the answer: an array of single-answer questions, minItems = maxItems = the count asked. */
+  itemSchema: SkemaSoal;
+  promptVersion: string;
+};
+
+export type SkemaSoal = {
+  type: "array";
+  minItems: number;
+  maxItems: number;
+  items: { type: "object"; required: ["stem", "options"] };
 };
 
 /** Sharon's closed usage shape, as ai_selesaikan and ai_rekonsiliasi take it (D-1b). */
