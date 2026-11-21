@@ -3,10 +3,10 @@
 -- C3W-R3-DESIGN.md controls 1, 2 and 4 and the common-names rule. Red first: C3W-D1 and R3-01 to R3-07
 -- (selftest/c3w-syarat.test.ts, selftest/c3w-r3.test.ts).
 --
---   * c3w_pembaca: a NOLOGIN role holding SELECT on the content tables only (lessons, learning_objectives, modules,
---     courses). It owns c3w_bahan, so even an edited body cannot read a person, a response, a sitting, a result, an
---     enrolment or an account: the database refuses it (control 1). Its row policies admit only the one lesson the
---     current call names (a transaction-local setting c3w_bahan sets itself), never a whole table.
+--   * c3w_bahan (Sharon's ruling (b), 625d52c1): the lesson's text and the chosen objectives, owned by postgres,
+--     LANGUAGE sql with a SQL-standard body (BEGIN ATOMIC), SECURITY INVOKER. Its reads are recorded in pg_depend, and no
+--     dynamic SQL is possible, so docs/completion-4.1/batches/c3w-1-r3-bahan-check.sql can hold it to the four content
+--     tables (R3-07, and on staging after promotion). As the invoker it reads with the teacher's own content RLS.
 --   * c3w_periksa_bahan(text): the check on the final excerpt, whatever its source (control 2), as the signed-in
 --     educator. Three classes block: IDENTIFIER (a PINTAR ID, an email, an Indonesian phone number, a 10- or 16-digit
 --     number), NAME (the full name of a learner visible to this educator, person_visible_to_me), LIST (three lines of
@@ -24,42 +24,19 @@
 -- ---------------------------------------------------------------------------------------------------------------
 
 -- ---------------------------------------------------------------------------------------------------------------- control 1
-do $$
-begin
-  if not exists (select 1 from pg_roles where rolname = 'c3w_pembaca') then
-    create role c3w_pembaca nologin;
-  end if;
-end $$;
-alter role c3w_pembaca nologin;
--- the migrating role must be able to act as the reader to hand it c3w_bahan; the reader gains nothing of the migrator's
-grant c3w_pembaca to current_user;
-grant usage on schema public to c3w_pembaca;
-grant select on public.lessons, public.learning_objectives, public.modules, public.courses to c3w_pembaca;
-create policy c3w_pembaca_satu_pelajaran on public.lessons for select to c3w_pembaca
-  using (id = nullif(current_setting('c3w.pelajaran', true), '')::uuid);
-create policy c3w_pembaca_tujuan_pelajaran on public.learning_objectives for select to c3w_pembaca
-  using (lesson_id = nullif(current_setting('c3w.pelajaran', true), '')::uuid);
-
--- the lesson's own text and the chosen objectives' statements: content only
+-- the lesson's own text and the chosen objectives' statements: content only, read with the caller's own RLS
 create or replace function public.c3w_bahan(p_lesson uuid, p_objectives uuid[])
-returns jsonb language plpgsql stable security definer set search_path = public, pg_temp as $$
-declare v jsonb;
-begin
-  perform set_config('c3w.pelajaran', p_lesson::text, true);
+returns jsonb language sql stable security invoker set search_path = public, pg_temp
+begin atomic
   select jsonb_build_object(
            'judul', l.title,
            'teks', concat_ws(chr(10) || chr(10), nullif(l.summary, ''), nullif(l.body_markdown, '')),
            'tujuan', coalesce((select jsonb_agg(o.statement order by o.code) from public.learning_objectives o
-                                where o.lesson_id = l.id and o.id = any (coalesce(p_objectives, '{}'))), '[]'::jsonb))
-    into v from public.lessons l where l.id = p_lesson;
-  perform set_config('c3w.pelajaran', '', true);
-  return v;
-end $$;
--- taking ownership needs CREATE on the schema at that moment; it is revoked at once, so the reader creates nothing
-grant create on schema public to c3w_pembaca;
-alter function public.c3w_bahan(uuid, uuid[]) owner to c3w_pembaca;
-revoke create on schema public from c3w_pembaca;
+                                where o.lesson_id = l.id and o.id = any (coalesce(p_objectives, '{}'::uuid[]))), '[]'::jsonb))
+    from public.lessons l where l.id = p_lesson;
+end;
 revoke all on function public.c3w_bahan(uuid, uuid[]) from public, anon, authenticated;
+grant execute on function public.c3w_bahan(uuid, uuid[]) to authenticated;
 
 -- ---------------------------------------------------------------------------------------------------------------- control 2
 -- names compared as words: lower case, every run of non-letters one space
@@ -324,6 +301,10 @@ insert into public.client_rpc_registry (function_name, exposure, note, authoriza
    'C3w-1: an educator asks for AI draft questions on a draft package they may author. The person from the session, the '
    || 'school from the package; D10, the entitlement and R-3''s check before anything is reserved. Outcomes by code (PR220).',
    'CAPABILITY', 'CAN_DRAFT'),
+  ('c3w_bahan', 'STAFF',
+   'C3w-1: a lesson''s text and chosen objectives for an AI draft request, read with the teacher''s own content RLS '
+   || '(SECURITY INVOKER; Sharon''s ruling (b)). Called after the route''s CAN_DRAFT check.',
+   'CAPABILITY', 'CAN_DRAFT'),
   ('c3w_periksa_bahan', 'STAFF',
    'C3w-1: R-3''s check on an excerpt, as the educator: {boleh, kelas, rentang}, never a name or an id.',
    'CAPABILITY', 'CAN_DRAFT')
@@ -333,14 +314,10 @@ on conflict (function_name) do update set exposure = excluded.exposure, note = e
 do $$
 declare bad text;
 begin
-  -- control 1: the reader reads content only
-  select string_agg(t, ', ') into bad
-    from unnest(array['persons', 'responses', 'assessment_sessions', 'assessment_results', 'enrollments', 'accounts', 'memberships']) t
-   where has_table_privilege('c3w_pembaca', 'public.' || t, 'SELECT');
-  if bad is not null then raise exception 'C3w-1 (R-3 control 1): c3w_pembaca reads %', bad; end if;
-  if has_schema_privilege('c3w_pembaca', 'public', 'CREATE') then raise exception 'C3w-1 (R-3 control 1): c3w_pembaca can create in public'; end if;
-  if (select pg_get_userbyid(proowner) from pg_proc where oid = 'public.c3w_bahan(uuid,uuid[])'::regprocedure) <> 'c3w_pembaca' then
-    raise exception 'C3w-1 (R-3 control 1): c3w_bahan is not c3w_pembaca''s';
+  -- control 1 (Sharon's ruling (b)): the staging check's own conditions, the dependency list in R3-07
+  if not exists (select 1 from pg_proc p where p.oid = 'public.c3w_bahan(uuid,uuid[])'::regprocedure
+                  and p.prosqlbody is not null and not p.prosecdef and pg_get_userbyid(p.proowner) = 'postgres') then
+    raise exception 'C3w-1 (R-3 control 1): c3w_bahan is not a postgres-owned SQL-standard invoker';
   end if;
   select string_agg(t, ', ') into bad from unnest(array['ai_asal_soal', 'ai_penerimaan']) t
    where has_table_privilege('authenticated', 'public.' || t, 'SELECT,INSERT,UPDATE,DELETE')
