@@ -80,6 +80,13 @@ This is the running record. Bob updates it as work moves; the newest entries are
 
 | When (UTC) | What |
 |---|---|
+| 21 Nov 09:45 | **PAUSED (owner).** Heads: `claude/c3w-1` `7c9f6266` (WIP; all of C3w-1's database work, F-1, Bob's four decisions; every C3w-1 test passes; no CI on this WIP); Sharon `aa8cc8c1`; Daisy `fdb90e16` (the new-state words: `C3W-1-WORDS-TAMBAHAN.md`, adding AI_PAKET_LOLOS_PERIKSA). The 2-hour driver is off. **Resume:**
+1. Second Eye: F-2 in the route, the drafting route on the stub, C3-2 to C3-10 red first, one pre-flight, CI and journeys once, the hand-off.
+2. Sharon: the hand-off review, including F-1's fix (`d5d23f09`) and her confirmation of Bob's four readings.
+3. Daisy: the screens' review when they are built.
+4. Bob: re-arm the driver.
+
+E waits only for J3's sheet |
 | 21 Nov 08:16 | Second Eye's chunk-3 questions answered: Q2 (acceptance: Terima or Hapus, with ACCEPTED or EDITED derived from the provenance hash; append-only) and Q3 (the submit gate `AI_BELUM_DITERIMA`; two-person rule) from the accepted design. **Q1, `ai_tulis_draf`, ACCEPTED by Sharon** with three additions: the requester's CAN_DRAFT and the package state re-checked at write time; a closed `p_soal` (no extra keys; bounded lengths); and the provenance hash taken from the stored item. F-1 is fixed (`d5d23f09`); she reviews it in the hand-off |
 | 21 Nov 07:39 | **Sharon's build review of `992b568f`: PASS** on the ledger, the request entry and `c3w_bahan`, with two findings. **F-1, before acceptance:** a fixed input estimate could let a 20,000-character excerpt overrun its reservation and trip the platform-wide stop. Bob chose her option (a): reserve from the stored excerpt length. **F-2, for chunk 3:** the route must send exactly the text whose hash was checked, asserted before the send. Both relayed, red first |
 | 21 Nov 07:25 | **Hand-off: chunks 1 and 2 at `992b568f`.** CI 44876692877 success; journeys 44876695240 success (first attempt); pre-flight green (1311/0, 175/175, 11/11); DR-D01/D02 green and unchanged. The reader follows Sharon's (b). The after-promotion check is `scripts/release/after-promotion/c3w-r3-bahan.sql` (C3W-R3-BAHAN). Two migrations after 290; no provider, key or spend. **Sent to Sharon for the build review.** Still to come: the drafting route (stub), the submit-for-review refusal, the remaining acceptance tests, and Daisy's screens |
