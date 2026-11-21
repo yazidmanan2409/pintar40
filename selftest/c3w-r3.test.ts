@@ -7,7 +7,8 @@
  *
  * The interface these cases assume (Sharon's names where she gives one):
  *   c3w_periksa_bahan(p_teks text) returns jsonb  {boleh, kelas[], rentang[]}: the check, as the signed-in educator
- *   ai_minta_draf(p_course, p_lesson, p_teks, p_tujuan, p_jumlah, p_kunci_idempoten, p_hak_sumber) returns jsonb
+ *   ai_minta_draf(p_course, p_lesson, p_teks, p_tujuan, p_jumlah, p_kunci_idempoten, p_hak_sumber[, p_sumber]) returns jsonb
+ *       (p_lesson is the target lesson, required, Bob's ruling of 21 Nov)
  *       {ok, kode?, permintaan, kelas?, rentang?}: the request, its identity from the session (D-1); a refusal is a
  *       recorded outcome, not an error, so the ledger row stands (control 4)
  *   c3w_bahan(p_lesson, p_objectives): content reads, LANGUAGE sql with a SQL-standard body, SECURITY INVOKER, owned
@@ -72,9 +73,13 @@ const tanamBahan = (repoRoot: string) => TANAM_BAHAN.map(([k, ddl]) => `declare 
     exception when others then if sqlerrm <> 'c3w-batal' then v := v || jsonb_build_object('tanam_${k}', 'ERR:' || sqlerrm); end if;
     end;`);
 
+/** Bob's ruling (21 Nov): every request names the lesson of the package its drafts are written into; a pasted excerpt
+ *  is only the source. */
+const SASARAN = `(select l.id from public.lessons l join public.modules md on md.id = l.module_id where md.course_id = ${G("d1")} order by l.ordinal limit 1)`;
+
 const periksa = (k: string, teks: string) => langkah(k, "guru", `select public.c3w_periksa_bahan(${teks})::text`);
 const minta = (k: string, teks: string, kunci: string) =>
-  langkah(k, "guru", `select public.ai_minta_draf(${G("d1")}, null, ${teks}, 'Membandingkan pecahan', 2, '${kunci}', true)::text`);
+  langkah(k, "guru", `select public.ai_minta_draf(${G("d1")}, ${SASARAN}, ${teks}, 'Membandingkan pecahan', 2, '${kunci}', true)::text`);
 
 const IDENTITAS: Array<[string, string]> = [
   ["pintar", t("Hubungi 7K3M9QX2 untuk tugas tambahan.")],

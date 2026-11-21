@@ -63,6 +63,16 @@ function skenario(c: Checks, repoRoot: string): Record<string, string> | null {
     `begin set local session_replication_role = replica; ${asal(G("x"))} ${asal(G("y"))} ${asal(G("z"))}
        set local session_replication_role = origin;
      exception when others then v := v || jsonb_build_object('t_asal', 'ERR:' || sqlerrm); end;`,
+    // ---- T04 (Bob's ruling of 21 Nov): every request names its target lesson, a lesson of the package
+    langkah("t4_tanpa", "guru", `select public.ai_minta_draf(${G("d1")}, null, 'Budi membeli lima apel.', 'Membandingkan pecahan', 2, 't4-tanpa', true)::text`),
+    langkah("t4_lain", "guru", `select public.ai_minta_draf(${G("d1")}, (select l.id from public.lessons l join public.modules md on md.id = l.module_id
+        where md.course_id <> ${G("d1")} order by l.id limit 1), 'Budi membeli lima apel.', 'Membandingkan pecahan', 2, 't4-lain', true)::text`),
+    langkah("t4_tempel", "guru", `select set_config('c1.t4', (public.ai_minta_draf(${G("d1")}, ${PELAJARAN}, 'Budi membeli lima apel.', 'Membandingkan pecahan',
+        2, 't4-tempel', true, 'TEMPEL') ->> 'permintaan'), true) is not null`),
+    langkah("t4_pelajaran", "guru", `select set_config('c1.t4p', (public.ai_minta_draf(${G("d1")}, ${PELAJARAN}, 'Budi membeli lima apel.', 'Membandingkan pecahan',
+        2, 't4-pelajaran', true, 'PELAJARAN') ->> 'permintaan'), true) is not null`),
+    langkah("t4_baris", null, `select string_agg(m.sumber_jenis || ':' || (m.lesson_id = ${PELAJARAN})::text, ',' order by m.kunci_idempoten)
+       from public.ai_permintaan m where m.kunci_idempoten in ('t4-pelajaran', 't4-tempel')`),
     // ---- T02 before any decision: the submit is refused
     langkah("t2_awal", "guru", `select public.langkah_konten(${G("d1")}, 'STRUCTURED')::text`),
     langkah("t2_valid", "guru", `select public.langkah_konten(${G("d1")}, 'VALIDATED')::text`),
@@ -211,6 +221,20 @@ export const c3wTerimaTests: SelfTest[] = [
         `writing two drafts on the claimed attempt: ${h!.t3_tulis}; authored by the requester|with provenance hashed from the stored item|the attempt: ${h!.t3_hasil} (2|2|SETTLED)`);
       c.expect(refused(h!.t3b_tulis) && h!.t3b_tak === "ok:0|RESERVED", `writing after the requester's role was revoked: ${h!.t3b_tulis}; written|attempt: ${h!.t3b_tak} (refused; 0|RESERVED)`);
       return c.verdict("executes ai_tulis_draf against the migrations in one rolled-back transaction (Bob's Q1 as Sharon accepted it, with her three additions): service_role alone may call it; an attempt that is not a claimed sending, two keys, the wrong count, an item carrying author_person_id, an option with an extra key and an over-long stem are each refused PR220 and write nothing, leaving the claim RESERVED for the route to settle; on the claimed attempt it writes the two questions asked, authored by the requester, each with provenance hashed from the stored item, and settles; after the requester's role is revoked the write is refused");
+    },
+  },
+  {
+    id: "C3W-T04",
+    requires: ["db"],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const h = skenario(c, repoRoot);
+      if (!c.expect(h !== null, "the scenario did not run")) return c.verdict("");
+      c.expect(h!.t4_tanpa === "PR220:AI_TANPA_PELAJARAN", `a request naming no lesson: ${h!.t4_tanpa} (PR220:AI_TANPA_PELAJARAN)`);
+      c.expect(refused(h!.t4_lain), `a request naming another package's lesson: ${h!.t4_lain} (refused)`);
+      c.expect(h!.t4_tempel === "ok:true" && h!.t4_pelajaran === "ok:true", `a pasted and a lesson-sourced request, each naming the target: ${h!.t4_tempel} / ${h!.t4_pelajaran}`);
+      c.expect(h!.t4_baris === "ok:PELAJARAN:true,TEMPEL:true", `their rows (source:target is the named lesson): ${h!.t4_baris} (PELAJARAN:true,TEMPEL:true)`);
+      return c.verdict("executes ai_minta_draf against the migrations in one rolled-back transaction, as the package's teacher (Bob's ruling of 21 Nov): a request naming no target lesson is refused PR220 AI_TANPA_PELAJARAN, and one naming another package's lesson is refused; a pasted (TEMPEL) and a lesson-sourced (PELAJARAN) request each record the named lesson as their target, the source only as its kind");
     },
   },
 ];

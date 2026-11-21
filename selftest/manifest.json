@@ -6841,6 +6841,11 @@
       "proves": "Bob's Q1 as Sharon accepted it (C3W-1-BUILD-992b568f.md), red first: executes ai_tulis_draf(p_percobaan, p_soal, p_penggunaan) against the migrations in one rolled-back transaction: service_role alone may call it; an unclaimed attempt, two keys, the wrong count, an item carrying author_person_id, an option with an extra key and an over-long stem are each refused PR220 and write nothing, the claim left RESERVED; on a claimed attempt it writes the count asked, authored by the requester, with provenance hashed from the stored item, and settles; after the requester's role is revoked the write is refused."
     },
     {
+      "id": "C3W-T04",
+      "runner": "static",
+      "proves": "Bob's ruling of 21 Nov, red first: executes ai_minta_draf against the migrations in one rolled-back transaction: a request naming no target lesson is refused PR220 AI_TANPA_PELAJARAN, and one naming another package's lesson is refused; a pasted (TEMPEL) and a lesson-sourced (PELAJARAN) request each record the named lesson as their target."
+    },
+    {
       "id": "A3-L01",
       "runner": "static",
       "proves": "executes pengerjaan_saya and daftar_pengerjaan against the migrations, rolled back: the learner's read says whether this session controls the sitting, whether a teacher must allow a recovery and whether this generation came by a teacher's permission; the teacher's row carries the mode, the learner's request and a valid permission."
