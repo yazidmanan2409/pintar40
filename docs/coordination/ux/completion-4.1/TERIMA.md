@@ -57,3 +57,4 @@
 | 19 Nov, 11:00 | Bob | C3w-1 step 1: Z-3, N-6, N-7 sentences; Z-2 condition (a) | `claude/c3w-1` at `6153f050` | All three sentences PASS, word for word. Z-2 (a) met, provided each Studio refusal page has exactly one <h1> |
 | 21 Nov, resume | Bob | Z minors M1, M2 spec | `main` | `Z-M1-M2-SPESIFIKASI.md`: **done** |
 | 21 Nov, 09:42 | Bob | C3w-1 new states: target lesson, two-action decision, submit gate, VALIDATED, failed write | `dde78004` set | `C3W-1-WORDS-TAMBAHAN.md`: **done**; two rows in `C3W-1-WORDS.md` superseded in place |
+| 21 Nov, 09:50 | Owner (via team) | Pause and save | — | `DAISY-JEDA.md`: paused clean |
