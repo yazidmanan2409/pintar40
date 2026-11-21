@@ -6846,6 +6846,16 @@
       "proves": "Bob's ruling of 21 Nov, red first: executes ai_minta_draf against the migrations in one rolled-back transaction: a request naming no target lesson is refused PR220 AI_TANPA_PELAJARAN, and one naming another package's lesson is refused; a pasted (TEMPEL) and a lesson-sourced (PELAJARAN) request each record the named lesson as their target."
     },
     {
+      "id": "C3W-T05",
+      "runner": "static",
+      "proves": "Bob's decision 2 and Sharon's F-2, red first: executes ai_minta_draf and ai_gagal against the migrations in one rolled-back transaction: the request answers the sha-256 of the text it checked; ai_gagal refuses an unclaimed attempt and any outcome but PROVIDER_FAILED or INVALID_OUTPUT, and settles a claimed attempt at its usage with the request's outcome."
+    },
+    {
+      "id": "C3W-R01",
+      "runner": "static",
+      "proves": "The drafting route's core, red first: imports src/lib/ai/jalur.ts and executes buatDrafAi against recording fakes: request, reserve, claim, provider, write in order; F-2 refuses a text checked on one version and sent with another before the claim, and a lesson's text is read once and sent as checked; refusals, a repeated key and an absent provider reach no reservation or provider; provider failures with usage settle PROVIDER_FAILED and retry to 3 attempts; a timeout with no usage is not retried; a refused write settles INVALID_OUTPUT."
+    },
+    {
       "id": "A3-L01",
       "runner": "static",
       "proves": "executes pengerjaan_saya and daftar_pengerjaan against the migrations, rolled back: the learner's read says whether this session controls the sitting, whether a teacher must allow a recovery and whether this generation came by a teacher's permission; the teacher's row carries the mode, the learner's request and a valid permission."

@@ -146,6 +146,17 @@ function skenario(c: Checks, repoRoot: string): Record<string, string> | null {
           where i.stem in ('Soal AI satu', 'Soal AI dua') and a.isi_sha256 = public.ai_isi_soal_sha256(i.id)
             and a.percobaan = current_setting('c1.t3_coba')::uuid and a.pemohon = ${G("p_guru")}),
         (select keadaan from public.ai_percobaan where id = current_setting('c1.t3_coba')::uuid))`),
+    // ---- T05: the request answers the hash it checked (F-2); a failed attempt is settled with its outcome (ai_gagal)
+    langkah("t5_minta", "guru", `select (public.ai_minta_draf(${G("d2")}, (select l.id from public.lessons l join public.modules md on md.id = l.module_id where md.course_id = ${G("d2")} order by l.ordinal limit 1), 'Citra membeli tiga pisang.',
+        'Membandingkan pecahan', 2, 't5', true) ->> 'sidik') = encode(extensions.digest('Citra membeli tiga pisang.', 'sha256'), 'hex')`),
+    `perform set_config('c1.t5_minta', (select m.id::text from public.ai_permintaan m where m.kunci_idempoten = 't5'), true);`,
+    langkah("t5_belum", null, `select public.ai_gagal(public.ai_cadangkan(current_setting('c1.t5_minta')::uuid), ${PAKAI}, 'PROVIDER_FAILED')::text`),
+    langkah("t5_coba", null, `select set_config('c1.t5_coba', public.ai_cadangkan(current_setting('c1.t5_minta')::uuid)::text, true)`),
+    langkah("t5_kirim", null, `select public.ai_tandai_kirim(current_setting('c1.t5_coba')::uuid)::text`),
+    langkah("t5_hasil_salah", null, `select public.ai_gagal(current_setting('c1.t5_coba')::uuid, ${PAKAI}, 'DRAFTED')::text`),
+    langkah("t5_gagal", null, `select public.ai_gagal(current_setting('c1.t5_coba')::uuid, ${PAKAI}, 'PROVIDER_FAILED')::text`),
+    langkah("t5_akhir", null, `select (select keadaan || ':' || diselesaikan from public.ai_percobaan where id = current_setting('c1.t5_coba')::uuid)
+        || '|' || (select coalesce(hasil, 'null') from public.ai_permintaan where id = current_setting('c1.t5_minta')::uuid)`),
     // Sharon's addition 1: the requester's CAN_DRAFT re-checked at write time (the role revoked after the claim)
     langkah("t3b_minta", "guru", `select set_config('c1.t3b_minta', (public.ai_minta_draf(${G("d2")}, (select l.id from public.lessons l join public.modules md on md.id = l.module_id where md.course_id = ${G("d2")} order by l.ordinal limit 1), 'Ani membeli dua jeruk.',
         'Membandingkan pecahan', 2, 't3-dua', true) ->> 'permintaan'), true)`),
@@ -235,6 +246,21 @@ export const c3wTerimaTests: SelfTest[] = [
       c.expect(h!.t4_tempel === "ok:true" && h!.t4_pelajaran === "ok:true", `a pasted and a lesson-sourced request, each naming the target: ${h!.t4_tempel} / ${h!.t4_pelajaran}`);
       c.expect(h!.t4_baris === "ok:PELAJARAN:true,TEMPEL:true", `their rows (source:target is the named lesson): ${h!.t4_baris} (PELAJARAN:true,TEMPEL:true)`);
       return c.verdict("executes ai_minta_draf against the migrations in one rolled-back transaction, as the package's teacher (Bob's ruling of 21 Nov): a request naming no target lesson is refused PR220 AI_TANPA_PELAJARAN, and one naming another package's lesson is refused; a pasted (TEMPEL) and a lesson-sourced (PELAJARAN) request each record the named lesson as their target, the source only as its kind");
+    },
+  },
+  {
+    id: "C3W-T05",
+    requires: ["db"],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const h = skenario(c, repoRoot);
+      if (!c.expect(h !== null, "the scenario did not run")) return c.verdict("");
+      c.expect(h!.t5_minta === "ok:true", `the request's answer carries the sha-256 of the text it checked: ${h!.t5_minta} (F-2's comparison)`);
+      c.expect(refused(h!.t5_belum), `settling a failure on an attempt never claimed: ${h!.t5_belum} (refused: it never left, so it is released instead)`);
+      c.expect(refused(h!.t5_hasil_salah), `a failure recorded as DRAFTED: ${h!.t5_hasil_salah} (refused: PROVIDER_FAILED or INVALID_OUTPUT only)`);
+      c.expect((h!.t5_gagal ?? "").startsWith("ok:") && h!.t5_akhir === "ok:SETTLED:280|PROVIDER_FAILED",
+        `a claimed attempt that failed: ${h!.t5_gagal}; attempt|request: ${h!.t5_akhir} (SETTLED:280|PROVIDER_FAILED)`);
+      return c.verdict("executes ai_minta_draf and ai_gagal against the migrations in one rolled-back transaction (Bob's decision 2, Sharon's F-2): the request's answer carries the sha-256 of the text it checked; ai_gagal refuses an attempt never claimed and an outcome other than PROVIDER_FAILED or INVALID_OUTPUT, and settles a claimed attempt at its reported usage with the request's outcome recorded");
     },
   },
 ];
