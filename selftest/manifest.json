@@ -6786,6 +6786,41 @@
       "proves": "Sharon's R-3 control 4, red first: a REFUSED_PERSONAL_DATA request with an excerpt_sha256 is refused 23514 by a check constraint naming both; an excerpt_sha256 that is not 64 hex characters is refused; neither the request nor the attempt has a column for the excerpt's or the output's text."
     },
     {
+      "id": "R3-01",
+      "runner": "static",
+      "proves": "Sharon's R3-01 (C3W-R3-DESIGN.md), red first: as a class's teacher, ai_minta_draf on an excerpt naming a learner of that class answers AI_DATA_PRIBADI; the ledger row is REFUSED_PERSONAL_DATA with no hash and no attempt, and cannot be reserved; an ordinary excerpt is checked, hashed, carries the package's school and reserves. Plant: the check answering «allowed» lets the named excerpt pass."
+    },
+    {
+      "id": "R3-02",
+      "runner": "static",
+      "proves": "Sharon's R3-02, red first: c3w_periksa_bahan refuses IDENTIFIER on a PINTAR ID, an email address, a 0- and a +62-phone number, a 10-digit and a 16-digit number."
+    },
+    {
+      "id": "R3-03",
+      "runner": "static",
+      "proves": "Sharon's R3-03, red first: c3w_periksa_bahan refuses LIST on three names with scores, three names with a class label (names PINTAR cannot know), and three visible learners' given names in one line."
+    },
+    {
+      "id": "R3-04",
+      "runner": "static",
+      "proves": "Sharon's R3-04, red first: c3w_periksa_bahan allows «Budi membeli lima apel» where a learner Budi Santoso is visible, an ordinary 8-letter word a PINTAR ID's alphabet could spell, and ordinary numbers."
+    },
+    {
+      "id": "R3-05",
+      "runner": "static",
+      "proves": "Sharon's R3-05, red first: the full name of a learner the teacher cannot see is allowed, and the answer is byte-identical to the answer for a name of no learner (no disclosure of existence)."
+    },
+    {
+      "id": "R3-06",
+      "runner": "static",
+      "proves": "Sharon's R3-06, red first: on a visible learner's full name the check answers exactly boleh, kelas (NAME) and rentang, and neither the check's nor the request's answer carries the name, a part of it, the person id or the PINTAR ID."
+    },
+    {
+      "id": "R3-07",
+      "runner": "static",
+      "proves": "Sharon's R3-07, red first: c3w_pembaca is NOLOGIN, owns c3w_bahan as a definer, reads lessons, learning_objectives, modules and courses only (its plant, a grant on persons, is caught); src/lib/ai/permintaan.ts builds exactly excerpt, objectives, itemSchema and promptVersion and refuses a fifth key; src/lib/ai imports only itself, server-only and node:crypto, and calls no fetch."
+    },
+    {
       "id": "A3-L01",
       "runner": "static",
       "proves": "executes pengerjaan_saya and daftar_pengerjaan against the migrations, rolled back: the learner's read says whether this session controls the sitting, whether a teacher must allow a recovery and whether this generation came by a teacher's permission; the teacher's row carries the mode, the learner's request and a valid permission."
