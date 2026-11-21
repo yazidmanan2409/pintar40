@@ -1,67 +1,80 @@
-# C3w-1 · Resume note (paused 19 Nov 2026, 22:50 UTC, on the owner's instruction via Bob)
+# C3w-1 · Resume note (paused 21 Nov 2026, about 09:50 UTC, at the owner's request)
 
-> **Development branch only.** No merge, staging or production action. Resume only on Bob's "resume".
+> **Development branch only.** No merge, staging or production action. No provider call, key or spend.
 
 ## Head
 
-`claude/c3w-1` at **`d5d69543`** (chunk 1, WIP). This note's own commit is docs only and sits on top of it.
+`claude/c3w-1` at this note's commit. Its parent is **`41117be5`**, which is WIP.
 
-- **The head is red on purpose:** C3W-D1 fails until chunk 2. It is not a hand-off, and no CI or journeys were
-  dispatched on it (D-025).
-- **The last green hand-off** was step 1 at `83a14825`: CI 44522491936 passed, and journeys 44522496853 passed on
-  attempt 2.
+- **Red on purpose:** C3W-R01 and C3W-T05 are failing-first cases whose code is not written yet.
+- **No CI or journeys** have run since the last hand-off.
+- **The last hand-off** was `992b568f`: CI and the journeys passed, and Sharon's build review passed it with two
+  findings, F-1 and F-2.
 
-## Done
+## Done since the hand-off (all pushed)
 
-| Commit | What |
+| Commits | What |
 |---|---|
-| `6c10181f` | The red cases for Bob and Sharon, as docs (`c3w-1-syarat-merah/`). Sharon passed them, with three rulings |
-| `7cd283ca` | The seven red cases, registered: C3W-D1, **D1b** (Sharon's usage case), D2, D3, D4, D5, R34 (`selftest/c3w-syarat.test.ts`) |
-| `4b8a3f25` | Test refinement: the fixture writes a valid SETTLED attempt; D-3's backward moves isolate the guard trigger |
-| `d5d69543` | **Chunk 1, the attempt ledger.** Migration `20270122100000` (the first after the 290 on main); `src/lib/ai/` (the interface, the stub, the provider module, the selection); A2A-L01 ranks 11 to 13 |
+| `db689d60`, `d5d23f09` | **F-1.** A long excerpt reserves for its length: `panjang_karakter` and `ai_token_per_karakter()` (k = 1). C3W-F1 |
+| `e2d31000` … `ee6bdef6` | **Q2, the acceptance act** `ai_putuskan` (C3W-T01), and **Q3, the submit gate** in `langkah_konten` with `ai_draf_belum_diputuskan` (C3W-T02) |
+| `291bd8ab`, `feafc7d6` | **Q1, writing the drafts:** `ai_tulis_draf`, with Sharon's three additions (C3W-T03) |
+| `1d13a42d`, `7c9f6266` | **Bob's ruling:** every request names its target lesson; `p_sumber` added (C3W-T04) |
+| `41117be5` | **Red:** C3W-R01 (the route core) and C3W-T05 (`ai_gagal`, and `sidik` in `ai_minta_draf`'s answer) |
 
-- **Six of seven cases pass:** D1b, D2, D3, D4, D5 and R34.
-- **C3W-D1 fails** on two things chunk 2 adds:
-  - an AI function executable by `authenticated` that reads `current_person_id()`;
-  - the tables `ai_asal_soal` and `ai_penerimaan`.
-- **Sharon's three rulings are built:**
-  - release takes all three locks;
-  - one constant, `ai_batas_kirim_tanpa_akhir()` = 7 minutes, against `BATAS_PANGGILAN_MS` = 2 minutes;
-  - a closed-shape `p_penggunaan`, checked by `ai_penggunaan_sah`.
-- **The ledger fails closed:** `ai_cadangkan` refuses with `AI_BELUM_DIPERIKSA` until R-3's check sets
-  `ai_permintaan.diperiksa_at`.
+- **Migrations:** 296. The newest are `20270122100000` through `20270122150000`, and the count pins read 296.
+- **Before `41117be5`,** a targeted run passed every C3w-1 case except R01 and T05, together with R3-01 to R3-07,
+  A2A-L01 (0 breaches), F06-S01, F28-J311 and DR-D01.
 
-## Next steps, in order
+## Next steps, in order (Bob: run 1 to 4 without stopping)
 
-1. **R3-01 to R3-07, red first.** These are Sharon's cases in `C3W-R3-DESIGN.md` (`claude/gracious-lamport-0m1qjr`),
-   each with its plant. Commit them before any R-3 code.
-2. **Chunk 2**, as a new migration after `20270122100000`:
-   - **`ai_minta_draf`:** an authenticated definer. It takes identity from `current_person_id()` and the school from
-     the package. It records D10's source-rights confirmation and an idempotency key, then runs R-3's check before
-     anything is reserved.
-   - **`c3w_bahan` and `c3w_periksa_bahan`:** owned by a dedicated NOLOGIN role that can read content tables only. The
-     check returns no name, PINTAR ID or person id. On a match, it records `REFUSED_PERSONAL_DATA` with no hash.
-   - **`ai_asal_soal`:** provenance, immutable, granted to no learner.
-   - **`ai_penerimaan`:** acceptance, an append-only log in which the latest row is the current decision.
-   - The registry rows: `record_class_registry`, `orang_lampiran`, `client_rpc_registry`, and the metric-source
-     refusal.
-3. **One full pre-flight** on that head (`preflight.sh`).
-4. **Push**, then dispatch CI and journeys **once each**, then the hand-off to Bob with the SHA and both run ids.
-5. **Later chunks, not started:**
-   - `langkah_konten`'s `AI_BELUM_DITERIMA`;
-   - the route that calls the stub;
-   - the remaining tests, C3-1 to C3-11;
-   - Daisy's screens.
+1. **Make C3W-T05 pass.** Add a migration after `20270122150000` that does two things:
+   - `ai_minta_draf` returns `sidik`, the sha-256 of the text it checked, on its ok answers and its repeated-key
+     answers;
+   - a new service function, `ai_gagal(p_percobaan, p_penggunaan, p_hasil)`, settles a claimed attempt at its usage,
+     inline under the three locks as `ai_tulis_draf` does, and records `hasil` as PROVIDER_FAILED or INVALID_OUTPUT.
+   - Add `ai_gagal` to C3W-D1's LAYANAN, to D-4's PENGUNCI and to D-1b's list. Regenerate the A2A-L01 report and move
+     the pins to 297.
+2. **Make C3W-R01 pass.**
+   - Write `src/lib/ai/jalur.ts`, exporting `buatDrafAi({pengguna, layanan, penyedia, batasMs}, masuk)`. It is pure,
+     with imports only from `@/lib/ai/*` and `node:crypto` (R3-07). Its order:
+     1. for a lesson source, read `c3w_bahan` once;
+     2. `ai_minta_draf`;
+     3. stop if no provider is available;
+     4. `ai_cadangkan`;
+     5. F-2: compare `sha256(text) === sidik`, or else release with `ai_lepaskan` and return `AI_TEKS_BERUBAH`;
+     6. `ai_tandai_kirim`;
+     7. call the provider through `bangunPermintaan`, with a timeout;
+     8. `ai_tulis_draf`, or `ai_gagal` on failure.
+   - Retries: at most 3 attempts on a failure with usage, and none after a timeout with no usage.
+   - Then a thin server-only wrapper, `src/lib/draf-ai-rute.ts`, which wires in `supabaseServer()` and
+     `supabaseService()`. It stays outside `src/lib/ai` because of R3-07's import allow-list.
+3. **C3-2 to C3-10**, failing first:
+   - **C3-2:** no learner-reachable RPC reads the AI tables;
+   - **C3-4:** the race at the allowance's edge, using `selftest/balapan.ts`;
+   - **C3-5:** two schools, two options;
+   - **C3-6:** the entitlement turned off after the drafts are written;
+   - **C3-8:** network-client imports and vendor names;
+   - **C3-10:** the cross-batch path.
+
+   C3-9 is the existing suite. C3-11, the screens, waits for Daisy's words; tell Bob on reaching them.
+4. **Hand-off:** one full pre-flight, then push, then CI and journeys once each, then report the SHA and run ids to
+   Bob.
+
+## Open items, all ruled or relayed
+
+- **Sharon confirms at the hand-off:** Bob's four decisions on Q1 (the usage argument; no release after sending;
+  VALIDATED refused; the target lesson), the dropped foreign keys to `items`, `ai_draf_belum_diputuskan`, and F-1's
+  fix.
 
 ## Local state that matters
 
-- **Reset the local database before the next run** (`supabase db reset --local`), so it holds exactly the 291
-  migrations on the head.
-  - The container often loses Docker. Restart it with `dockerd`, then
-    `supabase start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta,mailpit`.
-- **The scratchpad's run scripts** (`preflight.sh`, `only-suite.sh`, `only-db.sh`) live outside the repository and may
-  be gone after a container change.
-  - Targeted database tests: reset the database, then run `npm run selftest:local -- --only=<ids>` with
-    `SUPABASE_DB_URL` set.
-  - The full pre-flight is CI's job list run locally: lint, typecheck, build identity, the suite, plants and red cases.
-- **The local branch `c3w-syarat-lokal`** is obsolete; its work is on `claude/c3w-1`. Nothing else exists only locally.
+- **Docker keeps dying in this container.**
+  - Restart it with `bash $SCRATCHPAD/naik.sh`. That starts `containerd` on Docker's own store, then `dockerd`, then
+    the stack, then a reset.
+  - If the database container keeps "starting" and then vanishes, the disk is at about 96%. Prune the reclaimable
+    images (`docker image prune`, about 4 GB) before starting the stack again.
+- **Reset the database before any run,** so it holds the head's 296 migrations.
+- **The run scripts** (`naik.sh`, `preflight.sh`, `only-db.sh`, `allstatic.sh`) live in the scratchpad, which can be
+  wiped.
+  - Targeted run: `npm run selftest:local -- --only=<ids>`, with `SUPABASE_DB_URL` set from `supabase status -o env`.
+  - The full pre-flight is CI's job list run locally.
