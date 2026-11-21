@@ -132,7 +132,7 @@ begin
   return v;
 end $f$;
 do $d$
-declare v jsonb := '{}'::jsonb; v_sekolah uuid; v_orang uuid; v_kursus uuid; v_id uuid;
+declare v jsonb := '{}'::jsonb; v_sekolah uuid; v_orang uuid; v_kursus uuid; v_id uuid; v_id_teks text;
 begin
   select i.id into v_sekolah from public.institutions i order by i.id limit 1;
   select c.id into v_kursus from public.courses c order by c.id limit 1;
@@ -206,6 +206,48 @@ begin
   ${buat("u_rek", "UNRECONCILED", "1 day", "1 day")}
   ${p("d1b_rek_sekolah", `select public.ai_rekonsiliasi(current_setting('c3.u_rek')::uuid, '{"token_masuk": 1, "token_keluar": 1, "biaya_mikro": 1, "sekolah": "x"}'::jsonb)::text`)}
   ${p("d3_batas", `select extract(epoch from public.${BATAS_KIRIM}())::bigint::text`)}
+
+  -- F-1 (Sharon's build review of 992b568f, Bob's choice (a)): a 20,000-character excerpt reserves for its length, so a
+  -- settle at its true worst case stays within the reservation and the platform's stop stays off
+  begin
+    set local session_replication_role = replica;
+    insert into public.ai_permintaan (sekolah, pemohon, course_id, sumber_jenis, excerpt_sha256, tujuan, jumlah, kunci_idempoten,
+                                      hak_sumber_dikonfirmasi_at, diperiksa_at, panjang_excerpt)
+    select m.sekolah, m.pemohon, m.course_id, 'TEMPEL', repeat('b', 64), 'Membandingkan pecahan', 3, 'c3w-uji-panjang', now(), now(), 20000
+      from public.ai_permintaan m where m.id = current_setting('c3.minta')::uuid
+    returning id::text into v_id_teks;
+    set local session_replication_role = origin;
+    perform set_config('c3.panjang', v_id_teks, true);
+  exception when others then v := v || jsonb_build_object('f1_fixture', 'ERR:' || sqlerrm);
+  end;
+  ${p("f1_cadang", `select set_config('c3.f1', public.ai_cadangkan(current_setting('c3.panjang')::uuid)::text, true)`)}
+  ${p("f1_kirim", "select public.ai_tandai_kirim(current_setting('c3.f1')::uuid)::text")}
+  ${p("f1_selesai", `select public.ai_selesaikan(current_setting('c3.f1')::uuid, (select jsonb_build_object(
+      'token_masuk', ceil(20000 * public.ai_token_per_karakter())::bigint + o.batas_token_prompt,
+      'token_keluar', o.maks_token_keluar,
+      'biaya_mikro', (ceil(20000 * public.ai_token_per_karakter())::bigint + o.batas_token_prompt) * (o.harga_dasar ->> 'masuk')::bigint
+                   + o.maks_token_keluar::bigint * (o.harga_dasar ->> 'keluar')::bigint)
+      from public.ai_opsi o where o.id = current_setting('c3.opsi')::uuid))::text`)}
+  ${p("f1_henti", "select berhenti::text from public.ai_plafon_platform")}
+  -- the plant: a reservation that ignores the length (its input term set to the prompt bound alone)
+  declare d text; begin
+    d := pg_get_functiondef('public.ai_cadangkan(uuid)'::regprocedure);
+    if position('ceil(m.panjang_excerpt * public.ai_token_per_karakter())::bigint' in d) = 0 then
+      v := v || jsonb_build_object('f1_tanam', 'ERR:the reservation has no length term to plant');
+    else
+      execute replace(d, 'ceil(m.panjang_excerpt * public.ai_token_per_karakter())::bigint', '0::bigint');
+      perform set_config('c3.f1t', public.ai_cadangkan(current_setting('c3.panjang')::uuid)::text, true);
+      perform public.ai_tandai_kirim(current_setting('c3.f1t')::uuid);
+      v := v || jsonb_build_object('f1_tanam', (select public.ai_selesaikan(current_setting('c3.f1t')::uuid, jsonb_build_object(
+          'token_masuk', ceil(20000 * public.ai_token_per_karakter())::bigint + o.batas_token_prompt, 'token_keluar', o.maks_token_keluar,
+          'biaya_mikro', (ceil(20000 * public.ai_token_per_karakter())::bigint + o.batas_token_prompt) * (o.harga_dasar ->> 'masuk')::bigint
+                       + o.maks_token_keluar::bigint * (o.harga_dasar ->> 'keluar')::bigint))::text
+        from public.ai_opsi o where o.id = current_setting('c3.opsi')::uuid));
+      update public.ai_plafon_platform set berhenti = false, berhenti_pada = null where id;
+      execute d;
+    end if;
+  exception when others then v := v || jsonb_build_object('f1_tanam', 'ERR:' || sqlerrm);
+  end;
 
   -- R-3 control 4: the check constraint, by violating it
   ${p("r34_dengan_sidik", "update public.ai_permintaan set hasil = 'REFUSED_PERSONAL_DATA' where id = current_setting('c3.minta')::uuid returning hasil")}
@@ -440,6 +482,23 @@ export const c3wSyaratTests: SelfTest[] = [
       const penyetel = luar.filter((f) => { try { return readFileSync(f, "utf8").includes(BENDERA); } catch { return false; } }).map((f) => relative(repoRoot, f));
       c.expect(penyetel.length === 0, `the flag is set outside the harness: ${penyetel.join(", ")}`);
       return c.verdict(`imports ${PILIH.join("/")} and reads the source: pilihPenyedia answers AI_TIDAK_TERSEDIA with no flag, with NODE_ENV=development, with ${BENDERA} set to anything but "1", and with an adapter named while none is built; only ${BENDERA}=1 selects the stub. The selection never reads NODE_ENV; the flag is read in that one module; the stub is imported by src/lib/ai/penyedia.ts alone; no env, deploy or migration file sets the flag, only the harness (Sharon's D-5)`);
+    },
+  },
+  {
+    id: "C3W-F1",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      const v = jalankan();
+      if (!c.expect(v !== null, `the scenario could not run: ${galat}`)) return c.verdict("");
+      const h = v!;
+      c.expect(h.f1_fixture === undefined, `the 20,000-character request could not be written: ${h.f1_fixture}`);
+      c.expect(/^ok:[0-9a-f-]{36}$/.test(h.f1_cadang ?? ""), `reserving a 20,000-character excerpt: ${h.f1_cadang}`);
+      c.expect(h.f1_kirim === "ok:true", `its sending claim: ${h.f1_kirim}`);
+      c.expect((h.f1_selesai ?? "").includes('"melebihi": false'), `settled at the excerpt's true worst case: ${h.f1_selesai} (within its reservation)`);
+      c.expect(h.f1_henti === "ok:false", `the platform's stop after that settle: ${h.f1_henti} (off: no school refused)`);
+      c.expect((h.f1_tanam ?? "").includes('"melebihi": true'), `the plant (a reservation that ignores the length) was not caught: ${h.f1_tanam}`);
+      return c.verdict("executes ai_cadangkan, ai_tandai_kirim and ai_selesaikan against the migrations in one rolled-back transaction (Sharon's F-1, option (a)): a request of 20,000 characters reserves ceil(length × ai_token_per_karakter()) plus the option's prompt bound, so a settle at that worst case (every input and output token at the option's prices) stays within its reservation and the platform's stop stays off; the plant, the same reservation with its length term removed, settles above its reservation");
     },
   },
   {

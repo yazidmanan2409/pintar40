@@ -6786,6 +6786,11 @@
       "proves": "Sharon's R-3 control 4, red first: a REFUSED_PERSONAL_DATA request with an excerpt_sha256 is refused 23514 by a check constraint naming both; an excerpt_sha256 that is not 64 hex characters is refused; neither the request nor the attempt has a column for the excerpt's or the output's text."
     },
     {
+      "id": "C3W-F1",
+      "runner": "static",
+      "proves": "Sharon's F-1 (build review of 992b568f; Bob's choice (a)), red first: executes against the migrations in one rolled-back transaction: a 20,000-character request reserves ceil(length \u00d7 ai_token_per_karakter()) plus the option's prompt bound, so a settle at its true worst case stays within its reservation and the platform's stop stays off. Plant: the reservation with its length term removed settles above it."
+    },
+    {
       "id": "R3-01",
       "runner": "static",
       "proves": "executes against the migrations: Sharon's R3-01 (C3W-R3-DESIGN.md), red first: as a class's teacher, ai_minta_draf on an excerpt naming a learner of that class answers AI_DATA_PRIBADI; the ledger row is REFUSED_PERSONAL_DATA with no hash and no attempt, and cannot be reserved; an ordinary excerpt is checked, hashed, carries the package's school and reserves. Plant: the check answering «allowed» lets the named excerpt pass."
