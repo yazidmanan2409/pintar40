@@ -43,6 +43,9 @@ const NAMA_BUKAN_MURID = "Siti Nurhaliza Rahman";
 const t = (s: string) => `'${s.replace(/'/g, "''")}'`;
 const baris = (...l: string[]) => l.map(t).join(" || chr(10) || ");
 
+/** R3-01's plant: the check answering «allowed» to everything, as a SQL text literal for EXECUTE. */
+const TANAM_PERIKSA = t(`create or replace function public.c3w_periksa_bahan(p_teks text) returns jsonb language sql as 'select ''{"boleh": true, "kelas": [], "rentang": []}''::jsonb'`);
+
 const periksa = (k: string, teks: string) => langkah(k, "guru", `select public.c3w_periksa_bahan(${teks})::text`);
 const minta = (k: string, teks: string, kunci: string) =>
   langkah(k, "guru", `select public.ai_minta_draf(${G("d1")}, null, ${teks}, 'Membandingkan pecahan', 2, '${kunci}', true)::text`);
@@ -108,16 +111,19 @@ function skenario(c: Checks, repoRoot: string): Record<string, string> | null {
     // R3-05: a learner this educator cannot see, and a name of no learner, in the same sentence
     periksa("r05_tersembunyi", t(`Kemarin ${NAMA_TERSEMBUNYI} membaca buku cerita.`)),
     periksa("r05_bukan", t(`Kemarin ${NAMA_BUKAN_MURID} membaca buku cerita.`)),
+    // the hidden learner exists, at this school, and is out of this teacher's sight (else R3-05 would hold vacuously)
+    langkah("r05_ada", null, `select count(*)::text from public.persons p where p.display_name = '${NAMA_TERSEMBUNYI}'`),
+    langkah("r05_tak_tampak", "guru", `select public.person_visible_to_me(${G("p_sembunyi")})::text`),
     // R3-07: control 1's privileges
     langkah("r07_hak", null, `select coalesce(string_agg(t || ':' || has_table_privilege('c3w_pembaca', 'public.' || t, 'SELECT')::text, ',' order by t), '')
        from unnest(array['lessons','learning_objectives','modules','courses','persons','responses','assessment_sessions','assessment_results','enrollments','accounts','memberships']) t`),
     langkah("r07_peran", null, `select r.rolcanlogin::text || '|' || (select pg_get_userbyid(p.proowner) || '|' || p.prosecdef::text
         from pg_proc p where p.oid = to_regproc('public.c3w_bahan')) from pg_roles r where r.rolname = 'c3w_pembaca'`),
     // the plants, last: c3w_pembaca granted persons (control 1); the check answering «allowed» (R3-01)
-    langkah("tanam_hak", null, `select (pg_temp.c1(null, 'grant select on public.persons to c3w_pembaca') like 'ok:%'
-        and has_table_privilege('c3w_pembaca', 'public.persons', 'SELECT'))::text`),
-    langkah("tanam_periksa", null, `select pg_temp.c1(null, ${"$p$"}create or replace function public.c3w_periksa_bahan(p_teks text) returns jsonb
-        language sql as $t$ select '{"boleh": true, "kelas": [], "rentang": []}'::jsonb $t$${"$p$"})`),
+    // (a DDL statement returns nothing for the probe to read, so each plant is its own statement, its failure kept)
+    `begin execute 'grant select on public.persons to c3w_pembaca'; exception when others then null; end;`,
+    langkah("tanam_hak", null, `select has_table_privilege('c3w_pembaca', 'public.persons', 'SELECT')::text`),
+    `begin execute ${TANAM_PERIKSA}; exception when others then null; end;`,
     minta("tanam_minta", t(`Kemarin ${NAMA_TAMPAK} membaca buku cerita.`), "r3-tanam"),
   ];
   hasil = jalankan(c, repoRoot, L);
@@ -196,6 +202,8 @@ export const c3wR3Tests: SelfTest[] = [
       const c = new Checks();
       const h = skenario(c, repoRoot);
       if (!c.expect(h !== null, galat)) return c.verdict("");
+      c.expect(h!.r05_ada === "ok:1" && h!.r05_tak_tampak === "ok:false",
+        `the hidden learner: ${h!.r05_ada} person(s) named «${NAMA_TERSEMBUNYI}», visible to the teacher ${h!.r05_tak_tampak} (one, not visible)`);
       c.expect(boleh(h!.r05_tersembunyi), `a learner of the school this teacher cannot see: ${h!.r05_tersembunyi} (allowed)`);
       c.expect(h!.r05_tersembunyi === h!.r05_bukan, `the answers differ: ${h!.r05_tersembunyi} against a name of no learner ${h!.r05_bukan} (the check discloses existence)`);
       return c.verdict(`executes c3w_periksa_bahan as the teacher (Sharon's R3-05): the full name of a learner of the school outside their sight passes, and its answer is byte-identical to the answer for a name of no learner`);
