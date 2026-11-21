@@ -6753,7 +6753,7 @@
     {
       "id": "C3W-D1",
       "runner": "static",
-      "proves": "Sharon's D-1, red first (C3W-1-DESIGN.md §9, 8831d62a): reads the catalogue. The six service functions take one request or attempt id (settle and reconcile also the closed-shape p_penggunaan) and are executable by service_role only; no ai_ or c3w_ function takes a person or a school; every one authenticated can execute is a definer with a fixed search_path reading public.current_person_id(); anon and authenticated write none of the seven AI tables."
+      "proves": "Sharon's D-1, red first (C3W-1-DESIGN.md §9, 8831d62a): reads the catalogue. The six service functions take one request or attempt id (settle and reconcile also the closed-shape p_penggunaan) and are executable by service_role only; no ai_ or c3w_ function takes a person or a school; every one authenticated can execute is a definer with a fixed search_path reading public.current_person_id(), except c3w_bahan, an invoker by Sharon's ruling (b); anon and authenticated write none of the seven AI tables."
     },
     {
       "id": "C3W-D1b",
@@ -6818,7 +6818,7 @@
     {
       "id": "R3-07",
       "runner": "static",
-      "proves": "Sharon's R3-07, red first: c3w_pembaca is NOLOGIN, owns c3w_bahan as a definer, reads lessons, learning_objectives, modules and courses only (its plant, a grant on persons, is caught); src/lib/ai/permintaan.ts builds exactly excerpt, objectives, itemSchema and promptVersion and refuses a fifth key; src/lib/ai imports only itself, server-only and node:crypto, and calls no fetch."
+      "proves": "Sharon's R3-07 restated by her ruling (b) (625d52c1) with Bob's B1, B3 and B4: executes docs/completion-4.1/batches/c3w-1-r3-bahan-check.sql (the staging check) against the migrations: c3w_bahan is LANGUAGE sql with a SQL-standard body, SECURITY INVOKER and owned by postgres, and depends only on the four content tables and pg_catalog objects; five plants (a persons read, a public helper reading persons, a view over persons, a string body, plpgsql) are each caught; as the invoker it returns the teacher's own lesson and nothing of another school's. Reads the source: src/lib/ai/permintaan.ts deep-equals its fixture, the item schema with the count included, and refuses a fifth key; src/lib/ai imports only itself, server-only and node:crypto, and calls no fetch."
     },
     {
       "id": "A3-L01",

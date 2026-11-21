@@ -277,7 +277,10 @@ export const c3wSyaratTests: SelfTest[] = [
       for (const x of daftar) {
         const salah = x.args.filter((a) => ARG_IDENTITAS.test(a));
         c.expect(salah.length === 0, `${x.nama} takes ${salah.join(", ")}: a person or a school comes from the verified session (D-1)`);
-        if (x.auth) {
+        if (x.auth && x.nama === "c3w_bahan") {
+          // Sharon's ruling (b), 625d52c1: the content reader is SECURITY INVOKER, so the caller's own RLS is its bound
+          c.expect(!x.definer && x.path, `c3w_bahan is ${x.definer ? "a definer" : ""}${x.path ? "" : " without a fixed search_path"} (an invoker, Sharon's ruling)`);
+        } else if (x.auth) {
           c.expect(x.definer && x.path, `${x.nama} is executable by authenticated but is ${x.definer ? "" : "not a definer"}${x.path ? "" : " without a fixed search_path"}`);
           c.expect(/public\.current_person_id\(\)/.test(tanpaKomentar(x.src)), `${x.nama} is executable by authenticated and never reads public.current_person_id() (D-1)`);
         }
@@ -287,7 +290,7 @@ export const c3wSyaratTests: SelfTest[] = [
           from unnest(array[${TABEL.map((t) => `'${t}'`).join(",")}]) t, unnest(array['anon','authenticated']) r, unnest(array['INSERT','UPDATE','DELETE']) pr
          where to_regclass('public.' || t) is null or has_table_privilege(r, 'public.' || t, pr)`);
       c.expect(r.ok && r.out === "", `client roles that write the AI tables directly, or tables missing: ${r.ok ? r.out : r.err}`);
-      return c.verdict("reads the catalogue: the six service functions (ai_cadangkan on a request id; ai_tandai_kirim and ai_lepaskan on an attempt id; ai_selesaikan and ai_rekonsiliasi on an attempt id and the closed-shape p_penggunaan; ai_sapu on nothing) each take exactly that and are executable by service_role only; no ai_ or c3w_ function takes an argument naming a person or a school; every one authenticated can execute is a definer with a fixed search_path that reads public.current_person_id(); anon and authenticated cannot insert, update or delete any of the seven AI tables (Sharon's D-1)");
+      return c.verdict("reads the catalogue: the six service functions (ai_cadangkan on a request id; ai_tandai_kirim and ai_lepaskan on an attempt id; ai_selesaikan and ai_rekonsiliasi on an attempt id and the closed-shape p_penggunaan; ai_sapu on nothing) each take exactly that and are executable by service_role only; no ai_ or c3w_ function takes an argument naming a person or a school; every one authenticated can execute is a definer with a fixed search_path that reads public.current_person_id(), except c3w_bahan, an invoker by Sharon's ruling (b); anon and authenticated cannot insert, update or delete any of the seven AI tables (Sharon's D-1)");
     },
   },
   {

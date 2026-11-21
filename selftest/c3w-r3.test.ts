@@ -10,7 +10,8 @@
  *   ai_minta_draf(p_course, p_lesson, p_teks, p_tujuan, p_jumlah, p_kunci_idempoten, p_hak_sumber) returns jsonb
  *       {ok, kode?, permintaan, kelas?, rentang?}: the request, its identity from the session (D-1); a refusal is a
  *       recorded outcome, not an error, so the ledger row stands (control 4)
- *   c3w_bahan(p_lesson, p_objectives): content reads, owned by the NOLOGIN role c3w_pembaca (control 1)
+ *   c3w_bahan(p_lesson, p_objectives): content reads, LANGUAGE sql with a SQL-standard body, SECURITY INVOKER, owned
+ *       by postgres (Sharon's ruling (b), 625d52c1; Bob's B1): the teacher's own content RLS applies
  *   src/lib/ai/permintaan.ts bangunPermintaan(...): the one builder, a closed four-key record (control 1)
  *
  *   R3-01  a visible learner's full name is refused before anything is reserved: AI_DATA_PRIBADI, the request
@@ -25,14 +26,18 @@
  *   R3-05  the full name of a learner the educator cannot see, in prose: allowed, and the answer equals the answer for a
  *          name of no learner (no disclosure of a learner's existence).
  *   R3-06  the check's answer holds exactly boleh, kelas and rentang, and never the name, the PINTAR ID or the person id.
- *   R3-07  controls 1, 3 and 4: c3w_pembaca reads content tables only (its plant, a grant on persons, is caught);
- *          c3w_bahan is its definer; the builder's record has exactly the four keys and refuses a fifth; src/lib/ai
- *          imports only itself and server-only; no module there calls fetch.
+ *   R3-07  controls 1, 3 and 4 (Sharon's ruling (b), 625d52c1, with Bob's B1, B3 and B4): c3w_bahan is LANGUAGE sql with
+ *          a SQL-standard body, SECURITY INVOKER and owned by postgres, and everything it depends on is a content table
+ *          (or its columns or types) or a pg_catalog object, by docs/completion-4.1/batches/c3w-1-r3-bahan-check.sql
+ *          (the staging check, run here). Five plants each turn it red: a read of persons, a public helper reading
+ *          persons, a view over persons, a string body and plpgsql. As the invoker it returns the teacher's own lesson
+ *          and nothing of another school's. The builder's record deep-equals its fixture (the schema too) and refuses
+ *          a fifth key; src/lib/ai imports only itself, server-only and node:crypto, and calls no fetch.
  */
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 import { Checks, type SelfTest } from "./lib";
-import { G, S, jalankan, langkah } from "./c1w.test";
+import { G, S, jalankan, langkah, q } from "./c1w.test";
 
 const NAMA_TAMPAK = "Rina Kartika Sari";
 const NAMA_BUDI = "Budi Santoso";
@@ -45,6 +50,27 @@ const baris = (...l: string[]) => l.map(t).join(" || chr(10) || ");
 
 /** R3-01's plant: the check answering «allowed» to everything, as a SQL text literal for EXECUTE. */
 const TANAM_PERIKSA = t(`create or replace function public.c3w_periksa_bahan(p_teks text) returns jsonb language sql as 'select ''{"boleh": true, "kelas": [], "rentang": []}''::jsonb'`);
+
+/** B4's staging check, run here on the real function and on each plant (one source, so the two cannot drift). */
+const CEK = (repoRoot: string) => readFileSync(join(repoRoot, "docs", "completion-4.1", "batches", "c3w-1-r3-bahan-check.sql"), "utf8");
+const BAHAN = "create or replace function public.c3w_bahan(p_lesson uuid, p_objectives uuid[]) returns jsonb language ";
+/** R3-07's plants (Sharon's two and Bob's B3): each replaces c3w_bahan, the check runs, and everything is undone. */
+const TANAM_BAHAN: Array<[string, string[], string]> = [
+  ["orang", [`${BAHAN}sql stable begin atomic select jsonb_build_object('x', (select p.display_name from public.persons p limit 1)); end`], "persons"],
+  ["pembantu", ["create function public.c3w_tanam_bantu() returns text language sql stable begin atomic select p.display_name from public.persons p limit 1; end",
+    `${BAHAN}sql stable begin atomic select jsonb_build_object('x', public.c3w_tanam_bantu()); end`], "c3w_tanam_bantu"],
+  ["tampilan", ["create view public.c3w_tanam_v as select p.display_name from public.persons p",
+    `${BAHAN}sql stable begin atomic select jsonb_build_object('x', (select v.display_name from public.c3w_tanam_v v limit 1)); end`], "c3w_tanam_v"],
+  ["teks", [`${BAHAN}sql stable as 'select jsonb_build_object(''judul'', l.title) from public.lessons l where l.id = p_lesson'`], "string body"],
+  ["plpgsql", [`${BAHAN}plpgsql stable as 'begin return (select jsonb_build_object(''judul'', l.title) from public.lessons l where l.id = p_lesson); end'`], "plpgsql"],
+];
+const tanamBahan = (repoRoot: string) => TANAM_BAHAN.map(([k, ddl]) => `declare x text; begin
+      ${ddl.map((d) => `execute ${q(d)};`).join(" ")}
+      execute ${q(CEK(repoRoot))} into x;
+      v := v || jsonb_build_object('tanam_${k}', x);
+      raise exception 'c3w-batal';
+    exception when others then if sqlerrm <> 'c3w-batal' then v := v || jsonb_build_object('tanam_${k}', 'ERR:' || sqlerrm); end if;
+    end;`);
 
 const periksa = (k: string, teks: string) => langkah(k, "guru", `select public.c3w_periksa_bahan(${teks})::text`);
 const minta = (k: string, teks: string, kunci: string) =>
@@ -114,15 +140,16 @@ function skenario(c: Checks, repoRoot: string): Record<string, string> | null {
     // the hidden learner exists, at this school, and is out of this teacher's sight (else R3-05 would hold vacuously)
     langkah("r05_ada", null, `select count(*)::text from public.persons p where p.display_name = '${NAMA_TERSEMBUNYI}'`),
     langkah("r05_tak_tampak", "guru", `select public.person_visible_to_me(${G("p_sembunyi")})::text`),
-    // R3-07: control 1's privileges
-    langkah("r07_hak", null, `select coalesce(string_agg(t || ':' || has_table_privilege('c3w_pembaca', 'public.' || t, 'SELECT')::text, ',' order by t), '')
-       from unnest(array['lessons','learning_objectives','modules','courses','persons','responses','assessment_sessions','assessment_results','enrollments','accounts','memberships']) t`),
-    langkah("r07_peran", null, `select r.rolcanlogin::text || '|' || (select pg_get_userbyid(p.proowner) || '|' || p.prosecdef::text
-        from pg_proc p where p.oid = to_regproc('public.c3w_bahan')) from pg_roles r where r.rolname = 'c3w_pembaca'`),
-    // the plants, last: c3w_pembaca granted persons (control 1); the check answering «allowed» (R3-01)
-    // (a DDL statement returns nothing for the probe to read, so each plant is its own statement, its failure kept)
-    `begin execute 'grant select on public.persons to c3w_pembaca'; exception when others then null; end;`,
-    langkah("tanam_hak", null, `select has_table_privilege('c3w_pembaca', 'public.persons', 'SELECT')::text`),
+    // R3-07: control 1, by the staging check (B4); the invoker reads the teacher's own lesson and nothing of another school's
+    langkah("r07_cek", null, CEK(repoRoot)),
+    langkah("r07_bahan_guru", "guru", `select (public.c3w_bahan((select l.id from public.lessons l join public.modules md on md.id = l.module_id
+        where md.course_id = ${G("d1")} order by l.ordinal limit 1), null) ->> 'judul') is not null`),
+    langkah("r07_lain_ada", null, `select count(*)::text from public.lessons l join public.institutions i on i.id = l.institution_id
+        where l.institution_id <> ${G("inst")} and i.tenant_kind = 'INSTITUTION'`),
+    langkah("r07_bahan_lain", "guru", `select coalesce(public.c3w_bahan((select l.id from public.lessons l join public.institutions i on i.id = l.institution_id
+        where l.institution_id <> ${G("inst")} and i.tenant_kind = 'INSTITUTION' order by l.id limit 1), null)::text, 'null')`),
+    ...tanamBahan(repoRoot),
+    // the last plant: the check answering «allowed» (R3-01); a DDL statement returns nothing for the probe to read
     `begin execute ${TANAM_PERIKSA}; exception when others then null; end;`,
     minta("tanam_minta", t(`Kemarin ${NAMA_TAMPAK} membaca buku cerita.`), "r3-tanam"),
   ];
@@ -234,13 +261,14 @@ export const c3wR3Tests: SelfTest[] = [
       const c = new Checks();
       const h = skenario(c, repoRoot);
       if (c.expect(h !== null, galat)) {
-        const hak = Object.fromEntries((h!.r07_hak ?? "").replace(/^ok:/, "").split(",").map((x) => x.split(":")));
-        for (const tb of ["lessons", "learning_objectives", "modules", "courses"]) c.expect(hak[tb] === "true", `c3w_pembaca cannot read ${tb}: ${h!.r07_hak}`);
-        for (const tb of ["persons", "responses", "assessment_sessions", "assessment_results", "enrollments", "accounts", "memberships"]) {
-          c.expect(hak[tb] === "false", `c3w_pembaca reads ${tb}: ${h!.r07_hak}`);
+        c.expect(h!.r07_cek === "ok:OK", `the staging check on c3w_bahan: ${h!.r07_cek} (OK)`);
+        c.expect(h!.r07_bahan_guru === "ok:true", `the teacher reading their own draft's lesson through c3w_bahan: ${h!.r07_bahan_guru} (its title)`);
+        c.expect(Number((h!.r07_lain_ada ?? "").replace(/^ok:/, "")) > 0 && h!.r07_bahan_lain === "ok:null",
+          `another school's lesson through c3w_bahan, as the teacher: ${h!.r07_bahan_lain} (${h!.r07_lain_ada} such lesson(s); nothing, by their own RLS)`);
+        for (const [k, , kata] of TANAM_BAHAN) {
+          const x = h![`tanam_${k}`] ?? "";
+          c.expect(x !== "" && x !== "OK" && !x.startsWith("ERR:") && x.includes(kata), `the plant «${k}» was not caught: ${x || "(no answer)"} (a problem naming ${kata})`);
         }
-        c.expect(h!.r07_peran === "ok:false|c3w_pembaca|true", `c3w_pembaca (login|c3w_bahan's owner|definer): ${h!.r07_peran} (NOLOGIN, owns c3w_bahan, a definer)`);
-        c.expect(h!.tanam_hak === "ok:true", `the plant (c3w_pembaca granted persons) was not caught: ${h!.tanam_hak}`);
       }
       // control 1: the one builder, a closed four-key record
       const pembangun = join(repoRoot, "src", "lib", "ai", "permintaan.ts");
@@ -249,8 +277,15 @@ export const c3wR3Tests: SelfTest[] = [
         if (c.expect(typeof m.bangunPermintaan === "function", "permintaan.ts does not export bangunPermintaan")) {
           const masuk = { excerpt: "Budi membeli lima apel di pasar.", objectives: ["Membandingkan pecahan"], jumlah: 2 };
           const r = m.bangunPermintaan!(masuk);
-          c.expect(JSON.stringify(Object.keys(r).sort()) === JSON.stringify(["excerpt", "itemSchema", "objectives", "promptVersion"]),
-            `the builder's record: ${Object.keys(r).join(", ")} (exactly excerpt, objectives, itemSchema, promptVersion)`);
+          // Sharon's ruling 4: the outbound record deep-compared with its fixture, the schema (the count) included
+          const fixture = {
+            excerpt: masuk.excerpt, objectives: masuk.objectives,
+            itemSchema: { type: "array", minItems: 2, maxItems: 2, items: { type: "object", required: ["stem", "options"] } },
+            promptVersion: "c3w-1.1",
+          };
+          const urut = (x: unknown): unknown => Array.isArray(x) ? x.map(urut) : x && typeof x === "object"
+            ? Object.fromEntries(Object.keys(x).sort().map((k) => [k, urut((x as Record<string, unknown>)[k])])) : x;
+          c.expect(JSON.stringify(urut(r)) === JSON.stringify(urut(fixture)), `the builder's record: ${JSON.stringify(r)} (exactly ${JSON.stringify(fixture)})`);
           let tolak = false;
           try { m.bangunPermintaan!({ ...masuk, user: "guru@sekolah.invalid" }); } catch { tolak = true; }
           c.expect(tolak, "the builder accepts an extra key (user)");
@@ -264,7 +299,7 @@ export const c3wR3Tests: SelfTest[] = [
         c.expect(luar.length === 0, `${relative(repoRoot, f)} imports ${luar.join(", ")} (src/lib/ai imports only itself, server-only and node:crypto)`);
         c.expect(!/\bfetch\s*\(/.test(src), `${relative(repoRoot, f)} calls fetch (no provider is reached in C3w-1)`);
       }
-      return c.verdict("reads the catalogue in one rolled-back transaction and the source (Sharon's R3-07): the NOLOGIN role c3w_pembaca reads lessons, learning_objectives, modules and courses and none of persons, responses, sittings, results, enrolments, accounts or memberships, and owns c3w_bahan as a definer; its plant (a grant on persons) is caught; the one builder, src/lib/ai/permintaan.ts, makes exactly excerpt, objectives, itemSchema and promptVersion and refuses a fifth key; src/lib/ai imports only itself, server-only and node:crypto, and calls no fetch");
+      return c.verdict("reads the catalogue in one rolled-back transaction and the source (Sharon's R3-07): by docs/completion-4.1/batches/c3w-1-r3-bahan-check.sql, c3w_bahan is LANGUAGE sql with a SQL-standard body, SECURITY INVOKER and owned by postgres, and depends only on the four content tables and pg_catalog objects; five plants (a persons read, a public helper reading persons, a view over persons, a string body, plpgsql) are each caught; as the invoker it returns the teacher's own lesson and nothing of another school's; the one builder, src/lib/ai/permintaan.ts, deep-equals its fixture, the item schema with the count included, and refuses a fifth key; src/lib/ai imports only itself, server-only and node:crypto, and calls no fetch");
     },
   },
 ];
