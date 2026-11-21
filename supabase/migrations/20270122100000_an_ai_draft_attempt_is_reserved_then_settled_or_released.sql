@@ -319,11 +319,14 @@ begin
   select p.* into a from public.ai_percobaan p where p.id = p_percobaan;
   if not found then perform public.ai_tolak('AI_PERCOBAAN_TIDAK_TERBUKA'); end if;
   select m.sekolah into v_sekolah from public.ai_permintaan m where m.id = a.permintaan;
+  v_lepas := (p_penggunaan ->> 'token_masuk')::bigint = 0 and (p_penggunaan ->> 'token_keluar')::bigint = 0
+         and (p_penggunaan ->> 'biaya_mikro')::bigint = 0 and not p_penggunaan ? 'id_penyedia';
+  -- operator-run and audited; written before the three locks, so the audit row's own reads come first (A2A-L01)
+  perform public.audit_write('ai.attempt_reconciled', 'ai_percobaan', p_percobaan::text, v_sekolah,
+    jsonb_build_object('keadaan', case when v_lepas then 'RELEASED' else 'SETTLED' end, 'biaya_mikro', (p_penggunaan ->> 'biaya_mikro')::bigint));
   perform 1 from public.ai_hak_sekolah where sekolah = v_sekolah for update;
   perform 1 from public.ai_opsi where id = a.opsi for update;
   perform 1 from public.ai_plafon_platform where id for update;
-  v_lepas := (p_penggunaan ->> 'token_masuk')::bigint = 0 and (p_penggunaan ->> 'token_keluar')::bigint = 0
-         and (p_penggunaan ->> 'biaya_mikro')::bigint = 0 and not p_penggunaan ? 'id_penyedia';
   if v_lepas then
     update public.ai_percobaan set keadaan = 'RELEASED', berakhir_at = now()
      where id = p_percobaan and keadaan = 'UNRECONCILED';
@@ -338,10 +341,6 @@ begin
   if not v_lepas and (p_penggunaan ->> 'biaya_mikro')::bigint > a.dicadangkan then
     update public.ai_plafon_platform set berhenti = true, berhenti_pada = coalesce(berhenti_pada, now()) where id;
   end if;
-  insert into public.audit_log (action, target_table, target_id, institution_id, summary)
-  values ('ai_rekonsiliasi', 'ai_percobaan', p_percobaan::text, v_sekolah,
-          jsonb_build_object('keadaan', case when v_lepas then 'RELEASED' else 'SETTLED' end,
-                             'biaya_mikro', (p_penggunaan ->> 'biaya_mikro')::bigint));
   return jsonb_build_object('keadaan', case when v_lepas then 'RELEASED' else 'SETTLED' end);
 end $$;
 
@@ -363,15 +362,18 @@ begin
   return jsonb_build_object('dilepas', v_lepas, 'tak_terekonsiliasi', v_tak);
 end $$;
 
-do $$
-declare f text;
-begin
-  foreach f in array array['ai_cadangkan(uuid)', 'ai_tandai_kirim(uuid)', 'ai_selesaikan(uuid,jsonb)', 'ai_lepaskan(uuid)',
-                           'ai_rekonsiliasi(uuid,jsonb)', 'ai_sapu()'] loop
-    execute format('revoke all on function public.%s from public, anon, authenticated', f);
-    execute format('grant execute on function public.%s to service_role', f);
-  end loop;
-end $$;
+revoke all on function public.ai_cadangkan(uuid) from public, anon, authenticated;
+grant execute on function public.ai_cadangkan(uuid) to service_role;
+revoke all on function public.ai_tandai_kirim(uuid) from public, anon, authenticated;
+grant execute on function public.ai_tandai_kirim(uuid) to service_role;
+revoke all on function public.ai_selesaikan(uuid, jsonb) from public, anon, authenticated;
+grant execute on function public.ai_selesaikan(uuid, jsonb) to service_role;
+revoke all on function public.ai_lepaskan(uuid) from public, anon, authenticated;
+grant execute on function public.ai_lepaskan(uuid) to service_role;
+revoke all on function public.ai_rekonsiliasi(uuid, jsonb) from public, anon, authenticated;
+grant execute on function public.ai_rekonsiliasi(uuid, jsonb) to service_role;
+revoke all on function public.ai_sapu() from public, anon, authenticated;
+grant execute on function public.ai_sapu() to service_role;
 
 do $$
 declare bad text;

@@ -248,7 +248,7 @@ const ditolak = (x: string | undefined) => x !== undefined && !x.startsWith("ok:
 
 // ------------------------------------------------------------------------------------------------ D-5 helpers
 const semuaBerkas = (dir: string, akhiran: RegExp): string[] => !existsSync(dir) ? [] : readdirSync(dir).flatMap((n) => {
-  if (n === "node_modules" || n === ".next" || n === ".git") return [];
+  if (new Set(["node_modules", ".next", ".git"]).has(n)) return [];
   const f = join(dir, n);
   return statSync(f).isDirectory() ? semuaBerkas(f, akhiran) : akhiran.test(n) ? [f] : [];
 });

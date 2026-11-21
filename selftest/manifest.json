@@ -6758,7 +6758,7 @@
     {
       "id": "C3W-D1b",
       "runner": "static",
-      "proves": "Sharon's ruling on the usage (19 Nov, via Bob), red first: ai_selesaikan and ai_rekonsiliasi take one closed-shape p_penggunaan: exactly token_masuk, token_keluar and biaya_mikro as non-negative integers, plus an optional id_penyedia of ^[A-Za-z0-9_-]{1,128}$. A school, a requester, free text, a count as a string, a negative or fractional or missing count, a bad id_penyedia and a non-object are refused PR220 AI_PENGGUNAAN_TIDAK_SAH. Both check through ai_penggunaan_sah, whose plant (accept any jsonb) is caught."
+      "proves": "executes against the migrations: Sharon's ruling on the usage (19 Nov, via Bob), red first: ai_selesaikan and ai_rekonsiliasi take one closed-shape p_penggunaan: exactly token_masuk, token_keluar and biaya_mikro as non-negative integers, plus an optional id_penyedia of ^[A-Za-z0-9_-]{1,128}$. A school, a requester, free text, a count as a string, a negative or fractional or missing count, a bad id_penyedia and a non-object are refused PR220 AI_PENGGUNAAN_TIDAK_SAH. Both check through ai_penggunaan_sah, whose plant (accept any jsonb) is caught."
     },
     {
       "id": "C3W-D2",
@@ -6768,17 +6768,17 @@
     {
       "id": "C3W-D3",
       "runner": "static",
-      "proves": "Sharon's D-3, red first: the sweep makes a claimed attempt with no end past the hard timeout plus 5 minutes UNRECONCILED, reading the one constant ai_batas_kirim_tanpa_akhir(), at least 5 minutes above penyedia.ts's BATAS_PANGGILAN_MS; nothing leaves SETTLED or RELEASED, UNRECONCILED never returns to RESERVED and a sending mark is never cleared, by any writer; the five forward moves stay allowed; the plant (the guard trigger dropped) is caught in the same transaction; every update of keadaan in an AI body is guarded on keadaan."
+      "proves": "executes against the migrations: Sharon's D-3, red first: the sweep makes a claimed attempt with no end past the hard timeout plus 5 minutes UNRECONCILED, reading the one constant ai_batas_kirim_tanpa_akhir(), at least 5 minutes above penyedia.ts's BATAS_PANGGILAN_MS; nothing leaves SETTLED or RELEASED, UNRECONCILED never returns to RESERVED and a sending mark is never cleared, by any writer; the five forward moves stay allowed; the plant (the guard trigger dropped) is caught in the same transaction; every update of keadaan in an AI body is guarded on keadaan."
     },
     {
       "id": "C3W-D4",
       "runner": "static",
-      "proves": "Sharon's D-4, red first: A2A-L01 ranks ai_hak_sekolah, ai_opsi and ai_plafon_platform in that order; ai_cadangkan, ai_selesaikan, ai_lepaskan and ai_rekonsiliasi each take the three FOR UPDATE, school, then option, then platform."
+      "proves": "reads the catalogue and A2A-L01's source: Sharon's D-4, red first: A2A-L01 ranks ai_hak_sekolah, ai_opsi and ai_plafon_platform in that order; ai_cadangkan, ai_selesaikan, ai_lepaskan and ai_rekonsiliasi each take the three FOR UPDATE, school, then option, then platform."
     },
     {
       "id": "C3W-D5",
       "runner": "static",
-      "proves": "Sharon's D-5, red first: pilihPenyedia answers AI_TIDAK_TERSEDIA without PINTAR_AI_STUB_HARNESS=1 (no flag, NODE_ENV=development, any other value, an adapter named while none is built) and selects the stub only with it; it never reads NODE_ENV; the flag is read in one module and set only by the harness; the stub is imported by the provider module alone."
+      "proves": "reads the source of src/lib/ai: Sharon's D-5, red first: pilihPenyedia answers AI_TIDAK_TERSEDIA without PINTAR_AI_STUB_HARNESS=1 (no flag, NODE_ENV=development, any other value, an adapter named while none is built) and selects the stub only with it; it never reads NODE_ENV; the flag is read in one module and set only by the harness; the stub is imported by the provider module alone."
     },
     {
       "id": "C3W-R34",
@@ -6788,7 +6788,7 @@
     {
       "id": "R3-01",
       "runner": "static",
-      "proves": "Sharon's R3-01 (C3W-R3-DESIGN.md), red first: as a class's teacher, ai_minta_draf on an excerpt naming a learner of that class answers AI_DATA_PRIBADI; the ledger row is REFUSED_PERSONAL_DATA with no hash and no attempt, and cannot be reserved; an ordinary excerpt is checked, hashed, carries the package's school and reserves. Plant: the check answering «allowed» lets the named excerpt pass."
+      "proves": "executes against the migrations: Sharon's R3-01 (C3W-R3-DESIGN.md), red first: as a class's teacher, ai_minta_draf on an excerpt naming a learner of that class answers AI_DATA_PRIBADI; the ledger row is REFUSED_PERSONAL_DATA with no hash and no attempt, and cannot be reserved; an ordinary excerpt is checked, hashed, carries the package's school and reserves. Plant: the check answering «allowed» lets the named excerpt pass."
     },
     {
       "id": "R3-02",
@@ -6798,22 +6798,22 @@
     {
       "id": "R3-03",
       "runner": "static",
-      "proves": "Sharon's R3-03, red first: c3w_periksa_bahan refuses LIST on three names with scores, three names with a class label (names PINTAR cannot know), and three visible learners' given names in one line."
+      "proves": "executes against the migrations: Sharon's R3-03, red first: c3w_periksa_bahan refuses LIST on three names with scores, three names with a class label (names PINTAR cannot know), and three visible learners' given names in one line."
     },
     {
       "id": "R3-04",
       "runner": "static",
-      "proves": "Sharon's R3-04, red first: c3w_periksa_bahan allows «Budi membeli lima apel» where a learner Budi Santoso is visible, an ordinary 8-letter word a PINTAR ID's alphabet could spell, and ordinary numbers."
+      "proves": "executes against the migrations: Sharon's R3-04, red first: c3w_periksa_bahan allows «Budi membeli lima apel» where a learner Budi Santoso is visible, an ordinary 8-letter word a PINTAR ID's alphabet could spell, and ordinary numbers."
     },
     {
       "id": "R3-05",
       "runner": "static",
-      "proves": "Sharon's R3-05, red first: the full name of a learner the teacher cannot see is allowed, and the answer is byte-identical to the answer for a name of no learner (no disclosure of existence)."
+      "proves": "executes against the migrations: Sharon's R3-05, red first: the full name of a learner the teacher cannot see is allowed, and the answer is byte-identical to the answer for a name of no learner (no disclosure of existence)."
     },
     {
       "id": "R3-06",
       "runner": "static",
-      "proves": "Sharon's R3-06, red first: on a visible learner's full name the check answers exactly boleh, kelas (NAME) and rentang, and neither the check's nor the request's answer carries the name, a part of it, the person id or the PINTAR ID."
+      "proves": "executes against the migrations: Sharon's R3-06, red first: on a visible learner's full name the check answers exactly boleh, kelas (NAME) and rentang, and neither the check's nor the request's answer carries the name, a part of it, the person id or the PINTAR ID."
     },
     {
       "id": "R3-07",

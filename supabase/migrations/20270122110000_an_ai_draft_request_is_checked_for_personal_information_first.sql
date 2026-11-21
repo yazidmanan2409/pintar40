@@ -234,6 +234,8 @@ begin
             btrim(p_tujuan), p_jumlah, p_kunci_idempoten, now(), now(), 'REFUSED_PERSONAL_DATA')
     on conflict (pemohon, kunci_idempoten) do nothing
     returning id into v_id;
+    perform public.audit_write('ai.draft_requested', 'ai_permintaan', v_id::text, c.institution_id,
+      jsonb_build_object('course', c.id, 'hasil', 'REFUSED_PERSONAL_DATA', 'kelas', v_periksa -> 'kelas'));
     return jsonb_build_object('ok', false, 'kode', 'AI_DATA_PRIBADI', 'permintaan', v_id,
                               'kelas', v_periksa -> 'kelas', 'rentang', v_periksa -> 'rentang');
   end if;
@@ -247,6 +249,8 @@ begin
     select id into v_id from public.ai_permintaan where pemohon = v_me and kunci_idempoten = p_kunci_idempoten;
     return jsonb_build_object('ok', true, 'permintaan', v_id, 'ulang', true);
   end if;
+  perform public.audit_write('ai.draft_requested', 'ai_permintaan', v_id::text, c.institution_id,
+    jsonb_build_object('course', c.id, 'jumlah', p_jumlah));
   return jsonb_build_object('ok', true, 'permintaan', v_id);
 end $$;
 revoke all on function public.ai_minta_draf(uuid, uuid, text, text, integer, text, boolean) from public, anon, authenticated;
