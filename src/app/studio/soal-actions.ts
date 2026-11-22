@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
-import { kodeAi, rujukan } from "@/lib/galat-kontrak";
+import { kodeGalat, rujukan } from "@/lib/galat-kontrak";
 import { sekolahDari, wajibDalamKonteks } from "@/lib/konteks-server";
 import { sekolahSertifikat } from "@/lib/sertifikat-sekolah";
 import {
@@ -118,7 +118,8 @@ export async function putuskanDrafAiAksi(fd: FormData): Promise<void> {
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("ai_putuskan", { p_item: item, p_keputusan: keputusan });
   if (error) {
-    const kode = error.code === "PR220" ? kodeAi(error.details) : kodeSoalDariGalat(error);
+    // PR220 by its DETAIL through the action contract's classifier (kodeGalat), never the error's own text
+    const kode = error.code === "PR220" ? kodeGalat(error) : kodeSoalDariGalat(error);
     const ref = kode === "DRAFT_FAILED" || kode === "AI_GAGAL" ? catat("ai_putuskan", error) : undefined;
     redirect(alamatSoal(course, { pelajaran, c1h: "gagal", c1: kode, c1s: item, ref }));
   }

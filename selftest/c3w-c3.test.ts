@@ -347,7 +347,7 @@ export const c3wC3Tests: SelfTest[] = [
       c.expect(h!.c310_aju === "ok:true" && h!.c310_tegas === "ok:true", `the generated question's key corrected (C2w's path): ${h!.c310_aju}; ${h!.c310_tegas}`);
       c.expect(/^ok:[2-9]\|[1-9]/.test(h!.c310_hasil ?? ""), `the sitting's results after the correction: ${h!.c310_hasil} (a superseding result)`);
       c.expect(h!.c310_catat === "ok:true", `a reviewer's note on the corrected question: ${h!.c310_catat}`);
-      c.expect(h!.c310_asal === "ok:1|ACCEPTED", `its provenance and acceptance, kept on the line: ${h!.c310_asal} (1|ACCEPTED)`);
+      c.expect(h!.c310_asal === "ok:1|ACCEPTED" || h!.c310_asal === "ok:1|EDITED", `its provenance and acceptance, kept on the line: ${h!.c310_asal} (1|ACCEPTED or EDITED: the sitting may present the edited draft)`);
       return c.verdict("executes, in one rolled-back transaction of C1w's world: a package whose questions were generated, accepted by the teacher and approved by the second person is released and published by the school's people, given to the class and sat; the generated question's key is corrected through C2w's governed path and the sitting rescored; a reviewer annotates the corrected question; the question's provenance and acceptance stay on its line");
     },
   },

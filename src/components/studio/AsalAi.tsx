@@ -44,14 +44,13 @@ export default function AsalAiKartu({
   const chip = a.keputusan === "ACCEPTED" ? isi("studio.ai.diterima", { nama: a.oleh ?? "—" })
     : a.keputusan === "EDITED" ? isi("studio.ai.diubah_diterima", { nama: a.oleh ?? "—" })
     : s("studio.ai.chip");
-  const form = (keputusan: "TERIMA" | "HAPUS", isiForm: React.ReactNode) => (
-    <form action={putuskanDrafAiAksi} className="pin-draf-ai-putus">
+  const tersembunyi = (keputusan: "TERIMA" | "HAPUS") => (
+    <>
       <input type="hidden" name="course" value={course} />
       <input type="hidden" name="item" value={a.item} />
       <input type="hidden" name="keputusan" value={keputusan} />
       <input type="hidden" name="pelajaran" value={String(pelajaran)} />
-      {isiForm}
-    </form>
+    </>
   );
   return (
     <div className="pin-draf-ai-asal" data-draf-ai-asal={a.item}>
@@ -62,9 +61,15 @@ export default function AsalAiKartu({
           <p className="pin-meta" data-draf-ai-menunggu="">{s(a.diubah ? "studio.ai.menunggu_diubah" : "studio.ai.menunggu")}</p>
           {bolehPutuskan ? (
             <div className="pin-actions">
-              {form("TERIMA", <TombolKirim className="pin-btn pin-primary" sibuk={s("studio.langkah.sibuk")}>{s("studio.ai.terima")}<span className="pin-sr"> · {posisi}</span></TombolKirim>)}
-              {form("HAPUS", <KonfirmasiBahaya id={`hapus-ai-${a.item}`} tombol={s("studio.ai.hapus")} tanya={s("studio.ai.hapus_tanya")}
-                ya={s("studio.ai.hapus")} batal={s("bahaya.batal")} sibuk={s("studio.langkah.sibuk")} />)}
+              <form action={putuskanDrafAiAksi} className="pin-draf-ai-putus">
+                {tersembunyi("TERIMA")}
+                <TombolKirim className="pin-btn pin-primary" sibuk={s("studio.langkah.sibuk")}>{s("studio.ai.terima")}<span className="pin-sr"> · {posisi}</span></TombolKirim>
+              </form>
+              <form action={putuskanDrafAiAksi} className="pin-draf-ai-putus">
+                {tersembunyi("HAPUS")}
+                <KonfirmasiBahaya id={`hapus-ai-${a.item}`} tombol={s("studio.ai.hapus")} tanya={s("studio.ai.hapus_tanya")}
+                  ya={s("studio.ai.hapus")} batal={s("bahaya.batal")} sibuk={s("studio.langkah.sibuk")} />
+              </form>
             </div>
           ) : null}
         </>
