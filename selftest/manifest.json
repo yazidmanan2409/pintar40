@@ -6851,6 +6851,11 @@
       "proves": "Bob's decision 2 and Sharon's F-2, red first: executes ai_minta_draf and ai_gagal against the migrations in one rolled-back transaction: the request answers the sha-256 of the text it checked; ai_gagal refuses an unclaimed attempt and any outcome but PROVIDER_FAILED or INVALID_OUTPUT, and settles a claimed attempt at its usage with the request's outcome."
     },
     {
+      "id": "C3W-T06",
+      "runner": "static",
+      "proves": "Bob's decision 3 with Daisy's AI_PAKET_LOLOS_PERIKSA (C3W-1-WORDS-TAMBAHAN §4), red first: executes ai_minta_draf and ai_tulis_draf against the migrations: a package already VALIDATED is refused AI_PAKET_LOLOS_PERIKSA at the request, before anything is reserved or sent, and at the write when it became VALIDATED during the call."
+    },
+    {
       "id": "C3W-R01",
       "runner": "static",
       "proves": "The drafting route's core, red first: imports src/lib/ai/jalur.ts and executes buatDrafAi against recording fakes: request, reserve, claim, provider, write in order; F-2 refuses a text checked on one version and sent with another before the claim, and a lesson's text is read once and sent as checked; refusals, a repeated key and an absent provider reach no reservation or provider; provider failures with usage settle PROVIDER_FAILED and retry to 3 attempts; a timeout with no usage is not retried; a refused write settles INVALID_OUTPUT."

@@ -76,6 +76,8 @@ function skenario(c: Checks, repoRoot: string): Record<string, string> | null {
     // ---- T02 before any decision: the submit is refused
     langkah("t2_awal", "guru", `select public.langkah_konten(${G("d1")}, 'STRUCTURED')::text`),
     langkah("t2_valid", "guru", `select public.langkah_konten(${G("d1")}, 'VALIDATED')::text`),
+    // ---- T06 (Daisy's AI_PAKET_LOLOS_PERIKSA, C3W-1-WORDS-TAMBAHAN §4): a VALIDATED package is refused before anything is sent
+    langkah("t6_minta", "guru", `select public.ai_minta_draf(${G("d1")}, ${PELAJARAN}, 'Budi membeli lima apel.', 'Membandingkan pecahan', 2, 't6-valid', true)::text`),
     langkah("t2_tolak", "guru", `select public.langkah_konten(${G("d1")}, 'IN_REVIEW')::text`),
     // the gate's plant, undone at once: its check replaced by false in langkah_konten, the undecided submit lands
     `declare x text; d text; begin
@@ -118,6 +120,16 @@ function skenario(c: Checks, repoRoot: string): Record<string, string> | null {
         'Membandingkan pecahan', 2, 't3-satu', true) ->> 'permintaan'), true)`),
     langkah("t3_coba", null, `select set_config('c1.t3_coba', public.ai_cadangkan(current_setting('c1.t3_minta')::uuid)::text, true)`),
     langkah("t3_kirim", null, `select public.ai_tandai_kirim(current_setting('c1.t3_coba')::uuid)::text`),
+    // T06: the package checked VALIDATED while the claimed call ran: the write names that state, undone at once
+    `begin
+       set local session_replication_role = replica;
+       update public.courses set status = 'VALIDATED' where id = ${G("d2")};
+       set local session_replication_role = origin;
+       v := v || jsonb_build_object('t6_tulis', pg_temp.c1(null, $p$select public.ai_tulis_draf(current_setting('c1.t3_coba')::uuid,
+         jsonb_build_array(${soalJson("Valid", "A")}, ${soalJson("Valid dua", "B")}), ${PAKAI})::text$p$));
+       raise exception 'c3w-batal';
+     exception when others then if sqlerrm <> 'c3w-batal' then v := v || jsonb_build_object('t6_tulis', 'ERR:' || sqlerrm); end if;
+     end;`,
     langkah("t3_hak", null, `select has_function_privilege('authenticated', to_regprocedure('public.ai_tulis_draf(uuid,jsonb,jsonb)'), 'execute')::text
         || '|' || has_function_privilege('service_role', to_regprocedure('public.ai_tulis_draf(uuid,jsonb,jsonb)'), 'execute')::text`),
     langkah("t3_belum_kirim", null, `select public.ai_tulis_draf(public.ai_cadangkan(current_setting('c1.t3_minta')::uuid),
@@ -261,6 +273,18 @@ export const c3wTerimaTests: SelfTest[] = [
       c.expect((h!.t5_gagal ?? "").startsWith("ok:") && h!.t5_akhir === "ok:SETTLED:280|PROVIDER_FAILED",
         `a claimed attempt that failed: ${h!.t5_gagal}; attempt|request: ${h!.t5_akhir} (SETTLED:280|PROVIDER_FAILED)`);
       return c.verdict("executes ai_minta_draf and ai_gagal against the migrations in one rolled-back transaction (Bob's decision 2, Sharon's F-2): the request's answer carries the sha-256 of the text it checked; ai_gagal refuses an attempt never claimed and an outcome other than PROVIDER_FAILED or INVALID_OUTPUT, and settles a claimed attempt at its reported usage with the request's outcome recorded");
+    },
+  },
+  {
+    id: "C3W-T06",
+    requires: ["db"],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const h = skenario(c, repoRoot);
+      if (!c.expect(h !== null, "the scenario did not run")) return c.verdict("");
+      c.expect(h!.t6_minta === "PR220:AI_PAKET_LOLOS_PERIKSA", `a request on a VALIDATED package: ${h!.t6_minta} (PR220:AI_PAKET_LOLOS_PERIKSA, before anything is reserved or sent)`);
+      c.expect(h!.t6_tulis === "PR220:AI_PAKET_LOLOS_PERIKSA", `a write that finds its package VALIDATED: ${h!.t6_tulis} (PR220:AI_PAKET_LOLOS_PERIKSA, the state's own sentence)`);
+      return c.verdict("executes ai_minta_draf and ai_tulis_draf against the migrations in one rolled-back transaction (Bob's decision 3, Daisy's C3W-1-WORDS-TAMBAHAN §4): a package already VALIDATED is refused AI_PAKET_LOLOS_PERIKSA at the request, before anything is reserved or sent, and at the write when it became VALIDATED during the call");
     },
   },
 ];

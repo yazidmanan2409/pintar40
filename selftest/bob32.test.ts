@@ -72,7 +72,8 @@ function penolakanFungsi(repoRoot: string, fn: string): { berkas: string; tolak:
   const src = berkas ? readFileSync(join(dir, berkas), "utf8") : "";
   const i = src.search(pola);
   const sisa = i < 0 ? "" : src.slice(i);
-  const akhir = sisa.search(/\n\$(?:function)?\$;|\nend \$\$;|\nend;\s*\$\$;/);
+  // a body restated from pg_get_functiondef ends «end $function$;», so a migration's check block after it is not read
+  const akhir = sisa.search(/\n\$(?:function)?\$;|\nend \$\$;|\nend;\s*\$\$;|\nend \$function\$;/);
   const badan = akhir < 0 ? sisa : sisa.slice(0, akhir);
   const tolak: Array<{ code: string; message: string; details: string | null }> = [];
   for (const m of badan.matchAll(/raise exception\s+(?:'((?:[^']|'')*)'|using\s+([^;]*))/gi)) {

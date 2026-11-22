@@ -3321,7 +3321,56 @@ export type HleEvent =
   | "email.kartu.isi"
   | "email.kartu.bukan_rahasia"
   | "email.kartu.tombol"
-  | "email.kartu.alasan";
+  | "email.kartu.alasan"
+  // C3w-1 · AI-assisted drafting in Studio (Daisy, C3W-1-WORDS.md dde78004 and C3W-1-WORDS-TAMBAHAN.md fdb90e16). Staff only.
+  | "galat.ai_tidak_tersedia"
+  | "galat.ai_hak_berakhir"
+  | "galat.ai_jatah_habis"
+  | "galat.ai_plafon"
+  | "galat.ai_hak_sumber"
+  | "galat.ai_data_pribadi"
+  | "galat.ai_gagal"
+  | "galat.ai_keluaran_tidak_sah"
+  | "galat.ai_paket_lolos_periksa"
+  | "galat.ai_paket_lolos_periksa_setelah"
+  | "galat.ai_draf_tidak_terbuka"
+  | "galat.ai_belum_diterima"
+  | "galat.ai_belum_diterima_satu"
+  | "studio.ai.tombol"
+  | "studio.ai.judul"
+  | "studio.ai.pelajaran_tujuan"
+  | "studio.ai.pelajaran_tujuan_petunjuk"
+  | "studio.ai.sumber"
+  | "studio.ai.sumber.tujuan"
+  | "studio.ai.sumber.lain"
+  | "studio.ai.sumber.tempel"
+  | "studio.ai.teks"
+  | "studio.ai.teks_petunjuk"
+  | "studio.ai.tujuan"
+  | "studio.ai.jumlah"
+  | "studio.ai.hak"
+  | "studio.ai.hak_petunjuk"
+  | "studio.ai.buat"
+  | "studio.ai.batal"
+  | "studio.ai.tanpa_teks"
+  | "studio.ai.bekerja"
+  | "studio.ai.siap"
+  | "studio.ai.siap_satu"
+  | "studio.ai.siap_di"
+  | "studio.ai.siap_di_satu"
+  | "studio.ai.chip"
+  | "studio.ai.asal"
+  | "studio.ai.asal.pelajaran"
+  | "studio.ai.asal.tempel"
+  | "studio.ai.menunggu"
+  | "studio.ai.menunggu_diubah"
+  | "studio.ai.terima"
+  | "studio.ai.hapus"
+  | "studio.ai.diterima"
+  | "studio.ai.diubah_diterima"
+  | "studio.ai.hapus_tanya"
+  | "studio.ai.dihapus"
+  | "studio.ai.jumlah_ai";
 
 /**
  * One key's telling, in both languages.
@@ -7944,6 +7993,55 @@ const table: Table = {
   "mengajar.siapa.kosong": { default: "Tidak ada murid dalam daftar ini.", en: "No student in this list." },
   "mengajar.siapa.sedang": { default: "Sudah mulai, belum mengumpulkan", en: "Started, not submitted yet" },
   "mengajar.siapa.catatan": { default: "Tiga daftar nama, diurutkan abjad. Bukan peringkat, bukan penilaian, dan tidak menyebut sebabnya — PINTAR tidak tahu sebabnya.", en: "Three lists of names in alphabetical order. Not a ranking, not a judgment, and it names no reason — PINTAR does not know the reason." },
+  // C3w-1 · AI-assisted drafting in Studio (Daisy: C3W-1-WORDS.md, C3W-1-WORDS-TAMBAHAN.md). Staff only (§6).
+  "galat.ai_tidak_tersedia": { default: "Pembuatan draf dengan AI belum tersedia di sekolah ini. Anda tetap dapat menulis soal sendiri.", en: "Drafting questions with AI is not available at this school yet. You can still write questions yourself." },
+  "galat.ai_hak_berakhir": { default: "Pembuatan draf dengan AI sedang tidak aktif untuk sekolah ini. Admin sekolah Anda dapat menanyakannya kepada Admin PINTAR. Anda tetap dapat menulis soal sendiri.", en: "Drafting with AI is not active for this school at the moment. Your school's administrator can ask an Admin PINTAR about it. You can still write questions yourself." },
+  "galat.ai_jatah_habis": { default: "Batas pembuatan draf dengan AI sudah tercapai untuk periode ini. Tidak ada yang dikirim. Admin sekolah Anda dapat menanyakannya kepada Admin PINTAR. Anda tetap dapat menulis soal sendiri.", en: "The limit for drafting with AI has been reached for this period. Nothing was sent. Your school's administrator can ask an Admin PINTAR about it. You can still write questions yourself." },
+  "galat.ai_plafon": { default: "Pembuatan draf dengan AI sedang tidak dapat dipakai untuk sementara. Ini tidak mengurangi jatah sekolah Anda. Tidak ada yang dikirim. Coba lagi nanti, atau tulis soal sendiri.", en: "Drafting with AI cannot be used for the moment. This does not use up your school's allowance. Nothing was sent. Try again later, or write questions yourself." },
+  "galat.ai_hak_sumber": { default: "Centang pernyataan tentang hak memakai sumber ini lebih dulu. Tidak ada yang dikirim.", en: "Tick the statement about the right to use this source first. Nothing was sent." },
+  "galat.ai_data_pribadi": { default: "Sumber ini tampaknya memuat nama atau data murid, jadi tidak dikirim. Hapus data murid dari sumbernya, lalu coba lagi.", en: "This source seems to contain a learner's name or data, so it was not sent. Remove learner data from the source, then try again." },
+  "galat.ai_gagal": { default: "Tidak ada soal yang dibuat. Coba lagi, atau tulis soal sendiri.", en: "No questions were created. Try again, or write questions yourself." },
+  "galat.ai_keluaran_tidak_sah": { default: "Hasilnya tidak dapat dipakai, jadi tidak ada soal yang dibuat. Coba lagi, atau tulis soal sendiri.", en: "The result could not be used, so no questions were created. Try again, or write questions yourself." },
+  "galat.ai_paket_lolos_periksa": { default: "Paket ini sudah ditandai lolos pemeriksaan, jadi draf soal dengan AI tidak dibuat. Soal baru akan membuat paket perlu diperiksa lagi. Tidak ada yang dikirim.", en: "This package is already marked as passing the check, so no AI drafts were made. New questions would mean checking the package again. Nothing was sent." },
+  "galat.ai_paket_lolos_periksa_setelah": { default: "Paket ini sudah ditandai lolos pemeriksaan, jadi draf soal dengan AI tidak dibuat. Soal baru akan membuat paket perlu diperiksa lagi.", en: "This package is already marked as passing the check, so no AI drafts were made. New questions would mean checking the package again." },
+  "galat.ai_draf_tidak_terbuka": { default: "Paket ini tidak sedang disusun, jadi soal baru tidak dapat ditambahkan.", en: "This package is not being drafted, so no new questions can be added." },
+  "galat.ai_belum_diterima": { default: "**{n} soal masih draf dari AI.** Setiap soal perlu diterima atau dihapus oleh pendidik sebelum paket diajukan.", en: "**{n} questions are still AI drafts.** Each needs to be accepted or deleted by an educator before the package is submitted." },
+  "galat.ai_belum_diterima_satu": { default: "**1 soal masih draf dari AI.** Soal ini perlu diterima atau dihapus oleh pendidik sebelum paket diajukan.", en: "**1 question is still an AI draft.** It needs to be accepted or deleted by an educator before the package is submitted." },
+  "studio.ai.tombol": { default: "Buat draf soal dengan AI", en: "Draft questions with AI" },
+  "studio.ai.judul": { default: "Buat draf soal dengan AI", en: "Draft questions with AI" },
+  "studio.ai.pelajaran_tujuan": { default: "Pelajaran tujuan", en: "Target lesson" },
+  "studio.ai.pelajaran_tujuan_petunjuk": { default: "Draf soal ditambahkan ke pelajaran ini. Sumber hanya dipakai untuk menyusun soal.", en: "The draft questions are added to this lesson. The source is only used to write them." },
+  "studio.ai.sumber": { default: "Sumber", en: "Source" },
+  "studio.ai.sumber.tujuan": { default: "Teks pelajaran tujuan", en: "The target lesson's text" },
+  "studio.ai.sumber.lain": { default: "Pelajaran lain di paket ini", en: "Another lesson in this package" },
+  "studio.ai.sumber.tempel": { default: "Teks yang saya tempel", en: "Text I paste" },
+  "studio.ai.teks": { default: "Teks sumber", en: "Source text" },
+  "studio.ai.teks_petunjuk": { default: "Jangan menempel nama atau data murid mana pun. Sampai {n} karakter.", en: "Do not paste any learner's name or data. Up to {n} characters." },
+  "studio.ai.tujuan": { default: "Tujuan pembelajaran", en: "Learning objectives" },
+  "studio.ai.jumlah": { default: "Banyak soal (1–10)", en: "Number of questions (1–10)" },
+  "studio.ai.hak": { default: "Saya menyatakan bahwa sekolah memiliki hak atau izin untuk memakai sumber ini dalam membuat soal.", en: "I confirm that the school has the right or permission to use this source to make questions." },
+  "studio.ai.hak_petunjuk": { default: "Pernyataan ini dicatat bersama permintaan. Pernyataan ini bukan izin hukum.", en: "This statement is recorded with the request. It is not legal permission." },
+  "studio.ai.buat": { default: "Buat draf", en: "Create drafts" },
+  "studio.ai.batal": { default: "Batal", en: "Cancel" },
+  "studio.ai.tanpa_teks": { default: "Pelajaran tujuan belum punya teks. Pilih pelajaran lain atau tempel teks sumber.", en: "The target lesson has no text yet. Choose another lesson or paste source text." },
+  "studio.ai.bekerja": { default: "Menyusun {n} draf soal… Ini dapat memakan waktu hingga satu menit.", en: "Drafting {n} questions… This can take up to a minute." },
+  "studio.ai.siap": { default: "{n} draf soal siap ditinjau.", en: "{n} draft questions are ready to review." },
+  "studio.ai.siap_satu": { default: "1 draf soal siap ditinjau.", en: "1 draft question is ready to review." },
+  "studio.ai.siap_di": { default: "{n} draf soal siap ditinjau di {judul}.", en: "{n} draft questions are ready to review in {judul}." },
+  "studio.ai.siap_di_satu": { default: "1 draf soal siap ditinjau di {judul}.", en: "1 draft question is ready to review in {judul}." },
+  "studio.ai.chip": { default: "Draf dari AI", en: "AI draft" },
+  "studio.ai.asal": { default: "Disusun dengan AI ({model}) dari {sumber} · diminta oleh {nama}, {waktu}", en: "Drafted with AI ({model}) from {sumber} · requested by {nama}, {waktu}" },
+  "studio.ai.asal.pelajaran": { default: "teks pelajaran {judul}", en: "the lesson text {judul}" },
+  "studio.ai.asal.tempel": { default: "teks yang ditempel", en: "pasted text" },
+  "studio.ai.menunggu": { default: "Menunggu keputusan Anda: terima atau hapus.", en: "Waiting for your decision: accept or delete." },
+  "studio.ai.menunggu_diubah": { default: "Sudah diubah. Menunggu keputusan Anda: terima atau hapus.", en: "Changed. Waiting for your decision: accept or delete." },
+  "studio.ai.terima": { default: "Terima", en: "Accept" },
+  "studio.ai.hapus": { default: "Hapus", en: "Delete" },
+  "studio.ai.diterima": { default: "Diterima oleh {nama}", en: "Accepted by {nama}" },
+  "studio.ai.diubah_diterima": { default: "Diubah lalu diterima oleh {nama}", en: "Edited, then accepted by {nama}" },
+  "studio.ai.hapus_tanya": { default: "Hapus draf ini? Draf yang dihapus tidak dapat dikembalikan.", en: "Delete this draft? A deleted draft cannot be brought back." },
+  "studio.ai.dihapus": { default: "Draf dihapus.", en: "Draft deleted." },
+  "studio.ai.jumlah_ai": { default: "{a} dari {b} soal disusun dengan AI", en: "{a} of {b} questions drafted with AI" },
 };
 
 /** Words that must never appear on a learner-facing surface (doc 12 "complexity leaking"). */

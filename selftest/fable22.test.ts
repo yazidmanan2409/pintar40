@@ -269,6 +269,8 @@ const RUTE_TERIKAT: Record<string, RegExp[]> = {
   "src/app/api/akun/kartu-ke-email/route.ts": [/rpc\("authorize_card_conversion"/],
   // W2.22 (owner, 9 Nov): «Terbitkan ulang» asks the certificate's school as the working context before preparing
   "src/app/api/sertifikat/ganti/route.ts": [/rpc\("sertifikat_koreksi_siapkan"/],
+  // C3w-1: AI-assisted drafting writes into a school's package, so it asks the package's school before anything
+  "src/app/api/draf-ai/route.ts": [/buatDrafAi\(/],
 };
 /** Every other API route, and why it is not context-bound. */
 const RUTE_BEBAS: Array<[RegExp, string]> = [
