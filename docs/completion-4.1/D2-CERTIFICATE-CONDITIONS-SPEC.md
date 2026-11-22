@@ -15,7 +15,7 @@ is the owner's call by 24 Nov.
 > - **O-4:** overall mark plus mandatory questions, kept.
 > - **O-5 deferred:** extra time only; other accommodations go to a separate review.
 > - **O-6:** reading is advised.
-> - **O-7 pending** verification 1.
+> - **O-7 decided (ruling 74);** the section-level guidance is pending Dr Gladys.
 > - **O-8:** terminology as future guidance.
 > - **Timing:** after Z, before the first real certificate.
 > - **B-7 (achieved sections) is not implemented now.**
@@ -151,7 +151,7 @@ verification, revocation and reissue work as specified (A).
 | **O-4** | Certification per objective (every objective mastered) | **No:** keep the overall mark plus the mandatory questions, as built and set before the assessment |
 | **O-5** | Accommodations beyond extra time | Ask Dr Gladys which, if any, are required, then decide them as separate scope |
 | **O-6** | Reading before Uji Penguasaan: required or advised | Advised, and the screen made honest; an educational call |
-| **O-7** | Repeated questions on a retake: disclose, or vary | Decide after verification 1, which resumes after 22 Nov |
+| **O-7** | **DECIDED (ruling 74),** except the section-level guidance (pending Dr Gladys). See R-h | — |
 | **O-8** | Platform-wide terminology (Peserta Didik, Pendidik, Institusi) | Record as guidance now; plan it as future scope with Daisy's vocabulary work. No 4.1 renaming |
 | **Timing** | Whether B-1 to B-6 ride Z or land after it | **After Z, before any real certificate.** The pilot issues none (proposal P-3), so nothing waits on them |
 
@@ -181,13 +181,14 @@ verification, revocation and reissue work as specified (A).
 | R-e | Extra time given through A1 is recorded with the result, staff-only, on no public surface | B-5 |
 | R-f | The attempt ordinal is fixed at the start, under ruling 46's lock, and shown on the learner's result and in authorised staff views only | B-6, O-1 |
 | R-g | **Reading advised (O-6): the smallest consistency correction.** The inconsistency is behaviour as well as words: the chapter page offers Uji Penguasaan only once every lesson is read (`siklus.ts`). The smallest correction is for that page to offer Uji Penguasaan once Pemetaan Awal is done, beside "continue reading", with one advisory line (Daisy's wording, for example «Disarankan membaca semua pelajaran lebih dulu»). The database and the test page are unchanged (they already allow it) | O-6 |
+| R-h | **O-7 (ruling 74): certifying results disclose counts only.** In assessments whose **governed purpose** is certification or a formal pass decision (the mode's `certifies` policy, not its display name: today `POST_TEST` / Uji Penguasaan and certifying `STANDALONE`), the learner sees the numbers correct and incorrect, and **never** the per-question correctness, the answer keys or the explanations. This applies on every learner-facing route: the result page, the review screens, print, export and every learner RPC (the closed learner projection and the engine's forbidden-key list). Captured at the sitting's start like R-d. Staff views are unchanged. **Section-level guidance (which sections to re-read) is PENDING Dr Gladys's confirmation, and is not approved:** until she answers, R-h is built so that the guidance can be kept or removed by one switch, with tests for both | O-7 |
 
 **Not in scope:**
 - B-7 (achieved sections);
 - any new accommodation (O-5);
 - the material name on the public page (O-3);
 - per-objective eligibility (O-4);
-- any repetition rule (O-7);
+- any repetition rule or question selection (O-7 points 4 and 5: 4.5);
 - any terminology change beyond R-a and R-b (O-8).
 
 **Preserved unchanged:**
@@ -214,6 +215,7 @@ verification, revocation and reissue work as specified (A).
 - **Extra time:** recorded, staff-only.
 - **The reading guidance:** after Pemetaan Awal the chapter page offers Uji Penguasaan, with the advisory line.
 - **Wording:** Daisy's copy check; the sheet guard (B6C-SHEET-01); the rendered check (R-13) on the new sheet.
+- **R-h, red first:** for each certifying mode, every learner-facing route (the result, review, print, export, each learner RPC) carries no answer key, per-question correctness or explanation, with a plant per route. The counts are correct. Pemetaan Awal, Uji Cepat and practice keep their explanations, each pinned. Staff views are unchanged. **Sharon reviews the security side.**
 
 ### 6.3 The gate
 
