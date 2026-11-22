@@ -130,6 +130,12 @@ material is authorized.
 | 73 | 23 Nov | **C′: a transfer whose requesting administrator is later suspended or loses authority** (owner; settled apart from OD-9). A transfer never completes solely on the authority of an administrator since suspended or lapsed. **The rules:**
 | 74 | 23 Nov | **O-7: examination retakes and answer disclosure** (owner, from Dr Gladys's guidance; verification V1). **Approved:**
 | 74a | 23 Nov | **O-7, final educational clarification (Dr Gladys, via the owner); it supersedes ruling 74's PENDING item.** Certifying results give **qualitative** feedback, preferred over counts alone:
+| 74b | 23 Nov | **Ruling 74a confirmed, with one refinement** (owner). **Counts are kept,** secondary to the qualitative feedback. **Thin evidence:**
+- with **sufficient** evidence, the sections still needing learning are named;
+- with **insufficient** evidence, the learner is advised to revisit the material, with no suggestion that they failed to master it;
+- mastery claims wait for 4.5.
+
+Failing an examination doesn't mean failing every objective it assesses. **No further design cycle.** The principle: report what is known, acknowledge what isn't, help the next step | `D2-CERTIFICATE-CONDITIONS-SPEC.md` R-h |
 1. the objectives or sections mastered, **where sufficient evidence supports it**;
 2. those still needing learning;
 3. **Lulus or Belum lulus**;
