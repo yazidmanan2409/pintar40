@@ -124,6 +124,14 @@ material is authorized.
 | 69 | 22 Nov | **Compatibility policy: a post-4.1 decision** (owner). **Windows 7, 8 and 8.1: not supported.** **Windows 10: the minimum Windows version, a compatibility floor, not a recommendation** (its standard support ended October 2025; some devices get extended security updates). **Windows 11: supported.** For school deployments PINTAR recommends Windows 11 or another currently supported operating system. Compatibility is tested with **explicitly supported browser versions,** never assumed from the operating system: Windows 10 is supported only with a named, current browser. **Open, to be defined after 4.1:**
 | 69a | 22 Nov | **Browser policy: an addition to ruling 69** (owner; a post-4.1 decision). **PINTAR must never require one particular browser;** schools choose. **Preferred, with alternatives:**
 | 69b | 22 Nov | **For now, tests run on Chromium only** (owner). The journeys and CI stay as they are; WebKit and Firefox are added only after the post-4.1 compatibility review. No change to C3w-1 or Z |
+| 70 | 22 Nov | **Full-speed resumption from the allowance reset (Mon 23 Nov 05:00 WIB, 22 Nov 22:00 UTC)** (owner directive). The existing 4.1 plan, at full speed but not unlimited. **Priorities:**
+1. C3w-1 green (pre-flight, CI, journeys) under Sharon's design;
+2. C3w completion and its reviews;
+3. E under the blinded protocol (J1 and J2 already recorded and routed; J3's sheet awaited);
+4. Z, when its prerequisites hold;
+5. acceptance readiness for the observed walkthrough and Dr Gladys's review.
+
+**Discipline:** purposeful tasks only; no repeated reviews of settled matters; reuse evidence; expensive checks at gates; concise instructions; one authoritative state. Infrastructure failures are kept apart from defects. No weakened gates; no unauthorised merge, promotion, production change, infrastructure, provider or spend. **Deferred stays deferred:** Guest Mode, browser compatibility, the Modern Web Guidance plugin and other post-4.1 work. **Escalate only:** a material owner decision; an unmet security or acceptance requirement; a critical-path blocker; an action needing authorisation. Reports are short: done, remaining, blocker, next |
 - Windows 10 and 11: Chrome, or Edge or Firefox;
 - macOS: Safari, or Chrome or Firefox;
 - iPhone and iPad: Safari, or Chrome or Edge;
