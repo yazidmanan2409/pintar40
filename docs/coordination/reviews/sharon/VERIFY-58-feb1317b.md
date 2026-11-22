@@ -43,3 +43,20 @@ Sharon, 22 Nov 2026 (22:45 UTC). Read-only. I reviewed Bob's `docs/completion-4.
 - STANDALONE;
 - a live API server for suspension;
 - the teacher's "hard questions" view's final-answer rule. **Add it to V4's 4.5 item: one final-answer rule, `session_final_responses`, for every reader.**
+
+## Addendum · C′ ruled by the owner (ruling 73, `683c9e64`; Z-READINESS R-25)
+
+The owner adopted re-confirmation:
+- the transfer stays pending;
+- another currently authorised administrator of the originating school confirms it **on their own authority**;
+- the receiving school's approvals are unchanged;
+- each step is audited;
+- with no eligible administrator, it stays on hold;
+- the check is made **at final execution**;
+- a transfer completed before the suspension is not reversed.
+
+**On my queue for 4.5, before any real transfer:** verify, when it is designed,
+1. the own-authority boundary: the confirmer's own grant is checked, and nothing of the suspended person's is inherited;
+2. the check at the execution point, with a red case: the confirmer's grant lapses between confirmation and execution, and execution is refused.
+
+This goes with V6's second layer.
