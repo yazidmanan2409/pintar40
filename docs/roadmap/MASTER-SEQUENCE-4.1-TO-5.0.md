@@ -32,8 +32,8 @@ owner's implementation authorisation (roadmap header; audit §0.2).
 
 ```
 4.1  C3w-1 ─► (C3w-2 if a provider qualifies, D-7) ─► Z (incl. the D-1 repair, D-6, R-items) ─► D2-R ─► 4.1 GATES CLOSED
-4.2  [owner decision D-A below]
-4.5  planning gate ─► foundations (RD-4 runtime proof · 4.5-01 Question Intelligence · 4.5-04 classification ·
+4.5  planning gate ─► OPERATIONAL FOUNDATION (all 14 former 4.2 items, ids kept) ─► OF GATE ─►
+     intelligence foundations (RD-4 runtime proof · 4.5-01 Question Intelligence · 4.5-04 classification ·
      4.5-10 scoring policy) ─► 4.5-02 comparability ─► 4.5-05 Quiet Intelligence ─► protected/formal items as decided
      (4.5-06/07/08 need R-1, R-2) · Guest Mode G0–G5 in parallel ─► 4.5 GATES CLOSED
 5.0  planning gate ─► B4 server-side progression ─► B1 Educator Growth + Shared Growth Compact ─► B2/B3 interventions
@@ -51,11 +51,40 @@ integration → the walkthrough.
 - Guest Mode G0 and G2 design once 4.5 opens (it depends on no unresolved 4.5 item);
 - the owner's decisions and counsel (R-1 to R-5; PR-1), which have the longest lead.
 
+
+## 2a · 4.5 absorbs the whole of 4.2 (ruling 72)
+
+4.2 is retired as a delivery milestone. **Its full approved scope is delivered in 4.5:** all 14 committed items
+(4.2-01 to 4.2-13, with 4.2-06 split), its register item, and its candidates on their existing terms.
+
+**Traceability:** each item keeps its **4.2-xx identifier**, requirements, tests and acceptance conditions (audit §1.1).
+Only its delivery version changes.
+
+**Dependency order** (the audit's §2.1 contracts, unchanged), enforced by an **operational-foundation gate (OF gate)**
+inside 4.5:
+
+| Operational item (former 4.2) | Must precede | Why |
+|---|---|---|
+| 4.2-02 positions and acting appointments; 4.2-03 two-school roles | 4.5-06 formal evaluation; 4.5-07 educator protections | Assessor authority and readership assume the role model (X-2) |
+| 4.2-05 past reports (D-05) | 4.5-08 explainable history | One definition of "the past", not two (X-1) |
+| 4.2-04 school data export | 4.5-08 snapshots | Retention and export interlock (X-4, R-2) |
+| 4.2-12 the Question Health schedule | after RD-4's runtime proof; then 4.5-01 | Don't schedule figures before they are proven (X-3) |
+| 4.2-01 Exam Mode | 4.5 intelligence that reads exam sittings | Builds on A3; sittings must be stable first (X-14, X-16) |
+
+**The OF gate** is an engineering gate, not a walkthrough. It closes when the operational items are built and reviewed,
+their journeys pass, and the cross-feature regression tests are green. Dependent intelligence features may be built
+earlier where independent, but are **accepted only after it.**
+
+Independent 4.5 work runs in parallel: Guest Mode, 4.5-04 classification, Daisy's design, and RD-4's proof.
+
+**Batches, integration contracts and regression tests** are drawn up at 4.5's planning gate (during Z, by Bob), from
+the audit's existing rows. There is no fresh replanning.
+
 ## 3 · Decisions for the owner (each blocks a named stage, not today's work)
 
 | # | Decision | Why it matters | Bob recommends | Needed by |
 |---|---|---|---|---|
-| **D-A** | **4.2's place.** The approved order is 4.1 → 4.2 → 4.5 → 5.0. The directive names 4.1 → 4.5 → 5.0 | 4.2 holds 14 operational items (Exam Mode, positions, two-school roles, export, past reports…). Several 4.5 items assume 4.2's answers (audit X-1, X-2: past reports vs. explainable history; positions vs. assessor authority) | **Keep 4.2 before 4.5, limited to its committed list,** unless the owner means to drop or defer it. Skipping it silently would leave 4.5-06/07/08 resting on undecided roles and history | When 4.1's gates close |
+| **D-A** | **4.2's place: DECIDED (ruling 72).** 4.5 absorbs the whole of 4.2, with identifiers, tests and acceptance kept, and an OF gate before the dependent intelligence | — | — | Done |
 | **D-B** | **The five pending roadmap decisions R-1 to R-5** | R-2 (retention) before production data and 4.5-08; R-5 (competency anchor) in 4.5 planning; R-1 (formal evaluation) before 4.5-06/07; R-3 (structured misconception codes) before 4.5-09; R-4 (staggered interventions with children, likely an ethics review) before 5.0 B2 | Start R-2 and R-4 early: they are the longest lead (legal, ethics). Bob drafts recommended answers as each version's planning opens | As listed |
 | **D-C** | **Real-use evidence before 5.0** | No real educator has used 4.x (Review P's top risk, PETE-01). 4.5's conclusions and 5.0's longitudinal claims need real sittings (audit G-4, X-12). Deferring all human use to after 5.0 risks building on untested assumptions | **One focused interim educator review after 4.1's gates** (the directive allows it): Dr Gladys on the core teaching-and-evidence cycle. Keep the 10-adult pilot as a separate owner decision, not assumed | When 4.1's gates close |
 
@@ -70,12 +99,11 @@ integration → the walkthrough.
 | Stage | Estimate | Confidence | Main assumptions |
 |---|---|---|---|
 | 4.1 gates closed | **About 2–3 weeks** | Medium | C3w-1 in about 3–5 days; Z in about 4–6 days with no major finding; D2-R in about 3–5 days; the owner's promotion authorisations are timely |
-| 4.2 (if kept, D-A) | **About 3–6 weeks** | Low | 9 of 14 items need narrow owner decisions first |
-| 4.5 | **About 8–14 weeks** | Low | RD-4 proves out cheaply; R-2 and R-5 are decided in planning; Guest Mode runs in parallel |
+| 4.5, including all of the former 4.2 | **About 10–18 weeks** | Low | The former 4.2's effort (about 3–6 weeks) is **kept, not absorbed for free**, and partly overlaps independent 4.5 work. 9 of its 14 items need narrow owner decisions; RD-4 proves out cheaply; R-2 and R-5 are decided in planning |
 | 5.0 | **About 6–12 weeks** | Very low | R-4's ethics question is answered in time; 4.5's measurement holds |
 | Integration and verification of 5.0 | **About 2–3 weeks** | Low | — |
 
-**In total:** roughly **5–9 months** to an internally verified 5.0 with 4.2, or **4–7 months** without it.
+**In total:** roughly **5–9 months** to an internally verified 5.0. The consolidation removes a milestone, not the work, so the estimate is unchanged.
 
 **What could move this most:**
 - owner and legal lead times (R-2, R-4, PR-1);
