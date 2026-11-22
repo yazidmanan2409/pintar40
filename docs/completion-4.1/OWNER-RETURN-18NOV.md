@@ -80,6 +80,7 @@ This is the running record. Bob updates it as work moves; the newest entries are
 
 | When (UTC) | What |
 |---|---|
+| 22 Nov 22:05 | **Resumed at full speed** (rulings 70–72). Heads verified: c3w-1 `36257303` (C3W-R01 and C3W-T05 red first), Sharon `aa8cc8c1`, Daisy `7c9ffa8b`. One brief to each member. The 2-hour driver is re-armed. Bob's verification checks 1, 2, 4, 5 and 6 (ruling 58) are running locally; one batch goes to Sharon |
 | 21 Nov 09:45 | **PAUSED (owner).** Heads: `claude/c3w-1` `7c9f6266` (WIP; all of C3w-1's database work, F-1, Bob's four decisions; every C3w-1 test passes; no CI on this WIP); Sharon `aa8cc8c1`; Daisy `fdb90e16` (the new-state words: `C3W-1-WORDS-TAMBAHAN.md`, adding AI_PAKET_LOLOS_PERIKSA). The 2-hour driver is off. **Resume:**
 1. Second Eye: F-2 in the route, the drafting route on the stub, C3-2 to C3-10 red first, one pre-flight, CI and journeys once, the hand-off.
 2. Sharon: the hand-off review, including F-1's fix (`d5d23f09`) and her confirmation of Bob's four readings.
