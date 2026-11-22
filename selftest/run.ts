@@ -1580,6 +1580,8 @@ async function startApp(port: number): Promise<{ child: ChildProcess; url: strin
     env: {
       ...process.env,
       NODE_ENV: "production",
+      // C3w-1 (Sharon's D-5): the harness's own flag; the app it starts drafts on the local stub, never a provider
+      PINTAR_AI_STUB_HARNESS: "1",
       SELFTEST_FETCH_LOG: FETCH_LOG,
       NODE_OPTIONS: [process.env.NODE_OPTIONS, preload].filter(Boolean).join(" "),
     },

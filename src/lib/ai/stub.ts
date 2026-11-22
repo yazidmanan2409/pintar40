@@ -22,7 +22,10 @@ export async function panggilStub(p: PermintaanPenyedia): Promise<HasilPenyedia>
     const kunci = ["A", "B", "C", "D"][(benih + i) % 4];
     return {
       stem: `Soal latihan ${i + 1}: ${tujuan}`,
-      options: ["A", "B", "C", "D"].map((label) => ({ label, text: `Pilihan ${label}`, correct: label === kunci })),
+      options: ["A", "B", "C", "D"].map((label) => ({
+        label, text: `Pilihan ${label}`, correct: label === kunci,
+        rationale: label === kunci ? `Pilihan ${label} sesuai dengan tujuan ini.` : `Pilihan ${label} belum sesuai dengan tujuan ini.`,
+      })),
     };
   });
   const keluar = 40 * soal.length;

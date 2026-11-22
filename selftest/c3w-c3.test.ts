@@ -33,7 +33,7 @@ const psql = (sql: string) => spawnSync("psql", ["-X", "-q", "-At", "-v", "ON_ER
 /** The AI tables (C3W-1-DESIGN.md §3). */
 const TABEL_AI = ["ai_opsi", "ai_plafon_platform", "ai_hak_sekolah", "ai_permintaan", "ai_percobaan", "ai_asal_soal", "ai_penerimaan"];
 /** The functions a signed-in session may run that read an AI table, each gated on CAN_DRAFT or CAN_REVIEW in the school. */
-const BACA_TERGERBANG = ["ai_asal_paket", "ai_draf_belum_diputuskan", "ai_minta_draf", "ai_putuskan"];
+const BACA_TERGERBANG = ["ai_asal_paket", "ai_draf_belum_diputuskan", "ai_minta_draf", "ai_putuskan", "ai_tersedia"];
 
 // ------------------------------------------------------------------ the C1w world: generated drafts in a teacher's package
 const SOAL_D1 = `(select i.id from public.items i join public.lessons l on l.id = i.lesson_id join public.modules md on md.id = l.module_id
@@ -87,6 +87,8 @@ function skenario(c: Checks, repoRoot: string): Record<string, string> | null {
     langkah("c32_murid_putus", "m1", putuskan(G("x"), "TERIMA")),
     langkah("c32_murid_hitung", "m1", `select public.ai_draf_belum_diputuskan(${G("d1")})::text`),
     langkah("c32_murid_asal", "m1", `select jsonb_array_length(public.ai_asal_paket(${G("d1")}))::text`),
+    langkah("c32_murid_ada", "m1", `select public.ai_tersedia(${G("d1")})::text`),
+    langkah("c32_guru_ada", "guru", `select public.ai_tersedia(${G("d1")})::text`),
     langkah("c32_guru_asal", "guru", `select jsonb_array_length(public.ai_asal_paket(${G("d1")}))::text`),
     langkah("c32_lain_asal", "lain", `select jsonb_array_length(public.ai_asal_paket(${G("d1")}))::text`),
     // ---- C3-6: the entitlement off after the drafts were written
@@ -192,6 +194,7 @@ export const c3wC3Tests: SelfTest[] = [
       c.expect(h!.c32_tabel === "ok:", `an AI table a session's role may read or write: ${h!.c32_tabel} (none)`);
       c.expect(h!.c32_fungsi === `ok:${BACA_TERGERBANG.join(",")}`, `the functions a signed-in session may run that read an AI table: ${h!.c32_fungsi} (exactly ${BACA_TERGERBANG.join(", ")})`);
       for (const k of ["c32_murid_minta", "c32_murid_putus", "c32_murid_hitung", "c32_murid_asal"]) c.expect(ditolak(h![k]), `a learner, ${k}: ${h![k]} (refused)`);
+      c.expect(h!.c32_murid_ada === "ok:false" && h!.c32_guru_ada === "ok:true", `whether drafting with AI is offered, to a learner|the teacher: ${h!.c32_murid_ada}|${h!.c32_guru_ada} (false|true)`);
       c.expect(h!.c32_guru_asal === "ok:3", `the package's teacher reads its provenance: ${h!.c32_guru_asal} (3 generated drafts)`);
       c.expect(ditolak(h!.c32_lain_asal), `another school's administrator reads it: ${h!.c32_lain_asal} (refused)`);
       const tipe = await import("../src/lib/assessment-engine/types") as { ANSWER_KEY_FIELDS?: readonly string[]; AI_PROVENANCE_FIELDS?: readonly string[] };
@@ -204,7 +207,7 @@ export const c3wC3Tests: SelfTest[] = [
         try { mesin.sanitize?.({ item_type: "MCQ_SINGLE", stem: "S", opsi: [], [k]: "x" }); } catch { dilempar = true; }
         c.expect(dilempar, `the learner payload carrying ${k} is not refused by sanitize()`);
       }
-      return c.verdict("executes, in one rolled-back transaction of C1w's world: no AI table is readable or writable by anon or authenticated; the only functions a signed-in session may run that read one are ai_asal_paket, ai_draf_belum_diputuskan, ai_minta_draf and ai_putuskan, and a learner is refused by each; the package's teacher reads its three drafts' provenance and another school's administrator is refused; and imports the assessment engine's source: its forbidden provenance keys name every ai_asal_soal column, and sanitize() refuses a learner payload carrying any of them");
+      return c.verdict("executes, in one rolled-back transaction of C1w's world: no AI table is readable or writable by anon or authenticated; the only functions a signed-in session may run that read one are ai_asal_paket, ai_draf_belum_diputuskan, ai_minta_draf, ai_putuskan and ai_tersedia, and a learner is refused by each or offered nothing; the package's teacher reads its three drafts' provenance and another school's administrator is refused; and imports the assessment engine's source: its forbidden provenance keys name every ai_asal_soal column, and sanitize() refuses a learner payload carrying any of them");
     },
   },
   {

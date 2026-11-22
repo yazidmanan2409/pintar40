@@ -20,7 +20,9 @@ export type SkemaSoal = {
 /** Sharon's closed usage shape, as ai_selesaikan and ai_rekonsiliasi take it (D-1b). */
 export type Penggunaan = { token_masuk: number; token_keluar: number; biaya_mikro: number; id_penyedia?: string };
 
-export type SoalDraf = { stem: string; options: Array<{ label: string; text: string; correct: boolean }> };
+/** One draft question. Each option carries why it is right or wrong (INV-03: the content check refuses an option
+ *  without one, OPTION_REASON_MISSING), so a provider's answer that leaves it out is refused at the write. */
+export type SoalDraf = { stem: string; options: Array<{ label: string; text: string; correct: boolean; rationale?: string }> };
 
 export type HasilPenyedia =
   | { ok: true; soal: SoalDraf[]; penggunaan: Penggunaan }

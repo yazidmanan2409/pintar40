@@ -50,7 +50,7 @@ export type MasukDraf = {
 
 export type HasilDraf =
   | { ok: true; permintaan: string; items: unknown; ulang?: boolean }
-  | { ok: false; kode: string; permintaan?: string; kelas?: unknown; rentang?: unknown; ulang?: boolean };
+  | { ok: false; kode: string; permintaan?: string; kelas?: unknown; rentang?: unknown; ulang?: boolean; terkirim?: boolean };
 
 /**
  * A database client as the core's Rpc: only the PR220 code in DETAIL crosses, never an error's own text (X.8, BOB07);
@@ -73,11 +73,12 @@ function kodeDari(e: GalatRpc): string {
   return /^[A-Z][A-Z0-9_]+$/.test(d) ? d : "AI_GAGAL";
 }
 
-/** The provider's answer in the closed shape ai_soal_tertutup accepts: stem, and options of label, body, is_correct. */
+/** The provider's answer in the closed shape ai_soal_tertutup accepts: stem, and options of label, body, is_correct, rationale. */
 function keSoalTertutup(soal: SoalDraf[]) {
   return soal.map((s) => ({
     stem: s.stem,
-    options: s.options.map((o) => ({ label: o.label, body: o.text, is_correct: o.correct })),
+    // the rationale crosses only when the provider gave one (INV-03; the write's content check names its absence)
+    options: s.options.map((o) => ({ label: o.label, body: o.text, is_correct: o.correct, ...(typeof o.rationale === "string" ? { rationale: o.rationale } : {}) })),
   }));
 }
 
@@ -162,7 +163,8 @@ export async function buatDrafAi(dep: Dependensi, masuk: MasukDraf): Promise<Has
     const t = await dep.layanan("ai_tulis_draf", { p_percobaan: percobaan, p_soal: keSoalTertutup(hasil.soal), p_penggunaan: hasil.penggunaan });
     if (t.error) {
       await dep.layanan("ai_gagal", { p_percobaan: percobaan, p_penggunaan: hasil.penggunaan, p_hasil: "INVALID_OUTPUT" });
-      return { ok: false, kode: kodeDari(t.error), permintaan };
+      // after the call: the screen says a state change without «Tidak ada yang dikirim» (Daisy, TAMBAHAN §5)
+      return { ok: false, kode: kodeDari(t.error), permintaan, terkirim: true };
     }
     return { ok: true, permintaan, items: (t.data as { items?: unknown } | null)?.items ?? null };
   }

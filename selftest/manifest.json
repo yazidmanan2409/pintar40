@@ -6858,7 +6858,7 @@
     {
       "id": "C3W-C32",
       "runner": "static",
-      "proves": "C3-2, red first: executes, in one rolled-back transaction, the AI tables' grants (none to anon or authenticated), the set of functions a signed-in session may run that read one (ai_asal_paket, ai_draf_belum_diputuskan, ai_minta_draf, ai_putuskan), each refusing a learner, and the staff read of a package's provenance; and imports the assessment engine's source: sanitize() refuses every provenance key."
+      "proves": "C3-2, red first: executes, in one rolled-back transaction, the AI tables' grants (none to anon or authenticated), the set of functions a signed-in session may run that read one (ai_asal_paket, ai_draf_belum_diputuskan, ai_minta_draf, ai_putuskan, ai_tersedia), each refusing a learner, and the staff read of a package's provenance; and imports the assessment engine's source: sanitize() refuses every provenance key."
     },
     {
       "id": "C3W-C34",
@@ -6884,6 +6884,11 @@
       "id": "C3W-C310",
       "runner": "static",
       "proves": "C3-10, red first: executes, in one rolled-back transaction, a generated, accepted, approved and published question sat, rescored after a governed key correction, annotated by a reviewer, its provenance kept."
+    },
+    {
+      "id": "C3W-L01",
+      "runner": "app",
+      "proves": "C3-11 · AI-assisted drafting on the screens (Daisy, C3W-1-WORDS.md and C3W-1-WORDS-TAMBAHAN.md), selftest/c3w-layar.test.ts, read from the rendered html of the production build and its drafting route on the harness's stub: no entitlement, no button; with it «Buat draf soal dengan AI»; AI_HAK_SUMBER before anything is reserved; two drafts; the same key again makes no second attempt; the cards' «Draf dari AI», provenance line and waiting line; «2 dari n soal disusun dengan AI»; a checked package's «Ajukan» held with Daisy's sentence by aria-describedby; «Terima» and «Hapus» decide, «Diterima oleh …» and «Draf dihapus.»"
     },
     {
       "id": "C3W-R01",

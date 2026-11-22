@@ -53,6 +53,22 @@ insert into public.client_rpc_registry (function_name, exposure, note, authoriza
    || 'content changed, the option''s display name, the source kind, who asked and when. Read-only; CAN_DRAFT or CAN_REVIEW in the school, else DRAFT_NOT_ALLOWED.',
    'CAPABILITY', 'CAN_DRAFT');
 
+-- whether the button «Buat draf soal dengan AI» is drawn for this package (Daisy §1.1): the school holds an entitlement
+-- switched on and the reader authors there. A yes or no only: no allowance, price, option or date (S-7, DAISY-25). An
+-- expired or used-up entitlement still answers true, so its refusal names it (AI_HAK_BERAKHIR, AI_JATAH_HABIS).
+create or replace function public.ai_tersedia(p_course uuid)
+returns boolean language sql stable security definer set search_path = public, pg_temp as $$
+  select public.current_person_id() is not null
+     and exists (select 1 from public.courses c join public.ai_hak_sekolah h on h.sekolah = c.institution_id
+                  where c.id = p_course and h.aktif and public.draf_boleh_tulis(c.institution_id))
+$$;
+revoke all on function public.ai_tersedia(uuid) from public, anon, authenticated;
+grant execute on function public.ai_tersedia(uuid) to authenticated;
+insert into public.client_rpc_registry (function_name, exposure, note, authorization_kind, authorization_requirement) values
+  ('ai_tersedia', 'STAFF',
+   'C3w-1: whether AI drafting is switched on for this package''s school and the reader authors there; yes or no only.',
+   'CAPABILITY', 'CAN_DRAFT');
+
 do $$
 begin
   if not has_function_privilege('authenticated', 'public.ai_asal_paket(uuid)', 'execute')

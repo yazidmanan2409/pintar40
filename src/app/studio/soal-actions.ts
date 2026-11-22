@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
-import { rujukan } from "@/lib/galat-kontrak";
+import { kodeAi, rujukan } from "@/lib/galat-kontrak";
 import { sekolahDari, wajibDalamKonteks } from "@/lib/konteks-server";
 import { sekolahSertifikat } from "@/lib/sertifikat-sekolah";
 import {
@@ -100,6 +100,30 @@ export async function hapusSoalAksi(fd: FormData): Promise<void> {
     redirect(alamatSoal(course, { pelajaran, c1h: "gagal", c1: kode, c1s: item, ref, ubah: item }));
   }
   redirect(alamatSoal(course, { pelajaran, c1h: "ok", c1: "DIHAPUS" }));
+}
+
+/**
+ * C3w-1 · THE TEACHER'S DECISION ON A GENERATED DRAFT (Daisy, C3W-1-WORDS-TAMBAHAN §2): «Terima» or «Hapus», one call
+ * to ai_putuskan as the signed-in teacher, which derives ACCEPTED or EDITED and removes a deleted draft in the same
+ * transaction. A refusal is its code (PR220 by DETAIL), never the database's words.
+ */
+export async function putuskanDrafAiAksi(fd: FormData): Promise<void> {
+  const course = id(fd, "course");
+  const item = id(fd, "item");
+  const keputusan = str(fd, "keputusan");
+  if (!course) redirect("/studio");
+  const pelajaran = pelajaranDari(fd);
+  if (!item || (keputusan !== "TERIMA" && keputusan !== "HAPUS")) redirect(alamatSoal(course, { pelajaran, c1h: "gagal", c1: "DRAFT_UNKNOWN" }));
+  await wajibDalamKonteks({ sekolah: await sekolahDari("soal", item) }, `soal-${item}`);
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc("ai_putuskan", { p_item: item, p_keputusan: keputusan });
+  if (error) {
+    const kode = error.code === "PR220" ? kodeAi(error.details) : kodeSoalDariGalat(error);
+    const ref = kode === "DRAFT_FAILED" || kode === "AI_GAGAL" ? catat("ai_putuskan", error) : undefined;
+    redirect(alamatSoal(course, { pelajaran, c1h: "gagal", c1: kode, c1s: item, ref }));
+  }
+  if (keputusan === "HAPUS") redirect(alamatSoal(course, { pelajaran, c1h: "ok", c1: "AI_DIHAPUS", jangkar: "pin-soal-pelajaran" }));
+  redirect(alamatSoal(course, { pelajaran, c1h: "ok", c1: "AI_DITERIMA", c1s: item }));
 }
 
 export async function buangDrafAksi(fd: FormData): Promise<void> {

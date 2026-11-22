@@ -13,6 +13,8 @@ import {
 } from "@/app/studio/actions";
 import { tanggal } from "@/lib/tanggal";
 import KonfirmasiBahaya from "@/components/KonfirmasiBahaya";
+import AlasanNonaktif from "@/components/AlasanNonaktif";
+import { Tebal, kalimatBelumDiterima } from "@/components/studio/ai-kata";
 import {
   LANGKAH, bolehMengambil, keadaanLangkah, kunciSalinan, posisiPaket,
   type FaktaPaket, type KunciLangkah, type Langkah,
@@ -59,7 +61,7 @@ type Kabar = { jenis: "langkah"; langkah: KunciLangkah[] } | { jenis: "kembali" 
  */
 export default function LangkahTerbit({
   locale, course, fakta, terbitan, kemampuan, saya, penyusun, hasilIsi = null, kembali = null, unggahPerbaikan = null,
-  jawabanAwal = null, zona,
+  jawabanAwal = null, zona, drafAiBelum = 0,
 }: {
   locale: Locale;
   course: string;
@@ -70,6 +72,8 @@ export default function LangkahTerbit({
   /** The reader's person id, and the course's author's. */
   saya: string | null;
   penyusun: string | null;
+  /** C3w-1: the package's AI-generated drafts still awaiting a decision; «Ajukan» is held while any does (Daisy §3) */
+  drafAiBelum?: number;
   /** The course's school's zone (the owner's ruling, 10 Nov): its release's date on that clock; WIB when none. */
   zona?: string | null;
   /** A content step's result, as the page read it back from the address (codes only, the copy table's sentence). */
@@ -175,7 +179,13 @@ export default function LangkahTerbit({
     </form>
   );
 
-  const tombolIsi = (l: Langkah & { jalan: { isi: string } }) => (
+  const tombolIsi = (l: Langkah & { jalan: { isi: string } }) => l.kunci === "ajukan" && drafAiBelum > 0 ? (
+    // C3w-1 (Daisy, TAMBAHAN §3): held, with its reason tied to it; the database refuses the same (AI_BELUM_DITERIMA)
+    <>
+      <button type="button" className="pin-btn pin-primary" disabled aria-describedby="lt-ai-belum">{s(kunciSalinan(l.kunci, "tombol"))}</button>
+      <AlasanNonaktif id="lt-ai-belum"><Tebal teks={kalimatBelumDiterima(drafAiBelum, s, locale)} /></AlasanNonaktif>
+    </>
+  ) : (
     <form action={advanceContentAction}>
       <input type="hidden" name="course" value={course} />
       <input type="hidden" name="to" value={l.jalan.isi} />
