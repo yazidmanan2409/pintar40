@@ -10,7 +10,9 @@
 1. Read notifications. Act only on Bob's relays.
 2. **The C3w-1 rendered review,** when Second Eye's drafting screens are built: check against `C3W-1-WORDS.md` plus `C3W-1-WORDS-TAMBAHAN.md`, and search learner pages for «AI», «Draf dari AI» and «Disusun dengan».
 3. **The Z rechecks** once built: M1, M2, R-10 and R-11 (Z-2, Z-3, N-6 and N-7 have already landed).
-4. **Later:** the D2-R review after Z; the walkthrough, which is PENDING OWNER AUTHORISATION for the staging fixtures.
+4. **Later:** the D2-R review after Z. ~~The walkthrough, PENDING OWNER AUTHORISATION~~ Moved to after 5.0 (ruling 71).
+
+**Resumed 22 Nov, 22:06 UTC.** Waiting on Bob's relay of the C3w-1 head.
 
 ## Working state
 - The local app server and Supabase are stopped. Rebuild per the usual setup only when a rendered review needs it.

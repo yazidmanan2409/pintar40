@@ -1,6 +1,7 @@
 # 4.1 observed walkthrough: the observation plan (Daisy, 18 Nov 2026; ruling 55)
 
 > **What holds now:**
+> - **22 Nov, ruling 71: set aside.** The one comprehensive walkthrough moves to after 5.0. This plan is kept as input for it, and is not run in 4.1.
 > - **A draft for Bob to map to Z's journeys.** Dr Gladys reviews the educational meaning: tasks 2 and 4, and the debrief questions.
 > - **Four tasks** (§2), the same **measures** for each (§3), **four questions** after each (§4), one **recording sheet** (§5) and **severity** (§6).
 > - **Staging needs** (§7) are a bounded write that **waits for your authorisation.**

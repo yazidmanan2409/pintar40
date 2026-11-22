@@ -58,3 +58,4 @@
 | 21 Nov, resume | Bob | Z minors M1, M2 spec | `main` | `Z-M1-M2-SPESIFIKASI.md`: **done** |
 | 21 Nov, 09:42 | Bob | C3w-1 new states: target lesson, two-action decision, submit gate, VALIDATED, failed write | `dde78004` set | `C3W-1-WORDS-TAMBAHAN.md`: **done**; two rows in `C3W-1-WORDS.md` superseded in place |
 | 21 Nov, 09:50 | Owner (via team) | Pause and save | — | `DAISY-JEDA.md`: paused clean |
+| 22 Nov, 22:05 | Bob | Resume (ruling 71) | — | Waiting for the C3w-1 head; walkthrough plan set aside to after 5.0, marked in place |
