@@ -118,6 +118,7 @@ tr { break-inside: avoid; }
 .kandidat td:first-child .ikon { margin-right: 2mm; }
 .kandidat td:last-child { width: 56mm; color: var(--tinta-2); }
 .rujukan td:first-child { width: 20mm; font-weight: 800; color: var(--teal); }
+#rujukan .rujukan td, #rujukan .rujukan th { padding-top: 1.3mm; padding-bottom: 1.3mm; }
 
 /* closing */
 .tahap { list-style: none; margin: 2mm 0 0; padding: 0; }

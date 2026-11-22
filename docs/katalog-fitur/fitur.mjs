@@ -7,17 +7,17 @@
 //   manfaat «Apa manfaatnya?»
 //   contoh  «Contoh penggunaan» one short, fictional school scenario
 //   status  T diterima di lingkungan uji · D sedang dikembangkan · R selesai dirancang, belum dibangun ·
-//           P ditunda ke 4.2; rencana rinci belum disusun · A arah disetujui; belum direncanakan (4.5, 5.0) · K kandidat / menunggu keputusan
+//           P disetujui untuk 4.5 (semula 4.2); belum dibangun · A arah disetujui; belum direncanakan (4.5, 5.0) · K kandidat / menunggu keputusan
 //   rencana optional {keadaan: KEADAAN key, terbuka: open choices, bergantung: dependencies}
 //   catatan optional one-line note under the status (e.g. what is still being completed)
 // Every person and school named in an example is fictional.
 
-export const SNAPSHOT = "18 November 2026";
+export const SNAPSHOT = "23 November 2026";
 export const STATUS = {
   T: "Diterima di lingkungan uji",
   D: "Sedang dikembangkan",
   R: "Selesai dirancang, belum dibangun",
-  P: "Ditunda ke 4.2; rencana rinci belum disusun",
+  P: "Disetujui untuk 4.5; belum dibangun",
   A: "Arah disetujui; belum direncanakan",
   K: "Kandidat / menunggu keputusan",
 };
@@ -114,7 +114,7 @@ export const VERSI = [
           apa: "Jika murid pindah ke sekolah lain yang juga memakai PINTAR, kedua sekolah menyelesaikannya bersama: sekolah asal mengajukan, sekolah tujuan menerima dan memilih kelas, lalu sekolah asal melaksanakan. Hasil dan sertifikat lama tetap tercatat atas nama sekolah asal.",
           manfaat: "Murid tetap memakai identitas yang sama, dan kedua sekolah tahu persis kapan tanggung jawab berpindah.",
           contoh: "Keluarga Citra pindah dari Bandung ke Bogor. Sekolah lama mengajukan perpindahan; sekolah baru menerimanya ke Kelas 6B.",
-          status: "T" },
+          status: "T", catatan: "Diputuskan untuk 4.5: bila admin yang mengajukan kemudian ditangguhkan atau kehilangan kewenangannya, perpindahan tetap menunggu sampai admin lain yang berwenang di sekolah asal mengonfirmasinya atas kewenangannya sendiri." },
         { id: "40-keluar-kembali", nama: "Murid keluar dan kembali", untuk: "Admin sekolah",
           apa: "Admin sekolah mengakhiri pendaftaran murid dengan alasan, misalnya lulus atau pindah ke sekolah di luar PINTAR. Murid yang kembali didaftarkan lagi sebagai orang yang sama, dengan nomor registrasi yang sama. Pengakhiran yang keliru dapat dikoreksi.",
           manfaat: "Riwayat setiap murid tetap utuh, juga ketika ia sempat keluar lalu kembali.",
@@ -193,12 +193,12 @@ export const VERSI = [
           apa: "Ketika murid membutuhkan bantuan di tengah pelajaran, PINTAR memberi arah berpikir lebih dulu, lalu langkah demi langkah. Bantuan ini tidak memberikan jawabannya.",
           manfaat: "Murid dibantu berpikir, bukan diberi jawaban, sehingga pemahamannya tumbuh sendiri.",
           contoh: "Zahra bingung pada contoh soal. Bantuan pertama mengingatkannya untuk menyamakan penyebut; bantuan berikutnya menunjukkan langkah pertama.",
-          status: "T" },
+          status: "T", catatan: "Diputuskan untuk 4.1: bantuan ini tidak tersedia di asesmen yang menentukan kelulusan, seperti Uji Penguasaan." },
         { id: "40-uji-penguasaan", nama: "Uji Penguasaan", untuk: "Murid, guru",
           apa: "Uji Penguasaan adalah asesmen di akhir bab yang menghasilkan hasil resmi. Satu pengerjaan menghasilkan satu hasil resmi, dinilai dengan Aturan Asesmen yang tercatat. Jumlah kesempatan ditetapkan penyusun materi. Jawaban tersimpan selama murid mengerjakan, juga ketika internet sempat putus.",
           manfaat: "Hasil resmi selalu dapat ditelusuri ke aturan dan versi yang dipakai saat itu.",
           contoh: "Internet laboratorium putus di tengah Uji Penguasaan. Setelah tersambung lagi, Wulan melanjutkan; jawaban yang sudah tersimpan tidak hilang.",
-          status: "T" },
+          status: "T", catatan: "Diputuskan untuk 4.1: tanpa bantuan selama ujian, boleh diulang sampai lulus menurut aturan sekolah, dan hasilnya tidak membuka kunci jawaban. Lihat «Hasil Uji Penguasaan yang tidak membuka kunci jawaban»." },
         { id: "40-uji-cepat", nama: "Uji Cepat", untuk: "Guru, murid",
           apa: "Uji Cepat adalah asesmen singkat di kelas untuk memeriksa pemahaman saat itu juga. Guru memilih soal dari bank soal, menetapkan durasi dalam menit, lalu menyediakannya. Uji Cepat hanya dapat dikerjakan sekali dan tertutup sendiri ketika waktunya habis.",
           manfaat: "Guru tahu dalam beberapa menit apakah konsep yang baru diajarkan sudah dipahami.",
@@ -215,7 +215,7 @@ export const VERSI = [
           apa: "Setelah Uji Penguasaan, murid melihat hasil resminya, termasuk apakah ia sudah mencapai batas ketuntasan. Guru dapat membuka hasil setiap murid di kelasnya.",
           manfaat: "Murid dan guru melihat hasil yang sama, dengan dasar yang jelas.",
           contoh: "Setelah mengumpulkan Uji Penguasaan, Bunga melihat bahwa ia mencapai 82, di atas batas ketuntasan 75.",
-          status: "T" },
+          status: "T", catatan: "Diputuskan untuk 4.1: hasil Uji Penguasaan menyebut «Lulus» atau «Belum lulus» dan bagian yang perlu dipelajari lagi, tanpa kunci jawaban atau benar-salah per soal." },
         { id: "40-lihat-bukti", nama: "Lihat bukti: apa yang sudah bisa disimpulkan", untuk: "Guru",
           apa: "Halaman «Lihat bukti» merangkum hasil seluruh kelas: berapa murid yang sudah mengumpulkan, rata-rata pemahaman, kenaikan sejak Pemetaan Awal, bagian yang paling lemah, pemahaman keliru yang berulang, dan sebaran hasil. Setiap angka disertai dasarnya. Jika muridnya belum cukup, PINTAR menulis «Belum cukup data» alih-alih menampilkan angka yang menyesatkan.",
           manfaat: "Guru tahu apa yang perlu diajarkan ulang, dan tidak menarik kesimpulan dari bukti yang terlalu sedikit.",
@@ -245,7 +245,7 @@ export const VERSI = [
           apa: "Murid yang mencapai target mendapat sertifikat dengan kode QR. Siapa pun dapat memindai kode itu untuk memeriksa apakah sertifikat itu asli dan masih berlaku, tanpa melihat data pribadi lain. Sekolah dapat mencabut atau mengganti sertifikat dengan alasan; sertifikat asli tetap tersimpan.",
           manfaat: "Orang tua, sekolah lanjutan, atau pemberi kerja dapat memastikan keaslian sertifikat dalam beberapa detik.",
           contoh: "Saat mendaftar ke SMA, Kirana menunjukkan sertifikat Matematikanya. Petugas memindai kode QR dan melihat status «Berlaku».",
-          status: "T" },
+          status: "T", catatan: "Diputuskan untuk 4.1: sertifikat berjudul «Sertifikat», tanpa predikat." },
         { id: "40-cetak", nama: "Laporan siap cetak A4", untuk: "Guru, pimpinan, Admin sekolah",
           apa: "Laporan resmi dapat dicetak rapi dalam ukuran A4 langsung dari PINTAR, misalnya untuk rapat atau arsip sekolah.",
           manfaat: "Sekolah tidak perlu menyalin angka ke dokumen lain sebelum rapat.",
@@ -297,7 +297,7 @@ export const VERSI = [
   // ════════════════════════════════════════════════════════════ 4.1
   {
     v: "4.1", judul: "Keamanan, Kendali, dan Keandalan", id: "v41",
-    pengantar: "PINTAR 4.1 menjaga bukti belajar tetap utuh ketika ada koreksi, gangguan, atau pemeliharaan. Per 18 November 2026, delapan dari sepuluh tahap pembangunan sudah selesai dan tersedia di lingkungan uji. Satu tahap sedang diselesaikan, dan satu tahap sudah selesai dirancang tetapi belum dibangun. PINTAR 4.1 diuji sebagai satu kesatuan, termasuk enam perjalanan pengguna dari awal sampai akhir, lalu ditinjau bersama para pendidik sebelum dipakai sekolah.",
+    pengantar: "PINTAR 4.1 menjaga bukti belajar tetap utuh ketika ada koreksi, gangguan, atau pemeliharaan. Per 23 November 2026, sembilan dari sepuluh tahap pembangunan sudah tersedia di lingkungan uji, dan tahap kesepuluh, penyusunan draf soal dengan bantuan AI, sedang dibangun. Aturan baru untuk hasil Uji Penguasaan sudah diputuskan dan dibangun setelah pengujian menyeluruh. PINTAR 4.1 kemudian diuji sebagai satu kesatuan, termasuk enam perjalanan pengguna dari awal sampai akhir. Ketersediaan di sekolah memerlukan persetujuan rilis tersendiri dari pemilik PINTAR. Tinjauan menyeluruh bersama para pendidik dilakukan sekali, setelah 5.0.",
     kelompok: [
       { judul: "Sudah tersedia di lingkungan uji", fitur: [
         { id: "41-admin", nama: "Tidak ada sekolah tanpa admin", untuk: "Admin sekolah, Admin PINTAR",
@@ -339,7 +339,7 @@ export const VERSI = [
           apa: "PINTAR mencatat siapa yang masuk, gagal masuk, keluar, atau meminta cetakan resmi, selama 12 bulan. Catatan ini hanya dapat dibaca. PINTAR tidak menyimpan password, kode, atau PIN, dan tidak merekam halaman yang dibuka.",
           manfaat: "Sekolah dapat memeriksa akses ke akun tanpa mengawasi apa yang dilihat setiap orang.",
           contoh: "Seorang guru merasa akunnya dipakai orang lain. Admin sekolah memeriksa catatan masuk dan menemukan percobaan masuk yang gagal dari waktu yang tidak biasa.",
-          status: "T", catatan: "Ekspor data sekolah, beserta catatan akuntabilitasnya, baru hadir di 4.2." },
+          status: "T", catatan: "Ekspor data sekolah, beserta catatan akuntabilitasnya, baru hadir di 4.5." },
         { id: "41-referensi-cetak", nama: "Referensi pada setiap cetakan resmi", untuk: "Guru, pimpinan, Admin sekolah",
           apa: "Setiap laporan yang dicetak dari PINTAR memiliki kaki halaman dengan nomor referensi yang menunjukkan siapa yang mencetaknya dan kapan. Admin sekolah dapat mencari nomor itu selama 12 bulan.",
           manfaat: "Laporan cetak yang beredar dapat ditelusuri asalnya.",
@@ -370,23 +370,28 @@ export const VERSI = [
           manfaat: "Materi yang tidak lagi sesuai dapat dihentikan peredarannya secara tertib dan tercatat.",
           contoh: "Sebuah bab standar diganti dengan edisi baru. Admin PINTAR menarik bab lama dari peredaran sekolah-sekolah yang masih memakainya.",
           status: "T", catatan: "Diterima di lingkungan uji pada 18 November 2026, bersama catatan peninjau." },
-      ]},
-      { judul: "Sedang diselesaikan", fitur: [
         { id: "41-satu-penulis", nama: "Satu perangkat penulis untuk setiap sesi asesmen", untuk: "Murid",
           apa: "Jawaban sebuah sesi asesmen hanya dapat ditulis dari satu tempat pada satu waktu. Jika murid membuka asesmen yang sama di tab atau perangkat kedua, jawabannya tidak dapat saling menimpa atau tercatat dua kali.",
           manfaat: "Jawaban murid tidak pernah hilang atau tertimpa karena asesmen terbuka di dua tempat.",
           contoh: "Adit membuka Uji Penguasaan di laptop dan ponselnya sekaligus. Hanya satu perangkat yang dapat menyimpan jawaban, sehingga jawabannya tetap utuh.",
-          status: "D", catatan: "Tahap akhir; tinjauan keamanan sedang dituntaskan." },
+          status: "T", catatan: "Diterima di lingkungan uji pada 19 November 2026." },
         { id: "41-pemulihan-sesi", nama: "Melanjutkan asesmen di perangkat lain", untuk: "Murid, guru",
           apa: "Jika perangkat mati di tengah asesmen, murid dapat melanjutkan di perangkat lain. Untuk Uji Penguasaan, perpindahan ini memerlukan izin guru. Jawaban yang sudah tersimpan tetap ada, dan perangkat lama tidak dapat lagi menulis jawaban.",
           manfaat: "Gangguan perangkat tidak membuat murid kehilangan pekerjaannya atau kesempatannya.",
           contoh: "Laptop sekolah yang dipakai Laras mati di tengah Uji Penguasaan. Gurunya memberi izin, dan Laras melanjutkan di komputer lain.",
-          status: "D", catatan: "Tahap akhir; langkah pemulihan dan izin guru sedang diselesaikan." },
+          status: "T", catatan: "Diterima di lingkungan uji pada 19 November 2026." },
         { id: "41-kesempatan-versi", nama: "Kesempatan dihitung untuk semua versi asesmen", untuk: "Murid, guru",
           apa: "Jumlah kesempatan berlaku untuk semua versi asesmen yang sama. Revisi materi tidak menambah kesempatan. Kesempatan tambahan tetap dapat diberikan melalui permintaan guru yang disetujui orang lain.",
           manfaat: "Aturan kesempatan berlaku adil dan tidak dapat diakali dengan merevisi materi.",
           contoh: "Penyusun merevisi Uji Penguasaan Bab 3 setelah Galih sudah memakai dua kesempatannya. Galih tidak otomatis mendapat kesempatan baru.",
-          status: "D", catatan: "Sudah diputuskan pemilik PINTAR dan sedang dibangun; sampai selesai, kesempatan masih dihitung per versi." },
+          status: "T", catatan: "Diterima di lingkungan uji pada 19 November 2026." },
+      ]},
+      { judul: "Sudah diputuskan, dibangun setelah pengujian menyeluruh", fitur: [
+        { id: "41-hasil-bersertifikat", nama: "Hasil Uji Penguasaan yang tidak membuka kunci jawaban", untuk: "Murid, guru, sekolah",
+          apa: "Untuk asesmen yang menentukan kelulusan, seperti Uji Penguasaan, murid tidak mendapat petunjuk, bantuan berpikir, atau contoh soal yang dikerjakan. Setelah mengumpulkan, murid melihat «Lulus» atau «Belum lulus», apakah ia berhak atas sertifikat, bagian yang masih perlu dipelajari, dan kesempatan untuk mengulang menurut aturan sekolahnya. Jumlah jawaban benar dan salah ditampilkan sebagai keterangan tambahan. Kunci jawaban, benar-salah per soal, dan penjelasan soal tidak pernah ditampilkan, di hasil, cetakan, maupun unduhan. Murid boleh mengulang sampai memenuhi syarat kelulusan, menurut aturan sekolah. Sertifikat berjudul «Sertifikat», tanpa predikat.",
+          manfaat: "Soal asesmen tetap dapat dipakai lagi dengan adil, sementara murid tetap tahu langkah berikutnya.",
+          contoh: "Raka belum lulus Uji Penguasaan Bab Pecahan. Hasilnya menyarankan ia membaca lagi bagian penjumlahan pecahan berpenyebut beda, lalu mengulang ujian sesuai jadwal dari gurunya.",
+          status: "R", catatan: "Bagian yang masih perlu dipelajari disebut namanya hanya bila buktinya cukup; bila tidak, hasil menyarankan membaca ulang materinya tanpa menyimpulkan bahwa murid belum menguasainya. Pernyataan «sudah dikuasai» per tujuan pembelajaran baru hadir di 4.5. Pemetaan Awal, Uji Cepat, dan latihan tetap memberi penjelasan lengkap." },
       ]},
       { judul: "Menyusun soal dengan bantuan AI", fitur: [
         { id: "41-ai-sendiri", nama: "Impor Studio untuk soal buatan sendiri atau draf dari AI luar", untuk: "Guru, penyusun materi",
@@ -395,27 +400,29 @@ export const VERSI = [
           contoh: "Pak Joko memakai layanan AI sekolahnya untuk menyusun sepuluh draf soal perbandingan, memeriksa dan memperbaikinya, lalu mengimpornya lewat buku kerja untuk ditinjau.",
           status: "T", catatan: "Impor buku kerja tersedia sejak 4.0; panduan pemakaian AI di luar PINTAR sudah disusun." },
         { id: "41-ai-terpadu", nama: "Draf soal dengan AI terpadu PINTAR", untuk: "Guru, penyusun materi",
-          apa: "AI terpadu direncanakan sebagai tambahan berbayar yang opsional bagi sekolah. Bila ditawarkan, sekolah memilih dari pilihan yang sudah lolos penilaian PINTAR. AI menyusun draf soal pilihan ganda dari sumber dan tujuan pembelajaran yang dipilih guru; guru memeriksa, mengubah, atau menolak setiap draf, dan soal yang diterima tetap ditinjau orang kedua sebelum terbit. Murid tidak pernah berinteraksi dengan AI.",
+          apa: "AI terpadu sedang dibangun dan diuji dengan penyedia pengganti, tanpa memanggil layanan AI sungguhan. AI menyusun draf soal pilihan ganda dengan satu jawaban benar dari sumber dan tujuan pembelajaran yang dipilih guru. Guru harus menerima, dengan atau tanpa perubahan, atau menghapus setiap draf sebelum diajukan, dan soal yang diterima tetap ditinjau orang kedua sebelum terbit. Sebelum apa pun dikirim, PINTAR memeriksa bahwa sumbernya tidak memuat data pribadi. Bila ditawarkan kepada sekolah, fitur ini direncanakan sebagai tambahan berbayar yang opsional, dan sekolah memilih dari pilihan yang sudah lolos penilaian PINTAR. Murid tidak pernah berinteraksi dengan AI.",
           manfaat: "Guru menghemat waktu menyusun soal, sementara keputusan tetap di tangan pendidik. Sekolah yang tidak memilih tambahan ini tetap dapat memakai PINTAR sepenuhnya.",
           contoh: "Bu Rina memilih bab yang sudah disetujui sekolah, meminta lima draf soal, menolak satu, memperbaiki dua, lalu mengajukan semuanya untuk ditinjau.",
-          status: "R", catatan: "Rancangan sudah disetujui. Fitur ini hanya ditawarkan bila ada pilihan yang lolos penilaian PINTAR; jika tidak ada, fitur ini dikeluarkan dari rencana dan sekolah tetap memakai penyusunan manual dan impor Studio." },
+          status: "D", catatan: "Fitur ini hanya ditawarkan bila ada pilihan yang lolos penilaian PINTAR; jika tidak ada, fitur ini dikeluarkan dari rencana dan sekolah tetap memakai penyusunan manual dan impor Studio." },
       ]},
     ],
   },
 
-  // ════════════════════════════════════════════════════════════ 4.2
+    // ════════════════════════════════════════════════════════════ 4.5
   {
-    v: "4.2", judul: "Penyempurnaan Operasional", id: "v42",
-    pengantar: "PINTAR 4.2 melengkapi pekerjaan administrasi sekolah yang ditunda dari 4.1, dan membuat asesmen serta catatan sekolah lebih lengkap. Semua fitur di bab ini ditunda pemilik PINTAR ke 4.2; rencana rincinya belum disusun. Rincian, layar, dan urutan pengerjaannya akan ditetapkan dalam rencana 4.2 setelah 4.1 diterima. Kandidat yang belum disetujui tidak termasuk bab ini; lihat bab «Kandidat dan hal yang belum ditetapkan».",
+    v: "4.5", judul: "Kematangan Operasional dan Pemahaman Hasil Belajar", id: "v45",
+    pengantar: "PINTAR 4.5 menyatukan dua bagian. Pertama, seluruh pekerjaan operasional yang semula direncanakan untuk 4.2 kini menjadi bagian dari 4.5: fitur-fitur ini sudah disetujui pemilik PINTAR, tetapi belum dibangun, dan kelompoknya ditandai «semula 4.2». Fondasi operasional seperti Mode Ujian, peran di dua sekolah, dan laporan periode lalu dibangun lebih dulu, sebelum fitur pemahaman hasil yang bergantung padanya. Kedua, PINTAR 4.5 membantu pendidik memahami apa yang benar-benar didukung oleh bukti. Bagian ini masih berupa arah yang disetujui pemilik PINTAR; pelaksanaannya memerlukan perencanaan dan persetujuan tersendiri. Beberapa keputusan harus diambil lebih dulu, misalnya kebijakan evaluasi resmi dan kebijakan masa simpan bukti. Nama fitur di bagian ini masih nama kerja.",
+    alur: { judul: "Cara kerja kecerdasan PINTAR", langkah: ["Bukti", "Pengukuran", "Interpretasi", "Penjelasan", "Keputusan pendidik"] },
+    tidak: ["melacak perilaku murid atau guru", "membiarkan AI membuat klaim sebab-akibat", "membuat penilaian otomatis tentang orang", "meramalkan kegagalan murid", "membandingkan sekolah satu sama lain"],
     kelompok: [
-      { judul: "Asesmen", fitur: [
+      { judul: "Operasional: asesmen (semula 4.2)", fitur: [
         { id: "42-mode-ujian", nama: "Mode Ujian", untuk: "Guru, murid",
           apa: "Mode Ujian akan memungkinkan guru menyelenggarakan, dan murid mengerjakan, asesmen dalam kondisi ujian. Mode ini dibangun di atas perlindungan satu perangkat penulis dan pemulihan sesi dari 4.1.",
           manfaat: "Sekolah dapat memakai PINTAR untuk ujian yang perlu diawasi lebih ketat.",
           contoh: "Untuk ujian akhir semester, SMP Harapan Bangsa memakai Mode Ujian di laboratorium dengan pengawas di setiap ruang.",
           status: "P" },
       ]},
-      { judul: "Administrasi sekolah", fitur: [
+      { judul: "Operasional: administrasi sekolah (semula 4.2)", fitur: [
         { id: "42-jabatan", nama: "Jabatan resmi, pelaksana tugas, dan peran bertanggal", untuk: "Admin sekolah",
           apa: "Admin sekolah akan dapat mencatat jabatan resmi beserta riwayatnya, menunjuk pelaksana tugas, dan menetapkan peran yang mulai berlaku pada tanggal tertentu. Perubahan peran tidak mengubah catatan siapa melakukan apa di masa lalu.",
           manfaat: "Struktur tanggung jawab di PINTAR mengikuti keadaan sekolah yang sebenarnya.",
@@ -452,9 +459,9 @@ export const VERSI = [
           contoh: "Seorang guru pindah sekolah di tengah program. Fasilitator mengeluarkannya dari program dengan alasan yang tercatat.",
           status: "P" },
       ]},
-      { judul: "Akun", fitur: [
+      { judul: "Operasional: akun (semula 4.2)", fitur: [
         { id: "42-tolak-permintaan", nama: "Menolak permintaan akun", untuk: "Admin",
-          apa: "Admin akan dapat menyelesaikan permintaan akun dengan penolakan yang jelas. Cara penolakan disampaikan kepada pemohon akan ditetapkan dalam rencana 4.2.",
+          apa: "Admin akan dapat menyelesaikan permintaan akun dengan penolakan yang jelas. Cara penolakan disampaikan kepada pemohon akan ditetapkan dalam rencana 4.5.",
           manfaat: "Permintaan yang tidak dapat dipenuhi tidak dibiarkan menggantung.",
           contoh: "Seseorang yang bukan staf meminta akun guru. Admin menolaknya dengan alasan yang jelas.",
           status: "P" },
@@ -464,9 +471,9 @@ export const VERSI = [
           contoh: "Setelah mengikuti pelatihan di luar sekolah, Bu Dewi mengganti password-nya dari «Akun saya».",
           status: "P" },
       ]},
-      { judul: "Laporan dan data", fitur: [
+      { judul: "Operasional: laporan dan data (semula 4.2)", fitur: [
         { id: "42-ekspor", nama: "Ekspor data sekolah", untuk: "Staf yang berwenang",
-          apa: "Staf yang berwenang akan dapat mengambil data sekolah sesuai mandatnya. Ekspor hadir bersama peristiwa akuntabilitasnya: setiap ekspor tercatat, termasuk siapa yang mengambil, cakupannya, dan kapan. Jenis data, formatnya, dan penanganan data sensitif akan ditetapkan dalam rencana 4.2.",
+          apa: "Staf yang berwenang akan dapat mengambil data sekolah sesuai mandatnya. Ekspor hadir bersama peristiwa akuntabilitasnya: setiap ekspor tercatat, termasuk siapa yang mengambil, cakupannya, dan kapan. Jenis data, formatnya, dan penanganan data sensitif akan ditetapkan dalam rencana 4.5.",
           manfaat: "Sekolah memegang datanya sendiri, misalnya untuk pelaporan ke dinas.",
           contoh: "Menjelang akreditasi, Admin sekolah mengekspor rekap hasil belajar dua tahun terakhir.",
           status: "P" },
@@ -479,18 +486,8 @@ export const VERSI = [
           apa: "Statistik Kesehatan soal akan diperbarui secara terjadwal, sehingga pembaca tahu seberapa baru angkanya. Pembaruan ini hanya menyegarkan perhitungan yang sudah ada; perhitungan itu sendiri harus dibuktikan benar lebih dulu.",
           manfaat: "Peninjau tidak mengambil keputusan dari angka yang sudah usang.",
           contoh: "Setiap Senin pagi, Kepala departemen membaca Kesehatan soal yang diperbarui akhir pekan.",
-          status: "P", catatan: "Tercatat untuk 4.2 melalui rencana pelaksanaan; penempatannya sedang ditinjau. Jadwalnya bergantung pada pemeriksaan perhitungan yang sudah ada lebih dulu: beberapa dugaan keterbatasan perhitungan, yang ditemukan dari pemeriksaan kode, masih harus dibuktikan saat sistem berjalan." },
+          status: "P", catatan: "Semula tercatat untuk 4.2 melalui rencana pelaksanaan, dan kini termasuk lingkup 4.5. Jadwalnya bergantung pada pemeriksaan perhitungan yang sudah ada lebih dulu: beberapa dugaan keterbatasan perhitungan, yang ditemukan dari pemeriksaan kode, masih harus dibuktikan saat sistem berjalan." },
       ]},
-    ],
-  },
-
-  // ════════════════════════════════════════════════════════════ 4.5
-  {
-    v: "4.5", judul: "Memahami Hasil Pembelajaran", id: "v45",
-    pengantar: "PINTAR 4.5 membantu pendidik memahami apa yang benar-benar didukung oleh bukti. Bab ini menjelaskan arah yang sudah disetujui pemilik PINTAR. Fitur-fiturnya belum direncanakan dan belum dibangun; pelaksanaannya memerlukan perencanaan dan persetujuan tersendiri. Beberapa keputusan harus diambil lebih dulu, misalnya kebijakan evaluasi resmi dan kebijakan masa simpan bukti. Nama fitur di bab ini masih nama kerja.",
-    alur: { judul: "Cara kerja kecerdasan PINTAR", langkah: ["Bukti", "Pengukuran", "Interpretasi", "Penjelasan", "Keputusan pendidik"] },
-    tidak: ["melacak perilaku murid atau guru", "membiarkan AI membuat klaim sebab-akibat", "membuat penilaian otomatis tentang orang", "meramalkan kegagalan murid", "membandingkan sekolah satu sama lain"],
-    kelompok: [
       { judul: "Mengukur dengan benar", fitur: [
         { id: "45-kecerdasan-soal", nama: "Kecerdasan Soal", untuk: "Peninjau, guru",
           apa: "Sebelum hasil dipakai untuk menilai pemahaman murid, PINTAR akan memeriksa soalnya dulu: tingkat kesulitan, perilaku setiap pilihan jawaban, daya beda bila didukung, dan pengaruh revisi. «Belum cukup bukti» adalah hasil yang wajar.",
@@ -546,6 +543,13 @@ export const VERSI = [
           manfaat: "Guru dapat memakai PINTAR dengan tenang, tanpa khawatir datanya dipakai untuk membandingkan atau menghukum.",
           contoh: "Hasil pengembangan profesi Bu Dewi tidak muncul dalam evaluasi resminya, dan ia dapat melihat siapa yang membuka catatannya.",
           status: "A" },
+      ]},
+      { judul: "Mengenal PINTAR", fitur: [
+        { id: "45-jelajah", nama: "Mode Jelajah untuk tamu", untuk: "Calon sekolah, guru, murid, dan siapa pun yang ingin mencoba PINTAR",
+          apa: "Pengunjung akan dapat mencoba PINTAR yang sesungguhnya tanpa membuat akun. Setiap pengunjung mendapat salinan sekali pakai dengan sekolah dan nama rekaan, terpisah dari sekolah yang nyata. Pengunjung dapat melihat PINTAR dari tiga sudut pandang dan berpindah kapan saja, lalu membagikan PINTAR kepada orang lain dengan «Bagikan PINTAR» yang menyesuaikan dengan apa yang sedang dilihatnya.",
+          manfaat: "Sekolah dapat menilai PINTAR dengan mencobanya sendiri, tanpa mendaftar dan tanpa menyerahkan data apa pun.",
+          contoh: "Seorang kepala sekolah mencoba PINTAR sebagai guru, menyediakan satu bab untuk kelas rekaan, lalu membagikan tautannya kepada wakil kepala sekolah.",
+          status: "A", catatan: "Perencanaannya dilanjutkan setelah 4.1 diterima. Akses publik untuk anak memerlukan kajian privasi, perlindungan anak, dan hukum sebelum dirilis." },
       ]},
       { judul: "Kemampuan operasional", fitur: [
         { id: "45-whatsapp", nama: "Masuk dengan WhatsApp", untuk: "Pengguna yang ditetapkan",
@@ -611,17 +615,17 @@ export const VERSI = [
 
 // Not in any version's committed scope. Kept apart on purpose.
 export const KANDIDAT = [
-  { id: "k-batas-waktu", nama: "Batas waktu per asesmen", apa: "Guru dapat menetapkan durasi untuk satu asesmen, di luar tanggal penutupan tugas.", status: "Kandidat untuk 4.2. Tujuan pendidikan dan aturannya harus disetujui lebih dulu." },
-  { id: "k-ai-sendiri", nama: "Kemudahan jalur AI sendiri", apa: "Cara menempel hasil AI yang lebih mudah, mengunggah soal saja tanpa satu kursus utuh, dan kolom bagi guru untuk menyatakan bahwa draf disusun dengan bantuan AI.", status: "Kandidat untuk rencana 4.2. Belum disetujui." },
+  { id: "k-batas-waktu", nama: "Batas waktu per asesmen", apa: "Guru dapat menetapkan durasi untuk satu asesmen, di luar tanggal penutupan tugas.", status: "Kandidat untuk 4.5. Tujuan pendidikan dan aturannya harus disetujui lebih dulu." },
+  { id: "k-ai-sendiri", nama: "Kemudahan jalur AI sendiri", apa: "Cara menempel hasil AI yang lebih mudah, mengunggah soal saja tanpa satu kursus utuh, dan kolom bagi guru untuk menyatakan bahwa draf disusun dengan bantuan AI.", status: "Kandidat untuk rencana 4.5. Belum disetujui." },
   { id: "k-masa-simpan", nama: "Penegakan masa simpan data", apa: "Penerapan masa simpan data sesuai kebijakan yang berlaku, dengan tetap menjaga keutuhan sejarah.", status: "Versinya belum ditetapkan. Kebijakan masa simpan bukti pendidikan diputuskan tersendiri." },
-  { id: "k-tutup-sekolah", nama: "Menutup atau mengarsipkan sekolah", apa: "Proses resmi ketika sebuah sekolah berhenti memakai PINTAR.", status: "Setelah 4.2, kecuali diputuskan lain." },
-  { id: "k-yayasan", nama: "Fondasi di atas beberapa sekolah", apa: "Tingkat organisasi di atas sekolah, misalnya yayasan dengan beberapa sekolah.", status: "Setelah 4.2, kecuali diputuskan lain." },
-  { id: "k-tanggal-tahun", nama: "Tanggal tahun ajaran dan semester yang dapat diubah", apa: "Sekolah menetapkan sendiri tanggal tahun ajaran dan pembagian semesternya.", status: "Setelah 4.2, kecuali diputuskan lain." },
-  { id: "k-batal-cabut", nama: "Membatalkan pencabutan sertifikat", apa: "Mengembalikan sertifikat yang sudah dicabut.", status: "Setelah 4.2, kecuali diputuskan lain." },
-  { id: "k-pulihkan-rilis", nama: "Memulihkan rilis materi yang ditarik", apa: "Mengedarkan kembali materi yang sudah ditarik.", status: "Setelah 4.2, kecuali diputuskan lain." },
-  { id: "k-sesuaikan-pustaka", nama: "Penyesuaian materi platform oleh sekolah", apa: "Sekolah menyesuaikan materi standar Pustaka PINTAR untuk kebutuhannya.", status: "Setelah 4.2, kecuali diputuskan lain." },
-  { id: "k-pengarahan", nama: "Pengarahan berkala", apa: "Ringkasan berkala untuk guru tentang kelasnya.", status: "Disembunyikan sejak 4.0; setelah 4.2, kecuali diputuskan lain." },
-  { id: "k-hapus-keluarga", nama: "Penghapusan data murid dan keluarga", apa: "Penghapusan data murid atas permintaan keluarga.", status: "Setelah 4.2, kecuali diputuskan lain; memerlukan kajian hukum." },
+  { id: "k-tutup-sekolah", nama: "Menutup atau mengarsipkan sekolah", apa: "Proses resmi ketika sebuah sekolah berhenti memakai PINTAR.", status: "Di luar lingkup 4.5 yang disetujui; rilisnya belum ditetapkan." },
+  { id: "k-yayasan", nama: "Fondasi di atas beberapa sekolah", apa: "Tingkat organisasi di atas sekolah, misalnya yayasan dengan beberapa sekolah.", status: "Di luar lingkup 4.5 yang disetujui; rilisnya belum ditetapkan." },
+  { id: "k-tanggal-tahun", nama: "Tanggal tahun ajaran dan semester yang dapat diubah", apa: "Sekolah menetapkan sendiri tanggal tahun ajaran dan pembagian semesternya.", status: "Di luar lingkup 4.5 yang disetujui; rilisnya belum ditetapkan." },
+  { id: "k-batal-cabut", nama: "Membatalkan pencabutan sertifikat", apa: "Mengembalikan sertifikat yang sudah dicabut.", status: "Di luar lingkup 4.5 yang disetujui; rilisnya belum ditetapkan." },
+  { id: "k-pulihkan-rilis", nama: "Memulihkan rilis materi yang ditarik", apa: "Mengedarkan kembali materi yang sudah ditarik.", status: "Di luar lingkup 4.5 yang disetujui; rilisnya belum ditetapkan." },
+  { id: "k-sesuaikan-pustaka", nama: "Penyesuaian materi platform oleh sekolah", apa: "Sekolah menyesuaikan materi standar Pustaka PINTAR untuk kebutuhannya.", status: "Di luar lingkup 4.5 yang disetujui; rilisnya belum ditetapkan." },
+  { id: "k-pengarahan", nama: "Pengarahan berkala", apa: "Ringkasan berkala untuk guru tentang kelasnya.", status: "Disembunyikan sejak 4.0; di luar lingkup 4.5 yang disetujui." },
+  { id: "k-hapus-keluarga", nama: "Penghapusan data murid dan keluarga", apa: "Penghapusan data murid atas permintaan keluarga.", status: "Di luar lingkup 4.5 yang disetujui; rilisnya belum ditetapkan; memerlukan kajian hukum." },
   { id: "k-share-learn", nama: "Share & Learn", apa: "Berbagi bahan belajar melalui tautan dan kode QR.", status: "Arah lama untuk 4.5 yang masih menunggu rekonsiliasi sumber. Lingkupnya belum ditetapkan." },
   { id: "k-portal-ortu", nama: "Portal orang tua", apa: "Halaman bagi orang tua untuk mengikuti belajar anaknya.", status: "Belum ditetapkan; tidak termasuk versi mana pun saat ini." },
   { id: "k-kegunaan-qi", nama: "Penilaian kegunaan Quiet Intelligence", apa: "Tinjauan terstruktur bersama guru dan umpan balik sukarela untuk menilai apakah penjelasan PINTAR berguna.", status: "Usulan untuk rencana 4.5; belum diputuskan." },

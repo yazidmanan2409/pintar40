@@ -77,13 +77,10 @@ const IKHTISAR = [
     status: () => `${tanda("T")}Dibangun dan diuji; diterima di lingkungan uji pada 10 November 2026.<br>${tanda("S")}Belum tersedia di sekolah.` },
   { v: "4.1", id: "v41", tujuan: "Bukti tetap utuh ketika ada koreksi, gangguan, atau pemeliharaan.",
     kemampuan: "Pengaturan sesi asesmen, koreksi soal dan kunci jawaban, catatan akuntabilitas, penghentian darurat, pemeliharaan terjadwal, catatan peninjau, pemulihan sesi, dan draf soal dengan bantuan AI.",
-    status: () => `${tanda("T")}${hitung("4.1", (f) => f.status === "T")} diterima di lingkungan uji · ${tanda("D")}${hitung("4.1", (f) => f.status === "D")} sedang dikembangkan · ${tanda("R")}${hitung("4.1", (f) => f.status === "R")} selesai dirancang.<br>${tanda("S")}Belum tersedia di sekolah. Sekolah menerimanya setelah 4.1 diuji sebagai satu kesatuan, ditinjau bersama para pendidik, dan disetujui pemilik PINTAR.` },
-  { v: "4.2", id: "v42", tujuan: "Melengkapi pekerjaan operasional yang ditunda.",
-    kemampuan: "Mode Ujian, jabatan dan peran di dua sekolah, administrasi sekolah dan akun, serah terima kelas, ekspor data sekolah, dan laporan periode lalu.",
-    status: () => `${tanda("P")}Ditunda pemilik PINTAR ke 4.2; rencana rinci belum disusun. Keadaan perencanaan: ${hitungKeadaan("4.2", "COMPLETE")} siap, ${hitungKeadaan("4.2", "PARTIAL")} sebagian siap, ${hitungKeadaan("4.2", "UNRESOLVED")} menunggu keputusan.<br>Pilihan kebijakan yang masih terbuka antara lain: arti Mode Ujian dan akomodasinya, data yang boleh diekspor, tampilan laporan periode lalu, wewenang atas orang yang bekerja di dua sekolah, dan penempatan statistik Kesehatan soal terjadwal. Tidak ada pilihan terbuka yang ditulis seolah sudah diputuskan.` },
-  { v: "4.5", id: "v45", tujuan: "Memahami apa yang sungguh didukung oleh bukti.",
-    kemampuan: "Kecerdasan Soal, kesebandingan asesmen, identitas kompetensi, pemetaan pemahaman keliru, Quiet Intelligence (nama kerja), sejarah yang dapat dijelaskan, dan evaluasi guru resmi yang diatur institusi beserta perlindungannya.",
-    status: () => `${tanda("A")}Arah disetujui; belum direncanakan dan belum dibangun. Pelaksanaannya memerlukan perencanaan dan persetujuan tersendiri.<br>Rancangan dan kebijakan masih harus disusun, terutama kebijakan evaluasi guru resmi, kebijakan masa simpan bukti, jangkar identitas kompetensi, dan kode pemahaman keliru.` },
+    status: () => `${tanda("T")}${hitung("4.1", (f) => f.status === "T")} diterima di lingkungan uji · ${tanda("D")}${hitung("4.1", (f) => f.status === "D")} sedang dikembangkan · ${tanda("R")}${hitung("4.1", (f) => f.status === "R")} selesai dirancang, belum dibangun.<br>${tanda("S")}Belum tersedia di sekolah. Ketersediaan di sekolah memerlukan persetujuan rilis tersendiri dari pemilik PINTAR. Tinjauan menyeluruh bersama para pendidik dilakukan sekali, setelah 5.0.` },
+  { v: "4.5", id: "v45", tujuan: "Operasional sekolah yang matang, lalu memahami apa yang sungguh didukung oleh bukti.",
+    kemampuan: "Bagian operasional (semula 4.2): Mode Ujian, jabatan dan peran di dua sekolah, administrasi sekolah dan akun, serah terima kelas, ekspor data sekolah, dan laporan periode lalu. Bagian pemahaman hasil: Kecerdasan Soal, kesebandingan asesmen, identitas kompetensi, pemetaan pemahaman keliru, Quiet Intelligence (nama kerja), sejarah yang dapat dijelaskan, evaluasi guru resmi beserta perlindungannya, dan Mode Jelajah untuk tamu.",
+    status: () => `${tanda("P")}${hitung("4.5", (f) => f.status === "P")} fitur operasional disetujui (semula 4.2), belum dibangun. Keadaan perencanaan: ${hitung("4.5", (f) => f.status === "P" && RENCANA[f.id]?.keadaan === "COMPLETE")} siap, ${hitung("4.5", (f) => f.status === "P" && RENCANA[f.id]?.keadaan === "PARTIAL")} sebagian siap, ${hitung("4.5", (f) => f.status === "P" && RENCANA[f.id]?.keadaan === "UNRESOLVED")} menunggu keputusan.<br>${tanda("A")}${hitung("4.5", (f) => f.status === "A")} fitur lainnya berupa arah yang disetujui; belum direncanakan dan belum dibangun. Kebijakan evaluasi guru resmi, masa simpan bukti, dan jangkar identitas kompetensi masih harus diputuskan. Fondasi operasional dibangun lebih dulu. Tidak ada pilihan terbuka yang ditulis seolah sudah diputuskan.` },
   { v: "5.0", id: "v50", tujuan: "Bertindak atas temuan, mengamati hasilnya, dan berkembang.",
     kemampuan: "Pertumbuhan Guru, Kesepakatan Pertumbuhan Bersama, intervensi dan tindak lanjut, jalur belajar yang diatur, dan perbaikan di tingkat bagian dan sekolah.",
     status: () => `${tanda("A")}Arah disetujui; belum direncanakan dan belum dibangun.<br>Bergantung pada fondasi 4.5: Kecerdasan Soal, kesebandingan asesmen, identitas kompetensi, empat jenis pernyataan, dan perlindungan guru. Aturan intervensi (persetujuan, pemberitahuan keluarga, dan bantuan yang tetap diberikan) harus diputuskan lebih dulu.` },
@@ -94,7 +91,7 @@ const chip = (id) => { const f = byId[id]; return `<a class="chip" href="#${id}"
 // ── the document ─────────────────────────────────────────────────────────────────────────────────────
 const halaman = (hal) => (id) => hal[id] ? String(hal[id]) : "";
 const DAFTAR = [
-  ["ikhtisar", "Ringkasan", "Lima rilis sekilas"],
+  ["ikhtisar", "Ringkasan", "Empat rilis sekilas"],
   ["hari", "Contoh", "Hari-hari biasa di sekolah"],
   ...VERSI.map((v) => [v.id, `PINTAR ${v.v}`, v.judul, `${jumlah(v)} fitur`]),
   ["kandidat", "Lain", "Kandidat dan hal yang belum ditetapkan", `${KANDIDAT.length}`],
@@ -117,7 +114,7 @@ const html = (hal) => `<!doctype html>
   <div class="sampul-isi">
     <p class="versi">Katalog fitur</p>
     <h1>Katalog Lengkap Fitur PINTAR 4.0–5.0</h1>
-    <p class="lede">${total} entri fitur di lima rilis, ditambah ${KANDIDAT.length} kandidat atau entri yang belum ditetapkan. Apa fungsi setiap fitur, mengapa berguna, dan bagaimana digunakan di sekolah.</p>
+    <p class="lede">${total} entri fitur di empat rilis, ditambah ${KANDIDAT.length} kandidat atau entri yang belum ditetapkan. Apa fungsi setiap fitur, mengapa berguna, dan bagaimana digunakan di sekolah.</p>
     <ol class="tangga">${VERSI.map((v) => `<li><span>${v.v}</span>${esc(v.judul)}<em>${jumlah(v)}</em></li>`).join("")}</ol>
   </div>
   <p class="sampul-kaki">Keadaan per ${SNAPSHOT} · Draf untuk ditinjau</p>
@@ -138,8 +135,8 @@ const html = (hal) => `<!doctype html>
 
 <section class="pengantar" id="ikhtisar">
   <p class="versi">Ringkasan</p>
-  <h2>Lima rilis sekilas</h2>
-  <p class="lede">${total} entri fitur di lima rilis, ditambah ${KANDIDAT.length} kandidat atau entri yang belum ditetapkan. Keadaan per ${SNAPSHOT}; sekolah masih memakai PINTAR versi September 2026.</p>
+  <h2>Empat rilis sekilas</h2>
+  <p class="lede">${total} entri fitur di empat rilis, ditambah ${KANDIDAT.length} kandidat atau entri yang belum ditetapkan. Keadaan per ${SNAPSHOT}; versi produksi PINTAR masih versi September 2026, dan belum ada sekolah yang memakai 4.x.</p>
   <div class="ikhtisar">
     ${IKHTISAR.map((x) => { const v = VERSI.find((y) => y.v === x.v); return `
     <a class="rilis" href="#${x.id}">
@@ -163,13 +160,13 @@ const html = (hal) => `<!doctype html>
       <tr><td>${tanda("S")}${SEKOLAH.T}</td><td>Label terpisah tentang ketersediaan di sekolah. Per ${SNAPSHOT}, belum ada fitur 4.0 atau 4.1 yang tersedia di sekolah. Sekolah menerimanya setelah 4.1 diterima.</td></tr>
       <tr><td>${tanda("D")}${STATUS.D}</td><td>Sedang dibangun atau diselesaikan, dan belum diterima di lingkungan uji.</td></tr>
       <tr><td>${tanda("R")}${STATUS.R}</td><td>Rancangannya sudah ditinjau dan disetujui, tetapi pembangunannya belum dimulai.</td></tr>
-      <tr><td>${tanda("P")}${STATUS.P}</td><td>Ditunda pemilik PINTAR ke 4.2. Rencana rincinya belum disusun; rincian, layar, dan urutannya ditetapkan dalam rencana 4.2 setelah 4.1 diterima.</td></tr>
+      <tr><td>${tanda("P")}${STATUS.P}</td><td>Termasuk lingkup 4.5 yang disetujui pemilik PINTAR, semula direncanakan untuk 4.2. Belum dibangun; rincian dan urutannya ditetapkan dalam rencana 4.5.</td></tr>
       <tr><td>${tanda("A")}${STATUS.A}</td><td>Arah 4.5 atau 5.0 yang sudah disetujui pemilik PINTAR, tetapi belum direncanakan. Pelaksanaannya memerlukan perencanaan dan persetujuan tersendiri; rancangan dan kebijakannya masih harus disusun.</td></tr>
       <tr><td>${tanda("K")}${STATUS.K}</td><td>Belum termasuk rilis mana pun. Dikumpulkan di bab tersendiri.</td></tr>
     </tbody>
   </table>
   <h3 class="sub">Keadaan perencanaan</h3>
-  <p>Untuk 4.2, 4.5, dan 5.0, setiap fitur juga menunjukkan keadaan perencanaannya dan pilihan yang masih terbuka.</p>
+  <p>Untuk 4.5 dan 5.0, setiap fitur juga menunjukkan keadaan perencanaannya dan pilihan yang masih terbuka.</p>
   <table class="tabel-status">
     <tbody>
       <tr><td><b>${KEADAAN.COMPLETE}</b></td><td>Tidak ada keputusan yang tersisa; fitur dapat masuk perencanaan rinci.</td></tr>
@@ -198,7 +195,7 @@ ${VERSI.map(bab).join("")}
   <div class="pembuka">
     <p class="versi">Di luar cakupan rilis</p>
     <h2>Kandidat dan hal yang belum ditetapkan</h2>
-    <p class="lede">Hal-hal berikut tercatat dalam rencana PINTAR, tetapi belum termasuk rilis mana pun. Sebagian adalah kandidat yang menunggu persetujuan; sebagian ditunda ke setelah 4.2 dengan versi yang belum ditetapkan. Tidak ada satu pun yang tersedia, dan semuanya tidak dihitung dalam ${total} entri fitur.</p>
+    <p class="lede">Hal-hal berikut tercatat dalam rencana PINTAR, tetapi belum termasuk rilis mana pun. Sebagian adalah kandidat yang menunggu persetujuan; sebagian berada di luar lingkup 4.5 yang disetujui, dengan versi yang belum ditetapkan. Tidak ada satu pun yang tersedia, dan semuanya tidak dihitung dalam ${total} entri fitur.</p>
   </div>
   <table class="kandidat">
     <thead><tr><th>Entri</th><th>Apa itu?</th><th>Status</th></tr></thead>
@@ -215,10 +212,10 @@ ${VERSI.map(bab).join("")}
   <ol class="tahap">
     <li><b>4.0</b><div><h4>Fondasi yang dapat dipercaya</h4><p>Sekolah, akun, materi yang ditinjau, asesmen, dan hasil resmi yang selalu dapat ditelusuri. Tanpa fondasi ini, tidak ada kesimpulan yang layak dipercaya.</p></div></li>
     <li><b>4.1</b><div><h4>Integritas, pemulihan, dan kendali</h4><p>Bukti tetap utuh ketika ada kesalahan kunci jawaban, perangkat yang mati, pemeliharaan, atau keadaan darurat. Setiap tindakan penting tercatat.</p></div></li>
-    <li><b>4.2</b><div><h4>Pekerjaan operasional dilengkapi</h4><p>Pekerjaan administrasi yang ditunda diselesaikan, sehingga sekolah dapat mengurus dirinya sendiri dengan lengkap.</p></div></li>
-    <li><b>4.5</b><div><h4>Memahami bukti dan pola yang bermakna</h4><p>PINTAR memeriksa mutu soal dulu, menyebut jenis setiap pernyataan, dan membantu guru menemukan apa yang penting, tanpa menyimpulkan lebih dari buktinya.</p></div></li>
+    <li><b>4.5</b><div><h4>Operasional yang matang, lalu memahami bukti</h4><p>Pekerjaan administrasi yang semula direncanakan untuk 4.2 diselesaikan lebih dulu. Lalu PINTAR memeriksa mutu soal, menyebut jenis setiap pernyataan, dan membantu guru menemukan apa yang penting, tanpa menyimpulkan lebih dari buktinya.</p></div></li>
     <li><b>5.0</b><div><h4>Bertindak, mengamati, dan memperbaiki</h4><p>Guru memilih tindakan, mengamati apa yang terjadi sesudahnya, dan merenungkan hasilnya. Pertumbuhan guru dilindungi oleh kesepakatan bersama, bukan dipakai untuk memeringkat.</p></div></li>
   </ol>
+  <p class="kecil">Setelah 5.0, PINTAR ditinjau menyeluruh sekali bersama para pendidik.</p>
   <blockquote class="prinsip besar">AI membantu menyusun.<br>Pendidik tetap memutuskan.</blockquote>
   <p class="kecil">Di setiap rilis, keputusan tentang pembelajaran tetap pada pendidik. PINTAR menunjukkan bukti, menyebut batasnya, dan mencatat apa yang terjadi.</p>
 </section>
@@ -227,7 +224,7 @@ ${VERSI.map(bab).join("")}
   <div class="pembuka">
     <p class="versi">Lampiran</p>
     <h2>Rujukan teknis singkat</h2>
-    <p class="lede">Untuk pembaca yang mengikuti laporan perkembangan PINTAR. Kode di bawah adalah nama tahap pembangunan 4.1, bukan nama fitur.</p>
+    <p class="lede">Untuk pembaca yang mengikuti laporan perkembangan PINTAR. Kode di bawah adalah nama tahap pembangunan 4.1, bukan nama fitur. Katalog ini tidak menyebut nama penyedia AI, hasil penilaiannya, atau harga.</p>
   </div>
   <table class="kandidat rujukan">
     <thead><tr><th>Kode</th><th>Fitur dalam katalog ini</th></tr></thead>
@@ -242,10 +239,20 @@ ${VERSI.map(bab).join("")}
       <tr><td>C2w</td><td>Catatan peninjau di samping soal · Menarik materi dari peredaran sekolah</td></tr>
       <tr><td>A3</td><td>Satu perangkat penulis untuk setiap sesi asesmen · Melanjutkan asesmen di perangkat lain · Kesempatan dihitung untuk semua versi asesmen</td></tr>
       <tr><td>C3w</td><td>Draf soal dengan AI terpadu PINTAR</td></tr>
-      <tr><td>Z</td><td>Pengujian 4.1 sebagai satu kesatuan, lalu peninjauan bersama para pendidik</td></tr>
+      <tr><td>D2-R</td><td>Hasil Uji Penguasaan yang tidak membuka kunci jawaban</td></tr>
+      <tr><td>Z</td><td>Pengujian 4.1 sebagai satu kesatuan</td></tr>
     </tbody>
   </table>
-  <p class="kecil">Katalog ini tidak menyebut nama penyedia AI, hasil penilaiannya, atau harga.</p>
+  <h3 class="sub">Perangkat dan browser</h3>
+  <p>Kebijakan setelah 4.1; versi minimum ditetapkan dalam tinjauan kompatibilitas. PINTAR tidak pernah mewajibkan satu browser tertentu; sekolah yang memilih. Pengujian otomatis saat ini hanya memakai mesin Chromium (Chrome, Edge); Safari dan Firefox ditambahkan setelah 4.1.</p>
+  <table class="kandidat rujukan">
+    <thead><tr><th>Perangkat</th><th>Yang disarankan</th></tr></thead>
+    <tbody>
+      <tr><td>Windows</td><td>Windows 11 disarankan untuk sekolah. Windows 10 adalah batas minimum, bukan saran. Windows 7, 8, dan 8.1 tidak didukung. Browser: Chrome atau Edge; Firefox juga dapat dipakai.</td></tr>
+      <tr><td>Mac, iPhone, iPad</td><td>Mac: Safari atau Chrome, juga Firefox. iPhone dan iPad: Safari, juga Chrome atau Edge.</td></tr>
+      <tr><td>Android</td><td>Chrome, atau browser lain yang kompatibel.</td></tr>
+    </tbody>
+  </table>
 </section>
 
 </body>
@@ -266,7 +273,7 @@ await cetak({});
 const teks = execFileSync("pdftotext", ["-layout", PDF, "-"], { encoding: "utf8" }).split("\f");
 const cari = (re, mulai = 2) => { for (let i = mulai; i < teks.length; i++) if (re.test(teks[i])) return i + 1; return ""; };
 const hal = {
-  ikhtisar: cari(/Lima rilis sekilas/, 2),
+  ikhtisar: cari(/Empat rilis sekilas/, 2),
   hari: cari(/Hari-hari biasa di sekolah/, 2),
   kandidat: cari(/Di luar cakupan rilis/),
   perjalanan: cari(/Perjalanan PINTAR: Dari Memahami hingga/, 5),

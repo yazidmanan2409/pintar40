@@ -98,3 +98,25 @@ With this, every open point from Bob's verification is applied.
 - **`42-satu-orang`:** confirmed, with one precision, now applied. "Verification never shows a name" is printed as a note on the entry, as today's behaviour: «Pemeriksaan keaslian sertifikat tidak pernah menampilkan nama. Ini sudah berlaku sekarang, bukan keputusan baru.» The open choice is now only what happens to certificates already issued.
 
 Bob has verified the catalogue for the final export. The owner publishes.
+
+---
+
+## Revision 4 · owner rulings 63–74b (23 Nov)
+
+Source: `OWNER-RULINGS-4.1.md` on `claude/bob-41-master-plan` at `3b5edd66`. Each change was read from the rulings themselves; Bob's 22 Nov message was used only as a pointer.
+
+| Ruling | Change in the catalogue |
+|---|---|
+| 72 (and 71) | **4.2 is retired as a chapter.** Its 13 entries move into 4.5 as four «Operasional: … (semula 4.2)» groups, with ids `42-*` and planning rows unchanged. Their status reads «Disetujui untuk 4.5; belum dibangun»; the rest of 4.5 stays «Arah disetujui; belum direncanakan». 4.5 is retitled «Kematangan Operasional dan Pemahaman Hasil Belajar», and its introduction says the operational foundations are built first. There are now **four releases** («Empat rilis sekilas»). The 4.1 text no longer places an educator walkthrough at 4.1: there is one comprehensive review after 5.0, and school availability needs the owner's separate release approval |
+| 63 | A3's three entries are «Diterima di lingkungan uji» (19 Nov). 4.1 is now **18 accepted, 1 in development, 1 designed** |
+| 64–65 (Bob's summary) | «Draf soal dengan AI terpadu PINTAR» is «Sedang dikembangkan»: built against a stand-in provider with no real AI calls, single-answer drafts, accept or delete before review, and a personal-data check. The optional paid add-on wording is kept |
+| 74, 74a, 74b | **New 4.1 entry «Hasil Uji Penguasaan yang tidak membuka kunci jawaban»** (D2-R, after Z; status «Selesai dirancang, belum dibangun»). It covers: no help in certifying assessments; Lulus or Belum lulus, eligibility, sections still to learn (named only with sufficient evidence, otherwise advice to revisit), a retake line, and counts as secondary; never keys, per-question correctness or explanations; retakes until passing under school rules; «Sertifikat» without predikat; no "mastered" claim before 4.5; diagnostic, quick-check and practice keep full feedback. Short "Diputuskan untuk 4.1" notes are added to `40-bantuan`, `40-uji-penguasaan`, `40-hasil` and `40-sertifikat` |
+| 73 | Note on `40-pindah-sekolah`: if the requesting admin is later suspended or loses authority, the transfer waits for another authorised admin of the originating school to confirm it on their own authority (4.5) |
+| 66–68 | **New 4.5 entry «Mode Jelajah untuk tamu»** («Arah disetujui; belum direncanakan»): a disposable copy per visitor with fictional data and no login, three perspectives, and context-aware «Bagikan PINTAR». Note: planning resumes after 4.1 is accepted, and children's public access needs privacy, safeguarding and legal review |
+| 69, 69a, 69b | Technical reference gains «Perangkat dan browser». It covers the minimum and recommended Windows versions, preferred browsers per platform with alternatives, and that PINTAR never requires one browser. Automated tests currently run on Chromium only, and version floors are set in the post-4.1 review |
+
+**Also:**
+- Candidate statuses that said "after 4.2" now read «di luar lingkup 4.5 yang disetujui».
+- The overview no longer says schools use the September version. It says production is still the September version and no school uses 4.x.
+
+**Unchanged:** no provider names, evaluation results, prices, reviewer names or real-person data appear in the PDF (checked).
