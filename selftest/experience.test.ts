@@ -2264,10 +2264,11 @@ export const experienceTests: SelfTest[] = [
       // MOVED 287 -> 288, RESTATED, A3: 20270121250000 (a recovery is shown): two reads gain fields; no brand or copy
       // change in the institution mark
       // MOVED TO 290, RESTATED, the merge of main into claude/a3 (Sharon's pin correction): 282 + C2w's 2 + A3's 6
-      // MOVED TO 296, C3w-1: the attempt ledger (20270122100000), the request with R-3's check (20270122110000), F-1's
+      // MOVED TO 297, C3w-1: the attempt ledger (20270122100000), the request with R-3's check (20270122110000), F-1's
       // length-bounded reservation (20270122120000), the decision with the submit gate (20270122130000), the drafts'
-      // write (20270122140000) and the target lesson (20270122150000)
-      c.expect(migrations.length === 296, `${migrations.length} migrations; the frozen baseline has 296`);
+      // write (20270122140000), the target lesson (20270122150000) and the checked text's hash with the failed
+      // attempt's settle (20270122160000)
+      c.expect(migrations.length === 297, `${migrations.length} migrations; the frozen baseline has 297`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4195,8 +4196,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 286 -> 287, RESTATED, A3, for 20270121240000 (a sitting is recovered on another session): no tour RPC.
       // MOVED 287 -> 288, RESTATED, A3, for 20270121250000 (a recovery is shown): no tour RPC.
       // MOVED TO 290, RESTATED, the merge of main into claude/a3: no tour RPC in any of the eight.
-      // MOVED TO 296, C3w-1: none of its six migrations is a tour RPC.
-      c.expect(migs.length === 296, `${migs.length} migrations; the baseline has 296`);
+      // MOVED TO 297, C3w-1: none of its seven migrations is a tour RPC.
+      c.expect(migs.length === 297, `${migs.length} migrations; the baseline has 297`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
