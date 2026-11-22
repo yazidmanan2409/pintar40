@@ -129,6 +129,19 @@ material is authorized.
 | 72 | 23 Nov | **4.5 absorbs the complete approved scope of 4.2; 4.2 is retired as a delivery milestone** (owner). Three milestones remain: **4.1** (the foundations), **4.5** (operational maturity and Quiet Intelligence), **5.0** (educator-led improvement and full integration), then one comprehensive walkthrough. **Safeguards:**
 | 73 | 23 Nov | **C′: a transfer whose requesting administrator is later suspended or loses authority** (owner; settled apart from OD-9). A transfer never completes solely on the authority of an administrator since suspended or lapsed. **The rules:**
 | 74 | 23 Nov | **O-7: examination retakes and answer disclosure** (owner, from Dr Gladys's guidance; verification V1). **Approved:**
+| 74a | 23 Nov | **O-7, final educational clarification (Dr Gladys, via the owner); it supersedes ruling 74's PENDING item.** Certifying results give **qualitative** feedback, preferred over counts alone:
+1. the objectives or sections mastered, **where sufficient evidence supports it**;
+2. those still needing learning;
+3. **Lulus or Belum lulus**;
+4. certificate eligibility when the requirements are met;
+5. the opportunity to retake under the institution's rules.
+
+**Never** per-question correctness, answer keys or explanations. **No objective-level mastery is inferred from inadequate evidence;** the approved measurement rules apply, and where they can't support a conclusion the feedback is qualified. **Bob's reconciliation (not a new decision):**
+- **In 4.1 (D2-R R-h):** items 3, 4 and 5 exist today. Item 2 exists as `bagianUlang` (objectives below the sealed mark, with the lesson to re-read). It is shown as **advice**, with no mastery verdict, and it carries a qualifier where an objective had too few questions in the sitting, using an approved threshold if one exists (to be confirmed at the D2-R build, with Sharon), and otherwise advice wording only.
+- **Item 1 (a positive "mastered" statement per objective) needs evidence-sufficiency rules that don't yet exist per learner per objective.** It goes to consolidated 4.5 (4.5-04 classification; measurement quality first), not to 4.1.
+- Ruling 74's counts stay **permitted but secondary**.
+
+No competency-analytics work enters 4.1. C3w-1 and Z are not interrupted | `D2-CERTIFICATE-CONDITIONS-SPEC.md` R-h |
 1. Learners may retake until they meet the approved passing requirements, under the institution's existing access, approval and scheduling rules. There is no universal limit.
 2. No thinking prompts, hints or worked examples in certifying assessments (= D2-R R-d).
 3. **After a certifying assessment** (by its **governed purpose**, not its display name: Uji Penguasaan and standalone examinations used for certification or a formal pass decision), learners see only the counts correct and incorrect, never the answer keys, per-question correctness or explanations, **on every learner-facing route** (result, review, print, export, APIs).
