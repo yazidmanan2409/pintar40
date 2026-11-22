@@ -161,3 +161,16 @@ Source: Sol's review and consolidated brief, passed on by the owner. It applies 
   - The closing motto now also reads «PINTAR menunjukkan bukti, bukan vonis.»
 
 **Unchanged:** no provider names, evaluation results, prices, reviewer names or real-person data appear in the PDF (checked).
+
+### Revision 5 · Sol's three confirmation points (23 Nov)
+
+- **Exam journey (ruling 74a).** Fixed: the story now opens by saying it describes the rules approved for 4.1 but not yet built, and that Uji Penguasaan still uses the old rules. It ends by saying the rules take effect only after acceptance. The earlier closing line ("sudah disetujui dan dibangun") could be read as already built.
+- **Guest Mode.** It remains «Arah disetujui; belum direncanakan», with planning paused until 4.1 is accepted. This matches rulings 66–68 and 71; no later ruling on `claude/bob-41-master-plan` (`3b5edd66`) changes it. Bob to confirm.
+- **Double counting.** Entry pairs where one refines another, each counted separately on purpose. Bob to confirm or merge:
+  1. `40-darurat` (4.0 stop) / `41-darurat` (4.1 adds class scope and holding sittings);
+  2. `40-darurat` (4.0 maintenance) / `41-pemeliharaan` (4.1 adds class and school scope);
+  3. `40-kesehatan-soal` / `42-kesehatan-terjadwal` (scheduled refresh) / `45-perbaikan-statistik` (corrections);
+  4. `40-uji-penguasaan`, `40-hasil`, `40-sertifikat` / `41-hasil-bersertifikat` (D2-R; the 4.0 entries carry notes, not new entries);
+  5. `41-kesempatan` / `41-kesempatan-versi`;
+  6. `42-satu-orang` / `42-koreksi-nama` (4.2-06a/b, split per MASTER-SEQUENCE §2a);
+  7. **The one I think may be a real double count:** `40-paket` (workbook import, 4.0) / `41-ai-sendiri` (the same import route; what 4.1 adds is the external-AI guide). If Bob agrees, `41-ai-sendiri` becomes a note on `40-paket`, and the total drops to 100.
