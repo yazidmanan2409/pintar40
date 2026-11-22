@@ -26,7 +26,7 @@ const hitung = (v, pred) => VERSI.find((x) => x.v === v).kelompok.flatMap((k) =>
 const hitungKeadaan = (v, k) => hitung(v, (f) => RENCANA[f.id]?.keadaan === k);
 
 // ── one feature entry ───────────────────────────────────────────────────────────────────────────────
-const statusBaris = (f) => `<p class="status">${tanda(f.status)}${STATUS[f.status]}</p>${SEKOLAH[f.status] ? `<p class="status sekolah">${tanda("S")}${SEKOLAH[f.status]}</p>` : ""}`;
+const statusBaris = (f) => `<p class="status">${tanda(f.status)}${f.statusTeks ?? STATUS[f.status]}</p>${SEKOLAH[f.status] ? `<p class="status sekolah">${tanda("S")}${SEKOLAH[f.status]}</p>` : ""}`;
 const rencana = (r) => !r ? "" : `
   <dl class="rencana">
     <dt>Keadaan perencanaan</dt><dd><b>${KEADAAN[r.keadaan]}</b></dd>

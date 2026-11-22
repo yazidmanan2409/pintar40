@@ -14,7 +14,7 @@ Status is as of 23 November 2026. Owner ruling 72 retires 4.2 as a milestone and
 
 **Not read directly:** `PINTAR-ROADMAP.md`, `ROADMAP-RECONCILIATION-2026-11-11.md` and the roadmap folder's `OWNER-DECISIONS-2026-11-11.md`. They exist on branch `claude/roadmap-45-50` (`2f419b52`), not on `main` (planning audit finding G-1). RM consolidates them and is used in their place; Bob confirmed this is acceptable (18 Nov).
 
-## Entries (101 features, 14 candidates; 0 without a source)
+## Entries (100 features, 14 candidates; 0 without a source)
 
 | id | Feature | Version | Status | Source |
 |---|---|---|---|---|
@@ -84,7 +84,6 @@ Status is as of 23 November 2026. Owner ruling 72 retires 4.2 as a milestone and
 | `41-pemulihan-sesi` | Melanjutkan asesmen di perangkat lain | 4.1 | Diterima di lingkungan uji | HB 9.11, 11.11 · ST §4 A3 · owner ruling 63 |
 | `41-kesempatan-versi` | Kesempatan dihitung untuk semua versi asesmen | 4.1 | Diterima di lingkungan uji | OR ruling 46 · ST §4 A3 · owner ruling 63 |
 | `41-hasil-bersertifikat` | Hasil Uji Penguasaan yang tidak membuka kunci jawaban | 4.1 | Rancangan disetujui; belum dibangun | OR rulings 74, 74a, 74b · D2-CERTIFICATE-CONDITIONS-SPEC R-h (D2-R, after Z) |
-| `41-ai-sendiri` | Menulis sendiri atau memakai AI luar, lalu mengimpor lewat Studio | 4.1 | Diterima di lingkungan uji | OR ruling 41; X1 guide · COV 18b (standard Studio import) |
 | `41-ai-terpadu` | Draf soal dengan AI terpadu PINTAR | 4.1 | Sedang dikembangkan | OR rulings 38–44 (optional paid per-school add-on; PINTAR-qualified options) · C3w-1 being built on a stand-in provider, single-answer drafts, accept-or-delete, personal-data checks (Bob 22 Nov; rulings 64–65) |
 | `42-mode-ujian` | Mode Ujian | 4.5 | Disetujui untuk 4.5; belum dibangun · UNRESOLVED (4.2-01 / D-01) | RM 4.2 A.1 |
 | `42-jabatan` | Jabatan resmi, pelaksana tugas, dan peran bertanggal | 4.5 | Disetujui untuk 4.5; belum dibangun · UNRESOLVED (4.2-02 / D-02) | RM 4.2 B.2 (O41-8) |

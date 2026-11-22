@@ -174,3 +174,10 @@ Source: Sol's review and consolidated brief, passed on by the owner. It applies 
   5. `41-kesempatan` / `41-kesempatan-versi`;
   6. `42-satu-orang` / `42-koreksi-nama` (4.2-06a/b, split per MASTER-SEQUENCE §2a);
   7. **The one I think may be a real double count:** `40-paket` (workbook import, 4.0) / `41-ai-sendiri` (the same import route; what 4.1 adds is the external-AI guide). If Bob agrees, `41-ai-sendiri` becomes a note on `40-paket`, and the total drops to 100.
+
+### Bob's answers applied (23 Nov, 23:55 UTC)
+
+- **«Lihat per soal».** The sentence stays removed. The finding is V4 / Z-READINESS R-23: one rule for every reader, in 4.5.
+- **Guest Mode.** Status now reads «Arah disetujui; rencana awal tersedia, belum disetujui untuk dibangun» (a per-entry label with the same diamond mark). The note reads "setelah gerbang 4.1 ditutup".
+- **"After 4.1 is accepted"** is replaced everywhere: the 4.0 introduction now reads «setelah gerbang 4.1 ditutup dan pemilik PINTAR menyetujui rilisnya». No other occurrence was left.
+- **Merge.** `41-ai-sendiri` is now a «Diputuskan di 4.1» note on `40-paket`, covering the external-AI drafts route, the guide, no fee, no AI account or key requested, and no special AI format. The «Tiga cara menyusun soal» group keeps the integrated-AI entry, which now points to `40-paket` as the other two ways. **Total 100**: 4.0 48, 4.1 19 (17 accepted, 1 in development, 1 designed), 4.5 27, 5.0 6.

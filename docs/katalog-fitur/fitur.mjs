@@ -35,7 +35,7 @@ export const VERSI = [
   // ════════════════════════════════════════════════════════════ 4.0
   {
     v: "4.0", judul: "Fondasi yang Dapat Dipercaya", id: "v40",
-    pengantar: "PINTAR 4.0 meletakkan fondasi yang dapat dipercaya: sekolah, akun, peran, kelas dan tahun ajaran, materi yang ditinjau, asesmen, hasil resmi, laporan, sertifikat, dan pengembangan profesi guru. Semua fitur di bab ini sudah selesai dibangun dan diuji di lingkungan uji (staging) pada 10 November 2026. Fitur-fitur ini belum dipakai sekolah; sekolah akan menerimanya bersama PINTAR 4.1, setelah 4.1 diterima.",
+    pengantar: "PINTAR 4.0 meletakkan fondasi yang dapat dipercaya: sekolah, akun, peran, kelas dan tahun ajaran, materi yang ditinjau, asesmen, hasil resmi, laporan, sertifikat, dan pengembangan profesi guru. Semua fitur di bab ini sudah selesai dibangun dan diuji di lingkungan uji (staging) pada 10 November 2026. Fitur-fitur ini belum dipakai sekolah; sekolah akan menerimanya bersama PINTAR 4.1, setelah gerbang 4.1 ditutup dan pemilik PINTAR menyetujui rilisnya.",
     kelompok: [
       { judul: "Sekolah dan akun", fitur: [
         { id: "40-buka-sekolah", nama: "Pembukaan sekolah yang terkendali", untuk: "Admin PINTAR",
@@ -136,7 +136,7 @@ export const VERSI = [
           apa: "Satu Paket Pembelajaran berisi satu bab: tujuan pembelajaran, bacaan, Pemetaan Awal, dan Uji Penguasaan. Penyusun mengisi templat Excel, lalu mengunggahnya. PINTAR memeriksa setiap baris dan menyebut dengan jelas apa yang perlu diperbaiki.",
           manfaat: "Guru dapat menyusun materi dengan alat yang sudah dikenal, dan kesalahan ditemukan sebelum materi sampai ke murid.",
           contoh: "Pak Joko menyusun bab «Pecahan» di Excel. Saat diunggah, PINTAR memberi tahu bahwa satu soal belum punya kunci jawaban.",
-          status: "T" },
+          status: "T", catatan: "Diputuskan di 4.1: jalur impor ini juga dipakai untuk draf yang disusun dengan AI luar milik sekolah, dengan panduan pemakaiannya. Tanpa biaya tambahan, tanpa meminta akun atau kunci AI sekolah, dan tanpa format khusus untuk AI. Data yang dapat mengenali murid tidak boleh dimasukkan ke AI di luar PINTAR." },
         { id: "40-tinjauan", nama: "Langkah menuju terbit dan tinjauan orang kedua", untuk: "Penyusun, peninjau, penerbit",
           apa: "Sebelum sampai ke murid, materi melewati tujuh langkah: disusun, diperiksa, diajukan, disetujui oleh peninjau yang bukan penyusunnya, dibuat terbitan, diterbitkan, lalu terbit. Peninjau dapat mengembalikan materi dengan alasan. «Lihat seperti murid» menunjukkan tampilan bagi murid kapan saja.",
           manfaat: "Setiap soal yang dikerjakan murid sudah dibaca oleh paling sedikit dua orang.",
@@ -394,13 +394,8 @@ export const VERSI = [
           status: "R", catatan: "Dua hal dibedakan: «belum dikuasai» hanya disebut bila buktinya cukup; bila bukti belum cukup, hasil menyarankan membaca ulang materinya tanpa menyimpulkan bahwa murid belum menguasainya. Perubahan ini disetujui dan direncanakan; statusnya diperbarui setelah diterima di lingkungan uji. Pernyataan «sudah dikuasai» per tujuan pembelajaran baru hadir di 4.5. Pemetaan Awal, Uji Cepat, dan latihan tetap memberi penjelasan lengkap." },
       ]},
       { judul: "Tiga cara menyusun soal: sendiri, AI luar, atau AI terpadu", fitur: [
-        { id: "41-ai-sendiri", nama: "Menulis sendiri atau memakai AI luar, lalu mengimpor lewat Studio", untuk: "Guru, penyusun materi",
-          apa: "Jalur impor Studio yang biasa tetap menjadi cara memasukkan materi, baik yang ditulis sendiri maupun yang drafnya dibuat dengan layanan AI yang sudah dimiliki sekolah. Guru mengisi templat buku kerja, PINTAR memeriksa setiap baris, lalu materi melewati tinjauan orang kedua seperti biasa. PINTAR tidak memungut biaya tambahan untuk jalur ini, dan tidak meminta akun, kata sandi, atau kunci AI sekolah. Data yang dapat mengenali murid tidak boleh dimasukkan ke layanan AI di luar PINTAR.",
-          manfaat: "Sekolah dapat memakai cara kerja yang sudah dikenalnya, dengan atau tanpa AI, sementara setiap soal tetap ditinjau sebelum terbit.",
-          contoh: "Pak Joko memakai layanan AI sekolahnya untuk menyusun sepuluh draf soal perbandingan, memeriksa dan memperbaikinya, lalu mengimpornya lewat buku kerja untuk ditinjau.",
-          status: "T", catatan: "Impor buku kerja tersedia sejak 4.0; panduan pemakaian AI di luar PINTAR sudah disusun." },
         { id: "41-ai-terpadu", nama: "Draf soal dengan AI terpadu PINTAR", untuk: "Guru, penyusun materi",
-          apa: "AI terpadu sedang dibangun dan diuji dengan penyedia pengganti, tanpa memanggil layanan AI sungguhan. AI menyusun draf soal pilihan ganda dengan satu jawaban benar dari sumber dan tujuan pembelajaran yang dipilih guru. Guru harus menerima, dengan atau tanpa perubahan, atau menghapus setiap draf sebelum diajukan, dan soal yang diterima tetap ditinjau orang kedua sebelum terbit. Sebelum apa pun dikirim, PINTAR memeriksa bahwa sumbernya tidak memuat data pribadi. Bila ditawarkan kepada sekolah, fitur ini direncanakan sebagai tambahan berbayar yang opsional, dan sekolah memilih dari pilihan yang sudah lolos penilaian PINTAR. Murid tidak pernah berinteraksi dengan AI.",
+          apa: "Ini cara ketiga menyusun soal, di samping menulis sendiri dan memakai AI luar lalu mengimpor lewat buku kerja (lihat «Paket Pembelajaran dari buku kerja» di bab 4.0). AI terpadu sedang dibangun dan diuji dengan penyedia pengganti, tanpa memanggil layanan AI sungguhan. AI menyusun draf soal pilihan ganda dengan satu jawaban benar dari sumber dan tujuan pembelajaran yang dipilih guru. Guru harus menerima, dengan atau tanpa perubahan, atau menghapus setiap draf sebelum diajukan, dan soal yang diterima tetap ditinjau orang kedua sebelum terbit. Sebelum apa pun dikirim, PINTAR memeriksa bahwa sumbernya tidak memuat data pribadi. Bila ditawarkan kepada sekolah, fitur ini direncanakan sebagai tambahan berbayar yang opsional, dan sekolah memilih dari pilihan yang sudah lolos penilaian PINTAR. Murid tidak pernah berinteraksi dengan AI.",
           manfaat: "Guru menghemat waktu menyusun soal, sementara keputusan tetap di tangan pendidik. Sekolah yang tidak memilih tambahan ini tetap dapat memakai PINTAR sepenuhnya.",
           contoh: "Bu Rina memilih bab yang sudah disetujui sekolah, meminta lima draf soal, menolak satu, memperbaiki dua, lalu mengajukan semuanya untuk ditinjau.",
           status: "D", catatan: "Fitur ini hanya ditawarkan bila ada pilihan yang lolos penilaian PINTAR; jika tidak ada, fitur ini dikeluarkan dari rencana dan sekolah tetap memakai penyusunan manual dan impor Studio." },
@@ -510,7 +505,7 @@ export const VERSI = [
           apa: "Pengunjung akan dapat mencoba PINTAR yang sesungguhnya tanpa membuat akun. Setiap pengunjung mendapat salinan sekali pakai dengan sekolah dan nama rekaan, terpisah dari sekolah yang nyata. Pengunjung dapat melihat PINTAR dari tiga sudut pandang dan berpindah kapan saja, lalu membagikan PINTAR kepada orang lain dengan «Bagikan PINTAR» yang menyesuaikan dengan apa yang sedang dilihatnya.",
           manfaat: "Sekolah dapat menilai PINTAR dengan mencobanya sendiri, tanpa mendaftar dan tanpa menyerahkan data apa pun.",
           contoh: "Seorang kepala sekolah mencoba PINTAR sebagai guru, menyediakan satu bab untuk kelas rekaan, lalu membagikan tautannya kepada wakil kepala sekolah.",
-          status: "A", catatan: "Perencanaannya dilanjutkan setelah 4.1 diterima. Akses publik untuk anak memerlukan kajian privasi, perlindungan anak, dan hukum sebelum dirilis." },
+          status: "A", statusTeks: "Arah disetujui; rencana awal tersedia, belum disetujui untuk dibangun", catatan: "Perencanaannya dilanjutkan setelah gerbang 4.1 ditutup. Akses publik untuk anak memerlukan kajian privasi, perlindungan anak, dan hukum sebelum dirilis." },
       ]},
       { judul: "B · Mengukur dengan benar", fitur: [
         { id: "45-kecerdasan-soal", nama: "Kecerdasan Soal", untuk: "Peninjau, guru",
