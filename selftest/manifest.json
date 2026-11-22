@@ -6856,6 +6856,36 @@
       "proves": "Bob's decision 3 with Daisy's AI_PAKET_LOLOS_PERIKSA (C3W-1-WORDS-TAMBAHAN §4), red first: executes ai_minta_draf and ai_tulis_draf against the migrations: a package already VALIDATED is refused AI_PAKET_LOLOS_PERIKSA at the request, before anything is reserved or sent, and at the write when it became VALIDATED during the call."
     },
     {
+      "id": "C3W-C32",
+      "runner": "static",
+      "proves": "C3-2, red first: executes, in one rolled-back transaction, the AI tables' grants (none to anon or authenticated), the set of functions a signed-in session may run that read one (ai_asal_paket, ai_draf_belum_diputuskan, ai_minta_draf, ai_putuskan), each refusing a learner, and the staff read of a package's provenance; and imports the assessment engine's source: sanitize() refuses every provenance key."
+    },
+    {
+      "id": "C3W-C34",
+      "runner": "static",
+      "proves": "C3-4, red first: executes ai_cadangkan on two real connections at an allowance of exactly one worst case, in both orders: one reserved, the other AI_JATAH_HABIS after waiting; the plant (no row lock) lets both through; a retry is its own attempt, the fourth refused."
+    },
+    {
+      "id": "C3W-C35",
+      "runner": "static",
+      "proves": "C3-5, red first: executes ai_cadangkan in one rolled-back transaction on two schools and two options: A's spend never consumes B's allowance or option ceiling; each attempt carries its own school's option."
+    },
+    {
+      "id": "C3W-C36",
+      "runner": "static",
+      "proves": "C3-6 (S-6), red first: executes, in one rolled-back transaction, decisions, submission and approval with the entitlement switched off after drafting, and the staff read of provenance."
+    },
+    {
+      "id": "C3W-C38",
+      "runner": "static",
+      "proves": "C3-8, red first: reads the source of every file under src (only the provider module imports the stub, only the drafting route the provider), package.json (no AI vendor SDK), the database catalogue (no vendor name in a schema name) and the learner source files (no AI mark)."
+    },
+    {
+      "id": "C3W-C310",
+      "runner": "static",
+      "proves": "C3-10, red first: executes, in one rolled-back transaction, a generated, accepted, approved and published question sat, rescored after a governed key correction, annotated by a reviewer, its provenance kept."
+    },
+    {
       "id": "C3W-R01",
       "runner": "static",
       "proves": "The drafting route's core, red first: imports src/lib/ai/jalur.ts and executes buatDrafAi against recording fakes: request, reserve, claim, provider, write in order; F-2 refuses a text checked on one version and sent with another before the claim, and a lesson's text is read once and sent as checked; refusals, a repeated key and an absent provider reach no reservation or provider; provider failures with usage settle PROVIDER_FAILED and retry to 3 attempts; a timeout with no usage is not retried; a refused write settles INVALID_OUTPUT."
