@@ -120,3 +120,44 @@ Source: `OWNER-RULINGS-4.1.md` on `claude/bob-41-master-plan` at `3b5edd66`. Eac
 - The overview no longer says schools use the September version. It says production is still the September version and no school uses 4.x.
 
 **Unchanged:** no provider names, evaluation results, prices, reviewer names or real-person data appear in the PDF (checked).
+
+---
+
+## Revision 5 · Sol's editorial brief (23 Nov)
+
+Source: Sol's review and consolidated brief, passed on by the owner. It applies on top of revision 4, and no ruling has changed.
+
+**For Bob to confirm**
+1. **Count.** The former 4.2 list is now **14 entries**: 4.2-06 is split into «Menambahkan satu orang» (4.2-06a, `42-satu-orang`, «Sebagian siap») and «Membetulkan nama setelah akun aktif» (4.2-06b, `42-koreksi-nama`, «Menunggu keputusan», D-06), following `MASTER-SEQUENCE-4.1-TO-5.0.md` §2a. The planning states for the 14 are 1 siap, 4 sebagian siap and 9 menunggu keputusan. The catalogue total is **101** (4.0: 48, 4.1: 20, 4.5: 27, 5.0: 6) plus 14 candidates.
+2. **«Lihat per soal» (`40-per-soal`).** The sentence "Hanya jawaban yang sudah dikumpulkan yang dipakai" is **removed** until you confirm it; Sol raised it under verification finding V3, which I can't find. Does the teacher's per-question page use final answers only?
+3. **Statuses** are unchanged from revision 4: 4.1 is 18 accepted on staging, 1 in development (C3w-1) and 1 «Rancangan disetujui; belum dibangun» (D2-R).
+
+**Changes**
+- **Release titles:**
+  - 4.0 «Fondasi yang Dapat Dipercaya»;
+  - 4.1 «Integritas, Kendali, dan Keandalan»;
+  - 4.5 «Penyempurnaan Operasional dan Memahami Bukti Pembelajaran».
+- **4.5 structure:** two workstreams.
+  - **A:** operational foundations: the 14 former 4.2 entries, plus WhatsApp sign-in, unusual-access checks and Guest Mode.
+  - **B:** measurement, understanding and educator protections.
+  - Groups are prefixed «A ·» and «B ·».
+- **Status label:** R is now «Rancangan disetujui; belum dibangun».
+- **Assessment timing.** Uji Cepat's 10/15/30 minutes is the time it stays open for the whole class, not a duration per learner. «Mengatur sesi asesmen satu murid» now *extends the learner's closing time*, with no minute range given, and states that PINTAR has no per-assessment duration. «Sisa waktu» now reads «sisa waktu hingga batas pengumpulan» in the emergency-stop and suspension entries. The everyday example says the Uji Cepat «dibuka selama sepuluh menit».
+- **Diagnostic, not mastery.**
+  - Pemetaan Awal "estimates which sections to read first" and states that it makes no mastery claim.
+  - Peta Bacaan's labels are «Wajib / Disarankan / Sudah kuat» and are described as reading guidance, not mastery. The text also says lesson order is the same for every learner and all sections are read before the Uji Penguasaan (verified in code).
+  - The "about PINTAR" text no longer says learners start "from the point that suits their ability".
+- **Retakes.** A note on «Kesempatan tambahan»: no general retake limit; retakes until passing follow the school's access, approval and scheduling rules, including this second approval (ruling 74).
+- **Certifying results.** The D2-R entry now distinguishes «belum dikuasai» (only with sufficient evidence) from insufficient evidence. It is marked as approved and planned, to be updated after staging acceptance.
+- **Question Health** gets a note that suspected calculation limits are proved and corrected in 4.5, and that its signals are early indicators until then. «Lihat per soal» says the questions most often answered wrongly may point to the question, not only the learner.
+- **Three ways to write questions.** The group is now «Tiga cara menyusun soal: sendiri, AI luar, atau AI terpadu». The import entry now also says PINTAR does not ask for a school's AI account, password or key.
+- **Candidates.** The two former 4.2 candidates read «Kandidat, belum disetujui untuk rilis mana pun (semula kandidat 4.2)», so neither reads as approved 4.5 scope.
+- **Availability.** The legend says school availability needs the owner's separate release approval, and finishing 4.1 does not by itself mean schools have it.
+- **New everyday situation**, «Belajar, ujian, dan mengulang sampai lulus»: practice with help, then a certifying exam without help, then qualitative feedback with no keys, then re-reading, a retake and a pass. Every linked entry shows its own status; the result rules are marked as built in 4.1 after Z.
+- **Closing section.**
+  - The progression 4.0 «Menunjukkan apa yang terjadi» → 4.1 «Menjaga bukti tetap dapat dipercaya» → 4.5 «Membantu memahami bukti» → 5.0 «Membantu bertindak dan berkembang».
+  - The development sequence, with internal gates per stage and one review with educators after 5.0.
+  - A boxed **6.0 long-term direction** (contextual intelligence as a possible research direction; "anticipation is not automation"). It is marked outside the feature inventory and as not designed, built or scheduled.
+  - The closing motto now also reads «PINTAR menunjukkan bukti, bukan vonis.»
+
+**Unchanged:** no provider names, evaluation results, prices, reviewer names or real-person data appear in the PDF (checked).

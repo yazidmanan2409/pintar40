@@ -77,10 +77,10 @@ const IKHTISAR = [
     status: () => `${tanda("T")}Dibangun dan diuji; diterima di lingkungan uji pada 10 November 2026.<br>${tanda("S")}Belum tersedia di sekolah.` },
   { v: "4.1", id: "v41", tujuan: "Bukti tetap utuh ketika ada koreksi, gangguan, atau pemeliharaan.",
     kemampuan: "Pengaturan sesi asesmen, koreksi soal dan kunci jawaban, catatan akuntabilitas, penghentian darurat, pemeliharaan terjadwal, catatan peninjau, pemulihan sesi, dan draf soal dengan bantuan AI.",
-    status: () => `${tanda("T")}${hitung("4.1", (f) => f.status === "T")} diterima di lingkungan uji · ${tanda("D")}${hitung("4.1", (f) => f.status === "D")} sedang dikembangkan · ${tanda("R")}${hitung("4.1", (f) => f.status === "R")} selesai dirancang, belum dibangun.<br>${tanda("S")}Belum tersedia di sekolah. Ketersediaan di sekolah memerlukan persetujuan rilis tersendiri dari pemilik PINTAR. Tinjauan menyeluruh bersama para pendidik dilakukan sekali, setelah 5.0.` },
-  { v: "4.5", id: "v45", tujuan: "Operasional sekolah yang matang, lalu memahami apa yang sungguh didukung oleh bukti.",
-    kemampuan: "Bagian operasional (semula 4.2): Mode Ujian, jabatan dan peran di dua sekolah, administrasi sekolah dan akun, serah terima kelas, ekspor data sekolah, dan laporan periode lalu. Bagian pemahaman hasil: Kecerdasan Soal, kesebandingan asesmen, identitas kompetensi, pemetaan pemahaman keliru, Quiet Intelligence (nama kerja), sejarah yang dapat dijelaskan, evaluasi guru resmi beserta perlindungannya, dan Mode Jelajah untuk tamu.",
-    status: () => `${tanda("P")}${hitung("4.5", (f) => f.status === "P")} fitur operasional disetujui (semula 4.2), belum dibangun. Keadaan perencanaan: ${hitung("4.5", (f) => f.status === "P" && RENCANA[f.id]?.keadaan === "COMPLETE")} siap, ${hitung("4.5", (f) => f.status === "P" && RENCANA[f.id]?.keadaan === "PARTIAL")} sebagian siap, ${hitung("4.5", (f) => f.status === "P" && RENCANA[f.id]?.keadaan === "UNRESOLVED")} menunggu keputusan.<br>${tanda("A")}${hitung("4.5", (f) => f.status === "A")} fitur lainnya berupa arah yang disetujui; belum direncanakan dan belum dibangun. Kebijakan evaluasi guru resmi, masa simpan bukti, dan jangkar identitas kompetensi masih harus diputuskan. Fondasi operasional dibangun lebih dulu. Tidak ada pilihan terbuka yang ditulis seolah sudah diputuskan.` },
+    status: () => `${tanda("T")}${hitung("4.1", (f) => f.status === "T")} diterima di lingkungan uji · ${tanda("D")}${hitung("4.1", (f) => f.status === "D")} sedang dikembangkan · ${tanda("R")}${hitung("4.1", (f) => f.status === "R")} rancangan disetujui, belum dibangun.<br>${tanda("S")}Belum tersedia di sekolah. Ketersediaan di sekolah memerlukan persetujuan rilis tersendiri dari pemilik PINTAR. Tinjauan menyeluruh bersama para pendidik dilakukan sekali, setelah 5.0.` },
+  { v: "4.5", id: "v45", tujuan: "A: fondasi operasional yang lengkap. B: memahami apa yang sungguh didukung oleh bukti.",
+    kemampuan: "A, fondasi operasional (termasuk semua fitur semula 4.2): Mode Ujian, jabatan dan peran di dua sekolah, administrasi sekolah dan akun, serah terima kelas, ekspor data sekolah, dan laporan periode lalu, masuk dengan WhatsApp, dan Mode Jelajah untuk tamu. B, pengukuran dan pemahaman hasil: Kecerdasan Soal, kesebandingan asesmen, identitas kompetensi, pemetaan pemahaman keliru, Quiet Intelligence (nama kerja), sejarah yang dapat dijelaskan, dan evaluasi guru resmi beserta perlindungannya.",
+    status: () => `${tanda("P")}${hitung("4.5", (f) => f.status === "P")} fitur semula 4.2 disetujui, belum dibangun. Keadaan perencanaan: ${hitung("4.5", (f) => f.status === "P" && RENCANA[f.id]?.keadaan === "COMPLETE")} siap, ${hitung("4.5", (f) => f.status === "P" && RENCANA[f.id]?.keadaan === "PARTIAL")} sebagian siap, ${hitung("4.5", (f) => f.status === "P" && RENCANA[f.id]?.keadaan === "UNRESOLVED")} menunggu keputusan.<br>${tanda("A")}${hitung("4.5", (f) => f.status === "A")} fitur lainnya, termasuk seluruh bagian B, berupa arah yang disetujui; belum direncanakan dan belum dibangun. Kebijakan evaluasi guru resmi, masa simpan bukti, dan jangkar identitas kompetensi masih harus diputuskan. Fondasi operasional dibangun lebih dulu. Tidak ada pilihan terbuka yang ditulis seolah sudah diputuskan.` },
   { v: "5.0", id: "v50", tujuan: "Bertindak atas temuan, mengamati hasilnya, dan berkembang.",
     kemampuan: "Pertumbuhan Guru, Kesepakatan Pertumbuhan Bersama, intervensi dan tindak lanjut, jalur belajar yang diatur, dan perbaikan di tingkat bagian dan sekolah.",
     status: () => `${tanda("A")}Arah disetujui; belum direncanakan dan belum dibangun.<br>Bergantung pada fondasi 4.5: Kecerdasan Soal, kesebandingan asesmen, identitas kompetensi, empat jenis pernyataan, dan perlindungan guru. Aturan intervensi (persetujuan, pemberitahuan keluarga, dan bantuan yang tetap diberikan) harus diputuskan lebih dulu.` },
@@ -95,7 +95,7 @@ const DAFTAR = [
   ["hari", "Contoh", "Hari-hari biasa di sekolah"],
   ...VERSI.map((v) => [v.id, `PINTAR ${v.v}`, v.judul, `${jumlah(v)} fitur`]),
   ["kandidat", "Lain", "Kandidat dan hal yang belum ditetapkan", `${KANDIDAT.length}`],
-  ["perjalanan", "Penutup", "Perjalanan PINTAR: Dari Memahami hingga Meningkatkan"],
+  ["perjalanan", "Penutup", "Perjalanan PINTAR dan arah jangka panjang"],
   ["rujukan", "Lampiran", "Rujukan teknis singkat"],
 ];
 
@@ -128,7 +128,7 @@ const html = (hal) => `<!doctype html>
   </ol>
 
   <h3 class="sub">Tentang PINTAR</h3>
-  <p>PINTAR adalah platform belajar dan asesmen untuk sekolah. Murid belajar dari titik yang sesuai dengan kemampuannya. Guru melihat apa yang sudah dan belum dikuasai kelasnya. Sekolah menjaga materi, akun, dan catatannya tetap tertata dari tahun ke tahun.</p>
+  <p>PINTAR adalah platform belajar dan asesmen untuk sekolah. Murid tahu bagian mana yang perlu dibaca lebih dulu. Guru melihat bagian mana yang masih lemah di kelasnya, beserta dasar buktinya. Sekolah menjaga materi, akun, dan catatannya tetap tertata dari tahun ke tahun.</p>
   <p>PINTAR menunjukkan bukti, bukan vonis. Setiap angka datang bersama dasarnya. Jika buktinya belum cukup, PINTAR mengatakannya dan tidak menampilkan angka yang menyesatkan. Materi ditinjau orang kedua sebelum sampai ke murid, dan koreksi menambah catatan baru tanpa menghapus yang lama.</p>
   <blockquote class="prinsip">AI membantu menyusun. Pendidik tetap memutuskan.</blockquote>
 </section>
@@ -157,7 +157,7 @@ const html = (hal) => `<!doctype html>
   <table class="tabel-status">
     <tbody>
       <tr><td>${tanda("T")}${STATUS.T}</td><td>Sudah dibangun, diuji, dan diterima di lingkungan uji (<i>staging</i>), yaitu salinan PINTAR untuk pengujian.</td></tr>
-      <tr><td>${tanda("S")}${SEKOLAH.T}</td><td>Label terpisah tentang ketersediaan di sekolah. Per ${SNAPSHOT}, belum ada fitur 4.0 atau 4.1 yang tersedia di sekolah. Sekolah menerimanya setelah 4.1 diterima.</td></tr>
+      <tr><td>${tanda("S")}${SEKOLAH.T}</td><td>Label terpisah tentang ketersediaan di sekolah. Per ${SNAPSHOT}, belum ada fitur 4.0 atau 4.1 yang tersedia di sekolah. Ketersediaan di sekolah memerlukan persetujuan rilis tersendiri dari pemilik PINTAR; selesainya 4.1 tidak dengan sendirinya berarti tersedia di sekolah.</td></tr>
       <tr><td>${tanda("D")}${STATUS.D}</td><td>Sedang dibangun atau diselesaikan, dan belum diterima di lingkungan uji.</td></tr>
       <tr><td>${tanda("R")}${STATUS.R}</td><td>Rancangannya sudah ditinjau dan disetujui, tetapi pembangunannya belum dimulai.</td></tr>
       <tr><td>${tanda("P")}${STATUS.P}</td><td>Termasuk lingkup 4.5 yang disetujui pemilik PINTAR, semula direncanakan untuk 4.2. Belum dibangun; rincian dan urutannya ditetapkan dalam rencana 4.5.</td></tr>
@@ -180,7 +180,7 @@ const html = (hal) => `<!doctype html>
 <section class="pengantar" id="hari">
   <p class="versi">Contoh</p>
   <h2>Hari-hari biasa di sekolah</h2>
-  <p class="lede">Lima keadaan sehari-hari menunjukkan bagaimana fitur-fitur ini bekerja bersama. Bagian ini tidak menambah jumlah fitur. Tanda di samping setiap fitur menunjukkan statusnya.</p>
+  <p class="lede">Enam keadaan sehari-hari menunjukkan bagaimana fitur-fitur ini bekerja bersama. Bagian ini tidak menambah jumlah fitur. Tanda di samping setiap fitur menunjukkan statusnya.</p>
   ${HARI.map((h) => `
   <div class="hari">
     <h3>${esc(h.judul)}</h3>
@@ -206,18 +206,22 @@ ${VERSI.map(bab).join("")}
 <section class="bab bab-lain penutup" id="perjalanan">
   <div class="pembuka">
     <p class="versi">Penutup</p>
-    <h2>Perjalanan PINTAR: Dari Memahami hingga Meningkatkan</h2>
-    <p class="lede">Setiap rilis PINTAR dibangun di atas rilis sebelumnya. Urutannya disengaja: sekolah baru dapat memahami hasil belajar bila buktinya dapat dipercaya, dan baru dapat memperbaiki bila pemahamannya jujur.</p>
+    <h2>Perjalanan PINTAR</h2>
+    <p class="lede">Setiap rilis dibangun di atas rilis sebelumnya: hasil belajar baru dapat dipahami bila buktinya dapat dipercaya, dan baru dapat diperbaiki bila pemahamannya jujur.</p>
   </div>
   <ol class="tahap">
-    <li><b>4.0</b><div><h4>Fondasi yang dapat dipercaya</h4><p>Sekolah, akun, materi yang ditinjau, asesmen, dan hasil resmi yang selalu dapat ditelusuri. Tanpa fondasi ini, tidak ada kesimpulan yang layak dipercaya.</p></div></li>
-    <li><b>4.1</b><div><h4>Integritas, pemulihan, dan kendali</h4><p>Bukti tetap utuh ketika ada kesalahan kunci jawaban, perangkat yang mati, pemeliharaan, atau keadaan darurat. Setiap tindakan penting tercatat.</p></div></li>
-    <li><b>4.5</b><div><h4>Operasional yang matang, lalu memahami bukti</h4><p>Pekerjaan administrasi yang semula direncanakan untuk 4.2 diselesaikan lebih dulu. Lalu PINTAR memeriksa mutu soal, menyebut jenis setiap pernyataan, dan membantu guru menemukan apa yang penting, tanpa menyimpulkan lebih dari buktinya.</p></div></li>
-    <li><b>5.0</b><div><h4>Bertindak, mengamati, dan memperbaiki</h4><p>Guru memilih tindakan, mengamati apa yang terjadi sesudahnya, dan merenungkan hasilnya. Pertumbuhan guru dilindungi oleh kesepakatan bersama, bukan dipakai untuk memeringkat.</p></div></li>
+    <li><b>4.0</b><div><h4>Menunjukkan apa yang terjadi</h4><p>Sekolah, akun, materi yang ditinjau, asesmen, dan hasil resmi yang selalu dapat ditelusuri. Tanpa fondasi ini, tidak ada kesimpulan yang layak dipercaya.</p></div></li>
+    <li><b>4.1</b><div><h4>Menjaga bukti tetap dapat dipercaya</h4><p>Bukti tetap utuh ketika ada kesalahan kunci jawaban, perangkat yang mati, pemeliharaan, atau keadaan darurat. Setiap tindakan penting tercatat.</p></div></li>
+    <li><b>4.5</b><div><h4>Membantu memahami bukti</h4><p>Fondasi operasional (semula 4.2) diselesaikan lebih dulu. Lalu PINTAR memeriksa mutu soal, menyebut jenis setiap pernyataan, dan membantu guru menemukan apa yang penting, tanpa menyimpulkan lebih dari buktinya.</p></div></li>
+    <li><b>5.0</b><div><h4>Membantu bertindak dan berkembang</h4><p>Guru memilih tindakan, mengamati apa yang terjadi sesudahnya, dan merenungkan hasilnya. Pertumbuhan guru dilindungi oleh kesepakatan bersama, bukan dipakai untuk memeringkat.</p></div></li>
   </ol>
-  <p class="kecil">Setelah 5.0, PINTAR ditinjau menyeluruh sekali bersama para pendidik.</p>
-  <blockquote class="prinsip besar">AI membantu menyusun.<br>Pendidik tetap memutuskan.</blockquote>
-  <p class="kecil">Di setiap rilis, keputusan tentang pembelajaran tetap pada pendidik. PINTAR menunjukkan bukti, menyebut batasnya, dan mencatat apa yang terjadi.</p>
+  <p class="kecil">Urutan pengembangan: 4.1, lalu 4.5, lalu 5.0, lalu verifikasi menyeluruh dan satu tinjauan bersama para pendidik. Setiap tahap tetap melewati gerbang penerimaan internalnya sendiri: pengujian, tinjauan independen, dan perjalanan pengguna dari awal sampai akhir. Diterima di lingkungan uji belum berarti tersedia di sekolah.</p>
+  <div class="visi">
+    <p class="versi">Di luar katalog fitur ini</p>
+    <h3>Arah jangka panjang: 6.0 dan kecerdasan kontekstual</h3>
+    <p><b>6.0 · Memahami konteks dan mengantisipasi kebutuhan berikutnya.</b> Kecerdasan kontekstual adalah arah penelitian yang mungkin: PINTAR menyiapkan langkah berikutnya yang berguna, dan keputusan tetap pada pendidik. Mengantisipasi tidak sama dengan mengotomatiskan. Arah ini belum dirancang, belum dibangun, belum dijadwalkan, dan tidak termasuk jumlah fitur katalog ini.</p>
+  </div>
+    <blockquote class="prinsip besar">PINTAR menunjukkan bukti, bukan vonis.<br>AI membantu menyusun. Pendidik tetap memutuskan.</blockquote>
 </section>
 
 <section class="bab bab-lain" id="rujukan">
@@ -276,7 +280,7 @@ const hal = {
   ikhtisar: cari(/Empat rilis sekilas/, 2),
   hari: cari(/Hari-hari biasa di sekolah/, 2),
   kandidat: cari(/Di luar cakupan rilis/),
-  perjalanan: cari(/Perjalanan PINTAR: Dari Memahami hingga/, 5),
+  perjalanan: cari(/Urutan pengembangan: 4\.1, lalu 4\.5/, 5),
   rujukan: cari(/Rujukan teknis singkat/, 10),
 };
 for (const v of VERSI) hal[v.id] = cari(new RegExp(`Di bab ini · ${jumlah(v)} fitur`));

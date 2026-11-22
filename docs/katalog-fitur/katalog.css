@@ -156,3 +156,11 @@ tr { break-inside: avoid; }
 .chip span { color: var(--tinta-2); margin-left: 1.2mm; font-size: 8pt; }
 .chip .ikon { margin-right: 1.2mm; width: 2.8mm; height: 2.8mm; }
 .fitur, .fitur header { break-inside: avoid; }
+/* revision 5: the long-term direction box in the closing section */
+.visi { margin: 6mm 0 4mm; padding: 4mm 5mm; border: .4mm dashed var(--teal); border-radius: 2mm; break-inside: avoid; }
+.visi h3 { margin: 1mm 0 2mm; font-size: 12pt; font-weight: 800; color: var(--teal); }
+.visi p { margin: 0; }
+.visi .versi { margin-bottom: 1mm; }
+#perjalanan .tahap li { padding: 2.4mm 0; }
+#perjalanan blockquote.prinsip.besar { font-size: 14pt; padding: 4mm 6mm; margin-top: 5mm; }
+#perjalanan .visi { margin: 4mm 0 3mm; }

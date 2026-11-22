@@ -8,7 +8,7 @@ export const HARI = [
     cerita: "Bu Ratna mengaktifkan akunnya dengan kode dari email, lalu menekan Mengajar dan memilih Kelas 7B. Ia menyediakan bab Pecahan, dan murid mengerjakan Pemetaan Awal. Murid masuk dengan kartu kelas di komputer laboratorium, yang bertanya «Komputer siapa ini?». Sore harinya, Bu Ratna membaca hasil pertama kelasnya.",
     fitur: ["40-aktivasi", "40-kartu-kelas", "40-masuk-aman", "40-sediakan", "40-pemetaan", "40-lihat-bukti"] },
   { judul: "Satu minggu yang biasa",
-    cerita: "Senin, Bu Ratna menyediakan materi. Rabu, ia memberi Uji Cepat sepuluh menit. Kamis, ia membaca hasil kelas dan mencetak ringkasannya untuk rapat guru. Jumat, ia mengajarkan ulang satu bagian, meminta beberapa murid membaca lagi, lalu membuka Uji Penguasaan.",
+    cerita: "Senin, Bu Ratna menyediakan materi. Rabu, ia memberi Uji Cepat yang dibuka selama sepuluh menit. Kamis, ia membaca hasil kelas dan mencetak ringkasannya untuk rapat guru. Jumat, ia mengajarkan ulang satu bagian, meminta beberapa murid membaca lagi, lalu membuka Uji Penguasaan.",
     fitur: ["40-sediakan", "40-uji-cepat", "40-lihat-bukti", "40-cetak", "40-baca-lagi", "40-uji-penguasaan"] },
   { judul: "Seorang murid pindah sekolah di tengah semester",
     cerita: "Citra pindah dari Bandung ke Bogor pada bulan Oktober. Kedua sekolah menyelesaikan perpindahannya bersama. Hasil dan sertifikatnya yang lama tetap tercatat atas nama sekolah asal, dan sertifikat itu tetap dapat diperiksa keasliannya. Membuka laporan periode lalu dan mengekspor data sekolah sudah disetujui untuk 4.5.",
@@ -19,4 +19,7 @@ export const HARI = [
   { judul: "Listrik atau jaringan padam saat sesi di laboratorium",
     cerita: "Di tengah Uji Penguasaan, listrik laboratorium padam. Jawaban yang sudah tersimpan tidak hilang. Jika masalahnya besar, Admin PINTAR dapat menghentikan kelas itu saja, dan sesi ditahan dengan sisa waktunya. Melanjutkan di komputer lain dengan izin guru, dengan hanya satu perangkat yang dapat menyimpan jawaban, sedang diselesaikan di 4.1.",
     fitur: ["40-uji-penguasaan", "41-darurat", "41-pemulihan-sesi", "41-satu-penulis"] },
+  { judul: "Belajar, ujian, dan mengulang sampai lulus",
+    cerita: "Dimas mengerjakan Pemetaan Awal, lalu membaca bagian yang disarankan Peta Bacaan, dengan bantuan bertahap saat ia bingung. Setelah semua bagian dibaca, ia mengerjakan Uji Penguasaan tanpa bantuan. Hasilnya «Belum lulus», dengan saran membaca lagi bagian perkalian pecahan dan keterangan jumlah jawaban benarnya; kunci jawaban dan benar-salah per soal tidak ditampilkan. Dimas membaca lagi bagian itu, mengulang ujian sesuai jadwal dari gurunya, dan kali ini lulus serta mendapat sertifikat. Aturan hasil ujian seperti ini sudah disetujui dan dibangun di 4.1, setelah pengujian menyeluruh.",
+    fitur: ["40-pemetaan", "40-peta-bacaan", "40-bantuan", "40-uji-penguasaan", "41-hasil-bersertifikat", "40-sertifikat"] },
 ];

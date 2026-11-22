@@ -1,6 +1,6 @@
 # Katalog Lengkap Fitur PINTAR 4.0–5.0
 
-- `PINTAR-KATALOG-FITUR-4.0-5.0.pdf`: the reader-facing A4 catalogue in Bahasa Indonesia (53 pages; revision 4, 23 Nov: owner rulings 63–74b; 100 features in four releases and 14 candidates).
+- `PINTAR-KATALOG-FITUR-4.0-5.0.pdf`: the reader-facing A4 catalogue in Bahasa Indonesia (54 pages; revision 5, 23 Nov: Sol's editorial brief on top of rulings 63–74b; 101 features in four releases and 14 candidates).
 - `fitur.mjs`: **the editable content**, one record per feature (name, users, «Apa itu?», «Apa manfaatnya?», «Contoh penggunaan», status, note), plus the candidates.
 - `rencana.mjs`: the planning state, open choices and dependencies for 4.2, 4.5 and 5.0 entries, from Bob's planning audit (rev. 4).
 - `perjalanan.mjs`: «Hari-hari biasa di sekolah», five situations from Daisy's journeys; not counted as features.

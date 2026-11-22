@@ -14,7 +14,7 @@ Status is as of 23 November 2026. Owner ruling 72 retires 4.2 as a milestone and
 
 **Not read directly:** `PINTAR-ROADMAP.md`, `ROADMAP-RECONCILIATION-2026-11-11.md` and the roadmap folder's `OWNER-DECISIONS-2026-11-11.md`. They exist on branch `claude/roadmap-45-50` (`2f419b52`), not on `main` (planning audit finding G-1). RM consolidates them and is used in their place; Bob confirmed this is acceptable (18 Nov).
 
-## Entries (100 features, 14 candidates; 0 without a source)
+## Entries (101 features, 14 candidates; 0 without a source)
 
 | id | Feature | Version | Status | Source |
 |---|---|---|---|---|
@@ -83,13 +83,14 @@ Status is as of 23 November 2026. Owner ruling 72 retires 4.2 as a milestone and
 | `41-satu-penulis` | Satu perangkat penulis untuk setiap sesi asesmen | 4.1 | Diterima di lingkungan uji | HB 9.11 · ST §4 A3 · owner ruling 63 (A3 accepted on staging 19 Nov) |
 | `41-pemulihan-sesi` | Melanjutkan asesmen di perangkat lain | 4.1 | Diterima di lingkungan uji | HB 9.11, 11.11 · ST §4 A3 · owner ruling 63 |
 | `41-kesempatan-versi` | Kesempatan dihitung untuk semua versi asesmen | 4.1 | Diterima di lingkungan uji | OR ruling 46 · ST §4 A3 · owner ruling 63 |
-| `41-hasil-bersertifikat` | Hasil Uji Penguasaan yang tidak membuka kunci jawaban | 4.1 | Selesai dirancang, belum dibangun | OR rulings 74, 74a, 74b · D2-CERTIFICATE-CONDITIONS-SPEC R-h (D2-R, after Z) |
-| `41-ai-sendiri` | Impor Studio untuk soal buatan sendiri atau draf dari AI luar | 4.1 | Diterima di lingkungan uji | OR ruling 41; X1 guide · COV 18b (standard Studio import) |
+| `41-hasil-bersertifikat` | Hasil Uji Penguasaan yang tidak membuka kunci jawaban | 4.1 | Rancangan disetujui; belum dibangun | OR rulings 74, 74a, 74b · D2-CERTIFICATE-CONDITIONS-SPEC R-h (D2-R, after Z) |
+| `41-ai-sendiri` | Menulis sendiri atau memakai AI luar, lalu mengimpor lewat Studio | 4.1 | Diterima di lingkungan uji | OR ruling 41; X1 guide · COV 18b (standard Studio import) |
 | `41-ai-terpadu` | Draf soal dengan AI terpadu PINTAR | 4.1 | Sedang dikembangkan | OR rulings 38–44 (optional paid per-school add-on; PINTAR-qualified options) · C3w-1 being built on a stand-in provider, single-answer drafts, accept-or-delete, personal-data checks (Bob 22 Nov; rulings 64–65) |
 | `42-mode-ujian` | Mode Ujian | 4.5 | Disetujui untuk 4.5; belum dibangun · UNRESOLVED (4.2-01 / D-01) | RM 4.2 A.1 |
 | `42-jabatan` | Jabatan resmi, pelaksana tugas, dan peran bertanggal | 4.5 | Disetujui untuk 4.5; belum dibangun · UNRESOLVED (4.2-02 / D-02) | RM 4.2 B.2 (O41-8) |
 | `42-dua-sekolah` | Peran di dua sekolah | 4.5 | Disetujui untuk 4.5; belum dibangun · UNRESOLVED (4.2-03 / D-03) | RM 4.2 B.2 (O41-12, principle approved) |
-| `42-satu-orang` | Menambahkan satu orang dan membetulkan nama | 4.5 | Disetujui untuk 4.5; belum dibangun · UNRESOLVED (4.2-06a PARTIAL / 4.2-06b UNRESOLVED (D-06)) | RM 4.2 B.9 (Rev 3.1) |
+| `42-satu-orang` | Menambahkan satu orang | 4.5 | Disetujui untuk 4.5; belum dibangun · PARTIAL (4.2-06a) | RM 4.2 B.9 (Rev 3.1) · planning audit rev 6 row 4.2-06a |
+| `42-koreksi-nama` | Membetulkan nama setelah akun aktif | 4.5 | Disetujui untuk 4.5; belum dibangun · UNRESOLVED (4.2-06b / D-06) | RM 4.2 B.9 (Rev 3.1) · planning audit rev 6 row 4.2-06b (D-06); split from 4.2-06a per MASTER-SEQUENCE §2a (4.2-06 split) |
 | `42-koreksi-struktur` | Koreksi struktur sekolah | 4.5 | Disetujui untuk 4.5; belum dibangun · UNRESOLVED (4.2-11 / D-11a, D-11b) | RM 4.2 B.6 |
 | `42-tanpa-guru` | Daftar kelas yang belum memiliki guru | 4.5 | Disetujui untuk 4.5; belum dibangun · COMPLETE (4.2-09) | RM 4.2 B.10 (Rev 3.1) |
 | `42-serah-terima` | Tampilan serah terima kelas | 4.5 | Disetujui untuk 4.5; belum dibangun · PARTIAL (4.2-13) | RM 4.2 B.11 [execution plan] |
@@ -99,6 +100,9 @@ Status is as of 23 November 2026. Owner ruling 72 retires 4.2 as a milestone and
 | `42-ekspor` | Ekspor data sekolah | 4.5 | Disetujui untuk 4.5; belum dibangun · UNRESOLVED (4.2-04 / D-04a, D-04b) | RM 4.2 C.3 · THE PLAN D-4 (export and its event arrive together) |
 | `42-periode-lalu` | Membuka laporan periode lalu | 4.5 | Disetujui untuk 4.5; belum dibangun · UNRESOLVED (4.2-05 / D-05) | RM 4.2 C.4 |
 | `42-kesehatan-terjadwal` | Statistik Kesehatan soal terjadwal | 4.5 | Disetujui untuk 4.5; belum dibangun · UNRESOLVED (4.2-12 / D-12) | RM 4.2 item 7 [execution plan] |
+| `45-whatsapp` | Masuk dengan WhatsApp | 4.5 | Arah disetujui; belum direncanakan · UNRESOLVED (4.5-11 / D-45-11) | RM 4.5 carried (O41-2) |
+| `45-akses-tidak-biasa` | Pemeriksaan akses tidak biasa untuk staf | 4.5 | Arah disetujui; belum direncanakan · UNRESOLVED (4.5-12 / D-45-12) | RM 4.5 carried (D-088) |
+| `45-jelajah` | Mode Jelajah untuk tamu | 4.5 | Arah disetujui; belum direncanakan | OR rulings 66–68 · docs/roadmap/GUEST-EXPLORATION-4.5-PLAN.md (planning paused until 4.1 is accepted) |
 | `45-kecerdasan-soal` | Kecerdasan Soal | 4.5 | Arah disetujui; belum direncanakan · PARTIAL (4.5-01) | RM 4.5 item 1 |
 | `45-perbaikan-statistik` | Perbaikan perhitungan statistik soal | 4.5 | Arah disetujui; belum direncanakan · PARTIAL (4.5-01 / RD-4) | RM 4.5 'Early 4.5 verification' (RD-4; suspected findings, Bob 18 Nov) |
 | `45-pemahaman-keliru` | Pemetaan pemahaman keliru | 4.5 | Arah disetujui; belum direncanakan · UNRESOLVED (4.5-09 / R-3, D-45-09) | Reconciliation §1 via RM; planning audit rev 6 row 4.5-09 (R-3); added on Bob's verification 18 Nov |
@@ -109,9 +113,6 @@ Status is as of 23 November 2026. Owner ruling 72 retires 4.2 as a milestone and
 | `45-sejarah` | Sejarah yang dapat dijelaskan | 4.5 | Arah disetujui; belum direncanakan · UNRESOLVED (4.5-08 / R-2, D-05) | RM 4.5 item 6 |
 | `45-evaluasi` | Evaluasi guru resmi yang diatur institusi | 4.5 | Arah disetujui; belum direncanakan · UNRESOLVED (4.5-06 / R-1) | RM 4.5 item 4 + lifecycle (R-1 open) |
 | `45-perlindungan` | Perlindungan guru | 4.5 | Arah disetujui; belum direncanakan · UNRESOLVED (4.5-07 / R-1) | RM 4.5 item 5 |
-| `45-jelajah` | Mode Jelajah untuk tamu | 4.5 | Arah disetujui; belum direncanakan | OR rulings 66–68 · docs/roadmap/GUEST-EXPLORATION-4.5-PLAN.md (planning paused until 4.1 is accepted) |
-| `45-whatsapp` | Masuk dengan WhatsApp | 4.5 | Arah disetujui; belum direncanakan · UNRESOLVED (4.5-11 / D-45-11) | RM 4.5 carried (O41-2) |
-| `45-akses-tidak-biasa` | Pemeriksaan akses tidak biasa untuk staf | 4.5 | Arah disetujui; belum direncanakan · UNRESOLVED (4.5-12 / D-45-12) | RM 4.5 carried (D-088) |
 | `50-pertumbuhan` | Pertumbuhan Guru | 5.0 | Arah disetujui; belum direncanakan · BLOCKED (5.0-01 / D-50-01) | RM 5.0 item 1 |
 | `50-kesepakatan` | Kesepakatan Pertumbuhan Bersama | 5.0 | Arah disetujui; belum direncanakan · BLOCKED (5.0-01 / D-50-01) | RM 5.0 item 1 |
 | `50-intervensi` | Intervensi dan tindak lanjut | 5.0 | Arah disetujui; belum direncanakan · BLOCKED (5.0-02 / R-4) | RM 5.0 item 2 (R-4 open) |
@@ -123,8 +124,8 @@ Status is as of 23 November 2026. Owner ruling 72 retires 4.2 as a milestone and
 
 | id | Item | Version | Status | Source |
 |---|---|---|---|---|
-| `k-batas-waktu` | Batas waktu per asesmen | — | Kandidat untuk 4.5. Tujuan pendidikan dan aturannya harus disetujui lebih dulu. | RM 4.2 A (candidate) |
-| `k-ai-sendiri` | Kemudahan jalur AI sendiri | — | Kandidat untuk rencana 4.5. Belum disetujui. | DTT (X-2/X-3/X-4) |
+| `k-batas-waktu` | Batas waktu per asesmen | — | Kandidat, belum disetujui untuk rilis mana pun (semula kandidat 4.2). Tujuan pendidikan dan aturannya harus disetujui lebih dulu. | RM 4.2 A (candidate) |
+| `k-ai-sendiri` | Kemudahan jalur AI sendiri | — | Kandidat, belum disetujui untuk rilis mana pun (semula kandidat 4.2). | DTT (X-2/X-3/X-4) |
 | `k-masa-simpan` | Penegakan masa simpan data | — | Versinya belum ditetapkan. Kebijakan masa simpan bukti pendidikan diputuskan tersendiri. | RM 4.2 C.8 (unassigned, Rev 3.1) |
 | `k-tutup-sekolah` | Menutup atau mengarsipkan sekolah | — | Di luar lingkup 4.5 yang disetujui; rilisnya belum ditetapkan. | RM 4.2 'Later than 4.2' |
 | `k-yayasan` | Fondasi di atas beberapa sekolah | — | Di luar lingkup 4.5 yang disetujui; rilisnya belum ditetapkan. | RM 4.2 'Later than 4.2' |
