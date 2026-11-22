@@ -11,8 +11,15 @@
 **What this document is.** Direction, capability groups, dependencies, governance and exclusions. It is not a plan:
 it contains no batches, schedules, designs or acceptance tests. Each version gets its own planning when it opens.
 
-**Order of work.** 4.0 (closed) → 4.1 (in progress; `docs/completion-4.1/`) → 4.2 (the deferred operational list in
-`OWNER-DECISIONS-2026-11-11.md` §4) → 4.5 → 5.0. Nothing here adds to 4.1 or 4.2.
+**Order of work (amended 23 Nov 2026, owner rulings 71 and 72).**
+- 4.0 (closed) → 4.1 (in progress; `docs/completion-4.1/`) → **4.5**, which now **includes the whole approved 4.2 scope**
+  (the deferred operational list in `OWNER-DECISIONS-2026-11-11.md` §4, each item keeping its 4.2-xx identifier, tests
+  and acceptance) → 5.0.
+- **One comprehensive walkthrough after 5.0.** Each version still closes on its own internal gates.
+- 4.5 has an operational-foundation gate before the intelligence features that depend on those items.
+- The execution order is `docs/roadmap/MASTER-SEQUENCE-4.1-TO-5.0.md` (on `claude/bob-41-master-plan`).
+
+*Previously:* 4.0 → 4.1 → 4.2 → 4.5 → 5.0. Nothing here adds to 4.1.
 
 **The principle behind every version.** Educators remain responsible for educational judgment. PINTAR records
 evidence, explains what it supports, says plainly what it does not, and never issues a judgment of a learner or an
