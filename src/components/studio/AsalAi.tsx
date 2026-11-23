@@ -67,7 +67,7 @@ export default function AsalAiKartu({
               </form>
               <form action={putuskanDrafAiAksi} className="pin-draf-ai-putus">
                 {tersembunyi("HAPUS")}
-                <KonfirmasiBahaya id={`hapus-ai-${a.item}`} tombol={s("studio.ai.hapus")} tanya={s("studio.ai.hapus_tanya")}
+                <KonfirmasiBahaya id={`hapus-ai-${a.item}`} tombol={<>{s("studio.ai.hapus")}<span className="pin-sr"> · {posisi}</span></>} tanya={s("studio.ai.hapus_tanya")}
                   ya={s("studio.ai.hapus")} batal={s("bahaya.batal")} sibuk={s("studio.langkah.sibuk")} />
               </form>
             </div>

@@ -6856,6 +6856,11 @@
       "proves": "Bob's decision 3 with Daisy's AI_PAKET_LOLOS_PERIKSA (C3W-1-WORDS-TAMBAHAN §4), red first: executes ai_minta_draf and ai_tulis_draf against the migrations: a package already VALIDATED is refused AI_PAKET_LOLOS_PERIKSA at the request, before anything is reserved or sent, and at the write when it became VALIDATED during the call."
     },
     {
+      "id": "C3W-T07",
+      "runner": "static",
+      "proves": "Daisy's C-1 (C3W-D4), red first: executes ai_minta_draf against the migrations: an objective that is not the target lesson's is refused AI_TUJUAN_LAIN, a target lesson with no objectives AI_TANPA_TUJUAN, and the target lesson's own objective is accepted."
+    },
+    {
       "id": "C3W-C32",
       "runner": "static",
       "proves": "C3-2, red first: executes, in one rolled-back transaction, the AI tables' grants (none to anon or authenticated), the set of functions a signed-in session may run that read one (ai_asal_paket, ai_draf_belum_diputuskan, ai_minta_draf, ai_putuskan, ai_tersedia), each refusing a learner, and the staff read of a package's provenance; and imports the assessment engine's source: sanitize() refuses every provenance key."

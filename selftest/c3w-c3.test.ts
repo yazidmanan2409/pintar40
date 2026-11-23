@@ -25,6 +25,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { G, S, jalankan, langkah } from "./c1w.test";
+import { tanamTujuan } from "./c3w-terima.test";
 import { balapan, gantiFungsi } from "./balapan";
 
 const db = () => process.env.SUPABASE_DB_URL!;
@@ -50,7 +51,7 @@ const putuskan = (it: string, kp: string) => `select (public.ai_putuskan(${it}, 
 /** The opening every world here shares: an option, an entitlement, a checked request on d1's first lesson, a claimed attempt,
  *  and three generated drafts (X, Y, Z) with provenance; W is written by hand. */
 const AWAL = [
-  `perform pg_temp.c1_murid('m1'); perform pg_temp.c1_draf('d1');`,
+  `perform pg_temp.c1_murid('m1'); perform pg_temp.c1_draf('d1');`, tanamTujuan(G("d1")),
   `insert into public.ai_opsi (kunci, nama_tampilan, model_ident, harga_dasar, status, plafon_biaya, henti_keras_terverifikasi)
      values ('c3-' || ${S("tag")}, 'Uji Stub', 'stub-1', '{"masuk": 1, "keluar": 1}', 'QUALIFIED', 100000000, true);
    insert into public.ai_plafon_platform (plafon) values (100000000) on conflict (id) do nothing;
@@ -89,6 +90,15 @@ function skenario(c: Checks, repoRoot: string): Record<string, string> | null {
     langkah("c32_murid_asal", "m1", `select jsonb_array_length(public.ai_asal_paket(${G("d1")}))::text`),
     langkah("c32_murid_ada", "m1", `select public.ai_tersedia(${G("d1")})::text`),
     langkah("c32_guru_ada", "guru", `select public.ai_tersedia(${G("d1")})::text`),
+    ...([["opsi", `update public.ai_opsi set status = 'SUSPENDED' where id = (select opsi from public.ai_hak_sekolah where sekolah = ${G("inst")})`],
+         ["belum", `update public.ai_hak_sekolah set mulai = now() + interval '1 day' where sekolah = ${G("inst")}`],
+         ["habis", `update public.ai_hak_sekolah set mulai = now() - interval '2 days', berakhir = now() - interval '1 day' where sekolah = ${G("inst")}`]] as const)
+      .map(([k, ubah]) => `begin
+         set local session_replication_role = replica; ${ubah}; set local session_replication_role = origin;
+         v := v || jsonb_build_object('c32_ada_${k}', pg_temp.c1(${G("u_guru")}, $p$select public.ai_tersedia(current_setting('c1.d1')::uuid)::text$p$));
+         raise exception 'c3w-batal';
+       exception when others then if sqlerrm <> 'c3w-batal' then v := v || jsonb_build_object('c32_ada_${k}', 'ERR:' || sqlerrm); end if;
+       end;`),
     langkah("c32_guru_asal", "guru", `select jsonb_array_length(public.ai_asal_paket(${G("d1")}))::text`),
     langkah("c32_lain_asal", "lain", `select jsonb_array_length(public.ai_asal_paket(${G("d1")}))::text`),
     // ---- C3-6: the entitlement off after the drafts were written
@@ -195,6 +205,9 @@ export const c3wC3Tests: SelfTest[] = [
       c.expect(h!.c32_fungsi === `ok:${BACA_TERGERBANG.join(",")}`, `the functions a signed-in session may run that read an AI table: ${h!.c32_fungsi} (exactly ${BACA_TERGERBANG.join(", ")})`);
       for (const k of ["c32_murid_minta", "c32_murid_putus", "c32_murid_hitung", "c32_murid_asal"]) c.expect(ditolak(h![k]), `a learner, ${k}: ${h![k]} (refused)`);
       c.expect(h!.c32_murid_ada === "ok:false" && h!.c32_guru_ada === "ok:true", `whether drafting with AI is offered, to a learner|the teacher: ${h!.c32_murid_ada}|${h!.c32_guru_ada} (false|true)`);
+      for (const k of ["opsi", "belum", "habis"]) {
+        c.expect(h![`c32_ada_${k}`] === "ok:false", `whether drafting with AI is offered, ${k === "opsi" ? "the option not QUALIFIED" : k === "belum" ? "before the entitlement starts" : "after it ended"}: ${h![`c32_ada_${k}`]} (false: the request would refuse it, so no button)`);
+      }
       c.expect(h!.c32_guru_asal === "ok:3", `the package's teacher reads its provenance: ${h!.c32_guru_asal} (3 generated drafts)`);
       c.expect(ditolak(h!.c32_lain_asal), `another school's administrator reads it: ${h!.c32_lain_asal} (refused)`);
       const tipe = await import("../src/lib/assessment-engine/types") as { ANSWER_KEY_FIELDS?: readonly string[]; AI_PROVENANCE_FIELDS?: readonly string[] };

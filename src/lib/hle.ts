@@ -3336,13 +3336,13 @@ export type HleEvent =
   | "galat.ai_draf_tidak_terbuka"
   | "galat.ai_belum_diterima"
   | "galat.ai_belum_diterima_satu"
+  | "galat.ai_tanpa_tujuan"
   | "studio.ai.tombol"
   | "studio.ai.judul"
   | "studio.ai.pelajaran_tujuan"
   | "studio.ai.pelajaran_tujuan_petunjuk"
   | "studio.ai.sumber"
   | "studio.ai.sumber.tujuan"
-  | "studio.ai.sumber.lain"
   | "studio.ai.sumber.tempel"
   | "studio.ai.teks"
   | "studio.ai.teks_petunjuk"
@@ -8007,13 +8007,13 @@ const table: Table = {
   "galat.ai_draf_tidak_terbuka": { default: "Paket ini tidak sedang disusun, jadi soal baru tidak dapat ditambahkan.", en: "This package is not being drafted, so no new questions can be added." },
   "galat.ai_belum_diterima": { default: "**{n} soal masih draf dari AI.** Setiap soal perlu diterima atau dihapus oleh pendidik sebelum paket diajukan.", en: "**{n} questions are still AI drafts.** Each needs to be accepted or deleted by an educator before the package is submitted." },
   "galat.ai_belum_diterima_satu": { default: "**1 soal masih draf dari AI.** Soal ini perlu diterima atau dihapus oleh pendidik sebelum paket diajukan.", en: "**1 question is still an AI draft.** It needs to be accepted or deleted by an educator before the package is submitted." },
+  "galat.ai_tanpa_tujuan": { default: "Pelajaran tujuan belum punya tujuan pembelajaran. Pilih pelajaran tujuan lain.", en: "The target lesson has no learning objectives yet. Choose another target lesson." },
   "studio.ai.tombol": { default: "Buat draf soal dengan AI", en: "Draft questions with AI" },
   "studio.ai.judul": { default: "Buat draf soal dengan AI", en: "Draft questions with AI" },
   "studio.ai.pelajaran_tujuan": { default: "Pelajaran tujuan", en: "Target lesson" },
   "studio.ai.pelajaran_tujuan_petunjuk": { default: "Draf soal ditambahkan ke pelajaran ini. Sumber hanya dipakai untuk menyusun soal.", en: "The draft questions are added to this lesson. The source is only used to write them." },
   "studio.ai.sumber": { default: "Sumber", en: "Source" },
   "studio.ai.sumber.tujuan": { default: "Teks pelajaran tujuan", en: "The target lesson's text" },
-  "studio.ai.sumber.lain": { default: "Pelajaran lain di paket ini", en: "Another lesson in this package" },
   "studio.ai.sumber.tempel": { default: "Teks yang saya tempel", en: "Text I paste" },
   "studio.ai.teks": { default: "Teks sumber", en: "Source text" },
   "studio.ai.teks_petunjuk": { default: "Jangan menempel nama atau data murid mana pun. Sampai {n} karakter.", en: "Do not paste any learner's name or data. Up to {n} characters." },
@@ -8023,7 +8023,7 @@ const table: Table = {
   "studio.ai.hak_petunjuk": { default: "Pernyataan ini dicatat bersama permintaan. Pernyataan ini bukan izin hukum.", en: "This statement is recorded with the request. It is not legal permission." },
   "studio.ai.buat": { default: "Buat draf", en: "Create drafts" },
   "studio.ai.batal": { default: "Batal", en: "Cancel" },
-  "studio.ai.tanpa_teks": { default: "Pelajaran tujuan belum punya teks. Pilih pelajaran lain atau tempel teks sumber.", en: "The target lesson has no text yet. Choose another lesson or paste source text." },
+  "studio.ai.tanpa_teks": { default: "Pelajaran tujuan belum punya teks. Pilih pelajaran tujuan lain atau tempel teks sumber.", en: "The target lesson has no text yet. Choose another target lesson or paste source text." },
   "studio.ai.bekerja": { default: "Menyusun {n} draf soal… Ini dapat memakan waktu hingga satu menit.", en: "Drafting {n} questions… This can take up to a minute." },
   "studio.ai.siap": { default: "{n} draf soal siap ditinjau.", en: "{n} draft questions are ready to review." },
   "studio.ai.siap_satu": { default: "1 draf soal siap ditinjau.", en: "1 draft question is ready to review." },

@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import BarisHasil from "@/components/BarisHasil";
 import { t, format, type HleEvent, type Locale } from "@/lib/hle";
@@ -17,10 +18,12 @@ const MAKS_TEKS = 20000;
  *
  * Every refusal is its code's sentence in the form's result slot (role="alert"), and the form keeps what was typed,
  * except the rights box after AI_DATA_PRIBADI, because the source has to change. Success says how many drafts are
- * ready, and where when the target is not the lesson on screen, then the page re-reads.
+ * ready, and where (linked) when the target is not the lesson on screen; else focus moves to the first new card once the
+ * page has re-read. The objectives listed are the chosen target's, the first ticked (Daisy's C-1); a target with none
+ * says so under the legend, and the server refuses the same (AI_TANPA_TUJUAN).
  */
 export default function DrafAi({
-  locale, course, lessonKini, pelajaran, tujuan, adaTeks,
+  locale, course, lessonKini, pelajaran, tujuanPer, adaTeks,
 }: {
   locale: Locale;
   course: string;
@@ -28,8 +31,8 @@ export default function DrafAi({
   lessonKini: string;
   /** the package's lessons, by title, and their position in the pager */
   pelajaran: Array<{ id: string; judul: string; ke: number }>;
-  /** the statements of the lesson on screen's objectives */
-  tujuan: string[];
+  /** each lesson's objectives, by statement: the list follows the chosen target (Daisy's C-1, C3W-D4) */
+  tujuanPer: Record<string, string[]>;
   /** whether each lesson has text of its own */
   adaTeks: Record<string, boolean>;
 }) {
@@ -39,7 +42,19 @@ export default function DrafAi({
   const [sasaran, setSasaran] = useState(lessonKini);
   const [sumber, setSumber] = useState<"PELAJARAN" | "TEMPEL">("PELAJARAN");
   const [teks, setTeks] = useState("");
-  const [dipilih, setDipilih] = useState<string[]>(tujuan.slice(0, 1));
+  const tujuan = tujuanPer[sasaran] ?? [];
+  const [dipilih, setDipilih] = useState<string[]>((tujuanPer[lessonKini] ?? []).slice(0, 1));
+  // §1.3: on success focus lands on the first new card, once the page has re-read it
+  const [fokus, setFokus] = useState<string | null>(null);
+  useEffect(() => {
+    if (!fokus) return;
+    let n = 0;
+    const t0 = setInterval(() => {
+      const el = document.getElementById(`pin-soal-${fokus}`);
+      if (el || ++n > 40) { clearInterval(t0); el?.focus(); if (el) setFokus(null); }
+    }, 100);
+    return () => clearInterval(t0);
+  }, [fokus]);
   const [jumlah, setJumlah] = useState(3);
   const [hak, setHak] = useState(false);
   const [sibuk, setSibuk] = useState(false);
@@ -48,12 +63,15 @@ export default function DrafAi({
   const tombol = useRef<HTMLButtonElement>(null);
 
   const tanpaTeks = sumber === "PELAJARAN" && adaTeks[sasaran] === false;
+  const tanpaTujuan = tujuan.length === 0;
+  const ganti = (id: string) => { setSasaran(id); setDipilih((tujuanPer[id] ?? []).slice(0, 1)); };
   const judulSasaran = pelajaran.find((p) => p.id === sasaran)?.judul ?? "";
 
   const kirim = async (e: React.FormEvent) => {
     e.preventDefault();
     if (sibuk) return;
     if (!kunci.current) kunci.current = crypto.randomUUID().replace(/-/g, "");
+    if (tanpaTujuan) { setHasil({ nada: "gagal", isi: s("galat.ai_tanpa_tujuan") }); return; }
     if (tanpaTeks) { setHasil({ nada: "gagal", isi: s("studio.ai.tanpa_teks") }); return; }
     setSibuk(true);
     setHasil(null);
@@ -70,10 +88,15 @@ export default function DrafAi({
       if (j?.ok) {
         const n = Array.isArray(j.items) ? j.items.length : jumlah;
         const di = sasaran !== lessonKini;
-        const kal = di
-          ? (n === 1 ? s("studio.ai.siap_di_satu") : s("studio.ai.siap_di").replace("{n}", format.number(n, locale))).replace("{judul}", judulSasaran)
+        // the target named and linked when it is not the lesson on screen (TAMBAHAN §1); else focus moves to the first card
+        const ke = pelajaran.find((p) => p.id === sasaran)?.ke ?? 1;
+        const [awal, akhir] = (n === 1 ? s("studio.ai.siap_di_satu") : s("studio.ai.siap_di").replace("{n}", format.number(n, locale))).split("{judul}");
+        const kal: ReactNode = di
+          ? <>{awal}<Link href={`/studio/paket/${encodeURIComponent(course)}?pelajaran=${ke}#pin-soal-pelajaran`} data-draf-ai-sasaran="">{judulSasaran}</Link>{akhir}</>
           : (n === 1 ? s("studio.ai.siap_satu") : s("studio.ai.siap").replace("{n}", format.number(n, locale)));
         setHasil({ nada: "ok", isi: kal });
+        const pertama = Array.isArray(j.items) && typeof j.items[0] === "string" ? j.items[0] : null;
+        if (!di && pertama) setFokus(pertama);
         kunci.current = null;
         router.refresh();
         return;
@@ -104,7 +127,7 @@ export default function DrafAi({
       <h4 id="draf-ai-judul" className="pin-soal-pelajaran-judul">{s("studio.ai.judul")}</h4>
       <label className="pin-lt-isian">
         <span className="pin-meta">{s("studio.ai.pelajaran_tujuan")}</span>
-        <select className="pin-input" value={sasaran} onChange={(e) => setSasaran(e.target.value)} aria-describedby="draf-ai-tujuan-arti">
+        <select className="pin-input" value={sasaran} onChange={(e) => ganti(e.target.value)} aria-describedby="draf-ai-tujuan-arti">
           {pelajaran.map((p) => <option key={p.id} value={p.id}>{p.judul}</option>)}
         </select>
         <span id="draf-ai-tujuan-arti" className="pin-hint">{s("studio.ai.pelajaran_tujuan_petunjuk")}</span>
@@ -125,6 +148,7 @@ export default function DrafAi({
       ) : null}
       <fieldset className="pin-lt-isian">
         <legend className="pin-meta">{s("studio.ai.tujuan")}</legend>
+        {tanpaTujuan ? <p className="pin-alasan" id="draf-ai-tanpa-tujuan" data-draf-ai-tanpa-tujuan="">{s("galat.ai_tanpa_tujuan")}</p> : null}
         {tujuan.map((x, i) => (
           <label key={i}>
             <input type="checkbox" checked={dipilih.includes(x)}

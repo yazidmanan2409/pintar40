@@ -18,7 +18,7 @@ export default function KonfirmasiBahaya({
   tombol, tanya, akibat, ya, batal, sibuk, id, nama, nilai, terbuka, batalKe,
 }: {
   /** the first button's words: the act's name */
-  tombol: string;
+  tombol: ReactNode;
   /** the confirmation's question */
   tanya: string;
   /** what the act does and what it leaves */

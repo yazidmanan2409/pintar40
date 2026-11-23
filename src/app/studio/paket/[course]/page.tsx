@@ -222,11 +222,17 @@ export default async function Paket({ params, searchParams }: { params: Params; 
   ]);
   // C3w-1: the package's AI provenance (staff only, ai_asal_paket decides) and whether drafting with AI is offered here
   const lessonIds = pelajaranSoal.map((x) => x.id);
-  const [{ data: asalData }, { data: tersediaData }, { data: teksRows }] = await Promise.all([
+  const [{ data: asalData }, { data: tersediaData }, { data: teksRows }, { data: tujuanSemua }] = await Promise.all([
     can(inst, "CAN_DRAFT") || can(inst, "CAN_REVIEW") ? supabase.rpc("ai_asal_paket", { p_course: courseId }) : Promise.resolve({ data: [] }),
     can(inst, "CAN_DRAFT") ? supabase.rpc("ai_tersedia", { p_course: courseId }) : Promise.resolve({ data: false }),
     can(inst, "CAN_DRAFT") && lessonIds.length > 0 ? supabase.from("lessons").select("id, body_markdown").in("id", lessonIds) : Promise.resolve({ data: [] }),
+    // C-1: every lesson's objectives, so the form's list follows the chosen target
+    can(inst, "CAN_DRAFT") && lessonIds.length > 0
+      ? supabase.from("learning_objectives").select("lesson_id, code, statement").in("lesson_id", lessonIds).order("code")
+      : Promise.resolve({ data: [] }),
   ]);
+  const tujuanPer: Record<string, string[]> = {};
+  for (const x of (tujuanSemua ?? []) as Array<{ lesson_id: string; statement: string }>) (tujuanPer[x.lesson_id] ??= []).push(x.statement);
   const asalAi = bacaAsalAi(asalData);
   const asalDari = new Map<string, AsalAi>(asalAi.map((a) => [a.item, a]));
   const drafAiBelum = asalAi.filter((a) => a.keputusan === null).length;
@@ -463,7 +469,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
                   {bolehDrafAi ? (
                     <DrafAi locale={locale} course={courseId} lessonKini={l.id}
                       pelajaran={pelajaranSoal.map((x, n) => ({ id: x.id, judul: x.judul, ke: n + 1 }))}
-                      tujuan={tujuanPaket.map((x) => x.statement)} adaTeks={adaTeks} />
+                      tujuanPer={tujuanPer} adaTeks={adaTeks} />
                   ) : null}
                   {l.soal.length === 0 ? <p className="pin-ket">{sl("studio.soal.kosong")}</p> : (
                     <ol className="pin-soal-daftar">

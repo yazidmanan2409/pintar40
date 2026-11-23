@@ -159,6 +159,8 @@ export const KODE_PEMELIHARAAN = [
 export const KODE_AI = [
   "AI_TIDAK_TERSEDIA", "AI_HAK_BERAKHIR", "AI_JATAH_HABIS", "AI_PLAFON", "AI_HAK_SUMBER", "AI_DATA_PRIBADI", "AI_GAGAL",
   "AI_KELUARAN_TIDAK_SAH", "AI_PAKET_LOLOS_PERIKSA", "AI_DRAF_TIDAK_TERBUKA", "AI_BELUM_DITERIMA",
+  // Daisy's C-1: a target lesson with no learning objectives
+  "AI_TANPA_TUJUAN",
 ] as const;
 export type KodeAi = (typeof KODE_AI)[number];
 
@@ -168,7 +170,8 @@ export function kodeAi(detail: string | null | undefined): KodeAi | "ACTION_NOT_
   if ((KODE_AI as readonly string[]).includes(d)) return d as KodeAi;
   if (d === "AI_TIDAK_BOLEH_MENULIS" || d === "DRAFT_NOT_ALLOWED") return "ACTION_NOT_ALLOWED";
   if (d === "AI_BUKAN_DRAF_AI") return "ACTION_NOT_FOUND";
-  if (d === "AI_KEPUTUSAN_TIDAK_SAH") return "ACTION_INPUT_INVALID";
+  // an objective not the target lesson's (a stale form): the form's own «not the right value» line
+  if (d === "AI_KEPUTUSAN_TIDAK_SAH" || d === "AI_TUJUAN_LAIN") return "ACTION_INPUT_INVALID";
   // DRAFT_SUBMITTED and DRAFT_SEALED (soal_tolak): the package is no longer being drafted
   if (d === "DRAFT_SUBMITTED" || d === "DRAFT_SEALED") return "AI_DRAF_TIDAK_TERBUKA";
   // F-2's AI_TEKS_BERUBAH, the ledger's own states and anything unnamed: «Tidak ada soal yang dibuat. Coba lagi …»

@@ -1,6 +1,6 @@
 /**
  * C3w-1 · AI-ASSISTED DRAFTING ON THE SCREENS (C3-11; Daisy, C3W-1-WORDS.md dde78004 and C3W-1-WORDS-TAMBAHAN.md
- * fdb90e16). The running app, as the package's author, with the local stub (the harness's PINTAR_AI_STUB_HARNESS=1,
+ * fdb90e16; her review of 6ace7b2f, C-1 and C-2). The running app, as the package's author, with the local stub (the harness's PINTAR_AI_STUB_HARNESS=1,
  * set by selftest/run.ts for the app it starts; no provider, key or spend).
  *
  *   C3W-L01  the button «Buat draf soal dengan AI» is drawn only where the school has the entitlement; the drafting
@@ -40,6 +40,12 @@ function hak(d: Dunia, tag: string): string {
     insert into public.ai_opsi (kunci, nama_tampilan, model_ident, harga_dasar, status, plafon_biaya, henti_keras_terverifikasi)
       values ('c3l-${tag}', 'Stub PINTAR', 'stub-1', '{"masuk": 1, "keluar": 1}', 'QUALIFIED', 100000000, true);
     insert into public.ai_plafon_platform (plafon) values (100000000) on conflict (id) do nothing;
+    -- C-1: the package's lessons carry the objective the requests name (past the taught-content guard)
+    set local session_replication_role = replica;
+    insert into public.learning_objectives (lesson_id, institution_id, code, statement, bloom)
+    select l.id, l.institution_id, 'C3L', 'Membandingkan pecahan', 'UNDERSTAND' from public.lessons l join public.modules m on m.id = l.module_id
+     where m.course_id = ${lit(d.course)} on conflict (lesson_id, code) do nothing;
+    set local session_replication_role = origin;
     insert into public.ai_hak_sekolah (sekolah, opsi, aktif, jatah, mulai)
       select ${lit(d.inst)}, o.id, true, 100000000, now() - interval '1 day' from public.ai_opsi o where o.kunci = 'c3l-${tag}'
       on conflict (sekolah) do update set opsi = excluded.opsi, aktif = true, jatah = excluded.jatah, mulai = excluded.mulai, berakhir = null;
@@ -52,6 +58,7 @@ function lepas(d: Dunia, tag: string, plafonAda: boolean): void {
     delete from public.ai_percobaan where permintaan in (select id from public.ai_permintaan where course_id = ${lit(d.course)});
     delete from public.ai_permintaan where course_id = ${lit(d.course)};
     delete from public.ai_hak_sekolah where sekolah = ${lit(d.inst)};
+    delete from public.learning_objectives where code = 'C3L' and lesson_id in (select l.id from public.lessons l join public.modules m on m.id = l.module_id where m.course_id = ${lit(d.course)});
     delete from public.ai_opsi where kunci = 'c3l-${tag}';
     ${plafonAda ? "" : "delete from public.ai_plafon_platform;"}
     commit;`);
@@ -87,6 +94,9 @@ export const c3wLayarTests: SelfTest[] = [
         // the rights box first: refused, nothing reserved
         const r0 = await minta({ hakSumber: false, kunci: `c3l${tag}tanpa` });
         c.expect(r0.status === 422 && r0.body?.kode === "AI_HAK_SUMBER", `without the rights box: ${r0.status} ${JSON.stringify(r0.body)} (422 AI_HAK_SUMBER)`);
+        // C-1 on the server: an objective that is not the target lesson's is refused, nothing reserved
+        const rl = await minta({ objectives: ["Tujuan dari pelajaran lain"], kunci: `c3l${tag}lain` });
+        c.expect(rl.status === 422 && rl.body?.kode === "AI_TUJUAN_LAIN", `an objective not the target lesson's: ${rl.status} ${JSON.stringify(rl.body)} (422 AI_TUJUAN_LAIN)`);
         // two drafts on the stub
         const r1 = await minta({});
         c.expect(r1.status === 200 && r1.body?.ok === true && Array.isArray(r1.body?.items) && (r1.body!.items as unknown[]).length === 2,
@@ -104,6 +114,10 @@ export const c3wLayarTests: SelfTest[] = [
           && t2.includes("Disusun dengan AI (Stub PINTAR) dari teks yang ditempel") && t2.includes("Menunggu keputusan Anda: terima atau hapus."),
           `the generated cards: ${kartu.length} card(s); «${t2.slice(Math.max(0, t2.indexOf("Draf dari AI")), t2.indexOf("Draf dari AI") + 260)}»`);
         c.expect(/2 dari \d+ soal disusun dengan AI/.test(t2), "the package does not say «2 dari n soal disusun dengan AI»");
+        // C-2: each «Hapus» names its draft for a screen reader, as «Terima» does
+        const hapusNama = [...tersusun(h2).matchAll(/data-bahaya-buka="">([\s\S]*?)<\/button>/g)].map((m) => m[1]).filter((x) => x.startsWith("Hapus"));
+        c.expect(hapusNama.length === 2 && hapusNama.every((x) => /Hapus<span class="pin-sr"> · /.test(x)) && new Set(hapusNama).size === 2,
+          `the two «Hapus» buttons do not each name their draft: ${JSON.stringify(hapusNama)}`);
         // checked: the button gone, «Ajukan» held with Daisy's sentence tied to it
         const maju = sebagai(GURU.identitas, `select selftest.f12_advance(${lit(d.course)}, 'STRUCTURED')`, `select selftest.f12_advance(${lit(d.course)}, 'VALIDATED')`);
         const h3 = await (await guru.halaman(paketDi(d.course))).text();

@@ -39,6 +39,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { G, S, jalankan, langkah, q } from "./c1w.test";
+import { tanamTujuan } from "./c3w-terima.test";
 
 const NAMA_TAMPAK = "Rina Kartika Sari";
 const NAMA_BUDI = "Budi Santoso";
@@ -114,7 +115,7 @@ function skenario(c: Checks, repoRoot: string): Record<string, string> | null {
         order by e.person_id limit 1), true);
      update public.persons set display_name = '${NAMA_TERSEMBUNYI}' where id = ${G("p_sembunyi")};
      set local session_replication_role = origin;`,
-    `perform pg_temp.c1_draf('d1');`,
+    `perform pg_temp.c1_draf('d1');`, tanamTujuan(G("d1")),
     // the school's entitlement, its option and the platform row: the operator's rows, written as the owner
     `insert into public.ai_opsi (kunci, nama_tampilan, model_ident, harga_dasar, status, plafon_biaya, henti_keras_terverifikasi)
        values ('r3-' || ${S("tag")}, 'Uji', 'stub-1', '{"masuk": 1, "keluar": 1}', 'QUALIFIED', 100000000, true);

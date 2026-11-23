@@ -25,6 +25,14 @@ const SOAL_D1 = `(select i.id from public.items i join public.lessons l on l.id 
    where md.course_id = ${G("d1")}`;
 const soalZ = `${SOAL_D1} and i.cycle_role is null order by i.id limit 1)`;
 const soalKe = (n: number) => `${SOAL_D1} and i.id <> ${G("z")} order by i.id offset ${n - 1} limit 1)`;
+/** C-1 (Daisy C3W-D4): a request's objectives must be its target lesson's, and the fixture's lessons carry none, so each
+ *  world plants one on every lesson of a package, past the taught-content guard (owner, replica). */
+export const TUJUAN_UJI = "Membandingkan pecahan";
+export const tanamTujuan = (course: string) => `set local session_replication_role = replica;
+  insert into public.learning_objectives (lesson_id, institution_id, code, statement, bloom)
+  select l.id, l.institution_id, 'C3W', '${TUJUAN_UJI}', 'UNDERSTAND' from public.lessons l join public.modules md on md.id = l.module_id
+   where md.course_id = ${course} on conflict (lesson_id, code) do nothing;
+  set local session_replication_role = origin;`;
 const PELAJARAN = `(select l.id from public.lessons l join public.modules md on md.id = l.module_id where md.course_id = ${G("d1")} order by l.ordinal limit 1)`;
 const putuskan = (k: string, siapa: string, it: string, kp: string) =>
   langkah(k, siapa, `select (public.ai_putuskan(${it}, '${kp}') ->> 'keputusan')`);
@@ -44,7 +52,7 @@ let hasil: Record<string, string> | null | undefined;
 function skenario(c: Checks, repoRoot: string): Record<string, string> | null {
   if (hasil !== undefined) return hasil;
   const L: string[] = [
-    `perform pg_temp.c1_murid('m1'); perform pg_temp.c1_draf('d1');`,
+    `perform pg_temp.c1_murid('m1'); perform pg_temp.c1_draf('d1');`, tanamTujuan(G("d1")),
     // the operator's rows, a checked request on the draft's first lesson, and a claimed attempt of it
     `insert into public.ai_opsi (kunci, nama_tampilan, model_ident, harga_dasar, status, plafon_biaya, henti_keras_terverifikasi)
        values ('t-' || ${S("tag")}, 'Uji', 'stub-1', '{"masuk": 1, "keluar": 1}', 'QUALIFIED', 100000000, true);
@@ -74,6 +82,19 @@ function skenario(c: Checks, repoRoot: string): Record<string, string> | null {
     langkah("t4_baris", null, `select string_agg(m.sumber_jenis || ':' || (m.lesson_id = ${PELAJARAN})::text, ',' order by m.kunci_idempoten)
        from public.ai_permintaan m where m.kunci_idempoten in ('t4-pelajaran', 't4-tempel')`),
     // ---- T02 before any decision: the submit is refused
+    // ---- T07 (C-1, Daisy C3W-D4): the objectives are the target lesson's; a target with none is refused by name
+    langkah("t7_lain", "guru", `select public.ai_minta_draf(${G("d1")}, ${PELAJARAN}, 'Budi membeli lima apel.', 'Tujuan dari pelajaran lain', 2, 't7-lain', true)::text`),
+    `begin
+       set local session_replication_role = replica;
+       delete from public.learning_objectives where lesson_id = ${PELAJARAN};
+       set local session_replication_role = origin;
+       v := v || jsonb_build_object('t7_tanpa', pg_temp.c1(${G("u_guru")}, $p$select public.ai_minta_draf(current_setting('c1.d1')::uuid,
+         (select l.id from public.lessons l join public.modules md on md.id = l.module_id where md.course_id = current_setting('c1.d1')::uuid order by l.ordinal limit 1),
+         'Budi membeli lima apel.', '${"Membandingkan pecahan"}', 2, 't7-tanpa', true)::text$p$));
+       raise exception 'c3w-batal';
+     exception when others then if sqlerrm <> 'c3w-batal' then v := v || jsonb_build_object('t7_tanpa', 'ERR:' || sqlerrm); end if;
+     end;`,
+    langkah("t7_ok", "guru", `select (public.ai_minta_draf(${G("d1")}, ${PELAJARAN}, 'Budi membeli lima apel.', 'Membandingkan pecahan', 2, 't7-ok', true) ->> 'ok')`),
     langkah("t2_awal", "guru", `select public.langkah_konten(${G("d1")}, 'STRUCTURED')::text`),
     langkah("t2_valid", "guru", `select public.langkah_konten(${G("d1")}, 'VALIDATED')::text`),
     // ---- T06 (Daisy's AI_PAKET_LOLOS_PERIKSA, C3W-1-WORDS-TAMBAHAN §4): a VALIDATED package is refused before anything is sent
@@ -115,7 +136,7 @@ function skenario(c: Checks, repoRoot: string): Record<string, string> | null {
     langkah("t2_status", null, `select status::text from public.courses where id = ${G("d1")}`),
     langkah("t2_setuju_sendiri", "guru", `select public.langkah_konten(${G("d1")}, 'APPROVED')::text`),
     // ---- T03: writing the drafts (Q1, Sharon's three additions), service_role's alone, on a draft package of its own
-    `perform pg_temp.c1_draf('d2');`,
+    `perform pg_temp.c1_draf('d2');`, tanamTujuan(G("d2")),
     langkah("t3_minta", "guru", `select set_config('c1.t3_minta', (public.ai_minta_draf(${G("d2")}, (select l.id from public.lessons l join public.modules md on md.id = l.module_id where md.course_id = ${G("d2")} order by l.ordinal limit 1), 'Budi membeli lima apel.',
         'Membandingkan pecahan', 2, 't3-satu', true) ->> 'permintaan'), true)`),
     langkah("t3_coba", null, `select set_config('c1.t3_coba', public.ai_cadangkan(current_setting('c1.t3_minta')::uuid)::text, true)`),
@@ -273,6 +294,19 @@ export const c3wTerimaTests: SelfTest[] = [
       c.expect((h!.t5_gagal ?? "").startsWith("ok:") && h!.t5_akhir === "ok:SETTLED:280|PROVIDER_FAILED",
         `a claimed attempt that failed: ${h!.t5_gagal}; attempt|request: ${h!.t5_akhir} (SETTLED:280|PROVIDER_FAILED)`);
       return c.verdict("executes ai_minta_draf and ai_gagal against the migrations in one rolled-back transaction (Bob's decision 2, Sharon's F-2): the request's answer carries the sha-256 of the text it checked; ai_gagal refuses an attempt never claimed and an outcome other than PROVIDER_FAILED or INVALID_OUTPUT, and settles a claimed attempt at its reported usage with the request's outcome recorded");
+    },
+  },
+  {
+    id: "C3W-T07",
+    requires: ["db"],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const h = skenario(c, repoRoot);
+      if (!c.expect(h !== null, "the scenario did not run")) return c.verdict("");
+      c.expect(/"kode": "AI_TUJUAN_LAIN"/.test(h!.t7_lain ?? ""), `a request whose objective is not the target lesson's: ${h!.t7_lain} (refused AI_TUJUAN_LAIN)`);
+      c.expect(/"kode": "AI_TANPA_TUJUAN"/.test(h!.t7_tanpa ?? ""), `a request on a target lesson with no objectives: ${h!.t7_tanpa} (refused AI_TANPA_TUJUAN)`);
+      c.expect(h!.t7_ok === "ok:true", `a request with the target lesson's own objective: ${h!.t7_ok} (accepted)`);
+      return c.verdict("executes ai_minta_draf against the migrations in one rolled-back transaction (Daisy's C-1, C3W-D4): an objective that is not the target lesson's is refused AI_TUJUAN_LAIN, a target lesson with no objectives is refused AI_TANPA_TUJUAN, and the target lesson's own objective is accepted, so drafts written into a lesson carry only its own aims");
     },
   },
   {
