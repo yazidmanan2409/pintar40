@@ -233,3 +233,18 @@ The harness commit `4f904638` was explained and pushed under `0959a62c`. A full 
   - **Runs:** CI 45127093652 and journeys 45127097404 are both success.
   - **Pre-flight:** 1328/0; plants 175/175; red-case 11/11.
   - **Sent to Daisy** for the recheck. Sharon is not needed.
+
+**23 Nov, 07:43 UTC · C3w-1 FROZEN at `8668a695`.** Every review has passed:
+- Second Eye's rounds 1–3, green (CI 45127093652; journeys 45127097404);
+- Sharon: build PASS and round 2 PASS;
+- Daisy: screens PASS, round 2 PASS with C-3, round 3 PASS (`b0f66be4`).
+
+**Before the owner's Request 1** (the method from A3; there is no C3w-1 preservation evidence yet):
+- Second Eye prepares `preservation-C3w-1.sql` and step 0, and does a local dry run 290 → 300 on the frozen head.
+- Sharon checks the proofs.
+
+**Then the owner's requests:**
+- **Request 1:** step 0 and the BEFORE read.
+- **Request 2:** the merge, staging 290 → 300 with the sha-checked migrations, `c3w-r3-bahan.sql` after the promotion, the AFTER read, and the hosted checks.
+
+**Neither request is authorisation until the owner approves it.**
