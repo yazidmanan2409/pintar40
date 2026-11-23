@@ -257,3 +257,5 @@ The harness commit `4f904638` was explained and pushed under `0959a62c`. A full 
 - **Open:** check (d), the owner's look at the staging Vercel env names for `PINTAR_AI_STUB_HARNESS`.
 - **Production is untouched at 111.**
 - **Check (d) is OWNER-CONFIRMED:** `PINTAR_AI_STUB_HARNESS` is absent from staging's Vercel project and shared variables. **Every C3w-1 staging verification has passed.** Awaiting the owner's acceptance word, as for A3 (ruling 63).
+
+**23 Nov · Owner, on the Z plan:** Bob approves the Z build plan before implementation. It returns to the owner only for a genuine policy decision, a material scope change or an unresolved dependency.
