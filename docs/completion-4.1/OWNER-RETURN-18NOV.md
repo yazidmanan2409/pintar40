@@ -175,3 +175,6 @@ The harness commit `4f904638` was explained and pushed under `0959a62c`. A full 
   - Sharon: the build, migrations `100000` to `180000`, `ai_asal_paket`, `ai_tersedia`, the BOB32-K02 fix, and INV-03;
   - Daisy: the screens, plus five divergences and the C3-11 captures.
 - **The next step after both PASS:** the freeze, then the owner's staging promotion request.
+- **01:49 UTC · Sharon: build PASS** (`C3W-1-BUILD-992b568f.md` on her branch).
+  - F-1, F-2, Q1's additions, the four readings, D-3, `ai_asal_paket`, BOB32-K02 (tighter, not weaker) and INV-03 (output only, bounded) all hold.
+  - **One non-blocking note:** `ai_tersedia` ignores the option's QUALIFIED status and its date window. The button can therefore show and the request is then refused, which fails closed. To be bundled with Daisy's outcome for Second Eye.
