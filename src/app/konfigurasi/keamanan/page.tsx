@@ -2,7 +2,7 @@ import Link from "next/link";
 import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import { supabaseServer } from "@/lib/supabase/server";
-import { currentViewer } from "@/lib/auth";
+import { currentViewer, isSystemAdmin } from "@/lib/auth";
 import NavKonfigurasi from "@/components/konfigurasi/NavKonfigurasi";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
@@ -35,8 +35,9 @@ export default async function Keamanan({ searchParams }: { searchParams: Promise
   const s = (k: HleEvent) => t(k, "staff", { locale });
   const [supabase, viewer] = await Promise.all([supabaseServer(), currentViewer()]);
   const saya = viewer?.personId ?? null;
-  const [{ data: sistem }, { data: adminSekolah }] = await Promise.all([
-    supabase.rpc("is_system_admin"),
+  const [sistem, { data: adminSekolah }] = await Promise.all([
+    // BOB18-A01: the request-cached isSystemAdmin() (src/lib/auth.ts), so a page and its NavKonfigurasi ask once; same answer (data === true)
+    isSystemAdmin(),
     saya
       ? supabase.from("role_assignments").select("id").eq("person_id", saya).eq("role", "INSTITUTION_ADMIN")
           .is("revoked_at", null).gt("valid_until", new Date().toISOString()).limit(1)

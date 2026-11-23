@@ -8,6 +8,7 @@ import { CangkangStaf } from "@/components/CangkangPengalaman";
 import ItemNav from "@/components/ItemNav";
 import TabTempat, { tempatDariPeran } from "@/components/TabTempat";
 import { navKonteks } from "@/components/NavKonteks";
+import { isSystemAdmin } from "@/lib/auth";
 
 /**
  * R-10 (X-4; Daisy, Z-SIAP-DAISY-7ba18b03.md §1, option A): KONFIGURASI'S NAVIGATION, FROM ONE SOURCE.
@@ -29,10 +30,11 @@ export type KiniKonfigurasi = "konfigurasi" | "keamanan" | "sertifikat" | "email
 export default async function NavKonfigurasi({ locale, kini }: { locale: Locale; kini: KiniKonfigurasi }) {
   const s = (k: Parameters<typeof t>[0]) => t(k, "staff", { locale });
   const supabase = await supabaseServer();
-  const [peran, kh, { data: isSys }, { data: adminAssignments }, bolehPendataan] = await Promise.all([
+  const [peran, kh, isSys, { data: adminAssignments }, bolehPendataan] = await Promise.all([
+    // BOB18-A01: the request-cached isSystemAdmin() (src/lib/auth.ts), so a page and its NavKonfigurasi ask once; same answer (data === true)
     peranSaya(),
     konteksHalaman(),
-    supabase.rpc("is_system_admin"),
+    isSystemAdmin(),
     supabase.from("role_assignments").select("institution_id").eq("role", "INSTITUTION_ADMIN").is("revoked_at", null)
       .gt("valid_until", new Date().toISOString()),
     sekolahPendataan().then((x) => x.length > 0).catch(() => false),

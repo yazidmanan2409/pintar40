@@ -16,7 +16,7 @@ const UKURAN_ORANG = 50;
 import { asalHasil, kalimatHasil, rujukan } from "@/lib/galat-kontrak";
 import { nilaiSkema } from "@/lib/kesehatan-skema";
 import KartuKesehatan, { type KeadaanKesehatan } from "@/components/konfigurasi/KartuKesehatan";
-import { currentViewer } from "@/lib/auth";
+import { currentViewer, isSystemAdmin } from "@/lib/auth";
 import { supabaseServer } from "@/lib/supabase/server";
 import {
   daftarkanPesertaAction, grantRoleAction, hentikanSekarangAction, jadwalkanPemeliharaanAction, pindahKelasAction,
@@ -182,8 +182,9 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   const jalanIni = bagianIni ? alamatBagian(bagianIni) : "/konfigurasi";
 
   // Authority: SYSTEM_ADMIN, or INSTITUTION_ADMIN over at least one institution.
-  const [{ data: isSys }, { data: adminAssignments }] = await Promise.all([
-    supabase.rpc("is_system_admin"),
+  const [isSys, { data: adminAssignments }] = await Promise.all([
+    // BOB18-A01: the request-cached isSystemAdmin() (src/lib/auth.ts), so a page and its NavKonfigurasi ask once; same answer (data === true)
+    isSystemAdmin(),
     supabase.from("role_assignments").select("institution_id, role, valid_until").eq("role", "INSTITUTION_ADMIN").is("revoked_at", null)
       .gt("valid_until", new Date().toISOString()),
   ]);

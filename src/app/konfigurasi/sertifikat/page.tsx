@@ -22,6 +22,7 @@ import TombolKirim from "@/components/TombolKirim";
 import KonfirmasiBahaya from "@/components/KonfirmasiBahaya";
 import { putuskanTinjauanAksi } from "@/app/studio/soal-actions";
 import { kodeKoreksiDariGalat, kunciKodeKoreksi, KODE_KOREKSI, type KodeKoreksi } from "@/lib/soal-kontrak";
+import { isSystemAdmin } from "@/lib/auth";
 
 export const generateMetadata = judulHalaman("/konfigurasi/sertifikat");
 export const dynamic = "force-dynamic";
@@ -54,7 +55,8 @@ export default async function SertifikatSekolah({ searchParams }: { searchParams
   const locale = await currentLocale();
   const s = (k: HleEvent) => t(k, "staff", { locale });
   const supabase = await supabaseServer();
-  const { data: sistem } = await supabase.rpc("is_system_admin");
+  // BOB18-A01: the request-cached isSystemAdmin() (src/lib/auth.ts), so a page and its NavKonfigurasi ask once; same answer (data === true)
+  const sistem = await isSystemAdmin();
   const adminSistem = sistem === true;
   // L3 (D-132): the working context's school, or every school's in «Seluruh platform» for Admin platform
   const kh = await konteksHalaman();
