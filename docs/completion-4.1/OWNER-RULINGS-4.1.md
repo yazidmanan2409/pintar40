@@ -214,6 +214,26 @@ No new batch; no merge, promotion or deployment authorised | Z-READINESS R-27 |
 5. **K-01: one authoritative verdict.** The learner's result, the teacher's result, retake eligibility and certificate eligibility all derive from the same assessment verdict, including the must-be-right gate. Every consumer is checked before the fix.
 
 **S-01:** editing an unrelated field must preserve every existing setting. The existing method applies (focused tests, sibling-defect checks, independent review, controlled acceptance). C3w-1's path stays uninterrupted, and no further audit is needed | `batches/sapu/SAPU-VERIFIED.md`; Z-READINESS R-28 |
+| 79 | 23 Nov | **The Human Experience, Consistency & Trust Audit**, a post-4.1 internal acceptance milestone (owner directive).
+
+- **The goal:** PINTAR predictable, understandable, consistent, forgiving, accessible, educationally trustworthy and respectful.
+- **Eight dimensions (A–H):** first use; cross-feature and cross-role truth; errors and recovery; empty and uncertain states; consequential actions; effort; accessibility; educational and emotional tone.
+- **Twelve real journeys,** on synthetic data in approved environments.
+- **Roles:** Daisy (human experience), Sharon (trust and protection), Second Eye (reproducible behaviour), Bob (consolidation, root causes, priorities; questions for Dr Gladys only through the owner).
+- **Severity:** Critical / Significant / Improvement, by human impact, not by count.
+- **Placement:**
+  - it opens when **4.1's gates close**, after the current development and acceptance work;
+  - it runs **coordinated with ruling 54's Rationalisation & Performance milestone**, before 4.5's operational foundation;
+  - 4.1's critical path is untouched;
+  - it brings no new features, no policy changes, and no production change without separate authorisation;
+  - it does not replace the walkthrough after 5.0.
+- **The deliverable:** one consolidated report (findings, root causes, evidence, priorities, release placement, verification criteria).
+- **The standing principle for every feature:**
+  - Does it work correctly?
+  - Does it work with everything around it?
+  - Does it make sense to the person? "How will the person using PINTAR experience this?"
+
+No implementation now | MASTER-SEQUENCE §2b |
 
 ## 8 · Open with the owner
 

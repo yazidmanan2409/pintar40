@@ -32,6 +32,7 @@ owner's implementation authorisation (roadmap header; audit §0.2).
 
 ```
 4.1  C3w-1 ─► (C3w-2 if a provider qualifies, D-7) ─► Z (incl. the D-1 repair, D-6, R-items) ─► D2-R ─► 4.1 GATES CLOSED
+POST-4.1  HX & Trust Audit (ruling 79) ∥ Rationalisation & Performance (ruling 54) ─► POST-4.1 INTERNAL ACCEPTANCE
 4.5  planning gate ─► OPERATIONAL FOUNDATION (all 14 former 4.2 items, ids kept) ─► OF GATE ─►
      intelligence foundations (RD-4 runtime proof · 4.5-01 Question Intelligence · 4.5-04 classification ·
      4.5-10 scoring policy) ─► 4.5-02 comparability ─► 4.5-05 Quiet Intelligence ─► protected/formal items as decided
@@ -51,6 +52,26 @@ integration → the walkthrough.
 - Guest Mode G0 and G2 design once 4.5 opens (it depends on no unresolved 4.5 item);
 - the owner's decisions and counsel (R-1 to R-5; PR-1), which have the longest lead.
 
+
+## 2b · Post-4.1 internal acceptance (rulings 54 and 79)
+
+Two milestones open when **4.1's gates close** and run together, before 4.5's operational foundation. 4.5 planning, which is design only, may overlap them.
+- **The Human Experience, Consistency & Trust Audit** (ruling 79):
+  - eight dimensions and twelve real journeys, on synthetic data;
+  - Daisy, Sharon and Second Eye find; Bob consolidates;
+  - one report, classed Critical, Significant or Improvement.
+- **Codebase Rationalisation & Performance** (ruling 54): optimisation, not behaviour.
+
+**Coordination:** the audit runs first on each area, so rationalisation never changes behaviour the audit is still examining. Approved fixes from both go through the normal gates.
+
+**What they replace:** ruling 54's opening condition ("formal 4.1 acceptance" and "before 4.2") reads, under rulings 71 and 72, as "4.1 gates closed" and "before 4.5's operational foundation".
+
+**What they don't replace:** neither replaces the walkthrough after 5.0. Decision D-C (one interim educator review) may draw on the audit's journeys.
+
+**The standing principle** (ruling 79) applies to every feature from now on:
+- Does it work correctly?
+- Does it work with everything around it?
+- Does it make sense to the person using it? *"How will the person using PINTAR experience this?"*
 
 ## 2a · 4.5 absorbs the whole of 4.2 (ruling 72)
 
@@ -102,8 +123,9 @@ the audit's existing rows. There is no fresh replanning.
 | 4.5, including all of the former 4.2 | **About 10–18 weeks** | Low | The former 4.2's effort (about 3–6 weeks) is **kept, not absorbed for free**, and partly overlaps independent 4.5 work. 9 of its 14 items need narrow owner decisions; RD-4 proves out cheaply; R-2 and R-5 are decided in planning |
 | 5.0 | **About 6–12 weeks** | Very low | R-4's ethics question is answered in time; 4.5's measurement holds |
 | Integration and verification of 5.0 | **About 2–3 weeks** | Low | — |
+| Post-4.1 internal acceptance (rulings 54 and 79) | **About 2–3 weeks**, overlapping 4.5 planning | Low | Twelve journeys across four reviewers; the size of the fixes depends on what is found |
 
-**In total:** roughly **5–9 months** to an internally verified 5.0. The consolidation removes a milestone, not the work, so the estimate is unchanged.
+**In total:** roughly **5½–9½ months** to an internally verified 5.0. The consolidation removes a milestone, not the work, and the post-4.1 internal acceptance adds about 2–3 weeks.
 
 **What could move this most:**
 - owner and legal lead times (R-2, R-4, PR-1);
