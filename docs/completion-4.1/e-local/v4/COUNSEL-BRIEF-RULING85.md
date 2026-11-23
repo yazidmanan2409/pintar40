@@ -9,7 +9,8 @@
 
 - **PINTAR** is an Indonesian learning and assessment platform for schools. Learners and teachers use it; its users include children.
 - **The AI feature** is an optional, separately paid add-on that a school turns on. It helps **educators** draft multiple-choice questions.
-  - An educator chooses a lesson and supplies a short teaching excerpt that they wrote or selected.
+  - An educator chooses a lesson and supplies a teaching excerpt (up to 20,000 characters) that they wrote or selected. In normal use this is the educator's own text, not synthetic material.
+  - **Before anything is sent,** PINTAR automatically checks the excerpt for personal information (rule R-3). If the check fails, nothing is sent. The request carries no user identifier.
   - The provider returns draft questions.
   - The educator reviews every draft and accepts, edits or deletes it. Nothing reaches a learner without that review, and the school's normal approval and publication steps.
 - **Learners never interact with the AI.** They see only questions that educators have approved and published.
@@ -20,7 +21,15 @@
   - learner data of any kind (names, answers, results);
   - personal data of educators;
   - files.
-- **Provider settings:** where the provider offers them, data sharing for training is never opted into, request storage is turned off, and no built-in tools are used.
+- **Provider settings, for both providers:**
+  - no training opt-in, and no data-sharing opt-in;
+  - no built-in or web-search tools;
+  - no Files or other long-retention service;
+  - no feedback is ever submitted to the provider;
+  - for OpenAI, request storage is turned off (`store:false`).
+- **Retention, as the providers state it:**
+  - **OpenAI:** abuse-monitoring logs are kept for up to 30 days.
+  - **Anthropic:** content is deleted within 30 days as standard. Flagged content is kept for up to 2 years, and safety classification scores for up to 7 years, in addition to anything the law requires. Anthropic's «Covered Models» terms are not yet read.
 - **Status:** neither provider is active. No account, key or production use exists. The feature is built against a local stand-in only.
 
 ## 2 · The questions
@@ -32,18 +41,20 @@
    - Please also address Anthropic's equivalent terms.
 2. **Indonesian personal data law (UU PDP, Law 27/2022): cross-border transfer.**
    - Neither provider's data processing addendum mentions Indonesia. Both rely on EU, UK and Swiss transfer mechanisms.
-   - Does the design in §1 (no learner data; synthetic, non-personal teaching content) keep UU PDP's transfer rules out of scope?
+   - The design in §1 sends no learner data. The educator's excerpt passes an automated personal-information check before sending, and the request carries no user identifier. Does that keep UU PDP's transfer rules out of scope? Is an automated check sufficient, or is more needed?
    - How should educators' own account data be treated?
 3. **"Human review" in formal assessment.**
    - If PINTAR questions are used in certifying assessments, does an educator's review, acceptance and edit of each draft count as the human review the providers' policies require (OpenAI's usage policies; Anthropic's provisions on high-stakes uses, including grading)?
    - Is drafting multiple-choice items outside Anthropic's grading category?
 4. **The provisions on minors.**
-   - As read against the design in §1, do either provider's terms on products serving minors apply, given that learners never interact with the AI?
+   - Anthropic's usage policy covers «Products serving minors, including organizations providing minors with the ability to directly interact with products that incorporate our API(s)». OpenAI publishes separate Under-18 guidance (its page as read on 23 Nov 2026).
+   - As read against the design in §1, where learners never interact with the AI, does either provision apply?
    - If they do, what is required?
 5. **PINTAR's controller duties for its own provider-account data.**
    - What are PINTAR's obligations as controller for the personal data in its own provider accounts (administrator and billing contacts, usage logs)?
 6. **Processing location.**
-   - Both providers may process data worldwide. Is that acceptable for the design in §1?
+   - Anthropic states that processing is «Worldwide». For OpenAI we have established only its data processing addendum's EU, UK and Swiss transfer mechanisms, not its processing locations. Neither provider offers an Indonesian region.
+   - Is that acceptable for the design in §1?
    - What would change if personal data ever came into scope?
 
 ## 3 · What we are asking for
