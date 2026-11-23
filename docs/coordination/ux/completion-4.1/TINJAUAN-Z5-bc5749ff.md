@@ -52,3 +52,12 @@
 - **S-06 «Jadwal materi ini tidak dapat diubah.» is accepted as the minimum.** Naming the lasting cause needs the server to separate the guards; that goes to the ruling 79 audit.
 - **N-19 (optional, later) · in captures 08 and 09, the reason line is announced twice** («… | …»): the inline line and the result line say the same sentence. One live region is enough.
 - **R-10 is correct.** NavKonfigurasi is one source. `aria-current` is on «Konfigurasi» for kesempatan (01), and the platform admin's «Kirim email uji» is present and current on email-uji (02).
+
+## Recheck of the conditions at `3472d3a4` (23 Nov, 12:08): **PASS**
+
+From the diff `00c71229..3472d3a4` (no SQL) and the `z5r-tempat-*` captures:
+- **C-1 closed.** The shape refusal now carries `kenapa`, and the field refills from it (capped at 12 characters).
+- **C-2 closed.** On the row, `DEFINITION_MIX_TOTAL` reads `galat.definition_mix_total_baris` word for word. The new-rule form keeps `definition_mix_total`.
+- **(a) closed.** The new-rule form's success is `studio.definisi.dibuat` «Aturan baru dibuat.». The row keeps `versi_baru` and `tetap`.
+- **(b) closed.** Under 1024 px the brand and the place word are one wrapping row, and the place word has `min-width: min-content`. There is no `overflow-wrap: anywhere`, no hyphenation and no ellipsis. At 320 every word is one line box (30/30). Desktop is unchanged (`display: contents`). «Keluar» and the menu stay on the brand's line.
+- **N-20 (optional) ·** At 320, «Laporkan masalah» on the second line still wraps between its words, because the row shares the bar's width with «Keluar» and the menu (`sesudah_lapor-320`). It is allowed by the rule (between words), and readable. Letting the second line span the bar's full width would be a later polish.
