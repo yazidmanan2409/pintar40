@@ -6901,6 +6901,11 @@
       "proves": "The drafting route's core, red first: imports src/lib/ai/jalur.ts and executes buatDrafAi against recording fakes: request, reserve, claim, provider, write in order; F-2 refuses a text checked on one version and sent with another before the claim, and a lesson's text is read once and sent as checked; refusals, a repeated key and an absent provider reach no reservation or provider; provider failures with usage settle PROVIDER_FAILED and retry to 3 attempts; a timeout with no usage is not retried; a refused write settles INVALID_OUTPUT."
     },
     {
+      "id": "C3W-K01",
+      "runner": "static",
+      "proves": "Daisy's round-2 C-3 and N-12, red first: reads the source of src/components/studio/DrafAi.tsx and src/components/BarisHasil.tsx: the working line is nada=netral, and the ✓ is drawn only for the ok tone; and imports the copy table and action contract: AI_TUJUAN_LAIN has its own sentence, galat.ai_tujuan_lain, in Daisy's ID and EN."
+    },
+    {
       "id": "A3-L01",
       "runner": "static",
       "proves": "executes pengerjaan_saya and daftar_pengerjaan against the migrations, rolled back: the learner's read says whether this session controls the sitting, whether a teacher must allow a recovery and whether this generation came by a teacher's permission; the teacher's row carries the mode, the learner's request and a valid permission."

@@ -13,7 +13,7 @@
  *            retried; an output the write refuses is settled INVALID_OUTPUT and not retried.
  */
 import { createHash } from "node:crypto";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 
@@ -133,6 +133,31 @@ export const c3wJalurTests: SelfTest[] = [
         && JSON.stringify(w.log.filter((x) => x.fn === "ai_gagal").map((x) => x.args.p_hasil)) === JSON.stringify(["INVALID_OUTPUT"]),
         `an output the write refuses: ${JSON.stringify(r)}; calls ${kali(w, "PENYEDIA")} (1, settled INVALID_OUTPUT, not retried)`);
       return c.verdict("imports src/lib/ai/jalur.ts and executes buatDrafAi against recording fakes of the database and the provider: the happy path calls request, reserve, claim, provider, write in order, the provider once, the write given the usage as reported and options of label, body, is_correct; F-2: a text checked on one version and sent with another is refused AI_TEKS_BERUBAH before the claim, the provider never reached and the reservation released; a lesson's text is read once and sent exactly as checked; a refused request, a repeated key and an absent provider reach no reservation and no provider; a failed claim reaches no provider; a provider failing with usage is settled PROVIDER_FAILED and retried, 3 attempts at most; a timeout with no usage is left to the sweep, not retried; an output the write refuses is settled INVALID_OUTPUT, not retried");
+    },
+  },
+  {
+    id: "C3W-K01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      // C-3 (Daisy, round 2): the working line is a note while it works, never a result: neutral tone, no ✓
+      const sumber = readFileSync(join(repoRoot, "src", "components", "studio", "DrafAi.tsx"), "utf8");
+      const baris = /<BarisHasil\b[^>]*>\{s\("studio\.ai\.bekerja"\)/.exec(sumber)?.[0] ?? "";
+      c.expect(baris !== "", "the working line «Menyusun {n} draf soal…» is not drawn through BarisHasil");
+      c.expect(/nada="netral"/.test(baris), `the working line's tone: ${baris} (nada="netral": no ✓ while still working)`);
+      // and BarisHasil draws its ✓ only for the ok tone, so a neutral line carries none
+      const komponen = readFileSync(join(repoRoot, "src", "components", "BarisHasil.tsx"), "utf8");
+      c.expect(/\{nada === "ok" && !kelas \? <span className="pin-centang" aria-hidden="true">✓<\/span>/.test(komponen),
+        "BarisHasil's ✓ is not drawn only for nada=\"ok\"");
+      // N-12: AI_TUJUAN_LAIN has its own sentence, ID and EN
+      const { t } = await import("../src/lib/hle");
+      const { kodeAi, kunciKode } = await import("../src/lib/galat-kontrak");
+      const k = kunciKode(kodeAi("AI_TUJUAN_LAIN"));
+      c.expect(kodeAi("AI_TUJUAN_LAIN") === "AI_TUJUAN_LAIN" && k === "galat.ai_tujuan_lain"
+        && t(k, "staff", { locale: "id" }) === "Tujuan pembelajaran pelajaran ini sudah berubah. Muat ulang halaman, lalu pilih lagi."
+        && t(k, "staff", { locale: "en" }) === "This lesson's learning objectives have changed. Reload the page, then choose again.",
+        `AI_TUJUAN_LAIN reads ${kodeAi("AI_TUJUAN_LAIN")} → ${k}: «${t(k, "staff", { locale: "id" })}» / «${t(k, "staff", { locale: "en" })}» (Daisy's N-12, word for word)`);
+      return c.verdict("reads the source of src/components/studio/DrafAi.tsx and src/components/BarisHasil.tsx (Daisy's C-3): the working line «Menyusun {n} draf soal…» is drawn with nada=\"netral\", whose only ✓ is drawn for the ok tone, so the working line carries none; and imports the copy table and the action contract (N-12): AI_TUJUAN_LAIN maps to its own key, galat.ai_tujuan_lain, whose ID and EN are Daisy's words");
     },
   },
 ];

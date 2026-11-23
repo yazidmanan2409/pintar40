@@ -3337,6 +3337,7 @@ export type HleEvent =
   | "galat.ai_belum_diterima"
   | "galat.ai_belum_diterima_satu"
   | "galat.ai_tanpa_tujuan"
+  | "galat.ai_tujuan_lain"
   | "studio.ai.tombol"
   | "studio.ai.judul"
   | "studio.ai.pelajaran_tujuan"
@@ -8008,6 +8009,7 @@ const table: Table = {
   "galat.ai_belum_diterima": { default: "**{n} soal masih draf dari AI.** Setiap soal perlu diterima atau dihapus oleh pendidik sebelum paket diajukan.", en: "**{n} questions are still AI drafts.** Each needs to be accepted or deleted by an educator before the package is submitted." },
   "galat.ai_belum_diterima_satu": { default: "**1 soal masih draf dari AI.** Soal ini perlu diterima atau dihapus oleh pendidik sebelum paket diajukan.", en: "**1 question is still an AI draft.** It needs to be accepted or deleted by an educator before the package is submitted." },
   "galat.ai_tanpa_tujuan": { default: "Pelajaran tujuan belum punya tujuan pembelajaran. Pilih pelajaran tujuan lain.", en: "The target lesson has no learning objectives yet. Choose another target lesson." },
+  "galat.ai_tujuan_lain": { default: "Tujuan pembelajaran pelajaran ini sudah berubah. Muat ulang halaman, lalu pilih lagi.", en: "This lesson's learning objectives have changed. Reload the page, then choose again." },
   "studio.ai.tombol": { default: "Buat draf soal dengan AI", en: "Draft questions with AI" },
   "studio.ai.judul": { default: "Buat draf soal dengan AI", en: "Draft questions with AI" },
   "studio.ai.pelajaran_tujuan": { default: "Pelajaran tujuan", en: "Target lesson" },

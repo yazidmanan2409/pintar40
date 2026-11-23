@@ -165,7 +165,7 @@ export default function DrafAi({
         <span><input type="checkbox" checked={hak} onChange={(e) => setHak(e.target.checked)} aria-describedby="draf-ai-hak-arti" /> {s("studio.ai.hak")}</span>
         <span id="draf-ai-hak-arti" className="pin-hint">{s("studio.ai.hak_petunjuk")}</span>
       </label>
-      {sibuk ? <BarisHasil nada="ok">{s("studio.ai.bekerja").replace("{n}", format.number(jumlah, locale))}</BarisHasil> : null}
+      {sibuk ? <BarisHasil nada="netral">{s("studio.ai.bekerja").replace("{n}", format.number(jumlah, locale))}</BarisHasil> : null}
       {hasil ? <BarisHasil nada={hasil.nada}>{hasil.isi}</BarisHasil> : null}
       <div className="pin-actions">
         {/* busy, never disabled: a disabled button drops the keyboard's focus to the page; a second press is ignored (kirim) */}
