@@ -57,3 +57,16 @@ The owner read the map on his Mac. **Its fingerprint matches the committed seal:
 - **Operational:** run reliability and the cost per accepted draft, reported beside the results (§4.5) from the run records.
 
 **So no provider is commercially qualified yet, and nothing is activated.** The D-7 checkpoint (25 Nov, 10:00 UTC) returns to the owner with these facts.
+
+## Beside the results (§4.5): cost and reliability, from the run records
+
+| | OpenAI (A) | Anthropic (B) |
+|---|---|---|
+| Cost of the scored run (both chapters) | US$0.151946 (run 3; output costed fail-closed, with reasoning counted twice) | US$0.352268 (run 2; excludes the US$0.129986 void run) |
+| Valid items | 30/30 | 30/30 |
+| Attempts used | 1 of 1 per chapter | 1 of 1 per chapter |
+| **Cost per accepted draft** | **about US$0.0052** (29 accepted) | **about US$0.0135** (26 accepted) |
+
+**Total E spend: US$0.634200 of US$10.**
+
+These are single-run figures for one chapter pair. They are evidence for C3w's limits and later pricing (rulings 38–40), not a forecast.
