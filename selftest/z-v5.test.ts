@@ -58,7 +58,9 @@ rollback;`);
       const k = kode ? kunciKode(kode) : "";
       c.expect(kode === "TRANSFER_SOURCE_CLOSED" && k === "galat.transfer_source_closed", `the action maps the refusal to ${kode} → ${k}`);
       const id = k ? t(k as never, "staff", { locale: "id" }) : "", en = k ? t(k as never, "staff", { locale: "en" }) : "";
-      c.expect(/sudah ditutup/.test(id) && /has closed/.test(en), `its words: «${id}» / «${en}»`);
+      // Daisy's final words (Bob 11:02Z), exactly: the next step names the sending school
+      c.expect(id === "Pendaftaran murid ini di sekolah asalnya sudah ditutup setelah permintaan pindah ini dibuat, misalnya karena kenaikan kelas. Perpindahan tidak dijalankan, dan tidak ada yang berubah. Sekolah asal perlu mengajukan perpindahan baru dari pendaftaran murid yang berlaku sekarang.", `its ID words are not Daisy's: «${id}»`);
+      c.expect(en === "This student's enrolment at the sending school closed after this transfer was requested, for example at the year-end promotion. The transfer was not carried out, and nothing changed. The sending school needs to request a new transfer from the student's current enrolment.", `its EN words are not Daisy's: «${en}»`);
       return c.verdict(`an AUTHORIZED transfer from an enrolment closed since (rolled back): the school's administrator is refused ${baris.hasil?.split("|").slice(0, 3).join("|")}, never the raw guard error; the transfer stays AUTHORIZED and nothing is written at the receiving school; the action maps it to ${k} («${id.slice(0, 60)}…»)`);
     },
   },

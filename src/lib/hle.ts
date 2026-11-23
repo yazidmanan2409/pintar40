@@ -8071,8 +8071,9 @@ const table: Table = {
   "studio.ai.dihapus": { default: "Draf dihapus.", en: "Draft deleted." },
   "studio.ai.jumlah_ai": { default: "{a} dari {b} soal disusun dengan AI", en: "{a} of {b} questions drafted with AI" },
   // ── Z-A: stream A's new keys (Z-PARALLEL-PLAN.md). Words are Daisy's; a line marked PROPOSED waits for hers.
-  // Z V5 (R-24): an authorised transfer whose sending-school enrolment has closed since (TRANSFER_SOURCE_CLOSED). PROPOSED.
-  "galat.transfer_source_closed": { default: "Pendaftaran murid ini di sekolah asal sudah ditutup sejak perpindahan disetujui, misalnya karena kenaikan kelas. Perpindahan tidak dijalankan, dan tidak ada yang berubah. Ajukan perpindahan baru dari pendaftaran murid yang berlaku sekarang.", en: "This student's enrolment at the sending school has closed since the transfer was approved, for example at a class rollover. The transfer was not carried out, and nothing changed. Ask for a new transfer from the student's current enrolment." },
+  // Z V5 (R-24): an authorised transfer whose sending-school enrolment has closed since (TRANSFER_SOURCE_CLOSED). Daisy's
+  // final words (Bob 11:02Z): the next step names who acts, the sending school, which alone can request again.
+  "galat.transfer_source_closed": { default: "Pendaftaran murid ini di sekolah asalnya sudah ditutup setelah permintaan pindah ini dibuat, misalnya karena kenaikan kelas. Perpindahan tidak dijalankan, dan tidak ada yang berubah. Sekolah asal perlu mengajukan perpindahan baru dari pendaftaran murid yang berlaku sekarang.", en: "This student's enrolment at the sending school closed after this transfer was requested, for example at the year-end promotion. The transfer was not carried out, and nothing changed. The sending school needs to request a new transfer from the student's current enrolment." },
 };
 
 /** Words that must never appear on a learner-facing surface (doc 12 "complexity leaking"). */

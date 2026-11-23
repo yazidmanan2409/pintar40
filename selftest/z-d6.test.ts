@@ -2,7 +2,8 @@
  * Z · D-6 (R-17; ruling 55; Bob 23 Nov, all nine dark): THE ANONYMOUS FEEDBACK ROUND IS DARK, AND NOTHING IS DELETED.
  *
  *   Z-D6-01  On the migrated world: none of the nine feedback RPCs is executable by authenticated or anon, all nine
- *            still exist with their registry rows, and service_role keeps its grant. The migration
+ *            still exist with their registry rows, and service_role keeps its grant; no feedback table or view is
+ *            readable by anon or authenticated, whole or by column (Sharon Z2-1). The migration
  *            (20270123140000) only revokes and checks: no insert, update, delete, truncate, drop or alter, so no row is
  *            touched (and the feedback tables' counts are read and reported). In the app, UMPAN_BALIK_TERBUKA is false;
  *            the three entry points (Belajar's section and its read, the class page's link, Pimpinan's section) are
@@ -32,6 +33,14 @@ export const zD6Tests: SelfTest[] = [
       c.expect(terbuka.length === 0, `still executable by a client: ${terbuka.join(", ")}`);
       const layanan = hak.filter((x) => !x.endsWith(":true"));
       c.expect(layanan.length === 0, `service_role lost its grant on: ${layanan.join(", ")}`);
+      // Sharon Z2-1 (Z2-8614bd26.md): no feedback relation is readable by a client, on the whole relation or any column
+      const baca0 = psql(`select coalesce(string_agg(c.relname || '(' || r.peran || ')', ', ' order by c.relname, r.peran), '')
+                            from pg_class c cross join (values ('anon'), ('authenticated')) r(peran)
+                           where c.relnamespace = 'public'::regnamespace and c.relkind in ('r', 'v', 'm', 'p', 'f') and c.relname like 'feedback%'
+                             and (has_table_privilege(r.peran, c.oid, 'select') or has_any_column_privilege(r.peran, c.oid, 'select'))`);
+      const nRel = Number(psql(`select count(*) from pg_class c where c.relnamespace = 'public'::regnamespace and c.relkind in ('r', 'v', 'm', 'p', 'f') and c.relname like 'feedback%'`));
+      c.expect(nRel >= 9, `only ${nRel} feedback relation(s) found, so the read check proves little`);
+      c.expect(baca0 === "", `feedback relations a client can still read: ${baca0}`);
       const reg = Number(psql(`select count(*) from public.client_rpc_registry where function_name in (${daftar})`));
       c.expect(reg === 9, `${reg} of the nine registry rows remain (unchanged)`);
       const hitung = psql(`select string_agg(c.relname || ':' || (xpath('/row/n/text()', query_to_xml('select count(*) as n from public.' || quote_ident(c.relname), false, true, '')))[1]::text, ',' order by c.relname)
@@ -54,7 +63,7 @@ export const zD6Tests: SelfTest[] = [
         ["pimpinan", "[simpul]", "umpan-balik", "[siklus]"], ["pimpinan", "[simpul]", "umpan-balik", "kelas", "[kelas]"]];
       const tanpa = halaman.filter((h) => !/export default async function \w+\([\s\S]*?\) \{\n {2}\/\/ Z D-6[^\n]*\n {2}if \(!UMPAN_BALIK_TERBUKA\) notFound\(\);/.test(baca("src", "app", ...h, "page.tsx")));
       c.expect(tanpa.length === 0, `round pages that do not answer notFound() while dark: ${tanpa.map((h) => h.join("/")).join(", ")}`);
-      return c.verdict(`the nine (${UMPAN_BALIK_RPC.join(", ")}) exist, with their registry rows, executable by service_role only; the migration only revokes and checks, so no row is touched (feedback tables: ${hitung}); UMPAN_BALIK_TERBUKA is false, Belajar reads nothing, the class page's link and Pimpinan's section are held by it, and the five round pages answer notFound()`);
+      return c.verdict(`the nine (${UMPAN_BALIK_RPC.join(", ")}) exist, with their registry rows, executable by service_role only; none of the ${nRel} feedback relations is readable by anon or authenticated; the migration only revokes and checks, so no row is touched (feedback tables: ${hitung}); UMPAN_BALIK_TERBUKA is false, Belajar reads nothing, the class page's link and Pimpinan's section are held by it, and the five round pages answer notFound()`);
     },
   },
 ];

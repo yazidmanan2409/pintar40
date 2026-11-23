@@ -67,7 +67,8 @@ begin
   end if;
 end $$;
 
--- ADR-0021 (F06-S01; Bob, found by stream B): every function this migration creates is revoked from PUBLIC after its
+-- CORRECTED IN PLACE (undeployed; Bob 10:56Z, F06-S01). ADR-0021: every function this migration creates is revoked
+-- from PUBLIC after its
 -- last create. PUBLIC held no EXECUTE on any of them before (CREATE OR REPLACE keeps the grants), so this changes nothing
 -- at runtime; it states the rule where the rule is read.
 revoke execute on function public.minta_buka_kembali(text, text) from public;

@@ -12,7 +12,7 @@
 --     recent attempt's effective result, under its existing staff rule. Restated in full from their live definitions.
 --   * percobaan_antrean gains gerbang, the same last result's gate, under the same CAN_VIEW_LEARNER_RESULT condition as
 --     the figure and the target; its return type changes, so it is dropped and created, its grant restated.
---   * Bob's ruling on Sharon's pre-existing item (Z1-SQL-df8d84a0.md): the queue's last result, its figure and now its
+--   * CORRECTED IN PLACE (undeployed). Bob's ruling on Sharon's pre-existing item (Z1-SQL-df8d84a0.md): the queue's last result, its figure and now its
 --     gate, is the result in force (hasil_terkini_id, D11), not the newest computed_at; a recalculation stamped before
 --     its original was read as superseded.
 -- ---------------------------------------------------------------------------------------------------------------
@@ -245,7 +245,8 @@ begin
   end if;
 end $$;
 
--- ADR-0021 (F06-S01; Bob, found by stream B): every function this migration creates is revoked from PUBLIC after its
+-- CORRECTED IN PLACE (undeployed; Bob 10:56Z, F06-S01). ADR-0021: every function this migration creates is revoked
+-- from PUBLIC after its
 -- last create. PUBLIC held no EXECUTE on any of them before (CREATE OR REPLACE keeps the grants), so this changes nothing
 -- at runtime; it states the rule where the rule is read.
 revoke execute on function public.session_outcome(uuid) from public;

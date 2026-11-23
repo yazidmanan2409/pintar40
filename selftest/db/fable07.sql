@@ -100,6 +100,10 @@ begin
                            'public.my_feedback_cycles()', 'public.feedback_subjects_for_class(uuid)', 'public.feedback_result(uuid)'] loop
     execute format(case when p_buka then 'grant execute on function %s to authenticated' else 'revoke execute on function %s from authenticated' end, f);
   end loop;
+  -- Z D-6, Sharon Z2-1: the two tables its row-security probes read as a user (F07-P06), the same way
+  foreach f in array array['public.feedback_cycles', 'public.feedback_opportunities'] loop
+    execute format(case when p_buka then 'grant select on %s to authenticated' else 'revoke select on %s from authenticated' end, f);
+  end loop;
 end $$;
 revoke all on function selftest.f07_umpan_balik(boolean) from public;
 
