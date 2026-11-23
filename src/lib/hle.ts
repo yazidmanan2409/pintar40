@@ -3393,7 +3393,8 @@ export type HleEvent =
   | "kesempatan.baris.hasil_tak_diketahui"
   | "hasil.ulang_berjalan"
   | "mengajar.murid1.gerbang_tanpa_tujuan"
-  | "akun.tinggal.galat.account_last_school_admin";
+  | "akun.tinggal.galat.account_last_school_admin"
+  | "hasilbelajar.gerbang";
 
 /**
  * One key's telling, in both languages.
@@ -8122,6 +8123,8 @@ const table: Table = {
   "mengajar.murid1.gerbang_tanpa_tujuan": { default: "Soal penting yang belum tepat tidak terhubung ke tujuan pembelajaran mana pun, jadi tidak ada tujuan yang dapat ditunjukkan di sini. Lihat soalnya bersama murid.", en: "The important question that is not right yet is not linked to any learning objective, so no objective can be shown here. Go over the question with the student." },
   // Z8 item 8 (Daisy e53c612e, via Bob 13:22Z): the closure refused, the last usable school administrator; names no school
   "akun.tinggal.galat.account_last_school_admin": { default: "Permintaan ini tidak diajukan: Anda satu-satunya Admin sekolah yang masih aktif di sekolah Anda, jadi akun Anda belum dapat ditutup. Tunjuk Admin sekolah lain lebih dulu di Peran & akses, lalu ajukan lagi. Bila tidak ada orang lain, hubungi Admin PINTAR.", en: "This request was not made: you are the only active school administrator at your school, so your account cannot be closed yet. Appoint another school administrator in Roles & access first, then ask again. If there is no one else, contact an Admin PINTAR." },
+  // Daisy's Z3-A verdict C-1 (29a4e841): the summary's gate case says why the target is not reached
+  "hasilbelajar.gerbang": { default: "Ada soal penting yang belum tepat, jadi target bab ini belum tercapai.", en: "An important question is not right yet, so this chapter's target is not reached." },
 };
 
 /** Words that must never appear on a learner-facing surface (doc 12 "complexity leaking"). */

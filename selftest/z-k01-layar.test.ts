@@ -59,6 +59,9 @@ export const KATA_Z3A: Array<[string, string, string]> = [
   ["mengajar.murid1.gerbang_tanpa_tujuan",
     "Soal penting yang belum tepat tidak terhubung ke tujuan pembelajaran mana pun, jadi tidak ada tujuan yang dapat ditunjukkan di sini. Lihat soalnya bersama murid.",
     "The important question that is not right yet is not linked to any learning objective, so no objective can be shown here. Go over the question with the student."],
+  // Daisy's Z3-A verdict C-1 (29a4e841): the summary's gate case says why
+  ["hasilbelajar.gerbang", "Ada soal penting yang belum tepat, jadi target bab ini belum tercapai.",
+    "An important question is not right yet, so this chapter's target is not reached."],
   // N-14 (Bob: replaced in K-01's screens commit)
   ["mengajar.murid1.tujuan_arti",
     "Dari Uji Penguasaan terakhir murid ini di kelas ini: tujuan yang belum tercapai, termasuk tujuan dari soal penting yang belum tepat. Ini yang perlu dipelajari lagi, bukan penilaian atas muridnya.",
@@ -130,8 +133,15 @@ export const zK01LayarTests: SelfTest[] = [
       const murid1 = baca("src", "app", "mengajar", "[kelas]", "murid", "[orang]", "page.tsx");
       c.expect(/v === "GERBANG" \? s\("mengajar\.murid1\.gerbang"\)/.test(murid1) && /v === "TAK_DIKETAHUI" \? s\("mengajar\.murid1\.gerbang_tak_diketahui"\)/.test(murid1),
         "the teacher's page does not say mengajar.murid1.gerbang / gerbang_tak_diketahui");
-      c.expect(/daftarHasil\.some\(\(h\) => ajar\.vonisHasil\(h\) === "TAK_DIKETAHUI"\)[\s\S]{0,200}mengajar\.murid1\.gerbang_tak_diketahui_arti/.test(murid1),
-        "the teacher's page does not say once under the table that the gate could not be read");
+      // Daisy's Z3-A verdict (29a4e841): in each row, figure → verdict tag → the gate-unknown _arti line, directly under
+      // its tag (b) → hasil.ulang_berjalan (C-2) → «Minta membaca lagi»
+      const dd = /<dd className="pin-num">[\s\S]*?<\/dd>/.exec(murid1)?.[0] ?? "";
+      const di = (x: string) => dd.indexOf(x);
+      c.expect(di("data-target=") >= 0 && di("data-target=") < di("data-gerbang-tak-diketahui") && di("data-gerbang-tak-diketahui") < di("data-ulang-berjalan")
+        && di("data-ulang-berjalan") < di("pin-ulang-tautan"),
+        "the teacher's row is not in Daisy's order: figure → verdict tag → gerbang_tak_diketahui_arti (under its tag) → hasil.ulang_berjalan → «Minta membaca lagi»");
+      c.expect(/v === "TAK_DIKETAHUI"[\s\S]{0,160}mengajar\.murid1\.gerbang_tak_diketahui_arti/.test(dd) && !/<\/dl>[\s\S]{0,400}gerbang_tak_diketahui_arti/.test(murid1),
+        "the gate-unknown _arti line is not in its row, under its tag (or is still under the table)");
       c.expect(/\["DI_BAWAH", "GERBANG", "TAK_DIKETAHUI"\]\.includes\(ajar\.vonisHasil\(h\)/.test(murid1), "«Minta membaca lagi» is not offered for every verdict that is not reached");
       c.expect(/gerbang: typeof v\.safety_gate_passed === "boolean" \? v\.safety_gate_passed : null/.test(baca("src", "lib", "pengajar.ts")), "the teacher's read does not keep the gate, or reads a non-boolean as known");
       // C2 on the teacher's page (Sharon's nit): the latest Uji Penguasaan failed by the gate on a question with no
@@ -183,7 +193,10 @@ export const zK01LayarTests: SelfTest[] = [
       // (e) V2 and D14 on the summary, rendered; V2 on the teacher's page
       const bab = [{ tugas: "t1", judul: "Bab 1", keadaan: "SELESAI", awal: null, akhir: 0.8, ambang: 0.6, tercapai: "TERCAPAI", benar: 8, total: 10, bagian: [], ulang: [], ulangBerjalan: true },
         { tugas: "t2", judul: "Bab 2", keadaan: "SELESAI", awal: null, akhir: 0.7, ambang: 0.6, tercapai: "TERCAPAI", benar: 7, total: 10, bagian: [], ulang: [], dihitungUlang: true },
-        { tugas: "t3", judul: "Bab 3", keadaan: "SELESAI", awal: null, akhir: 0.9, ambang: 0.6, tercapai: "TERCAPAI", benar: 9, total: 10, bagian: [], ulang: [] }];
+        { tugas: "t3", judul: "Bab 3", keadaan: "SELESAI", awal: null, akhir: 0.9, ambang: 0.6, tercapai: "TERCAPAI", benar: 9, total: 10, bagian: [], ulang: [] },
+        // C-1: the gate case, 83 % against 60 % and «belum mencapai target»
+        { tugas: "t4", judul: "Bab 4", keadaan: "SELESAI", awal: null, akhir: 0.83, ambang: 0.6, tercapai: "BELUM", benar: 5, total: 6, bagian: [], ulang: [], gerbang: true },
+        { tugas: "t5", judul: "Bab 5", keadaan: "SELESAI", awal: null, akhir: 0.4, ambang: 0.6, tercapai: "BELUM", benar: 2, total: 5, bagian: [], ulang: [] }];
       const r = render(repoRoot,
         'const { createElement: h } = await import("react"); const { renderToStaticMarkup } = await import("react-dom/server");' +
         'const m = await import("file://" + process.cwd() + "/src/components/laporan/KomposisiMurid.tsx"); const K = m.default?.default ?? m.default;' +
@@ -199,8 +212,14 @@ export const zK01LayarTests: SelfTest[] = [
           c.expect(satu.includes("data-ulang-berjalan") && satu.includes(ber.replace(/'/g, "&#x27;")), `(${locale}) the chapter with a retake open does not say hasil.ulang_berjalan`);
           c.expect(dua.includes("data-dihitung-ulang") && !dua.includes("data-ulang-berjalan"), `(${locale}) the recalculated chapter does not carry the D14 marker alone (${dh.slice(0, 30)}…)`);
           c.expect(!tiga.includes("data-ulang-berjalan") && !tiga.includes("data-dihitung-ulang"), `(${locale}) an ordinary chapter carries a V2 or D14 line`);
+          const empat = baris.find((b) => b.includes("Bab 4")) ?? "", lima = baris.find((b) => b.includes("Bab 5")) ?? "";
+          const gb = t("hasilbelajar.gerbang" as never, "learner", { locale }).replace(/'/g, "&#x27;");
+          c.expect(/<span class="pin-lk-nilai">[\s\S]*?<\/span><small[^>]*data-gerbang=""[^>]*>/.test(empat) && empat.includes(gb) && !/<svg|pin-ikon/.test(empat),
+            `(${locale}) the gate case does not say hasilbelajar.gerbang directly after its figures, neutral and without an icon`);
+          c.expect(![satu, dua, tiga, lima].some((b) => b.includes("data-gerbang")), `(${locale}) a chapter that is not the gate case says hasilbelajar.gerbang`);
         }
       }
+      c.expect(/\.\.\.\(alasanBelum\(outcome\) === "GERBANG" \? \{ gerbang: true \} : \{\}\)/.test(baca("src", "lib", "hasil-belajar.ts")), "the summary does not mark the gate case (alasanBelum)");
       c.expect(/\.\.\.\(t\.ulang_berjalan === true \? \{ ulangBerjalan: true \} : \{\}\)/.test(baca("src", "lib", "hasil-belajar.ts")), "the summary does not take ulang_berjalan from hasil_belajar_sesi_saya");
       c.expect(/h\.ulangBerjalan \? <small className="pin-meta" data-ulang-berjalan="">\{s\("hasil\.ulang_berjalan"\)\}/.test(murid1), "the teacher's page does not say hasil.ulang_berjalan beside a finished result with a retake open");
 

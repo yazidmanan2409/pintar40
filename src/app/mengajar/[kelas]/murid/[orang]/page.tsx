@@ -128,8 +128,6 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
                     {/* owner decisions E1, D14: a recalculated sitting is explained directly under its figure, with its reason */}
                     {h.dihitungUlang ? <CatatanHitungUlang baru={h.penguasaan} asli={h.asli} alasan={h.alasan} locale={locale} /> : null}
                     {h.ditarik ? <small data-ditarik="">{s("mengajar.murid1.ditarik")}</small> : null}
-                    {/* Z V2 (R-22): a retake under way, said neutrally; the figure is this finished result's */}
-                    {h.ulangBerjalan ? <small className="pin-meta" data-ulang-berjalan="">{s("hasil.ulang_berjalan")}</small> : null}
                     {/* D-085 M3: below the sealed target, the teacher sees it; the target is shown beside the mastery.
                         Daisy (435a2856, §1.3): not for a withdrawn result, given by mistake, which invites no judgement */}
                     {/* Z K-01 (ruling 78): one verdict. A missed must-be-right question is «belum mencapai target» although the
@@ -138,14 +136,21 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
                       const v = ajar.vonisHasil(h);
                       const p = format.percent(h.batas, locale);
                       return (
-                        <small data-target={v === "DI_BAWAH" || v === "GERBANG" ? "belum" : v === "TAK_DIKETAHUI" ? "tak-diketahui" : "batas"}
-                          data-vonis={v === "GERBANG" ? "gerbang" : undefined}>
-                          {v === "GERBANG" ? s("mengajar.murid1.gerbang").replace("{p}", p)
-                            : v === "TAK_DIKETAHUI" ? s("mengajar.murid1.gerbang_tak_diketahui").replace("{p}", p)
-                            : <>{v === "DI_BAWAH" ? `${s("mengajar.murid1.di_bawah_target")} · ` : ""}{s("mengajar.murid1.target")} {p}</>}
-                        </small>
+                        <>
+                          <small data-target={v === "DI_BAWAH" || v === "GERBANG" ? "belum" : v === "TAK_DIKETAHUI" ? "tak-diketahui" : "batas"}
+                            data-vonis={v === "GERBANG" ? "gerbang" : undefined}>
+                            {v === "GERBANG" ? s("mengajar.murid1.gerbang").replace("{p}", p)
+                              : v === "TAK_DIKETAHUI" ? s("mengajar.murid1.gerbang_tak_diketahui").replace("{p}", p)
+                              : <>{v === "DI_BAWAH" ? `${s("mengajar.murid1.di_bawah_target")} · ` : ""}{s("mengajar.murid1.target")} {p}</>}
+                          </small>
+                          {/* Daisy's Z3-A verdict (b): the reason directly under its tag, before the action */}
+                          {v === "TAK_DIKETAHUI" ? <small className="pin-ket" data-gerbang-tak-diketahui="">{s("mengajar.murid1.gerbang_tak_diketahui_arti")}</small> : null}
+                        </>
                       );
                     })() : null}
+                    {/* Z V2 (R-22): a retake under way, said neutrally; the figure is this finished result's. Daisy's Z3-A
+                        verdict C-2: after the verdict, a secondary status; the finished result keeps its verdict */}
+                    {h.ulangBerjalan ? <small className="pin-meta" data-ulang-berjalan="">{s("hasil.ulang_berjalan")}</small> : null}
                     {/* D-085 M3 (J5.12): under the target on this class's Uji Penguasaan, the teacher may give material back */}
                     {/* ... nor «Beri ulang»: giving material back because of a mistaken assessment repeats the mistake */}
                     {/* Z K-01: every result whose verdict is «belum mencapai target», the gate included; a gate not known keeps it */}
@@ -161,10 +166,6 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
               ))}
             </dl>
           )}
-          {/* Z K-01 (Sharon's Q3; Daisy): once under the table when any result's gate could not be read */}
-          {catatan.hasil.status === "ok" && catatan.daftarHasil.some((h) => ajar.vonisHasil(h) === "TAK_DIKETAHUI") ? (
-            <p className="pin-ket" data-gerbang-tak-diketahui="">{s("mengajar.murid1.gerbang_tak_diketahui_arti")}</p>
-          ) : null}
         </section>
 
         {/* W2.18 (J5.13): the objectives by their statement (the learner's result's own rows, DAISY-29), no figure

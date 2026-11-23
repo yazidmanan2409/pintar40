@@ -1,7 +1,7 @@
 import "server-only";
 import { namaBab } from "@/lib/nama-bab";
 import * as engine from "@/lib/assessment-engine";
-import { bagianUlang, hitunganSegel, ketuntasan, type Ketuntasan } from "@/lib/siklus";
+import { alasanBelum, bagianUlang, hitunganSegel, ketuntasan, type Ketuntasan } from "@/lib/siklus";
 import { namaTujuan } from "@/components/siklus/PerTujuan";
 
 /**
@@ -38,6 +38,8 @@ export type BabHasil = {
   ulangBerjalan?: boolean;
   /** D14: the result shown was recalculated after it was sealed; the summary says so, as the chapter page does */
   dihitungUlang?: boolean;
+  /** Z (Daisy's Z3-A C-1): «belum mencapai target» because a must-be-right question was missed, the figure meeting the mark */
+  gerbang?: boolean;
 };
 
 /**
@@ -110,6 +112,8 @@ export async function hasilBelajar(db: engine.EngineClient): Promise<BabHasil[]>
       })),
       ulang: ulang.map((u) => u.nama),
       ...(t.ulang_berjalan === true ? { ulangBerjalan: true } : {}),
+      // Daisy's Z3-A C-1: the gate case says why, after the figures (alasanBelum, the chapter page's own reason)
+      ...(alasanBelum(outcome) === "GERBANG" ? { gerbang: true } : {}),
       // a governed correction is marked as such on the chapter page (dikoreksi), not as a recalculation
       ...(dihitungUlang === true && !outcome.dikoreksi ? { dihitungUlang: true } : {}),
     };

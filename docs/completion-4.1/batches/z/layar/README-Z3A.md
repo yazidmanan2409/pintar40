@@ -24,18 +24,18 @@
 | Shot | Row | What it shows |
 |---|---|---|
 | `z3a-01-murid-hasil-gerbang-*` | K-01, learner | 83 %, target 60 %, then «Belum mencapai target.» with `hasil.target.belum_gerbang`. «Pelajari lagi» lists the missed question's objective with its lesson, without a percentage (the gate is the reason) |
-| `z3a-02-murid-ringkasan-gerbang-*` | K-01, summary (Hasil Belajar, the printed report's component) | The chapter «belum mencapai target». «Pelajari lagi:» names the gate's objective |
+| `z3a-02-murid-ringkasan-gerbang-*` | K-01, summary (Hasil Belajar, the printed report's component) | The chapter «belum mencapai target», then (Daisy's C-1) `hasilbelajar.gerbang` directly after the figures, neutral, no icon. It takes the row's grid cell, as the V2 and D14 lines do. «Pelajari lagi:» names the gate's objective |
 | `z3a-12-murid-hasil-c2-*` | C2 | The same verdict and the same sentence, and no «Pelajari lagi» list at all: the missed question has no objective, and the sentence reads right without one |
 | `z3a-03-guru-murid-gerbang-*` | K-01, the teacher's one learner | «83 % · belum mencapai target: soal penting belum tepat · target 60 %», then «Minta membaca lagi» |
 | `z3a-16-guru-tujuan-c2-*` | C2, the teacher (Sharon's nit; Daisy's words) | The gate failed on a question with no objective: in place of «no objective below target», `mengajar.murid1.gerbang_tanpa_tujuan` |
 | `z3a-04-guru-tujuan-n14-*` | N-14 | `mengajar.murid1.tujuan_arti`'s new words, and the gate's objective listed |
 | `z3a-05-guru-ulang-gerbang-*` | K-01, «Minta membaca lagi» | Aisyah pre-ticked: «83 % · Persentase sudah memenuhi target, tetapi ada soal penting yang belum tepat.» The chapter's lesson is ticked, as every lesson already is |
 | `z3a-06-antrean-gerbang-*` | K-01, the retake queue (Bu Sari, `/pimpinan?kesempatan=buka`) | «hasil terakhir 83 %, target 60 % belum tercapai: soal penting belum tepat» |
-| `z3a-09-guru-murid-tak-diketahui-*` | Gate unknown, the teacher | «83 % · belum dapat disimpulkan apakah target tercapai · target 60 %», «Minta membaca lagi» kept, and once under the table `mengajar.murid1.gerbang_tak_diketahui_arti` |
+| `z3a-09-guru-murid-tak-diketahui-*` | Gate unknown, the teacher | «83 % · belum dapat disimpulkan apakah target tercapai · target 60 %», then (Daisy's (b)) `mengajar.murid1.gerbang_tak_diketahui_arti` directly under its tag, then «Minta membaca lagi» |
 | `z3a-10-guru-ulang-tak-diketahui-*` | Gate unknown, «Minta membaca lagi» | Listed and NOT pre-ticked: «83 % · Belum dapat disimpulkan apakah target tercapai.» |
 | `z3a-11-antrean-tak-diketahui-*` | Gate unknown, the queue | «hasil terakhir 83 %, target 60 %: belum dapat disimpulkan apakah tercapai» |
 | `z3a-13-murid-ringkasan-v2-*` | V2, the learner's summary | The finished result stays, with `hasil.ulang_berjalan` under it |
-| `z3a-14-guru-murid-v2-*` | V2, the teacher | The same line beside the finished result |
+| `z3a-14-guru-murid-v2-*` | V2, the teacher | Daisy's C-2 order: the figure, its verdict tag, then `hasil.ulang_berjalan`, then «Minta membaca lagi» |
 | `z3a-15-murid-ringkasan-d14-*` | D14 | The recalculated chapter marked with `hasil.dihitung_ulang`, the chapter page's own words |
 | `z3a-08-laporan-kelas-tujuan-gagal-*` | N-15 | **Drawn from KomposisiKelas with the app's built stylesheet,** not from the running app. «Murid yang perlu penguatan» is drawn only past the readiness minimum (five assessed learners), and 5A has one. Aisyah's objectives unread: `mengajar.murid1.tujuan_gagal` in her row, never «nothing to study». The other two learners are read |
 
@@ -45,12 +45,22 @@ For each failure path: can the person tell what happened, was their work kept, a
 
 | Path | What happened | Work kept | Next step | Shots |
 |---|---|---|---|---|
-| **The gate cannot be read** (teacher's page) | Said in the row: «belum dapat disimpulkan apakah target tercapai», and once under the table that the important-question data cannot be read now. The figure stays; the verdict is withheld, never «reached» | Nothing is lost: it is a read | «Muat ulang halaman ini nanti.» Reloading once the gate reads gives the verdict (`…-pulih-390`: «belum mencapai target: soal penting belum tepat») | `09-…`, `09-…-pulih-390` |
+| **The gate cannot be read** (teacher's page) | Said in the row: «belum dapat disimpulkan apakah target tercapai», and directly under it that the important-question data cannot be read now. The figure stays; the verdict is withheld, never «reached» | Nothing is lost: it is a read | «Muat ulang halaman ini nanti.» Reloading once the gate reads gives the verdict (`…-pulih-390`: «belum mencapai target: soal penting belum tepat») | `09-…`, `09-…-pulih-390` |
 | **The gate cannot be read** (the queue) | The line says the reach cannot be concluded; the figure and target stay | Not applicable | The same reload: `11-…-pulih-390` shows the gate line | `11-…`, `11-…-pulih-390` |
 | **The gate cannot be read** («Minta membaca lagi») | Listed, not pre-ticked, after those below target. The teacher may still tick them | The form keeps its choices (nothing submitted) | Tick and send, or reload later | `10-…` |
 | **The objectives cannot be read** (N-15, class report) | Said in the learner's own row: «belum dapat dibaca. Muat ulang halaman ini.» | Nothing is lost: it is a read | Reloading once the read works lists the objective (`08-…-pulih-390`) | `08-…`, `08-…-pulih-390` |
 
-## For Daisy to judge
+## Daisy's verdict (29a4e841): PASS WITH TWO CONDITIONS, both met
+
+- **C-1:** `hasilbelajar.gerbang` («Ada soal penting yang belum tepat, jadi target bab ini belum tercapai.» / «An important
+  question is not right yet, so this chapter's target is not reached.») follows the figures on the summary row, only in
+  the gate case (02).
+- **C-2:** on the teacher's row, `hasil.ulang_berjalan` comes after the verdict tag (14).
+- **(b):** the gate-unknown `_arti` line is directly under its tag, above «Minta membaca lagi» (09).
+- **(a):** accepted, no change.
+- Red first: `z3a-syarat-merah.txt`.
+
+## Earlier questions (answered by the verdict above)
 
 1. **«Pelajari lagi» without a percentage for the gate's objective** (01). The objective's own figure is the reason
    only when it is below the mark; for the gate it is the missed question. Its own figure here is 50 %, shown under
