@@ -349,3 +349,4 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
   - Sent to Sharon for the Z2-1 recheck. Stream A is now on Z3-A.
 - **12:42 UTC · Daisy: Z6 rulings** (`56253ef1`). A framed table scrolling inside its own named, focusable region is the design, so the assertion allows exactly that. «pin-seg scrolls» ((1), (4) and (5)) and the pager (6) are fixed in Z6. BINGKAI_DIKETAHUI ends empty, and nothing is deferred.
 - **12:42 UTC · Sharon: Z2-1 CLOSED; Z2 PASS with nothing open** (`247e5911`). Column grants are covered, no view reads feedback, and the A2B-S1G exceptions are acceptable. Open from Z1: C2 (Z3-A) and C4 (after promotion).
+- **13:07 UTC · Daisy: Z6 PASS** (`2d19d3cf`, record `58061461`). **All of stream B's chunks are passed:** Z3B, Z4B, Z5, Z6 and Z7. Still to come: Z3-A (the K-01 screens) and sweep run 2 after the second merge. Stream B is now on Z8's verification rows (no SQL).
