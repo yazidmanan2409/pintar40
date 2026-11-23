@@ -1,0 +1,15 @@
+commit ec082bc4998a10e1d31078017a7a7735a740093b
+== lint
+rc=0 
+== typecheck
+rc=0
+== build-identity
+rc=0 # pass 11 # fail 0 
+== whole suite (fresh reset, fresh build)
+rc=1
+== planted defects (all gates)
+rc=1
+plants: fable01.sql did not load: 	Is the server running on that host and accepting TCP/IP connections?
+== red-case job, locally
+rc=1
+6 group(s) failed
