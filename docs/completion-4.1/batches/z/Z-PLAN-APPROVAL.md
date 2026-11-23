@@ -94,3 +94,13 @@
 - **Teacher,** `mengajar.murid1.ulang_berjalan`: «Sedang mengerjakan Uji Penguasaan ini lagi. Sampai selesai, yang tampil hasil sebelumnya.» / «Taking this Mastery Check again. Until it is finished, the previous result is shown.»
 
 They refine the owner's suggestion, and ruling 81 makes them Daisy's approved wording. They go to stream A's `// Z-A` block.
+
+**D-6, Sharon's purpose test** (`D6-READ-RPC-PURPOSE-f258e5f4.md`, `03632083`):
+- **Revoke three reads:** `feedback_questionnaire`, `my_feedback_cycles`, `feedback_subjects_for_class`. Each serves only a revoked write, and each names educators.
+- **`feedback_result` has a legitimate purpose only if a deployed database holds a closed round** (PUBLISHED or WITHHELD).
+
+**Staging, read-only on 23 Nov:** `feedback_cycles` has **0 rows**, and `feedback_results` has **0 rows**.
+
+**Production** is not read, because that needs the owner's permission.
+- **Default** (Sharon's, absent production's counts): **revoke all four reads,** so all nine RPCs are dark. That is reversible and deletes nothing.
+- **If the owner permits the two-count read on production** and it shows a closed round, `feedback_result` stays, with its purpose in the header and its tests: a non-subject educator and a learner refused, anon with no EXECUTE, and an OPEN cycle returning no number.
