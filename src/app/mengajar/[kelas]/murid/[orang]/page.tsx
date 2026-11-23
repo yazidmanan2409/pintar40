@@ -71,6 +71,10 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
 
   // K-03 (SAPU-VERIFIED): «no objective below target» is said only of a learner who has a scored Uji Penguasaan here
   const adaUji = catatan.hasil.status === "ok" && catatan.daftarHasil.some((h) => h.mode === "POST_TEST");
+  // Z (Sharon's C2 nit; Daisy): the latest finished Uji Penguasaan missed a must-be-right question that has no objective, so
+  // the objectives list is empty for a reason other than «none below target»
+  const ujiTerakhir = catatan.daftarHasil.find((h) => h.sesi === catatan.terakhirUji);
+  const gerbangTanpaTujuan = ujiTerakhir !== undefined && ajar.vonisHasil(ujiTerakhir) === "GERBANG";
 
   return (
     <>
@@ -173,6 +177,8 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
             <p className="pin-ket" data-tujuan-gagal="">{s("mengajar.murid1.tujuan_gagal")}</p>
           ) : !adaUji ? (
             <Kosong jenis="belum" kalimat={s("mengajar.murid1.tujuan_belum_uji")} />
+          ) : belum.length === 0 && gerbangTanpaTujuan ? (
+            <p className="pin-ket" data-gerbang-tanpa-tujuan="">{s("mengajar.murid1.gerbang_tanpa_tujuan")}</p>
           ) : belum.length === 0 ? (
             <Kosong jenis="belum" kalimat={s("mengajar.murid1.tujuan_kosong")} />
           ) : (

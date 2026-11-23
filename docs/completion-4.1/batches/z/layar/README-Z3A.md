@@ -1,9 +1,9 @@
 # Z3-A (stream A) · captures and recovery walks for Daisy
 
-> **Taken on the local app** of `claude/z` at `36299159` (Z3-A's screens), `next start` against a fresh local stack (307
-> migrations and the seed). Widths 1280, 390 and 320 px, device scale 2, the viewport only (not the full page).
+> **Taken on the local app** of `claude/z` after the second merge of `z-ux` (`ed085050`) with the C2 teacher line (this
+> commit), `next start` against a fresh local stack (307 migrations and the seed). Widths 1280, 390 and 320 px, device scale 2, the viewport only (not the full page).
 > - **Keyboard only:** each page is opened, then Tab from the top (three presses: the skip link, then the shell). No clicks.
-> - **`CATATAN-Z3A.txt`** has, per shot: the horizontal overflow (**0 px in all 45 shots**), the focused element, the
+> - **`CATATAN-Z3A.txt`** has, per shot: the horizontal overflow (**0 px in all 48 shots**), the focused element, the
 >   live-region text, and the text of the section the row changes. Its first line names the world.
 > - **Script:** `tangkap-z3a.sh` (a fresh reset, a build, `next start`, the shots, a reset again) and `tangkap-z3a.ts`.
 > - **The world** is the seeded human-evaluation school: Aisyah (peraga)'s one official Uji Penguasaan in 5A, her teacher
@@ -27,6 +27,7 @@
 | `z3a-02-murid-ringkasan-gerbang-*` | K-01, summary (Hasil Belajar, the printed report's component) | The chapter «belum mencapai target». «Pelajari lagi:» names the gate's objective |
 | `z3a-12-murid-hasil-c2-*` | C2 | The same verdict and the same sentence, and no «Pelajari lagi» list at all: the missed question has no objective, and the sentence reads right without one |
 | `z3a-03-guru-murid-gerbang-*` | K-01, the teacher's one learner | «83 % · belum mencapai target: soal penting belum tepat · target 60 %», then «Minta membaca lagi» |
+| `z3a-16-guru-tujuan-c2-*` | C2, the teacher (Sharon's nit; Daisy's words) | The gate failed on a question with no objective: in place of «no objective below target», `mengajar.murid1.gerbang_tanpa_tujuan` |
 | `z3a-04-guru-tujuan-n14-*` | N-14 | `mengajar.murid1.tujuan_arti`'s new words, and the gate's objective listed |
 | `z3a-05-guru-ulang-gerbang-*` | K-01, «Minta membaca lagi» | Aisyah pre-ticked: «83 % · Persentase sudah memenuhi target, tetapi ada soal penting yang belum tepat.» The chapter's lesson is ticked, as every lesson already is |
 | `z3a-06-antrean-gerbang-*` | K-01, the retake queue (Bu Sari, `/pimpinan?kesempatan=buka`) | «hasil terakhir 83 %, target 60 % belum tercapai: soal penting belum tepat» |
@@ -56,5 +57,5 @@ For each failure path: can the person tell what happened, was their work kept, a
    «Penguasaan per tujuan» further down.
 2. **On the teacher's page the «Minta membaca lagi» link sits directly above the `_arti` line** (09) when the gate is
    unknown. Should the line come before the link?
-3. **Seen in passing, not Z3-A's:** at 320 px the header's «Mengajar» breaks as «Menga jar» (05-…-320), and the request
-   page shows «target 60 %» above «Murid» rather than with the learners (05). Both are in stream B's or the shell's area.
+3. **Seen in passing, not Z3-A's:** the request page shows «target 60 %» above «Murid» rather than with the learners (05).
+   It is in stream B's area. (The header's «Menga jar» break at 320 px seen in the first capture is gone after the merge.)

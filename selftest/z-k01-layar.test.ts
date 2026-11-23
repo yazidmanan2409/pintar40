@@ -55,6 +55,10 @@ export const KATA_Z3A: Array<[string, string, string]> = [
     "last result {hasil}, target {target}: whether it is reached cannot be concluded yet"],
   ["hasil.ulang_berjalan", "Uji Penguasaan ulang sedang berlangsung. Hasil yang tampil adalah hasil uji sebelumnya.",
     "A Mastery Check retake is in progress. The result shown is from the earlier check."],
+  // Sharon's C2 nit (Daisy accepted, via Bob 13:22Z): the teacher's objectives when the gate failed on a question with no objective
+  ["mengajar.murid1.gerbang_tanpa_tujuan",
+    "Soal penting yang belum tepat tidak terhubung ke tujuan pembelajaran mana pun, jadi tidak ada tujuan yang dapat ditunjukkan di sini. Lihat soalnya bersama murid.",
+    "The important question that is not right yet is not linked to any learning objective, so no objective can be shown here. Go over the question with the student."],
   // N-14 (Bob: replaced in K-01's screens commit)
   ["mengajar.murid1.tujuan_arti",
     "Dari Uji Penguasaan terakhir murid ini di kelas ini: tujuan yang belum tercapai, termasuk tujuan dari soal penting yang belum tepat. Ini yang perlu dipelajari lagi, bukan penilaian atas muridnya.",
@@ -130,6 +134,22 @@ export const zK01LayarTests: SelfTest[] = [
         "the teacher's page does not say once under the table that the gate could not be read");
       c.expect(/\["DI_BAWAH", "GERBANG", "TAK_DIKETAHUI"\]\.includes\(ajar\.vonisHasil\(h\)/.test(murid1), "«Minta membaca lagi» is not offered for every verdict that is not reached");
       c.expect(/gerbang: typeof v\.safety_gate_passed === "boolean" \? v\.safety_gate_passed : null/.test(baca("src", "lib", "pengajar.ts")), "the teacher's read does not keep the gate, or reads a non-boolean as known");
+      // C2 on the teacher's page (Sharon's nit): the latest Uji Penguasaan failed by the gate on a question with no
+      // objective lists nothing, so the section says why instead of «no objective below target»
+      const susun = (ajar as { susunCatatan?: (...a: unknown[]) => { terakhirUji?: string | null } }).susunCatatan;
+      if (susun) {
+        const tugas = [{ id: "uji", judul: "Uji", mode: "POST_TEST", batas: 0.6 }, { id: "awal", judul: "Awal", mode: "PRE_TEST", batas: null }];
+        const sesi = [{ id: "u1", assessment_assignment_id: "uji", person_id: "o", status: "FINALIZED", finalized_at: "2026-11-01T00:00:00Z" },
+          { id: "u2", assessment_assignment_id: "uji", person_id: "o", status: "FINALIZED", finalized_at: "2026-11-20T00:00:00Z" },
+          { id: "a1", assessment_assignment_id: "awal", person_id: "o", status: "FINALIZED", finalized_at: "2026-11-25T00:00:00Z" },
+          { id: "u3", assessment_assignment_id: "uji", person_id: "o", status: "IN_PROGRESS", finalized_at: null }];
+        const r = susun("o", tugas, sesi, { status: "ok", value: [] });
+        c.expect(r.terakhirUji === "u2", `the latest finished Uji Penguasaan in this class: ${r.terakhirUji} (expected u2: finished, latest, not the pre-test, not the open retake)`);
+      }
+      c.expect(/belum\.length === 0 && gerbangTanpaTujuan \? \([\s\S]{0,200}mengajar\.murid1\.gerbang_tanpa_tujuan/.test(murid1)
+        && /const ujiTerakhir = catatan\.daftarHasil\.find\(\(h\) => h\.sesi === catatan\.terakhirUji\);/.test(murid1)
+        && /const gerbangTanpaTujuan = ujiTerakhir !== undefined && ajar\.vonisHasil\(ujiTerakhir\) === "GERBANG";/.test(murid1),
+        "the teacher's objectives section does not say mengajar.murid1.gerbang_tanpa_tujuan when the latest Uji Penguasaan failed by the gate with nothing to list");
 
       // (c) «Minta membaca lagi»
       c.expect(typeof urutUlang === "function", "pengajar.urutUlang is missing");

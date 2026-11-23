@@ -3391,7 +3391,8 @@ export type HleEvent =
   | "mengajar.ulang.tak_diketahui"
   | "kesempatan.baris.hasil_gerbang"
   | "kesempatan.baris.hasil_tak_diketahui"
-  | "hasil.ulang_berjalan";
+  | "hasil.ulang_berjalan"
+  | "mengajar.murid1.gerbang_tanpa_tujuan";
 
 /**
  * One key's telling, in both languages.
@@ -8116,6 +8117,8 @@ const table: Table = {
   "kesempatan.baris.hasil_gerbang": { default: "hasil terakhir {hasil}, target {target} belum tercapai: soal penting belum tepat", en: "last result {hasil}, target {target} not reached: an important question is not right yet" },
   "kesempatan.baris.hasil_tak_diketahui": { default: "hasil terakhir {hasil}, target {target}: belum dapat disimpulkan apakah tercapai", en: "last result {hasil}, target {target}: whether it is reached cannot be concluded yet" },
   "hasil.ulang_berjalan": { default: "Uji Penguasaan ulang sedang berlangsung. Hasil yang tampil adalah hasil uji sebelumnya.", en: "A Mastery Check retake is in progress. The result shown is from the earlier check." },
+  // Sharon's C2 nit (Daisy accepted, via Bob 13:22Z): the teacher's objectives, the gate failed on a question with no objective
+  "mengajar.murid1.gerbang_tanpa_tujuan": { default: "Soal penting yang belum tepat tidak terhubung ke tujuan pembelajaran mana pun, jadi tidak ada tujuan yang dapat ditunjukkan di sini. Lihat soalnya bersama murid.", en: "The important question that is not right yet is not linked to any learning objective, so no objective can be shown here. Go over the question with the student." },
 };
 
 /** Words that must never appear on a learner-facing surface (doc 12 "complexity leaking"). */

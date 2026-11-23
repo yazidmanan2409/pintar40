@@ -201,6 +201,16 @@ const sql = (s: string) => psql(s).split("\n").pop()!.trim();
     await tangkap(gp, "10-guru-ulang-tak-diketahui", ulang, { tab: 3, bagian: "fieldset" });
     tulis(`update public.assessment_results set safety_gate_passed = false where session_id = ${lit(sesi)}`);
     await tangkap(gp, "09-guru-murid-tak-diketahui-pulih", muridSatu, { tab: 3, bagian: "section[aria-labelledby=pin-murid-hasil]", lebar: [390] });
+    // C2 for the teacher (Sharon's nit): the gate failed on a question with no objective; its objective's own figure back
+    // at the mark, so nothing is below it and the section says why the list is empty
+    const tujuanAsliG = sql(`select coalesce(objective_ids::text, '{}') from public.items where id = ${lit(item)}`);
+    const domainAsliG = sql(`select per_domain::text from public.assessment_results where session_id = ${lit(sesi)}`);
+    tulis(`update public.items set objective_ids = '{}' where id = ${lit(item)}`);
+    tulis(`update public.assessment_results r set per_domain = jsonb_set(r.per_domain, array[${lit(kode)}], (r.per_domain -> ${lit(kode)}) || jsonb_build_object(
+        'benar', (r.per_domain -> ${lit(kode)} ->> 'total')::int, 'penguasaan', 1.0)) where r.session_id = ${lit(sesi)}`);
+    await tangkap(gp, "16-guru-tujuan-c2", muridSatu, { tab: 3, bagian: "section[aria-labelledby=pin-murid-tujuan]" });
+    tulis(`update public.items set objective_ids = ${lit(tujuanAsliG)}::uuid[] where id = ${lit(item)}`);
+    tulis(`update public.assessment_results set per_domain = ${lit(domainAsliG)}::jsonb where session_id = ${lit(sesi)}`);
     // V2 for the teacher
     retakeBuka();
     await tangkap(gp, "14-guru-murid-v2", muridSatu, { tab: 3, bagian: "section[aria-labelledby=pin-murid-hasil]" });

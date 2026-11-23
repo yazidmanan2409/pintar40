@@ -969,6 +969,9 @@ export type CatatanMurid = {
   /** Daisy (1fad2861, B2): the assessments whose chapter is no longer given to the class (ended or withdrawn); a
    *  request to read it again is refused there (REVIEW_ASSIGNMENT_CLOSED), so none is offered. */
   tugasTertutup: Record<string, boolean>;
+  /** Z (Sharon's C2 nit): the learner's latest FINISHED Uji Penguasaan in this class (its sitting), the one the objectives
+   *  section reads; null when there is none */
+  terakhirUji: string | null;
 };
 
 export async function catatanMurid(kelasId: string, institusi: string, orang: string): Promise<CatatanMurid> {
@@ -982,7 +985,7 @@ export async function catatanMurid(kelasId: string, institusi: string, orang: st
   // it unchanged; a teacher holds no grant on assessment_sessions.pass_mark (the table's client grant is per column)
   const [{ data: sesiData }, { data: segelData }] = tugas.length > 0
     ? await Promise.all([
-        c.from("assessment_sessions").select("id, assessment_assignment_id, person_id, status")
+        c.from("assessment_sessions").select("id, assessment_assignment_id, person_id, status, finalized_at")
           .eq("person_id", orang).in("assessment_assignment_id", tugas.map((x) => x.id)),
         c.from("assessment_assignments").select("id, pass_mark, learning_assignment_id, learning_assignments(status)").in("id", tugas.map((x) => x.id)),
       ])
@@ -993,7 +996,7 @@ export async function catatanMurid(kelasId: string, institusi: string, orang: st
   return susunCatatan(orang, tugas.map((x) => ({ ...x, batas: segel.get(x.id) ?? null, tertutup: tutup.has(x.id) })), rows<SesiMurid>(sesiData), hasil);
 }
 
-type SesiMurid = { id: string; assessment_assignment_id: string; person_id: string; status: string };
+type SesiMurid = { id: string; assessment_assignment_id: string; person_id: string; status: string; finalized_at?: string | null };
 
 /** The record from what was read: pure, so a test drives exactly what the page shows. */
 export function susunCatatan(
@@ -1012,7 +1015,11 @@ export function susunCatatan(
   const nilai = hasil.status === "ok" && Array.isArray(hasil.value)
     ? (hasil.value as Array<{ session_id?: unknown; mode?: unknown; mastery?: unknown; recomputed?: unknown; sealed_mastery?: unknown; recomputation_reason?: unknown; ditarik?: unknown; safety_gate_passed?: unknown }>)
     : [];
+  const ujiKelas = new Set(tugas.filter((x) => x.mode === "POST_TEST").map((x) => x.id));
+  const terakhirUji = milikNya.filter((x) => x.status === "FINALIZED" && ujiKelas.has(x.assessment_assignment_id) && x.finalized_at)
+    .sort((a, b) => String(b.finalized_at).localeCompare(String(a.finalized_at)))[0]?.id ?? null;
   return {
+    terakhirUji,
     tugasSesi: Object.fromEntries(milikNya.map((x) => [x.id, x.assessment_assignment_id])),
     tugasTertutup: Object.fromEntries(tugas.filter((x) => x.tertutup).map((x) => [x.id, true])),
     tugas: tugas.map((x) => ({
