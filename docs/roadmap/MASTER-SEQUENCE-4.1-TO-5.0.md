@@ -119,7 +119,7 @@ the audit's existing rows. There is no fresh replanning.
 
 | Stage | Estimate | Confidence | Main assumptions |
 |---|---|---|---|
-| 4.1 gates closed | **About 4–5 weeks from 23 Nov** (re-estimated at Z's plan) | Medium | C3w-1 is done (ruling 80). Z is about 15.5 working days plus about 3 days of slack: rulings 75–78 added R-26 to R-28, about 30 items. D2-R takes about 3–5 days. The owner's promotion authorisations are timely |
+| 4.1 gates closed | **About 3.5–4 weeks from 23 Nov** (Z in two streams; about 11 working days on the critical path) | Medium | C3w-1 is done (ruling 80). Z was 15.5 + 3 days for one builder. Run as two streams (`batches/z/Z-PARALLEL-PLAN.md`; acceptance criteria unchanged), it is about 11 days on the critical path. D2-R takes about 3–5 days. The owner's promotion authorisations are timely |
 | 4.5, including all of the former 4.2 | **About 10–18 weeks** | Low | The former 4.2's effort (about 3–6 weeks) is **kept, not absorbed for free**, and partly overlaps independent 4.5 work. 9 of its 14 items need narrow owner decisions; RD-4 proves out cheaply; R-2 and R-5 are decided in planning |
 | 5.0 | **About 6–12 weeks** | Very low | R-4's ethics question is answered in time; 4.5's measurement holds |
 | Integration and verification of 5.0 | **About 2–3 weeks** | Low | — |

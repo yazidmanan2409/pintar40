@@ -259,3 +259,9 @@ The harness commit `4f904638` was explained and pushed under `0959a62c`. A full 
 - **Check (d) is OWNER-CONFIRMED:** `PINTAR_AI_STUB_HARNESS` is absent from staging's Vercel project and shared variables. **Every C3w-1 staging verification has passed.** Awaiting the owner's acceptance word, as for A3 (ruling 63).
 
 **23 Nov · Owner, on the Z plan:** Bob approves the Z build plan before implementation. It returns to the owner only for a genuine policy decision, a material scope change or an unresolved dependency.
+
+**23 Nov, 09:35 UTC · Z runs in two streams** (owner's request; `batches/z/Z-PARALLEL-PLAN.md`).
+- **A, Second Eye:** data and verdict, all SQL.
+- **B, the Z-UX builder** (`session_01FXjU1mft4BFWiDHFccgN5x`, `claude/z-ux`): UX and words, no SQL, owns `TombolKirim`.
+- **Integration:** merges at Z2 and before the candidate. Reviews and promotion evidence run in parallel.
+- **The critical path is about 11 working days**, against 15.5 + 3. **4.1's gates close in about 3.5–4 weeks.**
