@@ -75,3 +75,4 @@
 | 23 Nov, 10:11 | Bob | Z3 stream B review | `claude/z-ux` `4bf300da` | **PASS**; notes N-14 (tujuan_arti after K-01 SQL), N-15 |
 | 23 Nov, 10:19 | Bob | K-07 strings «1 sampai 100» | `claude/z` `94ba0632` | Confirmed, plus `min={1}` |
 | 23 Nov, 10:55 | Bob | V5 `galat.transfer_source_closed` | `claude/z` `83959497` | Final words sent: the sending school acts; «setelah permintaan pindah ini dibuat» |
+| 23 Nov, 10:56 | Bob | Z4 stream B review + reopening rendered recheck | `claude/z-ux` `954aa9bc` | **PASS**; N-16 to N-18 optional |
