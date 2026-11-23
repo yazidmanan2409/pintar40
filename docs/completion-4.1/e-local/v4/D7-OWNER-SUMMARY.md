@@ -1,5 +1,14 @@
 # D-7 · E's checkpoint, for the owner (25 Nov 2026, 10:00 UTC / 17:00 WIB)
 
+> **DECIDED by the owner on 23 Nov 2026 (ruling 85).**
+> - Counsel is approved, for both providers; fees are confirmed first.
+> - OpenAI is the preferred **reference** provider for C3w-2 **design** preparation. **Anthropic remains a separate candidate for qualification, not a backup.**
+> - Nothing is activated.
+> - No second evaluation.
+> - The results are not universal rankings.
+>
+> The «backup» and «alternate» wording below is Bob's draft and is superseded.
+
 Bob, drafted on 23 Nov 2026. Under ruling 56, this checkpoint returns to the owner with the evidence for a separate decision. **Nothing is activated automatically.** **For the owner only:** it contains evaluation results, so none of it goes into a status report to Dr Gladys.
 
 ## 1 · Where E stands
