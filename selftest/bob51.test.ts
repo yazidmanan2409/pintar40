@@ -229,8 +229,11 @@ export const bob51Tests: SelfTest[] = [
       c.expect(/bacaHasilUji\(status, jawaban, namaPengaturan\)/.test(form) && !/isi\.|jawaban\.(galat|alasan|variabel|detail)/.test(form),
         "the form reads the answer other than through bacaHasilUji");
       const halaman = baca("src/app/konfigurasi/email-uji/page.tsx");
-      c.expect(/rpc\("is_system_admin"\)/.test(halaman) && /if \(sistem !== true\) \{[\s\S]*?HalamanPenolakan/.test(halaman),
-        "the page does not ask is_system_admin and refuse everyone else");
+      // RESTATED (Z9, BOB18-A01 / Sharon's condition (1)): the cached isSystemAdmin(), which Z9-K01 pins as cache() around the
+      // request's own rpc with data === true
+      c.expect(/const sistem = await isSystemAdmin\(\)/.test(halaman) && !/rpc\(\s*["'`]is_system_admin["'`]/.test(halaman)
+        && /if \(sistem !== true\) \{[\s\S]*?HalamanPenolakan/.test(halaman),
+        "the page does not ask the cached isSystemAdmin() (and no raw rpc(\"is_system_admin\")) and refuse everyone else");
       // RESTATED (Z, R-10): the page and its one navigation source, NavKonfigurasi
       const konf = baca("src/app/konfigurasi/page.tsx") + baca("src/components/konfigurasi/NavKonfigurasi.tsx");
       // L3 (D-132 C7): the link is «Seluruh platform»'s (platformIni: Admin platform in that context; a persona as before)

@@ -1,0 +1,7 @@
+# Z9: the two restated pins, red first by scratch reverts (each restored with git checkout), 23 Nov 2026
+P1 the page's raw rpc put back → BOB51-S01   FAIL    the page does not ask the cached isSystemAdmin() (and no raw rpc("is_system_admin")) and refuse everyone else (restored: yes)
+P2 the page's isSystemAdmin() call removed → BOB51-S01   FAIL    the page does not ask the cached isSystemAdmin() (and no raw rpc("is_system_admin")) and refuse everyone else (restored: yes)
+P3 the confirm step's raw rpc put back → Z9-K01      FAIL    Konfigurasi still calls rpc("is_system_admin") directly in: src/app/konfigurasi/actions.ts (restored: yes)
+(P4 first form passed: the first-admin action's own await isSystemAdmin() satisfied a pin that looked anywhere in the file; D101-S01 now requires the call inside the D-101 confirm block. P3 and P4 re-run against it:)
+P3b the confirm step's raw rpc put back → D101-S01    FAIL    grantRoleAction does not ask a School Admin to confirm «Admin sekolah» before granting (restored: yes)
+P4b the confirm step's isSystemAdmin() removed → D101-S01    FAIL    grantRoleAction does not ask a School Admin to confirm «Admin sekolah» before granting (restored: yes)

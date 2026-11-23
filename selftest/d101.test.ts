@@ -292,7 +292,9 @@ export const d101Tests: SelfTest[] = [
         "Peran & akses has no confirming step for «Admin sekolah»");
       c.expect(/jumlahAdminSekolah\(/.test(konf) && /config\.persiapan\.admin_kedua/.test(konf), "Persiapan sekolah has no quiet second-admin line");
       const aksi = tanpaKomentar(baca("src/app/konfigurasi/actions.ts"));
-      c.expect(/role === "INSTITUTION_ADMIN" && str\(fd, "yakin"\) !== "ya"/.test(aksi) && /is_system_admin/.test(aksi) && /angkat/.test(aksi),
+      // RESTATED (Z9, BOB18-A01 / Sharon's condition (1)): the cached isSystemAdmin(), which Z9-K01 pins as cache() around the
+      // request's own rpc with data === true
+      c.expect(/role === "INSTITUTION_ADMIN" && str\(fd, "yakin"\) !== "ya"\) \{\s*const isSys = await isSystemAdmin\(\);\s*if \(isSys !== true\) \{[\s\S]{0,240}angkat/.test(aksi),
         "grantRoleAction does not ask a School Admin to confirm «Admin sekolah» before granting");
       return c.verdict("the source: migration 20261122100000 asks one authority question for the recovery lookup and reset (the Platform Admin; " +
         "an active School Admin of a school that has the person by its number, a role there or a learner there; never oneself; a Platform Admin " +
