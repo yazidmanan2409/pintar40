@@ -74,7 +74,7 @@ async function kontekDari(browser: Browser, k: unknown, w: number): Promise<Brow
       await bk.keyboard.type("Saya ingin kembali mengajar. Hubungi saya di nomor sekolah.");
       await bk.keyboard.press("Tab");
       await bk.keyboard.press("Enter");
-      await bk.waitForURL(/hasil=|kode=/, { timeout: 15000 });
+      await bk.waitForURL(/hasil=/, { timeout: 15000 });
       await bk.waitForLoadState("networkidle");
       await rekam(bk, "02-buka-kembali-terkirim", w, `line: ${await teksDi(bk, ".pin-hasil")}\turl: ${bk.url().replace(ASAL, "")}`);
 
@@ -99,7 +99,10 @@ async function kontekDari(browser: Browser, k: unknown, w: number): Promise<Brow
       await sandi.nth(1).focus();
       await lp.keyboard.type("Sintetis-Baru-Z4-2026!");
       await lp.keyboard.press("Enter");
-      await lp.waitForSelector("#pin", { timeout: 15000 });
+      await lp.waitForSelector("#pin", { timeout: 15000 }).catch(async (e: Error) => {
+        await lp.screenshot({ path: join(KE, "..", "..", "..", "..", "..", "..", "..", "tmp", "claude-0", "lupa-debug.png") }).catch(() => undefined);
+        throw new Error(`the PIN form did not come back: ${(await lp.locator("main").innerText()).replace(/\s+/g, " ").slice(0, 300)} (${e.message.split("\n")[0]})`);
+      });
       await jeda(300);
       await rekam(lp, "04-lupa-pin-berakhir", w, `line: ${await teksDi(lp, ".pin-msg, [role=status], [role=alert]")}`);
     }
@@ -112,7 +115,8 @@ async function kontekDari(browser: Browser, k: unknown, w: number): Promise<Brow
     const sys = await masuk(ASAL, { identitas: "sysadmin@synthetic.pintar.test", password: "Sintetis-Sys-91!" }, "MENGELOLA:PLATFORM");
     if (typeof admin === "string" || typeof sys === "string") throw new Error(`${admin} / ${sys}`);
     for (const w of LEBAR) {
-      const ap = await (await kontekDari(browser, admin, w)).newPage();
+      // «Ganti» is drawn only for a person with more than one place: the seed's platform administrator
+      const ap = await (await kontekDari(browser, sys, w)).newPage();
       await ap.goto(`${ASAL}/konfigurasi`, { waitUntil: "networkidle" });
       if (w < 1024) { await ap.getByRole("button", { name: "Buka menu" }).focus(); await ap.keyboard.press("Enter"); await jeda(300); }
       await ap.locator("a.pin-konteks-pilih:visible").first().focus();
@@ -123,12 +127,14 @@ async function kontekDari(browser: Browser, k: unknown, w: number): Promise<Brow
       await sp.locator("#akun-pid").focus();
       await sp.keyboard.type(`${pintarId.slice(0, 4)} ${pintarId.slice(4)}`); // as printed on the card, pasted whole
       await sp.keyboard.press("Enter");
+      await sp.waitForURL(/pid=/, { timeout: 15000 });
       await sp.waitForLoadState("networkidle");
       await rekam(sp, "06-keamanan-cari-spasi", w, `found: ${(await sp.locator("[data-akun-platform]").count()) > 0}\tfield: «${await sp.locator("#akun-pid").inputValue()}»`);
       await sp.locator("#akun-pid").focus();
       await sp.keyboard.press("Control+A");
       await sp.keyboard.type("A14CD7SU");
       await sp.keyboard.press("Enter");
+      await sp.waitForURL(/pid=A14CD7SU/, { timeout: 15000 });
       await sp.waitForLoadState("networkidle");
       await rekam(sp, "07-keamanan-cari-salah", w, `line: ${await teksDi(sp, "#akun-pid-salah")}\tfield: «${await sp.locator("#akun-pid").inputValue()}»`);
 

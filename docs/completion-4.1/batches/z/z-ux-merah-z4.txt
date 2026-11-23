@@ -28,3 +28,7 @@ Z-S13-01    FAIL    aktifkan.kode_ulang_ok (id): «Jika alamat ini terdaftar, PI
 0 passed, 1 failed, 0 skipped, 0 contract problem(s) → RED
 Z-S11-01    FAIL    the account lookup still accepts only 8 bare characters (a pasted «A14C D7ST» finds nothing), not kanonikPintarId; a malformed entry is not told apart from no entry; the lookup field cuts a pasted ID short or does not mark a malformed one: <input id="akun-pid" name="pid" className="pin-input" defaultValue={pid} maxLength={8} autoComplete="off" />; a malformed PINTAR ID is not said with the existing sentence (ID_TIDAK_SAH, lupa.pin.id_salah)
 0 passed, 1 failed, 0 skipped, 0 contract problem(s) → RED
+## Sharon's R-8 nit (after Z3 review): Z-R8-03 on 5b3409ad
+Z-R8-03     FAIL    a failed certificate read becomes «not found», not its own error for the error page (it must re-throw)
+Z-K07-02    FAIL    config.ketuntasan.arti (id): «Nilai minimum kelulusan setiap pelajaran di sekolah ini, dalam persen bulat dari 0 sampai 100. Guru baru bisa menyediakan sebuah pelajaran untuk kelas setelah batasnya ditetapkan. Perubahan berlaku untuk pelajaran yang disediakan sesudahnya; hasil d
+0 passed, 1 failed, 0 skipped, 0 contract problem(s) → RED

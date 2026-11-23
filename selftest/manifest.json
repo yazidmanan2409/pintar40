@@ -6781,9 +6781,14 @@
       "proves": "selftest/z-ux.test.ts, from the source file of every page under /belajar/[tugas]/ (R-8, X-2; Daisy, X2-CATATAN-DESAIN): each calls one ownership guard (src/lib/tugas-saya.ts, notFound) before any learning-state read."
     },
     {
+      "id": "Z-R8-03",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, executing src/lib/tugas-saya.ts with a stand-in database (Sharon's R-8 review): a not-yours id is notFound(), an own certificate's chapter is let through, and a failed certificate read re-throws to the error page, never reading as «not found»."
+    },
+    {
       "id": "Z-R8-02",
       "runner": "app",
-      "proves": "selftest/z-ux.test.ts, from the rendered html and status of each route of the running app, as the bootstrap learner (R-8): all eight /belajar/{id}/… routes, with a classmate's assignment, an assessment-assignment id and an unknown id, answer with the not-found page («Halaman ini tidak ada») and never the error page or a reference code."
+      "proves": "selftest/z-ux.test.ts, from the rendered html and status of each route of the running app, as the bootstrap learner (R-8): all eight /belajar/{id}/… routes, with a classmate's assignment, an assessment-assignment id and an unknown id, answer with the not-found page («Halaman ini tidak ada») and never the error page or a reference code, with one HTTP status per route for all three ids (Sharon's condition b)."
     },
     {
       "id": "Z-S12-02",
@@ -6829,6 +6834,11 @@
       "id": "Z-S11-01",
       "runner": "static",
       "proves": "selftest/z-ux.test.ts, executing kanonikPintarId over the shared fixture file selftest/fixtures/z/pintar-id-normalisasi.json (R-27(b)'s list) and reading the source files of the platform account lookup (S-11): a pasted «A14C D7ST» is found, the field takes 12 characters, and a malformed entry is said with the existing ID_TIDAK_SAH sentence."
+    },
+    {
+      "id": "Z-K07-02",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the copy table (K-07's floor, Daisy's words via Bob): config.ketuntasan.arti and galat.pass_mark_input_incomplete say «1 sampai 100» / «1 to 100», nothing else changed."
     },
     {
       "id": "Z-S12-01",

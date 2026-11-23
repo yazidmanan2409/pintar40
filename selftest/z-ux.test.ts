@@ -323,9 +323,9 @@ export const zUxStaticTests: SelfTest[] = [
       const aturan = /a\.pin-konteks-pilih \{([^}]*)\}/.exec(css)?.[1] ?? "";
       // R-26 item 2 (ruling 75): the look stays control-sm; the hit area is control-md (44 px), as .pin-soalbar .pin-btn's
       c.expect(/position: relative;/.test(aturan) && /min-height: var\(--control-sm\);/.test(aturan), "a.pin-konteks-pilih is not position: relative, or its look changed");
-      c.expect(/a\.pin-konteks-pilih::after \{ content: ""; position: absolute; inset: calc\(\(var\(--control-md\) - var\(--control-sm\)\) \/ -2\) 0; \}/.test(css),
+      c.expect(/a\.pin-konteks-pilih::after \{\s*content: ""; position: absolute; left: 0; right: 0;\s*top: calc\(50% - var\(--control-md\) \/ 2\); bottom: calc\(50% - var\(--control-md\) \/ 2\);\s*\}/.test(css),
         "a.pin-konteks-pilih has no ::after extending its hit area to control-md (44 px)");
-      return c.verdict("reads experience.css (R-26 item 2, ruling 75): a.pin-konteks-pilih keeps its control-sm look and gains position: relative and an ::after that extends its hit area to control-md (44 px), the .pin-soalbar .pin-btn precedent; the browser proof is docs/completion-4.1/batches/z/layar/r26-tekan.ts");
+      return c.verdict("reads experience.css (R-26 item 2, ruling 75): a.pin-konteks-pilih keeps its control-sm look and gains position: relative and an ::after that extends its hit area to a 44 px (control-md) band centred on it; the browser proof is docs/completion-4.1/batches/z/layar/r26-tekan.ts");
     },
   },
   {
@@ -417,6 +417,52 @@ export const zUxStaticTests: SelfTest[] = [
       return c.verdict("executes kanonikPintarId over the shared fixture list (selftest/fixtures/z/pintar-id-normalisasi.json, which R-27(b)'s SQL also uses) and reads the source files of the platform account lookup (S-11): a pasted «A14C D7ST» and its I/L/O, hyphen and space forms are found; the field takes 12 characters; a malformed entry is said with the existing ID_TIDAK_SAH sentence, never an empty page");
     },
   },
+  {
+    id: "Z-R8-03",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      // Sharon (R-8 review): tugasSaya is presentation only; a genuine failure stays the error page, never «not found».
+      // Executed in a child process (next/navigation does not load under react-server), with a stand-in database that
+      // lists no assignment for the learner
+      const anak = spawnSync(process.execPath, ["--import", "tsx", "-e", `(async () => {
+        const m = await import("file://" + process.cwd() + "/src/lib/tugas-saya.ts"); const tugasSaya = (m.default && m.default.tugasSaya) || m.tugasSaya;
+        const db = { rpc: async () => ({ data: [], error: null }) };
+        const putus = new Error("certificate read failed");
+        const coba = async (f) => { try { const v = await f(); return { ok: true, v: v === null ? "null" : typeof v }; }
+          catch (e) { return { ok: false, digest: String(e && (e.digest || e.message)), sama: e === putus }; } };
+        process.stdout.write(JSON.stringify({
+          bukan: await coba(() => tugasSaya(db, "t")),
+          tidak: await coba(() => tugasSaya(db, "t", { jugaMilik: async () => false })),
+          milik: await coba(() => tugasSaya(db, "t", { jugaMilik: async () => true })),
+          gagal: await coba(() => tugasSaya(db, "t", { jugaMilik: async () => { throw putus; } })),
+        }));
+      })()`], { cwd: repoRoot, encoding: "utf8" });
+      type H = { ok: boolean; v?: string; digest?: string; sama?: boolean };
+      let r: Record<string, H> = {};
+      try { r = JSON.parse(anak.stdout); } catch { /* reported below */ }
+      if (!c.expect(r.bukan && r.gagal, `tugasSaya could not be run: ${(anak.stderr || "").split("\n")[0]}`)) return c.verdict("");
+      const tidakAda = (x: H) => !x.ok && /NEXT_HTTP_ERROR_FALLBACK;404/.test(x.digest ?? "");
+      c.expect(tidakAda(r.bukan), "an id that is not the learner's is not answered «not found»");
+      c.expect(tidakAda(r.tidak), "neither today's assignment nor an own certificate: not «not found»");
+      c.expect(r.milik.ok && r.milik.v === "null", "the learner's own certificate of a chapter no longer assigned is not let through");
+      c.expect(!r.gagal.ok && r.gagal.sama === true, `a failed certificate read becomes «${tidakAda(r.gagal) ? "not found" : JSON.stringify(r.gagal)}», not its own error for the error page (it must re-throw)`);
+      return c.verdict("executes src/lib/tugas-saya.ts with a stand-in database (Sharon's R-8 review): a not-yours id and an id that is neither assigned nor an own certificate's are notFound(); an own certificate's chapter is let through; a failed certificate read re-throws its own error, so it reaches the error page and never reads as «not found»");
+    },
+  },
+  {
+    id: "Z-K07-02",
+    requires: [],
+    run: async () => {
+      const c = new Checks();
+      // K-07's floor (stream A, 94ba0632: a pass mark of 1 to 100): the two sentences that state the range (Daisy, via Bob)
+      kata(c, [
+        ["config.ketuntasan.arti", "Nilai minimum kelulusan setiap pelajaran di sekolah ini, dalam persen bulat dari 1 sampai 100. Guru baru bisa menyediakan sebuah pelajaran untuk kelas setelah batasnya ditetapkan. Perubahan berlaku untuk pelajaran yang disediakan sesudahnya; hasil dan sertifikat yang sudah ada tidak berubah.", "The minimum passing mark for each lesson at this school, as a whole percentage from 1 to 100. A teacher can give a lesson to a class only once its mark is set. A change applies to what is given afterwards; results and certificates that already exist do not change."],
+        ["galat.pass_mark_input_incomplete", "Isi nilai bulat dari 1 sampai 100 dan alasannya.", "Enter a whole number from 1 to 100 and a reason."],
+      ], "staff");
+      return c.verdict("reads the copy table: config.ketuntasan.arti and galat.pass_mark_input_incomplete state K-07's range, «1 sampai 100» / «1 to 100», and nothing else in them changed; ID and EN");
+    },
+  },
 ];
 
 export const zUxAppTests: SelfTest[] = [
@@ -439,11 +485,14 @@ export const zUxAppTests: SelfTest[] = [
       if (!c.expect(typeof murid !== "string", String(murid))) return c.verdict("");
       const k = murid as Exclude<typeof murid, string>;
       const lain = "00000000-0000-4000-8000-000000000000";
+      // Sharon (R-8 review, condition b): «not yours» and «does not exist» answer with the same HTTP status, route by route
+      const status: Record<string, number[]> = {};
       for (const id of [asing, asesmen, lain]) {
         for (const sub of ["", "/hasil", "/peta", "/pemetaan", "/penguasaan", "/sertifikat", `/pelajaran/${lain}`, "/lanjut"]) {
           const res = await k.halaman(`/belajar/${id}${sub}`);
           const h = await res.text();
           const apa = `/belajar/{${id === asing ? "a classmate's" : id === asesmen ? "an assessment" : "an unknown"}}${sub}`;
+          (status[sub.replace(lain, "{pelajaran}")] ??= []).push(res.status);
           // the answer is streamed inside the shell (the status may already be 200), so it is read from what the server sent:
           // notFound() streams the not-found digest; a thrown read streams a numeric digest, which the client's error page
           // shows as its «Kode rujukan». (The not-found page's words are in every page's payload, so they prove nothing.)
@@ -451,7 +500,8 @@ export const zUxAppTests: SelfTest[] = [
           c.expect(!/digest\\?":\\?"\d+/.test(h) && !/Kode rujukan/i.test(h), `${apa}: answered with the error page (a reference code)`);
         }
       }
-      return c.verdict("as the bootstrap learner, opens all eight /belajar/{id}/… routes with a learning assignment of a class they are not in, an assessment-assignment id and an unknown id: each answers with the not-found page («Halaman ini tidak ada»), and none with the error page or a reference code");
+      for (const [sub, st] of Object.entries(status)) c.expect(new Set(st).size === 1, `/belajar/{id}${sub}: a classmate's, an assessment and an unknown id answer different statuses (${st.join(", ")})`);
+      return c.verdict("as the bootstrap learner, the same HTTP status for all three ids on each route (Sharon's condition b); opens all eight /belajar/{id}/… routes with a learning assignment of a class they are not in, an assessment-assignment id and an unknown id: each answers with the not-found page («Halaman ini tidak ada»), and none with the error page or a reference code");
     },
   },
   {

@@ -3471,8 +3471,12 @@ a.pin-konteks-pilih {
   display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--control-sm); width: fit-content;
   font-size: var(--t-small); font-weight: var(--weight-strong); color: var(--pintar-primary); text-decoration: none;
 }
-/* R-26 item 2 (ruling 75): compact is a look, not a smaller target; the hit area is control-md tall (.pin-soalbar's rule) */
-a.pin-konteks-pilih::after { content: ""; position: absolute; inset: calc((var(--control-md) - var(--control-sm)) / -2) 0; }
+/* R-26 item 2 (ruling 75): compact is a look, not a smaller target. The hit area is a control-md band centred on the
+   link, exactly 44 px whatever its border and padding (an inset from the padding box measured 42 px in the browser) */
+a.pin-konteks-pilih::after {
+  content: ""; position: absolute; left: 0; right: 0;
+  top: calc(50% - var(--control-md) / 2); bottom: calc(50% - var(--control-md) / 2);
+}
 a.pin-konteks-pilih:hover { text-decoration: underline; }
 a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 .pin-konteks-inisial {

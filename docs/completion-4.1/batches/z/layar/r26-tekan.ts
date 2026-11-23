@@ -19,7 +19,7 @@ import { BOOT_ADMIN, masuk } from "../../../../../selftest/c1w-layar.test";
 import { psql } from "../../../../../selftest/bob26.test";
 
 const { chromium } = createRequire(__filename)("playwright");
-const ASAL = "http://127.0.0.1:3999";
+const ASAL = process.env.R26_ASAL ?? "http://127.0.0.1:3999";
 const hasil: string[] = [];
 let gagal = 0;
 const periksa = (ok: boolean, teks: string) => { hasil.push(`${ok ? "PASS" : "FAIL"}  ${teks}`); if (!ok) gagal++; };
@@ -105,25 +105,31 @@ const jeda = (ms: number) => new Promise((r) => setTimeout(r, ms));
     }
 
     // ------------------------------------------------------------------ Z-R26-02: «Ganti» (a.pin-konteks-pilih), its hit area and its pixels
+    // (drawn only for a person with more than one place: the seed's platform administrator)
+    const sys = await masuk(ASAL, { identitas: "sysadmin@synthetic.pintar.test", password: "Sintetis-Sys-91!" }, "MENGELOLA:PLATFORM");
+    if (typeof sys === "string") throw new Error(sys);
+    const sctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    await sctx.addCookies([...(sys as unknown as { kue: Map<string, string> }).kue].map(([name, value]) => ({ name, value, url: ASAL })));
+    const sp = await sctx.newPage();
     for (const w of [1280, 390, 320]) {
-      await ap.setViewportSize({ width: w, height: 900 });
-      await ap.goto(`${ASAL}/konfigurasi`, { waitUntil: "networkidle" });
+      await sp.setViewportSize({ width: w, height: 900 });
+      await sp.goto(`${ASAL}/konfigurasi`, { waitUntil: "networkidle" });
       if (w < 1024) {
         // the opened menu, by keyboard: «Buka menu» then Enter
-        await ap.getByRole("button", { name: "Buka menu" }).focus();
-        await ap.keyboard.press("Enter");
+        await sp.getByRole("button", { name: "Buka menu" }).focus();
+        await sp.keyboard.press("Enter");
         await jeda(300);
       }
-      const pilih = ap.locator("a.pin-konteks-pilih:visible").first();
+      const pilih = sp.locator("a.pin-konteks-pilih:visible").first();
       const kotak = await pilih.boundingBox();
       if (!kotak) { periksa(false, `Z-R26-02 «${w}»: a.pin-konteks-pilih is not on screen`); continue; }
       // the element under a point 3.5 px beyond each edge (string, so the bundler's helpers never reach the page)
-      const kena = async (y: number) => ap.evaluate(`(() => { const e = document.elementFromPoint(${kotak.x + kotak.width / 2}, ${y});
+      const kena = async (y: number) => sp.evaluate(`(() => { const e = document.elementFromPoint(${kotak.x + kotak.width / 2}, ${y});
         return Boolean(e && e.closest("a.pin-konteks-pilih")); })()`);
       const atas = await kena(kotak.y - 3.5), bawah = await kena(kotak.y + kotak.height + 3.5);
       periksa(kotak.height + (atas ? 4 : 0) + (bawah ? 4 : 0) >= 44 && atas && bawah && kotak.width >= 44,
         `Z-R26-02 at ${w} px the hit area of «${(await pilih.innerText()).trim()}» is at least 44 px (drawn ${kotak.width.toFixed(0)}×${kotak.height.toFixed(0)}; 3.5 px above ${atas ? "hits" : "misses"}, below ${bawah ? "hits" : "misses"})`);
-      if (process.env.R26_DIAM) await ap.locator(".pin-konteks-blok:visible").first().screenshot({ path: `${process.env.R26_DIAM}-konteks-${w}.png` });
+      if (process.env.R26_DIAM) await sp.locator(".pin-konteks-blok:visible").first().screenshot({ path: `${process.env.R26_DIAM}-konteks-${w}.png` });
     }
   } catch (e) {
     periksa(false, `the walk stopped: ${(e as Error).message.split("\n")[0]}`);

@@ -27,6 +27,7 @@ export async function tugasSaya(
 ): Promise<engine.AssignmentEntry | null> {
   const daftar = opsi.daftar ?? (await engine.myAssignments(db));
   const mine = daftar.find((a) => a.learning_assignment_id === tugas) ?? null;
-  if (!mine && !(opsi.jugaMilik && (await opsi.jugaMilik().catch(() => false)))) notFound();
+  // Sharon (R-8 review): a failed read of the other way is not caught here; it re-throws to the error page
+  if (!mine && !(opsi.jugaMilik && (await opsi.jugaMilik()))) notFound();
   return mine;
 }
