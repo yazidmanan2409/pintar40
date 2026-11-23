@@ -105,3 +105,23 @@ Read: Bob's record at `d50a4769`, from the owner's PDF of `privacy.claude.com/en
    - **OpenAI's verdict is unchanged: MEETS WITH CONDITIONS.**
    - Counsel's questions are unchanged and separate (End User; PR-1; human review; the minors clauses; Q-S1; Q-S2).
    - **Technical conditions are not contractual compliance.**
+
+## Addendum · Anthropic retention, standard vs exceptional, per the owner (23 Nov 2026, 06:25 UTC)
+
+**Standard:** API inputs and outputs are deleted within 30 days. **It meets C2**, the same bound as OpenAI's 30-day logs.
+
+| Exception | Can it reach PINTAR's educator-only drafting? | Still meets the requirements? | Condition |
+|---|---|---|---|
+| (a) Usage-Policy enforcement: flagged inputs and outputs up to 2 years | **Yes, but only if a request is flagged.** A sensitive history lesson could be | **Yes.** Content is synthetic and non-personal by design (R-3 before any send), as with OpenAI's sharing of flagged samples | None beyond R-3 |
+| (b) Safety classification scores up to 7 years | **Yes.** Scores about each request | **Yes.** Metadata about non-personal content, with no person in the request | None |
+| (c) "Covered Models": limited retention and review | **Unknown.** The linked page is not read | Cannot say until read | **Pre-offer:** read it, and record whether the chosen model is covered and for how long |
+| (d) Customer-controlled longer retention (Files API etc.) | **No.** Not used; text is sent in the request only | n/a | **Pin it:** a static test that `src/lib/ai/` uses no Files or long-retention API (with C3-8 and R3-07) |
+| (e) As the law requires | **Yes**, for any provider, as with OpenAI | **Yes** | None (counsel's PR-1 stays separate) |
+| (f) Anonymised research "if permitted in your contract" | **No,** unless the contract permits it | n/a | **Pre-offer:** confirm the Commercial Terms do not permit it; never opt in |
+| (g) Feedback, kept 5 years | **No.** PINTAR submits no feedback | n/a | **Pin it:** a static test that no feedback endpoint is called |
+
+**Blocking condition (1) is settled.** **"Covered Models" is non-blocking for the verdict, and must be read before Anthropic is offered.**
+
+**Counsel's questions and the commercial qualification gate stay separate:**
+- `ai_opsi` QUALIFIED, `henti_keras_terverifikasi`, the owner's limits and C3w-2;
+- none of that is decided here.
