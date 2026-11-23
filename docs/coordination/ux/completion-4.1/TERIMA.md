@@ -69,3 +69,4 @@
 | 23 Nov, 05:49 | Bob | C3w-1 round 2 recheck | `bc6e50da` | **PASS with one condition** (C-3: the working line `nada="netral"`); C-1, C-2, N-10, N-11 closed; captures accepted |
 | 23 Nov, 07:38 | Bob | C3w-1 round 3 recheck | `8668a695` | **PASS**: C-3 and N-12 closed |
 | 23 Nov, 09:31 | Bob | Z opened; review points Z3–Z7; V2 question | `claude/z` `f258e5f4` | V2 «in progress» words: `Z-V2-KATA.md` |
+| 23 Nov, 09:35 | Bob (ruling 81) | V2 in-progress status, final words | — | `Z-V2-KATA.md` rewritten (first draft superseded) |
