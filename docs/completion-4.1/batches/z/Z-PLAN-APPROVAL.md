@@ -125,3 +125,5 @@ The migration header records the reason (no collected round exists on staging or
 - **When:** only while a retake is open (begun, not ended). Not after abandon, time-out, a teacher's end, withdrawal or finalisation.
 
 **The owner chooses between the two texts.** Second Eye uses the placement and timing now. The text waits for the owner's word; it is not needed before Z3.
+
+**The owner, 23 Nov:** **Daisy's FINAL wording is approved** for learner and teacher alike: «Uji Penguasaan ulang sedang berlangsung. Hasil yang tampil adalah hasil uji sebelumnya.» It uses one key, `hasil.ulang_berjalan`, with the EN as Daisy gave it. This supersedes the earlier approval of the longer text. Placement and timing are as agreed.
