@@ -4387,7 +4387,8 @@ const table: Table = {
   "pengerjaan.galat.window_assignment_ended": { default: "Materi ini sudah diakhiri atau ditarik, jadi jadwalnya tidak dapat diubah.", en: "This material has been ended or withdrawn, so its schedule cannot be changed." },
   "pengerjaan.galat.window_invalid": { default: "Waktu tutup harus setelah waktu buka dan setelah saat ini.", en: "The closing time must be after the opening time and after now." },
   "pengerjaan.galat.window_unchanged": { default: "Jadwalnya sudah seperti itu.", en: "The schedule is already set that way." },
-  "pengerjaan.galat.window_not_changeable": { default: "Jadwal materi ini tidak dapat diubah saat ini.", en: "This material's schedule cannot be changed right now." },
+  // S-06 (Daisy's sweep): WINDOW_NOT_CHANGEABLE also carries lasting causes, so nothing suggests that later may work
+  "pengerjaan.galat.window_not_changeable": { default: "Jadwal materi ini tidak dapat diubah.", en: "This material's schedule cannot be changed." },
   // A3 (Daisy, A3-KODE-PEMULIHAN.md §5 on ux-1/daisy-experience): neutral under O-4, true for another device, a
   // re-sign-in and no session alike
   "pengerjaan.galat.sitting_not_controller": { default: "Asesmen ini sedang dilanjutkan di sesi lain, jadi jawaban dari sini tidak disimpan. Jawaban yang sudah «Tersimpan» sebelumnya tetap ada.", en: "This assessment is being continued in another session, so answers from here are not saved. Answers already «Saved» are kept." },

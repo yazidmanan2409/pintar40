@@ -28,3 +28,8 @@ Z-S04-01    FAIL    pendataan.kode.bentuk_salah (id): «—», not «Kode sekola
 ## S-05 (Z-S05-01, on 8c3cd5df before the fix)
 Z-S05-01    FAIL    studio.definisi.petunjuk.komposisi (id): «Kosongkan bila tingkat kesulitan soal tidak diatur.», not «Kosongkan bila tingkat kesulitan soal tidak diatur. Jumlah ketiganya harus sama dengan Jumlah soal.»; studio.definisi.petunjuk.komposisi (en): «Leave empty if the difficulty of the questions is not set.», not «Leave empty if the difficulty of the questions is not set. The
 0 passed, 1 failed, 0 skipped, 0 contract problem(s) → RED
+## S-06, S-07, S-16 (on the S-05 commit, before the fixes)
+Z-S06-01    FAIL    pengerjaan.galat.window_not_changeable (id): «Jadwal materi ini tidak dapat diubah saat ini.», not «Jadwal materi ini tidak dapat diubah.»; pengerjaan.galat.window_not_changeable (en): «This material's schedule cannot be changed right now.», not «This material's schedule c
+Z-S07-01    FAIL    a deactivation with a reason of spaces is not answered STRUCTURE_REASON_REQUIRED
+0 passed, 3 failed, 0 skipped, 0 contract problem(s) → RED
+Z-S16-01    FAIL    the new person's name field takes more than authorize_new_person accepts: <input ref={namaBaruRef} className="pin-input" value={baru.nama} autoComplete="off"

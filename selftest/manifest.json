@@ -6871,6 +6871,21 @@
       "proves": "selftest/z-ux.test.ts, executing src/lib/galat-kontrak.ts and reading the copy table (S-05): the mix-total and safety-over refusals of save_assessment_definition have their own codes and sentences, and the mix hint states the rule."
     },
     {
+      "id": "Z-S06-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the copy table (S-06): pengerjaan.galat.window_not_changeable no longer says «saat ini» / «right now» for a refusal that may be lasting."
+    },
+    {
+      "id": "Z-S07-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the source file of Konfigurasi's actions (S-07): a deactivation reason of spaces answers STRUCTURE_REASON_REQUIRED, the reason's own sentence."
+    },
+    {
+      "id": "Z-S16-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the source file of the activation form FormAktivasi.tsx (S-16): the new person's name field has maxLength={200}."
+    },
+    {
       "id": "Z-N9-02",
       "runner": "app",
       "proves": "selftest/z-ux.test.ts, from the rendered html of the running app's /konfigurasi/staf as the bootstrap school's administrator (N-9): no person, an unknown person and another school's staff member get the same neutral refusal and status."

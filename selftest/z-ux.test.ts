@@ -587,6 +587,41 @@ export const zUxStaticTests: SelfTest[] = [
       return c.verdict("executes src/lib/galat-kontrak.ts and reads the copy table (S-05): the database's «difficulty mix totals …» and «safety-critical minimum … exceeds the paper size» are DEFINITION_MIX_TOTAL and DEFINITION_SAFETY_OVER, each with its own sentence naming the fields at fault; the other bounds stay ACTION_INPUT_INVALID; the mix hint says the three must add up to Jumlah soal");
     },
   },
+  {
+    id: "Z-S06-01",
+    requires: [],
+    run: async () => {
+      const c = new Checks();
+      // S-06: a lasting refusal (the content no longer shared, among others) never suggests that a retry later may work
+      kata(c, [["pengerjaan.galat.window_not_changeable", "Jadwal materi ini tidak dapat diubah.", "This material's schedule cannot be changed."]], "educator");
+      return c.verdict("reads the copy table (S-06): «Jadwal materi ini tidak dapat diubah.» without «saat ini» / «right now», since WINDOW_NOT_CHANGEABLE also carries lasting causes; ID and EN");
+    },
+  },
+  {
+    id: "Z-S07-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const aksi = buang(readFileSync(join(repoRoot, "src", "app", "konfigurasi", "actions.ts"), "utf8"));
+      const fn = /export async function nonaktifkanStrukturAksi[\s\S]*?\n\}/.exec(aksi)?.[0] ?? "";
+      // S-07: a reason of spaces is the missing reason, said as the reason («Tuliskan alasan …»), not «Lengkapi pilihan»
+      c.expect(/if \(!alasan\) return \{ ok: false, code: "STRUCTURE_REASON_REQUIRED" \};/.test(fn), "a deactivation with a reason of spaces is not answered STRUCTURE_REASON_REQUIRED");
+      c.expect(t("config.struktur.galat.alasan_kosong", "staff", { locale: "id" }) === "Tuliskan alasan tempat ini dinonaktifkan.", "the reason's own sentence changed");
+      return c.verdict("reads the source file of Konfigurasi's actions (S-07): deactivating a place with a reason that trims to nothing answers STRUCTURE_REASON_REQUIRED («Tuliskan alasan tempat ini dinonaktifkan.»), not the choice's «Lengkapi pilihan yang diminta.»");
+    },
+  },
+  {
+    id: "Z-S16-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const fa = buang(readFileSync(join(repoRoot, "src", "components", "aktivasi", "FormAktivasi.tsx"), "utf8"));
+      const isian = /<input ref=\{namaBaruRef\}[\s\S]*?\/>/.exec(fa)?.[0] ?? "";
+      // S-16 (⚑ maxLength only): authorize_new_person refuses a name over 200 characters; the field says so by its length
+      c.expect(/maxLength=\{200\}/.test(isian), `the new person's name field takes more than authorize_new_person accepts: ${isian}`);
+      return c.verdict("reads the source file of the activation form (S-16): the new person's name field has maxLength={200}, authorize_new_person's own limit");
+    },
+  },
 ];
 
 export const zUxAppTests: SelfTest[] = [
