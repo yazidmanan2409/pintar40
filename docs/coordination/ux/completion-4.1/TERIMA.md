@@ -83,3 +83,4 @@
 | 23 Nov, 11:54 | Bob | Z7 words review | `claude/z-ux` `00c71229` | **PASS with C-1 (S-14 shared with activation), C-2 (two EN), C-3 (column «Paket Pembelajaran»)**; summary order fixed |
 | 23 Nov, 12:07 | Bob | Z5 conditions recheck | `claude/z-ux` `3472d3a4` | **PASS**; N-20 optional |
 | 23 Nov, 12:12 | Bob | Z7 conditions recheck | `claude/z-ux` `6e8c4f36` | **PASS** |
+| 23 Nov, 12:38 | Bob | Z6 rulings (framed overflow) | `claude/z-ux` `f322c25c` | Framed table scroll by design (2,3: assertion allows named focusable frames); pin-seg wraps, never scrolls (1,4,5): fix in Z6; pager anchor (6): fix in Z6; TandaTautan neutralised: blessed |
