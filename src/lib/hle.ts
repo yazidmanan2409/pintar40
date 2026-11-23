@@ -337,6 +337,7 @@ export type HleEvent =
   | "staf.intro"
   | "staf.kosong"
   | "staf.tidak_ada_sekolah"
+  | "staf.tidak_dapat_dibuka"
   | "staf.buka"
   | "staf.peran_kini"
   | "staf.tempat"
@@ -4261,6 +4262,8 @@ const table: Table = {
   "staf.judul": { default: "Peran dan tanggung jawab", en: "Roles and responsibilities" },
   "staf.intro": { default: "Peran yang dipegang orang ini di sekolah ini, dan tanggung jawab yang dibawa tiap peran. Di PINTAR, wewenang datang dari peran yang diberikan di sini, bukan dari jabatan di sekolah.", en: "The roles this person holds at this school, and the responsibilities each carries. In PINTAR, authority comes from the roles given here, not from a job title at the school." },
   "staf.kosong": { default: "Orang ini tidak memegang peran apa pun di sekolah ini sekarang.", en: "This person holds no role at this school now." },
+  // N-9 (Daisy, Z-SIAP §1; Z-3's form): one neutral answer for no person, an unknown one and a forbidden one
+  "staf.tidak_dapat_dibuka": { default: "Data staf ini tidak dapat dibuka. Mungkin sudah tidak ada, atau bukan untuk Anda.", en: "This staff record cannot be opened. It may no longer exist, or it is not for you." },
   "staf.tidak_ada_sekolah": { default: "Pilih sekolah sebagai konteks kerja lebih dahulu.", en: "Choose a school as your working context first." },
   "staf.buka": { default: "Kelola peran orang ini", en: "Manage this person's roles" },
   "staf.peran_kini": { default: "Peran sekarang", en: "Roles now" },

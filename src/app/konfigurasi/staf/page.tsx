@@ -55,13 +55,14 @@ export default async function StafSekolah({ searchParams }: { searchParams: Prom
   const orangId = sp.orang && UUID.test(sp.orang) ? sp.orang : null;
   const tolak = (k: HleEvent) => <HalamanPenolakan messageKey={k} persona="staff" locale={locale} backHref="/konfigurasi/roles" backKey="nav.konfigurasi" />;
   if (!sekolah) return tolak("staf.tidak_ada_sekolah");
-  if (!orangId) return tolak("sertifikat.kelola.ditolak");
+  // N-9 (Daisy, Z-SIAP §1): no person, an unknown one and a forbidden one get one neutral answer, the staff page's own
+  if (!orangId) return tolak("staf.tidak_dapat_dibuka");
 
   const supabase = await supabaseServer();
   // Sharon F1: this school's own clock (WIB, WITA or WIT) for every date on the page
   const zona = await zonaSekolah(supabase, sekolah);
   const { data: orangData, error } = await supabase.rpc("peran_orang", { p_person: orangId, p_institution: sekolah });
-  if (error || !orangData) return tolak("sertifikat.kelola.ditolak");
+  if (error || !orangData) return tolak("staf.tidak_dapat_dibuka");
   const orang = orangData as Orang;
   const { data: tempatData } = await supabase.from("org_nodes").select("id, name, kind")
     .eq("institution_id", sekolah).eq("is_active", true).order("kind").order("name");

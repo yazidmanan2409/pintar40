@@ -488,6 +488,21 @@ export const zUxStaticTests: SelfTest[] = [
       return c.verdict("reads the source file of TombolKirim (N-17, R-26 item 4's sibling): a server-action button keeps the width taken at its captured submit while pending and through «✓ {selesai}», until a change to the form returns its verb; the browser check is docs/completion-4.1/batches/z/layar/n17-lebar.ts");
     },
   },
+  {
+    id: "Z-N9-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      kata(c, [["staf.tidak_dapat_dibuka", "Data staf ini tidak dapat dibuka. Mungkin sudah tidak ada, atau bukan untuk Anda.",
+        "This staff record cannot be opened. It may no longer exist, or it is not for you."]], "staff");
+      const hal = buang(readFileSync(join(repoRoot, "src", "app", "konfigurasi", "staf", "page.tsx"), "utf8"));
+      // N-9 (Daisy, Z-SIAP §1): no person, an unknown one and a forbidden one get one neutral answer of the staff page's own
+      c.expect(!/sertifikat\.kelola\.ditolak/.test(hal), "the staff page still refuses with the certificate page's sentence");
+      c.expect(/if \(!orangId\) return tolak\("staf\.tidak_dapat_dibuka"\);/.test(hal) && /if \(error \|\| !orangData\) return tolak\("staf\.tidak_dapat_dibuka"\);/.test(hal),
+        "no person, and an unknown or forbidden one, do not get the same neutral refusal (staf.tidak_dapat_dibuka)");
+      return c.verdict("reads the staff page's source file and the copy table (N-9): no person, an unknown person and one the reader may not open all answer «Data staf ini tidak dapat dibuka. Mungkin sudah tidak ada, atau bukan untuk Anda.», never the certificate page's sentence; ID and EN");
+    },
+  },
 ];
 
 export const zUxAppTests: SelfTest[] = [
@@ -556,6 +571,37 @@ export const zUxAppTests: SelfTest[] = [
       const r2 = await k.kirim("/masuk/buka-kembali/kirim", { form: { identitas: `tiada-s12b-${Date.now()}@local.invalid`, pesan } });
       c.expect(/kode=TUNGGU/.test(ke(r2)), `a second well-formed request at once is not paced: ${ke(r2)}`);
       return c.verdict("posts to the running app's reopening route from one address: a message of spaces and six letters, then an empty identity, each answer kode=ISIAN and the page says buka_kembali.galat.isian, never «a request was just sent»; neither used the pace, so a well-formed request then is sent (hasil=terkirim), and a second at once is still paced (kode=TUNGGU)");
+    },
+  },
+  {
+    id: "Z-N9-02",
+    requires: ["app", "network", "db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const { psql } = await import("./bob26.test");
+      const { BOOT_ADMIN, masuk } = await import("./c1w-layar.test");
+      const asal = ctx.appUrl!;
+      const sekolah = psql(`select ra.institution_id from public.role_assignments ra join public.accounts a on a.person_id = ra.person_id
+        join auth.users u on u.id = a.auth_user_id where u.email = 'boot-admin@bootstrap.pintar.test' and ra.institution_id is not null
+         and ra.revoked_at is null order by ra.id limit 1`);
+      // a staff member of another school: the bootstrap administrator may not open them
+      const lain = psql(`select ra.person_id from public.role_assignments ra where ra.institution_id is not null and ra.institution_id <> '${sekolah}'
+        and ra.role in ('EDUCATOR', 'INSTITUTION_ADMIN') and ra.revoked_at is null order by ra.id limit 1`);
+      if (!c.expect(/^[0-9a-f-]{36}$/.test(sekolah) && /^[0-9a-f-]{36}$/.test(lain), `fixtures: ${sekolah} / ${lain}`)) return c.verdict("");
+      const admin = await masuk(asal, BOOT_ADMIN, `MENGELOLA:${sekolah}`);
+      if (!c.expect(typeof admin !== "string", String(admin))) return c.verdict("");
+      const k = admin as Exclude<typeof admin, string>;
+      const kalimat = t("staf.tidak_dapat_dibuka" as HleEvent, "staff", { locale: "id" });
+      const jawab: string[] = [];
+      for (const [apa, q] of [["no person", ""], ["an unknown person", "?orang=00000000-0000-4000-8000-000000000000"], ["another school's staff member", `?orang=${lain}`]]) {
+        const r = await k.halaman(`/konfigurasi/staf${q}`);
+        const h = await r.text();
+        jawab.push(`${r.status}`);
+        c.expect(h.includes(kalimat) && !h.includes(t("sertifikat.kelola.ditolak", "staff", { locale: "id" })),
+          `${apa}: the staff page does not answer «${kalimat}» (or still names the certificate page)`);
+      }
+      c.expect(new Set(jawab).size === 1, `the three answer different statuses: ${jawab.join(", ")}`);
+      return c.verdict("as the bootstrap school's administrator in the running app (N-9): /konfigurasi/staf with no person, an unknown person and another school's staff member each answer «Data staf ini tidak dapat dibuka. Mungkin sudah tidak ada, atau bukan untuk Anda.» in the rendered html, with one status, never the certificate page's sentence");
     },
   },
 ];

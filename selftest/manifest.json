@@ -6851,6 +6851,16 @@
       "proves": "selftest/z-ux.test.ts, from the source file of TombolKirim (N-17): a server-action button keeps the width taken at its submit while pending and through «✓ {selesai}», until a change to the form returns its verb. Browser check: docs/completion-4.1/batches/z/layar/n17-lebar.ts."
     },
     {
+      "id": "Z-N9-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the staff page's source file and the copy table (N-9): no person, an unknown and a forbidden person all answer «Data staf ini tidak dapat dibuka. …», never the certificate page's sentence."
+    },
+    {
+      "id": "Z-N9-02",
+      "runner": "app",
+      "proves": "selftest/z-ux.test.ts, from the rendered html of the running app's /konfigurasi/staf as the bootstrap school's administrator (N-9): no person, an unknown person and another school's staff member get the same neutral refusal and status."
+    },
+    {
       "id": "Z-S12-01",
       "runner": "app",
       "proves": "selftest/z-ux.test.ts, posting to the running app's reopening route (route redirects and the rendered html) from one address (S-12): two refused inputs each answer the input's own line, never «a request was just sent», and use no pace; a well-formed request is then sent and a second at once is paced."
