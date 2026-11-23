@@ -1,0 +1,20 @@
+{
+  "_": "Z · R-27(b) (stream A, SQL: minta_buka_kembali through pintar_id_canonical) and S-11 (stream B, TypeScript: kanonikPintarId) share this list, so the two never disagree. 'kanonik' is what pintar_id_canonical and kanonikPintarId both return (null: not a valid PINTAR ID). 'cocok' is whether a reopening request typed this way must find the account whose PINTAR ID is A14CD7ST. An input with @ is an email, never normalised.",
+  "akun": "A14CD7ST",
+  "kasus": [
+    { "masukan": "A14CD7ST",                "kanonik": "A14CD7ST", "cocok": true,  "arti": "as printed" },
+    { "masukan": "A14C D7ST",               "kanonik": "A14CD7ST", "cocok": true,  "arti": "the card's grouping, with a space" },
+    { "masukan": "a14c-d7st",               "kanonik": "A14CD7ST", "cocok": true,  "arti": "lower case with a hyphen" },
+    { "masukan": "  A14C  D7ST ",           "kanonik": "A14CD7ST", "cocok": true,  "arti": "surrounding and doubled spaces" },
+    { "masukan": "AI4CD7ST",                "kanonik": "A14CD7ST", "cocok": true,  "arti": "I typed for 1" },
+    { "masukan": "AL4CD7ST",                "kanonik": "A14CD7ST", "cocok": true,  "arti": "L typed for 1" },
+    { "masukan": "al4c d7st",               "kanonik": "A14CD7ST", "cocok": true,  "arti": "lower-case l typed for 1" },
+    { "masukan": "A14CD7SV",                "kanonik": "A14CD7SV", "cocok": false, "arti": "a near miss: another valid ID, one character off" },
+    { "masukan": "A14CD7S",                 "kanonik": null,       "cocok": false, "arti": "seven characters" },
+    { "masukan": "A14CD7STX",               "kanonik": null,       "cocok": false, "arti": "nine characters" },
+    { "masukan": "A14CD7SU",                "kanonik": null,       "cocok": false, "arti": "U is not in the alphabet" },
+    { "masukan": "a14cd7st@sekolah.sch.id", "kanonik": null,       "cocok": false, "arti": "an email: has @, never normalised, never an ID" },
+    { "masukan": "budi.santoso",            "kanonik": null,       "cocok": false, "arti": "a username" },
+    { "masukan": "",                        "kanonik": null,       "cocok": false, "arti": "empty" }
+  ]
+}
