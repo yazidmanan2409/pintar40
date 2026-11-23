@@ -191,6 +191,13 @@ The version floors and the Mac minimum are formalised in that review. **No work 
 4. the named accessibility standard (design spec §18, item 9).
 
 **Does not interrupt C3w-1 or Z. No 4.1 change.** Context: the Modern Web Guidance plugin was assessed read-only (not installed; a trial was considered after 4.1, pinned, with telemetry off, current-browser features only, advisory) |
+| 75 | 23 Nov | **Four UX refinements approved for planning only** (owner notice, after Daisy's read-only feasibility study):
+1. submit feedback and double-submit protection where genuinely needed, starting with `masuk/buka-kembali`, server idempotency considered (not all 39 plain buttons);
+2. `pin-konteks-pilih` (`NavKonteks.tsx`) gets a minimum 44 px effective touch target, with visuals unchanged and no global 48 px;
+3. context-specific labels for four ambiguous «Simpan» (`konfigurasi/page.tsx`, `PanelStruktur.tsx`, `studio/definisi`, `studio/kanonik`);
+4. `TombolKirim`'s width while busy, changed only if a shift is confirmed.
+
+Daisy prepares an implementation-ready package (read-only). Bob recommends order, effort, dependencies and any owner decision. **No separate batch; no interruption of C3w-1; no code, merge or deployment yet.** "UX refinement, not redesign" | Z-READINESS R-26 |
 
 ## 8 · Open with the owner
 
