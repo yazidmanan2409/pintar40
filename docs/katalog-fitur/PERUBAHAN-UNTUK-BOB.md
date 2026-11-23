@@ -192,3 +192,8 @@ Daisy checked the wording against the screen strings on `main` (`706fe8c5`).
 - **Nit:** «Kandidat, menunggu keputusan».
 
 **For the owner, not the catalogue.** The Peta Bacaan's top tier on screen says «Sudah dikuasai», which a diagnostic of a few questions cannot establish. Ruling 74a defers mastery claims to 4.5. The catalogue now reports the screen as it is; whether the label itself should change is a product question for Daisy and the owner.
+- **Daisy's follow-up (00:14 UTC), on the exam journey:**
+  - the closing sentence now reads «Aturan ini akan dibangun di 4.1 … dan baru berlaku di sekolah setelah diterima»;
+  - «benar atau salahnya tiap soal»;
+  - the counts line is kept, because ruling 74b says counts are kept, secondary, and is now worded «jumlah jawaban benar dan salahnya sebagai keterangan tambahan»;
+  - the D2-R note says the result words come from the rulings, with the screen wording still to be reviewed.
