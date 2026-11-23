@@ -9,3 +9,7 @@
 (d) PINTAR_AI_STUB_HARNESS: absent from .github/, every config and every script on main (it occurs only in src/ and selftest/).
     Staging's Vercel environment-variable NAMES: NOT READ. The Vercel connector refused the team scope (403), and Bob did not widen access.
     The owner confirms by eye: Vercel → pintar40-staging → Settings → Environment Variables has no PINTAR_AI_STUB_HARNESS.
+(d) OWNER-CONFIRMED, 23 Nov 2026 (manual check in the Vercel dashboard for pintar40-staging):
+    project variables: PINTAR_AI_STUB_HARNESS NOT FOUND
+    shared variables: PINTAR_AI_STUB_HARNESS NOT FOUND
+    No setting was changed. Check (d) is complete.

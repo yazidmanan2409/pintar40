@@ -33,7 +33,7 @@
 - **What it changes:** nothing. No write, migration or merge.
 - **Evidence:** the full output, committed before the merge.
 
-## Request 2 · DONE except check (d)'s Vercel look (owner approved; 23 Nov, 09:02–09:07 UTC)
+## Request 2 · DONE (owner approved; 23 Nov, 09:02–09:07 UTC)
 
 - **The merge:** PR #27, required CI 45139146546 green; merged as `01bba241` with a merge commit and no bypass. The tree equals `ed4a90cc`.
 - **The migrations:** the ten sha256 on `main` match the README. staging.yml 45143556783 succeeded, **290 → 300** (`20270122190000`).
@@ -42,7 +42,7 @@
   - (a) C3W-R3-BAHAN: OK;
   - (b) the authenticator's pre-request is unchanged;
   - (c) authenticated may execute exactly the five registered functions; the other 18 are service_role only; anon has 0;
-  - (d) the harness flag is absent from workflows, config and scripts. **Staging's Vercel env names await the owner's look:** the connector was refused for the team scope.
+  - (d) the harness flag is absent from workflows, config and scripts. **Staging's Vercel env names: OWNER-CONFIRMED** absent, in both project and shared variables.
 - **The hosted check:** environment-facts 45144060424 is **success** on `01bba241`.
 
 ## Request 2 · the merge, staging's migration, the "after" read and the checks
