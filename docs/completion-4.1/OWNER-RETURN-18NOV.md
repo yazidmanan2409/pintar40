@@ -427,3 +427,8 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
   - Built: siap.sh (the readiness gate), bersih.sh (safe cleanup, dry run by default), and preflight.sh (heartbeat, PASS/FAIL/INFRA, VOID).
   - Nine planted-failure proofs, red first: image, 429, clones versus evidence, disk, dead runtime (recovered in 27 s), stale port, a mid-run kill (stopped in 11 s), the I-2 replay (now VOID, not FAIL), and a real defect still FAIL.
   - Sent to Sharon for safety. Two ruling 86 additions are asked of the builder: L-1 (a reboot-surviving uptime and memory log, so each restart names its cause) and L-2 (a warning when a run is longer than the restart interval). Second Eye reviews after Z9.
+- **22:40 UTC · Sharon: the ruling 83 safety review** (INFRA83-SAFETY-c1f04845.md): cleanup PASS; privilege PASS; secrets PASS with S-2.
+  - **The VOID rule FAILS until S-1:** a FAIL next to one INFRA blip collapsed into VOID, so a real defect could be hidden.
+  - S-1: RED takes precedence, INFRA only on a not-READY machine or a cause code can't produce, with red-first proofs.
+  - S-2: redact the stack's start log, which carries the local default keys.
+  - Plus three nits. Sent to the builder. **No run under this harness counts until S-1 lands.** Z9 is unaffected: it runs on CI, not on this harness.
