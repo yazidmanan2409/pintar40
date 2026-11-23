@@ -84,3 +84,4 @@
 | 23 Nov, 12:07 | Bob | Z5 conditions recheck | `claude/z-ux` `3472d3a4` | **PASS**; N-20 optional |
 | 23 Nov, 12:12 | Bob | Z7 conditions recheck | `claude/z-ux` `6e8c4f36` | **PASS** |
 | 23 Nov, 12:38 | Bob | Z6 rulings (framed overflow) | `claude/z-ux` `f322c25c` | Framed table scroll by design (2,3: assertion allows named focusable frames); pin-seg wraps, never scrolls (1,4,5): fix in Z6; pager anchor (6): fix in Z6; TandaTautan neutralised: blessed |
+| 23 Nov, 13:03 | Bob | Z6 rulings recheck | `claude/z-ux` `2d19d3cf` | **PASS**; Z6 complete pending sweep run 2 |

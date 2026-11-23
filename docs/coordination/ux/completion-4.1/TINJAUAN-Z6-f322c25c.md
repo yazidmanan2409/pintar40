@@ -54,3 +54,11 @@
 - **R-11:** blocks below 640 px. The name is the heading, then the sitting line, «Keadaan» with its chip, and «Atur». The table is hidden. The switch wraps one per line below 360, keeps `aria-current`, and never scrolls.
 - **N-8:** Studio's nested disclosures go from 188 to 212 px at 320.
 - **The sweep command** and run 1 green, at 390 and 320.
+
+## Recheck at `2d19d3cf` (23 Nov, 13:04): **PASS. Z6 is complete for me,** pending sweep run 2 after the second merge.
+
+From the diff `f322c25c..2d19d3cf` (src and audit; no SQL) and captures z6-06 and z6-07:
+- **The assertion allows rather than lists.** A scrolling `.pin-tabel-bingkai` passes only with `role="region"`, `tabindex="0"` and a name that resolves to text. Any other sideways scroll fails, and any `.pin-seg` wider than itself fails. **`BINGKAI_DIKETAHUI = []`.**
+- **`.pin-seg` wraps and never scrolls.** On a phone it takes the row as a wrapping flex (it was three fixed columns). In capture 06 at 320, «30 menit» wraps whole to the second line and its focus ring is drawn uncut.
+- **The pager** targets `#…-koleksi`, which is visible in both views, with `scroll-margin-top` below the sticky bar (two bars at 360 and under).
+- **Red first** on `f322c25c`, green now: 55 checks.
