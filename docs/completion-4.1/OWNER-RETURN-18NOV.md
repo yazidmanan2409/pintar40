@@ -185,3 +185,13 @@ The harness commit `4f904638` was explained and pushed under `0959a62c`. A full 
     - **C3-11:** captures by Second Eye, judged by Daisy.
   - **Optional, taken in the same push:** N-10 and N-11, plus Sharon's `ai_tersedia` alignment.
   - **Round 2 sent to Second Eye at 01:53.** Sharon reviews any server delta for C-1.
+
+**23 Nov, 02:49 UTC · Daisy's read-only consistency sweep started** (owner-approved).
+- **Scope:** `main` at `706fe8c5`. Four questions:
+  - labels against what the server accepts;
+  - errors against the refusal behind them;
+  - claims against evidence (rulings 74–74b);
+  - one term per concept.
+- **Rules:** no code; preferences are not findings; each finding classed Z, later or no change.
+- **Checks:** Bob verifies each finding against the server; Sharon only for a server change; the owner decides what is fixed.
+- **Priority:** C3w-1's round-2 recheck pre-empts the sweep. Budget: about one day.
