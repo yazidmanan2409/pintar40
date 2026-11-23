@@ -158,3 +158,4 @@ The harness commit `4f904638` was explained and pushed under `0959a62c`. A full 
   - the reviewer name in `PERUBAHAN-UNTUK-BOB.md` and `README.md` becomes "Review X" (the PDF text is clean);
   - the README count becomes 100.
 - **A product question for the owner and Daisy, with no action now:** Peta Bacaan's top tier on screen reads «Sudah dikuasai». A diagnostic of a few questions cannot establish mastery, and ruling 74a defers mastery claims to 4.5. To be triaged with Z's minors.
+- **00:31 UTC, final:** `da1f8906` (supersedes `f4e0bfa9`). Bob verified both fixes: no reviewer name is left in `docs/katalog-fitur`, and the README reads 100. Revision 5 is closed.
