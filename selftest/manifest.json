@@ -7194,6 +7194,16 @@
       "id": "Z-N15-01",
       "runner": "static",
       "proves": "Z N-15, selftest/z-n15.test.ts: the source of pengajar.perluPenguatan keeps a failed tujuan_belum_tercapai read as null, and the rendered KomposisiKelas section «Murid yang perlu penguatan» says mengajar.murid1.tujuan_gagal (ID and EN) for that learner only, beside a learner read with an objective and one read with none."
+    },
+    {
+      "id": "Z-K01-02",
+      "runner": "static",
+      "proves": "Z K-01 screens, selftest/z-k01-layar.test.ts, without a database: the source of siklus.alasanBelum and bagianUlang (a gate-only failure is GERBANG, «Pelajari lagi» lists the missed must-be-right question's objective, empty for C2), pengajar.vonisHasil and urutUlang, pengerjaan-kontrak.kunciHasilAntrean, each by its cases; the learner's, teacher's, request and queue pages' source say Daisy's words; the rendered KomposisiMurid carries V2's line and the D14 marker (ID and EN); every new key in the copy table word for word; recovery walks on each failure path."
+    },
+    {
+      "id": "Z-K01-03",
+      "runner": "static",
+      "proves": "Z K-01 integrated check (ruling 81), selftest/z-k01-layar.test.ts, executes session_outcome and reading_map as the learner, learner.result as the teacher and percobaan_antrean as the head of department against the migrated database, rolled back, and feeds them into the screens' own rules: learner (i) (percentage met, must-be-right missed) is «belum» by the gate on the learner's page, the teacher's page, «Minta membaca lagi» and the queue; learner (ii)'s verdict changed by an approved two-person key correction reads corrected on all four, both ways."
     }
   ]
 }

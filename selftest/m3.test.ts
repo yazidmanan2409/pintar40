@@ -74,7 +74,8 @@ export const m3Tests: SelfTest[] = [
 
       const hasil = buang(readFileSync(join(repoRoot, "src", "app", "belajar", "[tugas]", "hasil", "page.tsx"), "utf8"));
       c.expect(/const target = ketuntasan\(outcome\)/.test(hasil) && /hasil\.target\.tercapai/.test(hasil) && /hasil\.target\.belum/.test(hasil)
-        && /bagianUlang\(outcome\.per_domain, outcome\.ambang, peta, pelajaran\)/.test(hasil) && /\/pelajaran\/\$\{u\.lessonId\}/.test(hasil),
+        // Z K-01: «Pelajari lagi» also takes the missed must-be-right question's objectives (Z-K01-02 holds that half)
+        && /bagianUlang\(outcome\.per_domain, outcome\.ambang, peta, pelajaran, outcome\.tujuan_gerbang_kode \?\? \[\]\)/.test(hasil) && /\/pelajaran\/\$\{u\.lessonId\}/.test(hasil),
         "the result page does not say whether the target was met, or does not point a learner below it at the lessons to review");
       const lanjut = buang(readFileSync(join(repoRoot, "src", "app", "belajar", "[tugas]", "lanjut", "page.tsx"), "utf8"));
       c.expect(/target === "BELUM"/.test(lanjut) && /siklus\.target\.lanjut_belum/.test(lanjut) && /hasil#ulang/.test(lanjut),
@@ -82,7 +83,8 @@ export const m3Tests: SelfTest[] = [
       const rumah = buang(readFileSync(join(repoRoot, "src", "app", "belajar", "page.tsx"), "utf8"));
       c.expect(/target=\{capaian\.get\(k\.tugas\.learning_assignment_id\) \?\? null\}/.test(rumah), "the home's chapter cards are not told the verdict");
       const murid = buang(readFileSync(join(repoRoot, "src", "app", "mengajar", "[kelas]", "murid", "[orang]", "page.tsx"), "utf8"));
-      c.expect(/mengajar\.murid1\.di_bawah_target/.test(murid) && /h\.penguasaan < h\.batas/.test(murid),
+      // Z K-01: the verdict beside a result is pengajar.vonisHasil's (below the mark is DI_BAWAH there; Z-K01-02)
+      c.expect(/mengajar\.murid1\.di_bawah_target/.test(murid) && /ajar\.vonisHasil\(h\)/.test(murid) && /v === "DI_BAWAH"/.test(murid),
         "the teacher's record of a learner does not show a result below its target as below it");
 
       for (const locale of ["id", "en"] as const) {

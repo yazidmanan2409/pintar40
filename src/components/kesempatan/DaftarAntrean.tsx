@@ -6,7 +6,7 @@ import BarisHasil from "@/components/BarisHasil";
 import Kosong from "@/components/Kosong";
 import TombolKirim from "@/components/TombolKirim";
 import { antreanKesempatan } from "@/lib/pengerjaan";
-import { kodePengerjaanDari, kunciKodePengerjaan, type TempatAntrean } from "@/lib/pengerjaan-kontrak";
+import { kodePengerjaanDari, kunciHasilAntrean, kunciKodePengerjaan, type TempatAntrean } from "@/lib/pengerjaan-kontrak";
 import { isi } from "@/lib/pengerjaan-tampil";
 import { putuskanKesempatanAksi } from "@/app/konfigurasi/kesempatan/actions";
 
@@ -58,9 +58,11 @@ export default async function DaftarAntrean({ tempat, sekolah, locale, hasil, ko
           {urut.map((r) => {
             const instrumen = r.mode === "PRE_TEST" || r.mode === "POST_TEST" ? s(`jenis.mode.${r.mode}` as HleEvent) : r.judul;
             const dipakai = isi(s("kesempatan.baris.dipakai"), { n: format.number(r.percobaan_terpakai, locale) });
-            const hasil = r.hasil_terakhir === null ? ""
-              : r.target === null ? isi(s("kesempatan.baris.hasil_saja"), { hasil: persen(Number(r.hasil_terakhir)) })
-              : isi(s("kesempatan.baris.hasil"), { hasil: persen(Number(r.hasil_terakhir)), target: persen(Number(r.target)) });
+            // Z K-01 (ruling 78; Daisy): with a target, the line never reads as reached for a missed must-be-right question,
+            // and a gate that cannot be read is said so (Sharon's Q3); the figure and the target still show
+            const kunciHasil = kunciHasilAntrean(r);
+            const hasil = kunciHasil === null ? ""
+              : isi(s(kunciHasil), { hasil: persen(Number(r.hasil_terakhir)), ...(r.target === null ? {} : { target: persen(Number(r.target)) }) });
             return (
               <li key={r.id} id={`k-${r.id}`} data-permintaan={r.id} data-milik-sendiri={r.milik_sendiri ? "ya" : "tidak"}>
                 <span className="pin-title">{[r.nama, r.kelas, [instrumen, r.kursus].filter(Boolean).join(" ")].filter(Boolean).join(" · ")}</span>

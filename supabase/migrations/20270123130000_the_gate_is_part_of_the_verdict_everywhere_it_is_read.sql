@@ -8,7 +8,9 @@
 --     that row was computed with (its basis's key where a governed correction recorded one, else the sealed key);
 --     never regraded with today's key; [] when the row's gate passed. Internal: no client grant, no registry row.
 --   * session_outcome gains tujuan_gerbang from the learner's own result row (hasil_murid_id), on an Uji Penguasaan
---     only; still session_is_mine. tujuan_belum_tercapai adds the same helper's objectives for the learner's most
+--     only; still session_is_mine. CORRECTED IN PLACE (undeployed; Z3-A, for the learner's «Pelajari lagi»): and
+--     tujuan_gerbang_kode, the same objectives' codes (the learner's reading map and per_domain name objectives by code,
+--     and a learner holds no read of learning_objectives by id). tujuan_belum_tercapai adds the same helper's objectives for the learner's most
 --     recent attempt's effective result, under its existing staff rule. Restated in full from their live definitions.
 --   * percobaan_antrean gains gerbang, the same last result's gate, under the same CAN_VIEW_LEARNER_RESULT condition as
 --     the figure and the target; its return type changes, so it is dropped and created, its grant restated.
@@ -74,7 +76,12 @@ begin
     'ambang', v_min,
     -- Z K-01 (Sharon's Q1): the objectives of the must-be-right items this result missed, from this same result row
     -- (graded by the key that row was computed with); [] when its gate passed. Never on a pre-test (returned above).
-    'tujuan_gerbang', to_jsonb(public.tujuan_gerbang_terlewat(v_r.id)));
+    'tujuan_gerbang', to_jsonb(public.tujuan_gerbang_terlewat(v_r.id)),
+    -- CORRECTED IN PLACE (undeployed; Z3-A): the same objectives' codes, which is how the learner's own reading map and
+    -- per_domain name them (a learner cannot read learning_objectives by id), so «Pelajari lagi» can list them
+    'tujuan_gerbang_kode', coalesce((select to_jsonb(array_agg(lo.code order by lo.code collate "C"))
+                                       from public.learning_objectives lo
+                                      where lo.id = any (public.tujuan_gerbang_terlewat(v_r.id))), '[]'::jsonb));
 end $function$;
 
 CREATE OR REPLACE FUNCTION public.tujuan_belum_tercapai(p_class uuid, p_learner uuid)

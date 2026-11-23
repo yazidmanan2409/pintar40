@@ -112,12 +112,15 @@ export default async function UlangKelas({
                   <li key={m.id} data-murid={m.id}>
                     <label className="pin-cepat-centang">
                       <input type="checkbox" name="murid" value={m.id}
-                        defaultChecked={dariMurid ? m.id === dariMurid : m.status === "bawah"} />
+                        defaultChecked={dariMurid ? m.id === dariMurid : m.status === "bawah" || m.status === "gerbang"} />
                       <span>
                         {m.nama}{" "}
                         <small data-status={m.status}>
+                          {/* Z K-01: the gate learner and the gate-unknown learner say why, beside the figure, which still shows */}
                           {m.status === "belum"
                             ? s("mengajar.ulang.belum_uji")
+                            : m.status === "gerbang" || m.status === "tak_diketahui"
+                            ? `${m.penguasaan === null ? "—" : format.percent(m.penguasaan, locale)} · ${s(m.status === "gerbang" ? "mengajar.ulang.gerbang" : "mengajar.ulang.tak_diketahui")}`
                             : `${m.status === "bawah" ? `${s("mengajar.murid1.di_bawah_target")} · ` : ""}${m.penguasaan === null ? "—" : format.percent(m.penguasaan, locale)}`}
                         </small>
                       </span>

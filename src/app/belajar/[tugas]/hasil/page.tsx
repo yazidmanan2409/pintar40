@@ -11,7 +11,7 @@ import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import PerTujuan from "@/components/siklus/PerTujuan";
 import { TeksBaris } from "@/components/teks/Teks";
-import { bagianUlang, ketuntasan, hitunganSegel } from "@/lib/siklus";
+import { alasanBelum, bagianUlang, ketuntasan, hitunganSegel } from "@/lib/siklus";
 import { judulHalaman } from "@/lib/judul-halaman";
 
 export const generateMetadata = judulHalaman("/belajar/[tugas]/hasil");
@@ -68,7 +68,10 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
   await engine.noteResultSeen(db, state.post_session).catch(() => false);
   // D-085 M3 (W4): finishing is not mastering. The verdict is the session's own, from the mark sealed on it (D-088(b)).
   const target = ketuntasan(outcome);
-  const ulang = target === "BELUM" ? bagianUlang(outcome.per_domain, outcome.ambang, peta, pelajaran) : [];
+  // Z K-01: below target by the gate alone says so, and «Pelajari lagi» also takes the missed must-be-right question's
+  // objectives (never shown empty: an empty list draws nothing, and belum_gerbang reads right without one; C2)
+  const ulang = target === "BELUM" ? bagianUlang(outcome.per_domain, outcome.ambang, peta, pelajaran, outcome.tujuan_gerbang_kode ?? []) : [];
+  const alasan = alasanBelum(outcome);
 
   const pct = outcome.penguasaan == null ? null : outcome.penguasaan;
   const gate = outcome.gerbang_keselamatan;
@@ -134,7 +137,7 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
         ) : target === "BELUM" ? (
           <div className="pin-banner pin-attention pin-target" role="status" data-target="belum" id="ulang">
             <Ikon nama="triangle-alert" />
-            <p><strong>{s("hasil.target.belum")}</strong> {s("hasil.target.belum_arti")}</p>
+            <p data-alasan={alasan === "GERBANG" ? "gerbang" : "di-bawah"}><strong>{s("hasil.target.belum")}</strong> {s(alasan === "GERBANG" ? "hasil.target.belum_gerbang" : "hasil.target.belum_arti")}</p>
             {ulang.length > 0 ? (
               <>
                 <p className="pin-ulang-judul">{s("hasil.target.ulang")}</p>
@@ -145,7 +148,8 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
                         <Link href={`/belajar/${tugas}/pelajaran/${u.lessonId}`}>{u.pelajaran}</Link>
                       ) : null}
                       {u.lessonId ? " · " : ""}<TeksBaris teks={u.nama} />
-                      {" · "}<span className="pin-num">{format.percent(u.penguasaan, locale)}</span>
+                      {typeof u.penguasaan === "number" && !(u.gerbang && alasan === "GERBANG")
+                        ? <>{" · "}<span className="pin-num">{format.percent(u.penguasaan, locale)}</span></> : null}
                     </li>
                   ))}
                 </ul>

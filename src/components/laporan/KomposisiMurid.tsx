@@ -88,6 +88,9 @@ export default function KomposisiMurid({ bab, locale, persona = "learner" }: { b
                   {b.tercapai ? <small className={kurang ? "pin-lk-bawah" : undefined}>{s(kurang ? "hasilbelajar.belum_capai" : "hasilbelajar.tercapai")}</small> : null}
                 </span>
                 {b.ditarik ? <small className="pin-lk-ditarik" data-ditarik="">{s("hasilbelajar.ditarik")}</small> : null}
+                {/* Z V2 (R-22): a retake open, said neutrally; the result above stays the finished one. D14: recalculated */}
+                {b.ulangBerjalan ? <small className="pin-meta" data-ulang-berjalan="">{s("hasil.ulang_berjalan")}</small> : null}
+                {b.dihitungUlang ? <small className="pin-meta" data-dihitung-ulang="">{s("hasil.dihitung_ulang")}</small> : null}
                 {/* the text equivalent of the row's picture */}
                 <span className="pin-sr">
                   {v !== null ? `${s("hasilbelajar.akhir")}: ${persenJujur(v, locale, [b.ambang])}. ` : ""}

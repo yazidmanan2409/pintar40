@@ -54,6 +54,7 @@ create temp table t_w on commit drop as select f.item_id, (select o.label from p
   from public.session_final_responses((select id from t_s)) f where f.is_safety_critical limit 1;
 grant select on t_s, t_w to authenticated;
 select 'tujuan|' || (select array_to_string(tujuan, ',') from t_w);
+select 'tujuanKode|' || coalesce((select string_agg(o.code, ',' order by o.code) from public.learning_objectives o where o.id in (select unnest(tujuan) from t_w)), '');
 set local session_replication_role = replica;
 ${gagal ? `update public.responses r set value = jsonb_build_object('pilihan', (select salah from t_w)) from public.presented_items p
  where p.id = r.presented_item_id and r.is_final and p.session_id = (select id from t_s) and p.item_id = (select item_id from t_w);
@@ -87,8 +88,15 @@ begin
             from public.session_outcome((select id from t_s)) x);
 exception when others then return 'ditolak|' || sqlerrm;
 end $f$;
+create function pg_temp.coba_kode() returns text language plpgsql as $f$
+begin
+  return coalesce((select case when x ? 'tujuan_gerbang_kode' then coalesce((select string_agg(e, ',' order by e) from jsonb_array_elements_text(x -> 'tujuan_gerbang_kode') e), '') else 'TIDAK ADA' end
+                     from public.session_outcome((select id from t_s)) x), 'null');
+exception when others then return 'ditolak';
+end $f$;
 select selftest.as_user(${lit(m.orangLain ? "__lain__" : SISWA).replace("'__lain__'", "(select u.email from auth.users u join public.accounts a on a.auth_user_id = u.id join public.enrollments e on e.person_id = a.person_id where e.status = 'ACTIVE' and u.email is not null and u.email <> " + lit(SISWA) + " and not exists (select 1 from public.role_assignments ra where ra.person_id = a.person_id) order by u.email limit 1)")});
 select 'murid|' || pg_temp.coba_hasil();
+select 'muridKode|' || pg_temp.coba_kode();
 select selftest.as_user(${lit(GURU)});
 select 'guru|' || coalesce((select string_agg(t.objective_id::text, ',' order by t.objective_id) from public.tujuan_belum_tercapai((select class_node_id from t_s), (select person_id from t_s)) t), '');
 ${m.antrean ? `select selftest.as_user(${lit(KAPRODI)});
@@ -97,7 +105,7 @@ select selftest.as_user(${lit(ADMIN)});
 select 'admin|' || coalesce((select string_agg(coalesce(a.hasil_terakhir::text, '-') || ':' || coalesce(a.target::text, '-') || ':' || coalesce(to_jsonb(a) ->> 'gerbang', 'null'), ',') from public.percobaan_antrean((select institution_id from t_s)) a), 'none');` : ""}
 reset role;
 ${DUNIA}
-rollback;`).split("\n").filter((b) => /^(tujuan|murid|guru|kaprodi|admin|koreksi|dunia)\|/.test(b))
+rollback;`).split("\n").filter((b) => /^(tujuan|tujuanKode|murid|muridKode|guru|kaprodi|admin|koreksi|dunia)\|/.test(b))
     .reduce<Record<string, string>>((o, b) => { const i = b.indexOf("|"); o[b.slice(0, i)] = b.slice(i + 1); return o; }, {});
 }
 
@@ -113,12 +121,15 @@ export const zK01Tests: SelfTest[] = [
       c.expect(tujuan !== "", `the seeded sitting's must-be-right item has no objective: ${JSON.stringify(gagal)}`);
       // the gate-only failure: the learner told why, the teacher shown the same objectives, the queue not «reached»
       c.expect(gagal.murid === `false|false|${tujuan}`, `the learner's result of a gate-only failure: ${gagal.murid} (lulus false, gate false, tujuan_gerbang ${tujuan})`);
+      // Z3-A: the learner cannot read objectives by id, so her result carries their codes too, from the same helper and row
+      c.expect((gagal.tujuanKode ?? "") !== "" && gagal.muridKode === gagal.tujuanKode, `the learner's tujuan_gerbang_kode of a gate-only failure: ${gagal.muridKode} (expected ${gagal.tujuanKode}, the codes of tujuan_gerbang)`);
       c.expect(gagal.guru === tujuan, `the teacher's objectives not yet reached: «${gagal.guru}» (exactly the learner's tujuan_gerbang, ${tujuan})`);
       c.expect(/^[0-9.]+:0\.60:false$/.test(gagal.kaprodi ?? ""), `the head of department's retake queue: ${gagal.kaprodi} (figure, target and gerbang false)`);
       c.expect(gagal.admin === "-:-:null", `the school admin's retake queue: ${gagal.admin} (no figure, no target, no gate: an administrator is not an examiner)`);
       // the gate passed: nothing missed, nothing to study
       const lulus = coba({});
       c.expect(lulus.murid === "true||" || lulus.murid === "true|true|", `the untouched sitting (gate passed): ${lulus.murid} (lulus true, gate true, tujuan_gerbang [])`);
+      c.expect(lulus.muridKode === "", `the untouched sitting's tujuan_gerbang_kode: ${lulus.muridKode} (expected [])`);
       c.expect(lulus.guru === "", `the teacher's objectives for the untouched sitting: «${lulus.guru}» (none)`);
       // another learner is refused the session
       const lain = coba({ gerbang: false, orangLain: true });

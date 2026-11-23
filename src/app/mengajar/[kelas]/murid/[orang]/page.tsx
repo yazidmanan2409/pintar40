@@ -124,17 +124,28 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
                     {/* owner decisions E1, D14: a recalculated sitting is explained directly under its figure, with its reason */}
                     {h.dihitungUlang ? <CatatanHitungUlang baru={h.penguasaan} asli={h.asli} alasan={h.alasan} locale={locale} /> : null}
                     {h.ditarik ? <small data-ditarik="">{s("mengajar.murid1.ditarik")}</small> : null}
+                    {/* Z V2 (R-22): a retake under way, said neutrally; the figure is this finished result's */}
+                    {h.ulangBerjalan ? <small className="pin-meta" data-ulang-berjalan="">{s("hasil.ulang_berjalan")}</small> : null}
                     {/* D-085 M3: below the sealed target, the teacher sees it; the target is shown beside the mastery.
                         Daisy (435a2856, §1.3): not for a withdrawn result, given by mistake, which invites no judgement */}
-                    {h.batas !== null && !h.ditarik ? (
-                      <small data-target={h.penguasaan !== null && h.penguasaan < h.batas ? "belum" : "batas"}>
-                        {h.penguasaan !== null && h.penguasaan < h.batas ? `${s("mengajar.murid1.di_bawah_target")} · ` : ""}
-                        {s("mengajar.murid1.target")} {format.percent(h.batas, locale)}
-                      </small>
-                    ) : null}
+                    {/* Z K-01 (ruling 78): one verdict. A missed must-be-right question is «belum mencapai target» although the
+                        figure meets the mark; a gate that cannot be read is said so, never «reached» (Sharon's Q3) */}
+                    {h.batas !== null && !h.ditarik ? (() => {
+                      const v = ajar.vonisHasil(h);
+                      const p = format.percent(h.batas, locale);
+                      return (
+                        <small data-target={v === "DI_BAWAH" || v === "GERBANG" ? "belum" : v === "TAK_DIKETAHUI" ? "tak-diketahui" : "batas"}
+                          data-vonis={v === "GERBANG" ? "gerbang" : undefined}>
+                          {v === "GERBANG" ? s("mengajar.murid1.gerbang").replace("{p}", p)
+                            : v === "TAK_DIKETAHUI" ? s("mengajar.murid1.gerbang_tak_diketahui").replace("{p}", p)
+                            : <>{v === "DI_BAWAH" ? `${s("mengajar.murid1.di_bawah_target")} · ` : ""}{s("mengajar.murid1.target")} {p}</>}
+                        </small>
+                      );
+                    })() : null}
                     {/* D-085 M3 (J5.12): under the target on this class's Uji Penguasaan, the teacher may give material back */}
                     {/* ... nor «Beri ulang»: giving material back because of a mistaken assessment repeats the mistake */}
-                    {h.mode === "POST_TEST" && !h.ditarik && h.batas !== null && h.penguasaan !== null && h.penguasaan < h.batas && catatan.tugasSesi[h.sesi]
+                    {/* Z K-01: every result whose verdict is «belum mencapai target», the gate included; a gate not known keeps it */}
+                    {h.mode === "POST_TEST" && ["DI_BAWAH", "GERBANG", "TAK_DIKETAHUI"].includes(ajar.vonisHasil(h) ?? "") && catatan.tugasSesi[h.sesi]
                       // Daisy (1fad2861, B2): never on a chapter the class is no longer given; the database refuses it there
                       && !catatan.tugasTertutup[catatan.tugasSesi[h.sesi]] ? (
                       <Link className="pin-ulang-tautan" href={`/mengajar/${id}/ulang?penugasan=${catatan.tugasSesi[h.sesi]}&murid=${orang}`}>
@@ -146,6 +157,10 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
               ))}
             </dl>
           )}
+          {/* Z K-01 (Sharon's Q3; Daisy): once under the table when any result's gate could not be read */}
+          {catatan.hasil.status === "ok" && catatan.daftarHasil.some((h) => ajar.vonisHasil(h) === "TAK_DIKETAHUI") ? (
+            <p className="pin-ket" data-gerbang-tak-diketahui="">{s("mengajar.murid1.gerbang_tak_diketahui_arti")}</p>
+          ) : null}
         </section>
 
         {/* W2.18 (J5.13): the objectives by their statement (the learner's result's own rows, DAISY-29), no figure

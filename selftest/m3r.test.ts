@@ -229,7 +229,8 @@ export const m3rTests: SelfTest[] = [
         "the teacher's action does not send the chosen learners and lessons to request_lesson_review");
       const halaman = baca("src", "app", "mengajar", "[kelas]", "ulang", "page.tsx");
       c.expect(/name="murid"/.test(halaman) && /name="pelajaran"/.test(halaman)
-        && /defaultChecked=\{dariMurid \? m\.id === dariMurid : m\.status === "bawah"\}/.test(halaman),
+        // Z K-01 (ruling 78): the learner who missed a must-be-right question is pre-ticked with those under the target
+        && /defaultChecked=\{dariMurid \? m\.id === dariMurid : m\.status === "bawah" \|\| m\.status === "gerbang"\}/.test(halaman),
         "the teacher's screen does not let the teacher choose learners and lessons, or does not mark who is under the target");
       const ajar = baca("src", "lib", "pengajar.ts");
       c.expect(/export function urutUlang\(/.test(ajar), "the screen's order (under the target first) is not one pure function");

@@ -19,7 +19,7 @@
  * `may_start_assessment()`'s answer and is asked separately, every time.
  */
 import type { CycleState } from "@/lib/assessment-engine";
-import type { AssignmentEntry, LessonEntry } from "@/lib/assessment-engine/types";
+import type { AssignmentEntry, LessonEntry, Outcome } from "@/lib/assessment-engine/types";
 
 /** The five steps of one learning cycle, in the order they happen. */
 export const LANGKAH = ["PEMETAAN", "PETA", "PELAJARAN", "PENGUASAAN", "HASIL"] as const;
@@ -286,8 +286,20 @@ export function ketuntasan(o: { diagnostik?: boolean | null; lulus?: boolean | n
   return o.lulus ? "TERCAPAI" : "BELUM";
 }
 
-/** A part below the target, and the lesson to read again for it (when the reading map names one). */
-export type BagianUlang = { kode: string; nama: string; penguasaan: number; lessonId: string | null; pelajaran: string | null };
+/** A part below the target, and the lesson to read again for it (when the reading map names one). Z K-01: or a part
+ *  whose must-be-right question was missed (gerbang), whatever its own figure; its figure is then not the reason. */
+export type BagianUlang = { kode: string; nama: string; penguasaan: number | null; lessonId: string | null; pelajaran: string | null; gerbang: boolean };
+
+/**
+ * Z K-01 (ruling 78, one verdict): why a result is «belum mencapai target». GERBANG when the mastery meets the sealed mark
+ * but a must-be-right question was missed; DI_BAWAH when the mastery is below the mark (with or without the gate);
+ * null when the verdict is not BELUM or cannot be told.
+ */
+export function alasanBelum(o: Pick<Outcome, "lulus" | "diagnostik" | "gerbang_keselamatan" | "penguasaan" | "ambang"> | null | undefined): "GERBANG" | "DI_BAWAH" | null {
+  if (ketuntasan(o) !== "BELUM" || !o) return null;
+  if (typeof o.penguasaan === "number" && typeof o.ambang === "number" && o.penguasaan < o.ambang) return "DI_BAWAH";
+  return o.gerbang_keselamatan === false ? "GERBANG" : "DI_BAWAH";
+}
 
 /**
  * M3: below target, PINTAR points at what to review. The objectives whose own mastery is under the sealed mark, lowest
@@ -299,21 +311,24 @@ export function bagianUlang(
   ambang: number | null | undefined,
   peta: ReadonlyArray<{ kode: string; pernyataan: string; pelajaran: string }>,
   lessons: ReadonlyArray<{ lesson_id: string; judul: string }>,
+  /** Z K-01 (C2): the codes of the objectives whose must-be-right question this result missed (tujuan_gerbang_kode) */
+  gerbang: readonly string[] = [],
 ): BagianUlang[] {
-  if (ambang == null || !perDomain) return [];
+  if (ambang == null || (!perDomain && gerbang.length === 0)) return [];
   const kartu = new Map(peta.map((k) => [k.kode, k]));
   const idPelajaran = new Map(lessons.map((l) => [l.judul, l.lesson_id]));
-  return Object.entries(perDomain)
+  const sisi = (kode: string) => {
+    const k = kartu.get(kode);
+    return { nama: k?.pernyataan || kode, lessonId: k ? idPelajaran.get(k.pelajaran) ?? null : null, pelajaran: k?.pelajaran ?? null };
+  };
+  const diGerbang = new Set(gerbang);
+  const bawah = Object.entries(perDomain ?? {})
     .filter(([, v]) => v && typeof v.penguasaan === "number" && v.penguasaan < ambang)
-    .map(([kode, v]) => {
-      const k = kartu.get(kode);
-      return {
-        kode,
-        nama: k?.pernyataan || kode,
-        penguasaan: (v as { penguasaan: number }).penguasaan,
-        lessonId: k ? idPelajaran.get(k.pelajaran) ?? null : null,
-        pelajaran: k?.pelajaran ?? null,
-      };
-    })
+    .map(([kode, v]) => ({ kode, ...sisi(kode), penguasaan: (v as { penguasaan: number }).penguasaan, gerbang: diGerbang.has(kode) }))
     .sort((a, b) => a.penguasaan - b.penguasaan || a.kode.localeCompare(b.kode));
+  // then the gate's objectives not already listed, in code order: what to study again although the figure meets the mark
+  const sudah = new Set(bawah.map((b) => b.kode));
+  const lewat = [...diGerbang].filter((kode) => !sudah.has(kode)).sort((a, b) => a.localeCompare(b))
+    .map((kode) => ({ kode, ...sisi(kode), penguasaan: null, gerbang: true }));
+  return [...bawah, ...lewat];
 }

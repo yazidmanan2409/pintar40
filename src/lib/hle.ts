@@ -3378,7 +3378,17 @@ export type HleEvent =
   | "studio.ai.dihapus"
   | "studio.ai.jumlah_ai"
   // Z-A: stream A's new keys (Z-PARALLEL-PLAN.md: A adds only here; stream B owns every existing key)
-  | "galat.transfer_source_closed";
+  | "galat.transfer_source_closed"
+  // Z3-A (K-01 one verdict, the gate-unknown state, V2): Daisy's final words (SAPU-KATA-RULING-78.md, via Bob)
+  | "hasil.target.belum_gerbang"
+  | "mengajar.murid1.gerbang"
+  | "mengajar.murid1.gerbang_tak_diketahui"
+  | "mengajar.murid1.gerbang_tak_diketahui_arti"
+  | "mengajar.ulang.gerbang"
+  | "mengajar.ulang.tak_diketahui"
+  | "kesempatan.baris.hasil_gerbang"
+  | "kesempatan.baris.hasil_tak_diketahui"
+  | "hasil.ulang_berjalan";
 
 /**
  * One key's telling, in both languages.
@@ -7803,7 +7813,8 @@ const table: Table = {
   "mengajar.murid1.hasil_kosong": { default: "Belum ada hasil resmi untuk murid ini.", en: "No official result for this student yet." },
   // W2.18 (J5.13): the objectives the learner has not yet reached, by their statement; «belum» is never failure (X.5)
   "mengajar.murid1.tujuan": { default: "Tujuan pembelajaran yang belum tercapai", en: "Learning objectives not yet reached" },
-  "mengajar.murid1.tujuan_arti": { default: "Dari Uji Penguasaan terakhir murid ini di kelas ini: tujuan yang penguasaannya masih di bawah target. Ini yang perlu dipelajari lagi, bukan penilaian atas muridnya.", en: "From this student's latest Mastery Check in this class: the objectives whose mastery is still below the target. This is what to work on next, not a judgment of the student." },
+  // Z N-14 (stream A, in K-01's screens commit by Bob's ruling): the list now includes the gate's objectives
+  "mengajar.murid1.tujuan_arti": { default: "Dari Uji Penguasaan terakhir murid ini di kelas ini: tujuan yang belum tercapai, termasuk tujuan dari soal penting yang belum tepat. Ini yang perlu dipelajari lagi, bukan penilaian atas muridnya.", en: "From this student's latest Mastery Check in this class: the objectives not yet reached, including those of an important question not yet right. This is what to study again, not a judgement of the student." },
   "mengajar.murid1.tujuan_kosong": { default: "Tidak ada tujuan pembelajaran yang tercatat di bawah target pada Uji Penguasaan murid ini di kelas ini.", en: "No learning objective is recorded below the target on this student's Mastery Checks in this class." },
   // K-03 (SAPU-VERIFIED; Daisy's sweep words): no scored Uji Penguasaan here is its own state, and a failed read is said
   "mengajar.murid1.tujuan_belum_uji": { default: "Belum ada Uji Penguasaan dari murid ini di kelas ini.", en: "This student has no Mastery Check in this class yet." },
@@ -8074,6 +8085,16 @@ const table: Table = {
   // Z V5 (R-24): an authorised transfer whose sending-school enrolment has closed since (TRANSFER_SOURCE_CLOSED). Daisy's
   // final words (Bob 11:02Z): the next step names who acts, the sending school, which alone can request again.
   "galat.transfer_source_closed": { default: "Pendaftaran murid ini di sekolah asalnya sudah ditutup setelah permintaan pindah ini dibuat, misalnya karena kenaikan kelas. Perpindahan tidak dijalankan, dan tidak ada yang berubah. Sekolah asal perlu mengajukan perpindahan baru dari pendaftaran murid yang berlaku sekarang.", en: "This student's enrolment at the sending school closed after this transfer was requested, for example at the year-end promotion. The transfer was not carried out, and nothing changed. The sending school needs to request a new transfer from the student's current enrolment." },
+  // Z3-A: K-01 (one verdict: the gate as the reason), the gate-unknown state (Sharon's Q3), V2's retake line. Daisy's final words.
+  "hasil.target.belum_gerbang": { default: "Persentase penguasaan bab ini sudah memenuhi target, tetapi ada soal penting yang belum dijawab dengan tepat. Karena itu target bab ini belum tercapai. Tanyakan kepada guru Anda langkah berikutnya.", en: "Your mastery percentage for this chapter meets the target, but an important question was not answered correctly. So this chapter's target is not reached yet. Ask your teacher about the next step." },
+  "mengajar.murid1.gerbang": { default: "belum mencapai target: soal penting belum tepat · target {p}", en: "target not reached: an important question is not right yet · target {p}" },
+  "mengajar.murid1.gerbang_tak_diketahui": { default: "belum dapat disimpulkan apakah target tercapai · target {p}", en: "whether the target is reached cannot be concluded yet · target {p}" },
+  "mengajar.murid1.gerbang_tak_diketahui_arti": { default: "Data soal penting untuk hasil ini tidak dapat dibaca sekarang. Muat ulang halaman ini nanti.", en: "The important-question data for this result cannot be read right now. Reload this page later." },
+  "mengajar.ulang.gerbang": { default: "Persentase sudah memenuhi target, tetapi ada soal penting yang belum tepat.", en: "The percentage meets the target, but an important question is not right yet." },
+  "mengajar.ulang.tak_diketahui": { default: "Belum dapat disimpulkan apakah target tercapai.", en: "Whether the target is reached cannot be concluded yet." },
+  "kesempatan.baris.hasil_gerbang": { default: "hasil terakhir {hasil}, target {target} belum tercapai: soal penting belum tepat", en: "last result {hasil}, target {target} not reached: an important question is not right yet" },
+  "kesempatan.baris.hasil_tak_diketahui": { default: "hasil terakhir {hasil}, target {target}: belum dapat disimpulkan apakah tercapai", en: "last result {hasil}, target {target}: whether it is reached cannot be concluded yet" },
+  "hasil.ulang_berjalan": { default: "Uji Penguasaan ulang sedang berlangsung. Hasil yang tampil adalah hasil uji sebelumnya.", en: "A Mastery Check retake is in progress. The result shown is from the earlier check." },
 };
 
 /** Words that must never appear on a learner-facing surface (doc 12 "complexity leaking"). */
