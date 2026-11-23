@@ -1,7 +1,9 @@
 # Z · staging promotion evidence
 
 > **The pair:** 300 → 308. Line 10 reads `300 / 20270122190000` BEFORE and `308 / 20270123170000` AFTER.
-> - **The frozen candidate:** `claude/z` at **`df0cbc9c`** (Bob, 15:09Z). Sharon passed this evidence
+> - **The candidate (final):** code **`7615d6b1`**, verified at **`9a819a7c`** (CI 45281543583 and journeys 45281560320,
+>   both green in one attempt; `ci-of-record/`), `claude/z` tip **`595a0d3a`** (documents only since `7615d6b1`).
+> - **History, the first frozen candidate:** `claude/z` at **`df0cbc9c`** (Bob, 15:09Z). Sharon passed this evidence
 >   (`Z9-PROMOTION-0237cf2a.md`, `3c5cffad`). The dry run was taken on `944520b0`; from there to the candidate only this
 >   folder changed.
 > - **The full pre-flight on `df0cbc9c`** (`preflight-df0cbc9c/`): lint, typecheck and build identity pass; the whole
