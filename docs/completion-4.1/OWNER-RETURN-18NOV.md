@@ -326,3 +326,8 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
   - D060-J78-01: three service readers changed without the catalogue statement.
 
   Sent back to Second Eye. Sharon re-checks them in Z2. **The process fix:** the static suite joins every SQL chunk's focused checks.
+- **11:00 UTC · Daisy: stream B Z4 PASS, with no condition** (`081b9a7b`). The rendered recheck of the reopening page passes.
+  - **In Z5:** N-16 (`galat.tunggu`, already in S-12's approved correction) and N-17 (`TombolAksi`'s width, a sibling of R-26 item 4).
+  - **To the ruling 79 audit:** N-18 (the reopening h1 at body size; pre-existing).
+- **V5's final words** (Daisy): the sending school is named as the one to act. Sent to stream A.
+- **Stream A:** all seven migrations are in (307). Stream B was merged at `ce31801f`, and the one full pre-flight is running.
