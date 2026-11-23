@@ -89,3 +89,11 @@ From `layar-z8/CATATAN-Z8.txt` (8 shots, 0 px overflow):
 - **Test:** for a signed-in learner and a signed-in admin, the section offers exactly the CLOSE and DELETE_PERSONAL_DATA forms (or the learner's via-school sentence), and no element's text is «—».
 
 **Placement:** I recommend it enter Z as a review finding. It removes a broken control and changes no approved behaviour. Bob decides between Z and bringing it to the owner. It is likely on staging today.
+
+### REOPEN fix at `claude/z` `944520b0` (candidate `df0cbc9c`, 23 Nov, 15:10): **PASS. Z's UX is complete.**
+
+- **The fix:** `MeninggalkanPintar.tsx:48` filters out `REOPEN`. It is client-only, with no words and no SQL.
+- **Z-R15-11, red first, now green:** a signed-in admin sees exactly CLOSE and DELETE_PERSONAL_DATA; a learner sees the «lewat sekolah» line. Nothing reads «—», in ID or EN.
+- **Capture z8-07 at 390:** «Tutup akun saya» and «Hapus data pribadi saya» only, each with its sentence, its confirmation and its button.
+- **The close sentence points to «Minta dibuka kembali» on the sign-in page,** which is that link's own label (`auth.tutup_go`), so the words agree.
+- **Also seen in the same diff, both correct:** Z3-A's C-1 (`hasilbelajar.gerbang`), C-2 (the V2 line after the verdict) and (b) (`_arti` under its tag).

@@ -92,3 +92,4 @@
 | 23 Nov, 14:08 | Bob | Sweep run 2 + Z8 re-looks | `claude/z-ux` `712e1a6a` | **Z6 complete**; Menga jar gone; «target 60%» + breadcrumb «/» → audit (pre-existing); A1-R4 and C1-R4 re-looks closed |
 | 23 Nov, 14:47 | Bob | Z8 item 8 captures + REOPEN form finding | `claude/z` `f505166e` | Item 8 **PASS**; REOPEN «—» form rated **Significant**, recommend Z (client one-line filter) |
 | 23 Nov, 14:52 | Bob | Z3-A conditions recheck | `claude/z` `f970bace` | **PASS**; all UX items before Z9 done |
+| 23 Nov, 15:10 | Bob | REOPEN fix check | `claude/z` `944520b0` | **PASS**; Z UX complete |
