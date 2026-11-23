@@ -290,3 +290,8 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
   - **The D-1 allow-list is CONFIRMED,** with two guard conditions:
     - match on `pg_get_functiondef`, so BEGIN ATOMIC bodies are visible;
     - widen the pattern to `#>>`, `jsonb_extract_path_text` and `->'pilihan'::text`, with plants.
+
+**23 Nov, 10:10 UTC · Stream B, Z3 received** (`claude/z-ux` `4bf300da`). The rows are K-02, K-03, K-04, K-05, M1, M2 and R-8. No SQL. Red and green on file; captures and recovery walks done.
+- **Sent to Daisy** for review.
+- **Sharon** confirms the BOB04-K01 and B5C restatements.
+- **The environment trap for the Z2 full run:** the selftest app runner reuses any server already on port 3999, so a stale build can be served.
