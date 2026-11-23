@@ -1,0 +1,6 @@
+-- Z step 0 on staging keijhmdtsgrfvnvocfvk (pintar-staging, ACTIVE_HEALTHY, verified first), READ ONLY (set transaction read only).
+-- Run by Bob, 23 Nov 2026, about 23:29 UTC, before the merge of PR #28 (staging.yml runs on the merge). The query is z-evidence/step0-Z.sql at 595a0d3a.
+-- RESULT: 0 / 0 / 0, so C4 can be met.
+school_pass_marks below 1..100|0
+assessment_assignments below 0.01..1|0
+assessment_sessions below 0.01..1|0
