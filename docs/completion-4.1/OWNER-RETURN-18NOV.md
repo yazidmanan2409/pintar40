@@ -219,3 +219,8 @@ The harness commit `4f904638` was explained and pushed under `0959a62c`. A full 
 - **Pre-flight:** 1327 passed, 0 failed; plants 175 of 175; red-case groups 11 of 11.
 - **Migrations:** 300, after the new `20270122190000` (C-1's server check).
 - **Sent for review:** Sharon (the migration delta, `ai_tersedia`, the test helper) and Daisy (C-1, C-2, N-10, N-11, the additions, the 34 captures).
+- **05:50 UTC · Sharon: round-2 PASS** (`C3W-1-BUILD-992b568f.md`).
+  - `ai_minta_draf`: the only change is the two objective refusals. Both come before R-3, any row and any reservation; every earlier condition is unchanged.
+  - `ai_tersedia` is aligned, so her note is closed.
+  - `tanamTujuan` is test-only.
+  - **Waiting on Daisy's recheck.**
