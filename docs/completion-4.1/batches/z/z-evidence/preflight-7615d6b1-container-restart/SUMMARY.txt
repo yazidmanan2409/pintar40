@@ -1,0 +1,8 @@
+commit 7615d6b19faff1fbc0e18b62357003382891c45f
+== lint
+rc=0 
+== typecheck
+rc=0
+== build-identity
+rc=0 # pass 11 # fail 0 
+== whole suite (fresh reset, fresh build)
