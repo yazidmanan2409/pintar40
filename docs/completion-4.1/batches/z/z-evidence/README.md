@@ -64,3 +64,10 @@ The promotion checks each one against the deployed file before migrating. Any di
 **Staging is left at the last whole migration applied,** because each file is its own transaction.
 
 **Stop and report to the owner.** No AFTER read is taken, and nothing is retried without the owner.
+
+## The dispatched sha (Bob 22:34Z, option (a))
+
+- **CI and journeys** for Z9's verification of record are dispatched on claude/z at **9a819a7c**, the same sha for both.
+- **The candidate's code is 7615d6b1.** `git diff --stat 7615d6b1 9a819a7c -- . ':!docs'` touches 0 files (Bob verified this, and so did stream A). 9a819a7c adds evidence documents only, so the candidate's code is identical.
+- **Nothing is pushed** to claude/z until both runs have finished, so the dispatched sha stays the tip. Evidence written meanwhile is held locally, for example the third void pre-flight and RESTARTS.md's restart #7.
+- **Local runs on 7615d6b1:** three pre-flights, all VOID because the session VM restarted (`preflight-7615d6b1-container-restart{,-2,-3}/`). Per ruling 86, no fourth was made. The verification of record is ci.yml on GitHub's runners (`EQUIVALENCE.md`), with the GREEN local run on f5700bd1. The diff since that run is test-only.

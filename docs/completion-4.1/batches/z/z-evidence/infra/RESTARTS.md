@@ -41,6 +41,7 @@ It is a Firecracker microVM: kernel `6.18.44-fc`, with `rdinit=/process_api -- -
 | 4 | between about 20:17Z and 20:25Z | the database refused again at about 20:25Z, after the diagnostic dispatch; dockerd was restarted by hand | ± 5 min | nothing |
 | 5 | **21:17:40Z** | uptime 143 s at 21:20:03Z | ± 5 s | 1st pre-flight on 7615d6b1 (`preflight-7615d6b1-container-restart/`) |
 | 6 | **22:13:25Z** | uptime 41 s at 22:14:06Z | ± 5 s | 2nd pre-flight on 7615d6b1 (`preflight-7615d6b1-container-restart-2/`) |
+| 7 | **22:29:34Z** | uptime 330 s at 22:35:04Z | ± 5 s | 3rd pre-flight on 7615d6b1 (`preflight-7615d6b1-container-restart-3/`) |
 
 - **Intervals:** the two precise restarts are 55 min 45 s apart. The earlier gaps are shorter (about 25 to 90 min).
 - **Against the full run:** a full local pre-flight needs about 55 to 60 minutes (the GREEN run on f5700bd1 did fit), so it now straddles at least one restart.
@@ -66,3 +67,17 @@ It is a Firecracker microVM: kernel `6.18.44-fc`, with `rdinit=/process_api -- -
 
 - No local attempt under unchanged conditions. The third local run on 7615d6b1, started 22:15Z before ruling 86 reached this session, is left to finish or be voided; no fourth is started.
 - The verification of record moves to GitHub's runners (`../EQUIVALENCE.md`).
+
+## The first restart the logger saw (#7, 22:29:34Z)
+
+`vakt.log`'s last line before #7 is at 22:28:46Z. The machine was healthy:
+
+- uptime 922 s;
+- MemAvailable 14.6 GB of 16 GB;
+- cgroup usage 4.0 GB, peak 5.47 GB;
+- failcnt 0, oom_kill 0;
+- no OOM or panic line in dmesg.
+
+The next line would have been at 22:29:16Z. None was written, and the machine booted again at 22:29:34Z. #7 came **16 minutes** after #6.
+
+This is the measurement that rules out memory. The restart came from outside, out of a machine with nothing wrong inside it.
