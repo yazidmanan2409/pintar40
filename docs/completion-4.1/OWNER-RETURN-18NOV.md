@@ -275,3 +275,13 @@ The harness commit `4f904638` was explained and pushed under `0959a62c`. A full 
 - **Q2:** the retake queue gets the gate.
 
 Relayed to Second Eye. K-01's SQL is unblocked, in order.
+
+**23 Nov, 09:50 UTC · Z0 COMPLETE** (`claude/z` `4b3f168b`; no migration).
+- R-19: golden-db builds again (plus the pg_cron precondition).
+- The K-01 inventory: Sharon PASS.
+- The D-1 guard, Z-D1-02: the allow-list goes to Sharon.
+- The shared PINTAR ID fixture: pointed to stream B.
+
+**Focused checks only, per ruling 81.** Second Eye stopped a full run he had started before the cadence arrived.
+
+**Z1 has begun with D-1.** Sharon has the `chosen_all` design question.
