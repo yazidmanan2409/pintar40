@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| Z D-1 guard allow-list; `chosen` design | allow-list CONFIRMED with 2 conditions; `chosen_all text[]` chosen | f9530db0 | [Z-D1-GUARD-CHOSEN-f9530db0.md](Z-D1-GUARD-CHOSEN-f9530db0.md) |
 | Z0 K-01 consumer inventory (Q1, Q3) | PASS with conditions (3 rows added; Q1 session_outcome key via one helper) | c9466159 | [Z0-K01-INVENTORY-c9466159.md](Z0-K01-INVENTORY-c9466159.md) |
 | D-6 read RPCs, purpose test (ruling 81) | revoke 3; feedback_result only if a closed round exists | f258e5f4 | [D6-READ-RPC-PURPOSE-f258e5f4.md](D6-READ-RPC-PURPOSE-f258e5f4.md) |
 | C3w-1 staging-promotion proofs | PASS with conditions (4 additions to Request 2) | ed4a90cc | [C3W-1-PROMOTION-ed4a90cc.md](C3W-1-PROMOTION-ed4a90cc.md) |
