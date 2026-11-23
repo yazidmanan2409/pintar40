@@ -372,3 +372,10 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
   - Item 8 (308) is next for stream A. Per the plan's freeze rule, only Z-row review fixes are allowed from here.
 - **13:52 UTC · Daisy: Z3-A PASS with two conditions** (`29a4e841`). C-1: `hasilbelajar.gerbang` on the learner's Hasil Belajar row in the gate case. C-2: the V2 line goes after the teacher's verdict tag. The _arti line goes above the link. «Menga jar» is a Z6 defect; «target 60 %» is Z6 if it is a reflow at 320, otherwise the audit; sweep run 2 decides. Sharon CONFIRMED Z-VERIFY-CLOSED (`f42dc36e`), with item 3's wording to fix.
 - **14:11 UTC · Daisy: Z6 COMPLETE** (`9b1b5d68`). Sweep run 2 is accepted (130 checks). The four uncovered pages go to the audit journeys J5 and J7, by name. Both Z8 re-looks are CLOSED (A1-R4, C1-R4); whether a predicate is printed at all is D2-R's decision after Z. To the ruling 79 audit: «target 60%» inside the «Murid» group, which exists on main already, and the breadcrumb's bare «/». **What remains for Daisy in Z:** the recheck of Z3-A C-1/C-2 and the gerbang_tanpa_tujuan line.
+- **14:43 UTC · Stream A: Z8 item 8 built** (`f505166e`, **308**, `20270123170000`).
+  - PR160 already lived in `role_assignments_guard`, so the revoke route was guarded; what it lacked was «usable».
+  - There is now one definition (`admin_sekolah_lain_ada`) and one lock taker; `minta_akun('CLOSE')` refuses with PR140 ACCOUNT_LAST_SCHOOL_ADMIN.
+  - Red first on 307, green on 308; static suite 1275/0; plants and mutations proved; captures made.
+  - Sent to Sharon, together with the deviation (revoke_role not restated) and the SYSTEM_ADMIN question (Bob: not Z).
+  - **Daisy's Z3-A conditions were still not built:** sent back to Second Eye as the last item before Z9.
+  - **A pre-existing finding:** «Akun saya» shows a blank «—» REOPEN form to every signed-in person. It is on main too. Daisy is asked to rate it; under the freeze rule it goes to the audit unless it is serious.
