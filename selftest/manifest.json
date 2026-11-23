@@ -7044,6 +7044,11 @@
       "id": "C2W-B3",
       "runner": "app",
       "proves": "PLAN-A2B-C2W.md §3.4 B3 with Sharon's D4 (3a2de775), red first, selftest/c2w-catatan-layar.test.ts, the running app, read from the rendered html of the production build on a package the seeded cycle school's people publish: the head of department finds «Catatan peninjau (0)» after «Riwayat soal», never printed, with «Tulis catatan» on each option; the form has Daisy's label, hint and a 1000-character bound; an empty note is refused in her words and nothing is saved; a note with markup is saved («Catatan tersimpan.»), shown as text and attributed with version 1; «Ganti catatan» says the old note stays, and the old one moves under «Catatan sebelumnya (1)» with «Diganti pada …»; the package's author (CAN_DRAFT only) reads the note with no form; the class's learner's pages carry none."
+    },
+    {
+      "id": "Z-D1-02",
+      "runner": "static",
+      "proves": "Z D-1's guard (R-16; Sharon's RULING55 D-1 table), selftest/z-d1.test.ts, read from pg_proc, pg_views and pg_matviews outside the system schemas: every body reading ->> 'pilihan' is on the allowed list (grade_kunci, grade_response, session_answers, each still branching on jsonb_typeof(... 'pilihan')) or on D-1's pending list of seven (reading_map, session_misconceptions, session_review, teacher_question_evidence, service_cohort_misconceptions, service_distractor_uptake, service_item_statistics), each still found until it is repaired and removed; a reader on neither list fails."
     }
   ]
 }
