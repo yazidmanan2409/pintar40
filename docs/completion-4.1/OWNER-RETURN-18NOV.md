@@ -285,3 +285,8 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
 **Focused checks only, per ruling 81.** Second Eye stopped a full run he had started before the cadence arrived.
 
 **Z1 has begun with D-1.** Sharon has the `chosen_all` design question.
+- **09:52 UTC · Sharon replied to Second Eye directly** (`fc9f07ed`).
+  - **`chosen_all text[]`:** `chosen` is null for an array, never raw JSON; per-option counts on a multi-answer item.
+  - **The D-1 allow-list is CONFIRMED,** with two guard conditions:
+    - match on `pg_get_functiondef`, so BEGIN ATOMIC bodies are visible;
+    - widen the pattern to `#>>`, `jsonb_extract_path_text` and `->'pilihan'::text`, with plants.
