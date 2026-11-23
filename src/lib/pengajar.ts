@@ -1044,7 +1044,8 @@ export async function tujuanBelum(kelasId: string, orang: string): Promise<Tujua
  * so a failed read never says «nobody».
  */
 export type MuridPenguatan = {
-  id: string; nama: string; ulang: string[];
+  /** Z N-15: the objectives to study again; null when that learner's read failed (said, never read as «nothing»). */
+  id: string; nama: string; ulang: string[] | null;
   /** The latest Uji Penguasaan's questions right out of its questions (KESETIAAN #5); null when not recorded. */
   benar: number | null; total: number | null;
   /** false: a required question was not right (the safety gate, which alone places a learner in this band). */
@@ -1059,7 +1060,8 @@ export async function perluPenguatan(kelasId: string): Promise<MuridPenguatan[] 
     .filter((r) => typeof r.person_id === "string");
   const ulang = await Promise.all(orang.map((o) => tujuanBelum(kelasId, o.person_id)));
   return orang.map((o, i) => ({
-    id: o.person_id, nama: o.display_name ?? "", ulang: (ulang[i] ?? []).map((u) => u.pernyataan),
+    // Z N-15: a failed objectives read fails closed (null, said as mengajar.murid1.tujuan_gagal), never «nothing to study»
+    id: o.person_id, nama: o.display_name ?? "", ulang: ulang[i] === null ? null : ulang[i].map((u) => u.pernyataan),
     benar: typeof o.total === "number" && o.total > 0 ? o.benar : null, total: typeof o.total === "number" && o.total > 0 ? o.total : null,
     soalWajibTepat: typeof o.soal_wajib_tepat === "boolean" ? o.soal_wajib_tepat : null,
   }));

@@ -128,8 +128,9 @@ export const zUxStaticTests: SelfTest[] = [
       const fn = /export async function tujuanBelum\([\s\S]*?\n\}/.exec(ajar)?.[0] ?? "";
       c.expect(/Promise<TujuanBelum\[\] \| null>/.test(fn) && /if \(error\) return null;/.test(fn) && !/return \[\];/.test(fn),
         "tujuanBelum still answers a failed read with [] (read as «no objective below target»), not null");
-      // perluPenguatan reads it per learner: a failed read there lists nothing to study again, as before, never a crash
-      c.expect(/ulang: \(ulang\[i\] \?\? \[\]\)\.map\(/.test(ajar), "perluPenguatan does not handle a failed tujuanBelum read");
+      // perluPenguatan reads it per learner: since Z N-15 (stream A) a failed read there stays null and is said
+      // (Z-N15-01 renders it), never a crash and never «nothing to study again»
+      c.expect(/ulang: ulang\[i\] === null \? null : ulang\[i\]\.map\(/.test(ajar), "perluPenguatan does not keep a failed tujuanBelum read as null");
       const hal = buang(readFileSync(join(repoRoot, "src", "app", "mengajar", "[kelas]", "murid", "[orang]", "page.tsx"), "utf8"));
       const bagian = /<section className="pin-sec" aria-labelledby="pin-murid-tujuan">[\s\S]*?<\/section>/.exec(hal)?.[0] ?? "";
       c.expect(bagian !== "", "the objectives section was not found");

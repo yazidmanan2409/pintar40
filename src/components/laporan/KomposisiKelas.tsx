@@ -102,7 +102,7 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
   /** The visible name of each place a row names (cohort rows), by id. */
   tempat?: Readonly<Record<string, string>>;
   /** D-195(5): the class's learners in the lowest band, by name (the teacher's only); null draws no section E. */
-  penguatan?: ReadonlyArray<{ id: string; nama: string; ulang: readonly string[]; benar?: number | null; total?: number | null; soalWajibTepat?: boolean | null }> | null;
+  penguatan?: ReadonlyArray<{ id: string; nama: string; ulang: readonly string[] | null; benar?: number | null; total?: number | null; soalWajibTepat?: boolean | null }> | null;
   /** The teacher's view of one learner, as `${muridHref}/${id}`; null: names are not links. */
   muridHref?: string | null;
   /** KESETIAAN #6: the class's score line, one anonymous dot per assessed learner (the teacher's only); null draws none. */
@@ -462,7 +462,10 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
                 <li key={o.id}>
                   <span>
                     {muridHref ? <a href={`${muridHref}/${o.id}`}>{o.nama}</a> : o.nama}
-                    {o.ulang.length > 0
+                    {/* Z N-15: unread is said, never drawn as nothing to study again */}
+                    {o.ulang === null
+                      ? <small>{s("mengajar.murid1.tujuan_gagal")}</small>
+                      : o.ulang.length > 0
                       ? <small>{s("laporan.komposisi.penguatan_ulang").replace("{daftar}", daftarKata(o.ulang.map((u) => judulPendek.get(u) ?? u), locale))}</small> : null}
                   </span>
                   <span className="pin-lk-nilai">
