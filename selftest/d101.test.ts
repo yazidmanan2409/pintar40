@@ -279,7 +279,8 @@ export const d101Tests: SelfTest[] = [
       const halaman = tanpaKomentar(baca("src/app/konfigurasi/keamanan/page.tsx"));
       c.expect(/"INSTITUTION_ADMIN"/.test(halaman) && /security_event_list/.test(halaman) && /sistem === true \? \(/.test(halaman),
         "Keamanan akun is not open to a School Admin, or shows a School Admin the security record");
-      const konf = tanpaKomentar(baca("src/app/konfigurasi/page.tsx"));
+      // RESTATED (Z, R-10): the page and its one navigation source, NavKonfigurasi
+      const konf = tanpaKomentar(baca("src/app/konfigurasi/page.tsx")) + tanpaKomentar(baca("src/components/konfigurasi/NavKonfigurasi.tsx"));
       // L3 (D-132 C7): Keamanan in «Seluruh platform» (the Platform Admin) and in a school's context (its School Admin)
       // (D-138 step 3: a place in the staff navigation is an ItemNav, a Link with its icon)
       c.expect(/\(platformIni \|\| sekolahIni\.length > 0\) \? <(?:Link|ItemNav) href="\/konfigurasi\/keamanan"/.test(konf),

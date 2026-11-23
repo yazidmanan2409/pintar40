@@ -92,8 +92,9 @@ export const b5Tests: SelfTest[] = [
       }
       c.expect(t("sertifikat.cabut.tombol", "staff", { locale: "id" }).includes("{nomor}"), "the act's button does not name the certificate");
 
-      const konfigurasi = kode(baca(ctx.repoRoot, "src/app/konfigurasi/page.tsx"));
-      c.expect(/<ItemNav href="\/konfigurasi\/sertifikat" label=\{s\("sertifikat\.kelola\.judul"\)\} \/>/.test(konfigurasi), "Konfigurasi does not link «Sertifikat sekolah»");
+      // RESTATED (Z, R-10): the page and its one navigation source, NavKonfigurasi (where the item may mark itself current)
+      const konfigurasi = kode(baca(ctx.repoRoot, "src/app/konfigurasi/page.tsx")) + kode(baca(ctx.repoRoot, "src/components/konfigurasi/NavKonfigurasi.tsx"));
+      c.expect(/<ItemNav href="\/konfigurasi\/sertifikat" label=\{s\("sertifikat\.kelola\.judul"\)\}(?: kini=\{[^}]*\})? \/>/.test(konfigurasi), "Konfigurasi does not link «Sertifikat sekolah»");
       c.expect(JUDUL_HALAMAN["/konfigurasi/sertifikat"]?.kunci === "sertifikat.kelola.judul", "the page has no title of its own");
       return c.verdict("«Sertifikat sekolah» lists sertifikat_sekolah as the Collection; «Cabut» on issued certificates opens the panel; the form page "
         + "asks the reason, «Lanjutkan» commits nothing, the destructive in-page confirmation names the certificate, starts on «Batal» "
