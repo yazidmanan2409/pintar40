@@ -142,6 +142,8 @@ export type BarisAntrean = {
   judul: string; mode: string; diminta_oleh: string; nama_peminta: string; diminta_pada: string; alasan: string;
   percobaan_terpakai: number; batas_percobaan: number | null; milik_sendiri: boolean;
   kursus: string | null; hasil_terakhir: number | null; target: number | null;
+  /** Z K-01 (Bob's Q2): that last result's must-be-right gate, under the same condition as the figure (null otherwise) */
+  gerbang?: boolean | null;
 };
 
 /** Where the approver's queue is drawn: a school admin's own page under Konfigurasi, a head of department's own home. */

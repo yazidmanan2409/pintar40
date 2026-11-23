@@ -25,7 +25,9 @@ export type SoalKelas = {
   /** F1-R1b (Sharon §3a.1; Daisy §6a): a wrong option, by the key in force, has no misconception code */
   ada_tak_terkait?: boolean;
 };
-export type JawabanMurid = { item_id: string; chosen: string | null; right: boolean };
+/** Z D-1: chosen is a single answer's label (null for a multi-answer, never JSON); chosen_all is every label chosen
+ *  (one for a single answer, none unanswered), and the only one this page counts by. */
+export type JawabanMurid = { item_id: string; chosen: string | null; chosen_all: string[]; right: boolean };
 export type MuridKelas = { person_id: string; name: string; answers: JawabanMurid[] };
 export type BuktiSoal = { sittings: number; questions: SoalKelas[]; learners: MuridKelas[] };
 
@@ -58,8 +60,12 @@ export function susunBuktiSoal(b: BuktiSoal): SoalTersusun[] {
       for (const m of b.learners) {
         const j = m.answers.find((a) => a.item_id === soal.item_id);
         if (!j) continue;
-        if (j.chosen) pilihan[j.chosen] = (pilihan[j.chosen] ?? 0) + 1;
-        if (!j.right) perluBantuan.push({ nama: m.name, pilihan: j.chosen });
+        // Z D-1 (Sharon, Z-D1-GUARD-CHOSEN-f9530db0.md rule 2): chosen_all only, one label for a single answer, every
+        // label for a multi-answer, none unanswered. A multi-answer counts once on each option chosen, so the counts are
+        // learners per option and may sum past the class: never shares that add up to 100 %
+        const semua = Array.isArray(j.chosen_all) ? j.chosen_all : [];
+        for (const l of semua) pilihan[l] = (pilihan[l] ?? 0) + 1;
+        if (!j.right) perluBantuan.push({ nama: m.name, pilihan: semua.length > 0 ? semua.join(", ") : null });
       }
       perluBantuan.sort((x, y) => x.nama.localeCompare(y.nama, "id"));
       return { soal, pilihan, perluBantuan, i };

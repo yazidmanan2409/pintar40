@@ -22,7 +22,7 @@
  *              refused, another school's lesson is not found; the history, the
  *              assignment seal and the attempt seal never change (PR080); the
  *              change is audited
- *   BOB49-K01  static: bacaPersen takes 0-100 whole numbers only; the three
+ *   BOB49-K01  static: bacaPersen takes 1-100 whole numbers only (RESTATED, Z K-07: 0 is refused); the three
  *              refusal contracts name ASSIGN_PASS_MARK_MISSING by its SQLSTATE
  *              and DETAIL; Konfigurasi sets the mark per lesson with its history,
  *              Sediakan shows it or «Batas ketuntasan belum ditetapkan», the
@@ -263,7 +263,7 @@ export const bob49Tests: SelfTest[] = [
     run: async ({ repoRoot }) => {
       const c = new Checks();
       const { bacaPersen } = await import("../src/lib/batas-ketuntasan");
-      const benar: Array<[string, number | null]> = [["60", 60], ["0", 0], ["100", 100], [" 75 ", 75], ["101", null],
+      const benar: Array<[string, number | null]> = [["60", 60], ["0", null], ["1", 1], ["100", 100], [" 75 ", 75], ["101", null],
         ["-1", null], ["60.5", null], ["60,5", null], ["", null], ["enam puluh", null]];
       for (const [masuk, harap] of benar) c.expect(bacaPersen(masuk) === harap, `bacaPersen(${JSON.stringify(masuk)}) = ${bacaPersen(masuk)}; expected ${harap}`);
 
@@ -309,7 +309,7 @@ export const bob49Tests: SelfTest[] = [
         "the two readers do not read the attempt's sealed mark");
       c.expect(!/0\.6/.test(mig.replace(/--[^\n]*/g, "")), "the migration writes a 0.6 of its own");
       return c.verdict(
-        "executes bacaPersen (src/lib/batas-ketuntasan.ts): 0 to 100 whole numbers only; the three refusal contracts " +
+        "executes bacaPersen (src/lib/batas-ketuntasan.ts): 1 to 100 whole numbers only (Z K-07: 0 refused); the three refusal contracts " +
           "(galat-kontrak, ujicepat-kontrak, penugasan-kontrak) name ASSIGN_PASS_MARK_MISSING by its SQLSTATE and DETAIL and " +
           "each says, in id and en, that the lesson has no pass mark and where it is set. Reads the source of Konfigurasi (a " +
           "whole-number mark per lesson, with reason and history, through set_school_pass_mark), Sediakan (the mark or " +

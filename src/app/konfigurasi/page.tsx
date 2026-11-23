@@ -1052,7 +1052,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                           <input type="hidden" name="sekolah" value={sekolahStruktur.id} />
                           <input type="hidden" name="pelajaran" value={p.course_id} />
                           <label className={label}>{sl("config.ketuntasan.nilai")}
-                            <input name="persen" type="number" inputMode="numeric" min={0} max={100} step={1} required
+                            <input name="persen" type="number" inputMode="numeric" min={1} max={100} step={1} required
                               defaultValue={p.percent ?? undefined} className={`${field} w-24`} />
                           </label>
                           <label className={label}>{sl("config.ketuntasan.alasan")}

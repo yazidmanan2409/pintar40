@@ -7129,6 +7129,36 @@
       "id": "C2W-B3",
       "runner": "app",
       "proves": "PLAN-A2B-C2W.md §3.4 B3 with Sharon's D4 (3a2de775), red first, selftest/c2w-catatan-layar.test.ts, the running app, read from the rendered html of the production build on a package the seeded cycle school's people publish: the head of department finds «Catatan peninjau (0)» after «Riwayat soal», never printed, with «Tulis catatan» on each option; the form has Daisy's label, hint and a 1000-character bound; an empty note is refused in her words and nothing is saved; a note with markup is saved («Catatan tersimpan.»), shown as text and attributed with version 1; «Ganti catatan» says the old note stays, and the old one moves under «Catatan sebelumnya (1)» with «Diganti pada …»; the package's author (CAN_DRAFT only) reads the note with no form; the class's learner's pages carry none."
+    },
+    {
+      "id": "Z-D1-02",
+      "runner": "static",
+      "proves": "Z D-1's guard (R-16; Sharon's RULING55 D-1 table), selftest/z-d1.test.ts, read from pg_proc, pg_views and pg_matviews outside the system schemas: every body reading ->> 'pilihan' is on the allowed list (grade_kunci, grade_response, pilihan_dipilih, pilihan_tunggal, session_answers, each still branching on jsonb_typeof(... 'pilihan')) or on D-1's pending list, empty since 20270123100000 repaired the seven (a reader is added there only by Sharon's ruling); a reader on neither list fails."
+    },
+    {
+      "id": "Z-D1-01",
+      "runner": "static",
+      "proves": "Z D-1 (R-16), red first, selftest/z-d1.test.ts, executes the seven readers against the migrations, rolled back, on the seeded human-evaluation sitting with question 1 made multi-answer (A and C right): for {A, B} session_review reads both options' texts in label order, wrong, with their reason; session_misconceptions, reading_map and service_cohort_misconceptions find B's misconception; service_item_statistics counts one response, right by grade_kunci (1:0, and 1:1 for {A, C}); service_distractor_uptake counts each chosen option; teacher_question_evidence's chosen is null, never JSON text, and chosen_all lists every label. The untouched single-answer sitting reads md5-identically to 300 on all seven (the teacher's added chosen_all aside)."
+    },
+    {
+      "id": "Z-D1-03",
+      "runner": "static",
+      "proves": "Z D-1, Sharon's ruling-56 condition (a check, not a promise), selftest/z-d1.test.ts, reads and runs scripts/release/before-import/d1-multi-answer.sql against the migrations and seeds: one read-only transaction, rolled back, with no write; on the seeded world it reports «Pecahan»'s APPROVED multi-answer items, their final responses (0) and the verdict REPORT, to go to Bob and Sharon before an import or a walkthrough world proceeds."
+    },
+    {
+      "id": "Z-V2-01",
+      "runner": "static",
+      "proves": "Z V2 (R-22; Sharon's conditions; ruling 81), red first, selftest/z-v2.test.ts, executes hasil_belajar_sesi_saya as the learner on the seeded finalised Uji Penguasaan, each case rolled back with a later sitting of the same test: none, SELESAI with the finished result; a retake begun or paused, the finished result stays in force with ulang_berjalan; a retake ended unfinished (TERMINATED, EXPIRED), the result kept and no line; a retake finalised later replaces it, no line; an audited recalculation of the result in force is marked on it (D14, sesi_saya_dihitung_ulang). On 300 a later sitting begun or ended turns the summary to BERJALAN with no result. The two-person key-correction path is C1W-S05's world, which now also reads the summary."
+    },
+    {
+      "id": "Z-K07-01",
+      "runner": "static",
+      "proves": "Z K-07 (ruling 78; ruling 81 refinement 6), red first, selftest/z-k07.test.ts, writes each value against the migrations in its own rolled-back transaction with triggers off, so only the column's checks decide: school_pass_marks.percent refuses 0 and 101 and accepts 1 and 100; assessment_assignments.pass_mark and assessment_sessions.pass_mark (fractions) refuse 0 and 1.01, accept 0.01 and 1.00, and allow null; set_school_pass_mark as the school's admin refuses 0 in its own words (from 1 to 100) and accepts 1; the three floors are validated. On 300 a mark of 0 is accepted everywhere."
+    },
+    {
+      "id": "Z-K01-01",
+      "runner": "static",
+      "proves": "Z K-01's SQL (ruling 78; Sharon's Q1-Q3; Bob's Q2), red first, selftest/z-k01.test.ts, executes session_outcome, tujuan_belum_tercapai and percobaan_antrean against the migrations, rolled back, on the seeded finalised Uji Penguasaan made a gate-only failure: the learner reads lulus false with tujuan_gerbang, the missed must-be-right item's objectives; the teacher's objectives not yet reached are exactly those; the head of department's retake queue shows gerbang false beside the figure and target, the school admin none; the gate passed gives tujuan_gerbang [] and nothing to the teacher; another learner is refused; a pre-test carries no key; the objectives come from the result row's own key (a basis key accepting the answer leaves nothing missed)."
     }
   ]
 }

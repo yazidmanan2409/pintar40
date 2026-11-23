@@ -155,10 +155,11 @@ export const d088kTests: SelfTest[] = [
           { item_id: "q1", stem: "mudah", stimulus: null, options: [o("A", true), o("B")], presented: 3, answered: 3, right: 3 },
           { item_id: "q2", stem: "sulit", stimulus: null, options: [o("A"), o("B", true), o("C")], presented: 3, answered: 2, right: 1 },
         ],
+        // RESTATED (Z D-1): the database's shape, chosen_all on every answer (one label, or none when left)
         learners: [
-          { person_id: "p1", name: "Citra", answers: [{ item_id: "q1", chosen: "A", right: true }, { item_id: "q2", chosen: null, right: false }] },
-          { person_id: "p2", name: "Ani", answers: [{ item_id: "q1", chosen: "A", right: true }, { item_id: "q2", chosen: "C", right: false }] },
-          { person_id: "p3", name: "Budi", answers: [{ item_id: "q1", chosen: "A", right: true }, { item_id: "q2", chosen: "B", right: true }] },
+          { person_id: "p1", name: "Citra", answers: [{ item_id: "q1", chosen: "A", chosen_all: ["A"], right: true }, { item_id: "q2", chosen: null, chosen_all: [], right: false }] },
+          { person_id: "p2", name: "Ani", answers: [{ item_id: "q1", chosen: "A", chosen_all: ["A"], right: true }, { item_id: "q2", chosen: "C", chosen_all: ["C"], right: false }] },
+          { person_id: "p3", name: "Budi", answers: [{ item_id: "q1", chosen: "A", chosen_all: ["A"], right: true }, { item_id: "q2", chosen: "B", chosen_all: ["B"], right: true }] },
         ],
       });
       c.expect(hasil.map((x) => x.soal.item_id).join(",") === "q2,q1", `the questions come as ${hasil.map((x) => x.soal.item_id)}; expected the hardest first`);
