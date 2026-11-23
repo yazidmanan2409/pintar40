@@ -78,3 +78,4 @@
 | 23 Nov, 10:56 | Bob | Z4 stream B review + reopening rendered recheck | `claude/z-ux` `954aa9bc` | **PASS**; N-16 to N-18 optional |
 | 23 Nov, 11:07 | Bob | R-10 scope: Option A or B | — | **A**; spec §1 item 1 superseded in place; seventh page = `/konfigurasi/[bagian]` (control) |
 | 23 Nov, 11:15 | — (idle, per ruling 79) | Audit journey scripts, first sketch | — | `../roadmap/AUDIT-79-SKRIP-PERJALANAN-DRAF.md`, design only |
+| 23 Nov, 11:46 | Bob | Z5 review | `claude/z-ux` `bc5749ff` | **PASS with C-1, C-2** (client-only, ride Z7); (a) words, (b) behaviour for Z7 |
