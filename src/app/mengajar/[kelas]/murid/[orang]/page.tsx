@@ -69,6 +69,9 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
     ajar.tujuanBelum(id, orang),
   ]);
 
+  // K-03 (SAPU-VERIFIED): «no objective below target» is said only of a learner who has a scored Uji Penguasaan here
+  const adaUji = catatan.hasil.status === "ok" && catatan.daftarHasil.some((h) => h.mode === "POST_TEST");
+
   return (
     <>
       <CangkangPengalaman locale={locale} kind="pengajar" current="kelas" />
@@ -150,7 +153,12 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
         <section className="pin-sec" aria-labelledby="pin-murid-tujuan">
           <h2 id="pin-murid-tujuan">{s("mengajar.murid1.tujuan")}</h2>
           <p className="pin-sub">{s("mengajar.murid1.tujuan_arti")}</p>
-          {belum.length === 0 ? (
+          {/* K-03: a failed read is said as one, and no Uji Penguasaan yet is its own state, before «none below target» */}
+          {belum === null ? (
+            <p className="pin-ket" data-tujuan-gagal="">{s("mengajar.murid1.tujuan_gagal")}</p>
+          ) : !adaUji ? (
+            <Kosong jenis="belum" kalimat={s("mengajar.murid1.tujuan_belum_uji")} />
+          ) : belum.length === 0 ? (
             <Kosong jenis="belum" kalimat={s("mengajar.murid1.tujuan_kosong")} />
           ) : (
             <div className="pin-domain">

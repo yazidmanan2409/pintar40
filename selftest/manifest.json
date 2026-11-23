@@ -1971,7 +1971,7 @@
     {
       "id": "BOB04-K01",
       "runner": "static",
-      "proves": "BOB-04 (D-008, D-011, D-014). Read from the migration source and the source files src/lib/penugasan-kontrak.ts, src/app/mengajar/actions.ts, src/app/mengajar/[kelas]/siapkan/page.tsx and the learner pages src/app/belajar/[tugas]/pemetaan/page.tsx and penguasaan/page.tsx: the codes assign_refuse raises for assigning are exactly the contract's and each is raised (with the seal's, the boundary's and, since D-183, the exposure guard's code read from migration 20261228100000_exposed_questions_never_give_a_real_verdict.sql); every code has a copy key in both languages without machinery words; sediakanMateri calls assign_release with its declared arguments; the review page shows a refused code's sentence; and neither learner test page can answer 404."
+      "proves": "BOB-04 (D-008, D-011, D-014). Read from the migration source and the source files src/lib/penugasan-kontrak.ts, src/app/mengajar/actions.ts, src/app/mengajar/[kelas]/siapkan/page.tsx and the learner pages src/app/belajar/[tugas]/pemetaan/page.tsx and penguasaan/page.tsx: the codes assign_refuse raises for assigning are exactly the contract's and each is raised (with the seal's, the boundary's and, since D-183, the exposure guard's code read from migration 20261228100000_exposed_questions_never_give_a_real_verdict.sql); every code has a copy key in both languages without machinery words; sediakanMateri calls assign_release with its declared arguments; the review page shows a refused code's sentence; and neither learner test page can answer 404 for the learner's own assignment (Z, R-8: an id that is not theirs answers «not found» through the one ownership guard of /belajar/[tugas]/)."
     },
     {
       "id": "W221-K01",
@@ -6749,6 +6749,101 @@
       "id": "Z-J01",
       "runner": "app",
       "proves": "selftest/c3w-z.test.ts, reading the rendered html of the running app's Studio routes: all seven Studio pages and five refusal paths each draw one <main>, the only id=\"isi\", the skip link's target, and exactly one <h1> (Daisy, 19 Nov); on each refusal the first heading in that <main> is the refusal's; the unknown correction gets Daisy's one neutral answer; a learner opening Studio meets the layout's refusal with its own <main>."
+    },
+    {
+      "id": "Z-K02-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, with the copy table and PetaBacaan rendered to html (K-02; Daisy, SAPU-KATA-RULING-78 §a): a KUAT card reads «Sudah kuat» with map.kuat.arti once in its reason slot and its statement once; other tiers keep the engine's reason; map.tingkat.arti once under the map; the words ID and EN."
+    },
+    {
+      "id": "Z-K03-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the copy table and the source files of tujuanBelum and the teacher's one-learner page (K-03): a failed tujuan_belum_tercapai read is null, never []; the page says it as a failure, and «no Uji Penguasaan yet» as its own state, before «no objective below target»."
+    },
+    {
+      "id": "Z-K04-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, with the copy table and KomposisiSekolah rendered to html (K-04): «Semua bidang kompetensi berada di 60% ke atas» only when no domain is withheld; semua_cukup_sebagian when some are; neither when none has a figure."
+    },
+    {
+      "id": "Z-K05-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the copy table and the source file of the public verification page (K-05; Daisy §b): under DITINJAU and DICABUT the facts are headed «Seperti saat diterbitkan», with verifikasi.fakta.ditinjau under DITINJAU only; BERLAKU, DIGANTIKAN and TIDAK SAH unchanged."
+    },
+    {
+      "id": "Z-M1M2-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the source files LanjutkanDiSini.tsx and PermukaanAsesmen.tsx (R-20 M1, M2; Daisy, Z-M1-M2-SPESIFIKASI): the recovery outcomes the learner did not cause are neutral, OFFLINE stays an error; the teacher is told «Uji Penguasaan · {bab}»."
+    },
+    {
+      "id": "Z-R8-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the source file of every page under /belajar/[tugas]/ (R-8, X-2; Daisy, X2-CATATAN-DESAIN): each calls one ownership guard (src/lib/tugas-saya.ts, notFound) before any learning-state read."
+    },
+    {
+      "id": "Z-R8-03",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, which executes the source file src/lib/tugas-saya.ts with a stand-in database (Sharon's R-8 review): a not-yours id is notFound(), an own certificate's chapter is let through, and a failed certificate read re-throws to the error page, never reading as «not found»."
+    },
+    {
+      "id": "Z-R8-02",
+      "runner": "app",
+      "proves": "selftest/z-ux.test.ts, from the rendered html and status of each route of the running app, as the bootstrap learner (R-8): all eight /belajar/{id}/… routes, with a classmate's assignment, an assessment-assignment id and an unknown id, answer with the not-found page («Halaman ini tidak ada») and never the error page or a reference code, with one HTTP status per route for all three ids (Sharon's condition b)."
+    },
+    {
+      "id": "Z-S12-02",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the source file of the reopening route and by executing src/lib/buka-kembali.ts (S-12): the input is checked before code_request_pace, a refused input answers ISIAN after the same fixed wait, and the check matches minta_buka_kembali's own rule on twelve inputs."
+    },
+    {
+      "id": "Z-R26-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the source files of TombolKirim and the reopening page (R-26 items 1 and 4; ruling 75): an opt-in `asli` native-post button holds a second submit at the capture-phase guard, says «Mengirim…» busy and disabled, and returns to its verb on pageshow; a busy button keeps its width at submit as min-inline-size, only while busy. The browser proof is docs/completion-4.1/batches/z/layar/r26-tekan.ts."
+    },
+    {
+      "id": "Z-R27-02",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the copy table (R-27(a), ruling 77): buka_kembali.galat.isian says «email atau username», as the field is labelled, word for word in ID and EN."
+    },
+    {
+      "id": "Z-R27-03",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the source file of the sign-in screen LayarMasuk.tsx (R-27(c), ruling 77): the identity field has no inputMode=\"email\", no autocapitalise, autocorrect or spell-check, and keeps autoComplete=\"username\"."
+    },
+    {
+      "id": "Z-R26-02",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the source file experience.css (R-26 item 2, ruling 75): a.pin-konteks-pilih keeps its control-sm look and its hit area is extended to control-md (44 px) by an ::after. The browser proof (hit area and identical pixels at 320, 390, 1280) is docs/completion-4.1/batches/z/layar/r26-tekan.ts."
+    },
+    {
+      "id": "Z-S15-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, executing src/components/aktivasi/hasil.ts and reading the activation route's source file and the copy table (S-15): only an address Auth reports as already registered is told «mungkin sudah dipakai»; an outage or a rate limit reads «Akun belum bisa dibuat. Coba lagi sebentar lagi.»"
+    },
+    {
+      "id": "Z-S08-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the source file of the forgotten-password screen and the copy table (S-08): an expiry on the PINTAR ID + PIN path says «Ketik lagi PINTAR ID dan PIN Anda.», never «Minta kode baru» where no code exists."
+    },
+    {
+      "id": "Z-S13-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the copy table (S-13): the activation resend line promises a new code only if the address is registered «dan akunnya belum aktif», ID and EN."
+    },
+    {
+      "id": "Z-S11-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, executing kanonikPintarId over the shared fixture file selftest/fixtures/z/pintar-id-normalisasi.json (R-27(b)'s list) and reading the source files of the platform account lookup (S-11): a pasted «A14C D7ST» is found, the field takes 12 characters, and a malformed entry is said with the existing ID_TIDAK_SAH sentence."
+    },
+    {
+      "id": "Z-K07-02",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the copy table (K-07's floor, Daisy's words via Bob): config.ketuntasan.arti and galat.pass_mark_input_incomplete say «1 sampai 100» / «1 to 100», nothing else changed."
+    },
+    {
+      "id": "Z-S12-01",
+      "runner": "app",
+      "proves": "selftest/z-ux.test.ts, posting to the running app's reopening route (route redirects and the rendered html) from one address (S-12): two refused inputs each answer the input's own line, never «a request was just sent», and use no pace; a well-formed request is then sent and a second at once is paced."
     },
     {
       "id": "C3W-D1",

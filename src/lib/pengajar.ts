@@ -1019,14 +1019,18 @@ export function susunCatatan(
  * Penguasaan in this class recorded below the mark sealed on that attempt -- the class's «Penguasaan per tujuan
  * pembelajaran» reading narrowed to one learner, judged by the learner's own result's rule. It returns no figure (a
  * number reaches a staff screen only through the catalogue), no item and no answer, and nothing at all to a reader who
- * does not teach this class or about a learner not in it. Unread is none listed.
+ * does not teach this class or about a learner not in it.
+ *
+ * K-03 (SAPU-VERIFIED): UNREAD IS NULL, never []. An empty list says «no objective below target», so a failed read
+ * answered with one told the teacher every objective was reached (this file's own rule, below: a failed read never says
+ * «nobody»).
  */
 export type TujuanBelum = { id: string | null; pernyataan: string };
 
-export async function tujuanBelum(kelasId: string, orang: string): Promise<TujuanBelum[]> {
+export async function tujuanBelum(kelasId: string, orang: string): Promise<TujuanBelum[] | null> {
   const c = await db();
   const { data, error } = await c.rpc("tujuan_belum_tercapai", { p_class: kelasId, p_learner: orang });
-  if (error) return [];
+  if (error) return null;
   return rows<{ objective_id: string | null; statement: string }>(data)
     .filter((r) => typeof r.statement === "string" && r.statement.trim() !== "")
     .map((r) => ({ id: r.objective_id, pernyataan: r.statement }));
@@ -1055,7 +1059,7 @@ export async function perluPenguatan(kelasId: string): Promise<MuridPenguatan[] 
     .filter((r) => typeof r.person_id === "string");
   const ulang = await Promise.all(orang.map((o) => tujuanBelum(kelasId, o.person_id)));
   return orang.map((o, i) => ({
-    id: o.person_id, nama: o.display_name ?? "", ulang: ulang[i].map((u) => u.pernyataan),
+    id: o.person_id, nama: o.display_name ?? "", ulang: (ulang[i] ?? []).map((u) => u.pernyataan),
     benar: typeof o.total === "number" && o.total > 0 ? o.benar : null, total: typeof o.total === "number" && o.total > 0 ? o.total : null,
     soalWajibTepat: typeof o.soal_wajib_tepat === "boolean" ? o.soal_wajib_tepat : null,
   }));

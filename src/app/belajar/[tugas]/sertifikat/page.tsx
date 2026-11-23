@@ -8,6 +8,7 @@ import { currentLocale } from "@/lib/locale";
 import { currentViewer } from "@/lib/auth";
 import { supabaseServer } from "@/lib/supabase/server";
 import * as engine from "@/lib/assessment-engine";
+import { tugasSaya } from "@/lib/tugas-saya";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { peranSaya } from "@/lib/tur-negara";
@@ -72,13 +73,23 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
   // carried the class on, or a transfer), the learner's own certificate for this chapter is found through their own
   // sitting (tugasSertifikatSaya, cross-batch 6 Nov), never through today's assignment: it stays theirs to open, issued
   // or revoked. No certificate is issued on that path (it only opens one that exists).
-  const state = await engine.cycleState(db, tugas).catch(() => null);
-  let sessionId = state?.post_session ?? null;
-  if (!sessionId) {
-    const milik = await myCertificates();
-    const tugasDari = await tugasSertifikatSaya(milik.map((c) => c.session_id));
-    sessionId = milik.find((c) => tugasDari.get(c.session_id) === tugas)?.session_id ?? null;
-  }
+  // read only when needed, and once, whichever asks first
+  const sekali = new Map<"lama", Promise<string | null>>();
+  const lama = () => {
+    if (!sekali.has("lama")) {
+      sekali.set("lama", (async () => {
+        const milik = await myCertificates();
+        const tugasDari = await tugasSertifikatSaya(milik.map((c) => c.session_id));
+        return milik.find((c) => tugasDari.get(c.session_id) === tugas)?.session_id ?? null;
+      })());
+    }
+    return sekali.get("lama")!;
+  };
+  // R-8 (X-2): an id that is neither one of today's assignments nor the chapter of one of the learner's own
+  // certificates answers «not found», as every page of this assignment does
+  const mine = await tugasSaya(db, tugas, { jugaMilik: async () => (await lama()) !== null });
+  const state = mine ? await engine.cycleState(db, tugas).catch(() => null) : null;
+  const sessionId = state?.post_session ?? (await lama());
 
   // No session, no certificate, and no way to tell the two apart from here:
   // the same refusal as an assignment that is not this learner's (P7).
@@ -101,8 +112,7 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
   // CR-02 (D-078(c), D-077(d)): the school and the course are the certificate's own, sealed when it was prepared, never
   // read from today's school or today's assignment. Before a certificate exists (the pending page) the course is the
   // assignment's, which is what the learner is waiting on.
-  const assignments = await engine.myAssignments(db);
-  const assignment = assignments.find((a) => a.learning_assignment_id === tugas);
+  const assignment = mine;
   const sealedCourse = detail?.course_title_as_issued
     ? [detail.course_subject_as_issued, detail.course_title_as_issued].filter(Boolean).join(" · ")
     : null;

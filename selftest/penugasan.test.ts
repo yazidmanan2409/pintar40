@@ -77,10 +77,13 @@ export const penugasanTests: SelfTest[] = [
       const siapkan = readFileSync(join(root, "src", "app", "mengajar", "[kelas]", "siapkan", "page.tsx"), "utf8");
       c.expect(/kunciKodePenugasan\(/.test(siapkan) && /kode/.test(siapkan), "the review page does not show a refused code's sentence");
 
-      // neither learner test page can answer 404
+      // neither learner test page can answer 404 for the learner's own assignment. RESTATED (Z, R-8 / X-2): an id that is
+      // not the learner's answers «not found» through the segment's one ownership guard, as the assignment's own page does
+      // (Z-R8-01, Z-R8-02); nothing else on these pages can
       for (const [halaman, kunciBelum] of [["pemetaan", "cycle.pemetaan.belum_ada"], ["penguasaan", "cycle.penguasaan.belum_ada"]]) {
         const src = readFileSync(join(root, "src", "app", "belajar", "[tugas]", halaman, "page.tsx"), "utf8");
-        c.expect(!/notFound\s*\(/.test(src), `/belajar/[tugas]/${halaman} can still answer 404`);
+        c.expect(!/notFound\s*\(/.test(src) && /const mine = await tugasSaya\(db, tugas\);/.test(src),
+          `/belajar/[tugas]/${halaman} can still answer 404 for the learner's own assignment, or does not use the ownership guard`);
         c.expect(src.includes(`messageKey="${kunciBelum}"`), `/belajar/[tugas]/${halaman} does not say its test is not ready`);
       }
 

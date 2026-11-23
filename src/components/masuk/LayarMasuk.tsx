@@ -392,7 +392,9 @@ export default function LayarMasuk({
       <span className={pwSalah ? "pin-inp pin-inp-salah" : "pin-inp"}>
         <input
           id="identitas" name="identitas" ref={identitasRef}
-          type="text" inputMode="email" autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false}
+          /* R-27(c) (ruling 77): an email or a username, so the plain text keyboard, which suits both (an email keyboard
+             hides the letters a username needs on some phones); nothing typed is rewritten */
+          type="text" autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false}
           readOnly={layar.sibuk}
           aria-invalid={pwSalah ? "true" : undefined}
           aria-describedby={layar.gagal || layar.kosong ? "pw-err" : undefined}

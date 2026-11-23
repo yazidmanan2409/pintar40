@@ -97,6 +97,9 @@ export default async function VerifikasiPage({
 
   const status = row?.validity ? STATUS_KEY[row.validity] : undefined;
   const showsFacts = row !== null && status !== undefined && row.validity !== TAMPERED;
+  // K-05 (ruling 78; Daisy, SAPU-KATA-RULING-78 §b): under review or revoked, the facts are the issue-time ones, and the
+  // page says so above them; «Memenuhi capaian» is never read beside «not declared valid» as a present claim
+  const sepertiTerbit = row?.validity === "DITINJAU" || row?.validity === "DICABUT";
 
   return (
     <>
@@ -123,6 +126,9 @@ export default async function VerifikasiPage({
         )}
 
         {showsFacts ? (
+          <>
+          {sepertiTerbit ? <h2 className="pin-verif-fakta-judul">{s("verifikasi.fakta.seperti_terbit")}</h2> : null}
+          {row!.validity === "DITINJAU" ? <p className="pin-verif-fakta-arti">{s("verifikasi.fakta.ditinjau")}</p> : null}
           <dl className="pin-dl">
             <div>
               <dt>{s("verifikasi.hasil")}</dt>
@@ -144,6 +150,7 @@ export default async function VerifikasiPage({
               <dd className="pin-num">{row!.date ? tanggal(row!.date, "baca", locale) : "—"}</dd>
             </div>
           </dl>
+          </>
         ) : null}
 
         <p className="pin-foot">{s("verifikasi.catatan")}</p>

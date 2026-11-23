@@ -5,6 +5,7 @@ import { t, format, type HleEvent } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
 import { currentLocale } from "@/lib/locale";
 import * as engine from "@/lib/assessment-engine";
+import { tugasSaya } from "@/lib/tugas-saya";
 import { ketuntasan, posisi, peringkat, statusKey, type Kandidat } from "@/lib/siklus";
 import { rendersCredential, type CertificateStatus } from "@/lib/sertifikat-kontrak";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
@@ -38,8 +39,8 @@ export default async function Lanjut({ params }: { params: Promise<{ tugas: stri
   const s = (k: HleEvent) => t(k, "learner", { locale });
 
   const semua = await engine.myAssignments(db);
-  const mine = semua.find((a) => a.learning_assignment_id === tugas);
-  if (!mine) notFound();
+  // R-8 (X-2): the one guard every page of this assignment shares
+  const mine = await tugasSaya(db, tugas, { daftar: semua });
 
   const state = await engine.cycleState(db, tugas);
   if (!state.post_session || state.post_status !== "FINALIZED") notFound();

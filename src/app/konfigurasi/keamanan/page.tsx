@@ -10,6 +10,7 @@ import CatatanKeamanan, { type BarisKeamanan } from "@/components/keamanan/Catat
 import { judulHalaman } from "@/lib/judul-halaman";
 import AkunPlatform, { type BarisPermintaan, type KeadaanAkun } from "@/components/keamanan/AkunPlatform";
 import { kodeAkunDari } from "@/lib/akun-kontrak";
+import { kanonikPintarId } from "@/lib/aktivasi-kontrak";
 
 export const generateMetadata = judulHalaman("/konfigurasi/keamanan");
 
@@ -48,7 +49,11 @@ export default async function Keamanan({ searchParams }: { searchParams: Promise
     .map((r): BarisKeamanan => ({ waktu: String(r.at), aksi: String(r.action), pintarId: r.pintar_id ?? null }));
 
   // §5b / L2–L4: the PINTAR Administrator finds one identity by its PINTAR ID, and reads the people's own requests
-  const pid = /^[0-9A-HJKMNP-TV-Z]{8}$/.test((sp.pid ?? "").trim().toUpperCase()) ? (sp.pid ?? "").trim().toUpperCase() : "";
+  // S-11 (SAPU-VERIFIED): the ID as it is printed and pasted («A14C D7ST»), read by the same rule as recovery by PIN and
+  // R-27(b)'s reopening (kanonikPintarId; the shared list selftest/fixtures/z/pintar-id-normalisasi.json); an entry that
+  // is not a PINTAR ID is said, never an empty page
+  const pid = kanonikPintarId(sp.pid) ?? "";
+  const pidSalah = (sp.pid ?? "").trim() !== "" && pid === "";
   let akun: KeadaanAkun | null = null;
   let antrean: BarisPermintaan[] = [];
   if (sistem === true) {
@@ -71,7 +76,7 @@ export default async function Keamanan({ searchParams }: { searchParams: Promise
         </div>
         <PemulihanPin locale={locale} />
         {sistem === true ? (
-          <AkunPlatform locale={locale} pid={pid} akun={akun} antrean={antrean} hasil={sp.hasil} apa={sp.apa} kode={kodeAkunDari(sp.kode)}
+          <AkunPlatform locale={locale} pid={pid} pidKetik={pidSalah ? (sp.pid ?? "").trim().slice(0, 12) : undefined} pidSalah={pidSalah} akun={akun} antrean={antrean} hasil={sp.hasil} apa={sp.apa} kode={kodeAkunDari(sp.kode)}
             ulang={/^[0-9a-f-]{36}$/i.test(sp.permintaan ?? "") ? sp.permintaan : undefined} />
         ) : null}
         {sistem === true ? (

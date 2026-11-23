@@ -1,0 +1,54 @@
+# Z4 (stream B) after the fix: focused checks on this commit's tree (23 Nov 2026)
+## lint and typecheck: 0 problems (one pre-existing warning, experience.test.ts:11778, not in Z4's lines)
+## static runner, all static ids (no database), after the two fixes below: Z4's cases, DAISY-17-KIRIM-01, X11-KLIEN-01, DAISY-18-DENGAR-01, F06-S04 and the restated assertions pass
+BOB04-K01   PASS    the 13 assignment codes assign_refuse knows are the contract's and assign_release raises each; my_cycle_state refuses a stranger as CYCLE_NOT_ASSIGNED; all 17 copy keys have a sentence in both languages without machinery words; sediakanMateri in the source file src/app/mengajar/a
+DAISY-09-AKTIVASI-01 PASS    D-019: the activation route is re-read and sends no mail; no activation sentence in either language promises an email (the old introduction is the planted control); the introduction, an email account, a card and a new person each say nothing was sent; an email account an
+DAISY-17-KIRIM-01 PASS    every one of the 92 forms that call a server action submits through TombolKirim and nothing else, each saying what it does while it works (a planted plain button and a second untyped one are caught, a cancel button is not); TombolKirim reads its own form's status, is disabl
+DAISY-40-SERTIFIKAT-01 PASS    a certificate row finds its learning assignment through its session, by the inverse of the certificate page's own read (each assignment's my_cycle_state post_session), so it shows the assignment's subject, grade and title and links to /belajar/<assignment>/sertifikat, 
+X11-KLIEN-01 PASS    read every .tsx under src/app and src/components: 17 client components call the server themselves (fetch or .rpc); 14 disable their trigger while the call is pending, and 3 are declared with their reason (a heartbeat, a read-only check, the screenshot upload that holds the repor
+B5C-MURID-K01 PASS    the learner page (src/app/mengajar/[kelas]/murid/[orang]/page.tsx) lists, under «Tujuan pembelajaran yang belum tercapai», each objective by its statement and no figure, with an empty state; pengajar.tujuanBelum asks only the database's tujuan_belum_tercapai (supabase/migrati
+A3-S10      PASS    reads ItemPlayer.tsx, LanjutkanDiSini.tsx, PermukaanAsesmen.tsx, actions.ts and hle.ts: a save another session's control refuses is terminal for the old session (no replay, no probe, no poll), whose panel is a quiet status with its title, body, unsaved count and way back and no w
+Z-S01       PASS    reads the source files of Studio's layout, HalamanPenolakan, every page under src/app/studio, the key-correction page and Kanonik's page, and the copy table: Studio's layout owns <main id="isi"> and every Studio refusal draws itself inside it (dalamBingkai, a <div>); the key-corr
+Z-K02-01    PASS    renders PetaBacaan with a KUAT card whose reason fell back to its statement (reading_map's KUAT case), and with a WAJIB card beside it, in ID and EN: «Sudah kuat» and map.kuat.arti once in the KUAT card's reason slot, the statement once, the WAJIB card's own reason kept, and ma
+Z-K03-01    PASS    reads tujuanBelum, perluPenguatan and the teacher's one-learner page: a failed tujuan_belum_tercapai read is null, never []; the page says a failed read with mengajar.murid1.tujuan_gagal, a learner with no scored Uji Penguasaan in this class with mengajar.murid1.tujuan_belum_uji,
+Z-K04-01    PASS    renders KomposisiSekolah three ways: every domain with a figure ≥ 60% says semua_cukup; one withheld says semua_cukup_sebagian; all withheld says neither; the new sentence ID and EN
+Z-K05-01    PASS    reads the public verification page: under DITINJAU and DICABUT the facts are headed «Seperti saat diterbitkan», above Hasil, Predikat and the date; DITINJAU adds verifikasi.fakta.ditinjau under the heading; BERLAKU and DIGANTIKAN show no heading; TIDAK SAH still shows no fact; 
+Z-M1M2-01   PASS    reads LanjutkanDiSini and PermukaanAsesmen: NOT_AUTHORISED, EXPIRED, USED and NOTHING are neutral (role=status), OFFLINE and any unexpected code stay an error; the teacher is told «Uji Penguasaan · {bab}» from the chapter's own title, which the cycle's two routes pass; the eye
+Z-R8-01     PASS    reads every page under /belajar/[tugas]/: each calls the one guard (src/lib/tugas-saya.ts, notFound() when the id is not one of the learner's) before any learning-state read, and none answers «not yours» with its own refusal page
+Z-R8-03     PASS    executes src/lib/tugas-saya.ts with a stand-in database (Sharon's R-8 review): a not-yours id and an id that is neither assigned nor an own certificate's are notFound(); an own certificate's chapter is let through; a failed certificate read re-throws its own error, so it reaches 
+Z-S12-02    PASS    reads the reopening route's source file: the input is checked (isianBukaKembaliSah) before code_request_pace, and a refused input answers ISIAN after the same fixed wait; executes the check on twelve inputs, matching minta_buka_kembali's own rule (spaces-only btrim, characters no
+Z-R26-01    PASS    reads the source files of TombolKirim and the reopening page (R-26 items 1 and 4): `asli` is opt-in and selects a native-post button whose capture-phase guard holds a second submit, sets «Mengirim…», busy and disabled, and returns to its verb on pageshow; both paths keep the 
+Z-R27-02    PASS    reads the copy table (R-27(a), ruling 77): buka_kembali.galat.isian names the identity as its field is labelled, «email atau username», word for word in ID and EN
+Z-R27-03    PASS    reads the source file of the sign-in screen (R-27(c), ruling 77): the identity field is type=text with no inputMode (a keyboard suited to an email and a username), no autocapitalise, autocorrect or spell-check, and keeps autoComplete="username"
+Z-R26-02    PASS    reads experience.css (R-26 item 2, ruling 75): a.pin-konteks-pilih keeps its control-sm look and gains position: relative and an ::after that extends its hit area to a 44 px (control-md) band centred on it; the browser proof is docs/completion-4.1/batches/z/layar/r26-tekan.ts
+Z-S15-01    PASS    executes src/components/aktivasi/hasil.ts and reads the activation route's source file and the copy table (S-15): Auth's answer is sorted by galatBuat into email_taken (an address already registered) or create_failed (an outage, a rate limit, an unreachable Auth); only email_take
+Z-S08-01    PASS    reads the source file of the forgotten-password screen and the copy table (S-08): an expiry on the PINTAR ID + PIN path says lupa.pin.berakhir («Ketik lagi PINTAR ID dan PIN Anda.») on the PIN form; the email path keeps lupa.berakhir; the words ID and EN
+Z-S13-01    PASS    reads the copy table (S-13): the activation resend line promises a new code only «dan akunnya belum aktif», as the first send does and as activation_code_target decides; ID and EN
+Z-S11-01    PASS    executes kanonikPintarId over the shared fixture list (selftest/fixtures/z/pintar-id-normalisasi.json, which R-27(b)'s SQL also uses) and reads the source files of the platform account lookup (S-11): a pasted «A14C D7ST» and its I/L/O, hyphen and space forms are found; the fiel
+Z-K07-02    PASS    reads the copy table: config.ketuntasan.arti and galat.pass_mark_input_incomplete state K-07's range, «1 sampai 100» / «1 to 100», and nothing else in them changed; ID and EN
+Z-D1-02     SKIP    facility missing: db
+Z-D1-01     SKIP    facility missing: db
+Z-D1-03     SKIP    facility missing: db
+Z-V2-01     SKIP    facility missing: db
+Z-K07-01    SKIP    facility missing: db
+Z-K01-01    SKIP    facility missing: db
+The full static run's other failures: F06-S01 and D060-J78-01 name stream A's migration 20270123100000 (D-1), merged from claude/z; BOB26-K01 (CARD_PEPPER, fails the same on the base) did not run in this environment's shell. DAISY-18-DENGAR-01 and F06-S04 failed on Z4's first form and were fixed in this commit (S-11's line through BarisHasil; two proves texts naming their artefact): both now PASS.
+## app runner: local stack reset with the merged migrations; fresh build of this tree; 43 ids touching Z4's routes
+85 passed, 1 failed, 4 skipped, 12 justified skips accepted (local only), 0 contract problem(s) → RED
+DAISY-17-KIRIM-02 PASS    Konfigurasi offers Menambahkan orang exactly when /pendataan admits the same reader, for the platform administrator and for Alpha's school administrator; a school administrator refused Pimpinan reads the staff refusal, not "ask your t
+Z-R8-02     PASS    as the bootstrap learner, the same HTTP status for all three ids on each route (Sharon's condition b); opens all eight /belajar/{id}/… routes with a learning assignment of a class they are not in, an assessment-assignment id and an unknow
+Z-S12-01    PASS    posts to the running app's reopening route from one address: a message of spaces and six letters, then an empty identity, each answer kode=ISIAN and the page says buka_kembali.galat.isian, never «a request was just sent»; neither used the
+F22-K06 needs a persona the db suites seed earlier in a full run. 16 ids need the Mailpit sink, whose image Docker Hub rate-limited here: not run, for the full pre-flight.
+## R-26 in Chromium (r26-tekan.ts), this tree:
+# this tree (3f34689b + R-26 item 2's measured check)
+PASS  Z-R26-01 Enter twice on «Kirim permintaan» posts once (1 POST)
+PASS  Z-R26-01 the answer is «Terima kasih. …», not «Tunggu» (/masuk/buka-kembali?hasil=terkirim)
+PASS  Z-R26-01 while on its way the button says «Mengirim…», busy and disabled ({"teks":"Mengirim…","busy":"true","mati":true})
+PASS  Z-R26-04 the reopening button does not narrow while busy (rest 358.0 px, busy 358.0 px)
+PASS  Z-R26-01 Back shows the verb again, enabled ({"teks":"Kirim permintaan","mati":false,"busy":null})
+PASS  Z-R26-04 Pendataan's button, busy as «Menyimpan…», does not narrow (rest 247.8 px, busy 247.8 px)
+PASS  Z-R26-04 the field beside it does not grow into the button's place (452.2 → 452.2 px; code «»)
+PASS  Z-R26-02 at 1280 px the hit area of «Mau ke mana hari ini?» is at least 44 px (drawn 164×36; it answers over 44.5 px)
+PASS  Z-R26-02 at 390 px the hit area of «Mau ke mana hari ini?» is at least 44 px (drawn 164×36; it answers over 44.5 px)
+PASS  Z-R26-02 at 320 px the hit area of «Mau ke mana hari ini?» is at least 44 px (drawn 164×36; it answers over 44.5 px)
+## at rest: base and this tree pixel-identical for all five images (cmp)

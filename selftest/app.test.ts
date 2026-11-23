@@ -38,6 +38,7 @@ import { b0LayarTests } from "./b0-layar.test";
 import { a1LayarTests } from "./a1-layar.test";
 import { a3LayarAppTests } from "./a3-layar.test";
 import { c3wZAppTests } from "./c3w-z.test";
+import { zUxAppTests } from "./z-ux.test";
 import { c1wLayarTests } from "./c1w-layar.test";
 import { c3wLayarTests } from "./c3w-layar.test";
 import { c2wCatatanLayarTests } from "./c2w-catatan-layar.test";
@@ -3614,6 +3615,7 @@ export const appTests: SelfTest[] = [
   ...a1LayarTests.filter((x) => !["A1-K02", "A1-S08", "A1-S09"].includes(x.id)),
   ...a3LayarAppTests,
   ...c3wZAppTests,
+  ...zUxAppTests,
   ...c1wLayarTests.filter((x) => x.id !== "C1W-K02"),
   ...c3wLayarTests,
   ...c2wCatatanLayarTests.filter((x) => x.id !== "C2W-K01"),

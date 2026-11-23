@@ -173,7 +173,7 @@ export type HleEvent =
   | "laporan.komposisi.penguatan_judul" | "laporan.komposisi.penguatan_arti" | "laporan.komposisi.penguatan_nihil"
   | "laporan.komposisi.penguatan_ulang" | "laporan.komposisi.berikutnya_penguatan"
   | "laporan.kisi.pola" | "laporan.kisi.pola_banyak" | "laporan.kisi.tanpa_target" | "laporan.kisi.tanpa_pola" | "laporan.kisi.arti" | "laporan.kisi.belum"
-  | "laporan.sekolah.zona" | "laporan.sekolah.perhatian" | "laporan.sekolah.semua_cukup" | "laporan.sekolah.angka"
+  | "laporan.sekolah.zona" | "laporan.sekolah.perhatian" | "laporan.sekolah.semua_cukup" | "laporan.sekolah.semua_cukup_sebagian" | "laporan.sekolah.angka"
   | "laporan.sekolah.dasar_gerbang" | "laporan.sekolah.dasar_sertifikat" | "laporan.sekolah.kohort_arti" | "laporan.sekolah.berikutnya_kesiapan"
   // ── WP4. The Management surface. `pimpinan` is Indonesian for the people who
   // lead a part of a school — the word the approved Management design uses for
@@ -526,6 +526,7 @@ export type HleEvent =
   | "studio.koreksi.galat.correction_failed"
   | "verifikasi.status.DITINJAU"
   | "verifikasi.status.DITINJAU.arti"
+  | "verifikasi.fakta.seperti_terbit" | "verifikasi.fakta.ditinjau"
   | "hasil.dikoreksi"
   | "hasil.dikoreksi.tanda"
   | "hasil.dikoreksi.asli"
@@ -1387,6 +1388,7 @@ export type HleEvent =
   | "map.tier.WAJIB"
   | "map.tier.DISARANKAN"
   | "map.tier.KUAT"
+  | "map.kuat.arti" | "map.tingkat.arti"
   | "map.page"
   | "map.to_lesson"
   | "lesson.title"
@@ -2446,6 +2448,7 @@ export type HleEvent =
   | "mengajar.murid1.tujuan"
   | "mengajar.murid1.tujuan_arti"
   | "mengajar.murid1.tujuan_kosong"
+  | "mengajar.murid1.tujuan_belum_uji" | "mengajar.murid1.tujuan_gagal"
   | "mengajar.murid.judul"
   | "mengajar.murid.sub"
   | "mengajar.murid.kosong"
@@ -2824,6 +2827,7 @@ export type HleEvent =
   | "aktivasi.galat.ditolak"
   | "aktivasi.galat.baru_ditolak"
   | "aktivasi.galat.dipakai"
+  | "aktivasi.galat.buat_gagal"
   | "aktivasi.galat.kartu"
   | "aktivasi.galat.sesi"
   | "aktivasi.galat.jaringan"
@@ -2884,6 +2888,7 @@ export type HleEvent =
   | "lupa.p_judul"
   | "lupa.p_lede"
   | "lupa.berakhir"
+  | "lupa.pin.berakhir"
   | "lupa.selesai_judul"
   | "lupa.selesai_isi"
   | "lupa.lanjut"
@@ -3795,6 +3800,8 @@ const table: Table = {
   "laporan.sekolah.zona": { default: "Batas pita: di bawah 60% «{penguatan}» · 60–79% «{berkembang}» · 80% ke atas «{mantap}».", en: "Band limits: below 60% «{penguatan}» · 60–79% «{berkembang}» · 80% and above «{mantap}»." },
   "laporan.sekolah.perhatian": { default: "{daftar} masih di pita «{pita}».", en: "{daftar}: still in the «{pita}» band." },
   "laporan.sekolah.semua_cukup": { default: "Semua bidang kompetensi berada di 60% ke atas.", en: "Every competency domain is at 60% or above." },
+  // K-04 (Daisy's sweep): «all» only of the domains with a figure, when any is withheld (the class report's _sebagian, D13)
+  "laporan.sekolah.semua_cukup_sebagian": { default: "Semua bidang kompetensi yang punya angka berada di 60% ke atas.", en: "Every competency domain with a figure is at 60% or above." },
   "laporan.sekolah.angka": { default: "Angka utama", en: "Headline figures" },
   "laporan.sekolah.dasar_gerbang": { default: "Dari {s} hasil Uji Penguasaan yang memuat soal wajib, milik {n} murid.", en: "From {s} Mastery Check results that hold required items, from {n} students." },
   "laporan.sekolah.dasar_gerbang_murid": { default: "Dari {n} murid yang mengerjakan Uji Penguasaan.", en: "From {n} students who sat a Mastery Check." },
@@ -4452,6 +4459,9 @@ const table: Table = {
   "studio.koreksi.galat.correction_failed": { default: "Koreksi belum tersimpan. Coba lagi.", en: "The correction was not saved. Try again." },
   // C1w on the screens (Daisy, TINJAUAN-A1-C1W: Q5, Q6, §C1·N1, §C1·N2, C1-B1, C1-B2, C1-R1..R5)
   "verifikasi.status.DITINJAU": { default: "Sedang ditinjau", en: "Under review" },
+  // K-05 (ruling 78; Daisy §b): the facts under «Sedang ditinjau» and «Dicabut» are the issue-time ones, headed so
+  "verifikasi.fakta.seperti_terbit": { default: "Seperti saat diterbitkan", en: "As issued" },
+  "verifikasi.fakta.ditinjau": { default: "Isi ini dapat berubah setelah sekolah penerbit selesai meninjau sertifikat ini.", en: "This may change once the issuing school finishes reviewing the certificate." },
   "verifikasi.status.DITINJAU.arti": { default: "Sertifikat ini benar diterbitkan oleh {sekolah}. Penilaian satu soal di asesmennya diperbaiki, dan sekolah penerbit sedang meninjau sertifikat ini. Sampai selesai, sertifikat ini tidak dinyatakan berlaku. Hubungi sekolah penerbit untuk keterangan.", en: "This certificate was genuinely issued by {sekolah}. The marking of one question in its assessment was corrected, and the issuing school is reviewing this certificate. Until that is finished, this certificate is not declared valid. Contact the issuing school for details." },
   "hasil.dikoreksi": { default: "Hasil ini dihitung ulang karena penilaian satu soal diperbaiki. Hasil asli tetap tersimpan.", en: "This result was recalculated because the marking of one question was corrected. The original result is kept." },
   "hasil.dikoreksi.tanda": { default: "Dihitung ulang", en: "Recalculated" },
@@ -5058,7 +5068,7 @@ const table: Table = {
   "config.section.transfers": { default: "Perpindahan murid", en: "Student transfers" },
   "config.section.pindah": { default: "Pindah kelas", en: "Move a student to another class" },
   "config.section.ketuntasan": { default: "Batas ketuntasan", en: "Pass marks" },
-  "config.ketuntasan.arti": { default: "Nilai minimum kelulusan setiap pelajaran di sekolah ini, dalam persen bulat dari 0 sampai 100. Guru baru bisa menyediakan sebuah pelajaran untuk kelas setelah batasnya ditetapkan. Perubahan berlaku untuk pelajaran yang disediakan sesudahnya; hasil dan sertifikat yang sudah ada tidak berubah.", en: "The minimum passing mark for each lesson at this school, as a whole percentage from 0 to 100. A teacher can give a lesson to a class only once its mark is set. A change applies to what is given afterwards; results and certificates that already exist do not change." },
+  "config.ketuntasan.arti": { default: "Nilai minimum kelulusan setiap pelajaran di sekolah ini, dalam persen bulat dari 1 sampai 100. Guru baru bisa menyediakan sebuah pelajaran untuk kelas setelah batasnya ditetapkan. Perubahan berlaku untuk pelajaran yang disediakan sesudahnya; hasil dan sertifikat yang sudah ada tidak berubah.", en: "The minimum passing mark for each lesson at this school, as a whole percentage from 1 to 100. A teacher can give a lesson to a class only once its mark is set. A change applies to what is given afterwards; results and certificates that already exist do not change." },
   "config.ketuntasan.belum": { default: "Batas ketuntasan belum ditetapkan", en: "No pass mark set yet" },
   "config.ketuntasan.sekarang": { default: "Batas ketuntasan:", en: "Pass mark:" },
   "config.ketuntasan.nilai": { default: "Nilai minimum (%)", en: "Minimum mark (%)" },
@@ -5768,7 +5778,12 @@ const table: Table = {
   "map.tier.PERLU_SEGERA": { default: "Baca ini lebih dulu", en: "Read this first" },
   "map.tier.WAJIB": { default: "Perlu dibaca", en: "Needs reading" },
   "map.tier.DISARANKAN": { default: "Sebaiknya dibaca", en: "Worth reading" },
-  "map.tier.KUAT": { default: "Sudah dikuasai", en: "You already have this" },
+  // K-02 (ruling 78; Daisy, SAPU-KATA-RULING-78 §a): the fourth tier is an order of reading, never a statement of mastery
+  "map.tier.KUAT": { default: "Sudah kuat", en: "Already strong" },
+  // K-02: a KUAT card's line, in the reason slot (reading_map falls back to the statement there, so it printed twice)
+  "map.kuat.arti": { default: "Jawaban Anda di Pemetaan Awal untuk bagian ini sudah tepat. Anda boleh membacanya sekilas.", en: "Your Initial Mapping answers for this part were right. You may skim it." },
+  // K-02: wherever the tiers are explained (under the map, where they are drawn)
+  "map.tingkat.arti": { default: "Tanda ini adalah saran urutan membaca dari hasil Pemetaan Awal. Tanda ini bukan nilai dan bukan pernyataan penguasaan.", en: "These marks suggest an order of reading, from the Initial Mapping. They are not a score, and not a statement of mastery." },
   "map.page": { default: "Bagian bacaan", en: "Reading section" },
   "map.to_lesson": { default: "Buka pelajarannya", en: "Open the lesson" },
 
@@ -6409,7 +6424,7 @@ const table: Table = {
   "galat.learner_moved": { default: "Murid sudah dipindahkan. Apa yang sudah ia kerjakan tetap tercatat di kelas lamanya.", en: "The student has been moved. What they have already done stays recorded with their old class." },
   "galat.pass_mark_set": { default: "Batas ketuntasan ditetapkan. Berlaku untuk pelajaran yang disediakan mulai sekarang.", en: "The pass mark is set. It applies to what is given from now on." },
   "galat.pass_mark_unchanged": { default: "Batas ketuntasan sudah bernilai itu; tidak ada yang berubah.", en: "The pass mark already has that value; nothing changed." },
-  "galat.pass_mark_input_incomplete": { default: "Isi nilai bulat dari 0 sampai 100 dan alasannya.", en: "Enter a whole number from 0 to 100 and a reason." },
+  "galat.pass_mark_input_incomplete": { default: "Isi nilai bulat dari 1 sampai 100 dan alasannya.", en: "Enter a whole number from 1 to 100 and a reason." },
   "galat.pass_mark_missing": { default: "Batas ketuntasan pelajaran ini belum ditetapkan, jadi pelajaran ini belum bisa disediakan untuk kelas. Admin sekolah menetapkannya di Konfigurasi → Batas ketuntasan.", en: "This lesson has no pass mark yet, so it cannot be given to a class. The school admin sets it in Configuration → Pass mark." },
   "galat.rollover_done": { default: "Keanggotaan kelas yang dipindahkan ke tahun ajaran baru:", en: "Class memberships moved to the new academic year:" },
   "galat.template_saved": { default: "Metrik dalam templat laporan ini:", en: "Metrics in this report template:" },
@@ -6592,6 +6607,8 @@ const table: Table = {
   "aktivasi.galat.surel": { default: "Alamat email ini belum lengkap. Contoh: nama@sekolah.sch.id", en: "This email address isn't complete. Example: name@school.sch.id" },
   "aktivasi.galat.ditolak": { default: "PINTAR menolak, dan tidak ada yang dibuat. Orang ini mungkin sudah punya akun, atau bukan dari sekolah yang Anda kelola. Muat ulang halaman ini untuk melihat daftar terbaru.", en: "PINTAR refused, and nothing was made. This person may already have an account, or may not belong to a school you manage. Reload this page to see the current list." },
   "aktivasi.galat.baru_ditolak": { default: "PINTAR menolak, dan tidak ada yang dibuat. Hanya Admin platform yang bisa membuat orang di luar pendataan.", en: "PINTAR refused, and nothing was made. Only a platform administrator can create a person outside the intake." },
+  // S-15 (Daisy's sweep): an account Auth did not create for a reason that is not the address (an outage, a limit)
+  "aktivasi.galat.buat_gagal": { default: "Akun belum bisa dibuat. Coba lagi sebentar lagi.", en: "The account could not be made yet. Try again in a moment." },
   "aktivasi.galat.dipakai": { default: "Akun belum bisa dibuat. Alamat email ini mungkin sudah dipakai akun lain. Coba alamat lain.", en: "The account could not be made. This email address may already belong to another account. Try another address." },
   "aktivasi.galat.kartu": { default: "Kartu belum bisa dibuat, dan tidak ada yang tersimpan. Coba lagi.", en: "The card could not be made, and nothing was saved. Try again." },
   "aktivasi.galat.sesi": { default: "Sesi Anda sudah berakhir, dan tidak ada yang dibuat. Masuk lagi, lalu ulangi.", en: "Your session has ended, and nothing was made. Sign in again, then repeat this." },
@@ -6635,7 +6652,8 @@ const table: Table = {
   "aktifkan.kode_bantu": { default: "Belum ada email? Periksa folder Spam atau Promosi. Kode hanya dikirim ke alamat yang didaftarkan sekolah Anda, jadi pastikan alamatnya benar.", en: "No email yet? Check your Spam or Promotions folder. The code goes only to the address your school registered, so make sure the address is right." },
   "aktifkan.kirim_ulang": { default: "Kirim ulang kode", en: "Send the code again" },
   "aktifkan.kirim_ulang_dalam": { default: "Kode bisa dikirim ulang dalam", en: "You can ask again in" },
-  "aktifkan.kode_ulang_ok": { default: "Jika alamat ini terdaftar, PINTAR sedang mengirim kode baru. Pakai kode dari email yang paling baru.", en: "If this address is registered, PINTAR is sending a new code. Use the code from the newest email." },
+  // S-13 (Daisy's sweep): a new code goes only to an account not yet active (activation_code_target), as the first send says
+  "aktifkan.kode_ulang_ok": { default: "Jika alamat ini terdaftar dan akunnya belum aktif, PINTAR sedang mengirim kode baru. Pakai kode dari email yang paling baru.", en: "If this address is registered and its account is not active yet, PINTAR is sending a new code. Use the code from the newest email." },
   "aktifkan.email_lain": { default: "Gunakan email lain", en: "Use a different email" },
   "aktifkan.kode_kosong": { default: "Ketik kode dari email dulu.", en: "Type the code from the email first." },
   "aktifkan.kode_salah": { default: "Kode ini tidak cocok atau sudah tidak berlaku. Periksa kodenya, atau minta kode baru.", en: "This code doesn't match or is no longer valid. Check the code, or ask for a new one." },
@@ -6688,6 +6706,8 @@ const table: Table = {
   "lupa.pin.ditangguhkan": { default: "Pemulihan dengan PIN untuk PINTAR ID ini dihentikan setelah terlalu banyak PIN tidak cocok. Pulihkan akun lewat email, lalu buat PIN baru di Akun saya.", en: "Recovery with a PIN for this PINTAR ID has been stopped after too many PINs that didn't match. Recover your account by email, then make a new PIN in My account." },
   "lupa.pin.belum_aktif": { default: "Akun ini belum selesai diaktifkan. Aktifkan akun PINTAR Anda lebih dulu.", en: "This account hasn't finished activation. Activate your PINTAR account first." },
   "lupa.pin.ke_email": { default: "Pulihkan lewat email", en: "Recover by email" },
+  // S-08 (Daisy's sweep): the PIN path's expiry, said on the PIN form, where there is no code
+  "lupa.pin.berakhir": { default: "Waktu untuk membuat password baru sudah habis. Ketik lagi PINTAR ID dan PIN Anda.", en: "The time to make a new password has run out. Type your PINTAR ID and PIN again." },
   "lupa.pin.periksa": { default: "Lanjut", en: "Continue" },
   "idpage.judul": { default: "Kartu PINTAR", en: "PINTAR card" },
   "idpage.lede": { default: "Ini PINTAR ID dari sebuah kartu PINTAR. PINTAR ID bukan kunci: untuk masuk, pemiliknya memakai email atau nama pengguna dan password.", en: "This is the PINTAR ID from a PINTAR card. A PINTAR ID is not a key: to sign in, its owner uses their email or username and password." },
@@ -7038,7 +7058,8 @@ const table: Table = {
   "buka_kembali.pesan_arti": { default: "Tuliskan mengapa Anda ingin kembali dan bagaimana Admin PINTAR dapat menghubungi Anda untuk memastikan identitas Anda. 10 sampai 500 karakter.", en: "Say why you want to come back and how an Admin PINTAR can reach you to confirm who you are. 10 to 500 characters." },
   "buka_kembali.kirim": { default: "Kirim permintaan", en: "Send the request" },
   "buka_kembali.terkirim": { default: "Terima kasih. Jika akun itu memang sudah ditutup, permintaan Anda kini menunggu di Admin PINTAR. Akun dibuka kembali hanya setelah Admin PINTAR memastikan identitas Anda.", en: "Thank you. If that account has been closed, your request is now waiting with an Admin PINTAR. The account is reopened only after an Admin PINTAR has confirmed who you are." },
-  "buka_kembali.galat.isian": { default: "Isi email atau PINTAR ID, dan pesan 10 sampai 500 karakter.", en: "Fill in the email or PINTAR ID, and a message of 10 to 500 characters." },
+  // R-27(a) (ruling 77): the field is labelled «Email atau username», and the refusal names it so
+  "buka_kembali.galat.isian": { default: "Isi email atau username, dan pesan 10 sampai 500 karakter.", en: "Fill in the email or username, and a message of 10 to 500 characters." },
   "buka_kembali.galat.tunggu": { default: "Baru saja ada permintaan dari jaringan ini. Tunggu beberapa menit, lalu coba lagi.", en: "A request was just sent from this network. Wait a few minutes, then try again." },
   "buka_kembali.galat.umum": { default: "Permintaan belum terkirim. Coba lagi.", en: "The request was not sent. Try again." },
   "buka_kembali.ke_masuk": { default: "Kembali ke halaman masuk", en: "Back to sign-in" },
@@ -7784,6 +7805,9 @@ const table: Table = {
   "mengajar.murid1.tujuan": { default: "Tujuan pembelajaran yang belum tercapai", en: "Learning objectives not yet reached" },
   "mengajar.murid1.tujuan_arti": { default: "Dari Uji Penguasaan terakhir murid ini di kelas ini: tujuan yang penguasaannya masih di bawah target. Ini yang perlu dipelajari lagi, bukan penilaian atas muridnya.", en: "From this student's latest Mastery Check in this class: the objectives whose mastery is still below the target. This is what to work on next, not a judgment of the student." },
   "mengajar.murid1.tujuan_kosong": { default: "Tidak ada tujuan pembelajaran yang tercatat di bawah target pada Uji Penguasaan murid ini di kelas ini.", en: "No learning objective is recorded below the target on this student's Mastery Checks in this class." },
+  // K-03 (SAPU-VERIFIED; Daisy's sweep words): no scored Uji Penguasaan here is its own state, and a failed read is said
+  "mengajar.murid1.tujuan_belum_uji": { default: "Belum ada Uji Penguasaan dari murid ini di kelas ini.", en: "This student has no Mastery Check in this class yet." },
+  "mengajar.murid1.tujuan_gagal": { default: "Tujuan pembelajaran yang belum tercapai belum dapat dibaca. Muat ulang halaman ini.", en: "The learning objectives not yet reached could not be read. Reload this page." },
   "mengajar.murid.judul": { default: "Murid", en: "Students" },
   "mengajar.murid.sub": { default: "Nama diurutkan abjad; tidak ada peringkat.", en: "Names in alphabetical order; there is no ranking." },
   "mengajar.murid.kosong": { default: "Belum ada murid terdaftar di kelas ini.", en: "No student is enrolled in this class yet." },

@@ -5,6 +5,7 @@ import MerekPintar from "@/components/MerekPintar";
 import PanelPernyataan from "@/components/masuk/PanelPernyataan";
 import BarisHasil from "@/components/BarisHasil";
 import SimpanIsian from "@/components/SimpanIsian";
+import TombolKirim from "@/components/TombolKirim";
 import { judulHalaman } from "@/lib/judul-halaman";
 
 export const generateMetadata = judulHalaman("/masuk/buka-kembali");
@@ -41,7 +42,8 @@ export default async function BukaKembali({ searchParams }: { searchParams: Prom
                 <p className="pin-meta" id="bk-pesan-arti">{s("buka_kembali.pesan_arti")}</p>
                 <textarea id="bk-pesan" name="pesan" className="pin-input" rows={4} required minLength={10} maxLength={500}
                   aria-describedby="bk-pesan-arti" />
-                <button type="submit" className="pin-btn pin-primary">{s("buka_kembali.kirim")}</button>
+                {/* R-26 item 1 (ruling 75): says «Mengirim…» at once and posts once on a double press; Back restores it */}
+                <TombolKirim asli className="pin-btn pin-primary" sibuk={s("tombol.mengirim")}>{s("buka_kembali.kirim")}</TombolKirim>
                 {/* Daisy (bcecb425, B5): a refused request keeps what the person typed (CR-84's one-press keep, this tab only);
                     the page is signed out, so the form is its own owner */}
                 <SimpanIsian form="buka-kembali" ditolak={Boolean(sp.kode)} pemilik="buka-kembali" />
