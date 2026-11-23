@@ -190,3 +190,29 @@ The hosts were extracted from the saved file only. No new request was made in th
   - **Retention information:** only if readily accessible.
 - **Collecting the document closes only the document gap.** **Sharon then assesses** whether the listed data-handling arrangements meet PINTAR's requirements, for both providers, on the same criteria.
 - **Unchanged:** the counsel questions (End User; PR-1; "human review"; the minors clause); D-7 (25 Nov, 10:00 UTC); no activation or spending.
+
+---
+
+## Anthropic subcontractor list: the owner's PDF, first copy (23 Nov 2026)
+
+- **The file:** `Trust_Center_-_Anthropic.pdf`, saved by the owner from Firefox (created 23 Nov 2026, 05:53 UTC; 3 pages).
+- **sha256:** `f2a1e11a2582cc76c7fa94ab1fa061618f887697a7cb0d681f401c8b9f79eda0`. It is kept outside the repository and marked as supplied by the owner.
+- **The page shows** "1-10 of 22 results", and **no date** appears on it.
+- **Status: PARTLY READ** (10 of 22).
+
+**The entries read, verbatim:**
+
+| Subprocessor | Purpose | Location | Products |
+|---|---|---|---|
+| Google Cloud Platform | Cloud infrastructure | Worldwide | All Products |
+| Amazon Web Services | Cloud Infrastructure | Worldwide | All Products |
+| Microsoft Azure | Cloud Infrastructure | Worldwide | All Products |
+| Cloudflare | Traffic Routing (CDN) | Worldwide (Local to Customer) | All Products |
+| Stripe | Billing | United States | Claude Pro/Max, Claude Developer Platform, Claude for Work |
+| WorkOS | Security, Single Sign-On | United States | Claude for Work, Claude Developer Platform |
+| Intercom | User support | United States | All Products except Claude for Government |
+| Nutun | User support | South Africa | All Products except Claude for Government |
+| Boldr | User support | Canada | All Products except Claude for Government |
+| Twilio | Analytics, email/SMS communications | United States | All Products except Claude for Government |
+
+**Still to collect:** the remaining 12 entries, and a date for the list. The page shows none. If there is none, record the copy's date, 23 Nov 2026, as its version.
