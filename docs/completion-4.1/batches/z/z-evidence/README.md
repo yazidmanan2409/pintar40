@@ -1,8 +1,12 @@
 # Z · staging promotion evidence
 
 > **The pair:** 300 → 308. Line 10 reads `300 / 20270122190000` BEFORE and `308 / 20270123170000` AFTER.
-> - **Prepared on** `claude/z` at `944520b0`, before Z9's full pre-flight (Bob, 14:51Z: prepare the evidence, do not
->   start the pre-flight). If the head moves before the freeze, the dry run is taken again on the frozen head.
+> - **The frozen candidate:** `claude/z` at **`df0cbc9c`** (Bob, 15:09Z). Sharon passed this evidence
+>   (`Z9-PROMOTION-0237cf2a.md`, `3c5cffad`). The dry run was taken on `944520b0`; from there to the candidate only this
+>   folder changed.
+> - **The full pre-flight on `df0cbc9c`** (`preflight-df0cbc9c/`): lint, typecheck and build identity pass; the whole
+>   suite on a fresh reset and fresh build is **1385 passed, 2 failed** (F06-S04 and BOB18-A01, both explained in the
+>   hand-off); plants 175/175; red-case groups 11/11.
 > - **The method** is C3w-1's (`c3w-1-evidence/`), with Bob's delta (`PRESERVATION-Z-DELTA.md`, claude/bob-41-master-plan).
 > - **Local only:** nothing here touched staging or production.
 

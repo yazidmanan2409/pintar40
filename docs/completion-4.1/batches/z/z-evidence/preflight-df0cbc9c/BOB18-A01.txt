@@ -1,0 +1,1 @@
+BOB18-A01   FAIL    SYSTEM_ADMIN /konfigurasi asked is_system_admin 2 times; INSTITUTION_ADMIN /konfigurasi asked is_system_admin 2 times; SYSTEM_ADMIN /konfigurasi/roles?bagian=roles&hasil=ok asked is_system_admin 2 times; SYSTEM_ADMIN /konfigurasi?periksa=skema asked is_system_admin 2 times

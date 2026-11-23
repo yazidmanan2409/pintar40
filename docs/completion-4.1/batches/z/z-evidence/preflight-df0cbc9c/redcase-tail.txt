@@ -1,0 +1,3 @@
+  ok   Each planted activation defect must turn its own F18 test red
+OK   db · bob01 bob35 wp7 bob26
+all 11 red-case group(s) passed on df0cbc9c
