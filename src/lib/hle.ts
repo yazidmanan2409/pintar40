@@ -2827,6 +2827,7 @@ export type HleEvent =
   | "aktivasi.galat.ditolak"
   | "aktivasi.galat.baru_ditolak"
   | "aktivasi.galat.dipakai"
+  | "aktivasi.galat.buat_gagal"
   | "aktivasi.galat.kartu"
   | "aktivasi.galat.sesi"
   | "aktivasi.galat.jaringan"
@@ -2887,6 +2888,7 @@ export type HleEvent =
   | "lupa.p_judul"
   | "lupa.p_lede"
   | "lupa.berakhir"
+  | "lupa.pin.berakhir"
   | "lupa.selesai_judul"
   | "lupa.selesai_isi"
   | "lupa.lanjut"
@@ -6603,6 +6605,8 @@ const table: Table = {
   "aktivasi.galat.surel": { default: "Alamat email ini belum lengkap. Contoh: nama@sekolah.sch.id", en: "This email address isn't complete. Example: name@school.sch.id" },
   "aktivasi.galat.ditolak": { default: "PINTAR menolak, dan tidak ada yang dibuat. Orang ini mungkin sudah punya akun, atau bukan dari sekolah yang Anda kelola. Muat ulang halaman ini untuk melihat daftar terbaru.", en: "PINTAR refused, and nothing was made. This person may already have an account, or may not belong to a school you manage. Reload this page to see the current list." },
   "aktivasi.galat.baru_ditolak": { default: "PINTAR menolak, dan tidak ada yang dibuat. Hanya Admin platform yang bisa membuat orang di luar pendataan.", en: "PINTAR refused, and nothing was made. Only a platform administrator can create a person outside the intake." },
+  // S-15 (Daisy's sweep): an account Auth did not create for a reason that is not the address (an outage, a limit)
+  "aktivasi.galat.buat_gagal": { default: "Akun belum bisa dibuat. Coba lagi sebentar lagi.", en: "The account could not be made yet. Try again in a moment." },
   "aktivasi.galat.dipakai": { default: "Akun belum bisa dibuat. Alamat email ini mungkin sudah dipakai akun lain. Coba alamat lain.", en: "The account could not be made. This email address may already belong to another account. Try another address." },
   "aktivasi.galat.kartu": { default: "Kartu belum bisa dibuat, dan tidak ada yang tersimpan. Coba lagi.", en: "The card could not be made, and nothing was saved. Try again." },
   "aktivasi.galat.sesi": { default: "Sesi Anda sudah berakhir, dan tidak ada yang dibuat. Masuk lagi, lalu ulangi.", en: "Your session has ended, and nothing was made. Sign in again, then repeat this." },
@@ -6646,7 +6650,8 @@ const table: Table = {
   "aktifkan.kode_bantu": { default: "Belum ada email? Periksa folder Spam atau Promosi. Kode hanya dikirim ke alamat yang didaftarkan sekolah Anda, jadi pastikan alamatnya benar.", en: "No email yet? Check your Spam or Promotions folder. The code goes only to the address your school registered, so make sure the address is right." },
   "aktifkan.kirim_ulang": { default: "Kirim ulang kode", en: "Send the code again" },
   "aktifkan.kirim_ulang_dalam": { default: "Kode bisa dikirim ulang dalam", en: "You can ask again in" },
-  "aktifkan.kode_ulang_ok": { default: "Jika alamat ini terdaftar, PINTAR sedang mengirim kode baru. Pakai kode dari email yang paling baru.", en: "If this address is registered, PINTAR is sending a new code. Use the code from the newest email." },
+  // S-13 (Daisy's sweep): a new code goes only to an account not yet active (activation_code_target), as the first send says
+  "aktifkan.kode_ulang_ok": { default: "Jika alamat ini terdaftar dan akunnya belum aktif, PINTAR sedang mengirim kode baru. Pakai kode dari email yang paling baru.", en: "If this address is registered and its account is not active yet, PINTAR is sending a new code. Use the code from the newest email." },
   "aktifkan.email_lain": { default: "Gunakan email lain", en: "Use a different email" },
   "aktifkan.kode_kosong": { default: "Ketik kode dari email dulu.", en: "Type the code from the email first." },
   "aktifkan.kode_salah": { default: "Kode ini tidak cocok atau sudah tidak berlaku. Periksa kodenya, atau minta kode baru.", en: "This code doesn't match or is no longer valid. Check the code, or ask for a new one." },
@@ -6699,6 +6704,8 @@ const table: Table = {
   "lupa.pin.ditangguhkan": { default: "Pemulihan dengan PIN untuk PINTAR ID ini dihentikan setelah terlalu banyak PIN tidak cocok. Pulihkan akun lewat email, lalu buat PIN baru di Akun saya.", en: "Recovery with a PIN for this PINTAR ID has been stopped after too many PINs that didn't match. Recover your account by email, then make a new PIN in My account." },
   "lupa.pin.belum_aktif": { default: "Akun ini belum selesai diaktifkan. Aktifkan akun PINTAR Anda lebih dulu.", en: "This account hasn't finished activation. Activate your PINTAR account first." },
   "lupa.pin.ke_email": { default: "Pulihkan lewat email", en: "Recover by email" },
+  // S-08 (Daisy's sweep): the PIN path's expiry, said on the PIN form, where there is no code
+  "lupa.pin.berakhir": { default: "Waktu untuk membuat password baru sudah habis. Ketik lagi PINTAR ID dan PIN Anda.", en: "The time to make a new password has run out. Type your PINTAR ID and PIN again." },
   "lupa.pin.periksa": { default: "Lanjut", en: "Continue" },
   "idpage.judul": { default: "Kartu PINTAR", en: "PINTAR card" },
   "idpage.lede": { default: "Ini PINTAR ID dari sebuah kartu PINTAR. PINTAR ID bukan kunci: untuk masuk, pemiliknya memakai email atau nama pengguna dan password.", en: "This is the PINTAR ID from a PINTAR card. A PINTAR ID is not a key: to sign in, its owner uses their email or username and password." },
@@ -7049,7 +7056,8 @@ const table: Table = {
   "buka_kembali.pesan_arti": { default: "Tuliskan mengapa Anda ingin kembali dan bagaimana Admin PINTAR dapat menghubungi Anda untuk memastikan identitas Anda. 10 sampai 500 karakter.", en: "Say why you want to come back and how an Admin PINTAR can reach you to confirm who you are. 10 to 500 characters." },
   "buka_kembali.kirim": { default: "Kirim permintaan", en: "Send the request" },
   "buka_kembali.terkirim": { default: "Terima kasih. Jika akun itu memang sudah ditutup, permintaan Anda kini menunggu di Admin PINTAR. Akun dibuka kembali hanya setelah Admin PINTAR memastikan identitas Anda.", en: "Thank you. If that account has been closed, your request is now waiting with an Admin PINTAR. The account is reopened only after an Admin PINTAR has confirmed who you are." },
-  "buka_kembali.galat.isian": { default: "Isi email atau PINTAR ID, dan pesan 10 sampai 500 karakter.", en: "Fill in the email or PINTAR ID, and a message of 10 to 500 characters." },
+  // R-27(a) (ruling 77): the field is labelled «Email atau username», and the refusal names it so
+  "buka_kembali.galat.isian": { default: "Isi email atau username, dan pesan 10 sampai 500 karakter.", en: "Fill in the email or username, and a message of 10 to 500 characters." },
   "buka_kembali.galat.tunggu": { default: "Baru saja ada permintaan dari jaringan ini. Tunggu beberapa menit, lalu coba lagi.", en: "A request was just sent from this network. Wait a few minutes, then try again." },
   "buka_kembali.galat.umum": { default: "Permintaan belum terkirim. Coba lagi.", en: "The request was not sent. Try again." },
   "buka_kembali.ke_masuk": { default: "Kembali ke halaman masuk", en: "Back to sign-in" },

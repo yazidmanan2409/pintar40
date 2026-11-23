@@ -3467,9 +3467,12 @@ select:not([multiple]):not([size]) {
 .pin-konteks-tujuan { font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-3); }
 .pin-konteks-tempat { font-size: var(--t-small); line-height: var(--t-small-lh); font-weight: var(--weight-strong); color: var(--ink-1); overflow-wrap: anywhere; }
 a.pin-konteks-pilih {
+  position: relative;
   display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--control-sm); width: fit-content;
   font-size: var(--t-small); font-weight: var(--weight-strong); color: var(--pintar-primary); text-decoration: none;
 }
+/* R-26 item 2 (ruling 75): compact is a look, not a smaller target; the hit area is control-md tall (.pin-soalbar's rule) */
+a.pin-konteks-pilih::after { content: ""; position: absolute; inset: calc((var(--control-md) - var(--control-sm)) / -2) 0; }
 a.pin-konteks-pilih:hover { text-decoration: underline; }
 a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 .pin-konteks-inisial {

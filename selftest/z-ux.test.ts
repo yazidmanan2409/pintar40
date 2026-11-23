@@ -20,7 +20,7 @@
  *   Z-R8-02   the same, in the running app: a classmate's assignment id and an assessment-assignment id answer 404 with
  *             the not-found page on all seven routes, and no reference code
  */
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { spawnSync } from "node:child_process";
 import { Checks, type SelfTest } from "./lib";
@@ -238,6 +238,185 @@ export const zUxStaticTests: SelfTest[] = [
       return c.verdict("reads every page under /belajar/[tugas]/: each calls the one guard (src/lib/tugas-saya.ts, notFound() when the id is not one of the learner's) before any learning-state read, and none answers «not yours» with its own refusal page");
     },
   },
+  {
+    id: "Z-S12-02",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const route = buang(readFileSync(join(repoRoot, "src", "app", "api", "masuk", "buka-kembali", "kirim", "route.ts"), "utf8"));
+      const periksa = route.indexOf("isianBukaKembaliSah(identitas, pesan)"), pace = route.indexOf('rpc("code_request_pace"');
+      c.expect(periksa >= 0 && pace >= 0 && periksa < pace, "the reopening route uses the network's pace before it checks the input (S-12)");
+      c.expect(/if \(!isianBukaKembaliSah\(identitas, pesan\)\) \{\s*await tunggu0\(\);\s*return kembali\(\{ kode: "ISIAN" \}\);\s*\}/.test(route),
+        "a refused input is not answered as the input's own line (ISIAN), after the same fixed wait");
+      // the check is minta_buka_kembali's own, so it never refuses what the database would take (spaces-only btrim, characters)
+      const modul = join(repoRoot, "src", "lib", "buka-kembali.ts");
+      if (!c.expect(existsSync(modul), "src/lib/buka-kembali.ts (the route's input check) does not exist")) return c.verdict("");
+      const { isianBukaKembaliSah: sah } = (await import(modul)) as { isianBukaKembaliSah: (i: string, m: string) => boolean };
+      const kasus: Array<[string, string, boolean]> = [
+        ["a@b.id", "Saya ingin kembali.", true], ["", "Saya ingin kembali.", false], ["   ", "Saya ingin kembali.", false],
+        ["a@b.id", "pendek", false], ["a@b.id", "    pendek    ", false], ["a@b.id", "x".repeat(10), true], ["a@b.id", "x".repeat(500), true],
+        ["a@b.id", "x".repeat(501), false], ["a@b.id", "\n\n\n\nabcdef", true], ["a@b.id", "ééééééééé", false], ["a@b.id", "😀".repeat(10), true],
+        ["x".repeat(254), "Saya ingin kembali.", true],
+      ];
+      for (const [i, m, mau] of kasus) c.expect(sah(i, m) === mau, `isianBukaKembaliSah(${JSON.stringify(i.slice(0, 12))}, ${JSON.stringify(m.slice(0, 16))}) is ${!mau}, not ${mau}`);
+      return c.verdict("reads the reopening route's source file: the input is checked (isianBukaKembaliSah) before code_request_pace, and a refused input answers ISIAN after the same fixed wait; executes the check on twelve inputs, matching minta_buka_kembali's own rule (spaces-only btrim, characters not code units)");
+    },
+  },
+  {
+    id: "Z-R26-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const tk = buang(readFileSync(join(repoRoot, "src", "components", "TombolKirim.tsx"), "utf8"));
+      // item 1: opt-in; a native post form's button sets its own busy state at the guard, and Back clears it
+      c.expect(/asli\?: boolean;/.test(tk) && /return asli \? <TombolAsli \{\.\.\.sifat\} \/> : <TombolAksi \{\.\.\.sifat\} \/>;/.test(tk),
+        "TombolKirim has no opt-in `asli` for a native post form, or it changes the server-action path");
+      const asli = /function TombolAsli\([\s\S]*?\n\}/.exec(tk)?.[0] ?? "";
+      c.expect(/if \(terkirim\.current\) \{\s*e\.preventDefault\(\);\s*e\.stopImmediatePropagation\(\);\s*return;\s*\}\s*terkirim\.current = true;/.test(asli)
+        && /document\.addEventListener\("submit", jagaAsli, true\)/.test(asli) && /window\.addEventListener\("pageshow", tampilLagi\)/.test(asli)
+        && /disabled=\{menunggu \|\| disabled\}/.test(asli) && /aria-busy=\{menunggu \? "true" : undefined\}/.test(asli) && /\{menunggu \? sibuk : children\}/.test(asli)
+        && !/onClick/.test(asli), "the native-post button does not hold a second submit at the capture-phase guard, say its busy words, or return to its verb on pageshow");
+      // item 4: the width at the captured submit is kept only while busy; at rest the style is the caller's own
+      c.expect(/sibuk && lebar \? \{ \.\.\.gaya, minInlineSize: lebar \} : gaya/.test(tk)
+        && /style=\{gayaSibuk\(pending, lebar, rest\.style\)\}/.test(tk) && /style=\{gayaSibuk\(menunggu, lebar, rest\.style\)\}/.test(tk)
+        && (tk.match(/setLebar\(lebarKini\(tombol\.current\)\);/g) ?? []).length === 2, "a busy button may narrow (no min-inline-size from the width at submit), or the rule applies at rest");
+      const hal = buang(readFileSync(join(repoRoot, "src", "app", "masuk", "buka-kembali", "page.tsx"), "utf8"));
+      c.expect(/<TombolKirim asli className="pin-btn pin-primary" sibuk=\{s\("tombol\.mengirim"\)\}>\{s\("buka_kembali\.kirim"\)\}<\/TombolKirim>/.test(hal)
+        && !/<button type="submit"/.test(hal), "«Kirim permintaan» is still a plain submit button");
+      return c.verdict("reads the source files of TombolKirim and the reopening page (R-26 items 1 and 4): `asli` is opt-in and selects a native-post button whose capture-phase guard holds a second submit, sets «Mengirim…», busy and disabled, and returns to its verb on pageshow; both paths keep the width taken at the captured submit as min-inline-size only while busy; «Kirim permintaan» is that button. In a browser: docs/completion-4.1/batches/z/layar/r26-tekan.ts (one POST on a double press, the thank-you answer, Back, no narrowing; red on 4bf300da)");
+    },
+  },
+  {
+    id: "Z-R27-02",
+    requires: [],
+    run: async () => {
+      const c = new Checks();
+      // R-27(a) (ruling 77): the reopening refusal names the field as it is labelled, «Email atau username»
+      kata(c, [["buka_kembali.galat.isian", "Isi email atau username, dan pesan 10 sampai 500 karakter.",
+        "Fill in the email or username, and a message of 10 to 500 characters."]], "public");
+      const label = t("buka_kembali.identitas", "public", { locale: "id" });
+      c.expect(label === "Email atau username", `the field's label is «${label}»`);
+      return c.verdict("reads the copy table (R-27(a), ruling 77): buka_kembali.galat.isian names the identity as its field is labelled, «email atau username», word for word in ID and EN");
+    },
+  },
+  {
+    id: "Z-R27-03",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const lm = buang(readFileSync(join(repoRoot, "src", "components", "masuk", "LayarMasuk.tsx"), "utf8"));
+      const isian = /<input\s+id="identitas"[\s\S]*?\/>/.exec(lm)?.[0] ?? "";
+      c.expect(isian !== "", "the sign-in identity field was not found");
+      // R-27(c) (ruling 77): an email or a username, so a text keyboard suited to both; nothing rewrites what is typed
+      c.expect(!/inputMode=/.test(isian) && /type="text"/.test(isian), `the identity field still asks for an email keyboard: ${isian.replace(/\s+/g, " ").slice(0, 200)}`);
+      c.expect(/autoCapitalize="none"/.test(isian) && /autoCorrect="off"/.test(isian) && /spellCheck=\{false\}/.test(isian) && /autoComplete="username"/.test(isian),
+        "the identity field autocapitalises, autocorrects or spell-checks, or lost autoComplete=\"username\"");
+      return c.verdict("reads the source file of the sign-in screen (R-27(c), ruling 77): the identity field is type=text with no inputMode (a keyboard suited to an email and a username), no autocapitalise, autocorrect or spell-check, and keeps autoComplete=\"username\"");
+    },
+  },
+  {
+    id: "Z-R26-02",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const css = readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8");
+      const aturan = /a\.pin-konteks-pilih \{([^}]*)\}/.exec(css)?.[1] ?? "";
+      // R-26 item 2 (ruling 75): the look stays control-sm; the hit area is control-md (44 px), as .pin-soalbar .pin-btn's
+      c.expect(/position: relative;/.test(aturan) && /min-height: var\(--control-sm\);/.test(aturan), "a.pin-konteks-pilih is not position: relative, or its look changed");
+      c.expect(/a\.pin-konteks-pilih::after \{ content: ""; position: absolute; inset: calc\(\(var\(--control-md\) - var\(--control-sm\)\) \/ -2\) 0; \}/.test(css),
+        "a.pin-konteks-pilih has no ::after extending its hit area to control-md (44 px)");
+      return c.verdict("reads experience.css (R-26 item 2, ruling 75): a.pin-konteks-pilih keeps its control-sm look and gains position: relative and an ::after that extends its hit area to control-md (44 px), the .pin-soalbar .pin-btn precedent; the browser proof is docs/completion-4.1/batches/z/layar/r26-tekan.ts");
+    },
+  },
+  {
+    id: "Z-S15-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      kata(c, [["aktivasi.galat.buat_gagal", "Akun belum bisa dibuat. Coba lagi sebentar lagi.", "The account could not be made yet. Try again in a moment."]], "staff");
+      const hasil = (await import(join(repoRoot, "src", "components", "aktivasi", "hasil.ts"))) as {
+        kunciGagal: (m: string, j: { ok: boolean; error?: string } | null) => string;
+        galatBuat?: (e: { code?: string | null; status?: number; message?: string | null }) => string;
+      };
+      // only an address already registered is told «mungkin sudah dipakai»; an outage or a limit is not
+      c.expect(hasil.kunciGagal("EMAIL", { ok: false, error: "email_taken" }) === "aktivasi.galat.dipakai"
+        && hasil.kunciGagal("NEW_PERSON", { ok: false, error: "email_taken" }) === "aktivasi.galat.dipakai",
+        "an address already registered is not told «Alamat email ini mungkin sudah dipakai akun lain»");
+      c.expect(hasil.kunciGagal("EMAIL", { ok: false, error: "create_failed" }) === "aktivasi.galat.buat_gagal"
+        && hasil.kunciGagal("NEW_PERSON", { ok: false, error: "create_failed" }) === "aktivasi.galat.buat_gagal",
+        "an Auth failure that is not a registered address (an outage, a limit) is still told the address may be in use");
+      c.expect(hasil.kunciGagal("CLASSROOM_CARD", { ok: false, error: "create_failed" }) === "aktivasi.galat.kartu", "the card's own sentence changed");
+      // the route's word is decided from Auth's answer by one function, on the shapes Auth gives
+      const bentuk: Array<[{ code?: string | null; status?: number; message?: string | null }, string]> = [
+        [{ code: "email_exists", status: 422, message: "A user with this email address has already been registered" }, "email_taken"],
+        [{ status: 422, message: "A user with this email address has already been registered" }, "email_taken"],
+        [{ code: "unexpected_failure", status: 500, message: "Database error creating new user" }, "create_failed"],
+        [{ code: "over_request_rate_limit", status: 429, message: "Request rate limit reached" }, "create_failed"],
+        [{ status: 0, message: "fetch failed" }, "create_failed"],
+      ];
+      c.expect(typeof hasil.galatBuat === "function", "there is no one function (galatBuat) deciding the route's word from Auth's answer");
+      if (typeof hasil.galatBuat === "function") {
+        for (const [e, mau] of bentuk) c.expect(hasil.galatBuat(e) === mau, `${JSON.stringify(e)} → ${hasil.galatBuat(e)}, not ${mau}`);
+      }
+      const rute = buang(readFileSync(join(repoRoot, "src", "app", "api", "akun", "aktivasi", "route.ts"), "utf8"));
+      c.expect(/error: galatBuat\(created\)/.test(rute), "the activation route does not answer with galatBuat's word");
+      return c.verdict("executes src/components/aktivasi/hasil.ts and reads the activation route's source file and the copy table (S-15): Auth's answer is sorted by galatBuat into email_taken (an address already registered) or create_failed (an outage, a rate limit, an unreachable Auth); only email_taken is told «mungkin sudah dipakai»; create_failed reads «Akun belum bisa dibuat. Coba lagi sebentar lagi.», and the card keeps its own sentence");
+    },
+  },
+  {
+    id: "Z-S08-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      kata(c, [["lupa.pin.berakhir", "Waktu untuk membuat password baru sudah habis. Ketik lagi PINTAR ID dan PIN Anda.",
+        "The time to make a new password has run out. Type your PINTAR ID and PIN again."]], "public");
+      const lp = buang(readFileSync(join(repoRoot, "src", "components", "aktifkan", "LupaPassword.tsx"), "utf8"));
+      const berakhir = /if \(r\.kode === "PEMULIHAN_BERAKHIR"\) \{[\s\S]*?\n {4}\}/.exec(lp)?.[0] ?? "";
+      // the PIN path has no code to ask for: its expiry says to type the PINTAR ID and PIN again; the email path keeps its own
+      c.expect(/teks: jalan\.current === "pin" \? s\("lupa\.pin\.berakhir"\) : kalimat\(r, s, locale\)/.test(berakhir),
+        "an expiry on the PINTAR ID + PIN path still says «Minta kode baru» (lupa.berakhir), where there is no code");
+      return c.verdict("reads the source file of the forgotten-password screen and the copy table (S-08): an expiry on the PINTAR ID + PIN path says lupa.pin.berakhir («Ketik lagi PINTAR ID dan PIN Anda.») on the PIN form; the email path keeps lupa.berakhir; the words ID and EN");
+    },
+  },
+  {
+    id: "Z-S13-01",
+    requires: [],
+    run: async () => {
+      const c = new Checks();
+      // S-13: the resend is promised on the same condition as the first send (activation_code_target: state REQUIRED)
+      // (Daisy's correction is the first sentence; the second, which says which code to use, is kept as it is)
+      kata(c, [["aktifkan.kode_ulang_ok", "Jika alamat ini terdaftar dan akunnya belum aktif, PINTAR sedang mengirim kode baru. Pakai kode dari email yang paling baru.",
+        "If this address is registered and its account is not active yet, PINTAR is sending a new code. Use the code from the newest email."]], "public");
+      return c.verdict("reads the copy table (S-13): the activation resend line promises a new code only «dan akunnya belum aktif», as the first send does and as activation_code_target decides; ID and EN");
+    },
+  },
+  {
+    id: "Z-S11-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      // the list R-27(b)'s SQL is held to (stream A's fixture, bdcefe31), so the TypeScript and the SQL never disagree
+      const daftar = JSON.parse(readFileSync(join(repoRoot, "selftest", "fixtures", "z", "pintar-id-normalisasi.json"), "utf8")) as
+        { akun: string; kasus: Array<{ masukan: string; kanonik: string | null; arti: string }> };
+      const { kanonikPintarId } = await import("../src/lib/aktivasi-kontrak");
+      c.expect(daftar.kasus.length >= 14, `the shared list has only ${daftar.kasus.length} case(s)`);
+      for (const k of daftar.kasus) {
+        const hasil = kanonikPintarId(k.masukan);
+        c.expect(hasil === k.kanonik, `kanonikPintarId(${JSON.stringify(k.masukan)}) is ${hasil}, not ${k.kanonik} (${k.arti})`);
+      }
+      // S-11: the platform account lookup takes what is pasted («A14C D7ST»), and says a malformed entry, never nothing
+      const hal = buang(readFileSync(join(repoRoot, "src", "app", "konfigurasi", "keamanan", "page.tsx"), "utf8"));
+      c.expect(/const pid = kanonikPintarId\(sp\.pid\) \?\? "";/.test(hal) && !/\/\^\[0-9A-HJKMNP-TV-Z\]\{8\}\$\/\.test\(\(sp\.pid/.test(hal),
+        "the account lookup still accepts only 8 bare characters (a pasted «A14C D7ST» finds nothing), not kanonikPintarId");
+      c.expect(/const pidSalah = \(sp\.pid \?\? ""\)\.trim\(\) !== "" && pid === "";/.test(hal), "a malformed entry is not told apart from no entry");
+      const ap = buang(readFileSync(join(repoRoot, "src", "components", "keamanan", "AkunPlatform.tsx"), "utf8"));
+      const isian = /<input id="akun-pid"[^>]*\/>/.exec(ap)?.[0] ?? "";
+      c.expect(/maxLength=\{12\}/.test(isian) && /aria-invalid=\{pidSalah \? "true" : undefined\}/.test(isian), `the lookup field cuts a pasted ID short or does not mark a malformed one: ${isian}`);
+      c.expect(/\{pidSalah \? <p className="pin-msg pin-msg-err" id="akun-pid-salah">\{t\("lupa\.pin\.id_salah", "public", \{ locale \}\)\}<\/p> : null\}/.test(ap),
+        "a malformed PINTAR ID is not said with the existing sentence (ID_TIDAK_SAH, lupa.pin.id_salah)");
+      return c.verdict("executes kanonikPintarId over the shared fixture list (selftest/fixtures/z/pintar-id-normalisasi.json, which R-27(b)'s SQL also uses) and reads the source files of the platform account lookup (S-11): a pasted «A14C D7ST» and its I/L/O, hyphen and space forms are found; the field takes 12 characters; a malformed entry is said with the existing ID_TIDAK_SAH sentence, never an empty page");
+    },
+  },
 ];
 
 export const zUxAppTests: SelfTest[] = [
@@ -273,6 +452,35 @@ export const zUxAppTests: SelfTest[] = [
         }
       }
       return c.verdict("as the bootstrap learner, opens all eight /belajar/{id}/… routes with a learning assignment of a class they are not in, an assessment-assignment id and an unknown id: each answers with the not-found page («Halaman ini tidak ada»), and none with the error page or a reference code");
+    },
+  },
+  {
+    id: "Z-S12-01",
+    requires: ["app", "network", "db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const { Komputer } = await import("./bob29.test");
+      const { ipUji } = await import("./bob26.test");
+      const asal = ctx.appUrl!;
+      const k = new Komputer(asal, ipUji());
+      const ke = (r: Response) => r.headers.get("location") ?? "";
+      const isian = t("buka_kembali.galat.isian", "public", { locale: "id" });
+      const tunggu = t("buka_kembali.galat.tunggu", "public", { locale: "id" });
+      // a refused input, twice from one address: each is said as the input's own line, and neither uses the pace
+      for (const [apa, form] of [["a message of spaces and 6 letters", { identitas: "seseorang@local.invalid", pesan: "    pendek    " }],
+        ["no identity", { identitas: "   ", pesan: "Saya ingin kembali mengajar di sekolah ini." }]] as const) {
+        const r = await k.kirim("/masuk/buka-kembali/kirim", { form: { ...form } });
+        c.expect(r.status === 303 && /kode=ISIAN/.test(ke(r)), `${apa}: answered ${r.status} ${ke(r)}, not the input's own line (kode=ISIAN)`);
+        const h = await (await k.halaman(ke(r))).text();
+        c.expect(h.includes(isian) && !h.includes(tunggu), `${apa}: the page does not say the input's own line, or says «a request was just sent»`);
+      }
+      // the pace still holds for requests the database takes: the first is sent, the second at once is paced
+      const pesan = "Saya ingin kembali mengajar. Hubungi saya di nomor sekolah.";
+      const r1 = await k.kirim("/masuk/buka-kembali/kirim", { form: { identitas: `tiada-s12-${Date.now()}@local.invalid`, pesan } });
+      c.expect(/hasil=terkirim/.test(ke(r1)), `a well-formed request after two refused ones was not sent: ${ke(r1)}`);
+      const r2 = await k.kirim("/masuk/buka-kembali/kirim", { form: { identitas: `tiada-s12b-${Date.now()}@local.invalid`, pesan } });
+      c.expect(/kode=TUNGGU/.test(ke(r2)), `a second well-formed request at once is not paced: ${ke(r2)}`);
+      return c.verdict("posts to the running app's reopening route from one address: a message of spaces and six letters, then an empty identity, each answer kode=ISIAN and the page says buka_kembali.galat.isian, never «a request was just sent»; neither used the pace, so a well-formed request then is sent (hasil=terkirim), and a second at once is still paced (kode=TUNGGU)");
     },
   },
 ];

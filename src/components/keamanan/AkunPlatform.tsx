@@ -18,8 +18,10 @@ export type BarisPermintaan = { id: string; person_id: string; nama: string; pin
  * a closed account's request to delete personal data is carried out. A closure at the person's request reads as a
  * closure, never as a suspension.
  */
-export default function AkunPlatform({ locale, pid, akun, antrean, hasil, apa, kode, ulang }: {
+export default function AkunPlatform({ locale, pid, pidKetik, pidSalah = false, akun, antrean, hasil, apa, kode, ulang }: {
   locale: Locale; pid: string; akun: KeadaanAkun | null; antrean: BarisPermintaan[];
+  /** S-11: what was typed, kept in the field when it is not a PINTAR ID, and whether it is not */
+  pidKetik?: string; pidSalah?: boolean;
   hasil: string | undefined; apa: string | undefined; kode: KodeAkun | null; ulang?: string;
 }) {
   const s = (k: HleEvent) => t(k, "staff", { locale });
@@ -47,7 +49,10 @@ export default function AkunPlatform({ locale, pid, akun, antrean, hasil, apa, k
       ) : null}
       <form method="get" action="/konfigurasi/keamanan" className="pin-isian" data-cari-akun="">
         <label htmlFor="akun-pid">{s("keamanan.akun.cari")}</label>
-        <input id="akun-pid" name="pid" className="pin-input" defaultValue={pid} maxLength={8} autoComplete="off" />
+        {/* S-11: 12 characters, so «A14C D7ST» or «A14C-D7ST» pasted whole is read (kanonikPintarId) */}
+        <input id="akun-pid" name="pid" className="pin-input" defaultValue={pidKetik ?? pid} maxLength={12} autoComplete="off" spellCheck={false}
+          aria-invalid={pidSalah ? "true" : undefined} aria-describedby={pidSalah ? "akun-pid-salah" : undefined} />
+        {pidSalah ? <p className="pin-msg pin-msg-err" id="akun-pid-salah">{t("lupa.pin.id_salah", "public", { locale })}</p> : null}
         <button type="submit" className="pin-btn">{s("keamanan.akun.cari_tombol")}</button>
       </form>
       {pid && !akun ? <p className="pin-meta">{s("keamanan.akun.tidak_ada")}</p> : null}

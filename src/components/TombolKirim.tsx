@@ -35,27 +35,54 @@ import { useFormStatus } from "react-dom";
  *
  * Pages are server components; this is the one client piece a form needs.
  * UX: a whole-form lock, so a form's every way of submitting is covered.
+ *
+ * R-26 (ruling 75; Daisy's package, UX-75):
+ * - ITEM 4, A BUSY BUTTON NEVER NARROWS. At the captured submit the button's
+ *   rendered width is kept as its `min-inline-size` until its verb returns,
+ *   so «Mengirim…» in place of a longer verb never pulls its neighbours left.
+ *   At rest nothing is set, so a button at rest is drawn exactly as before.
+ * - ITEM 1, `asli`: A NATIVE POST FORM (one without a server action, such as
+ *   «Minta akun dibuka kembali», which posts signed out to a route) has no
+ *   form status to read. With `asli` the same capture-phase guard sets the
+ *   busy state itself: one POST on a double press, «Mengirim…» while the page
+ *   is on its way. Back from the next page (`pageshow`) restores the verb.
+ *   Without JavaScript the form still posts. Opt-in; every other form is
+ *   untouched.
  */
-export default function TombolKirim({
-  children,
-  sibuk,
-  selesai,
-  disabled,
-  ...rest
-}: Omit<ButtonHTMLAttributes<HTMLButtonElement>, "type" | "children"> & {
+type Sifat = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "type" | "children"> & {
   /** The button's words at rest. */
   children: ReactNode;
   /** The words while the form is being saved: "Menyimpan…" or the step's own. */
   sibuk: ReactNode;
   /** The result word, given only once the server has confirmed the act. */
   selesai?: ReactNode;
-}) {
+  /** R-26 item 1: the form posts natively (no server action), so the guard sets the busy state itself. */
+  asli?: boolean;
+};
+
+export default function TombolKirim({ asli, ...sifat }: Sifat) {
+  return asli ? <TombolAsli {...sifat} /> : <TombolAksi {...sifat} />;
+}
+
+/** The width of the button as the submit is captured, kept while it is busy (R-26 item 4). */
+const lebarKini = (b: HTMLButtonElement | null) => (b ? b.getBoundingClientRect().width : null);
+const gayaSibuk = (sibuk: boolean, lebar: number | null, gaya: Sifat["style"]) =>
+  sibuk && lebar ? { ...gaya, minInlineSize: lebar } : gaya;
+
+function TombolAksi({
+  children,
+  sibuk,
+  selesai,
+  disabled,
+  ...rest
+}: Omit<Sifat, "asli">) {
   const { pending } = useFormStatus();
   const tombol = useRef<HTMLButtonElement>(null);
   const terkirim = useRef(false);
   const selesaiTuntas = useRef(false);
   const [lambat, setLambat] = useState(false);
   const [diubah, setDiubah] = useState(false);
+  const [lebar, setLebar] = useState<number | null>(null);
 
   // A wait over 3 seconds is explained; the line goes with the wait.
   // (Both flags are cleared by the submit itself, below, so a new wait starts
@@ -97,6 +124,7 @@ export default function TombolKirim({
         return;
       }
       terkirim.current = true;
+      setLebar(lebarKini(tombol.current));
       setLambat(false);
       setDiubah(false);
     };
@@ -121,6 +149,7 @@ export default function TombolKirim({
         type="submit"
         disabled={pending || disabled}
         aria-busy={pending ? "true" : undefined}
+        style={gayaSibuk(pending, lebar, rest.style)}
         data-keadaan={tuntas ? "selesai" : undefined}
         aria-disabled={tuntas ? "true" : rest["aria-disabled"]}
       >
@@ -130,6 +159,73 @@ export default function TombolKirim({
           change: a region inserted at the moment it fills is often not read. */}
       <span className="pin-lambat" role="status">
         {pending && lambat ? t("tombol.lambat", "learner", { locale: bahasaHalaman() }) : ""}
+      </span>
+    </>
+  );
+}
+
+/**
+ * R-26 item 1: a native POST form's button. Its busy state is the guard's own (the form has no status to read): set at
+ * the first captured submit, which a second submit of the same form cannot pass, and cleared when the page is shown
+ * again from Back. Its wait line and its width are the same as every other TombolKirim's.
+ */
+function TombolAsli({ children, sibuk, selesai: _selesai, disabled, ...rest }: Omit<Sifat, "asli">) {
+  void _selesai; // a native post answers with a new page, which says the result itself
+  const tombol = useRef<HTMLButtonElement>(null);
+  const terkirim = useRef(false);
+  const [menunggu, setMenunggu] = useState(false);
+  const [lambat, setLambat] = useState(false);
+  const [lebar, setLebar] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!menunggu) return;
+    const jam = setTimeout(() => setLambat(true), 3000);
+    return () => clearTimeout(jam);
+  }, [menunggu]);
+
+  useEffect(() => {
+    const form = tombol.current?.form;
+    if (!form) return;
+    const jagaAsli = (e: Event) => {
+      if (e.target !== form) return;
+      if (terkirim.current) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        return;
+      }
+      terkirim.current = true;
+      setLebar(lebarKini(tombol.current));
+      setLambat(false);
+      setMenunggu(true);
+    };
+    // Back restores the page as it was left (the browser's page cache): the button returns to its verb
+    const tampilLagi = () => {
+      terkirim.current = false;
+      setMenunggu(false);
+      setLambat(false);
+    };
+    document.addEventListener("submit", jagaAsli, true);
+    window.addEventListener("pageshow", tampilLagi);
+    return () => {
+      document.removeEventListener("submit", jagaAsli, true);
+      window.removeEventListener("pageshow", tampilLagi);
+    };
+  }, []);
+
+  return (
+    <>
+      <button
+        {...rest}
+        ref={tombol}
+        type="submit"
+        disabled={menunggu || disabled}
+        aria-busy={menunggu ? "true" : undefined}
+        style={gayaSibuk(menunggu, lebar, rest.style)}
+      >
+        {menunggu ? sibuk : children}
+      </button>
+      <span className="pin-lambat" role="status">
+        {menunggu && lambat ? t("tombol.lambat", "learner", { locale: bahasaHalaman() }) : ""}
       </span>
     </>
   );

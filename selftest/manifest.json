@@ -6786,6 +6786,56 @@
       "proves": "selftest/z-ux.test.ts, from the rendered html and status of each route of the running app, as the bootstrap learner (R-8): all eight /belajar/{id}/… routes, with a classmate's assignment, an assessment-assignment id and an unknown id, answer with the not-found page («Halaman ini tidak ada») and never the error page or a reference code."
     },
     {
+      "id": "Z-S12-02",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the source file of the reopening route and by executing src/lib/buka-kembali.ts (S-12): the input is checked before code_request_pace, a refused input answers ISIAN after the same fixed wait, and the check matches minta_buka_kembali's own rule on twelve inputs."
+    },
+    {
+      "id": "Z-R26-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the source files of TombolKirim and the reopening page (R-26 items 1 and 4; ruling 75): an opt-in `asli` native-post button holds a second submit at the capture-phase guard, says «Mengirim…» busy and disabled, and returns to its verb on pageshow; a busy button keeps its width at submit as min-inline-size, only while busy. The browser proof is docs/completion-4.1/batches/z/layar/r26-tekan.ts."
+    },
+    {
+      "id": "Z-R27-02",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the copy table (R-27(a), ruling 77): buka_kembali.galat.isian says «email atau username», as the field is labelled, word for word in ID and EN."
+    },
+    {
+      "id": "Z-R27-03",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the source file of the sign-in screen LayarMasuk.tsx (R-27(c), ruling 77): the identity field has no inputMode=\"email\", no autocapitalise, autocorrect or spell-check, and keeps autoComplete=\"username\"."
+    },
+    {
+      "id": "Z-R26-02",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the stylesheet experience.css (R-26 item 2, ruling 75): a.pin-konteks-pilih keeps its control-sm look and its hit area is extended to control-md (44 px) by an ::after. The browser proof (hit area and identical pixels at 320, 390, 1280) is docs/completion-4.1/batches/z/layar/r26-tekan.ts."
+    },
+    {
+      "id": "Z-S15-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, executing src/components/aktivasi/hasil.ts and reading the activation route's source file and the copy table (S-15): only an address Auth reports as already registered is told «mungkin sudah dipakai»; an outage or a rate limit reads «Akun belum bisa dibuat. Coba lagi sebentar lagi.»"
+    },
+    {
+      "id": "Z-S08-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the source file of the forgotten-password screen and the copy table (S-08): an expiry on the PINTAR ID + PIN path says «Ketik lagi PINTAR ID dan PIN Anda.», never «Minta kode baru» where no code exists."
+    },
+    {
+      "id": "Z-S13-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the copy table (S-13): the activation resend line promises a new code only if the address is registered «dan akunnya belum aktif», ID and EN."
+    },
+    {
+      "id": "Z-S11-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, executing kanonikPintarId over the shared fixture file selftest/fixtures/z/pintar-id-normalisasi.json (R-27(b)'s list) and reading the source files of the platform account lookup (S-11): a pasted «A14C D7ST» is found, the field takes 12 characters, and a malformed entry is said with the existing ID_TIDAK_SAH sentence."
+    },
+    {
+      "id": "Z-S12-01",
+      "runner": "app",
+      "proves": "selftest/z-ux.test.ts, posting to the running app's reopening route (route redirects and the rendered html) from one address (S-12): two refused inputs each answer the input's own line, never «a request was just sent», and use no pace; a well-formed request is then sent and a second at once is paced."
+    },
+    {
       "id": "C3W-D1",
       "runner": "static",
       "proves": "Sharon's D-1, red first (C3W-1-DESIGN.md §9, 8831d62a): reads the catalogue. The six service functions take one request or attempt id (settle and reconcile also the closed-shape p_penggunaan) and are executable by service_role only; no ai_ or c3w_ function takes a person or a school; every one authenticated can execute is a definer with a fixed search_path reading public.current_person_id(), except c3w_bahan, an invoker by Sharon's ruling (b); anon and authenticated write none of the seven AI tables."

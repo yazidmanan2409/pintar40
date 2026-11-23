@@ -144,7 +144,8 @@ export default function LupaPassword({ locale, aturan, idAwal = null }: { locale
       return;
     }
     if (r.kode === "PEMULIHAN_BERAKHIR") {
-      const pesan = { teks: kalimat(r, s, locale), salah: false, tunggu: false };
+      // S-08 (SAPU-VERIFIED): the PIN path has no code to ask for again; it says to type the PINTAR ID and PIN again
+      const pesan = { teks: jalan.current === "pin" ? s("lupa.pin.berakhir") : kalimat(r, s, locale), salah: false, tunggu: false };
       setLayar(jalan.current === "pin" ? { k: "pin", sibuk: false, pesan, keEmail: false } : { k: "nama", sibuk: false, pesan });
       pindahFokus(jalan.current === "pin" ? "id" : "nama");
       return;

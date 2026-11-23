@@ -10033,9 +10033,12 @@ export const experienceTests: SelfTest[] = [
       c.expect(kunciGagal("EMAIL", { ok: false, error: "unauthenticated" }) === "aktivasi.galat.sesi", "an ended session is not told as such");
       c.expect(kunciGagal("EMAIL", { ok: false, error: "refused" }) !== kunciGagal("NEW_PERSON", { ok: false, error: "refused" }),
         "a refusal reads the same for a recorded person and a new one");
-      c.expect(kunciGagal("EMAIL", { ok: false, error: "create_failed" }) === "aktivasi.galat.dipakai"
+      // RESTATED (Z, S-15): «mungkin sudah dipakai» belongs to the address Auth reports as registered (email_taken); any
+      // other failure to create is a try-again (Z-S15-01). The card's own sentence is unchanged
+      c.expect(kunciGagal("EMAIL", { ok: false, error: "email_taken" }) === "aktivasi.galat.dipakai"
+        && kunciGagal("EMAIL", { ok: false, error: "create_failed" }) === ("aktivasi.galat.buat_gagal" as HleEvent)
         && kunciGagal("CLASSROOM_CARD", { ok: false, error: "create_failed" }) === "aktivasi.galat.kartu",
-        "a card that could not be made reads like an address already in use");
+        "a card that could not be made reads like an address already in use, or an outage reads like one");
       c.expect(new Set(MODE.flatMap((m) => GALAT.map((e) => kunciGagal(m, { ok: false, error: e })))).size >= 7,
         "the failures collapse into too few sentences to tell the administrator what to do");
 

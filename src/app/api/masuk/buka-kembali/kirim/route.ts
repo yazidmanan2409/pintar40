@@ -3,6 +3,7 @@ import { supabaseService } from "@/lib/supabase/service";
 import { asalSendiri } from "@/lib/kartu-masuk";
 import { alamatKlien } from "@/lib/auth-forwarding";
 import { kunciIdentitas } from "@/lib/card";
+import { isianBukaKembaliSah } from "@/lib/buka-kembali";
 
 /**
  * OWNER RULING 2 (9 Nov): «MINTA AKUN DIBUKA KEMBALI», served at `/masuk/buka-kembali/kirim` (next.config.ts rewrites it
@@ -13,6 +14,9 @@ import { kunciIdentitas } from "@/lib/card";
  * paced by the code requests' own pace (code_request_pace: one at a time, five an hour), keyed by the caller's address
  * through kunciIdentitas as recovery by PIN is, so no new mechanism. POST only, same origin only; the answer is a 303
  * back to the page by a relative address.
+ *
+ * S-12 (SAPU-VERIFIED): THE INPUT IS CHECKED BEFORE THE PACE. A refused input is said as the input's own line, after
+ * the same fixed wait, and does not use the pace; only a request the database would take counts against it.
  */
 export const dynamic = "force-dynamic";
 const TUNGGU_MS = 800;
@@ -31,6 +35,11 @@ export async function POST(request: NextRequest) {
   const fd = await request.formData().catch(() => null);
   const identitas = String(fd?.get("identitas") ?? "").slice(0, 254);
   const pesan = String(fd?.get("pesan") ?? "").slice(0, 600);
+  const tunggu0 = async () => { const sisa = TUNGGU_MS - (Date.now() - mulai); if (sisa > 0) await new Promise((r) => setTimeout(r, sisa)); };
+  if (!isianBukaKembaliSah(identitas, pesan)) {
+    await tunggu0();
+    return kembali({ kode: "ISIAN" });
+  }
   const layanan = supabaseService();
   const { data: tunggu, error: e0 } = await layanan.rpc("code_request_pace", { p_kunci: kunciIdentitas("buka-kembali-alamat", alamatKlien(request.headers) ?? "tanpa-alamat") });
   if (e0 || typeof tunggu !== "number") {
@@ -39,8 +48,7 @@ export async function POST(request: NextRequest) {
   }
   if (tunggu > 0) return kembali({ kode: "TUNGGU" });
   const { data, error } = await layanan.rpc("minta_buka_kembali", { p_identitas: identitas, p_pesan: pesan });
-  const sisa = TUNGGU_MS - (Date.now() - mulai);
-  if (sisa > 0) await new Promise((r) => setTimeout(r, sisa));
+  await tunggu0();
   if (error) {
     console.error("[masuk/buka-kembali] minta_buka_kembali failed", error.code);
     return kembali({ kode: "GAGAL" });
