@@ -17,6 +17,7 @@ Line 10 reads `300 / 20270122190000` BEFORE and `307 / 20270123160000` AFTER. Th
 | 20270123140000 | D-6 (with Sharon's Z2-1) |
 | 20270123150000 | V5 |
 | 20270123160000 | R-27(b) |
+| 20270123170000 | Z8 item 8: the last usable Admin sekolah (one helper for PR160, `revoke_role` and `minta_akun('CLOSE')`). **Pending:** if it lands, the pair is **300 → 308** and line 10 reads `308 / 20270123170000` AFTER |
 
 ## 2 · What Z changes that a preserved line could see: nothing
 
@@ -25,6 +26,8 @@ Read from the seven files at `8614bd26`:
 - **K-07** adds three CHECK constraints NOT VALID, then validates each one only if no row is below its floor. Otherwise it raises a notice and leaves the constraint NOT VALID. No row is changed.
 - **D-6** revokes privileges only. It drops nothing and touches no row or registry row.
 - **Everything else is a function** restated in full or newly created. Two are new: `pilihan_dipilih` and `pilihan_tunggal` (D-1). One is internal with no grant: `tujuan_gerbang_terlewat` (K-01). There are no `client_rpc_registry` inserts, so line 83 stays at 5.
+
+- **Item 8 (if it lands)** restates functions and adds one internal helper. It takes advisory locks at call time only and writes no row at migration time, so it changes nothing a preserved line reads.
 
 So **lines 20 to 83 must read identically BEFORE and AFTER**, and only line 10 and the new lines 84 to 87 move.
 
