@@ -48,3 +48,12 @@ The six questions are the right six, and nothing in the brief is sensitive. It h
 - **The fee confirmation is first**, and no ranking or result is stated, as ruling 85 requires.
 
 **Optional:** give the excerpt's bound (up to 20,000 characters) rather than "short".
+
+## Addendum · `60691d59`: FIT TO SEND (23 Nov 2026, 22:25 UTC)
+
+- All five corrections are in, plus the 20,000-character bound.
+- **Q4's Anthropic quotation** matches the Usage Policy text recorded in `ruling40/RULING40-READING.md:70`.
+- **Q2** now asks about the real design, and whether an automated check is enough.
+- **Q6** attributes «Worldwide» to Anthropic only.
+- **Retention** is per provider, with Covered Models marked unread.
+- Nothing sensitive, and no results.
