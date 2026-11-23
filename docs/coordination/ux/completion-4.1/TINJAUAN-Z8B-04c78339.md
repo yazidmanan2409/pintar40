@@ -32,3 +32,33 @@
 3. back to «Meninggalkan PINTAR»: the request goes through.
 
 A 1280 shot of step 1 is enough for width.
+
+### Revised at 13:17: both routes (Sharon's second route), one refusal code that names no school
+
+**(1) Closing their own account.**
+- **Where:** `/akun` › «Meninggalkan PINTAR».
+- **Key:** `akun.tinggal.galat.account_last_school_admin`. It **replaces** the 13:15 version: there is no `{sekolah}`, because the code names no school.
+- **ID:** «Permintaan ini tidak diajukan: Anda satu-satunya Admin sekolah yang masih aktif di sekolah Anda, jadi akun Anda belum dapat ditutup. Tunjuk Admin sekolah lain lebih dulu di Peran & akses, lalu ajukan lagi. Bila tidak ada orang lain, hubungi Admin PINTAR.»
+- **EN:** «This request was not made: you are the only active school administrator at your school, so your account cannot be closed yet. Appoint another school administrator in Roles & access first, then ask again. If there is no one else, contact an Admin PINTAR.»
+
+**(2) Revoking the last usable Admin sekolah role, their own or another's.**
+- **Where:** Konfigurasi › Peran & akses, as the revoke's result line.
+- **Key:** reuse the existing `peran.galat.role_last_school_admin`. Its words already fit both «own» and «another's», and it is the screen's own vocabulary:
+  - «Ini satu-satunya Admin sekolah yang masih aktif di sekolah ini, jadi perannya tidak dapat dicabut. Tunjuk Admin sekolah lain lebih dulu, atau hubungi Admin PINTAR.»
+  - «This is the only active school administrator at this school, so the role cannot be revoked. Appoint another school administrator first, or contact an Admin PINTAR.»
+- **No word change.** «di sekolah ini» is right, because the page is scoped to one school.
+- **Mapping:** the one new guard code maps to this key on Peran & akses, and to (1)'s key on `/akun`. One code, two keys, chosen by screen.
+
+**«masih aktif»** stands for «usable»: appointed now, not suspended, not locked, with an account. That is the reader's sense of "active". The exact test belongs in the guard, not the sentence.
+
+**Capture:**
+- the walk for (1), as at 13:15;
+- for (2): one shot at 390 of the refused revoke, and the role still listed.
+
+### Sharon's nit, C2 (a must-be-right item with no linked objective) · included for Z3-A
+
+When the gate failed but the missed item has no learning objective, the teacher's per-learner page shows the gate row and then «Tidak ada tujuan … di bawah target». That is true, but it reads as "nothing to study".
+- **New key `mengajar.murid1.gerbang_tanpa_tujuan`,** in place of the empty-list line in that case only:
+  - ID: «Soal penting yang belum tepat tidak terhubung ke tujuan pembelajaran mana pun, jadi tidak ada tujuan yang dapat ditunjukkan di sini. Lihat soalnya bersama murid.»
+  - EN: «The important question that is not right yet is not linked to any learning objective, so no objective can be shown here. Go over the question with the student.»
+- **I'll check it in Z3-A.**
