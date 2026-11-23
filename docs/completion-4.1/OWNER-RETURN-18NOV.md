@@ -351,3 +351,8 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
 - **12:42 UTC · Sharon: Z2-1 CLOSED; Z2 PASS with nothing open** (`247e5911`). Column grants are covered, no view reads feedback, and the A2B-S1G exceptions are acceptable. Open from Z1: C2 (Z3-A) and C4 (after promotion).
 - **13:07 UTC · Daisy: Z6 PASS** (`2d19d3cf`, record `58061461`). **All of stream B's chunks are passed:** Z3B, Z4B, Z5, Z6 and Z7. Still to come: Z3-A (the K-01 screens) and sweep run 2 after the second merge. Stream B is now on Z8's verification rows (no SQL).
 - **13:10 UTC · Stream A: Z3-A hand-off** (`36299159`, 307). N-15 fails closed; the K-01 screens give one verdict everywhere; the gate-unknown state; V2's line and D14; N-14; C2. Z-K01-03 is the integrated check (red first, then green). 130000 is corrected in place to add `tujuan_gerbang_kode`, which went to Sharon with C2. **Captures were missing:** Bob requires them (ruling 81 point 7) before Daisy's review. Then comes the second integration merge.
+- **13:12 UTC · Z8 classes for R-15's Sharon items (Bob, under the delegated approval; Sharon to confirm):**
+  - Items 2, 5 and 6 go to 4.2; item 1 goes to 4.2 or rationalisation, unreachable and mitigated.
+  - Item 4 goes to 4.5.
+  - Items 3, 7 and `tangguhkan_akun` are verify-closed.
+  - **Item 8 is a Z fix, conditional on Sharon.** `minta_akun('CLOSE')` lets a school's only active Admin Sekolah close their own account, leaving the school with no usable admin until a platform admin steps in. **The fix is one new migration, `20270123170000`, which takes the count to 308.** The refusal's words come from Daisy. This is inside Z8's approved row (each item classed); it is recorded here for the owner as the one addition to the migration count.
