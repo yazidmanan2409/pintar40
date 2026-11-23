@@ -168,7 +168,8 @@ export default function DrafAi({
       {sibuk ? <BarisHasil nada="ok">{s("studio.ai.bekerja").replace("{n}", format.number(jumlah, locale))}</BarisHasil> : null}
       {hasil ? <BarisHasil nada={hasil.nada}>{hasil.isi}</BarisHasil> : null}
       <div className="pin-actions">
-        <button type="submit" className="pin-btn pin-primary" disabled={sibuk} aria-busy={sibuk || undefined}>{s("studio.ai.buat")}</button>
+        {/* busy, never disabled: a disabled button drops the keyboard's focus to the page; a second press is ignored (kirim) */}
+        <button type="submit" className="pin-btn pin-primary" aria-disabled={sibuk || undefined} aria-busy={sibuk || undefined}>{s("studio.ai.buat")}</button>
         <button type="button" className="pin-btn pin-quiet" onClick={() => { setBuka(false); setHasil(null); kunci.current = null; }}>{s("studio.ai.batal")}</button>
       </div>
     </form>

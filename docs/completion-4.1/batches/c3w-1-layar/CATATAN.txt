@@ -1,0 +1,39 @@
+01-sasaran-lain-1280	overflow 0px	focus select «Pelajaran satuPelajaran dua»	live «»	objectives: Tujuan pembelajaran Menyederhanakan pecahan
+02-sumber-tempel-1280	overflow 0px	focus textarea «Ani membeli tiga jeruk dan dua apel di pasar pagi.»	live «»
+03-bekerja-1280	overflow 0px	focus button «Buat draf»	live «✓Menyusun 3 draf soal… Ini dapat memakan waktu hingga satu menit.»
+04-siap-fokus-1280	overflow 0px	focus h4#pin-soal-bf9c5862-d5fe-49ae-8e25-4beea9ae9972 «Soal latihan 1: Membandingkan pecahan»	live «✓3 draf soal siap ditinjau.»
+05-siap-di-pelajaran-lain-1280	overflow 0px	focus button «Buat draf»	live «✓3 draf soal siap ditinjau di Pelajaran dua.»
+06-data-pribadi-1280	overflow 0px	focus button «Buat draf»	live «Sumber ini tampaknya memuat nama atau data murid, jadi tidak dikirim. Hapus data murid dari sumbernya, lalu coba lagi.»	rights box ticked: false
+07-kartu-menunggu-1280	overflow 0px	focus body «Langsung ke isiPINTARCiutkan navigasiStudioMengajarSekolah S»	live «»
+09-hapus-tanya-1280	overflow 0px	focus button «Batal»	live «»
+01-sasaran-lain-390	overflow 0px	focus select «Pelajaran satuPelajaran dua»	live «»	objectives: Tujuan pembelajaran Menyederhanakan pecahan
+02-sumber-tempel-390	overflow 0px	focus textarea «Ani membeli tiga jeruk dan dua apel di pasar pagi.»	live «»
+03-bekerja-390	overflow 0px	focus button «Buat draf»	live «✓Menyusun 3 draf soal… Ini dapat memakan waktu hingga satu menit.»
+04-siap-fokus-390	overflow 0px	focus h4#pin-soal-3a74a065-8ce1-47a9-ac2e-edc9b9469df9 «Soal latihan 1: Membandingkan pecahan»	live «✓3 draf soal siap ditinjau.»
+05-siap-di-pelajaran-lain-390	overflow 0px	focus button «Buat draf»	live «✓3 draf soal siap ditinjau di Pelajaran dua.»
+06-data-pribadi-390	overflow 0px	focus button «Buat draf»	live «Sumber ini tampaknya memuat nama atau data murid, jadi tidak dikirim. Hapus data murid dari sumbernya, lalu coba lagi.»	rights box ticked: false
+07-kartu-menunggu-390	overflow 0px	focus body «Langsung ke isiPINTARCiutkan navigasiStudioMengajarSekolah S»	live «»
+09-hapus-tanya-390	overflow 0px	focus button «Batal»	live «»
+01-sasaran-lain-320	overflow 0px	focus select «Pelajaran satuPelajaran dua»	live «»	objectives: Tujuan pembelajaran Menyederhanakan pecahan
+02-sumber-tempel-320	overflow 0px	focus textarea «Ani membeli tiga jeruk dan dua apel di pasar pagi.»	live «»
+03-bekerja-320	overflow 0px	focus button «Buat draf»	live «✓Menyusun 3 draf soal… Ini dapat memakan waktu hingga satu menit.»
+04-siap-fokus-320	overflow 0px	focus h4#pin-soal-fe2720fd-7b75-442d-b505-68e034e6c3cc «Soal latihan 1: Membandingkan pecahan»	live «✓3 draf soal siap ditinjau.»
+05-siap-di-pelajaran-lain-320	overflow 0px	focus button «Buat draf»	live «✓3 draf soal siap ditinjau di Pelajaran dua.»
+06-data-pribadi-320	overflow 0px	focus button «Buat draf»	live «Sumber ini tampaknya memuat nama atau data murid, jadi tidak dikirim. Hapus data murid dari sumbernya, lalu coba lagi.»	rights box ticked: false
+07-kartu-menunggu-320	overflow 0px	focus body «Langsung ke isiPINTARCiutkan navigasiStudioMengajarSekolah S»	live «»
+09-hapus-tanya-320	overflow 0px	focus button «Batal»	live «»
+08-kartu-diubah-1280	overflow 0px	focus body «Langsung ke isiPINTARCiutkan navigasiStudioMengajarSekolah S»	live «»
+08-kartu-diubah-390	overflow 0px	focus body «Langsung ke isiPINTARCiutkan navigasiStudioMengajarSekolah S»	live «»
+08-kartu-diubah-320	overflow 0px	focus body «Langsung ke isiPINTARCiutkan navigasiStudioMengajarSekolah S»	live «»
+10-ajukan-tertahan-1280	overflow 0px	focus body «Langsung ke isiPINTARCiutkan navigasiStudioMengajarSekolah S»	live «»
+10-ajukan-tertahan-390	overflow 0px	focus body «Langsung ke isiPINTARCiutkan navigasiStudioMengajarSekolah S»	live «»
+10-ajukan-tertahan-320	overflow 0px	focus body «Langsung ke isiPINTARCiutkan navigasiStudioMengajarSekolah S»	live «»
+11-peninjau-jumlah-1280	overflow 0px	focus body «Langsung ke isiPINTARCiutkan navigasiStudioSekolah Sintetis »	live «»
+11-peninjau-jumlah-390	overflow 0px	focus body «Langsung ke isiPINTARCiutkan navigasiStudioSekolah Sintetis »	live «»
+11-peninjau-jumlah-320	overflow 0px	focus body «Langsung ke isiPINTARCiutkan navigasiStudioSekolah Sintetis »	live «»
+12-murid-belajar-390	overflow 0px	focus body «Langsung ke isiPINTARBelajarSertifikat?BantuanBantuanIDENBuk»	live «»
+
+LEARNER TEXT SEARCH
+/belajar (/belajar): none of «AI», «Draf dari AI», «Disusun dengan»
+/belajar/hasil (/belajar/hasil): none of «AI», «Draf dari AI», «Disusun dengan»
+/belajar/sertifikat (/belajar/sertifikat): none of «AI», «Draf dari AI», «Disusun dengan»
