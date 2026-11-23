@@ -162,3 +162,15 @@ search of every kept file and `bukti-*.txt` for a JWT or an `sb_secret_`/`sb_pub
   (never cleaned), to be copied to `z-evidence/` as before;
 - the Mailpit check expects the CI-style `mailpit` container on :54324;
 - the heartbeat runs every 120 s by default.
+
+## Sharon's addendum (PASS at 7696819e): three small items, one commit each
+
+1. **An unreset RED names its limit.** A RED run made with `--tanpa-reset` now ends: «RED on an UNRESET world
+   (--tanpa-reset): its FAIL rows are NOT attributed to the code until a run with the forced reset reproduces them.»
+   Proof: the Z-T03-01 string defect run without a reset. Before this, the SUMMARY ended at «RUN RED» with no note
+   (`bukti-tanpa-reset-catatan.txt`).
+2. **`preflight.sh`'s header** now states the S-1 rule for `--tanpa-reset`: never GREEN; RED if a row fails, else VOID;
+   FAIL rows not attributed until a reset run reproduces them. It no longer says «always VOID».
+3. **`tapis.sh` redacts a URL's user and password** (`postgresql://postgres:postgres@…`, any `user:pass@`, and a
+   password-only `:pass@`). Proof with planted lines: `tapis.sh` at `55fa2a14` passes all four through; now each reads
+   `«user:password redacted»@`, a URL without user-info is untouched, and none is left (`bukti-tapis-url.txt`).

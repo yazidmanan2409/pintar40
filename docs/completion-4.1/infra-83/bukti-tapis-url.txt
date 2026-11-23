@@ -1,0 +1,22 @@
+# bukti-tapis-url · 2026-11-23T23:38:35Z · Bob's item 3 (Sharon's addendum): the user and password of a URL
+
+## plant: four lines carrying user-info in URLs (the stack's postgres:postgres, a planted user:pass, a password-only URL), plus a URL with none
+{"DB_URL":"postgresql://postgres:postgres@127.0.0.1:54322/postgres","API_URL":"http://127.0.0.1:54321"}
+DB_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres
+psql: connection to postgresql://planted_user:PLANTED-pass-0123@127.0.0.1:54322/pintar failed
+redis://:PLANTED-only-pass@cache.local:6379/0 and https://example.invalid/a@b (no user-info)
+
+## RED: tapis.sh at 55fa2a14
+{"DB_URL":"postgresql://postgres:postgres@127.0.0.1:54322/postgres","API_URL":"http://127.0.0.1:54321"}
+DB_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres
+psql: connection to postgresql://planted_user:PLANTED-pass-0123@127.0.0.1:54322/pintar failed
+redis://:PLANTED-only-pass@cache.local:6379/0 and https://example.invalid/a@b (no user-info)
+
+## GREEN: tapis.sh now
+{"DB_URL":"postgresql://«user:password redacted»@127.0.0.1:54322/postgres","API_URL":"http://127.0.0.1:54321"}
+DB_URL=postgresql://«user:password redacted»@127.0.0.1:54322/postgres
+psql: connection to postgresql://«user:password redacted»@127.0.0.1:54322/pintar failed
+redis://«user:password redacted»@cache.local:6379/0 and https://example.invalid/a@b (no user-info)
+
+## check: lines with a user:pass@ left (expect 0)
+0
