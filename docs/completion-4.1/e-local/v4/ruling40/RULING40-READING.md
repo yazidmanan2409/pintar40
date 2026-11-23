@@ -342,3 +342,17 @@ The hosts were extracted from the saved file only. No new request was made in th
 - Q-S2.
 
 **No provider is commercially qualified yet**, and D-7 returns this to the owner.
+
+**Sharon's supplement, at the owner's request.** Each exception is assessed for whether it can reach the drafting workflow, and with what condition:
+
+| Exception | Can it reach PINTAR? | Meets? | Condition |
+|---|---|---|---|
+| (a) Flagged content, 2 years | Only if flagged | Yes: synthetic, non-personal (R-3) | None beyond R-3 |
+| (b) Classification scores, 7 years | Yes | Yes: metadata, with no person in it | None |
+| (c) Covered Models | Unknown (NOT READ) | — | **Pre-offer:** read it, and record whether our model is covered |
+| (d) Files API or other long retention | No | — | A static test: `src/lib/ai` uses no such API |
+| (e) Required by law | Yes | Yes | None (PR-1 stays with counsel) |
+| (f) Research "if permitted in your contract" | No, unless permitted | — | **Pre-offer:** confirm the contract does not permit it, and never opt in |
+| (g) Feedback, 5 years | No | — | A static test: no feedback endpoint is called |
+
+**Standard retention** (30 days) meets C2. **The commercial qualification gate** is separate and not decided here: QUALIFIED, the hard stop, the limits, and C3w-2.
