@@ -299,3 +299,8 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
 - **For stream A's K-01 screens:**
   - **N-14:** the `tujuan_arti` wording is changed by stream A.
   - **N-15:** `perluPenguatan`'s failed read must not be `[]`. It is a K-03 sibling defect, so it is in Z.
+
+**23 Nov, 10:25 UTC · Z1 (stream A, SQL) handed off at `df8d84a0` (304) and sent to Sharon.** It contains D-1, V2, K-07 and K-01.
+- Each migration's red-first test is red on 300 and green on 304, with focused checks green.
+- **Bob's flag to Sharon:** the K-01 helper's key source must equal the verdict's own source, including after a correction and a recompute.
+- **Z2 (D-6, V5, V6, R-27(b)) has started.** Z3's K-01 screens wait for Sharon's Z1 PASS.
