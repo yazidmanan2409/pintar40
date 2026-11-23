@@ -401,3 +401,9 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
   - The two failures are older static pins on the TEXT `rpc("is_system_admin")` (BOB51-S01 and D101-S01), which contradict Sharon's condition (1). Behaviour is unchanged.
   - **Bob approved restating them** (tests only, stronger: the page must use the cached call and must have no raw rpc; each proved red on a revert), and informed Sharon.
   - Then one more full pre-flight, then CI and the journeys.
+- **19:46 UTC · Z9: the GREEN full pre-flight on `f5700bd1`** (1388/0, plants 175/175, red cases 11/11; `59be399c`).
+  - Two voids before it, kept with their reasons: a full disk (16 GB of /tmp from earlier runs) and a registry pull refused after a restart. These are exactly ruling 83's I-4 and I-5.
+  - **CI 45244823300 is RED:** 17 of 18 jobs pass, but the strict selftest job fails three C3w-1 scenarios (C3W-C32/C36/C310), from one failed setup («invalid input syntax for type uuid: ""»). They pass locally and passed in main's CI.
+  - Bob read the log: it holds only the result lines. His reading is that `ai_minta_draf` refused in CI's world.
+  - **Ruling:** diagnose locally first with CI's exact env and order, and on main's tip. Fix red first if reproduced. Otherwise one rerun of the failed job, plus a diagnostic line either way. No flake verdict.
+  - The journeys 45244829392 are in progress.
