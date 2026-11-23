@@ -76,7 +76,11 @@ const soal = (stem: string, kunci: string, n = 2, kosong = "") =>
   `pg_temp.c1_soal_json('${stem}', '${kunci}', ${n}, '${kosong}')`;
 export const item = (course: string, stem: string) => `pg_temp.c1_item(${G(course)}, '${stem}')`;
 
+const DIAG_C3W = (b: string[]) => b.join("\n").includes("c3-satu");
+const diagCetak = (tahap: string) => `raise notice 'C1DIAG %', '${tahap} steps=' || coalesce((select string_agg(k || '=' || left(coalesce(x, '<null>'), 300), ' ; ') from jsonb_each_text(v) t(k, x)), '<none>')
+    || ' | settings(after-rollback-if-FAILED)=' || coalesce((select string_agg(name || ':' || case when coalesce(current_setting(name, true), '') = '' then 'EMPTY' else 'set' end, ',' order by name) from pg_settings where name like 'c1.%'), '<none>');`;
 function skenario(badan: string[]): string {
+  const diag = DIAG_C3W(badan);
   return `
 begin;
 create function pg_temp.c1(p_uid uuid, p_sql text)
@@ -302,7 +306,9 @@ do $c1$
 declare v jsonb := '{}'::jsonb;
 begin
   perform pg_temp.c1_dunia();
+  ${diag ? "begin" : ""}
   ${badan.join("\n  ")}
+  ${diag ? diagCetak("END") + " exception when others then perform selftest.as_owner(); " + diagCetak("FAILED") + " raise notice 'C1DIAG error sqlstate=% message=%', sqlstate, sqlerrm; raise; end;" : ""}
   perform selftest.as_owner();
   insert into c1_snap values (v);
 end $c1$;
@@ -316,6 +322,7 @@ export function jalankan(c: Checks, repoRoot: string, badan: string[]): Record<s
   if (!c.expect(gagal === null, gagal ?? "")) return null;
   const r = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-At", "-c", skenario(badan), db()], { encoding: "utf8", maxBuffer: 32 * 1024 * 1024 });
   const pesan = (r.stderr || "").trim().split("\n").find((l) => /ERROR/.test(l)) ?? (r.stderr || "").trim().split("\n").pop();
+  for (const l of (r.stderr || "").split("\n").filter((x) => x.includes("C1DIAG"))) console.log(`[C1DIAG] ${l.replace(/^.*C1DIAG /, "")}`);
   if (!c.expect(r.status === 0, `the scenario could not run: ${pesan}`)) return null;
   for (const l of r.stdout.split("\n")) {
     const [k, v] = l.split("\t");
