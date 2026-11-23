@@ -213,3 +213,9 @@ The harness commit `4f904638` was explained and pushed under `0959a62c`. A full 
 - **The environment:** `pintar40-e-evaluation` was confirmed to have exactly six read-only hosts and no secrets. Default is unchanged.
 - **The reader:** session `session_01FXjU1nR7a38dx8d1SqpcfP`. It follows `ruling40/READING-BRIEF.md` and writes `ruling40/RULING40-READING.md` on `claude/ruling40-reading`.
 - **Bounds:** no API call, key, spend or activation. D-7 is preserved.
+
+**23 Nov, 05:48 UTC · C3w-1 round 2 received** (`bc6e50da`, code `3ab40cd3`; pushed at 04:40). Second Eye's message did not arrive; found by Bob's branch check.
+- **Runs:** CI 45113248988 and journeys 45113251940 are both success on the head.
+- **Pre-flight:** 1327 passed, 0 failed; plants 175 of 175; red-case groups 11 of 11.
+- **Migrations:** 300, after the new `20270122190000` (C-1's server check).
+- **Sent for review:** Sharon (the migration delta, `ai_tersedia`, the test helper) and Daisy (C-1, C-2, N-10, N-11, the additions, the 34 captures).
