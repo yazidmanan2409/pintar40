@@ -1,6 +1,6 @@
 # C3w-1 round 2 · recheck at `bc6e50da` (Daisy, 23 Nov 2026)
 
-> **What holds now:** **PASS with one condition (C-3).**
+> **What holds now:** **PASS at round 3 (`8668a695`).** Round 2 was PASS with one condition (C-3), now closed; see the end.
 > - **Closed:** C-1, C-2, N-10 and N-11.
 > - **Also correct:** focus to the first new card; the linked success line for another target, using existing words with no new ones; «Buat draf» busy without losing focus.
 > - **The C3-11 captures are accepted.** 34 shots: 0 px overflow, the rights box cleared after `AI_DATA_PRIBADI`, and no AI wording on learner pages.
@@ -29,3 +29,10 @@
 
 - **N-12 ·** A message of its own for `AI_TUJUAN_LAIN`, in the pattern Mengajar already uses: «Tujuan pembelajaran pelajaran ini sudah berubah. Muat ulang halaman, lalu pilih lagi.» / «This lesson's learning objectives have changed. Reload the page, then choose again.»
 - **N-13 (outside this batch, for the ruling 79 audit) ·** The link inside a result line (capture 05: «Pelajaran dua») has no underline. Its colour is close to the success ground's text colour. Links inside text are not underlined anywhere in the app (`globals.css:435`), so this is a system matter, not C3w-1's.
+
+## Round 3 at `8668a695` (23 Nov, 07:39): **PASS**
+
+From the diff `bc6e50da..8668a695`: 5 files, no migration.
+- **C-3 closed.** The working line is `BarisHasil nada="netral"`, so there's no ✓ and it sits on the neutral ground (`.pin-hasil-netral`). No word changed.
+- **N-12 closed.** `AI_TUJUAN_LAIN` is now its own `KODE_AI` code. `kunciKode` resolves it to `galat.ai_tujuan_lain`, ID and EN word for word.
+- **C3W-K01** asserts both: the tone, BarisHasil's ✓ shown only for `ok`, and the sentence in both languages.

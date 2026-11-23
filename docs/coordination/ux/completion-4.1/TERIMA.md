@@ -67,3 +67,4 @@
 | 23 Nov, 03:24 | Bob | Ruling 78 words accepted; B checks settled | `81b757b8` | Recorded in place in `SAPU-KATA-RULING-78.md` |
 | 23 Nov, 03:26 | Bob (ruling 79) | Daisy is human-experience lead of the Human Experience, Consistency & Trust Audit, which opens when 4.1 gates close | — | Noted; no action now. Standing three questions adopted. Journey scripts may be sketched when idle, after C3w-1 round 2 |
 | 23 Nov, 05:49 | Bob | C3w-1 round 2 recheck | `bc6e50da` | **PASS with one condition** (C-3: the working line `nada="netral"`); C-1, C-2, N-10, N-11 closed; captures accepted |
+| 23 Nov, 07:38 | Bob | C3w-1 round 3 recheck | `8668a695` | **PASS**: C-3 and N-12 closed |
