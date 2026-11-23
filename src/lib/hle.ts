@@ -4336,7 +4336,8 @@ const table: Table = {
   "staf.galat.role_nothing": { default: "Pilih peran untuk dilepaskan atau ditambahkan.", en: "Choose a role to release or to add." },
   "staf.galat.role_not_allowed": { default: "Peran itu tidak dapat diberikan untuk tempat itu.", en: "That role cannot be given for that place." },
   "staf.galat.role_scope_invalid": { default: "Tempat itu tidak aktif atau bukan milik sekolah ini.", en: "That place is not active or does not belong to this school." },
-  "staf.galat.role_until_invalid": { default: "Tanggal berlaku sampai harus setelah hari ini.", en: "The valid-until date must be after today." },
+  // S-03 (Daisy's sweep): today is accepted (the form's min, the server's <= now() at the day's end), so the rule says so
+  "staf.galat.role_until_invalid": { default: "Tanggal berlaku sampai harus hari ini atau sesudahnya.", en: "The valid-until date must be today or later." },
   "staf.galat.role_admin_unconfirmed": { default: "Centang konfirmasi untuk menjadikan orang ini Admin sekolah.", en: "Tick the confirmation to make this person a school administrator." },
   "staf.galat.role_remove_invalid": { default: "Peran yang dilepas bukan peran orang ini di sekolah ini.", en: "A role to release is not this person's role at this school." },
   "staf.galat.staff_failed": { default: "Perubahan belum tersimpan. Coba lagi.", en: "The change was not saved. Try again." },

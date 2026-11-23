@@ -16,7 +16,7 @@ import TanggalDenganGema from "@/components/bentuk/TanggalDenganGema";
 import { tanggal } from "@/lib/tanggal";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { kodePeranDari, kunciKodePeran } from "@/lib/peran-kontrak";
-import { URUTAN_KATEGORI, PERAN_SEKOLAH, kodeStafDari, kodeStafDariGalat, kunciTanggungJawab, type KodeStaf } from "@/lib/staf-kontrak";
+import { URUTAN_KATEGORI, PERAN_SEKOLAH, kodeStafDari, kodeStafDariGalat, kunciTanggungJawab, tambahanPeran, type KodeStaf } from "@/lib/staf-kontrak";
 import { akhiriTugasAksi, ubahPeranAksi } from "./actions";
 
 export const generateMetadata = judulHalaman("/konfigurasi/staf");
@@ -77,13 +77,18 @@ export default async function StafSekolah({ searchParams }: { searchParams: Prom
   let tinjau: Tinjau | null = null;
   let kodeTinjau: KodeStaf | null = null;
   if (sp.tinjau === "1") {
-    const tambah = tambahPeran && tambahTempat && tambahSampai
-      ? [{ role: tambahPeran, scope_node_id: tambahTempat, valid_until: batasHari(tambahSampai, "akhir", zona) }] : [];
-    const { data, error: e } = await supabase.rpc("ubah_peran", {
-      p_person: orangId, p_institution: sekolah, p_tambah: tambah, p_cabut: cabut, p_alasan: alasan,
-      p_sidik: orang.sidik, p_konfirmasi_admin: true, p_terapkan: false,
-    });
-    if (e) kodeTinjau = kodeStafDariGalat(e); else tinjau = data as Tinjau;
+    // S-02: a role chosen without a valid last day is refused in the review, never dropped
+    const tambahan = tambahanPeran(tambahPeran, tambahTempat, sp.tambah_sampai ?? "");
+    if ("kode" in tambahan) kodeTinjau = tambahan.kode;
+    else {
+      const tambah = tambahan.ada
+        ? [{ role: tambahPeran, scope_node_id: tambahTempat, valid_until: batasHari(tambahSampai, "akhir", zona) }] : [];
+      const { data, error: e } = await supabase.rpc("ubah_peran", {
+        p_person: orangId, p_institution: sekolah, p_tambah: tambah, p_cabut: cabut, p_alasan: alasan,
+        p_sidik: orang.sidik, p_konfirmasi_admin: true, p_terapkan: false,
+      });
+      if (e) kodeTinjau = kodeStafDariGalat(e); else tinjau = data as Tinjau;
+    }
   }
   // B0: the role guard's refusal on either act reads in its own sentence (peran.galat.*)
   const kodePeran = kodePeranDari(sp.kode);

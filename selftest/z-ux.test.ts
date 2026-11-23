@@ -503,6 +503,38 @@ export const zUxStaticTests: SelfTest[] = [
       return c.verdict("reads the staff page's source file and the copy table (N-9): no person, an unknown person and one the reader may not open all answer «Data staf ini tidak dapat dibuka. Mungkin sudah tidak ada, atau bukan untuk Anda.», never the certificate page's sentence; ID and EN");
     },
   },
+  {
+    id: "Z-S02-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      // S-02 (SAPU-VERIFIED): a role chosen without a valid date is refused ROLE_UNTIL_INVALID, never dropped silently
+      // (which then read «choose a role»); S-03: that refusal states the rule the form and the server apply
+      kata(c, [["staf.galat.role_until_invalid", "Tanggal berlaku sampai harus hari ini atau sesudahnya.", "The valid-until date must be today or later."]], "staff");
+      const kontrak = (await import(join(repoRoot, "src", "lib", "staf-kontrak.ts"))) as { tambahanPeran?: (p: string, t: string, s: string) => unknown };
+      if (c.expect(typeof kontrak.tambahanPeran === "function", "there is no one rule (tambahanPeran) for the role being added")) {
+        const f = kontrak.tambahanPeran!;
+        const t0 = "00000000-0000-4000-8000-000000000001";
+        const kasus: Array<[string, string, string, unknown]> = [
+          ["", t0, "", { ada: false }], ["", t0, "2027-01-31", { ada: false }],
+          ["EDUCATOR", t0, "2027-01-31", { ada: true }],
+          ["EDUCATOR", t0, "", { kode: "ROLE_UNTIL_INVALID" }], ["EDUCATOR", t0, "31/01/2027", { kode: "ROLE_UNTIL_INVALID" }],
+          ["EDUCATOR", "", "2027-01-31", { kode: "ROLE_SCOPE_INVALID" }],
+        ];
+        for (const [peran, tempat, sampai, mau] of kasus) {
+          const h = f(peran, tempat, sampai);
+          c.expect(JSON.stringify(h) === JSON.stringify(mau), `tambahanPeran(${JSON.stringify(peran)}, ${tempat ? "a place" : "no place"}, ${JSON.stringify(sampai)}) is ${JSON.stringify(h)}, not ${JSON.stringify(mau)}`);
+        }
+      }
+      const aksi = buang(readFileSync(join(repoRoot, "src", "app", "konfigurasi", "staf", "actions.ts"), "utf8"));
+      const hal = buang(readFileSync(join(repoRoot, "src", "app", "konfigurasi", "staf", "page.tsx"), "utf8"));
+      c.expect(/const tambahan = tambahanPeran\(peran, tempat, sampai\);\s*if \("kode" in tambahan\) kembali\(orang, "ubah", "gagal", tambahan\.kode\);/.test(aksi),
+        "the role-change action still drops a role without a date (no tambahanPeran refusal)");
+      c.expect(/const tambahan = tambahanPeran\(tambahPeran, tambahTempat, sp\.tambah_sampai \?\? ""\);\s*if \("kode" in tambahan\) kodeTinjau = tambahan\.kode;/.test(hal),
+        "the role-change review still drops a role without a date (no tambahanPeran refusal)");
+      return c.verdict("executes the rule src/lib/staf-kontrak.ts tambahanPeran and reads the source files of the staff page and its action, and the copy table (S-02, S-03): a role chosen with no valid date is refused ROLE_UNTIL_INVALID in the review and in the act, a role with no place ROLE_SCOPE_INVALID, nothing chosen adds nothing; the refusal reads «Tanggal berlaku sampai harus hari ini atau sesudahnya.»");
+    },
+  },
 ];
 
 export const zUxAppTests: SelfTest[] = [

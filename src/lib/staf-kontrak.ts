@@ -46,3 +46,16 @@ export function kodeStafDari(v: string | undefined | null): KodeStaf | null {
   if (!v) return null;
   return ((KODE_STAF as readonly string[]).includes(v) ? v : "STAFF_FAILED") as KodeStaf;
 }
+
+/**
+ * S-02 (SAPU-VERIFIED): THE ROLE BEING ADDED, read once for the review and for the act. Nothing chosen adds nothing; a
+ * role chosen without a valid last day is refused ROLE_UNTIL_INVALID, as the server would, never dropped silently (it
+ * then read «choose a role» to someone who had chosen one); a role with no place is ROLE_SCOPE_INVALID.
+ */
+export function tambahanPeran(peran: string, tempat: string, sampai: string):
+  { ada: boolean } | { kode: "ROLE_UNTIL_INVALID" | "ROLE_SCOPE_INVALID" } {
+  if (!peran) return { ada: false };
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(tempat)) return { kode: "ROLE_SCOPE_INVALID" };
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(sampai)) return { kode: "ROLE_UNTIL_INVALID" };
+  return { ada: true };
+}
