@@ -312,3 +312,6 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
   - **C2 is new:** a must-be-right item with no objective leaves a failed gate with nothing to study.
   - **C4:** convalidated goes on the staging after-promotion list.
   - **A pre-existing item:** `percobaan_antrean` should read `hasil_terkini_id`. It is a sibling of K-01, so it is in Z.
+- **10:31 UTC · Sharon: D-1 PASS at `fc6ddea8`** (C1 met; `409ce4f8`). **The D-1 containment may lift "at Bob's and the owner's call".**
+  - **Bob's recommendation:** it lifts when Z is accepted on staging. Staging still runs the old readers, so lifting it on the development branch would mean nothing. Recorded for the owner at Z's acceptance.
+  - **The single-answer AI restriction stays** (ruling 81, point 4).
