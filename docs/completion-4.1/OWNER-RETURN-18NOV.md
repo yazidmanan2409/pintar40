@@ -315,3 +315,14 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
 - **10:31 UTC · Sharon: D-1 PASS at `fc6ddea8`** (C1 met; `409ce4f8`). **The D-1 containment may lift "at Bob's and the owner's call".**
   - **Bob's recommendation:** it lifts when Z is accepted on staging. Staging still runs the old readers, so lifting it on the development branch would mean nothing. Recorded for the owner at Z's acceptance.
   - **The single-answer AI restriction stays** (ruling 81, point 4).
+
+**23 Nov, 10:55 UTC.**
+- **Stream A:** D-6 (305), V5 (306) and V6 (no migration) have landed. R-27(b) is next (307), then the merge and the one full pre-flight.
+- **Stream B: Z4 (`954aa9bc`) sent to Daisy.**
+  - The rows: S-12, R-26 items 1, 2 and 4, R-27(a), R-27(c), S-15, S-11, S-08 and S-13, plus Sharon's R-8 follow-ups and the K-07 strings.
+  - R-26's browser proof: a double press posts once, and a busy button keeps its width.
+- **Caught by stream B's static run: two failures in stream A's D-1 migration:**
+  - F06-S01: `session_review` has no explicit revoke from PUBLIC;
+  - D060-J78-01: three service readers changed without the catalogue statement.
+
+  Sent back to Second Eye. Sharon re-checks them in Z2. **The process fix:** the static suite joins every SQL chunk's focused checks.
