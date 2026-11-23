@@ -199,6 +199,13 @@ The version floors and the Mac minimum are formalised in that review. **No work 
 
 Daisy prepares an implementation-ready package (read-only). Bob recommends order, effort, dependencies and any owner decision. **No separate batch; no interruption of C3w-1; no code, merge or deployment yet.** "UX refinement, not redesign" | Z-READINESS R-26 |
 | 76 | 23 Nov | **R-26 code authorised within Z** (owner, decision 1: YES), in Bob's order: items 1 and 4 together (`TombolKirim`), then 2, then 3 after C3w-1 merges. Tests are written to fail first, with regression verification and Daisy's rendered checks at 320, 390 and 1280 px. No separate batch, no redesign, no interruption. **Decision 2 (`buka_kembali.galat.isian`) is HELD** pending Bob's read-only check of the sign-in identifiers | `batches/ux-75/` |
+| 77 | 23 Nov | **Sign-in identifier corrections, within Z** (owner, after Bob's read-only check; see Z-READINESS R-27):
+1. the reopening error becomes «Isi email atau username, dan pesan 10 sampai 500 karakter.», with EN to match; PINTAR ID is still accepted but not advertised;
+2. reopening normalises PINTAR ID as PIN recovery does, **subject to Sharon's review**, with positive and negative tests and the two stale comments corrected;
+3. the sign-in identity field gets a keyboard configuration suited to email and username;
+4. «nama pengguna» / «username»: **no change**, left for a future wording review.
+
+No new batch; no merge, promotion or deployment authorised | Z-READINESS R-27 |
 
 ## 8 · Open with the owner
 
