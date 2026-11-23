@@ -1,0 +1,19 @@
+01-siapa-pemetaan-1280	overflow 0px	inside main: div.pin-seg.pin-lebar-saja scrolls sideways (778 px in 712 px)	focus a «Uji Penguasaan»	live «Menampilkan 1–9 dari 9 murid | Halaman 1 dari 11 / 1»	switch: one row	current: Pemetaan Awal	learners as: the table
+02-siapa-uji-1280	overflow 0px	inside main: div.pin-seg.pin-lebar-saja scrolls sideways (779 px in 712 px)	focus a «Uji Penguasaan»	live «Menampilkan 1–9 dari 9 murid | Halaman 1 dari 11 / 1»	current: Uji Penguasaan
+03-siapa-blok-1280	overflow 0px	inside main: div.pin-seg.pin-lebar-saja scrolls sideways (778 px in 712 px)	focus a «Atur · Murid A1 Buka z6cmwt8w9l6»	live «Menampilkan 1–9 dari 9 murid | Halaman 1 dari 11 / 1»	blocks: 0	first block: «Murid A1 Belum z6cmwt8w9l6Keadaan Belum mengerjakan»
+04-siapa-atur-1280	overflow 0px	inside main: div.pin-seg.pin-lebar-saja scrolls sideways (778 px in 712 px)	focus section#atur «Atur · Murid A1 Buka z6cmwt8w9l6Tambah waktuTambahan waktu5 »	live «Menampilkan 1–9 dari 9 murid | Halaman 1 dari 11 / 1»	panel: true
+01-siapa-pemetaan-390	overflow 0px	inside main: none	focus a «Uji Penguasaan»	live «Menampilkan 1–9 dari 9 murid | Halaman 1 dari 11 / 1»	switch: one row	current: Pemetaan Awal	learners as: blocks
+02-siapa-uji-390	overflow 0px	inside main: none	focus a «Uji Penguasaan»	live «Menampilkan 1–9 dari 9 murid | Halaman 1 dari 11 / 1»	current: Uji Penguasaan
+03-siapa-blok-390	overflow 0px	inside main: none	focus a «Atur · Murid A1 Buka z6cmwt8w9l6»	live «Menampilkan 1–9 dari 9 murid | Halaman 1 dari 11 / 1»	blocks: 9	first block: «Murid A1 Belum z6cmwt8w9l6 Keadaan Belum mengerjakan»
+04-siapa-atur-390	overflow 0px	inside main: none	focus section#atur «Atur · Murid A1 Buka z6cmwt8w9l6Tambah waktuTambahan waktu5 »	live «Menampilkan 1–9 dari 9 murid | Halaman 1 dari 11 / 1»	panel: true
+01-siapa-pemetaan-360	overflow 0px	inside main: none	focus a «Uji Penguasaan»	live «Menampilkan 1–9 dari 9 murid | Halaman 1 dari 11 / 1»	switch: one row	current: Pemetaan Awal	learners as: blocks
+02-siapa-uji-360	overflow 0px	inside main: none	focus a «Uji Penguasaan»	live «Menampilkan 1–9 dari 9 murid | Halaman 1 dari 11 / 1»	current: Uji Penguasaan
+01-siapa-pemetaan-359	overflow 0px	inside main: none	focus a «Uji Penguasaan»	live «Menampilkan 1–9 dari 9 murid | Halaman 1 dari 11 / 1»	switch: one option a line	current: Pemetaan Awal	learners as: blocks
+02-siapa-uji-359	overflow 0px	inside main: none	focus a «Uji Penguasaan»	live «Menampilkan 1–9 dari 9 murid | Halaman 1 dari 11 / 1»	current: Uji Penguasaan
+01-siapa-pemetaan-320	overflow 0px	inside main: none	focus a «Uji Penguasaan»	live «Menampilkan 1–9 dari 9 murid | Halaman 1 dari 11 / 1»	switch: one option a line	current: Pemetaan Awal	learners as: blocks
+02-siapa-uji-320	overflow 0px	inside main: none	focus a «Uji Penguasaan»	live «Menampilkan 1–9 dari 9 murid | Halaman 1 dari 11 / 1»	current: Uji Penguasaan
+03-siapa-blok-320	overflow 0px	inside main: none	focus a «Atur · Murid A1 Buka z6cmwt8w9l6»	live «Menampilkan 1–9 dari 9 murid | Halaman 1 dari 11 / 1»	blocks: 9	first block: «Murid A1 Belum z6cmwt8w9l6 Keadaan Belum mengerjakan»
+04-siapa-atur-320	overflow 0px	inside main: none	focus section#atur «Atur · Murid A1 Buka z6cmwt8w9l6Tambah waktuTambahan waktu5 »	live «Menampilkan 1–9 dari 9 murid | Halaman 1 dari 11 / 1»	panel: true
+05-paket-catatan-1280	overflow 0px	inside main: none	focus summary «Catatan peninjau (0)»	live «»	«Catatan peninjau» is 852 px wide
+05-paket-catatan-390	overflow 0px	inside main: none	focus summary «Catatan peninjau (0)»	live «»	«Catatan peninjau» is 258 px wide
+05-paket-catatan-320	overflow 0px	inside main: none	focus summary «Catatan peninjau (0)»	live «»	«Catatan peninjau» is 212 px wide

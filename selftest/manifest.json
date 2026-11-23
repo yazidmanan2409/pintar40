@@ -6921,6 +6921,16 @@
       "proves": "selftest/z-ux.test.ts, Daisy's Z5 review: the copy table's C-2 and (a) sentences word for word; the source of Pendataan's action and page refills a refused code (C-1); the rule page's source answers each form in its own words; the CSS file keeps the bar's place word whole, and the shell's source wraps it with the brand (b)."
     },
     {
+      "id": "Z-BINGKAI-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, executing BINGKAI from the rendered-check helper audit/a11y.mjs against a page built in the test (R-11): a frame scrolling sideways is caught once, the designed tab row is not, a part wider than the window is, a hidden frame is not; reads the source of audit/crawl.mjs, which holds such a page broken at 320 px unless listed for the ruling 79 audit."
+    },
+    {
+      "id": "Z-R11-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, rendering Koleksi with stacked rows, with none and empty (R-11); reads the CSS file (the blocks below 640 px, the instrument switch wrapping below 360 px, N-8's padding at 360 px and under) and the source of «Siapa»."
+    },
+    {
       "id": "Z-C1-01",
       "runner": "app",
       "proves": "selftest/z-ux.test.ts, in the running app (C-1): a school code of the wrong shape posted to Pendataan is refused and the rendered page holds what was typed in the field."

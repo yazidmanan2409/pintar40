@@ -1,0 +1,57 @@
+# Z6 fix, run 1 of 2 (before Second Eye's second integration merge)
+# the files that draw pin-tabel-bingkai or pin-seg: src/app/konfigurasi/catatan-masuk/page.tsx, src/app/konfigurasi/page.tsx, src/app/mengajar/[kelas]/siapa/page.tsx, src/app/mengajar/[kelas]/uji-cepat/page.tsx, src/components/koleksi/Koleksi.tsx, src/components/studio/SoalKerja.tsx
+PASS  /mengajar/:id at 390: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id at 320: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/siapa?penugasan=:id at 390: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/siapa?penugasan=:id at 320: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/siapa?penugasan=:id at 390: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/siapa?penugasan=:id at 320: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/uji-cepat at 390: nothing inside main scrolls sideways or is wider than the window
+AUDIT /mengajar/:id/uji-cepat at 320: div.pin-seg scrolls sideways (286 px in 256 px) (on the ruling 79 audit list)
+PASS  /mengajar/:id/uji-cepat at 320: nothing else inside main scrolls sideways or is wider than the window
+AUDIT /aktivasi/orang at 390: div#pin-orang.pin-tabel-bingkai scrolls sideways (693 px in 324 px) (on the ruling 79 audit list)
+PASS  /aktivasi/orang at 390: nothing else inside main scrolls sideways or is wider than the window
+AUDIT /aktivasi/orang at 320: div#pin-orang.pin-tabel-bingkai scrolls sideways (693 px in 254 px) (on the ruling 79 audit list)
+PASS  /aktivasi/orang at 320: nothing else inside main scrolls sideways or is wider than the window
+PASS  /konfigurasi/catatan-masuk at 390: nothing inside main scrolls sideways or is wider than the window
+PASS  /konfigurasi/catatan-masuk at 320: nothing inside main scrolls sideways or is wider than the window
+AUDIT /konfigurasi/audit at 390: div.pin-tabel-bingkai.mt-2 scrolls sideways (623 px in 322 px) (on the ruling 79 audit list)
+PASS  /konfigurasi/audit at 390: nothing else inside main scrolls sideways or is wider than the window
+AUDIT /konfigurasi/audit at 320: div.pin-tabel-bingkai.mt-2 scrolls sideways (623 px in 252 px) (on the ruling 79 audit list)
+PASS  /konfigurasi/audit at 320: nothing else inside main scrolls sideways or is wider than the window
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-riwayat-soal is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure is 210 px wide; paddings and borders around it (inner first): pin-daftar:2, article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-catatan-peninjau.pin-noprint is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-riwayat-soal is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure is 210 px wide; paddings and borders around it (inner first): pin-daftar:2, article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-catatan-peninjau.pin-noprint is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-riwayat-soal is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure is 210 px wide; paddings and borders around it (inner first): pin-daftar:2, article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-catatan-peninjau.pin-noprint is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-noprint is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-riwayat-soal is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure is 210 px wide; paddings and borders around it (inner first): pin-daftar:2, article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-catatan-peninjau.pin-noprint is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-riwayat-soal is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure is 210 px wide; paddings and borders around it (inner first): pin-daftar:2, article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-catatan-peninjau.pin-noprint is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-riwayat-soal is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure is 210 px wide; paddings and borders around it (inner first): pin-daftar:2, article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-catatan-peninjau.pin-noprint is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+
+## covered (7)
+- /mengajar/:id (Koleksi (the class's learners)): 1 frame(s) or segmented control(s)
+- /mengajar/:id/siapa?penugasan=:id (Koleksi + pin-seg pin-seg-tautan (Pemetaan Awal)): 3 frame(s) or segmented control(s)
+- /mengajar/:id/siapa?penugasan=:id (Koleksi + pin-seg pin-seg-tautan (Uji Penguasaan)): 3 frame(s) or segmented control(s)
+- /mengajar/:id/uji-cepat (pin-seg (the window's minutes)): 1 frame(s) or segmented control(s)
+- /aktivasi/orang (Koleksi (people)): 1 frame(s) or segmented control(s)
+- /konfigurasi/catatan-masuk (pin-tabel-bingkai (the sign-in record)): 1 frame(s) or segmented control(s)
+- /konfigurasi/audit (pin-tabel-bingkai (Jejak audit)): 1 frame(s) or segmented control(s)
+
+## not covered (4)
+- /studio/tinjau/kunci/[koreksi] (SoalKerja): not reached, no pending key correction in this database
+- /mengajar/:id/uji-cepat/hasil (Koleksi (a Quick Assessment's results)): not reached as drawn (HTTP 200, 0 frame(s) or segmented control(s) in main: nothing to list here)
+- /konfigurasi/sertifikat (Koleksi (certificates)): not reached as drawn (HTTP 200, 0 frame(s) or segmented control(s) in main: nothing to list here)
+- /studio/paket/:id (SoalKerja (a lesson's questions); N-8's nested disclosures): no frame drawn on this package (HTTP 200); measured for N-8 only
+
+GREEN

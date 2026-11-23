@@ -526,6 +526,9 @@ const EXEMPTIONS: Array<{ file: string; literal: string; reason: string }> = [
     reason: "The option key's column, in em so A/B/C/D stays aligned with the type rather than the page." },
   { file: "src/app/experience.css", literal: "20ch",
     reason: "The review question's flex basis, in characters because it wraps prose." },
+  // RESTATED (Z6, R-11; Daisy, Z-SIAP-DAISY-7ba18b03 §2): one exemption more, beside 360px's
+  { file: "src/app/experience.css", literal: "359px",
+    reason: "R-11: the instrument switch («Pemetaan Awal | Uji Penguasaan») wraps one option a line BELOW 360 px, so 360 less one pixel; CSS cannot read a custom property inside @media." },
   { file: "src/app/experience.css", literal: "360px",
     reason: "An inline lesson illustration: wide enough to read a diagram, narrow enough to stay inside the measure." },
   { file: "src/app/experience.css", literal: "0.4",

@@ -3334,7 +3334,20 @@ select:not([multiple]):not([size]) {
 .pin-pager-kecil { display: none; }
 /* a choice that only fits wide: segments there, a select (the same options) here */
 .pin-sempit-saja { display: none; }
+/* R-11 (Daisy, Z-SIAP §2): a collection's rows as blocks of their own (BarisKoleksi.tumpuk), drawn only below 640 px */
+.pin-koleksi-tumpuk { display: none; }
 @container (max-width: 639px) {
+  /* R-11: where a table would scroll sideways, its rows are blocks: one learner each, the name its heading, each part
+     with its own visible label; the list keeps the rows' order and is named as the table is */
+  .pin-koleksi[data-tumpuk] > .pin-tabel-bingkai { display: none; }
+  .pin-koleksi-tumpuk { display: grid; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+  .pin-koleksi-tumpuk > li {
+    display: grid; gap: var(--space-1); min-width: 0; padding: var(--space-3) var(--space-4);
+    background: var(--surface-1); border: var(--border-hairline) solid var(--line); border-radius: var(--radius-lg);
+  }
+  .pin-koleksi-tumpuk-judul { margin: 0; font-size: var(--type-body); font-weight: var(--weight-strong); overflow-wrap: anywhere; }
+  .pin-koleksi-tumpuk-bagian > p { margin: 0; }
+  .pin-koleksi-tumpuk-label { color: var(--ink-2); }
   .pin-tabel [data-prioritas="rendah"] { display: none; }
   .pin-cari { max-width: none; }
   .pin-lebar-saja { display: none; }
@@ -3955,6 +3968,26 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 .pin-seg-tautan a[aria-current="page"] span { background-color: var(--pintar-primary); color: var(--pintar-primary-ink); }
 .pin-seg-tautan a:focus-visible { outline: none; }
 .pin-seg-tautan a:focus-visible span { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 0; }
+/* R-11: the link's busy mark (TandaTautan, a span) is not an option of its own; it took the options' pill (an empty
+   second pill under each option, with its own focus ring, seen at 560 px and under in the Z6 sweep) */
+.pin-seg.pin-seg-tautan a > span.pin-tanda-tautan {
+  display: inline-block; width: 0; min-height: 0; padding: 0; border: 0; background: none; outline: none;
+}
+/* (and, beside the option's own pill, it opens no line of its own under it) */
+.pin-seg.pin-seg-tautan a { display: flex; align-items: center; }
+/* R-11 (Daisy, Z-SIAP §2): below 360 px the instrument switch wraps, one option a line; it never scrolls, and the
+   current option keeps aria-current */
+@media (max-width: 359px) {
+  .pin-seg.pin-seg-tautan { display: grid; grid-template-columns: minmax(0, 1fr); overflow-x: visible; }
+  .pin-seg.pin-seg-tautan span { white-space: normal; text-align: left; justify-content: flex-start; }
+}
+/* N-8 (Daisy, C2w notes review): at 320 px a disclosure inside a card inside a panel had about 188 px; at 360 px and
+   under, Studio's panels and the cards inside them keep less padding, so the notes and «Riwayat soal» have room. Studio's
+   pages are known by their tabs or, on a package's page (which draws its own head), by .pin-studio-halaman */
+@media (max-width: 360px) {
+  #isi:has(.pin-studio-nav, .pin-studio-halaman) .pin-panel { padding: var(--space-3); }
+  #isi:has(.pin-studio-nav, .pin-studio-halaman) .pin-panel :is(article, .pin-panel) { padding: var(--space-2); }
+}
 /* A1: the acts of one material's row («Akhiri atau tarik», «Ubah jadwal») sit beside each other and wrap as links */
 .pin-baris-tindakan { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); align-items: baseline; }
 .pin-baris-tindakan:empty { display: none; }

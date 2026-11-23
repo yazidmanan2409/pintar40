@@ -831,6 +831,108 @@ export const zUxStaticTests: SelfTest[] = [
       return c.verdict("Daisy's Z5 review: the copy table's two new sentences (C-2's row refusal, (a)'s creation) word for word in ID and EN; the source of Pendataan's action and page sends back and refills a refused code (C-1); the rule page's source answers the new-rule form with bannerBaru and the rows with banner, whose mix-total refusal is the row's own; the CSS file gives the bar's place word no break inside a word, no hyphenation and no ellipsis, at least its longest word wide, and the shell's source wraps it with the brand in one row (b; the browser measure is tempat-320.ts)");
     },
   },
+  {
+    id: "Z-BINGKAI-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      // Z6 (R-11; Daisy, Z-SIAP §2): the rendered-check helper catches a FRAMED overflow. BINGKAI is executed against a
+      // small page built here (the browser proof is the sweep, sapu-z6.ts), with a frame that scrolls, the tab row, a part
+      // wider than the window and a hidden frame
+      let m: { BINGKAI?: () => { lebar: number; sebab: string[] } | null } = {};
+      try { m = await import(join(repoRoot, "audit", "a11y.mjs")); } catch (e) { c.expect(false, `audit/a11y.mjs could not be read: ${(e as Error).message}`); }
+      if (!c.expect(typeof m.BINGKAI === "function", "the rendered-check helper (audit/a11y.mjs) has no framed-overflow check (BINGKAI)")) return c.verdict("");
+      type El = { tagName: string; id: string; classList: string[]; parentElement: El | null; anak: El[]; gaya: Record<string, string>;
+        kotak: { width: number; height: number; right: number }; scrollWidth: number; clientWidth: number;
+        querySelectorAll(s: string): El[]; closest(s: string): El | null; getBoundingClientRect(): { width: number; height: number; right: number } };
+      const buat = (tagName: string, kelas: string[], o: Partial<{ id: string; gaya: Record<string, string>; lebar: number; kanan: number; isi: number; tinggi: number }> = {}, anak: El[] = []): El => {
+        const el: El = {
+          tagName: tagName.toUpperCase(), id: o.id ?? "", classList: kelas, parentElement: null, anak,
+          gaya: { overflowX: "visible", visibility: "visible", position: "static", ...(o.gaya ?? {}) },
+          kotak: { width: o.lebar ?? 300, height: o.tinggi ?? 40, right: o.kanan ?? (o.lebar ?? 300) },
+          scrollWidth: o.isi ?? o.lebar ?? 300, clientWidth: o.lebar ?? 300,
+          querySelectorAll: () => { const out: El[] = []; const jalan = (e: El) => { for (const a of e.anak) { out.push(a); jalan(a); } }; jalan(el); return out; },
+          closest: (s: string) => { const k = s.replace(/^\./, ""); for (let a: El | null = el; a; a = a.parentElement) if (a.classList.includes(k)) return a; return null; },
+          getBoundingClientRect: () => el.kotak,
+        };
+        for (const a of anak) a.parentElement = el;
+        return el;
+      };
+      const ukur = (main: El, lebar = 390) => {
+        const g = globalThis as unknown as Record<string, unknown>;
+        const lama = { document: g.document, getComputedStyle: g.getComputedStyle };
+        const body = buat("body", [], {}, [main]);
+        g.document = { querySelector: (s: string) => (s === "main" ? main : null), body, documentElement: { clientWidth: lebar } };
+        g.getComputedStyle = (e: El) => e.gaya;
+        try { return m.BINGKAI!(); } finally { g.document = lama.document; g.getComputedStyle = lama.getComputedStyle; }
+      };
+      // a frame holding a table wider than itself: caught once (the table inside the frame is the frame's, not counted again)
+      const a = ukur(buat("main", [], {}, [buat("div", ["pin-tabel-bingkai"], { id: "pin-siapa-murid", gaya: { overflowX: "auto" }, lebar: 324, isi: 452 },
+        [buat("table", ["pin-tabel"], { lebar: 452, kanan: 470 })])]));
+      c.expect(a !== null && a.sebab.length === 1 && /^div#pin-siapa-murid\.pin-tabel-bingkai scrolls sideways \(452 px in 324 px\)$/.test(a.sebab[0]),
+        `a frame that scrolls sideways is not caught as itself: ${JSON.stringify(a)}`);
+      // the tab row (v3 Tabs, Daisy F10) is the one designed exception
+      c.expect(ukur(buat("main", [], {}, [buat("nav", ["pin-switch"], { gaya: { overflowX: "auto" }, lebar: 300, isi: 600 }, [buat("a", [], { lebar: 600, kanan: 610 })])])) === null,
+        "the tab row, which scrolls by design, is reported");
+      // a part wider than the window, in no scrolling box
+      const c3 = ukur(buat("main", [], {}, [buat("div", ["pin-lebar"], { lebar: 420, kanan: 436 })]));
+      c.expect(c3 !== null && /div\.pin-lebar is wider than the window \(420 px, to 436 in 390\)/.test(c3.sebab.join()), `a part wider than the window is not caught: ${JSON.stringify(c3)}`);
+      // a hidden frame (display: none measures 0 × 0) and a frame that fits are not
+      c.expect(ukur(buat("main", [], {}, [buat("div", ["pin-tabel-bingkai"], { gaya: { overflowX: "auto" }, lebar: 0, tinggi: 0, isi: 452 }),
+        buat("div", ["pin-tabel-bingkai"], { gaya: { overflowX: "auto" }, lebar: 324, isi: 324 })])) === null, "a hidden frame or one that fits is reported");
+      // and the crawl judges it at 320 px, less the parts on the ruling 79 audit list
+      const crawl = readFileSync(join(repoRoot, "audit", "crawl.mjs"), "utf8");
+      c.expect(/rec\.bingkai = await page\.evaluate\(BINGKAI\)/.test(crawl) && /rec\.bingkaiBaru = bingkaiBaru\(/.test(crawl) && /if \(x\.bingkaiBaru\) broken\.push\(/.test(crawl),
+        "the crawl does not hold a page broken for a framed overflow");
+      // the parts on the ruling 79 audit list are reported, never broken, and only on their own page
+      const mk = m as { bingkaiBaru?: (p: string, b: { lebar: number; sebab: string[] } | null) => { sebab: string[] } | null };
+      const baru = mk.bingkaiBaru?.("/aktivasi/orang", { lebar: 320, sebab: ["div#pin-orang.pin-tabel-bingkai scrolls sideways (695 px in 254 px)", "div.lain scrolls sideways (400 px in 254 px)"] });
+      const lain = mk.bingkaiBaru?.("/mengajar/x/siapa", { lebar: 320, sebab: ["div#pin-orang.pin-tabel-bingkai scrolls sideways (695 px in 254 px)"] });
+      c.expect(JSON.stringify(baru?.sebab) === JSON.stringify(["div.lain scrolls sideways (400 px in 254 px)"]) && lain?.sebab.length === 1,
+        `the audit list excuses more than its own part on its own page: ${JSON.stringify(baru)} ${JSON.stringify(lain)}`);
+      return c.verdict("executes BINGKAI from the rendered-check helper audit/a11y.mjs against a page built in the test: a frame scrolling sideways (452 px in 324 px) is caught once, as itself; the tab row (.pin-switch, designed) is not; a part wider than the window in no scrolling box is; a hidden frame and one that fits are not; reads the source of audit/crawl.mjs, which holds a page broken for a framed overflow at 320 px unless the part is on the ruling 79 audit list");
+    },
+  },
+  {
+    id: "Z-R11-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      // R-11 (Daisy, Z-SIAP §2) and N-8: «Siapa» below 640 px is a list of blocks, the instrument switch wraps below 360 px,
+      // Studio's nested panels keep less padding at 360 px and under. Koleksi RENDERED with stacked rows and with none
+      const r = render(repoRoot, `
+        const K = (await imp("src/components/koleksi/Koleksi.tsx")).default;
+        const p = { id: "uji", nama: "Siapa · 5A", benda: "murid", kolom: [{ judul: "Nama" }, { judul: "Keadaan" }], totalSemua: 2, locale: "id", untuk: "educator", jalan: "/x" };
+        const baris = (t) => [["a", "Ani"], ["b", "Budi"]].map(([k, n]) => ({ kunci: k, nama: n, sel: [h("span", { className: "chip" }, "Belum mulai")],
+          ...(t ? { tumpuk: { judul: n, bagian: [h("p", { className: "pin-meta" }, "Dikumpulkan 09.10 WIB"), h("p", null, h("span", { className: "pin-koleksi-tumpuk-label" }, "Keadaan"), " ", h("span", { className: "chip" }, "Belum mulai")), h("p", null, h("a", { href: "#atur" }, "Atur"))] } } : {}) }));
+        out.tumpuk = r(h(K, { ...p, baris: baris(true), posisi: { total: 2, halaman: 1, ukuran: 50 } }));
+        out.tabel = r(h(K, { ...p, baris: baris(false), posisi: { total: 2, halaman: 1, ukuran: 50 } }));
+        out.kosong = r(h(K, { ...p, baris: [], cari: "zz", posisi: { total: 0, halaman: 1, ukuran: 50 } }));`);
+      if (!c.expect(r.ok, `Koleksi could not be rendered: ${r.galat}`)) return c.verdict("");
+      const li = [...(r.out.tumpuk ?? "").matchAll(/<li>([\s\S]*?)<\/li>/g)].map((x) => x[1]);
+      c.expect(/<div class="pin-koleksi" data-tumpuk="">/.test(r.out.tumpuk) && /<ul class="pin-koleksi-tumpuk" aria-label="Siapa · 5A">/.test(r.out.tumpuk) && li.length === 2,
+        "rows carrying their block are not drawn as a named list beside the table");
+      c.expect(li.every((x, i) => new RegExp(`^<h3 class="pin-koleksi-tumpuk-judul">${["Ani", "Budi"][i]}</h3>`).test(x) && x.indexOf("Dikumpulkan") < x.indexOf("Keadaan")
+        && x.indexOf("Keadaan") < x.indexOf("Belum mulai") && x.indexOf("Belum mulai") < x.indexOf("Atur")),
+        `a block is not the name as its heading, then the sitting's line, the labelled state and «Atur»: ${li[0]}`);
+      c.expect(!/data-tumpuk|pin-koleksi-tumpuk/.test(r.out.tabel) && !/data-tumpuk|pin-koleksi-tumpuk/.test(r.out.kosong), "a table without blocks, or an empty result, is drawn as a list");
+      const css = readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8");
+      const cq = /@container \(max-width: 639px\) \{([\s\S]*?)\n\}/.exec(css)?.[1] ?? "";
+      c.expect(/^\.pin-koleksi-tumpuk \{ display: none; \}/m.test(css) && /\.pin-koleksi\[data-tumpuk\] > \.pin-tabel-bingkai \{ display: none; \}/.test(cq) && /\.pin-koleksi-tumpuk \{ display: grid;/.test(cq),
+        "below 640 px the blocks do not replace the table");
+      const seg = /@media \(max-width: 359px\) \{([\s\S]*?)\n\}/.exec(css)?.[1] ?? "";
+      c.expect(/\.pin-seg\.pin-seg-tautan \{ display: grid; grid-template-columns: minmax\(0, 1fr\); overflow-x: visible; \}/.test(seg) && /\.pin-seg\.pin-seg-tautan span \{ white-space: normal;/.test(seg),
+        "below 360 px the instrument switch does not wrap one option a line");
+      c.expect(/\.pin-seg\.pin-seg-tautan a > span\.pin-tanda-tautan \{\s*display: inline-block; width: 0; min-height: 0; padding: 0; border: 0; background: none; outline: none;/.test(css),
+        "the switch's link mark is drawn as an empty option of its own");
+      c.expect(/@media \(max-width: 360px\) \{\s*#isi:has\(\.pin-studio-nav, \.pin-studio-halaman\) \.pin-panel \{ padding: var\(--space-3\); \}\s*#isi:has\(\.pin-studio-nav, \.pin-studio-halaman\) \.pin-panel :is\(article, \.pin-panel\) \{ padding: var\(--space-2\); \}/.test(css),
+        "N-8: Studio's nested panels keep their full padding at 360 px and under");
+      const siapa = buang(readFileSync(join(repoRoot, "src", "app", "mengajar", "[kelas]", "siapa", "page.tsx"), "utf8"));
+      c.expect(/const tumpuk = \{\s*judul: baris\.nama,/.test(siapa) && /pin-koleksi-tumpuk-label">\{labelKeadaan\}<\/span> \{baris\.sel\[0\]\}/.test(siapa)
+        && /a1 !== null, s\("mengajar\.cepat\.hasil\.kolom\.keadaan"\)\)/.test(siapa), "«Siapa» does not give each learner its block with the state's visible label");
+      return c.verdict("renders Koleksi three ways: rows with their block are drawn as a list named as the table, each block the name as its heading, then the sitting's line, the visible «Keadaan» label with the state, then «Atur»; rows without, and an empty result, stay the table alone; the CSS file replaces the table with the blocks below 640 px (Koleksi's container), wraps the instrument switch one option a line below 360 px, and gives Studio's nested panels less padding at 360 px and under (N-8); the source of «Siapa» gives every learner its block");
+    },
+  },
 ];
 
 export const zUxAppTests: SelfTest[] = [
