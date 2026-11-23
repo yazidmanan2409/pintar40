@@ -77,7 +77,9 @@ finish() {
   verdict="$(putusan "$FAILED" "$VOID")"
   case "$verdict" in RED) code=1 ;; VOID) code=3 ;; *) code=0 ;; esac
   { echo "finished $(date -u +%FT%TZ)"; echo "RUN $verdict"; } >> "$SUM"
-  if [ "$verdict" = RED ] && [ "$VOID" = 1 ]; then
+  if [ "$verdict" = RED ] && [ "$RESET" = 0 ]; then
+    echo "RED on an UNRESET world (--tanpa-reset): its FAIL rows are NOT attributed to the code until a run with the forced reset reproduces them." >> "$SUM"
+  elif [ "$verdict" = RED ] && [ "$VOID" = 1 ]; then
     echo "RED, with INFRA beside it: the FAIL rows above are findings about the code; the INFRA rows listed with them say what the machine also did." >> "$SUM"
   fi
   [ "$verdict" = VOID ] && echo "VOID, not a result: an INFRA row above says what the machine did, and no row failed. Fix that and repeat the run on the same commit." >> "$SUM"

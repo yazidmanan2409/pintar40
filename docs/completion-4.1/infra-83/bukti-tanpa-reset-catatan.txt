@@ -1,0 +1,18 @@
+# bukti-tanpa-reset-catatan · 2026-11-23T23:37:56Z · Bob's item 1 (Sharon's addendum)
+# plant: the Z-T03-01 string defect, run with --tanpa-reset; before this commit the SUMMARY ended at «RUN RED» with no attribution note
+
+commit 7696819e8d070003a115b27b50d10e34261d708c
+started 2026-11-23T23:36:50Z
+steps suite
+heartbeat every 120s
+size: estimated 0 min, within this machine's median uptime of 75 min (1 boot(s))
+== bersih: bersih: 3 removed, 35; 32 kept
+== previous: the machine restarted since the last check: a REBOOT at 2026-11-23T23:36:20Z, after uptime 4521s (the previous boot's last beat: 2026-11-23T23:23:37Z, oom_kill=0) (no run was in progress)
+== siap: READY
+== suite
+INFRA  suite  world: the database was not reset before this step (--tanpa-reset)
+FAIL   suite  rc=1: 1 FAIL row(s), first Z-T03-01 email.aman.diatur_ulang.isi (en): «An Admin PINTAT reset recovery with a PIN for your account. Your old PIN no longer works, and you have been signed out of ev
+rows: 1 classed; 1 FAIL, 0 INFRA (ROWS.txt; the machine healthy through the step)
+finished 2026-11-23T23:37:56Z
+RUN RED
+RED on an UNRESET world (--tanpa-reset): its FAIL rows are NOT attributed to the code until a run with the forced reset reproduces them.
