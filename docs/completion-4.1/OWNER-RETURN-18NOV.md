@@ -304,3 +304,11 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
 - Each migration's red-first test is red on 300 and green on 304, with focused checks green.
 - **Bob's flag to Sharon:** the K-01 helper's key source must equal the verdict's own source, including after a correction and a recompute.
 - **Z2 (D-6, V5, V6, R-27(b)) has started.** Z3's K-01 screens wait for Sharon's Z1 PASS.
+- **10:29 UTC · Sharon on Z1 (`df8d84a0`; `f4ed3c04`):**
+  - **K-07 + K-01: PASS with conditions C2–C4.** Z3's K-01 screens may proceed.
+  - **V2: PASS with C5.**
+  - **D-1's readers: PASS.** The containment **stays** until C1 (the guard conditions), which `fc6ddea8` delivers and Sharon is checking.
+  - **Bob's flag: confirmed equal** (the key source is the verdict's own row); C3 is a parity test.
+  - **C2 is new:** a must-be-right item with no objective leaves a failed gate with nothing to study.
+  - **C4:** convalidated goes on the staging after-promotion list.
+  - **A pre-existing item:** `percobaan_antrean` should read `hasil_terkini_id`. It is a sibling of K-01, so it is in Z.
