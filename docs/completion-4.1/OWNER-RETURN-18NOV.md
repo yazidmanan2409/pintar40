@@ -396,3 +396,8 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
   - **BOB18-A01:** Konfigurasi pages ask `is_system_admin` twice (from R-10's NavKonfigurasi).
   - **Bob's decision:** fix both on the candidate (allowed: Z-row defects). The second fix switches to the request-cached `isSystemAdmin()`, so behaviour is unchanged; Sharon is asked to confirm, since it is an auth call site.
   - **Then ONE GREEN full pre-flight on the new head** (the red run is kept as evidence), then `ci.yml` and `audit-journeys.yml` dispatched once each per D-012/D-025. Both run on a local stack with no deploy (Bob checked). No PR, merge or promotion.
+- **17:15 UTC · Z9 rerun on `ec082bc4`: 1386 passed, 2 FAILED** (plants 175/175, red cases 11/11).
+  - BOB18-A01, F06-S04 and Sharon's new Z9-K01 pass. A void run (container restart) is kept as evidence.
+  - The two failures are older static pins on the TEXT `rpc("is_system_admin")` (BOB51-S01 and D101-S01), which contradict Sharon's condition (1). Behaviour is unchanged.
+  - **Bob approved restating them** (tests only, stronger: the page must use the cached call and must have no raw rpc; each proved red on a revert), and informed Sharon.
+  - Then one more full pre-flight, then CI and the journeys.
