@@ -17,7 +17,7 @@ Line 10 reads `300 / 20270122190000` BEFORE and `307 / 20270123160000` AFTER. Th
 | 20270123140000 | D-6 (with Sharon's Z2-1) |
 | 20270123150000 | V5 |
 | 20270123160000 | R-27(b) |
-| 20270123170000 | Z8 item 8: the last usable Admin sekolah (one helper for PR160, `revoke_role` and `minta_akun('CLOSE')`). **Pending:** if it lands, the pair is **300 → 308** and line 10 reads `308 / 20270123170000` AFTER |
+| 20270123170000 | Z8 item 8: the last usable Admin sekolah (one helper for PR160, `revoke_role` and `minta_akun('CLOSE')`). **Sharon PASS (`1bf3e983`), sha256 `91c1437c67500521…`:** the pair is **300 → 308** and line 10 reads `308 / 20270123170000` AFTER |
 
 ## 2 · What Z changes that a preserved line could see: nothing
 

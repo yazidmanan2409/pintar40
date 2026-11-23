@@ -379,3 +379,4 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
   - Sent to Sharon, together with the deviation (revoke_role not restated) and the SYSTEM_ADMIN question (Bob: not Z).
   - **Daisy's Z3-A conditions were still not built:** sent back to Second Eye as the last item before Z9.
   - **A pre-existing finding:** «Akun saya» shows a blank «—» REOPEN form to every signed-in person. It is on main too. Daisy is asked to rate it; under the freeze rule it goes to the audit unless it is serious.
+- **14:48 UTC · Sharon: item 8 (308) PASS** (`1bf3e983`): one definition, one lock, and no lock cycle (both paths checked); the deviation is accepted. **New 4.2 items:** (i) whether «usable» for SYSTEM_ADMIN needs an unlocked sign-in (not a lockout, since the database owner can recover); (ii) a warning before the last school admin's appointment reaches valid_until. From Z1 only C4 is open.
