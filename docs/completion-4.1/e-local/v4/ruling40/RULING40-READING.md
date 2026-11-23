@@ -253,3 +253,31 @@ The hosts were extracted from the saved file only. No new request was made in th
 - question 4, a retention or residency page (not collected);
 - **Sharon's assessment of both providers' subprocessors**;
 - counsel's questions, unchanged.
+
+---
+
+## Sharon's data-handling assessment (23 Nov 2026, `RULING40-DATA-HANDLING-8ae28e78.md` on her branch)
+
+**Disclosure (Sharon):** she is an Anthropic model. She applied the same criteria to both providers, using the reading's quotes without re-fetching.
+
+**The criteria, on PINTAR's design:**
+- no training;
+- bounded retention;
+- known processors and locations, with change notice;
+- a DPA;
+- no tool or web use.
+
+| Provider | Verdict (data handling only) | Conditions |
+|---|---|---|
+| **OpenAI** | **MEETS WITH CONDITIONS** | (1) never opt in to data sharing; (2) `store:false` on every request (R3-07); (3) no built-in tools (R3-07); (4) a separate educator-only project (technical only); (5) subscribe to change notices, and confirm that O6 is the DPA's list (O10) |
+| **Anthropic** | **MEETS WITH CONDITIONS, one BLOCKING** | **(1) BLOCKING:** read the official API retention terms. Retention is unestablished, so Anthropic **is not offered until then**. (2) No tools, so the web-search vendors never receive content (R3-07). (3) A separate educator-only workspace or key. (4) Keep dated, hashed copies of the undated list, plus change notices. (5) Confirm that the support, fraud and telemetry vendors see no prompt or output content |
+
+**Counsel's questions, kept separate and unanswered:**
+- End User / §3.3(c);
+- PR-1;
+- "human review";
+- the minors clauses;
+- **new, Q-S1:** PINTAR's controller duties for its own provider-account data;
+- **new, Q-S2:** whether "Worldwide" processing is acceptable should personal data ever come into scope.
+
+**For D-7:** a provider becomes offerable only when its conditions hold **and** counsel clears it. Technical conditions are not contractual compliance.
