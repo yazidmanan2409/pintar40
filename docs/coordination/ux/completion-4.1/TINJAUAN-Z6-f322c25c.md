@@ -62,3 +62,26 @@ From the diff `f322c25c..2d19d3cf` (src and audit; no SQL) and captures z6-06 an
 - **`.pin-seg` wraps and never scrolls.** On a phone it takes the row as a wrapping flex (it was three fixed columns). In capture 06 at 320, «30 menit» wraps whole to the second line and its focus ring is drawn uncut.
 - **The pager** targets `#…-koleksi`, which is visible in both views, with `scroll-margin-top` below the sticky bar (two bars at 360 and under).
 - **Red first** on `f322c25c`, green now: 55 checks.
+
+## Sweep run 2 and the re-looks at `712e1a6a` (23 Nov, 14:08)
+
+**Verdict: Z6 is complete. The re-looks for A1-R4 and C1-R4 are closed.**
+- **Sweep run 2 is green and accepted:** 130 checks, 13 pages, 1280/390/320, the K-01 screens included, plus the whole-word bar check. The four uncovered pages lack fixtures, not checks:
+  - uji-cepat/hasil and sertifikat with no rows;
+  - `/studio/tinjau/kunci` with no pending correction;
+  - Studio's package page, beyond N-8.
+
+  They go to the ruling 79 audit's journeys (J5 and J7 reach them), not to a silent pass.
+- **«Menga jar»:** it does not reproduce on the merged tree (300–430 px in 5 px steps). It was a pre-merge build. Closed.
+- **«target 60%» above «Murid» on «Minta membaca lagi»: the ruling 79 audit, not Z.**
+  - It is the same at every width, and the line exists on `main` `706fe8c5` (`ulang/page.tsx:80`), so stream A did not introduce it.
+  - **Audit note:** a lone lowercase «target 60%», outdented above the group it qualifies. It should sit inside the «Murid» group as a sentence, e.g. «Target bab ini: 60%.»
+  - **Also for the audit:** at 390 and 320 the breadcrumb's second line starts with a bare «/» (capture `ulang-target-390`). The separator should stay with the item it follows.
+- **A1-R4 re-look: closed.**
+  - The head's queue row with no target reads `hasil_saja` «hasil terakhir 100%» (z8-03b), which is correct: no target, no verdict.
+  - The gate form `hasil_gerbang` in the queue is shown by Z3-A's captures 06 and 11 on the merged code.
+  - Nothing more is needed.
+- **C1-R4 re-look: closed.**
+  - Under review, the paper prints the issue-time predicate «Sangat Baik» with its QR, and no banner or status word. The public check reads «Sedang ditinjau», with the facts «Seperti saat diterbitkan».
+  - The paper and the live check do not contradict each other: the paper is the issued document, and the QR gives its current status.
+  - Whether a certificate prints a predicate at all is D2-R's decision (rulings 74–74b), reviewed after Z. It is not changed here.
