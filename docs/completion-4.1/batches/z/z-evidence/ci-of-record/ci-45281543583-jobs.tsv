@@ -1,0 +1,18 @@
+138066982942	1	completed	success	proof · runners free, code not already proven
+138066983301	1	completed	success	baseline · frozen documents are what they say they are
+138067664669	1	completed	success	install · lint · typecheck · build
+138068803291	1	completed	success	migrations · previous schema → HEAD (upgrade path)
+138068803358	1	completed	success	migrations · clean database + seed
+138068803380	1	completed	success	red case · static-raw-evidence-read
+138068803447	1	completed	success	red case · static-second-verification-route
+138068803458	1	completed	success	red case · static-duplicate-engine
+138068803462	1	completed	success	red case · db · bob01 bob35 wp7 bob26
+138068803476	1	completed	success	red case · db · fable06 task2 bob06 bob50 bob25
+138068803487	1	completed	success	red case · db · tour r1 fable05 bob12 bob03
+138068803501	1	completed	success	red case · db · wp1 task1 bob36 bob02 wp8
+138068803516	1	completed	success	red case · static-fable06-gates
+138068803519	1	completed	success	red case · db-table-without-rls
+138068803521	1	completed	success	red case · static-permissive-policy
+138068803529	1	completed	success	red case · db · bob37 bob24 bob39 bob04 fable04 l1f4 b2 l1f2 l1f4t
+138076566345	1	completed	success	selftest contract (strict, local stack)
+138085138488	1	completed	success	verdict · green only when every job ran and succeeded
