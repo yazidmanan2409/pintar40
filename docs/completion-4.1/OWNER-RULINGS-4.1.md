@@ -246,6 +246,7 @@ No implementation now | MASTER-SEQUENCE §2b |
 8. **Scope:** Z stays bounded. The ruling 79 audit and ruling 54's rationalisation stay separate.
 
 Independent reviews run alongside the build where genuinely independent. Nothing dependent is built on an unresolved design decision | `batches/z/Z-PLAN-APPROVAL.md` |
+| 82 | 23 Nov | **Standing instruction while the owner is away.** Continue Z3 and the remaining Z work in the agreed sequence. The team resolves ordinary technical, security, UX and integration issues among itself. Sharon's and Daisy's review requirements, focused verification and the final acceptance gates are kept. The approved scope is not expanded, and quality is not traded for time. No staging promotion, production deployment, AI-provider activation or spending without the separate authorisation each requires. Escalate only genuinely material decisions; otherwise make progress and document the evidence | This file; `OWNER-RETURN-18NOV.md` |
 
 ## 8 · Open with the owner
 
