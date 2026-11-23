@@ -68,3 +68,28 @@ It also refuses outright if the temp folder resolves to `/`, `/home`, `/root`, `
   - a planted defect that breaks `next start`, on a healthy machine, gives FAIL and RED, not VOID.
 
 **Could reasonably have been anticipated:** this is ruling 83's own risk statement (a VOID must never hide a FAIL), so the rule needed a mixed-case proof from the start.
+
+## Addendum · `7696819e`: S-1 and S-2 met, (4) now PASS (23 Nov 2026, 23:45 UTC)
+
+**S-1 (`kelas.sh`): met.**
+- **RED takes precedence:** `putusan` is RED whenever any FAIL exists, with INFRA rows listed beside it. VOID only with INFRA and no FAIL.
+- **Two signal lists:**
+  - `SIG_MESIN` (runtime, registry) is always INFRA;
+  - `SIG_MUNGKIN` (disk, database, facility, port) is INFRA only when the machine was not healthy through the step, and otherwise FAIL with the signal noted.
+- **The suite keeps its FAIL rows** and never collapses into one INFRA row. The reset step also gives FAIL on a healthy machine.
+- Bob reports both proofs red at `61bb1e3e`, then green.
+
+**The I-2 question: yes, that is the reading I intend.**
+- An unreset world sets `VOID=1` on every db step, so an unreset run can never be GREEN: with no FAIL it is VOID.
+- With FAIL rows it is RED, a false RED in the safe direction.
+- Those FAIL rows are not attributed to the code until a run with the reset reproduces them. Please add that sentence to the SUMMARY line for this case.
+- **Nit:** `preflight.sh:15` still says such a run "is always VOID". Update it to match.
+
+**S-2 (`tapis.sh`): met.**
+- `supabase start` output is filtered before it is written, the old logs are scrubbed, and `redact()` covers the log folder.
+- The patterns cover key, secret, JWT, token and password fields, JWT shapes, `sb_secret_` and `sb_publishable_`, and the default JWT secret.
+- **Nit:** a database URL's user-info (`postgresql://postgres:postgres@…`) is not matched. It is the local default, but add `s#(://[^:/\s]+:)[^@\s]+@#$1«redacted»@#g` for completeness.
+
+**N-1, N-2 and N-3: done** as Bob describes.
+
+**Verdict: PASS.** Ruling 83's harness may be used. A run under it counts on its RED, GREEN or VOID verdict as now defined.
