@@ -7079,6 +7079,11 @@
       "id": "Z-D6-01",
       "runner": "static",
       "proves": "Z D-6 (R-17; ruling 55; all nine dark), red first, selftest/z-d6.test.ts, reads the migrated world, the migration and the app's source: none of the nine feedback RPCs is executable by authenticated or anon, all nine exist with their registry rows and service_role keeps its grant; 20270123140000 only revokes and checks (no row touched, the feedback tables' counts reported); UMPAN_BALIK_TERBUKA is false, Belajar reads no round, the class page's link and Pimpinan's section are drawn only when it is true, and the five round pages answer notFound(). The dormant logic stays proven by FABLE-07, which grants the nine for its own statement only."
+    },
+    {
+      "id": "Z-V5-01",
+      "runner": "static",
+      "proves": "Z V5 (R-24; Sharon VERIFY-58), red first, selftest/z-v5.test.ts, executes transfer_execute against the migrations, rolled back: an AUTHORIZED transfer from the seeded learner's enrolment, closed since as a rollover closes it, run by her school's administrator is refused PR040 with DETAIL TRANSFER_SOURCE_CLOSED, never the raw «a closed enrollment is immutable»; the transfer stays AUTHORIZED and nothing is written at the receiving school; the action's contract maps it to galat.transfer_source_closed in ID and EN."
     }
   ]
 }

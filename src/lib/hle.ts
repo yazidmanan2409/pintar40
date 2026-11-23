@@ -3371,7 +3371,9 @@ export type HleEvent =
   | "studio.ai.diubah_diterima"
   | "studio.ai.hapus_tanya"
   | "studio.ai.dihapus"
-  | "studio.ai.jumlah_ai";
+  | "studio.ai.jumlah_ai"
+  // Z-A: stream A's new keys (Z-PARALLEL-PLAN.md: A adds only here; stream B owns every existing key)
+  | "galat.transfer_source_closed";
 
 /**
  * One key's telling, in both languages.
@@ -8044,6 +8046,9 @@ const table: Table = {
   "studio.ai.hapus_tanya": { default: "Hapus draf ini? Draf yang dihapus tidak dapat dikembalikan.", en: "Delete this draft? A deleted draft cannot be brought back." },
   "studio.ai.dihapus": { default: "Draf dihapus.", en: "Draft deleted." },
   "studio.ai.jumlah_ai": { default: "{a} dari {b} soal disusun dengan AI", en: "{a} of {b} questions drafted with AI" },
+  // ── Z-A: stream A's new keys (Z-PARALLEL-PLAN.md). Words are Daisy's; a line marked PROPOSED waits for hers.
+  // Z V5 (R-24): an authorised transfer whose sending-school enrolment has closed since (TRANSFER_SOURCE_CLOSED). PROPOSED.
+  "galat.transfer_source_closed": { default: "Pendaftaran murid ini di sekolah asal sudah ditutup sejak perpindahan disetujui, misalnya karena kenaikan kelas. Perpindahan tidak dijalankan, dan tidak ada yang berubah. Ajukan perpindahan baru dari pendaftaran murid yang berlaku sekarang.", en: "This student's enrolment at the sending school has closed since the transfer was approved, for example at a class rollover. The transfer was not carried out, and nothing changed. Ask for a new transfer from the student's current enrolment." },
 };
 
 /** Words that must never appear on a learner-facing surface (doc 12 "complexity leaking"). */

@@ -2278,7 +2278,9 @@ export const experienceTests: SelfTest[] = [
       // change in the institution mark
       // MOVED TO 305, Z: the anonymous feedback round is dark (20270123140000, D-6): no brand or copy change in the
       // institution mark
-      c.expect(migrations.length === 305, `${migrations.length} migrations; the frozen baseline has 305`);
+      // MOVED TO 306, Z: a transfer whose source enrolment closed is refused by name (20270123150000, V5): no brand or
+      // copy change in the institution mark
+      c.expect(migrations.length === 306, `${migrations.length} migrations; the frozen baseline has 306`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4212,7 +4214,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED TO 303, Z: K-07's 20270123120000 is not a tour RPC.
       // MOVED TO 304, Z: K-01's 20270123130000 is not a tour RPC.
       // MOVED TO 305, Z: D-6's 20270123140000 revokes, and is not a tour RPC.
-      c.expect(migs.length === 305, `${migs.length} migrations; the baseline has 305`);
+      // MOVED TO 306, Z: V5's 20270123150000 is not a tour RPC.
+      c.expect(migs.length === 306, `${migs.length} migrations; the baseline has 306`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

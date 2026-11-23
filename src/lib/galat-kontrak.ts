@@ -111,6 +111,8 @@ export const KODE_ANTAR_SEKOLAH = [
   "TRANSFER_PERIOD_MISSING", "TRANSFER_PLACE_INVALID",
   // Sharon (2ce4ddcf): a transfer to a school the learner is already enrolled at that year
   "TRANSFER_ALREADY_ENROLLED",
+  // Z V5 (R-24, 20270123150000): an authorised transfer whose sending-school enrolment has closed since
+  "TRANSFER_SOURCE_CLOSED",
 ] as const;
 export const KODE_ANTAR_SEKOLAH_DARI_DB: Record<string, (typeof KODE_ANTAR_SEKOLAH)[number]> = {
   DESTINATION_INVALID: "TRANSFER_DESTINATION_INVALID",
@@ -125,6 +127,7 @@ export const KODE_ANTAR_SEKOLAH_DARI_DB: Record<string, (typeof KODE_ANTAR_SEKOL
   TRANSFER_PERIOD_MISSING: "TRANSFER_PERIOD_MISSING",
   PLACE_INVALID: "TRANSFER_PLACE_INVALID",
   TRANSFER_ALREADY_ENROLLED: "TRANSFER_ALREADY_ENROLLED",
+  TRANSFER_SOURCE_CLOSED: "TRANSFER_SOURCE_CLOSED",
 };
 
 /** BOB-44: enrolling a person for professional learning, refused by PR090 with the code in DETAIL. */
