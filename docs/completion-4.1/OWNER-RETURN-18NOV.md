@@ -331,3 +331,9 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
   - **To the ruling 79 audit:** N-18 (the reopening h1 at body size; pre-existing).
 - **V5's final words** (Daisy): the sending school is named as the one to act. Sent to stream A.
 - **Stream A:** all seven migrations are in (307). Stream B was merged at `ce31801f`, and the one full pre-flight is running.
+- **11:30 UTC · Sharon: Z2 at `8614bd26` PASS with one condition, Z2-1** (`79250267`): revoke client SELECT on `feedback_cycles` and `feedback_opportunities`, corrected in place. V5, V6, R-27(b) and the Z1 delta pass; C3 and C5 are met. V5's FOR UPDATE nit goes to 4.5. V6 limit: the owner reads the hosted pre-request setting in the dashboard. Still open: C2 (Z3) and C4 (after promotion).
+- **11:35 UTC · Sharon: Z5 S-01 PASS** (`4490a945`).
+- **Daisy: the ruling 79 draft journey scripts** (`4f0b3f42`), linked from MASTER-SEQUENCE §2b.
+- **11:45 UTC · Stream B: Z5 handed off** (`bc5749ff`). No migrations.
+- **11:50 UTC · Daisy: Z5 PASS with two client-only conditions** (`c9892041`), C-1 (S-04 refills the code) and C-2 (`galat.definition_mix_total_baris`). Both ride Z7, with the walk findings (a) `studio.definisi.dibuat` and (b) the place word wrapping whole. The S-06 cause and optional N-19 go to the ruling 79 audit.
+- **Ruling 82:** the owner is away until 24 Nov, with a standing instruction to keep moving. The team has been told, and the driver is updated.
