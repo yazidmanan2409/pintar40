@@ -81,3 +81,34 @@ It is a Firecracker microVM: kernel `6.18.44-fc`, with `rdinit=/process_api -- -
 The next line would have been at 22:29:16Z. None was written, and the machine booted again at 22:29:34Z. #7 came **16 minutes** after #6.
 
 This is the measurement that rules out memory. The restart came from outside, out of a machine with nothing wrong inside it.
+
+## Bob's idle hypothesis (22:44Z): each restart against this session's turns
+
+These times are from this session's own record: when a turn ended (stream A idle, waiting for a message) and when the
+next message woke it. Neither of the earliest restarts (#1, #2) can be placed this way, because that part of the record
+is no longer available here.
+
+| # | Restart (boot) | The turn before it ended | The next wake | Inside an idle gap? |
+|---|---|---|---|---|
+| 1 | about 16:06Z | not available | not available | unknown |
+| 2 | not measured | not available | not available | unknown |
+| 3 | about 19:45Z | about 19:46Z (the report to Bob of the CI red) | 19:49Z (Bob's ruling); the database refused at once | yes, as far as the times can be placed |
+| 3b | between 19:55Z and 20:00Z | about 19:55Z (journeys report) | 19:59Z (ruling 84); the containers were «Up 6 seconds» after a restart by hand | yes |
+| 4 | between 20:08Z and 20:25Z | about 20:08Z (diagnostics dispatched) | 20:22Z (check-in); the database refused at about 20:25Z | yes |
+| 5 | 21:17:40Z | about 20:33Z (pre-flight left running in the background) | 21:19Z (check-in) | **yes**, 44 min into the gap |
+| 6 | 22:13:25Z | about 21:23Z (pre-flight rerun left running) | 22:13:24Z (check-in queued) | **yes**: the boot is 1 s after the wake was queued |
+| 7 | 22:29:34Z | about 22:24Z (EQUIVALENCE handed to Bob) | 22:34:54Z (Bob's message) | **yes**, 5 min into the gap; the logger shows the machine healthy until 22:28:46Z |
+
+**Finding:**
+
+- **Every restart that can be placed fell inside an idle gap.** None came during an active turn.
+- **#6** booted the second after the session's wake-up was queued. That fits the machine being reclaimed during the idle gap and provisioned again when the wake arrived.
+- **#5 and #7** came while the session was still idle: 1.5 and 5 minutes before the next message.
+
+**Consistent with Bob's hypothesis:**
+
+- The session's VM is suspended or reclaimed while the session is idle.
+- A long run left in the background after a turn ends is not protected.
+- The idle time before a restart varied, from 5 to 50 minutes.
+
+**What follows:** a long local run can only be relied on inside an active turn. Runs on GitHub's machines (CI, journeys) are not affected.
