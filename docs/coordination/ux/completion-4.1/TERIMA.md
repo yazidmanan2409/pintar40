@@ -88,3 +88,4 @@
 | 23 Nov, 13:14 | Bob | Z8 verify-closed (stream B) | `claude/z-ux` `04c78339` | **All six confirmed**; C1-R2 needs no fresh render; two re-looks ride the post-merge sweep |
 | 23 Nov, 13:14 | Bob | Z8 item 8 words (last school admin closing own account) | — | `akun.tinggal.galat.account_last_school_admin`; capture asked |
 | 23 Nov, 13:16 | Bob | Z8 item 8, second route (revoke) + C2 nit | — | (1) closure key revised (no {sekolah}); (2) reuse `peran.galat.role_last_school_admin`; C2 line `mengajar.murid1.gerbang_tanpa_tujuan` |
+| 23 Nov, 13:49 | Bob | Z3-A review | code `36299159`, caps `b8b00422` | **PASS with C-1 (summary gate reason), C-2 (V2 order on teacher row)**; (a) ok, (b) above link, (c) Z6 |
