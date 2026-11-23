@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| Z9 staging-promotion evidence (300→308) | PASS; C4 closed | 0237cf2a | [Z9-PROMOTION-0237cf2a.md](Z9-PROMOTION-0237cf2a.md) |
 | Z8 R-15 item classes; item 8 (last school admin) | 1–7 CONFIRMED; 8 Z agreed, with (b)–(e) incl. revoke_role route | 36299159 | [Z8-R15-CLASSES-36299159.md](Z8-R15-CLASSES-36299159.md) |
 | Z5 S-01 (a rename keeps every setting) | PASS | 4dbb448f | [Z5-S01-4dbb448f.md](Z5-S01-4dbb448f.md) |
 | Z2 (D-6, V5, V6, R-27(b)) and the Z1 delta | PASS with 1 condition (Z2-1: revoke the two feedback table SELECTs); C3, C5 met; C2, C4 open | 8614bd26 | [Z2-8614bd26.md](Z2-8614bd26.md) |
