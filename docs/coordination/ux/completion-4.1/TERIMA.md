@@ -77,3 +77,4 @@
 | 23 Nov, 10:55 | Bob | V5 `galat.transfer_source_closed` | `claude/z` `83959497` | Final words sent: the sending school acts; «setelah permintaan pindah ini dibuat» |
 | 23 Nov, 10:56 | Bob | Z4 stream B review + reopening rendered recheck | `claude/z-ux` `954aa9bc` | **PASS**; N-16 to N-18 optional |
 | 23 Nov, 11:07 | Bob | R-10 scope: Option A or B | — | **A**; spec §1 item 1 superseded in place; seventh page = `/konfigurasi/[bagian]` (control) |
+| 23 Nov, 11:15 | — (idle, per ruling 79) | Audit journey scripts, first sketch | — | `../roadmap/AUDIT-79-SKRIP-PERJALANAN-DRAF.md`, design only |
