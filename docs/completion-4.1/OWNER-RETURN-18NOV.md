@@ -422,3 +422,8 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
   - **EQUIVALENCE.md:** every local pre-flight component maps to a ci.yml job, which is stricter (no skips) and adds the migration jobs. 1389 ids reconcile; no gap is claimed. It is with Sharon.
   - **Dispatch:** on `claude/z 9a819a7c`, which Bob verified differs from 7615d6b1 only in `docs/`. Nothing is pushed to claude/z until CI and the journeys finish.
 - **22:18 UTC · Sharon: the counsel brief is FIT TO SEND** (60691d59). Relayed to the owner, with fees first.
+- **22:35 UTC · Sharon: the ruling 86 equivalence is CONFIRMED** (Z9-EQUIVALENCE-9a819a7c.md). CI on 9a819a7c covers the local pre-flight, integration checks included, with no gap group. Her three conditions: every job is executed (not cancelled as ALREADY PROVEN); all green in one attempt; the journeys once on the same sha. **Second Eye: GO** to dispatch CI and the journeys once each.
+- **22:36 UTC · Ruling 83 BUILT and PROVED** (claude/infra-83 `c1f04845`; only scripts/dev/ and its docs, which Bob verified).
+  - Built: siap.sh (the readiness gate), bersih.sh (safe cleanup, dry run by default), and preflight.sh (heartbeat, PASS/FAIL/INFRA, VOID).
+  - Nine planted-failure proofs, red first: image, 429, clones versus evidence, disk, dead runtime (recovered in 27 s), stale port, a mid-run kill (stopped in 11 s), the I-2 replay (now VOID, not FAIL), and a real defect still FAIL.
+  - Sent to Sharon for safety. Two ruling 86 additions are asked of the builder: L-1 (a reboot-surviving uptime and memory log, so each restart names its cause) and L-2 (a warning when a run is longer than the restart interval). Second Eye reviews after Z9.
