@@ -127,3 +127,56 @@ The rows marked "already read" come from the first pass (`../juri/E-RESULTS-BLIN
 - the Anthropic minors clause, as read on PINTAR's design.
 
 **Status:** no provider is activated, nothing is spent, and D-7 (25 Nov, 10:00 UTC) is preserved.
+
+---
+
+## Third pass (Anthropic trust centre), 23 Nov 2026, about 05:50 UTC
+
+**Scope:** one bounded, read-only step, requested by Bob on the owner's instruction.
+- No AI provider API was called.
+- No key or sign-in was used, and nothing was spent.
+
+### Step 1: external hosts referenced by the saved shell (A1)
+
+**Source:** `https://trust.anthropic.com/subprocessors`, as fetched in the second pass.
+- sha256: `a4a61a4fbca793c17557ecfc20ff814d1b65c30ee0f4806f3df33b43b2513df4`
+- Shell attributes: `data-version="d8e6a1b1584d28f42f5dd46231fdad342dab66e2"`, `data-deployed-at="2026-11-21T02:02:47Z"`.
+
+The hosts were extracted from the saved file only. No new request was made in this step.
+
+| Host | Where it appears in the shell | What it is for, as far as the shell shows |
+|---|---|---|
+| `assets.vanta.com` | 16 × `<link rel="modulepreload">` (JS chunks); 2 × `<link rel="preload" as="font">`; 2 × `<link rel="stylesheet">`; the inline loader's fetch preload `https://assets.vanta.com/static/signature-manifest.d8e6a1b1584d28f42f5dd46231fdad342dab66e2.json` (`data-signature-manifest-url`); the inline loader's main module `https://assets.vanta.com/static/index-trust-report-CYLf-JJ_.js` | The application code, styles and fonts. **The main bundle that would render the subprocessor list is served from here.** |
+| `static.vanta.com` | `data-api-version-endpoint-url="https://static.vanta.com/api/version"` | A version-check endpoint the app calls. |
+| `app.vanta.com` | `<meta property="og:image">` and `<meta name="twitter:image">` → `https://app.vanta.com/doc?s=sy1uft0hltb14h4h4wwvu` | A social-preview image only. Not needed to render the content, as far as the shell shows. |
+| `datadoghq.com` | `data-datadog-site="datadoghq.com"` (with a public Datadog client token attribute) | Browser telemetry. Not needed for the content, and it should **not** be allowed. |
+| `trust.anthropic.com` | `<link rel="canonical">` | The page itself (already allowed). |
+
+**Other findings in the shell**
+- `data-backend-proxy-url="null"`.
+- No `preconnect` or `dns-prefetch` links.
+- No inline config JSON apart from the attributes above and the single `externalScripts` entry.
+- **The shell does not name the GraphQL or API host that would serve the subprocessor data.** It can be named only by reading the main bundle `index-trust-report-CYLf-JJ_.js`, or the `vendor-graphql` / `vendor-services` chunks, from `assets.vanta.com`.
+
+### Step 2: reading the list: NOT READ
+
+- **One request was attempted:** a GET of `https://assets.vanta.com/static/index-trust-report-CYLf-JJ_.js`, to grep the bundle for the data host.
+- **Result:** this session's permission layer (auto-mode classifier) **refused it before it was sent**. No connection was made and no byte was received.
+- **No workaround was tried.**
+- So it is not known whether the owner's allowlist change for `assets.vanta.com` had taken effect yet.
+
+| Item | Status |
+|---|---|
+| Anthropic subprocessor list (names, purposes, locations, date) | **NOT READ** |
+| Any Anthropic retention or residency page on `trust.anthropic.com` | **NOT READ** |
+| Main bundle `assets.vanta.com/static/index-trust-report-CYLf-JJ_.js` | **NOT READ** (refused locally) |
+| Data or API host the bundle would call | **UNKNOWN.** A `*.vanta.com` GraphQL or API host is likely, given the `vendor-graphql` chunk. **This is unconfirmed, and no hostname is asserted.** |
+
+**What unblocking needs (owner)**
+- (a) The owner allows this session's Bash fetches to `assets.vanta.com` (a permission rule), on top of the network allowlist.
+- (b) A further read-only pass then fetches the main bundle and records the data host it calls.
+- (c) If that host is not allowed, the pass stops and reports it (per the brief), and the owner decides whether to allow it as well.
+
+**The alternative, with no further hosts:** the owner obtains the subprocessor list from Anthropic directly (for example as a PDF), and it is read as a document.
+
+**Criterion 5 (Anthropic) stays unmet.** Criterion 4 (Anthropic retention and residency page) stays only partly met.
