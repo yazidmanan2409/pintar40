@@ -53,6 +53,11 @@ export const URUTAN: Record<string, number> = {
   // A3 (Sharon, 547b3707): the recovery permission is read and written only under its sitting's row lock, which is
   // what makes it single-use and "only the newest counts" hold under concurrency; so it ranks after the sitting
   pengerjaan_izin_lanjut: 10,
+  // C3w-1 (Sharon's D-4, C3W-1-DESIGN.md §9; ranks 11 to 13 accepted 19 Nov): every act that moves the AI sums takes the
+  // school's entitlement, then the option (its ceiling is shared across schools), then the platform row
+  ai_hak_sekolah: 11,
+  ai_opsi: 12,
+  ai_plafon_platform: 13,
 };
 /** B1: the fence is the first lock after ranks 1 to 6, for every table. */
 const SIKLUS_HIDUP = 6;
@@ -334,6 +339,8 @@ export const PENGECUALIAN: { penulis: string; lewat: Lewat; alasan: string; syar
   samaBaris("stop_pintar_now", "the window's created_by_person_id is v_me, taken FOR KEY SHARE before the fence (required change 3: no person row is waited on after it)"),
   samaBaris("recompute_result", "the new result's person_id is the sitting's learner, taken FOR KEY SHARE first (row 4, migration 20270118140000)"),
   samaBaris("transfer_minta", "the transfer's person_id is e.person_id, taken FOR KEY SHARE first (C1, migration 20270118120000)"),
+  // C3w-1: the new attempt's foreign key to its option reads o.id, the row the reservation took FOR UPDATE second
+  samaBaris("ai_cadangkan", "the attempt's option is o.id, taken FOR UPDATE before the platform row (D-4)"),
   samaBaris("transfer_request", "the transfer's person_id is e.person_id, taken FOR KEY SHARE first (C1, migration 20270118120000)"),
   samaBaris("kenaikan_tetapkan", "the population, taken FOR UPDATE first"),
   samaBaris("[enrollments I] enrollments_programme_alone", "the new enrolment's person, in the population taken FOR UPDATE first"),

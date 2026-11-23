@@ -40,6 +40,9 @@ import { buangDrafAksi } from "../../soal-actions";
 import { bacaMasalah, kalimatKodeC1 } from "@/lib/soal-layar";
 import { kodeKoreksiDariGalat, kunciKodeKoreksi, type DampakKoreksi } from "@/lib/soal-kontrak";
 import CatatanPeninjau from "@/components/studio/CatatanPeninjau";
+import DrafAi from "@/components/studio/DrafAi";
+import { kalimatBelumDiterima } from "@/components/studio/ai-kata";
+import AsalAiKartu, { bacaAsalAi, type AsalAi } from "@/components/studio/AsalAi";
 import { KODE_CATATAN, bacaCatatan, bacaSasaranCatatan, kunciKodeCatatan, tanggalUtuh, type Catatan, type KodeCatatan } from "@/lib/catatan-kontrak";
 
 export const generateMetadata = judulHalaman("/studio/paket/[course]");
@@ -109,7 +112,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
   if (!course) {
     // a package that is not there, or not this reader's (row security hides both alike), is refused, never said as
     // empty (Kosong's rule; the same answer Mengajar gives a class it cannot read)
-    return <HalamanPenolakan locale={locale} persona="staff" backHref="/studio" backKey="studio.nav.beranda" />;
+    return <HalamanPenolakan locale={locale} persona="staff" backHref="/studio" backKey="studio.nav.beranda" dalamBingkai />;
   }
   // the owner's ruling (10 Nov): every moment of the package on its school's clock
   const zona = await zonaSekolah(supabase, course.institution_id);
@@ -217,8 +220,28 @@ export default async function Paket({ params, searchParams }: { params: Params; 
     idSoalKini.length > 0 ? supabase.from("items").select("id, objective_ids").in("id", idSoalKini) : Promise.resolve({ data: [] }),
     terbitIni && idSoalKini.length > 0 ? supabase.rpc("koreksi_kunci_terakhir", { p_items: idSoalKini }) : Promise.resolve({ data: [] }),
   ]);
+  // C3w-1: the package's AI provenance (staff only, ai_asal_paket decides) and whether drafting with AI is offered here
+  const lessonIds = pelajaranSoal.map((x) => x.id);
+  const [{ data: asalData }, { data: tersediaData }, { data: teksRows }, { data: tujuanSemua }] = await Promise.all([
+    can(inst, "CAN_DRAFT") || can(inst, "CAN_REVIEW") ? supabase.rpc("ai_asal_paket", { p_course: courseId }) : Promise.resolve({ data: [] }),
+    can(inst, "CAN_DRAFT") ? supabase.rpc("ai_tersedia", { p_course: courseId }) : Promise.resolve({ data: false }),
+    can(inst, "CAN_DRAFT") && lessonIds.length > 0 ? supabase.from("lessons").select("id, body_markdown").in("id", lessonIds) : Promise.resolve({ data: [] }),
+    // C-1: every lesson's objectives, so the form's list follows the chosen target
+    can(inst, "CAN_DRAFT") && lessonIds.length > 0
+      ? supabase.from("learning_objectives").select("lesson_id, code, statement").in("lesson_id", lessonIds).order("code")
+      : Promise.resolve({ data: [] }),
+  ]);
+  const tujuanPer: Record<string, string[]> = {};
+  for (const x of (tujuanSemua ?? []) as Array<{ lesson_id: string; statement: string }>) (tujuanPer[x.lesson_id] ??= []).push(x.statement);
+  const asalAi = bacaAsalAi(asalData);
+  const asalDari = new Map<string, AsalAi>(asalAi.map((a) => [a.item, a]));
+  const drafAiBelum = asalAi.filter((a) => a.keputusan === null).length;
+  const adaTeks = Object.fromEntries(((teksRows ?? []) as Array<{ id: string; body_markdown: string | null }>)
+    .map((x) => [x.id, (x.body_markdown ?? "").trim().length > 0]));
   const suntingan = (suntinganData ?? null) as { dapat_diubah: boolean; status: string; soal: Suntingan[] } | null;
   const dapatDiubah = can(inst, "CAN_DRAFT") && suntingan?.dapat_diubah === true;
+  // Daisy §1.1 and TAMBAHAN §4: the button only where the school has it, the package is being drafted and not checked
+  const bolehDrafAi = dapatDiubah && tersediaData === true && course.status !== "VALIDATED";
   const suntinganDari = new Map((suntingan?.soal ?? []).map((x) => [x.item, x]));
   const tujuanPaket = (tujuanRows ?? []) as Tujuan[];
   const objektif = new Map(((objRows ?? []) as Array<{ id: string; objective_ids: string[] | null }>).map((x) => [x.id, x.objective_ids ?? []]));
@@ -275,7 +298,9 @@ export default async function Paket({ params, searchParams }: { params: Params; 
   const banner = kalimatHasil(sp, s, { ok: "studio.hasil.ok", gagal: "studio.hasil.gagal" });
   // a content step's result is said in the current step's panel (W1.4; Daisy, Action feedback), codes only
   const dibaca = sp.bagian === "paket" ? bacaHasil(sp) : null;
-  const hasilIsi = dibaca && banner ? { ok: dibaca.ok, kode: dibaca.kode, kalimat: banner } : null;
+  // C3w-1: the submit gate's sentence carries the server's count now (Daisy, TAMBAHAN §3), its bold dropped in a line
+  const kalimatIsi = dibaca?.kode === "AI_BELUM_DITERIMA" ? kalimatBelumDiterima(drafAiBelum, s, locale).replace(/\*\*/g, "") : banner;
+  const hasilIsi = dibaca && kalimatIsi ? { ok: dibaca.ok, kode: dibaca.kode, kalimat: kalimatIsi } : null;
   // W1.6: the package a reviewer sent back, the reason last given, and the author's correction in the line
   const dikembalikanOleh = course.status === "VALIDATION_FAILED"
     ? tinjauan.filter((o) => o.course_id === courseId && o.outcome === "SENT_BACK").at(-1) ?? null : null;
@@ -350,6 +375,10 @@ export default async function Paket({ params, searchParams }: { params: Params; 
           </p>
         ) : null}
 
+        {/* C3w-1 (Daisy §4): how many of the package's questions were drafted with AI, staff only, when any */}
+        {asalAi.length > 0 ? (
+          <p className="pin-meta" data-draf-ai-jumlah="">{s("studio.ai.jumlah_ai").replace("{a}", format.number(asalAi.length, locale)).replace("{b}", format.number(totalSoal, locale))}</p>
+        ) : null}
         <p className="pin-studio-h2">
           {/* RV-10 (D-140): a published package with nothing to fix reads as published, not «siap diterbitkan» */}
           {menunggu ? s("studio.state.MENUNGGU")
@@ -433,9 +462,15 @@ export default async function Paket({ params, searchParams }: { params: Params; 
                 </form>
                 {sp.pelajaran ? <FokusSoal pelajaran={iniPelajaran} /> : null}
                 <section className="pin-soal-pelajaran" aria-labelledby="pin-soal-pelajaran">
+                  {sp.c1h === "ok" && sp.c1 === "AI_DIHAPUS" ? <BarisHasil nada="ok">{sl("studio.ai.dihapus")}</BarisHasil> : null}
                   <h3 id="pin-soal-pelajaran" tabIndex={-1} className="pin-soal-pelajaran-judul">
                     {l.judul} <span className="pin-meta">· {format.number(l.soal.length, locale)} {sl("studio.soal.jumlah")}</span>
                   </h3>
+                  {bolehDrafAi ? (
+                    <DrafAi locale={locale} course={courseId} lessonKini={l.id}
+                      pelajaran={pelajaranSoal.map((x, n) => ({ id: x.id, judul: x.judul, ke: n + 1 }))}
+                      tujuanPer={tujuanPer} adaTeks={adaTeks} />
+                  ) : null}
                   {l.soal.length === 0 ? <p className="pin-ket">{sl("studio.soal.kosong")}</p> : (
                     <ol className="pin-soal-daftar">
                       {l.soal.map((q, qi) => {
@@ -506,6 +541,10 @@ export default async function Paket({ params, searchParams }: { params: Params; 
                               {/* Daisy Q5: the attribution the page requires, once a question was changed in the app */}
                               {sunt?.diubah_pada ? (
                                 <p className="pin-ket-3" data-soal-diubah={q.id}>{isi("studio.soal.diubah_oleh", { nama: sunt.nama_pengubah ?? "—", waktu: when(sunt.diubah_pada) })}</p>
+                              ) : null}
+                              {asalDari.has(q.id) ? (
+                                <AsalAiKartu s={sl} a={asalDari.get(q.id)!} course={courseId} pelajaran={iniPelajaran} posisi={posisi}
+                                  bolehPutuskan={dapatDiubah} waktu={(iso) => when(iso)} />
                               ) : null}
                               {koreksiQ ? <BarisKoreksi s={sl} k={koreksiQ} when={when} /> : null}
                               {(dapatDiubah || (bolehKoreksi && koreksiQ?.status !== "PENDING" && kunciIni !== q.id)) ? (
@@ -597,6 +636,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
         penyusun={(course.author_person_id as string | null) ?? null}
         zona={zona}
         hasilIsi={hasilIsi}
+        drafAiBelum={drafAiBelum}
         kembali={kembali}
         unggahPerbaikan={unggahPerbaikan}
       />

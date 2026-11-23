@@ -6741,6 +6741,171 @@
       "proves": "executes start_learning_session and may_start_assessment against the migrations, rolled back (the journey J1.6 on 5ae2d406): in a work-scoped planned window over the class a new start with a verified session is refused PR040 MAINTENANCE_PLACE; with no session it is refused first, PR170 SITTING_NOT_CONTROLLER (S11)."
     },
     {
+      "id": "Z-S01",
+      "runner": "static",
+      "proves": "reads the source files of Studio's layout, HalamanPenolakan, every page under src/app/studio, the key-correction page, Kanonik's page and the copy table (Daisy's Z-2, Z-3 revised by V-3, N-6, N-7): every Studio refusal draws inside the layout's one <main id=\"isi\">; the key-correction page gives one neutral answer for an unknown and a forbidden id; Kanonik's withdraw confirmation and select say what Daisy set, word for word."
+    },
+    {
+      "id": "Z-J01",
+      "runner": "app",
+      "proves": "selftest/c3w-z.test.ts, reading the rendered html of the running app's Studio routes: all seven Studio pages and five refusal paths each draw one <main>, the only id=\"isi\", the skip link's target, and exactly one <h1> (Daisy, 19 Nov); on each refusal the first heading in that <main> is the refusal's; the unknown correction gets Daisy's one neutral answer; a learner opening Studio meets the layout's refusal with its own <main>."
+    },
+    {
+      "id": "C3W-D1",
+      "runner": "static",
+      "proves": "Sharon's D-1, red first (C3W-1-DESIGN.md §9, 8831d62a): reads the catalogue. The six service functions take one request or attempt id (settle and reconcile also the closed-shape p_penggunaan) and are executable by service_role only; no ai_ or c3w_ function takes a person or a school; every one authenticated can execute is a definer with a fixed search_path reading public.current_person_id(), except c3w_bahan, an invoker by Sharon's ruling (b); anon and authenticated write none of the seven AI tables."
+    },
+    {
+      "id": "C3W-D1b",
+      "runner": "static",
+      "proves": "executes against the migrations: Sharon's ruling on the usage (19 Nov, via Bob), red first: ai_selesaikan and ai_rekonsiliasi take one closed-shape p_penggunaan: exactly token_masuk, token_keluar and biaya_mikro as non-negative integers, plus an optional id_penyedia of ^[A-Za-z0-9_-]{1,128}$. A school, a requester, free text, a count as a string, a negative or fractional or missing count, a bad id_penyedia and a non-object are refused PR220 AI_PENGGUNAAN_TIDAK_SAH. Both check through ai_penggunaan_sah, whose plant (accept any jsonb) is caught."
+    },
+    {
+      "id": "C3W-D2",
+      "runner": "static",
+      "proves": "Sharon's D-2, red first: executes ai_tandai_kirim and ai_sapu in one rolled-back transaction. The claim is true once on a RESERVED, unsent attempt and false after; false on a RELEASED one; the sweep releases a RESERVED, unsent attempt at 11 minutes, not at 9, and a claim after it is false; a claimed attempt is never released. The claim's source is the one conditional update with its row count."
+    },
+    {
+      "id": "C3W-D3",
+      "runner": "static",
+      "proves": "executes against the migrations: Sharon's D-3, red first: the sweep makes a claimed attempt with no end past the hard timeout plus 5 minutes UNRECONCILED, reading the one constant ai_batas_kirim_tanpa_akhir(), at least 5 minutes above penyedia.ts's BATAS_PANGGILAN_MS; nothing leaves SETTLED or RELEASED, UNRECONCILED never returns to RESERVED and a sending mark is never cleared, by any writer; the five forward moves stay allowed; the plant (the guard trigger dropped) is caught in the same transaction; every update of keadaan in an AI body is guarded on keadaan."
+    },
+    {
+      "id": "C3W-D4",
+      "runner": "static",
+      "proves": "reads the catalogue and A2A-L01's source: Sharon's D-4, red first: A2A-L01 ranks ai_hak_sekolah, ai_opsi and ai_plafon_platform in that order; ai_cadangkan, ai_selesaikan, ai_lepaskan and ai_rekonsiliasi each take the three FOR UPDATE, school, then option, then platform."
+    },
+    {
+      "id": "C3W-D5",
+      "runner": "static",
+      "proves": "reads the source of src/lib/ai: Sharon's D-5, red first: pilihPenyedia answers AI_TIDAK_TERSEDIA without PINTAR_AI_STUB_HARNESS=1 (no flag, NODE_ENV=development, any other value, an adapter named while none is built) and selects the stub only with it; it never reads NODE_ENV; the flag is read in one module and set only by the harness; the stub is imported by the provider module alone."
+    },
+    {
+      "id": "C3W-R34",
+      "runner": "static",
+      "proves": "Sharon's R-3 control 4, red first: a REFUSED_PERSONAL_DATA request with an excerpt_sha256 is refused 23514 by a check constraint naming both; an excerpt_sha256 that is not 64 hex characters is refused; neither the request nor the attempt has a column for the excerpt's or the output's text."
+    },
+    {
+      "id": "C3W-F1",
+      "runner": "static",
+      "proves": "Sharon's F-1 (build review of 992b568f; Bob's choice (a)), red first: executes against the migrations in one rolled-back transaction: a 20,000-character request reserves ceil(length \u00d7 ai_token_per_karakter()) plus the option's prompt bound, so a settle at its true worst case stays within its reservation and the platform's stop stays off. Plant: the reservation with its length term removed settles above it."
+    },
+    {
+      "id": "R3-01",
+      "runner": "static",
+      "proves": "executes against the migrations: Sharon's R3-01 (C3W-R3-DESIGN.md), red first: as a class's teacher, ai_minta_draf on an excerpt naming a learner of that class answers AI_DATA_PRIBADI; the ledger row is REFUSED_PERSONAL_DATA with no hash and no attempt, and cannot be reserved; an ordinary excerpt is checked, hashed, carries the package's school and reserves. Plant: the check answering «allowed» lets the named excerpt pass."
+    },
+    {
+      "id": "R3-02",
+      "runner": "static",
+      "proves": "Sharon's R3-02, red first: c3w_periksa_bahan refuses IDENTIFIER on a PINTAR ID, an email address, a 0- and a +62-phone number, a 10-digit and a 16-digit number."
+    },
+    {
+      "id": "R3-03",
+      "runner": "static",
+      "proves": "executes against the migrations: Sharon's R3-03, red first: c3w_periksa_bahan refuses LIST on three names with scores, three names with a class label (names PINTAR cannot know), and three visible learners' given names in one line."
+    },
+    {
+      "id": "R3-04",
+      "runner": "static",
+      "proves": "executes against the migrations: Sharon's R3-04, red first: c3w_periksa_bahan allows «Budi membeli lima apel» where a learner Budi Santoso is visible, an ordinary 8-letter word a PINTAR ID's alphabet could spell, and ordinary numbers."
+    },
+    {
+      "id": "R3-05",
+      "runner": "static",
+      "proves": "executes against the migrations: Sharon's R3-05, red first: the full name of a learner the teacher cannot see is allowed, and the answer is byte-identical to the answer for a name of no learner (no disclosure of existence)."
+    },
+    {
+      "id": "R3-06",
+      "runner": "static",
+      "proves": "executes against the migrations: Sharon's R3-06, red first: on a visible learner's full name the check answers exactly boleh, kelas (NAME) and rentang, and neither the check's nor the request's answer carries the name, a part of it, the person id or the PINTAR ID."
+    },
+    {
+      "id": "R3-07",
+      "runner": "static",
+      "proves": "Sharon's R3-07 restated by her ruling (b) (625d52c1) with Bob's B1, B3 and B4: executes scripts/release/after-promotion/c3w-r3-bahan.sql (C3W-R3-BAHAN, the check after every promotion) against the migrations: c3w_bahan is LANGUAGE sql with a SQL-standard body, SECURITY INVOKER and owned by postgres, and depends only on the four content tables and pg_catalog objects; five plants (a persons read, a public helper reading persons, a view over persons, a string body, plpgsql) are each caught; as the invoker it returns the teacher's own lesson and nothing of another school's. Reads the source: src/lib/ai/permintaan.ts deep-equals its fixture, the item schema with the count included, and refuses a fifth key; src/lib/ai imports only itself, server-only and node:crypto, and calls no fetch."
+    },
+    {
+      "id": "C3W-T01",
+      "runner": "static",
+      "proves": "Bob's Q2 (design §3, §9 answer 2), red first: executes ai_putuskan against the migrations in one rolled-back transaction: a decision by another school's administrator, a learner, on a hand-written question or of an unknown kind is refused; Terima records ACCEPTED on a draft kept as generated and EDITED after an edit (derived from the content hash); Hapus removes the draft through hapus_soal_draf and records DELETED, its provenance kept; the log is append-only, and its plant (the guard dropped) is caught."
+    },
+    {
+      "id": "C3W-T02",
+      "runner": "static",
+      "proves": "C3-1 and Bob's Q3, red first: executes langkah_konten against the migrations in one rolled-back transaction: the submit to IN_REVIEW is refused PR220 AI_BELUM_DITERIMA while generated drafts are undecided, and goes through once each is ACCEPTED, EDITED or DELETED; the author cannot approve their own generated draft; the plant (the gate's check replaced by false in langkah_konten) lets the undecided submit through."
+    },
+    {
+      "id": "C3W-T03",
+      "runner": "static",
+      "proves": "Bob's Q1 as Sharon accepted it (C3W-1-BUILD-992b568f.md), red first: executes ai_tulis_draf(p_percobaan, p_soal, p_penggunaan) against the migrations in one rolled-back transaction: service_role alone may call it; an unclaimed attempt, two keys, the wrong count, an item carrying author_person_id, an option with an extra key and an over-long stem are each refused PR220 and write nothing, the claim left RESERVED; on a claimed attempt it writes the count asked, authored by the requester, with provenance hashed from the stored item, and settles; after the requester's role is revoked the write is refused."
+    },
+    {
+      "id": "C3W-T04",
+      "runner": "static",
+      "proves": "Bob's ruling of 21 Nov, red first: executes ai_minta_draf against the migrations in one rolled-back transaction: a request naming no target lesson is refused PR220 AI_TANPA_PELAJARAN, and one naming another package's lesson is refused; a pasted (TEMPEL) and a lesson-sourced (PELAJARAN) request each record the named lesson as their target."
+    },
+    {
+      "id": "C3W-T05",
+      "runner": "static",
+      "proves": "Bob's decision 2 and Sharon's F-2, red first: executes ai_minta_draf and ai_gagal against the migrations in one rolled-back transaction: the request answers the sha-256 of the text it checked; ai_gagal refuses an unclaimed attempt and any outcome but PROVIDER_FAILED or INVALID_OUTPUT, and settles a claimed attempt at its usage with the request's outcome."
+    },
+    {
+      "id": "C3W-T06",
+      "runner": "static",
+      "proves": "Bob's decision 3 with Daisy's AI_PAKET_LOLOS_PERIKSA (C3W-1-WORDS-TAMBAHAN §4), red first: executes ai_minta_draf and ai_tulis_draf against the migrations: a package already VALIDATED is refused AI_PAKET_LOLOS_PERIKSA at the request, before anything is reserved or sent, and at the write when it became VALIDATED during the call."
+    },
+    {
+      "id": "C3W-T07",
+      "runner": "static",
+      "proves": "Daisy's C-1 (C3W-D4), red first: executes ai_minta_draf against the migrations: an objective that is not the target lesson's is refused AI_TUJUAN_LAIN, a target lesson with no objectives AI_TANPA_TUJUAN, and the target lesson's own objective is accepted."
+    },
+    {
+      "id": "C3W-C32",
+      "runner": "static",
+      "proves": "C3-2, red first: executes, in one rolled-back transaction, the AI tables' grants (none to anon or authenticated), the set of functions a signed-in session may run that read one (ai_asal_paket, ai_draf_belum_diputuskan, ai_minta_draf, ai_putuskan, ai_tersedia), each refusing a learner, and the staff read of a package's provenance; and imports the assessment engine's source: sanitize() refuses every provenance key."
+    },
+    {
+      "id": "C3W-C34",
+      "runner": "static",
+      "proves": "C3-4, red first: executes ai_cadangkan on two real connections at an allowance of exactly one worst case, in both orders: one reserved, the other AI_JATAH_HABIS after waiting; the plant (no row lock) lets both through; a retry is its own attempt, the fourth refused."
+    },
+    {
+      "id": "C3W-C35",
+      "runner": "static",
+      "proves": "C3-5, red first: executes ai_cadangkan in one rolled-back transaction on two schools and two options: A's spend never consumes B's allowance or option ceiling; each attempt carries its own school's option."
+    },
+    {
+      "id": "C3W-C36",
+      "runner": "static",
+      "proves": "C3-6 (S-6), red first: executes, in one rolled-back transaction, decisions, submission and approval with the entitlement switched off after drafting, and the staff read of provenance."
+    },
+    {
+      "id": "C3W-C38",
+      "runner": "static",
+      "proves": "C3-8, red first: reads the source of every file under src (only the provider module imports the stub, only the drafting route the provider), package.json (no AI vendor SDK), the database catalogue (no vendor name in a schema name) and the learner source files (no AI mark)."
+    },
+    {
+      "id": "C3W-C310",
+      "runner": "static",
+      "proves": "C3-10, red first: executes, in one rolled-back transaction, a generated, accepted, approved and published question sat, rescored after a governed key correction, annotated by a reviewer, its provenance kept."
+    },
+    {
+      "id": "C3W-L01",
+      "runner": "app",
+      "proves": "C3-11 · AI-assisted drafting on the screens (Daisy, C3W-1-WORDS.md and C3W-1-WORDS-TAMBAHAN.md), selftest/c3w-layar.test.ts, read from the rendered html of the production build and its drafting route on the harness's stub: no entitlement, no button; with it «Buat draf soal dengan AI»; AI_HAK_SUMBER before anything is reserved; two drafts; the same key again makes no second attempt; the cards' «Draf dari AI», provenance line and waiting line; «2 dari n soal disusun dengan AI»; a checked package's «Ajukan» held with Daisy's sentence by aria-describedby; «Terima» and «Hapus» decide, «Diterima oleh …» and «Draf dihapus.»"
+    },
+    {
+      "id": "C3W-R01",
+      "runner": "static",
+      "proves": "The drafting route's core, red first: imports src/lib/ai/jalur.ts and executes buatDrafAi against recording fakes: request, reserve, claim, provider, write in order; F-2 refuses a text checked on one version and sent with another before the claim, and a lesson's text is read once and sent as checked; refusals, a repeated key and an absent provider reach no reservation or provider; provider failures with usage settle PROVIDER_FAILED and retry to 3 attempts; a timeout with no usage is not retried; a refused write settles INVALID_OUTPUT."
+    },
+    {
+      "id": "C3W-K01",
+      "runner": "static",
+      "proves": "Daisy's round-2 C-3 and N-12, red first: reads the source of src/components/studio/DrafAi.tsx and src/components/BarisHasil.tsx: the working line is nada=netral, and the ✓ is drawn only for the ok tone; and imports the copy table and action contract: AI_TUJUAN_LAIN has its own sentence, galat.ai_tujuan_lain, in Daisy's ID and EN."
+    },
+    {
       "id": "A3-L01",
       "runner": "static",
       "proves": "executes pengerjaan_saya and daftar_pengerjaan against the migrations, rolled back: the learner's read says whether this session controls the sitting, whether a teacher must allow a recovery and whether this generation came by a teacher's permission; the teacher's row carries the mode, the learner's request and a valid permission."

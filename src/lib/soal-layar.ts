@@ -2,6 +2,7 @@
  * C1w on the screens: the item workbench's pure rules (Daisy, TINJAUAN-A1-C1W Q5, Q6). No database, no React, so the
  * editor's payload, its error summary, the history's words and the key correction's counts are tested directly.
  */
+import { KODE_AI, kunciKode } from "@/lib/galat-kontrak";
 import { kunciMasalahPaket } from "./unggah-kontrak";
 import {
   KODE_KOREKSI, KODE_SOAL, MASALAH_SOAL_SENDIRI, kunciKodeKoreksi, kunciKodeSoal, kunciMasalahSoal,
@@ -99,8 +100,13 @@ export function kalimatKodeC1(kode: string | undefined, s: (k: HleEvent) => stri
   const sendiri: Record<string, HleEvent> = {
     TERSIMPAN: "studio.soal.tersimpan", TERSIMPAN_PERIKSA: "studio.soal.tersimpan_periksa", DITAMBAH: "studio.soal.ditambah",
     DIHAPUS: "studio.soal.dihapus", KOREKSI_TERKIRIM: "studio.kunci.terkirim", MASALAH: "studio.soal.ringkasan_galat",
+    // C3w-1 (Daisy, TAMBAHAN §2): a removed draft says so; a kept one is said by its chip, so no line
+    AI_DIHAPUS: "studio.ai.dihapus",
   };
+  if (kode === "AI_DITERIMA") return null;
   if (sendiri[kode]) return s(sendiri[kode]);
+  // C3w-1: the AI decision's refusals, by their code's sentence
+  if ((KODE_AI as readonly string[]).includes(kode)) return s(kunciKode(kode));
   if ((KODE_SOAL as readonly string[]).includes(kode)) return s(kunciKodeSoal(kode as KodeSoal));
   if ((KODE_KOREKSI as readonly string[]).includes(kode)) return s(kunciKodeKoreksi(kode as KodeKoreksi));
   return null;

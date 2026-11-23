@@ -1,0 +1,10 @@
+1c1
+< 10|290 / 20270121250000; versions digest 112cb5e980f7ddd1e4ee33a04948b120
+---
+> 10|300 / 20270122190000; versions digest 47bb91380ff0f65fd09b13ab2f249c7b
+61,62c61,62
+< 82|0 present; rows -
+< 83|0: -
+---
+> 82|7 present; rows ai_asal_soal=0, ai_hak_sekolah=0, ai_opsi=0, ai_penerimaan=0, ai_percobaan=0, ai_permintaan=0, ai_plafon_platform=0
+> 83|5: ai_asal_paket, ai_draf_belum_diputuskan, ai_minta_draf, ai_putuskan, ai_tersedia

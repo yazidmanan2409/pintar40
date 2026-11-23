@@ -24,7 +24,7 @@
  * service-role client appears only under `src/app/api/` — exactly as written.
  */
 import {
-  ANSWER_KEY_FIELDS, LEARNER_ITEM_KEYS,
+  AI_PROVENANCE_FIELDS, ANSWER_KEY_FIELDS, LEARNER_ITEM_KEYS,
   type AssignmentEntry, type AssistanceLevel, type AssistanceState, type Delta,
   type LearnerAnswer, type LearnerItem, type LessonEntry, type Outcome,
   type PaperEntry, type ReadingMapCard,
@@ -82,6 +82,10 @@ export function sanitize(raw: unknown): LearnerItem {
     if (forbidden in src) {
       throw new EngineError(`the item payload carried "${forbidden}" (INV-01)`);
     }
+  }
+  // C3w-1 (C3-2): a generated question's provenance is staff-only
+  for (const forbidden of AI_PROVENANCE_FIELDS) {
+    if (forbidden in src) throw new EngineError(`the item payload carried "${forbidden}" (C3-2)`);
   }
   const out: Record<string, unknown> = {};
   for (const key of LEARNER_ITEM_KEYS) if (key in src) out[key] = src[key];

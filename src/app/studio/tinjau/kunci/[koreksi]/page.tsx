@@ -46,7 +46,9 @@ export default async function KoreksiKunci({ params, searchParams }: {
   const ok = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(koreksi);
   const { data, error } = ok ? await supabase.rpc("koreksi_kunci_dampak", { p_correction: koreksi }) : { data: null, error: { code: "PR190" } };
   if (error || !data) {
-    return <HalamanPenolakan locale={locale} persona="staff" backHref="/studio/tinjau" backKey="studio.kunci.kembali_antrean" />;
+    // Z-3 revised (Daisy's V-3): ONE answer for a correction that does not exist and one the reader may not review,
+    // so the page is no existence oracle; its words say both, and Studio's frame already holds <main id="isi"> (Z-2)
+    return <HalamanPenolakan locale={locale} persona="staff" messageKey="studio.kunci.tidak_dapat_dibuka" backHref="/studio/tinjau" backKey="studio.kunci.kembali_antrean" dalamBingkai />;
   }
   const d = data as Dampak;
   const pemilik = (await currentViewer())?.personId ?? "";

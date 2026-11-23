@@ -19,6 +19,14 @@ export const ANSWER_KEY_FIELDS = [
   "label", "objective_ids", "predicted_difficulty", "empirical_difficulty",
 ] as const;
 
+/**
+ * C3w-1 (C3-2): an AI-generated question's provenance (ai_asal_soal's columns) never reaches a learner. A payload carrying
+ * any of these is refused as an answer key is: learners see no AI mark anywhere (Daisy, C3W-1-WORDS.md §6).
+ */
+export const AI_PROVENANCE_FIELDS = [
+  "model_ident", "versi_prompt", "excerpt_sha256", "isi_sha256", "permintaan", "percobaan", "pemohon", "id_penyedia",
+] as const;
+
 export type ItemType =
   | "MCQ_SINGLE" | "MCQ_MULTI" | "NUMERIC" | "GRID"
   | "TRUE_FALSE_BATTERY" | "MATCHING" | "IMAGE_ANCHORED";

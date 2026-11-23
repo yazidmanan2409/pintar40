@@ -1,0 +1,37 @@
+/**
+ * C3w-1 · THE LOCAL STUB PROVIDER (C3W-1-DESIGN.md §5). It opens no socket and imports no network client: it is
+ * deterministic from a seed in the excerpt's hash, and it counts its calls so a test can prove "zero provider calls".
+ * Selected only through src/lib/ai/penyedia.ts under the harness's flag (D-5).
+ */
+import { createHash } from "node:crypto";
+import type { HasilPenyedia, PermintaanPenyedia } from "@/lib/ai/kontrak";
+
+let panggilan = 0;
+
+/** How many times the stub has been called in this process (C3-3: a double submit makes one call). */
+export function jumlahPanggilanStub(): number {
+  return panggilan;
+}
+
+/** A deterministic, valid single-answer draft set: the count the schema asks, each with one correct key (D6). */
+export async function panggilStub(p: PermintaanPenyedia): Promise<HasilPenyedia> {
+  panggilan += 1;
+  const benih = Number.parseInt(createHash("sha256").update(p.excerpt).digest("hex").slice(0, 8), 16);
+  const tujuan = p.objectives[0] ?? "";
+  const soal = Array.from({ length: p.itemSchema.maxItems }, (_, i) => {
+    const kunci = ["A", "B", "C", "D"][(benih + i) % 4];
+    return {
+      stem: `Soal latihan ${i + 1}: ${tujuan}`,
+      options: ["A", "B", "C", "D"].map((label) => ({
+        label, text: `Pilihan ${label}`, correct: label === kunci,
+        rationale: label === kunci ? `Pilihan ${label} sesuai dengan tujuan ini.` : `Pilihan ${label} belum sesuai dengan tujuan ini.`,
+      })),
+    };
+  });
+  const keluar = 40 * soal.length;
+  return {
+    ok: true,
+    soal,
+    penggunaan: { token_masuk: 200, token_keluar: keluar, biaya_mikro: 200 + keluar, id_penyedia: `stub-${benih.toString(16)}-${panggilan}` },
+  };
+}

@@ -152,6 +152,32 @@ export const KODE_PEMELIHARAAN = [
 ] as const;
 
 /**
+ * C3w-1: AI-assisted drafting. The database refuses with PR220 and the code in DETAIL (ai_tolak); these are the codes
+ * with their own sentence on the screen (Daisy, C3W-1-WORDS.md §2 and C3W-1-WORDS-TAMBAHAN.md §3-§5). The ledger's
+ * internal refusals, which no teacher's form can cause on its own, are AI_GAGAL's line (`kodeAi`).
+ */
+export const KODE_AI = [
+  "AI_TIDAK_TERSEDIA", "AI_HAK_BERAKHIR", "AI_JATAH_HABIS", "AI_PLAFON", "AI_HAK_SUMBER", "AI_DATA_PRIBADI", "AI_GAGAL",
+  "AI_KELUARAN_TIDAK_SAH", "AI_PAKET_LOLOS_PERIKSA", "AI_DRAF_TIDAK_TERBUKA", "AI_BELUM_DITERIMA",
+  // Daisy's C-1: a target lesson with no learning objectives; N-12: an objective no longer the target lesson's
+  "AI_TANPA_TUJUAN", "AI_TUJUAN_LAIN",
+] as const;
+export type KodeAi = (typeof KODE_AI)[number];
+
+/** A PR220 DETAIL, or a route's own code, as the code whose sentence the screen says. */
+export function kodeAi(detail: string | null | undefined): KodeAi | "ACTION_NOT_ALLOWED" | "ACTION_NOT_FOUND" | "ACTION_INPUT_INVALID" {
+  const d = detail ?? "";
+  if ((KODE_AI as readonly string[]).includes(d)) return d as KodeAi;
+  if (d === "AI_TIDAK_BOLEH_MENULIS" || d === "DRAFT_NOT_ALLOWED") return "ACTION_NOT_ALLOWED";
+  if (d === "AI_BUKAN_DRAF_AI") return "ACTION_NOT_FOUND";
+  if (d === "AI_KEPUTUSAN_TIDAK_SAH") return "ACTION_INPUT_INVALID";
+  // DRAFT_SUBMITTED and DRAFT_SEALED (soal_tolak): the package is no longer being drafted
+  if (d === "DRAFT_SUBMITTED" || d === "DRAFT_SEALED") return "AI_DRAF_TIDAK_TERBUKA";
+  // F-2's AI_TEKS_BERUBAH, the ledger's own states and anything unnamed: «Tidak ada soal yang dibuat. Coba lagi …»
+  return "AI_GAGAL";
+}
+
+/**
  * A content step (Studio steps 1–4, `advanceContentAction`): each refusal
  * `enforce_content_status` can raise, named. `kodeGalatKonten` reads them from
  * the database's message, which carries no code of its own; BOB07-K02 reads
@@ -248,7 +274,7 @@ export type KodePemeliharaan = (typeof KODE_PEMELIHARAAN)[number];
 export type KodeKembali = (typeof KODE_KEMBALI)[number];
 /** What `kodeGalat` answers: any action's codes, a release move's two (DAISY-31) and a class move's four (M9). */
 export type KodeGalat = (typeof KODE_GALAT)[number] | KodePindah | KodePindahKelas | KodeKetuntasan | KodePeserta | KodePemeliharaan
-  | KodeKembali;
+  | KodeKembali | KodeAi;
 export type KodeKonten = (typeof KODE_KONTEN)[number];
 export type KodeIsian = (typeof KODE_ISIAN)[number];
 export type KodeSukses = (typeof KODE_SUKSES)[number];
@@ -345,6 +371,8 @@ export function kodeGalat(e: GalatDb): KodeGalat {
     return (KODE_PEMELIHARAAN as readonly string[]).includes(e?.details ?? "") ? e!.details as KodePemeliharaan : "ACTION_FAILED";
   }
   if (state === "PT503") return "MAINTENANCE_ACTIVE";
+  // C3w-1: AI drafting's refusals by their DETAIL (ai_tolak), the submit gate's AI_BELUM_DITERIMA among them
+  if (state === "PR220") return kodeAi(e?.details);
   // A2b (R-1): a work-scoped planned window's refusal is the place's, said where the act was pressed
   if (state === "PR040" && e?.details === "MAINTENANCE_PLACE") return "MAINTENANCE_PLACE";
   // W1.6: a send-back's four refusals by their DETAIL (42501 or PR040), before any message pattern
@@ -400,6 +428,7 @@ export function rujukan(): string {
 
 const SEMUA_KODE = new Set<string>([
   ...KODE_GALAT, ...KODE_PINDAH, ...KODE_PINDAH_KELAS, ...KODE_KETUNTASAN, ...KODE_PESERTA, ...KODE_PEMELIHARAAN, ...KODE_KONTEN,
+  ...KODE_AI,
   ...KODE_KEMBALI,
   ...KODE_ANTAR_SEKOLAH,
   ...KODE_ISIAN, ...KODE_SUKSES, ...KODE_KONTEKS,
