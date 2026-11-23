@@ -7059,6 +7059,11 @@
       "id": "Z-D1-03",
       "runner": "static",
       "proves": "Z D-1, Sharon's ruling-56 condition (a check, not a promise), selftest/z-d1.test.ts, reads and runs scripts/release/before-import/d1-multi-answer.sql against the migrations and seeds: one read-only transaction, rolled back, with no write; on the seeded world it reports «Pecahan»'s APPROVED multi-answer items, their final responses (0) and the verdict REPORT, to go to Bob and Sharon before an import or a walkthrough world proceeds."
+    },
+    {
+      "id": "Z-V2-01",
+      "runner": "static",
+      "proves": "Z V2 (R-22; Sharon's conditions; ruling 81), red first, selftest/z-v2.test.ts, executes hasil_belajar_sesi_saya as the learner on the seeded finalised Uji Penguasaan, each case rolled back with a later sitting of the same test: none, SELESAI with the finished result; a retake begun or paused, the finished result stays in force with ulang_berjalan; a retake ended unfinished (TERMINATED, EXPIRED), the result kept and no line; a retake finalised later replaces it, no line; an audited recalculation of the result in force is marked on it (D14, sesi_saya_dihitung_ulang). On 300 a later sitting begun or ended turns the summary to BERJALAN with no result. The two-person key-correction path is C1W-S05's world, which now also reads the summary."
     }
   ]
 }

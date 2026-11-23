@@ -2271,7 +2271,9 @@ export const experienceTests: SelfTest[] = [
       // provenance read (20270122180000), and a draft's objectives held to its target lesson (20270122190000)
       // MOVED TO 301, Z: a multi-answer response is read as every option chosen (20270123100000, D-1): no brand or copy
       // change in the institution mark
-      c.expect(migrations.length === 301, `${migrations.length} migrations; the frozen baseline has 301`);
+      // MOVED TO 302, Z: a finished result stays in force while a retake is open (20270123110000, V2): no brand or copy
+      // change in the institution mark
+      c.expect(migrations.length === 302, `${migrations.length} migrations; the frozen baseline has 302`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4201,7 +4203,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED TO 290, RESTATED, the merge of main into claude/a3: no tour RPC in any of the eight.
       // MOVED TO 300, C3w-1: none of its ten migrations is a tour RPC.
       // MOVED TO 301, Z: D-1's 20270123100000 is not a tour RPC.
-      c.expect(migs.length === 301, `${migs.length} migrations; the baseline has 301`);
+      // MOVED TO 302, Z: V2's 20270123110000 is not a tour RPC.
+      c.expect(migs.length === 302, `${migs.length} migrations; the baseline has 302`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
