@@ -44,6 +44,8 @@ export default function AsalAiKartu({
   const chip = a.keputusan === "ACCEPTED" ? isi("studio.ai.diterima", { nama: a.oleh ?? "—" })
     : a.keputusan === "EDITED" ? isi("studio.ai.diubah_diterima", { nama: a.oleh ?? "—" })
     : s("studio.ai.chip");
+  // C-2: «Hapus» names its draft for a screen reader, as «Terima» does
+  const hapusNama = <>{s("studio.ai.hapus")}<span className="pin-sr"> · {posisi}</span></>;
   const tersembunyi = (keputusan: "TERIMA" | "HAPUS") => (
     <>
       <input type="hidden" name="course" value={course} />
@@ -67,7 +69,7 @@ export default function AsalAiKartu({
               </form>
               <form action={putuskanDrafAiAksi} className="pin-draf-ai-putus">
                 {tersembunyi("HAPUS")}
-                <KonfirmasiBahaya id={`hapus-ai-${a.item}`} tombol={<>{s("studio.ai.hapus")}<span className="pin-sr"> · {posisi}</span></>} tanya={s("studio.ai.hapus_tanya")}
+                <KonfirmasiBahaya id={`hapus-ai-${a.item}`} tombol={hapusNama} tanya={s("studio.ai.hapus_tanya")}
                   ya={s("studio.ai.hapus")} batal={s("bahaya.batal")} sibuk={s("studio.langkah.sibuk")} />
               </form>
             </div>
