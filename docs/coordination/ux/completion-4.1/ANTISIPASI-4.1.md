@@ -90,3 +90,5 @@
   - I ask what the neighbouring act says (2);
   - **I run my lines through the suite's own wording rules** (DAISY-25's promise pattern among them), not only the strings. Added after A2B-D5. A sweep of every A2a and A2b line I have given (16 Nov, 11:15) finds no other hit.
 - **At each result review:** a table like the ones above, in the review itself.
+
+- **C3W-D4 (mine, 23 Nov):** `C3W-1-WORDS-TAMBAHAN.md` §1 tied the source option to the target lesson, but not the objectives. The build kept the on-screen lesson's objectives. Question 2 (the neighbours) would have caught it. Fixed as C-1 in `TINJAUAN-C3W-1-LAYAR-6ace7b2f.md`.
