@@ -76,3 +76,32 @@ So the provider processes **content, not personal data**, by design. Each provid
 
 - **OpenAI** can be offered once its five technical conditions hold and counsel has cleared their questions.
 - **Anthropic** can be offered once its retention terms are read and acceptable, its other technical conditions hold, and counsel has cleared their questions.
+
+## Addendum · Anthropic's API retention read (23 Nov 2026, 06:15 UTC)
+
+Read: Bob's record at `d50a4769`, from the owner's PDF of `privacy.claude.com/en/articles/7996866` (dated 2 Jul 2026, sha256 `e408e6d1…`). I relied on its quotes. **The disclosure stands: I am an Anthropic model, and the same criteria apply.**
+
+1. **Blocking condition (1) is settled.**
+   - API inputs and outputs are deleted within 30 days. That is C2's bound, and it matches OpenAI's 30-day abuse-monitoring logs.
+   - The exceptions are bounded. Each needs a condition, so that none applies through PINTAR's own use:
+     - **a longer-retention service** (for example the Files API): **not used**; PINTAR sends text in the request only;
+     - **feedback** (kept 5 years): **PINTAR never submits feedback** to the provider;
+     - **flagged content** (up to 2 years; scores up to 7): comparable to OpenAI's sharing of flagged samples and its "reasonably necessary to protect" clause, and acceptable for synthetic content;
+     - **anonymised research use "if permitted in your contract"**: **confirm that PINTAR's contract (the Commercial Terms) does not permit it**, and never opt in.
+2. **"Covered Models": a condition before offering, not blocking the verdict.**
+   - The page says "for Covered Models, we require limited data retention and review as a part of our safety work". The linked page is **not read**.
+   - **For consistency:** I accepted OpenAI's open-ended "reasonably necessary to protect … from harm" without a further page. This is the same kind of clause. But **it names a specific, linked policy**, and it may apply to the model PINTAR would use.
+   - So: **read the Covered Models page, and record whether the chosen model is covered and for how long its content is kept or reviewed, before Anthropic is offered.**
+   - On PINTAR's design the content is non-personal, so I do not rate it as blocking the assessment. It is a pre-offer condition, of the same tier as OpenAI's O6 = O10 confirmation.
+3. **Final verdict for Anthropic (data handling only): MEETS WITH CONDITIONS. No blocking condition remains.**
+   - **Its conditions, all before it is offered to schools:**
+     - no tools, pinned by R3-07;
+     - a separate educator-only workspace or key, as a technical measure;
+     - dated, hashed copies of the undated subprocessor list, plus change notices;
+     - confirm that the support, fraud and telemetry vendors see no prompt or output content;
+     - **never submit feedback, and use no long-retention service such as the Files API;**
+     - **confirm the contract does not permit research use;**
+     - **read the Covered Models page and record whether the chosen model is covered.**
+   - **OpenAI's verdict is unchanged: MEETS WITH CONDITIONS.**
+   - Counsel's questions are unchanged and separate (End User; PR-1; human review; the minors clauses; Q-S1; Q-S2).
+   - **Technical conditions are not contractual compliance.**
