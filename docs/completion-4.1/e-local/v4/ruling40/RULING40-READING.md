@@ -109,3 +109,21 @@ The rows marked "already read" come from the first pass (`../juri/E-RESULTS-BLIN
    - The DPA names `platform.openai.com/subprocessors` (not readable here).
    - The list that was read is at `openai.com/policies/sub-processor-list/`.
    - Optionally, confirm they are the same list and subscribe to change notices (30-day objection window).
+
+---
+
+## Owner clarification (23 Nov 2026)
+
+**Technical separation is not contractual compliance.** Point 3 above has two separate questions:
+- **(a) Technical:** whether the educator drafting tool is separated from the learner app (its own application, account or API project). That is a design and engineering matter.
+- **(b) Contractual:** who counts as an "End User" under OpenAI's Services Agreement, and whether §3.3(c) parental consent or the Under-18 guidance applies. **That is for counsel.**
+
+**A separate API project alone does not establish compliance.** (a) can support the answer to (b) but cannot replace it.
+
+**These stay open for counsel:**
+- point 3 (b);
+- PR-1;
+- "human review" in certifying assessment;
+- the Anthropic minors clause, as read on PINTAR's design.
+
+**Status:** no provider is activated, nothing is spent, and D-7 (25 Nov, 10:00 UTC) is preserved.
