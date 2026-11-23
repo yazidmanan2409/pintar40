@@ -180,3 +180,13 @@ The hosts were extracted from the saved file only. No new request was made in th
 **The alternative, with no further hosts:** the owner obtains the subprocessor list from Anthropic directly (for example as a PDF), and it is read as a document.
 
 **Criterion 5 (Anthropic) stays unmet.** Criterion 4 (Anthropic retention and residency page) stays only partly met.
+
+---
+
+## Owner decision after the third pass (23 Nov 2026)
+
+- **No further network access or workarounds.** The Anthropic subcontractor list is to be collected **manually**: the owner saves the official page to PDF from his own browser.
+  - **The copy must show the list itself.** A login page, or a trust-centre landing page without the list, does not count; it stays NOT READ.
+  - **Retention information:** only if readily accessible.
+- **Collecting the document closes only the document gap.** **Sharon then assesses** whether the listed data-handling arrangements meet PINTAR's requirements, for both providers, on the same criteria.
+- **Unchanged:** the counsel questions (End User; PR-1; "human review"; the minors clause); D-7 (25 Nov, 10:00 UTC); no activation or spending.
