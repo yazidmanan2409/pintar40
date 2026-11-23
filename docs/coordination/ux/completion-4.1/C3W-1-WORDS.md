@@ -36,12 +36,12 @@
 | Form heading | «Buat draf soal dengan AI» | «Draft questions with AI» |
 | **Sumber** (legend, radio group) | «Sumber» | «Source» |
 | · option 1 (default) | «Teks pelajaran ini» | «This lesson's text» |
-| · option 2 | «Pelajaran lain di paket ini», with a select of the package's lessons by title | «Another lesson in this package» |
+| ~~· option 2~~ | ~~«Pelajaran lain di paket ini»~~ Not built; accepted 23 Nov | ~~«Another lesson in this package»~~ |
 | · option 3 | «Teks yang saya tempel», with a field «Teks sumber» | «Text I paste», «Source text» |
 | Hint under «Teks sumber» | «Jangan menempel nama atau data murid mana pun. Sampai {n} karakter.» | «Do not paste any learner's name or data. Up to {n} characters.» |
 | **Tujuan pembelajaran** (checkboxes, the lesson's objectives, at least one) | «Tujuan pembelajaran» | «Learning objectives» |
 | **Banyak soal** | «Banyak soal (1–10)» | «Number of questions (1–10)» |
-| **Kesulitan** (radio) | «Mudah» · «Sedang» · «Sulit» | «Easy» · «Medium» · «Hard» |
+| ~~**Kesulitan** (radio)~~ | ~~«Mudah» · «Sedang» · «Sulit»~~ Not built (R-3's four keys); accepted 23 Nov, `TINJAUAN-C3W-1-LAYAR-6ace7b2f.md` | ~~«Easy» · «Medium» · «Hard»~~ |
 | **Rights confirmation (D10)**, required checkbox (O-5, unchanged) | «Saya menyatakan bahwa sekolah memiliki hak atau izin untuk memakai sumber ini dalam membuat soal.» | «I confirm that the school has the right or permission to use this source to make questions.» |
 | Its hint (O-5, unchanged) | «Pernyataan ini dicatat bersama permintaan. Pernyataan ini bukan izin hukum.» | «This statement is recorded with the request. It is not legal permission.» |
 | Primary | «Buat draf» | «Create drafts» |
