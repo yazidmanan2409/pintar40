@@ -370,3 +370,4 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
   - `Z-VERIFY-CLOSED.md` is at `6bc4123a`.
   - Sent: Z3-A to Daisy; sweep run 2 (with the 320 «Menga jar» break as Z6) plus Daisy's two re-looks to stream B; Z-VERIFY-CLOSED to Sharon.
   - Item 8 (308) is next for stream A. Per the plan's freeze rule, only Z-row review fixes are allowed from here.
+- **13:52 UTC · Daisy: Z3-A PASS with two conditions** (`29a4e841`). C-1: `hasilbelajar.gerbang` on the learner's Hasil Belajar row in the gate case. C-2: the V2 line goes after the teacher's verdict tag. The _arti line goes above the link. «Menga jar» is a Z6 defect; «target 60 %» is Z6 if it is a reflow at 320, otherwise the audit; sweep run 2 decides. Sharon CONFIRMED Z-VERIFY-CLOSED (`f42dc36e`), with item 3's wording to fix.
