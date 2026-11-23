@@ -216,3 +216,40 @@ The hosts were extracted from the saved file only. No new request was made in th
 | Twilio | Analytics, email/SMS communications | United States | All Products except Claude for Government |
 
 **Still to collect:** the remaining 12 entries, and a date for the list. The page shows none. If there is none, record the copy's date, 23 Nov 2026, as its version.
+
+## Anthropic subcontractor list: the owner's PDF, complete (23 Nov 2026) · **READ, 22 of 22**
+
+- **The file:** created 23 Nov 2026, 05:54 UTC (Firefox; 4 pages). sha256 `2bb4596ef4ea1bfa3c0acd4ad9fa58a9e6fcae8f0afe4aa7d5aa48b8fd9cb4fd`.
+- **Its source:** supplied by the owner from `trust.anthropic.com/subprocessors`. The page shows "1-22 of 22 results".
+- **Its version:** **no date is shown on the page**, so the version is the copy's date, 23 Nov 2026.
+- **Consistency:** the first ten entries match the first copy exactly.
+
+**The remaining 12, verbatim:**
+
+| Subprocessor | Purpose | Location | Products |
+|---|---|---|---|
+| Iterable | Email communications | United States | All Products except Claude for Government |
+| Functional Software, dba Sentry | Error Handling, User Support | United States | All products except Claude for Government |
+| Sift | Fraud and abuse detection | United States | All products except Claude for Government |
+| Arkose Labs | Fraud and abuse detection | United States | All products except Claude for Government |
+| Brave Search | Web Search | United States | All products |
+| ElevenLabs | Text to speech | United States | Claude for Work |
+| Palantir Federal Cloud Service (PFCS) | FedRAMP Cloud | United States | Claude for Government (C4G) |
+| TurboPuffer | Web Search | United States | All Products except Claude for Government |
+| Persona | Fraud and abuse detection, identity verification | United States | Claude Free/Pro/Max |
+| Yoti | Fraud and abuse detection, identity verification | United Kingdom | Claude Free/Pro/Max |
+| Intuition Machines, Inc. (hCaptcha) | Fraud and abuse detection | Worldwide | All products except Claude for Government |
+| Parallel Web Systems, Inc. | Web Search | United States | All products except Claude for Government |
+
+**Interpretation, for Sharon to assess:**
+- For the API (Claude Developer Platform), the processors that could touch prompt content are the three clouds and Cloudflare, all "Worldwide".
+- Support, billing, fraud and telemetry vendors apply to "All Products" or the Developer Platform.
+- The web-search vendors (Brave, TurboPuffer, Parallel) matter only if a search tool is used, and PINTAR's drafting uses none.
+- Identity verification (Persona, Yoti) is for consumer plans only.
+
+**This is interpretation, not the provider's statement.**
+
+**Still open for Anthropic:**
+- question 4, a retention or residency page (not collected);
+- **Sharon's assessment of both providers' subprocessors**;
+- counsel's questions, unchanged.
