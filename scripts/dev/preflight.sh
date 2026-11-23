@@ -9,7 +9,8 @@
 #   1. bersih.sh --hapus, then siap.sh. Nothing runs until siap prints READY; if it prints INFRA, the run is VOID
 #      before minute one (disk, runtime, image, registry, stack or port, named).
 #   2. Each step in turn. The suite and the plants are each preceded by a FORCED `supabase db reset --local`, so a db
-#      suite never runs on a world another run has used (I-2). `--tanpa-reset` skips it, for replaying I-2 only.
+#      suite never runs on a world another run has used (I-2). `--tanpa-reset` skips it, for replaying I-2 only, and
+#      classes those steps INFRA (world), so such a run is always VOID.
 #   3. While a step runs, a heartbeat every PREFLIGHT_DENYUT seconds (default 120): `siap.sh --denyut`, the runtime,
 #      the database and the disk. The FIRST lost heartbeat stops the step at once and the run is VOID (I-1).
 #
@@ -171,7 +172,10 @@ run_step() { # <name>
   fi
   local why hb rows=""
   [ "$name" = suite ] && rows="$(classify_rows "$log")"
-  if [ "$rc" = 0 ]; then
+  if [ "$RESET" = 0 ] && { [ "$name" = suite ] || [ "$name" = plants ]; }; then
+    # I-2: a db step on a world that was not reset first is never evidence, whichever way it went
+    row "INFRA  $name  rc=$rc: world: the database was not reset before this step (--tanpa-reset), so its rows are not evidence"; VOID=1
+  elif [ "$rc" = 0 ]; then
     row "PASS   $name  rc=0 ($(( $(date +%s) - t0 ))s)$( [ "$name" = suite ] && echo "  $(grep -E '→ (GREEN|RED)$' "$log" | tail -1)")"
   elif ! hb="$(heartbeat)"; then
     row "INFRA  $name  rc=$rc: the machine was lost by the end of the step: $hb"; VOID=1
@@ -191,7 +195,8 @@ classify_rows() { # the suite's rows, each with its class
   : > "$OUT/ROWS.txt"
   awk '/^id +status +detail$/{on=1; next} on && /^[0-9]+ passed, /{exit} on && NF' "$log" > "$OUT/rows.raw"
   while IFS= read -r line; do
-    id="${line:0:11}"; st="$(echo "${line:12:7}" | tr -d ' ')"; detail="${line:20}"
+    # fields by whitespace, not by column: run.ts pads ids to 11, and longer ids push the status right
+    read -r id st detail <<< "$line"
     case "$st" in
       PASS|SKIP\*) cls=PASS ;;
       *) printf '%s\n' "$detail" > "$OUT/.row"

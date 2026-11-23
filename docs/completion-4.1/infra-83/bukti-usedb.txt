@@ -1,7 +1,7 @@
-# bukti-usedb · 2026-11-23T19:37:07Z · commit f5700bd1
+# bukti-usedb · 2026-11-23T22:13:12Z · commit e5eba70d
 
 ## I-2 replayed: the WHOLE suite on a fresh database (it leaves the world used), then the targeted run on that database WITHOUT a reset (the old way)
 
 $ scripts/dev/preflight.sh --langkah=suite --keluar=/root/pintar-preflight/bukti-usedb-1
-== bersih: bersih: 0 removed, 0; 20 kept
+== bersih: bersih: 0 removed, 0; 1 kept
 == siap: READY

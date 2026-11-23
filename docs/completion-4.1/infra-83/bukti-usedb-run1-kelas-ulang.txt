@@ -1,0 +1,41 @@
+# bukti-usedb, re-classed with the fixed row parser (fields by whitespace) · 2026-11-23T22:12:33Z
+# the raw run record is bukti-usedb.txt; its SUMMARY lines were written by the column parser (ids over 11 characters misread as FAIL)
+
+== bukti-usedb-1
+steps suite
+forced reset: done (supabase db reset --local)
+FAIL   suite  rc=1: FAILED  C3W-C310  the scenario did not run
+rows: 1389 classed; 3 FAIL, 0 INFRA (ROWS.txt)
+first non-PASS rows:
+C3W-C32     FAIL   FAIL
+C3W-C36     FAIL   FAIL
+C3W-C310    FAIL   FAIL
+
+== bukti-usedb-2-tanpa-reset
+steps suite
+FAIL   suite  rc=1: FAILED  B2-D01  runner aborted: PL/pgSQL function selftest.run_fable03() line 19 at PERFORM
+rows: 543 classed; 505 FAIL, 0 INFRA (ROWS.txt)
+first non-PASS rows:
+F01-T01     FAIL   FAIL
+F01-T02     FAIL   FAIL
+F01-T03     FAIL   FAIL
+F01-T04     FAIL   FAIL
+F01-T05     FAIL   FAIL
+F01-T06     FAIL   FAIL
+F01-T07     FAIL   FAIL
+F01-T08     FAIL   FAIL
+
+== bukti-usedb-3
+steps suite
+forced reset: done (supabase db reset --local)
+PASS   suite  rc=0 (40s)  96 passed, 0 failed, 0 skipped, 1 justified skips accepted (local only), 0 contract problem(s) → GREEN
+rows: 97 classed; 0 FAIL, 0 INFRA (ROWS.txt)
+first non-PASS rows:
+
+== bukti-usedb-2-tanpa-reset: why it failed
+[db] selftest/db/fable01.sql, selftest/db/fable02.sql, selftest/db/fable03.sql
+F01-T01     FAIL    runner aborted: PL/pgSQL function selftest.run_fable03() line 19 at PERFORM
+
+== control: C3W-* alone on a fresh reset (c3w-sendiri)
+PASS   suite  rc=0 (38s)  24 passed, 0 failed, 0 skipped, 0 contract problem(s) → GREEN
+RUN GREEN
