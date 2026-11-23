@@ -416,3 +416,9 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
   - **The ONE bundled head is `claude/z 7615d6b1`:** the journey locators (`c4c8f792`) plus the C3W fix and diagnostic, with no `src/` or `supabase/` change (Bob verified).
   - The full pre-flight is running on it; then CI once and journeys once. The CI rerun attempt 2 was cancelled before it tested anything.
   - **For the owner:** two throwaway diagnostic branches (`claude/z9-diag-cand`, `claude/z9-diag-main`) could not be deleted, because the session's git proxy refuses branch deletes. They are inert: dispatch-only, and diagnostic commits only. They need deleting by the owner; Bob has no permission to delete other branches.
+- **22:29 UTC · Ruling 86 in action.**
+  - **Two more VOID local runs** on 7615d6b1 (container restarts at 21:17:40Z and 22:13:25Z, 55 min 45 s apart, about one run's length). A third run is going; there will be no fourth.
+  - **The cause** (`infra/RESTARTS.md`): full microVM reboots with the disk kept. **Not memory** (no limit, 0 OOM, a peak of 5.5/16 GB) and **not disk** (61%). This fits a host-side lifetime or suspend policy; it is not proven, so a 30-second logger is now running.
+  - **EQUIVALENCE.md:** every local pre-flight component maps to a ci.yml job, which is stricter (no skips) and adds the migration jobs. 1389 ids reconcile; no gap is claimed. It is with Sharon.
+  - **Dispatch:** on `claude/z 9a819a7c`, which Bob verified differs from 7615d6b1 only in `docs/`. Nothing is pushed to claude/z until CI and the journeys finish.
+- **22:18 UTC · Sharon: the counsel brief is FIT TO SEND** (60691d59). Relayed to the owner, with fees first.
