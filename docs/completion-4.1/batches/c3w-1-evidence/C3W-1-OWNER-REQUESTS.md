@@ -14,6 +14,14 @@
 | Promotion evidence (`ed4a90cc`, `c3w-1-evidence/`): preservation read, local dry run 290 → 300, ten migrations with their sha256 | ✔ Only lines 10, 82 and 83 move; `c3w-r3-bahan` prints OK |
 | **Sharon: the promotion proofs** | ✔ **PASS with conditions** (`C3W-1-PROMOTION-ed4a90cc.md`, `f7c6c858`). Her conditions are written into Request 2 below. No step 0 is needed: she accepted the reasoning |
 
+## Request 1 · DONE (owner approved; 23 Nov, 08:03 UTC)
+
+- **The project:** verified first, `keijhmdtsgrfvnvocfvk` "pintar-staging", ACTIVE_HEALTHY.
+- **BEFORE: recorded** in `preservation-C3w-1-staging-BEFORE.txt`.
+  - Line 10 reads `290 / 20270121250000`, matching the dry run's digest.
+  - Lines 82 and 83 read absent and 0.
+  - The `batas` for the AFTER read are `('2026-11-23 08:03:41.983238+00', 10697)`.
+
 ## Request 1 · the read-only staging "before" read
 
 - **What:** run `c3w-1-evidence/preservation-C3w-1.sql` as committed (`ed4a90cc`), in a read-only transaction, with `batas` null.
