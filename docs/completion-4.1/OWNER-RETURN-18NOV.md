@@ -295,3 +295,7 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
 - **Sent to Daisy** for review.
 - **Sharon** confirms the BOB04-K01 and B5C restatements.
 - **The environment trap for the Z2 full run:** the selftest app runner reuses any server already on port 3999, so a stale build can be served.
+- **10:16 UTC · Daisy: stream B Z3 PASS, with no condition** (`ccf5c0ce`). Sharon confirmed R-8's restatements; her `jugaMilik` re-throw and same-status assertion ride B's next push.
+- **For stream A's K-01 screens:**
+  - **N-14:** the `tujuan_arti` wording is changed by stream A.
+  - **N-15:** `perluPenguatan`'s failed read must not be `[]`. It is a K-03 sibling defect, so it is in Z.
