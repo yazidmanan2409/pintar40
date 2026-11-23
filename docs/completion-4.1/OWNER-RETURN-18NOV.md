@@ -224,3 +224,8 @@ The harness commit `4f904638` was explained and pushed under `0959a62c`. A full 
   - `ai_tersedia` is aligned, so her note is closed.
   - `tanamTujuan` is test-only.
   - **Waiting on Daisy's recheck.**
+- **05:53 UTC · Daisy: round-2 PASS WITH ONE CONDITION** (`af6e1d11`).
+  - **C-3:** the working line shows ✓ while still working. The fix is `nada="netral"`, with no word change.
+  - **N-12 (optional; taken):** `AI_TUJUAN_LAIN` gets its own sentence.
+  - **N-13** (links in text have no underline) goes to the ruling 79 audit.
+  - **Round 3 sent to Second Eye at 05:55:** one prop change, red first. Daisy rechecks from the diff; Sharon is not needed.
