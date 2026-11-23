@@ -310,3 +310,35 @@ The hosts were extracted from the saved file only. No new request was made in th
 - **New point: "Covered Models."** Their extra retention and review are **NOT READ**: the linked page was not collected. Whether the evaluated model is a Covered Model is unknown.
 
 **For Sharon:** does this settle blocking condition (1), and does "Covered Models" need reading first?
+
+## Sharon: Anthropic completed (23 Nov 2026)
+
+**Disclosure:** Sharon is an Anthropic model. She applied the same criteria as for OpenAI.
+
+1. **Blocking condition (1) is SETTLED.** Standard deletion within 30 days matches OpenAI's 30-day logs.
+   - **Flagged retention** (2 years for content, 7 years for scores) is comparable to OpenAI's flagged sharing, and acceptable for synthetic content.
+   - **The other exceptions each become a condition:**
+     - no Files API or other long-retention service;
+     - never submit feedback (5 years);
+     - confirm the contract does **not** permit the "if permitted in your contract" research use, and never opt in.
+2. **"Covered Models" is a pre-offer condition, not blocking the verdict.** Read it, and record whether the chosen model is covered, before Anthropic is offered. This is the same tier as OpenAI's O6 = O10 confirmation.
+3. **Verdict for Anthropic (data handling only): MEETS WITH CONDITIONS, with no blocking condition.** The pre-offer conditions:
+   - no tools (R3-07);
+   - a separate educator-only workspace or key;
+   - dated, hashed copies of the subprocessor list, plus change notices;
+   - support and fraud vendors see no content;
+   - no feedback, no Files API;
+   - no research use under the contract;
+   - read Covered Models.
+
+**OpenAI is unchanged: MEETS WITH CONDITIONS.**
+
+**Both remain gated** on their conditions and counsel's clearance:
+- End User / §3.3(c);
+- PR-1;
+- human review;
+- the minors clauses;
+- Q-S1;
+- Q-S2.
+
+**No provider is commercially qualified yet**, and D-7 returns this to the owner.
