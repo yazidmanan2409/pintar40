@@ -205,6 +205,9 @@ export const KODE_KONTEN = [
 
 /** A form the reader has to complete; each says what is missing. */
 export const KODE_ISIAN = [
+  // S-05: an Aturan Asesmen whose mix does not add up to its count, or whose safety minimum is larger than it
+  "DEFINITION_MIX_TOTAL",
+  "DEFINITION_SAFETY_OVER",
   "ROLLOVER_INPUT_INCOMPLETE",
   "TRANSFER_INPUT_INCOMPLETE",
   "ROLE_INPUT_INCOMPLETE",
@@ -274,7 +277,7 @@ export type KodePemeliharaan = (typeof KODE_PEMELIHARAAN)[number];
 export type KodeKembali = (typeof KODE_KEMBALI)[number];
 /** What `kodeGalat` answers: any action's codes, a release move's two (DAISY-31) and a class move's four (M9). */
 export type KodeGalat = (typeof KODE_GALAT)[number] | KodePindah | KodePindahKelas | KodeKetuntasan | KodePeserta | KodePemeliharaan
-  | KodeKembali | KodeAi;
+  | KodeKembali | KodeAi | Extract<KodeIsian, "DEFINITION_MIX_TOTAL" | "DEFINITION_SAFETY_OVER">;
 export type KodeKonten = (typeof KODE_KONTEN)[number];
 export type KodeIsian = (typeof KODE_ISIAN)[number];
 export type KodeSukses = (typeof KODE_SUKSES)[number];
@@ -337,8 +340,9 @@ const POLA_STUDIO: ReadonlyArray<readonly [RegExp, KodeGalat]> = [
   [/^no platform bounds are published for mode /, "ACTION_INPUT_INVALID"],
   [/^mode \S+ (?:carries between|permits at most|does not pause|does not tolerate an offline client)/, "ACTION_INPUT_INVALID"],
   [/^the (?:hesitation window|late-sync grace) for mode /, "ACTION_INPUT_INVALID"],
-  [/^the difficulty mix totals /, "ACTION_INPUT_INVALID"],
-  [/^the safety-critical minimum /, "ACTION_INPUT_INVALID"],
+  // S-05 (SAPU-VERIFIED): the two refusals a person can act on are their own, each naming the fields at fault
+  [/^the difficulty mix totals /, "DEFINITION_MIX_TOTAL"],
+  [/^the safety-critical minimum /, "DEFINITION_SAFETY_OVER"],
 ];
 
 /**

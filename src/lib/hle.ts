@@ -1944,6 +1944,7 @@ export type HleEvent =
   | "galat.action_unchanged"
   | "galat.action_failed"
   | "galat.rollover_input_incomplete"
+  | "galat.definition_mix_total" | "galat.definition_safety_over"
   | "galat.transfer_input_incomplete"
   | "galat.role_input_incomplete"
   | "galat.role_reason_required"
@@ -6413,6 +6414,9 @@ const table: Table = {
   "galat.action_already_exists": { default: "Yang Anda buat sudah ada, jadi tidak dibuat dua kali.", en: "This already exists, so it was not created twice." },
   "galat.action_unchanged": { default: "Tidak ada yang berubah. Perubahan ini di luar wewenang Anda, atau sudah tidak berlaku lagi.", en: "Nothing changed. This change is outside your permissions, or no longer applies." },
   "galat.action_failed": { default: "Ada kendala di PINTAR. Coba sekali lagi. Bila masih terjadi, sampaikan kode rujukan berikut kepada yang mengurus PINTAR di sekolah Anda.", en: "PINTAR ran into a problem. Try once more. If it happens again, give whoever looks after PINTAR at your school the reference that follows." },
+  // S-05: save_assessment_definition's two refusals a person can act on, naming the fields at fault (words for Daisy)
+  "galat.definition_mix_total": { default: "Jumlah soal per tingkat kesulitan harus sama dengan Jumlah soal. Periksa keduanya, lalu coba lagi.", en: "The questions per difficulty must add up to the Number of questions. Check both, then try again." },
+  "galat.definition_safety_over": { default: "Minimum soal keselamatan tidak boleh lebih dari Jumlah soal.", en: "The minimum safety questions cannot be more than the Number of questions." },
   "galat.rollover_input_incomplete": { default: "Pilih tahun ajaran asal dan tujuan, lalu kelas tujuan untuk sedikitnya satu kelas.", en: "Choose the academic years to move from and to, then a destination class for at least one class." },
   "galat.transfer_input_incomplete": { default: "Pilih murid, lalu isi kode sekolah tujuan dan kode tahun ajaran tujuan.", en: "Choose the student, then fill in the destination school code and the destination academic-year code." },
   "galat.role_input_incomplete": { default: "Pilih orang dan peran, lalu isi Berlaku sampai.", en: "Choose the person and the role, then fill in Valid until." },
@@ -7332,7 +7336,8 @@ const table: Table = {
   "studio.definisi.petunjuk.ragu": { default: "Kosongkan bila arah berpikir tidak ditawarkan. Bila diisi: setelah berapa detik di satu soal murid ditawari arah berpikir; boleh", en: "Leave empty if no direction to think in is offered. If filled in: after how many seconds on one question the student is offered one; allowed" },
   "studio.definisi.petunjuk.tenggang": { default: "Berapa lama jawaban yang terkirim sesudah waktu habis masih diterima, misalnya karena sinyal putus; paling lama", en: "How long an answer sent after time is up is still accepted, for example after a lost signal; at most" },
   "studio.definisi.petunjuk.percobaan": { default: "Berapa kali seorang murid boleh mengerjakannya; paling banyak", en: "How many times one student may take it; at most" },
-  "studio.definisi.petunjuk.komposisi": { default: "Kosongkan bila tingkat kesulitan soal tidak diatur.", en: "Leave empty if the difficulty of the questions is not set." },
+  // S-05 (Daisy's sweep): the hint states the rule the save applies
+  "studio.definisi.petunjuk.komposisi": { default: "Kosongkan bila tingkat kesulitan soal tidak diatur. Jumlah ketiganya harus sama dengan Jumlah soal.", en: "Leave empty if the difficulty of the questions is not set. The three must add up to the Number of questions." },
   "studio.definisi.petunjuk.jeda": { default: "Murid boleh menyimpan, berhenti, lalu melanjutkan nanti.", en: "Students may save, stop and carry on later." },
   "studio.definisi.petunjuk.luring": { default: "Murid boleh terus mengerjakan saat sinyal putus; jawabannya terkirim ketika tersambung lagi.", en: "Students may keep working when the signal drops; their answers are sent when it returns." },
   "config.sekolah.sintetis": { default: "data uji", en: "test data" },

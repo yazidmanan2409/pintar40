@@ -560,6 +560,33 @@ export const zUxStaticTests: SelfTest[] = [
       return c.verdict("executes src/lib/kode-sekolah.ts and reads the source files of Pendataan's action and page, and the copy table (S-04): a code of the wrong shape is checked in the action, by the database's own rule, before the database is asked, and is said «Kode sekolah terdiri dari tiga huruf atau angka.»; the field carries pattern=[A-Za-z0-9]{3}; «maybe taken» is left for the rest");
     },
   },
+  {
+    id: "Z-S05-01",
+    requires: [],
+    run: async () => {
+      const c = new Checks();
+      // S-05 (SAPU-VERIFIED ⚑): the hint says the rule, and the database's two distinct refusals are mapped to their own
+      // sentences, never the one «Ada isian yang kosong atau belum sesuai»
+      kata(c, [
+        ["studio.definisi.petunjuk.komposisi", "Kosongkan bila tingkat kesulitan soal tidak diatur. Jumlah ketiganya harus sama dengan Jumlah soal.",
+          "Leave empty if the difficulty of the questions is not set. The three must add up to the Number of questions."],
+        ["galat.definition_mix_total", "Jumlah soal per tingkat kesulitan harus sama dengan Jumlah soal. Periksa keduanya, lalu coba lagi.",
+          "The questions per difficulty must add up to the Number of questions. Check both, then try again."],
+        ["galat.definition_safety_over", "Minimum soal keselamatan tidak boleh lebih dari Jumlah soal.",
+          "The minimum safety questions cannot be more than the Number of questions."],
+      ], "staff");
+      const { kodeGalatKonten, kunciKode } = await import("../src/lib/galat-kontrak");
+      const salah = (m: string): string => String(kodeGalatKonten({ code: "P0001", message: m } as never));
+      c.expect(salah("the difficulty mix totals 4 but the paper carries 5 questions") === "DEFINITION_MIX_TOTAL",
+        `the mix refusal reads ${salah("the difficulty mix totals 4 but the paper carries 5 questions")}, not DEFINITION_MIX_TOTAL`);
+      c.expect(salah("the safety-critical minimum (6) exceeds the paper size (5)") === "DEFINITION_SAFETY_OVER",
+        `the safety refusal reads ${salah("the safety-critical minimum (6) exceeds the paper size (5)")}, not DEFINITION_SAFETY_OVER`);
+      c.expect(salah("mode POST_TEST carries between 5 and 40 questions, not 2") === "ACTION_INPUT_INVALID", "the other bounds changed code");
+      c.expect(String(kunciKode("DEFINITION_MIX_TOTAL")) === "galat.definition_mix_total" && String(kunciKode("DEFINITION_SAFETY_OVER")) === "galat.definition_safety_over",
+        "the two codes do not reach their sentences");
+      return c.verdict("executes src/lib/galat-kontrak.ts and reads the copy table (S-05): the database's «difficulty mix totals …» and «safety-critical minimum … exceeds the paper size» are DEFINITION_MIX_TOTAL and DEFINITION_SAFETY_OVER, each with its own sentence naming the fields at fault; the other bounds stay ACTION_INPUT_INVALID; the mix hint says the three must add up to Jumlah soal");
+    },
+  },
 ];
 
 export const zUxAppTests: SelfTest[] = [

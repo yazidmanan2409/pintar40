@@ -25,3 +25,6 @@ Z-S02-01    FAIL    staf.galat.role_until_invalid (id): «Tanggal berlaku sampai
 ## S-04 (Z-S04-01, on 0b15e72e before the fix)
 Z-S04-01    FAIL    pendataan.kode.bentuk_salah (id): «—», not «Kode sekolah terdiri dari tiga huruf atau angka.»; pendataan.kode.bentuk_salah (en): «—», not «A school code is three letters or digits.»; src/lib/kode-sekolah.ts (the shape check) does not exist; the code's shape is not checked in the action before the database is asked; the page does not say the shape's own line; the cod
 0 passed, 1 failed, 0 skipped, 0 contract problem(s) → RED
+## S-05 (Z-S05-01, on 8c3cd5df before the fix)
+Z-S05-01    FAIL    studio.definisi.petunjuk.komposisi (id): «Kosongkan bila tingkat kesulitan soal tidak diatur.», not «Kosongkan bila tingkat kesulitan soal tidak diatur. Jumlah ketiganya harus sama dengan Jumlah soal.»; studio.definisi.petunjuk.komposisi (en): «Leave empty if the difficulty of the questions is not set.», not «Leave empty if the difficulty of the questions is not set. The
+0 passed, 1 failed, 0 skipped, 0 contract problem(s) → RED
