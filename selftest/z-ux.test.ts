@@ -88,7 +88,8 @@ const T03: Array<[string, string, string]> = [
   ["peran.perpanjang.sendiri", "Anda satu-satunya Admin PINTAR yang aktif, jadi Anda memperpanjang peran Anda sendiri. Alasannya dicatat.", "You are the only active Admin PINTAR, so you renew your own role. The reason is recorded."],
   ["peran.saya.berakhir_platform", "Peran Anda sebagai {peran} berakhir pada {tanggal}. Minta Admin PINTAR lain memperpanjangnya sebelum tanggal itu.", "Your role as {peran} ends on {tanggal}. Ask another Admin PINTAR to renew it before then."],
   ["peran.saya.berakhir_sendiri", "Peran Anda sebagai {peran} berakhir pada {tanggal}, dan Anda satu-satunya Admin PINTAR yang aktif. Perpanjang sendiri di Peran & akses.", "Your role as {peran} ends on {tanggal}, and you are the only active Admin PINTAR. Renew it yourself in Roles & access."],
-  ["laporan.templat.tak_berwenang", "Menyusun templat laporan memerlukan wewenang Admin sekolah atau Admin PINTAR.", "Assembling a report template requires institution administrator authority."],
+  // Daisy's Z7 review, C-2: the two English keys name the roles too
+  ["laporan.templat.tak_berwenang", "Menyusun templat laporan memerlukan wewenang Admin sekolah atau Admin PINTAR.", "Assembling a report template requires a school administrator or an Admin PINTAR."],
   ["config.kesehatan.bukan_admin", "Pemeriksaan ini dijalankan oleh Admin PINTAR.", "An Admin PINTAR runs these checks."],
   ["config.refused", "Halaman ini hanya untuk Admin sekolah atau Admin PINTAR.", "This page is only for a school administrator or an Admin PINTAR."],
   ["galat.maintenance_not_allowed", "Anda tidak berwenang mengatur pemeliharaan atau pengumuman untuk cakupan itu. Admin sekolah mengatur sekolahnya sendiri; Admin PINTAR mengatur sekolah mana pun dan seluruh platform.", "You are not authorised to set maintenance or notices for that scope. A school admin sets their own school's; an Admin PINTAR sets any school's and the whole platform's."],
@@ -99,7 +100,7 @@ const T03: Array<[string, string, string]> = [
   ["emailuji.ditolak", "Halaman ini hanya untuk Admin PINTAR.", "This page is for an Admin PINTAR only."],
   ["emailuji.galat.ditolak", "Hanya Admin PINTAR yang dapat mengirim email uji.", "Only an Admin PINTAR can send a test email."],
   ["email.uji.alasan", "Anda menerima email ini karena Admin PINTAR sedang menguji pengiriman email.", "You are receiving this email because an Admin PINTAR is testing email delivery."],
-  ["aktivasi.ditolak", "Halaman ini untuk Admin sekolah atau Admin PINTAR.", "This page is for the people who manage a school's records."],
+  ["aktivasi.ditolak", "Halaman ini untuk Admin sekolah atau Admin PINTAR.", "This page is for a school administrator or an Admin PINTAR."],
   ["aktivasi.galat.baru_ditolak", "PINTAR menolak, dan tidak ada yang dibuat. Hanya Admin PINTAR yang bisa membuat orang di luar pendataan.", "PINTAR refused, and nothing was made. Only an Admin PINTAR can create a person outside the intake."],
   ["orang.intro.sekolah", "Orang di sekolah ini yang sudah punya akun email. Anda bisa mengoreksi alamat email yang salah sebelum orangnya mengaktifkan akun. Nama dan username dikoreksi oleh Admin PINTAR.", "People at this school who have an email account. You can correct a wrong email address before the person activates their account. Names and usernames are corrected by an Admin PINTAR."],
   ["orang.email.hanya_platform", "Akun ini sudah aktif: emailnya hanya bisa dikoreksi oleh Admin PINTAR.", "This account is active: its email can only be corrected by an Admin PINTAR."],
@@ -721,13 +722,11 @@ export const zUxStaticTests: SelfTest[] = [
         // S-10: a reset PIN is no PIN that can be used
         ["kunci.tanpa_pin", "Akun ini belum punya PIN yang bisa dipakai, jadi layar ini tidak bisa dibuka dengan PIN. Keluar, lalu masuk lagi.",
           "This account has no PIN that can be used, so this screen can't be opened with a PIN. Sign out, then sign in again."],
-        // S-14 (⚑ neutral): the wait is keyed on what was typed, an address or a username
-        ["aktifkan.minta_sering", "Kode sudah terlalu sering diminta untuk email atau username yang Anda ketik, jadi kode tidak dikirim.",
-          "A code has been asked for too often for the email or username you typed, so no code was sent."],
-        ["aktifkan.kode_sering", "Kode sudah terlalu sering dicoba untuk email atau username yang Anda ketik.",
-          "The code has been tried too many times for the email or username you typed."],
+        // S-14 (Daisy's Z7 review, C-1): activation reads these too and takes an email only, so they name neither
+        ["aktifkan.minta_sering", "Kode sudah terlalu sering diminta, jadi kode tidak dikirim.", "A code has been asked for too often, so no code was sent."],
+        ["aktifkan.kode_sering", "Kode sudah terlalu sering dicoba.", "The code has been tried too many times."],
       ], "learner");
-      return c.verdict("reads the copy table: S-09 «jaringan ini», S-10 «PIN yang bisa dipakai» and S-14's two waits «email atau username yang Anda ketik», word for word in ID and EN");
+      return c.verdict("reads the copy table: S-09 «jaringan ini», S-10 «PIN yang bisa dipakai» and S-14's two waits naming neither an address nor a username (activation reads them too), word for word in ID and EN");
     },
   },
   {
@@ -781,16 +780,22 @@ export const zUxStaticTests: SelfTest[] = [
       // 2. the review's summary names the main group first, executed
       const { urutRingkas } = await import(join(repoRoot, "src", "lib", "kenaikan.ts")) as { urutRingkas?: (g: { utama: string | null; kelompok: Array<{ kunci: string }> }) => Array<{ kunci: string }> };
       if (c.expect(typeof urutRingkas === "function", "src/lib/kenaikan.ts has no urutRingkas")) {
-        const urut = urutRingkas!({ utama: "LULUS", kelompok: [{ kunci: "KELUAR:PINDAH_SEKOLAH" }, { kunci: "LULUS" }, { kunci: "TINGGAL:x" }] }).map((k) => k.kunci);
-        c.expect(JSON.stringify(urut) === JSON.stringify(["LULUS", "KELUAR:PINDAH_SEKOLAH", "TINGGAL:x"]), `the summary's order is ${urut.join(", ")}, not the main group first`);
-        const tanpa = urutRingkas!({ utama: null, kelompok: [{ kunci: "A" }, { kunci: "B" }] }).map((k) => k.kunci);
-        c.expect(tanpa.join() === "A,B", "with no main group the order changed");
+        // Daisy's Z7 review (5): the main group first, then the rest in the FIXED outcome order of step 2's statuses, so two
+        // reviews of the same promotion read alike whatever order the learners came in
+        const k = ["KELUAR:PINDAH_SEKOLAH", "LULUS", "TINGGAL:x", "NAIK:b", "NAIK:a"];
+        const urut = urutRingkas!({ utama: "LULUS", kelompok: k.map((kunci) => ({ kunci })) }).map((x) => x.kunci);
+        const balik = urutRingkas!({ utama: "LULUS", kelompok: [...k].reverse().map((kunci) => ({ kunci })) }).map((x) => x.kunci);
+        c.expect(JSON.stringify(urut) === JSON.stringify(["LULUS", "NAIK:a", "NAIK:b", "TINGGAL:x", "KELUAR:PINDAH_SEKOLAH"]), `the summary's order is ${urut.join(", ")}`);
+        c.expect(JSON.stringify(balik) === JSON.stringify(urut), `the summary's order follows the learners' order: ${balik.join(", ")}`);
+        const tanpa = urutRingkas!({ utama: null, kelompok: [{ kunci: "KELUAR:X" }, { kunci: "NAIK:a" }] }).map((x) => x.kunci);
+        c.expect(tanpa.join() === "NAIK:a,KELUAR:X", `with no main group the order is not the outcomes' own: ${tanpa.join()}`);
       }
       const kk = buang(readFileSync(join(repoRoot, "src", "components", "kenaikan", "KenaikanKelas.tsx"), "utf8"));
       c.expect(/urutRingkas\(g\)\.map\(/.test(kk), "the review's summary does not use urutRingkas");
       // 3. X12: the certificate list's column names the package
-      kata(c, [["sertifikat.kelola.kolom.kursus", "Paket", "Package"]], "staff");
-      return c.verdict("R-15's one-string items: reads DaftarKeputusan.tsx (Kenaikan step 2's status joined by «, »), executes src/lib/kenaikan.ts's urutRingkas (the review summary names the main group first, the others in their order; no main group, no change) and reads KenaikanKelas.tsx using it; the copy table's certificate column «Paket» / «Package» (X12)");
+      // (Daisy's Z7 review, C-3: the concept's full name, as studio.paket.judul has it)
+      kata(c, [["sertifikat.kelola.kolom.kursus", "Paket Pembelajaran", "Learning Package"]], "staff");
+      return c.verdict("R-15's one-string items: reads DaftarKeputusan.tsx (Kenaikan step 2's status joined by «, »), executes src/lib/kenaikan.ts's urutRingkas (the review summary names the main group first, then the others in step 2's fixed outcome order, whatever order the learners came in) and reads KenaikanKelas.tsx using it; the copy table's certificate column «Paket» / «Package» (X12)");
     },
   },
   {

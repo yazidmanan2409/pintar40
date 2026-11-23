@@ -125,9 +125,14 @@ export function kelompokkan<T extends HasilKelompok>(hasil: T[]): { utama: strin
 }
 
 /**
- * R-15: THE REVIEW'S SUMMARY NAMES THE MAIN GROUP FIRST («4 lulus, 1 keluar», never «1 keluar, 4 lulus»); the others keep
- * their order. The main group is kelompokkan's own, so the summary and the sentence under it agree.
+ * R-15: THE REVIEW'S SUMMARY NAMES THE MAIN GROUP FIRST («4 lulus, 1 keluar», never «1 keluar, 4 lulus»). Daisy's Z7
+ * review (5): the others follow in the FIXED outcome order of step 2's statuses (KEPUTUSAN), then by their key, so two
+ * reviews of the same promotion read alike whatever order the learners came in. The main group is kelompokkan's own,
+ * so the summary and the sentence under it agree.
  */
 export function urutRingkas<K extends { kunci: string }>(g: { utama: string | null; kelompok: K[] }): K[] {
-  return [...g.kelompok.filter((k) => k.kunci === g.utama), ...g.kelompok.filter((k) => k.kunci !== g.utama)];
+  const urutan = (k: string) => { const i = KEPUTUSAN.indexOf(k.split(":")[0] as Keputusan); return i < 0 ? KEPUTUSAN.length : i; };
+  const sisa = g.kelompok.filter((k) => k.kunci !== g.utama)
+    .sort((a, b) => urutan(a.kunci) - urutan(b.kunci) || (a.kunci < b.kunci ? -1 : a.kunci > b.kunci ? 1 : 0));
+  return [...g.kelompok.filter((k) => k.kunci === g.utama), ...sisa];
 }
