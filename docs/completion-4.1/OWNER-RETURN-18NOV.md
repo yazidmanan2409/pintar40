@@ -432,3 +432,4 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
   - S-1: RED takes precedence, INFRA only on a not-READY machine or a cause code can't produce, with red-first proofs.
   - S-2: redact the stack's start log, which carries the local default keys.
   - Plus three nits. Sent to the builder. **No run under this harness counts until S-1 lands.** Z9 is unaffected: it runs on CI, not on this harness.
+- **23:17 UTC · Z9 VERIFIED.** CI 45281543583: SUCCESS, attempt 1, 18/18 jobs (the reuse gate ran), strict 1389/0/0. Journeys 45281560320: SUCCESS, attempt 1, 82/82. Both on `9a819a7c` (code = `7615d6b1`); Bob verified both through the API. The evidence is at `595a0d3a`. The restarts are idle-session VM stops (L-5 confirmed by stream A). **The owner's Z summary is `batches/z/Z-CANDIDATE-FOR-OWNER.md`.**
