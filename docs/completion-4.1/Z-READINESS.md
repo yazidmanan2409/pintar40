@@ -36,7 +36,14 @@ Bob, 18 Nov 2026, about 10:00 UTC. **One list of everything that must be true, o
 | R-14 | **X-15** (planning audit): four readers treat a not-yet-started role as live (`studio_capabilities`, `refuse_duplicate_active_grant`, `sertifikat_koreksi_tolak`, `orang_dipegang`) | Second Eye, 18 Nov | Bob | **Triaged (Bob, 18 Nov): not reachable today.** Every product path that grants a role on `main` writes `valid_from` as `now()` (for example `the_last_administrator_is_never_removed`:383), and no RPC accepts a start date; only fixtures use past dates. A future start cannot exist until 4.2-02 adds one, so the four readers are restated **before 4.2-02** (planning audit X-15). Not a Z item |
 | R-15 | Non-blocking findings carried from 4.0, A1 and C1w ("with the batch that touches the same code, or in 4.2") | EXECUTION-PLAN §5 | Bob | Triage at Z; most go to 4.2 or the rationalisation audit |
 | R-16 | **D-1:** multi-answer readers repaired, with containment until then (ruling 55) | `POST-REVIEW-EXECUTION-18NOV.md` §3 | Sharon (inventory); Second Eye (repair) | **Z, approved. Inventory done:** 13 live readers, **7 affected**. Learner-facing: `session_review`, `session_misconceptions`, `reading_map`. Teacher-facing: `teacher_question_evidence`. Statistical: `service_item_statistics`, `service_distractor_uptake`, `service_cohort_misconceptions`. `session_answers` and scoring already handle arrays (Sharon, `RULING55-D1-D8-D6-7ba18b03.md`). **Staging: 0 multi-answer items** (D-8, `d1-evidence/`). The only content is the local and CI seed's «Pecahan»: synthetic learners only, so no containment is triggered |
-| R-28 | **Consistency sweep (Daisy `39a5d254`; Bob verified).** 37 findings, all real or confirmed. S1: S-01, K-01, K-03, S-02. About 22 are proposed for Z; the rest later or owner (K-07 pass-mark floor, T-03 term, K-02) | `batches/sapu/SAPU-VERIFIED.md` | Second Eye; Daisy rechecks; Sharon if K-01 needs a read change | **Awaiting the owner's decision** |
+| R-28 | **Consistency sweep (Daisy `39a5d254`; Bob verified).** 37 findings, all real or confirmed. S1: S-01, K-01, K-03, S-02. About 22 are proposed for Z; the rest later or owner (K-07 pass-mark floor, T-03 term, K-02) | `batches/sapu/SAPU-VERIFIED.md` | Second Eye; Daisy rechecks; Sharon if K-01 needs a read change | **Z, approved (ruling 78).** Also in Z:
+- K-07: a pass-mark floor of 1–100 (SQL; Sharon);
+- T-03: «Admin PINTAR»;
+- K-02: «Sudah kuat» (Daisy's wording);
+- K-01: one verdict across every consumer (inventory first);
+- S-01: a preserve-all-settings test.
+
+K-05 is raised to S1 |
 | R-27 | **Sign-in identifiers (ruling 77).** Bob's read-only check (23 Nov, `main` `706fe8c5`, staging read at 290):
 - **The facts:**
   - two live sign-in methods: a password with an email or username (`signin_resolve`), and a card number with its PIN;

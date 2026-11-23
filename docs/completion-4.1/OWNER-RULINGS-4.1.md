@@ -206,6 +206,14 @@ Daisy prepares an implementation-ready package (read-only). Bob recommends order
 4. «nama pengguna» / «username»: **no change**, left for a future wording review.
 
 No new batch; no merge, promotion or deployment authorised | Z-READINESS R-27 |
+| 78 | 23 Nov | **The consistency sweep's decisions** (owner):
+1. **All 22 Z corrections approved,** K-01 included. **K-05 is raised to S1:** public verification must never imply validity while a certificate is under review.
+2. **K-07:** a pass mark of 0 is not permitted; the range is 1–100%. Staging stores it as `smallint`: 38 rows, none zero, minimum 60 (read 23 Nov). Sharon reviews the enforcement and the handling of any existing zero values.
+3. **T-03:** «Admin PINTAR», used consistently.
+4. **K-02:** «Sudah dikuasai» becomes «Sudah kuat», subject to Daisy's wording. The description is a reading recommendation, not mastery; formal mastery belongs to 4.5.
+5. **K-01: one authoritative verdict.** The learner's result, the teacher's result, retake eligibility and certificate eligibility all derive from the same assessment verdict, including the must-be-right gate. Every consumer is checked before the fix.
+
+**S-01:** editing an unrelated field must preserve every existing setting. The existing method applies (focused tests, sibling-defect checks, independent review, controlled acceptance). C3w-1's path stays uninterrupted, and no further audit is needed | `batches/sapu/SAPU-VERIFIED.md`; Z-READINESS R-28 |
 
 ## 8 · Open with the owner
 

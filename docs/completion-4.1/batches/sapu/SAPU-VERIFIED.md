@@ -26,7 +26,7 @@
 
 | Id | What is wrong | Destination | Notes |
 |---|---|---|---|
-| K-05 | The public verification page shows «Memenuhi capaian» and the Predikat under «Sedang ditinjau», next to "not declared valid" (`verifikasi/[token]/page.tsx:99,125`) | Z | ⚑ «Seperti saat diterbitkan» is not on `main` yet: it is new wording, for Daisy. Arguably S1 (public trust; O41-19) |
+| K-05 (**raised to S1, ruling 78**) | The public verification page shows «Memenuhi capaian» and the Predikat under «Sedang ditinjau», next to "not declared valid" (`verifikasi/[token]/page.tsx:99,125`) | Z | ⚑ «Seperti saat diterbitkan» is not on `main` yet: it is new wording, for Daisy. Arguably S1 (public trust; O41-19) |
 | S-12 | Reopening paces before checking the input, so a refused try says «a request was just sent» | Z, with R-26 item 1 | A route change; no SQL |
 | S-15 | Every account-creation failure, outages included, says «email maybe already used» | Z | A route change; no SQL |
 | S-04 | A bad school-code shape is told «maybe already taken» | Z | ⚑ `kenapa` carries the code, not the reason. The shape check goes in the action |
