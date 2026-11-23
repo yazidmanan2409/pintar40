@@ -40,7 +40,10 @@ const BACA_TERGERBANG = ["ai_asal_paket", "ai_draf_belum_diputuskan", "ai_minta_
 const SOAL_D1 = `(select i.id from public.items i join public.lessons l on l.id = i.lesson_id join public.modules md on md.id = l.module_id
    where md.course_id = ${G("d1")}`;
 const soalZ = `${SOAL_D1} and i.cycle_role is null order by i.id limit 1)`;
-const soalKe = (n: number) => `${SOAL_D1} and i.id <> ${G("z")} order by i.id offset ${n - 1} limit 1)`;
+// Z9 (CI 45244823300; ruling 84's diagnostic 45255856276 on main): X and Y are PRE_TEST questions. They were the first
+// two of the package's questions by uuid order, so about one run in ten both were POST_TEST questions. No generated
+// question was then on the learner's pre-test (3 of 3 drawn), c1.xs stayed empty, and the world stopped at ''::uuid
+const soalKe = (n: number) => `${SOAL_D1} and i.id <> ${G("z")} and i.cycle_role = 'PRE_TEST' order by i.id offset ${n - 1} limit 1)`;
 const PELAJARAN = `(select l.id from public.lessons l join public.modules md on md.id = l.module_id where md.course_id = ${G("d1")} order by l.ordinal limit 1)`;
 const asal = (it: string) => `
   insert into public.ai_asal_soal (item_id, permintaan, percobaan, model_ident, versi_prompt, excerpt_sha256, pemohon, isi_sha256)
@@ -137,7 +140,13 @@ function skenario(c: Checks, repoRoot: string): Record<string, string> | null {
     langkah("c310_terbit", null, `select r.status::text from public.plp_releases r where r.id = ${G("d1_rel")}`),
     `perform pg_temp.c1_duduk('m1', ${G("d1_pre")}, true, true, 's1');
      perform set_config('c1.xs', coalesce((select p.item_id::text from public.presented_items p join public.ai_asal_soal a on a.item_id = p.item_id
-       where p.session_id = ${G("s1")} order by p.position limit 1), ''), true);`,
+       where p.session_id = ${G("s1")} order by p.position limit 1), ''), true);
+     -- Z9's diagnostic: a world without a generated question on the paper says so, by the setting's name
+     if current_setting('c1.xs') = '' then
+       raise exception 'the C3W world: c1.xs is EMPTY (no generated question on the learner''s paper; generated drafts presented %, of x %, y %)',
+         (select count(*) from public.presented_items p join public.ai_asal_soal a on a.item_id = p.item_id where p.session_id = ${G("s1")}),
+         (select i.cycle_role::text from public.items i where i.id = ${G("x")}), (select i.cycle_role::text from public.items i where i.id = ${G("y")});
+     end if;`,
     langkah("c310_duduk", null, `select (select count(*) from public.presented_items p join public.ai_asal_soal a on a.item_id = p.item_id where p.session_id = ${G("s1")})::text
         || '|' || (select count(*) from public.assessment_results r where r.session_id = ${G("s1")})::text`),
     `perform set_config('c1.xs_kunci', (select case when bool_or(o.label = 'A' and o.is_correct) then 'B' else 'A' end from public.item_options o where o.item_id = nullif(current_setting('c1.xs'), '')::uuid), true);`,
