@@ -181,3 +181,14 @@ Source: Sol's review and consolidated brief, passed on by the owner. It applies 
 - **Guest Mode.** Status now reads «Arah disetujui; rencana awal tersedia, belum disetujui untuk dibangun» (a per-entry label with the same diamond mark). The note reads "setelah gerbang 4.1 ditutup".
 - **"After 4.1 is accepted"** is replaced everywhere: the 4.0 introduction now reads «setelah gerbang 4.1 ditutup dan pemilik PINTAR menyetujui rilisnya». No other occurrence was left.
 - **Merge.** `41-ai-sendiri` is now a «Diputuskan di 4.1» note on `40-paket`, covering the external-AI drafts route, the guide, no fee, no AI account or key requested, and no special AI format. The «Tiga cara menyusun soal» group keeps the integrated-AI entry, which now points to `40-paket` as the other two ways. **Total 100**: 4.0 48, 4.1 19 (17 accepted, 1 in development, 1 designed), 4.5 27, 5.0 6.
+
+### Daisy's wording check applied; revision 5 closed (23 Nov, 00:10 UTC)
+
+Daisy checked the wording against the screen strings on `main` (`706fe8c5`).
+1. **Peta Bacaan** now uses the four screen tiers: «Baca ini lebih dulu», «Perlu dibaca», «Sebaiknya dibaca» and «Sudah dikuasai». The description reads «Tanda ini menunjukkan urutan bacaan berdasarkan Pemetaan Awal.» The example marks «Pecahan senilai» «Sudah dikuasai»; «tampaknya sudah kuat» and "bukan pernyataan penguasaan" are dropped.
+2. **The per-learner sitting action** reads «menambah waktunya», as on the screen («Tambah waktu», «Batas baru»), and the example says «menambah waktunya 15 menit». The suspension and emergency-stop entries say «hingga batas waktunya». «Batas pengumpulan» stays only for the class-wide Uji Cepat window.
+3. **Uji Cepat** keeps «10, 15, atau 30 menit»: the form offers exactly those (`JENDELA_MENIT = [10, 15, 30]`, `src/lib/pengajar.ts:1135` on `main`), which was Daisy's condition.
+4. **D2-R** keeps «Lulus» / «Belum lulus» from rulings 74–74b, marked as decided and not built, with a note that these words are not on screen yet. Insufficient evidence now reads «Belum dapat disimpulkan» with "baca ulang lalu ulangi".
+- **Nit:** «Kandidat, menunggu keputusan».
+
+**For the owner, not the catalogue.** The Peta Bacaan's top tier on screen says «Sudah dikuasai», which a diagnostic of a few questions cannot establish. Ruling 74a defers mastery claims to 4.5. The catalogue now reports the screen as it is; whether the label itself should change is a product question for Daisy and the owner.
