@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Ruling 83: the planted failures, one per improvement, each recorded red first (see BUKTI.md).
 #
-#   bash docs/completion-4.1/infra-83/bukti.sh <proof>     proof: image registry clean disk dockerd port midrun usedb defect
+#   bash docs/completion-4.1/infra-83/bukti.sh <proof>     proof: image registry clean disk dockerd port midrun midrun2 usedb defect reboot ukuran
 #
 # Each proof writes docs/completion-4.1/infra-83/bukti-<proof>.txt: the commands, their output, and what was checked.
 # Run in the builder's own container only: the proofs kill the runtime, fill the disk and stop servers.
@@ -126,6 +126,49 @@ midrun)
   step cat "$HOME/pintar-preflight/bukti-midrun/HEARTBEAT.txt"
   note "recovery for the next proof"
   step scripts/dev/siap.sh
+  ;;
+reboot)
+  J="$HOME/pintar-preflight/bukti-reboot"; rm -rf "$J"; mkdir -p "$J"
+  B="$J/boot_id"; U="$J/uptime"
+  echo "aaaaaaaa-0000-4000-8000-00000000000a" > "$B"; echo "3412.50 100.00" > "$U"
+  export SIAP_JEJAK_DIR="$J" SIAP_BOOT_FILE="$B" SIAP_UPTIME_FILE="$U"
+  note "plant: the boot marker and uptime are read from planted files (boot A, uptime 3412 s); the trace goes to $J"
+  note "the run: the suite and plants under the heartbeat (every 15 s)"
+  PREFLIGHT_DENYUT=15 setsid scripts/dev/preflight.sh --langkah=suite,plants --keluar="$J/run" > "$J/run.out" 2>&1 < /dev/null &
+  until [ -f "$J/run/suite.log" ]; do sleep 1; done; sleep 40
+  note "plant the REBOOT: kill everything (the run, the suite, the app, the runtime), then reset the marker: boot B, uptime 143 s"
+  pkill -9 -f "scripts/dev/preflight.sh"; pkill -9 -f "selftest/run.ts"; pkill -9 -f next-server; pkill -9 -x dockerd; pkill -9 -x containerd
+  echo "bbbbbbbb-0000-4000-8000-00000000000b" > "$B"; echo "143.20 10.00" > "$U"; sleep 2
+  step tail -3 "$J/jejak-mesin.log"
+  note "RED (before L-1): the run's record just stops: no RUN line, no cause, only the in-progress marker"
+  step cat "$J/run/SUMMARY.txt"
+  step cat "$J/berjalan"
+  note "GREEN: the next gate names the reboot and its uptime, closes the run as VOID with that cause, and recovers the machine"
+  step scripts/dev/siap.sh
+  step cat "$J/run/SUMMARY.txt"
+  step bash -c "ls '$J/berjalan' 2>&1"
+  step tail -1 "$J/jejak-mesin.log"
+  note "and a restart with no run in progress is named too (boot C)"
+  echo "cccccccc-0000-4000-8000-00000000000c" > "$B"; echo "61.00 1.00" > "$U"
+  step bash -c 'scripts/dev/siap.sh | head -1'
+  unset SIAP_JEJAK_DIR SIAP_BOOT_FILE SIAP_UPTIME_FILE
+  ;;
+ukuran)
+  J="$HOME/pintar-preflight/bukti-ukuran"; rm -rf "$J"; mkdir -p "$J"
+  note "plant: a trace of three earlier boots that stayed up 55, 62 and 68 min (the observed hourly restarts), and this boot"
+  for b in 1:3300 2:3720 3:4100; do echo "2026-11-23T1${b%%:*}:00:00Z boot=dddddddd-0000-4000-8000-00000000000${b%%:*} uptime=${b##*:} oom_kill=0 mode=heartbeat run=- result=\"READY\"" >> "$J/jejak-mesin.log"; done
+  step cat "$J/jejak-mesin.log"
+  note "RED (before L-2): the runner at c1f04845 has no size check at all, so a 100-min run starts silently on a machine that lives about an hour"
+  step bash -c 'git show c1f04845:scripts/dev/preflight.sh | grep -ciE "estimated|median|uptime" || true'
+  note "GREEN: the whole pre-flight is estimated (defaults: suite 25, plants 30, red-case 40 min; lint, typecheck, build-identity 2 each) against the median lifetime: a warning with the CI route"
+  SIAP_JEJAK_DIR="$J" step scripts/dev/preflight.sh --ukur
+  note "a short run fits: no warning"
+  SIAP_JEJAK_DIR="$J" step scripts/dev/preflight.sh --ukur --langkah=lint,typecheck
+  note "a warning, not a block: with lifetimes of 1-2 min planted, lint and typecheck (4 min estimated) warn and then run"
+  J2="$HOME/pintar-preflight/bukti-ukuran-2"; rm -rf "$J2"; mkdir -p "$J2"
+  for b in 1:60 2:90 3:120; do echo "2026-11-23T1${b%%:*}:00:00Z boot=eeeeeeee-0000-4000-8000-00000000000${b%%:*} uptime=${b##*:} mode=heartbeat run=- result=\"READY\"" >> "$J2/jejak-mesin.log"; done
+  SIAP_JEJAK_DIR="$J2" step scripts/dev/preflight.sh --langkah=lint,typecheck --keluar="$J2/run"
+  step cat "$J2/run/SUMMARY.txt"
   ;;
 midrun2)
   note "plant: kill dockerd ONLY (containerd and the containers keep running, so the suite runs on, as in I-1) 20 s into the whole suite; heartbeat every 15 s"

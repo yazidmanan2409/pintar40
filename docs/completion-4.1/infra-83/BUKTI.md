@@ -48,12 +48,13 @@ reset alone only prevents it.
 without a reset in between (`bukti-usedb-f01-f05.txt`, `bukti-usedb-targeted.txt`). Those suites leave nothing that
 breaks a second run. The whole suite does.
 
-**C3W-C32, C36 and C310 (for Bob, not ruling 83's).** These failed in run 1's whole suite with «invalid input syntax
-for type uuid: ""; the scenario did not run». They run **24/24 GREEN** alone on a fresh reset
-(`~/pintar-preflight/c3w-sendiri`), and Z9 ran them GREEN on this commit. The whole suite's second run passed them too (1388/0).
-So they are **intermittent** in a whole-suite run: something earlier in the run, or the clock, sometimes leaves them
-without their world. The runner rightly classes them FAIL: the machine was healthy.
-They go to the audit list. They are stream A's tests.
+**C3W-C32, C36 and C310: already root-caused, so no audit item.** They failed in run 1's whole suite with «invalid
+input syntax for type uuid: ""; the scenario did not run». They passed alone (24/24, `~/pintar-preflight/c3w-sendiri`)
+and in the next whole-suite run (1388/0). That matches the cause found by ruling 84 and fixed on `claude/z` in
+`367ff569`, which `f5700bd1` predates. The world's two generated drafts were the package's first two questions by
+uuid order. About 1 time in 10 both were POST_TEST questions, `c1.xs` stayed empty, and an unguarded cast stopped the
+whole world. `main` has the same fault. The runner rightly classed the rows FAIL, because the machine was healthy:
+it was a test's own intermittent, not the infrastructure.
 
 ## What the proofs turned up in the scripts themselves (fixed before the records above)
 
@@ -70,6 +71,39 @@ They go to the audit list. They are stream A's tests.
   with `GIT_OPTIONAL_LOCKS=0`, which reads without writing.
 - **Free space was rounded to whole gigabytes,** so the refusal read «52G free, below the minimum of 52G». It now
   prints one decimal.
+
+## Ruling 86's additions (L-1, L-2)
+
+| Plan | Planted | Red | Green | File |
+|---|---|---|---|---|
+| L-1 | the boot marker and uptime read from planted files (boot A, uptime 3412 s). The suite and plants start under the heartbeat, then **everything is killed** (the run, the suite, the app, dockerd, containerd) and the marker reset (boot B, uptime 143 s): a simulated reboot | the run's record just stops: no RUN line, no cause, only the in-progress marker | the next gate prints **«the previous run ended by a REBOOT at …, after uptime 3412s (the previous boot's last beat: 22:45:30Z, oom_kill=0)»**. It appends **INFRA run: ended by a REBOOT … RUN VOID** to that run's SUMMARY, clears the marker and recovers the machine. A restart with no run in progress is named too | `bukti-reboot.txt` |
+| L-2 | a trace of three earlier boots that stayed up 55, 62 and 68 min | the runner at `c1f04845` has no size check: a 100-min run starts silently | `--ukur` (and every run): **WARN size: estimated 101 min, but this machine stayed up a median 62 min over its last 3 boots … the stable route is CI (L-3) … Starting anyway.** A 4-min run fits, with no warning. With 1–2 min lifetimes planted, lint and typecheck warn **and then run** (GREEN): a warning, not a block | `bukti-ukuran.txt` |
+
+**How it works.** Every gate and every heartbeat appends one line to `$HOME/pintar-preflight/jejak-mesin.log` (on
+disk, so it outlives a restart; this container's real restart at 22:08Z kept `$HOME`). Each line holds:
+- the boot id and the uptime;
+- `oom_kill` since boot (`/proc/vmstat`) and the memory cgroup's own (v2 `memory.events`, or v1 `memory.oom_control`
+  here);
+- the cgroup's memory peak and failure count;
+- free memory and free disk;
+- the run it belongs to, and the check's result.
+
+`preflight.sh` marks a run in progress (`berjalan`) and clears the mark when it finishes. A gate that finds the mark
+and another boot id, or an uptime lower than the last line's, names a reboot. It gives the previous boot's uptime and
+OOM count, which separates a memory kill from a session lifetime.
+
+**How the estimate is made.** For each step, the estimate is its last measured length in the kept runs. A step never
+measured uses a default: suite 25 min, plants 30, red-case 40, others 2. The machine's lifetime is the median of the
+earlier boots' last uptimes in the trace.
+
+**Two notes for review:**
+- With a planted uptime, the printed reboot time (now minus uptime) comes before the last beat. On a real reboot the
+  two agree, as the 22:08:15Z line in `bukti-ukuran.txt` shows: that is this container's real restart, named
+  correctly.
+- All 8 measured lines so far have `oom_kill`, `cg_oom_kill` and `mem_failcnt` at 0. They all come from after
+  this container's 22:08Z restart, because the trace began then. So they say nothing yet about why the earlier
+  restarts happened. The next restart under a traced run will be the first with a named cause: a memory kill shows as
+  a rising `oom_kill` in the last beat; a session lifetime shows as none.
 
 ## For the reviewers
 

@@ -1,0 +1,77 @@
+# bukti-reboot · 2026-11-23T22:43:49Z · commit c1f04845
+
+## plant: the boot marker and uptime are read from planted files (boot A, uptime 3412 s); the trace goes to /root/pintar-preflight/bukti-reboot
+
+## the run: the suite and plants under the heartbeat (every 15 s)
+
+## plant the REBOOT: kill everything (the run, the suite, the app, the runtime), then reset the marker: boot B, uptime 143 s
+docs/completion-4.1/infra-83/bukti.sh: line 19:  2282 Killed                  PREFLIGHT_DENYUT=15 setsid scripts/dev/preflight.sh --langkah=suite,plants --keluar="$J/run" > "$J/run.out" 2>&1 < /dev/null
+
+$ tail -3 /root/pintar-preflight/bukti-reboot/jejak-mesin.log
+2026-11-23T22:43:54Z boot=aaaaaaaa-0000-4000-8000-00000000000a uptime=3412 oom_kill=0 cg_oom_kill=0 mem_peak=6329696256 mem_failcnt=0 mem_avail=15501570048 disk_free=57987244032 mode=full run=/root/pintar-preflight/bukti-reboot/run result="READY"
+2026-11-23T22:45:14Z boot=aaaaaaaa-0000-4000-8000-00000000000a uptime=3412 oom_kill=0 cg_oom_kill=0 mem_peak=6329696256 mem_failcnt=0 mem_avail=15128248320 disk_free=57972158464 mode=heartbeat run=/root/pintar-preflight/bukti-reboot/run result="READY"
+2026-11-23T22:45:30Z boot=aaaaaaaa-0000-4000-8000-00000000000a uptime=3412 oom_kill=0 cg_oom_kill=0 mem_peak=6329696256 mem_failcnt=0 mem_avail=14974812160 disk_free=57967513600 mode=heartbeat run=/root/pintar-preflight/bukti-reboot/run result="READY"
+[rc=0]
+
+## RED (before L-1): the run's record just stops: no RUN line, no cause, only the in-progress marker
+
+$ cat /root/pintar-preflight/bukti-reboot/run/SUMMARY.txt
+commit c1f04845176a435bbf2843fe9c4f2baaa6726e92
+started 2026-11-23T22:43:49Z
+steps suite,plants
+heartbeat every 15s
+size: estimated 55 min; no earlier boot in the trace to compare with
+== bersih: bersih: 0 removed, 0; 30 kept
+== siap: READY
+== suite
+forced reset: done (supabase db reset --local)
+[rc=0]
+
+$ cat /root/pintar-preflight/bukti-reboot/berjalan
+/root/pintar-preflight/bukti-reboot/run
+[rc=0]
+
+## GREEN: the next gate names the reboot and its uptime, closes the run as VOID with that cause, and recovers the machine
+
+$ scripts/dev/siap.sh
+siap: the previous run ended by a REBOOT at 2026-11-23T22:43:18Z, after uptime 3412s (the previous boot's last beat: 2026-11-23T22:45:30Z, oom_kill=0): run /root/pintar-preflight/bukti-reboot/run
+siap: disk ok (54.0G free, minimum 10G)
+siap: runtime dead: restarting containerd and dockerd
+siap: runtime pulih (restarted; containerd and dockerd answer)
+siap: images ok (6 present, all pinned by digest)
+siap: stack not running: supabase start
+siap: Mailpit not answering: (re)starting the sink as CI does
+siap: stack pulih (database, Auth, Mailpit healthy)
+siap: port 3999 ok (free)
+READY
+[rc=0]
+
+$ cat /root/pintar-preflight/bukti-reboot/run/SUMMARY.txt
+commit c1f04845176a435bbf2843fe9c4f2baaa6726e92
+started 2026-11-23T22:43:49Z
+steps suite,plants
+heartbeat every 15s
+size: estimated 55 min; no earlier boot in the trace to compare with
+== bersih: bersih: 0 removed, 0; 30 kept
+== siap: READY
+== suite
+forced reset: done (supabase db reset --local)
+INFRA  run  ended by a REBOOT at 2026-11-23T22:43:18Z, after uptime 3412s (the previous boot's last beat: 2026-11-23T22:45:30Z, oom_kill=0)
+finished (by the reboot, recorded at the next gate 2026-11-23T22:45:41Z)
+RUN VOID
+VOID, not a result: the machine restarted under the run. Find the cause (the trace: /root/pintar-preflight/bukti-reboot/jejak-mesin.log) before repeating it.
+[rc=0]
+
+$ bash -c ls '/root/pintar-preflight/bukti-reboot/berjalan' 2>&1
+ls: cannot access '/root/pintar-preflight/bukti-reboot/berjalan': No such file or directory
+[rc=2]
+
+$ tail -1 /root/pintar-preflight/bukti-reboot/jejak-mesin.log
+2026-11-23T22:46:14Z boot=bbbbbbbb-0000-4000-8000-00000000000b uptime=143 oom_kill=0 cg_oom_kill=0 mem_peak=6329696256 mem_failcnt=0 mem_avail=15631724544 disk_free=57996705792 mode=full run=- result="READY"
+[rc=0]
+
+## and a restart with no run in progress is named too (boot C)
+
+$ bash -c scripts/dev/siap.sh | head -1
+siap: the machine restarted since the last check: a REBOOT at 2026-11-23T22:45:13Z, after uptime 143s (the previous boot's last beat: 2026-11-23T22:46:14Z, oom_kill=0) (no run was in progress)
+[rc=0]

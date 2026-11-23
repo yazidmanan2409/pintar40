@@ -50,7 +50,63 @@ HEALTH_WAIT="${SIAP_HEALTH_WAIT:-120}"
 EXCLUDE="studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta,mailpit"
 
 say() { echo "siap: $*"; }
-infra() { echo "INFRA $1: $2"; exit 3; }
+RESULT=""
+infra() { RESULT="INFRA $1: $2"; echo "$RESULT"; exit 3; }
+
+# ---- the machine's trace (ruling 86, L-1) -------------------------------------------------------------------------
+# Every gate and every heartbeat appends one line to a log ON DISK (not the temp folder), so it outlives a container
+# restart: the boot, the uptime, the kernel's OOM kills since boot, the memory cgroup's peak and failure count, free
+# memory and free disk, which run it belongs to, and how the check ended. After a restart the next gate reads the
+# previous boot's last line and names the cause, instead of the run going quietly missing.
+JEJAK_DIR="${SIAP_JEJAK_DIR:-$HOME/pintar-preflight}"
+JEJAK="$JEJAK_DIR/jejak-mesin.log"
+UPTIME_FILE="${SIAP_UPTIME_FILE:-/proc/uptime}"   # a proof may point this at a planted file (a simulated reboot)
+BOOT_FILE="${SIAP_BOOT_FILE:-/proc/sys/kernel/random/boot_id}"
+mesin() { # prints key=value fields describing the machine now
+  local up boot oom peak fail cg avail disk
+  up="$(cut -d' ' -f1 "$UPTIME_FILE" 2>/dev/null | cut -d. -f1)"; boot="$(cat "$BOOT_FILE" 2>/dev/null)"
+  oom="$(awk '$1=="oom_kill"{print $2}' /proc/vmstat 2>/dev/null)"
+  if [ -r /sys/fs/cgroup/memory.events ]; then                       # cgroup v2
+    cg="$(awk '$1=="oom_kill"{print $2}' /sys/fs/cgroup/memory.events)"; peak="$(cat /sys/fs/cgroup/memory.peak 2>/dev/null)"
+    fail="$(awk '$1=="max"{print $2}' /sys/fs/cgroup/memory.events)"
+  else                                                                 # cgroup v1 (this container)
+    cg="$(awk '$1=="oom_kill"{print $2}' /sys/fs/cgroup/memory/memory.oom_control 2>/dev/null)"
+    peak="$(cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes 2>/dev/null)"; fail="$(cat /sys/fs/cgroup/memory/memory.failcnt 2>/dev/null)"
+  fi
+  avail="$(awk '$1=="MemAvailable:"{print $2*1024}' /proc/meminfo)"
+  disk="$(df -B1 --output=avail "$REPO" 2>/dev/null | tail -1 | tr -d ' ')"
+  echo "boot=${boot:-?} uptime=${up:-?} oom_kill=${oom:-?} cg_oom_kill=${cg:-?} mem_peak=${peak:-?} mem_failcnt=${fail:-?} mem_avail=${avail:-?} disk_free=${disk:-?}"
+}
+catat() { # appends this check's line; the result is read at exit
+  mkdir -p "$JEJAK_DIR" 2>/dev/null || return 0
+  echo "$(date -u +%FT%TZ) $(mesin) mode=$MODE run=${SIAP_RUN:--} result=\"${RESULT:-READY}\"" >> "$JEJAK" 2>/dev/null
+}
+trap catat EXIT
+medan() { sed -nE "s/.*(^| )$1=([^ ]*).*/\2/p" <<< "$2"; }
+cek_mulai_ulang() { # the previous boot: did a run end by a restart?
+  [ -s "$JEJAK" ] || { say "trace: first entry ($JEJAK)"; return; }
+  local last now boot0 up0 t0 boot1 up1 run0 oom0 when berjalan="$JEJAK_DIR/berjalan"
+  last="$(tail -1 "$JEJAK")"; now="$(mesin)"
+  boot0="$(medan boot "$last")"; up0="$(medan uptime "$last")"; run0="$(medan run "$last")"; oom0="$(medan oom_kill "$last")"; oom0="${oom0:-?}"
+  t0="${last%% *}"; boot1="$(medan boot "$now")"; up1="$(medan uptime "$now")"
+  if [ "$boot0" != "$boot1" ] || { [ "$up1" != "?" ] && [ "$up0" != "?" ] && [ "$up1" -lt "$up0" ]; }; then
+    when="$(date -u -d "@$(( $(date +%s) - up1 ))" +%FT%TZ)"
+    local cause="a REBOOT at $when, after uptime ${up0}s (the previous boot's last beat: $t0, oom_kill=${oom0})"
+    if [ -f "$berjalan" ]; then
+      local r; r="$(cat "$berjalan")"
+      say "the previous run ended by $cause: run $r"
+      if [ -f "$r/SUMMARY.txt" ] && ! grep -q '^RUN ' "$r/SUMMARY.txt"; then
+        { echo "INFRA  run  ended by $cause"; echo "finished (by the reboot, recorded at the next gate $(date -u +%FT%TZ))"; echo "RUN VOID"
+          echo "VOID, not a result: the machine restarted under the run. Find the cause (the trace: $JEJAK) before repeating it."; } >> "$r/SUMMARY.txt"
+      fi
+      rm -f "$berjalan"
+    else
+      say "the machine restarted since the last check: $cause (no run was in progress)"
+    fi
+  else
+    say "trace: same boot as the last check (uptime ${up1}s)"
+  fi
+}
 
 gib() { awk -v b="$1" 'BEGIN { printf "%.1fG", b / 1073741824 }'; }
 # ---- disk -------------------------------------------------------------------------------------------------------
@@ -181,6 +237,7 @@ cek_port() {
   say "port $PORT pulih (leaked server stopped)"
 }
 
+[ "$MODE" = heartbeat ] || cek_mulai_ulang
 if [ "$MODE" = heartbeat ]; then
   cek_disk; cek_runtime
   db_ok || infra stack "the database does not answer on 54322"

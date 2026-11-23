@@ -3,7 +3,9 @@
 # PRE-FLIGHT: the full local run before CI, with the machine kept apart from the code (ruling 83, P-2, P-4, P-5).
 #
 #   scripts/dev/preflight.sh [--langkah=lint,typecheck,build-identity,suite,plants,redcase] [--keluar=DIR]
-#                            [--tanpa-reset] [-- <arguments for selftest/run.ts, e.g. --only=F07-*>]
+#                            [--tanpa-reset] [--ukur] [-- <arguments for selftest/run.ts, e.g. --only=F07-*>]
+#
+# --ukur prints only the size check (L-2) and runs nothing.
 #
 # In order:
 #   1. bersih.sh --hapus, then siap.sh. Nothing runs until siap prints READY; if it prints INFRA, the run is VOID
@@ -32,12 +34,13 @@ set -uo pipefail
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$REPO"
 ALL="lint,typecheck,build-identity,suite,plants,redcase"
-STEPS="$ALL"; OUT=""; RESET=1; SUITE_ARGS=()
+STEPS="$ALL"; OUT=""; RESET=1; UKUR=0; SUITE_ARGS=()
 while [ $# -gt 0 ]; do
   case "$1" in
     --langkah=*) STEPS="${1#*=}" ;;
     --keluar=*) OUT="${1#*=}" ;;
     --tanpa-reset) RESET=0 ;;
+    --ukur) UKUR=1 ;;
     --) shift; SUITE_ARGS=("$@"); break ;;
     -h|--help) sed -n '2,30p' "$0"; exit 0 ;;
     *) echo "preflight: unknown argument $1" >&2; exit 2 ;;
@@ -47,6 +50,7 @@ done
 DENYUT="${PREFLIGHT_DENYUT:-120}"
 SHA="$(git rev-parse HEAD)"
 OUT="${OUT:-$HOME/pintar-preflight/${SHA:0:8}-$(date -u +%Y%m%dT%H%M%SZ)}"
+[ "$UKUR" = 1 ] && OUT="$(mktemp -d)"   # --ukur writes nothing it keeps, and removes only this folder
 mkdir -p "$OUT"
 SUM="$OUT/SUMMARY.txt"; HB="$OUT/HEARTBEAT.txt"
 : > "$HB"
@@ -94,16 +98,59 @@ finish() {
   else verdict="GREEN"; code=0; fi
   { echo "finished $(date -u +%FT%TZ)"; echo "RUN $verdict"; } >> "$SUM"
   [ "$VOID" = 1 ] && echo "VOID, not a result: an INFRA row above says what the machine did. Fix that and repeat the run on the same commit." >> "$SUM"
+  rm -f "$JEJAK_DIR/berjalan"
   redact
   echo "preflight: RUN $verdict ($OUT)"
   exit "$code"
 }
+
+JEJAK_DIR="${SIAP_JEJAK_DIR:-$HOME/pintar-preflight}"; mkdir -p "$JEJAK_DIR"
+# ---- 0b. will this machine hold the run? (ruling 86, L-2: a warning, never a block) ------------------------------
+# The estimate: each step's last measured length in the kept runs (a PASS or FAIL row's «(Ns)»), else a default.
+# The machine's lifetime: from the trace, each earlier boot's last uptime (how long it stayed up).
+perkiraan() {
+  local total=0 st d
+  for st in ${STEPS//,/ }; do
+    d="$(grep -hE "^(PASS|FAIL) +$st +rc=[0-9]+ \(([0-9]+)s\)" "$JEJAK_DIR"/*/SUMMARY.txt 2>/dev/null | sed -E 's/.*\(([0-9]+)s\).*/\1/' | tail -1)"
+    if [ -z "$d" ]; then case "$st" in suite) d=1500 ;; plants) d=1800 ;; redcase) d=2400 ;; *) d=120 ;; esac; fi
+    total=$((total + d))
+  done
+  echo "$total"
+}
+umur_mesin() { # prints "<median seconds> <boots>" over the earlier boots in the trace, or nothing
+  local cur; cur="$(cat "${SIAP_BOOT_FILE:-/proc/sys/kernel/random/boot_id}" 2>/dev/null)"
+  [ -s "$JEJAK_DIR/jejak-mesin.log" ] || return 0
+  local v n
+  v="$(awk -v cur="$cur" '{ b=""; u=""; for (i=1;i<=NF;i++) { if ($i ~ /^boot=/) b=substr($i,6); if ($i ~ /^uptime=/) u=substr($i,8) }
+       if (b != "" && b != cur && u ~ /^[0-9]+$/ && u+0 > max[b]+0) max[b]=u }
+       END { for (b in max) print max[b] }' "$JEJAK_DIR/jejak-mesin.log" | sort -n)"
+  [ -n "$v" ] || return 0
+  n="$(wc -l <<< "$v")"
+  echo "$(sed -n "$(( (n + 1) / 2 ))p" <<< "$v") $n"
+}
+EST="$(perkiraan)"; LIFE="$(umur_mesin)"
+if [ -n "$LIFE" ]; then
+  read -r MED BOOTS <<< "$LIFE"
+  if [ "$EST" -gt "$MED" ]; then
+    row "WARN   size  the run is estimated at $((EST / 60)) min, but this machine stayed up a median $((MED / 60)) min over its last $BOOTS boot(s) (the trace): a long run here may be cut by a restart. The full run's stable route is CI (ruling 86, L-3): push, or dispatch ci.yml. Starting anyway."
+  else
+    echo "size: estimated $((EST / 60)) min, within this machine's median uptime of $((MED / 60)) min ($BOOTS boot(s))" >> "$SUM"
+  fi
+else
+  echo "size: estimated $((EST / 60)) min; no earlier boot in the trace to compare with" >> "$SUM"
+fi
+[ "$UKUR" = 1 ] && { tail -1 "$SUM"; rm -rf "$OUT"; exit 0; }
+
+# ---- 0. a run in progress is marked on disk, so a restart under it is found and named by the next gate (L-1) --------
+export SIAP_RUN="$OUT"
 
 # ---- 1. cleanup and readiness ----------------------------------------------------------------------------------
 bash scripts/dev/bersih.sh --hapus > "$OUT/bersih.log" 2>&1
 row "== bersih: $(tail -1 "$OUT/bersih.log")"
 bash scripts/dev/siap.sh > "$OUT/siap.log" 2>&1
 GATE="$(tail -1 "$OUT/siap.log")"
+grep -E 'ended by a REBOOT|restarted since the last check' "$OUT/siap.log" | sed 's/^siap: /== previous: /' | tee -a "$SUM"
+echo "$OUT" > "$JEJAK_DIR/berjalan"
 row "== siap: $GATE"
 if [ "$GATE" != READY ]; then
   row "INFRA  siap  ${GATE#INFRA }"
