@@ -80,3 +80,4 @@
 | 23 Nov, 11:15 | — (idle, per ruling 79) | Audit journey scripts, first sketch | — | `../roadmap/AUDIT-79-SKRIP-PERJALANAN-DRAF.md`, design only |
 | 23 Nov, 11:46 | Bob | Z5 review | `claude/z-ux` `bc5749ff` | **PASS with C-1, C-2** (client-only, ride Z7); (a) words, (b) behaviour for Z7 |
 | 23 Nov, 11:51 | Bob (ruling 82) | Owner resting until tomorrow; keep moving; resolve ordinary UX questions with builders/Bob, escalate only material ones | — | Noted. Z5 verdict already sent at 11:50 (crossed) |
+| 23 Nov, 11:54 | Bob | Z7 words review | `claude/z-ux` `00c71229` | **PASS with C-1 (S-14 shared with activation), C-2 (two EN), C-3 (column «Paket Pembelajaran»)**; summary order fixed |
