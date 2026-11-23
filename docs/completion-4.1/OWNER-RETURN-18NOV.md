@@ -383,3 +383,8 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
 - **14:50 UTC · Daisy: item 8 PASS** (`a23850d2`). **The REOPEN form is rated SIGNIFICANT.** On «Akun saya», a signed-in person sees a wordless «—» form that answers with an unrelated refusal; no data is at risk. It is likely live on staging. **Bob's decision (delegated):** it enters Z as a review finding on item 8's row, because the same component renders item 8's refusal. It is a client-only one-line filter with no words and no SQL, and changes no approved behaviour. Red first, by Second Eye, before the Z9 evidence.
 - **14:49 UTC · Stream A: Daisy's Z3-A conditions built** (`f970bace`) and with her for a recheck. The Z-VERIFY-CLOSED item 3 wording is fixed. Second Eye is preparing the Z9 evidence folder (the dry run 300 → 308); the full pre-flight waits for Bob's go.
 - **14:55 UTC · Daisy: Z3-A COMPLETE** (`5722aa8f`). All of Daisy's UX items before Z9 are done, except her look at the REOPEN fix.
+- **14:56 UTC · Stream A: the Z9 evidence folder** (`0237cf2a`, `z-evidence/`): the eight sha256, step 0, preservation-Z.sql, and a local dry run 300 → 308.
+  - **The DIFF moves only lines 10, 84, 85 and 86**, exactly as predicted. Lines 20–83 and 87 are identical, and v6 and c3w-r3-bahan print OK.
+  - The BEFORE digest `47bb9138…` equals staging's C3w-1 AFTER. Bob verified the DIFF.
+  - Sent to Sharon, with one difference for her: line 87 orders by to_jsonb, since seven feedback tables have no id.
+  - The full pre-flight starts once the REOPEN fix freezes the candidate.
