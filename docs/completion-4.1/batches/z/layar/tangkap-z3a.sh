@@ -14,8 +14,10 @@ export CARD_PEPPER=synthetic-card-pepper-fable01-32plus CARD_EMAIL_DOMAIN=cards.
 export PINTAR_BUILD_SHA="$(git rev-parse HEAD)" NEXT_TELEMETRY_DISABLED=1
 npx --no-install supabase db reset --local >/dev/null
 npx --no-install next build >/tmp/tangkap-z3a-build.log 2>&1 || { tail -30 /tmp/tangkap-z3a-build.log; exit 1; }
+fuser 3999/tcp >/dev/null 2>&1 && { echo 'port 3999 is in use: stop that server first' >&2; exit 1; }
 npx --no-install next start -p 3999 >/tmp/tangkap-z3a-start.log 2>&1 &
 SERVER=$!
-trap 'kill $SERVER 2>/dev/null || true; npx --no-install supabase db reset --local >/dev/null 2>&1 || true' EXIT
+# the npx wrapper's child next-server outlives a kill of $SERVER alone (a stale one served a later run's shots): free the port
+trap 'kill $SERVER 2>/dev/null || true; fuser -k 3999/tcp >/dev/null 2>&1 || true; npx --no-install supabase db reset --local >/dev/null 2>&1 || true' EXIT
 for i in $(seq 1 60); do curl -sf -o /dev/null http://127.0.0.1:3999/masuk && break; sleep 1; done
 PINTAR_SELFTEST_RSC=1 npx tsx --conditions=react-server docs/completion-4.1/batches/z/layar/tangkap-z3a.ts

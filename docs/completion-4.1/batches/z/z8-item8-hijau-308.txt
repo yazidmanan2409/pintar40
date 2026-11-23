@@ -1,0 +1,24 @@
+# Z8 item 8 on 308, after a reset (23 Nov 2026)
+## whole static suite
+1275 passed, 0 failed, 54 skipped, 58 justified skips accepted (local only), 0 contract problem(s) → RED
+## the new and touched tests
+BOB26-K01   PASS    the code request answers alike whether the lookup finds an account or not and sends only after answering; the code is read as its digits («482 913», «482-913»); an unknown name makes the same call
+AKUN-K01    PASS    akun_tolak's codes are the contract's, each raised and read back by its PR140 DETAIL; the suspension's categories are tangguhkan_akun's own; the per-request check refuses a suspended or closed person'
+B0-S01      PASS    the platform's last usable SYSTEM_ADMIN role is revoked by nobody (its holder, the owner, one statement over all); a school's last usable INSTITUTION_ADMIN role is not revoked by a school admin, a pat
+B0-S02      PASS    a renewal is one transaction leaving exactly one live assignment (the old one revoked at the instant the new one begins), audited role.renewed with its reason beside the per-row rows; whoever may gran
+B0-S03      PASS    the operator's function refuses while a usable platform admin exists and for a person who does not exist, writing nothing, and is never a signed-in caller's; with the only platform admin suspended, cl
+B0-S04      PASS    a role ending in 30 days on the school's clock is listed at 30 and not at 29, one ending in 31 only from 31; the holder reads their own roles, a school's admin (or a platform admin) that school's, a p
+B0-C01      PASS    over two real connections, two administrators revoking each other cannot both succeed: the second waits for the first to commit and is refused as the last usable holder, by revoke_role, «Akhiri tugas
+B0-K01      PASS    every code peran_tolak raises is a signed-in caller's with its Indonesian and English sentence, the operator's or the recorder's own; the guard asks the last-holder rule under its lock on the revocati
+B0-K02      PASS    reads .github/workflows/recover-platform-admin.yml (a dispatch only, staging's database only, its inputs psql variables, one call to operator_appoint_platform_admin and no other write, nothing of the 
+A2A-L01     PASS    252 writers of 847 functions lock the ranked tables in order, no upgrade, no row before the fence but under C9-2's one exception, whose condition holds; no lifecycle row after the fence but the same r
+A3-I1       PASS    no function takes institutions FOR UPDATE but the last-administrator guard's removal branch (peran_terakhir_kode under p_kunci), read both by A2A-L01's reader (each lock's strength and its path) and b
+Z-R15-08    PASS    the last usable school administrator's closure is refused ACCOUNT_LAST_SCHOOL_ADMIN (naming no school) and their own revocation ROLE_LAST_SCHOOL_ADMIN; a second administrator counts only appointed now
+Z-R15-10    PASS    while one administrator's closure is open, the other's closure and own revocation wait on the school's lock
+Z-R15-09    PASS    one «another usable administrator» question and one advisory lock taker, used by the guard's locked question and by minta_akun after the person's lock; no revoking function rewritten; ACCOUNT_LAST_S
+## plants
+l1f4-3 (registered) → L1F4-K10 red for «the closure recorded nothing», schema moved and came back
+T1 the closure's check removed → Z-R15-08    FAIL    c_sendiri: expected PR140:ACCOUNT_LAST_SCHOOL_ADMIN, got ok; c_ditangguhkan: expected PR140:ACCOUNT_LAST_SCHOOL_ADMIN, got ok; c_dikunci: expected PR140:ACCOUNT_LAST_SCHOOL_ADMIN, got ok; c_tanpa_akun: expected (restored)
+T2 the account and lock condition removed → Z-R15-08    FAIL    c_dikunci: expected PR140:ACCOUNT_LAST_SCHOOL_ADMIN, got ok; r_dikunci: expected PR160:ROLE_LAST_SCHOOL_ADMIN, got ok (restored)
+T3 the advisory lock removed → Z-R15-10    FAIL    tutup: the other administrator's closure did not wait for the open closure (ok); cabut: the other administrator's revocation did not wait for the open closure (ok) (restored)
+T4 the guard's lock removed → Z-R15-10    FAIL    cabut: the other administrator's revocation did not wait for the open closure (ok) (restored)

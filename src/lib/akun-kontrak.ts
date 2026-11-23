@@ -14,6 +14,8 @@ export const KODE_AKUN_DB = [
   "ACCOUNT_LIVE_ATTACHMENT",
   // L1-F4 (Sharon, result review of 3a63a2b2): a person whose personal data was deleted is never reopened
   "ACCOUNT_ANONYMISED",
+  // Z8 item 8 (Sharon (c), 23 Nov): the last usable school administrator does not close their own account
+  "ACCOUNT_LAST_SCHOOL_ADMIN",
 ] as const;
 // ACCOUNT_PHOTO_PENDING (Sharon §16 finding 2): the data is deleted, a photo file not yet; pressing again finishes it
 export const KODE_AKUN = [...KODE_AKUN_DB, "ACCOUNT_PHOTO_PENDING", "ACCOUNT_FAILED"] as const;

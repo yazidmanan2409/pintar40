@@ -275,7 +275,10 @@ export const b5Tests: SelfTest[] = [
         baca(ctx.repoRoot, "supabase/migrations/20270117130000_an_anonymised_person_is_given_nothing_new.sql"),
         // RESTATED again, L1-F4 (Sharon's result review of 3a63a2b2): 20270117200000 redefines akun_tolak with
         // ACCOUNT_ANONYMISED and raises it from buka_kembali_akun; the last definition read is still the one in force
-        baca(ctx.repoRoot, "supabase/migrations/20270117200000_an_anonymised_person_is_never_reopened.sql")].join("\n")
+        baca(ctx.repoRoot, "supabase/migrations/20270117200000_an_anonymised_person_is_never_reopened.sql"),
+        // RESTATED again, Z8 item 8 (Sharon (c)): 20270123170000 redefines akun_tolak and minta_akun with
+        // ACCOUNT_LAST_SCHOOL_ADMIN; the last definition read is still the one in force
+        baca(ctx.repoRoot, "supabase/migrations/20270123170000_a_school_keeps_a_usable_administrator.sql")].join("\n")
         .replace(/--[^\n]*/g, "");
       const tolak = [...sql.matchAll(/create or replace function public\.akun_tolak[\s\S]*?\$\$;/g)].pop()?.[0] ?? "";
       const dariDb = [...tolak.matchAll(/when '([A-Z_]+)'/g)].map((m) => m[1]).sort();
@@ -308,7 +311,7 @@ export const b5Tests: SelfTest[] = [
       c.expect(/bisaMinta \? \(/.test(komponen) && /data-tinggal-lewat-sekolah/.test(komponen) && /name="konfirmasi" value="ya" required/.test(komponen),
         "the requests are not one confirmation each, or a learner is offered a form");
       c.expect(/if \(jenis === "CLOSE"\) redirect\("\/keluar/.test(baca(ctx.repoRoot, "src/app/akun/actions.ts")), "a closure does not sign the person out");
-      return c.verdict("akun_tolak's 12 codes are the contract's, each raised and read back by its PR140 DETAIL; the suspension's categories are tangguhkan_akun's own; the per-request check refuses a suspended or closed person's token whatever the path while the status read passes; every code, category, request kind and status and the six facts of leaving have words in the copy table in both languages naming no machinery; Akun saya is drawn for a learner, who is offered no form; each request is one confirmation; a closure signs the person out");
+      return c.verdict("akun_tolak's codes are the contract's, each raised and read back by its PR140 DETAIL; the suspension's categories are tangguhkan_akun's own; the per-request check refuses a suspended or closed person's token whatever the path while the status read passes; every code, category, request kind and status and the six facts of leaving have words in the copy table in both languages naming no machinery; Akun saya is drawn for a learner, who is offered no form; each request is one confirmation; a closure signs the person out");
     },
   },
 ];

@@ -7306,6 +7306,21 @@
       "proves": "Z R-27(b) (Sharon; the shared fixture selftest/fixtures/z/pintar-id-normalisasi.json), selftest/z-r27.test.ts, executes minta_buka_kembali from migration 20270123160000 against the migrated database: on a closed account whose PINTAR ID is the fixture's (rolled back), minta_buka_kembali records a REOPEN request exactly for the cases marked cocok (the card's grouping, a hyphen, lower case, I or L for 1) and for none of the others (a near miss, wrong lengths, U, an email containing the ID, a username, empty); pintar_id_canonical gives each case's kanonik; the answer is the same whether or not it matched."
     },
     {
+      "id": "Z-R15-08",
+      "runner": "static",
+      "proves": "Z8 item 8 (Sharon's R-15 B0 read, 23 Nov), selftest/z-r15.test.ts, executes minta_akun and revoke_role from migration 20270123170000 against the migrated database on the synthetic world, each probe rolled back: the last usable school administrator's closure is refused PR140 ACCOUNT_LAST_SCHOOL_ADMIN with a message naming no school, and their own revocation PR160 ROLE_LAST_SCHOOL_ADMIN; a second administrator counts only when appointed now, unsuspended, not anonymised, with an account and not locked (a past banned_until counts); every school the caller administers is checked; with a usable second administrator both are allowed; a platform admin may revoke the last one."
+    },
+    {
+      "id": "Z-R15-10",
+      "runner": "static",
+      "proves": "Z8 item 8 (Sharon (e)), selftest/z-r15.test.ts, executes minta_akun and revoke_role from migration 20270123170000 on two connections against the migrated database: while one administrator's closure is held open, the other administrator's closure and own revocation wait on the school's advisory lock (they time out under lock_timeout); both roll back."
+    },
+    {
+      "id": "Z-R15-09",
+      "runner": "static",
+      "proves": "Z8 item 8, selftest/z-r15.test.ts, reads migration 20270123170000, src/lib/akun-kontrak.ts and src/lib/hle.ts: admin_sekolah_lain_ada is the one «another usable administrator» question and kunci_admin_sekolah the one advisory-lock taker (school id order), both used by peran_terakhir_kode and by minta_akun after the person's lock; no revoking function or the guard is rewritten; ACCOUNT_LAST_SCHOOL_ADMIN is in akun_tolak, raised by minta_akun, in the screens' contract, and has Daisy's ID and EN words; every function created is revoked from PUBLIC."
+    },
+    {
       "id": "Z-N15-01",
       "runner": "static",
       "proves": "Z N-15, selftest/z-n15.test.ts: the source of pengajar.perluPenguatan keeps a failed tujuan_belum_tercapai read as null, and the rendered KomposisiKelas section «Murid yang perlu penguatan» says mengajar.murid1.tujuan_gagal (ID and EN) for that learner only, beside a learner read with an objective and one read with none."
