@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| D-6 read RPCs, purpose test (ruling 81) | revoke 3; feedback_result only if a closed round exists | f258e5f4 | [D6-READ-RPC-PURPOSE-f258e5f4.md](D6-READ-RPC-PURPOSE-f258e5f4.md) |
 | C3w-1 staging-promotion proofs | PASS with conditions (4 additions to Request 2) | ed4a90cc | [C3W-1-PROMOTION-ed4a90cc.md](C3W-1-PROMOTION-ed4a90cc.md) |
 | Ruling 40: data handling, both providers (same criteria; I am an Anthropic model) | OpenAI MEETS WITH CONDITIONS (no opt-in, store:false, no tools, a separate project, change notices). Anthropic MEETS WITH CONDITIONS, with one BLOCKING: its API retention terms are unread (C2); plus no tools, a separate workspace, dated list copies, confirming that support/fraud vendors see no content. Counsel's questions kept separate, plus Q-S1 and Q-S2 | `8ae28e78` | `RULING40-DATA-HANDLING-8ae28e78.md` |
 | C3w-1 build hand-off | PASS: F-1 (length-sized reservation), F-2 (one read, hash equality before the claim), the Q1 additions, the four readings (a sent attempt is never released), D-3's constant tied by test, BOB32-K02 tighter, INV-03 no exposure. Note: ai_tersedia ignores QUALIFIED and the window (fails closed) | `6ace7b2fb2b4451619a1c77c64f8ca0a773d437d` / code `eda28393` | `C3W-1-BUILD-992b568f.md` |
