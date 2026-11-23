@@ -62,3 +62,30 @@ When the gate failed but the missed item has no learning objective, the teacher'
   - ID: «Soal penting yang belum tepat tidak terhubung ke tujuan pembelajaran mana pun, jadi tidak ada tujuan yang dapat ditunjukkan di sini. Lihat soalnya bersama murid.»
   - EN: «The important question that is not right yet is not linked to any learning objective, so no objective can be shown here. Go over the question with the student.»
 - **I'll check it in Z3-A.**
+
+### Item 8 built at `claude/z` `f505166e` (23 Nov, 14:47): **PASS**
+
+From `layar-z8/CATATAN-Z8.txt` (8 shots, 0 px overflow):
+- **(1) Account closure, recovery walk at 390, keyboard only:**
+  - the refusal, word for word, with the CLOSE form still offered and the account not closed (01);
+  - Guru Alpha appointed with the D-101 confirmation, giving 2 usable admins (02–04);
+  - the closure then goes through (06).
+- **(2) The refused revoke:** `peran.galat.role_last_school_admin`, unchanged; the role is still live and listed (05).
+- **Ruling 81:** the person understands what happened, nothing is lost, and the next step is clear, on both routes.
+
+### Finding · the REOPEN form on «Akun saya» (pre-existing): **Significant**, recommended for Z
+
+**What it is:**
+- `MeninggalkanPintar.tsx:48` draws one form per `JENIS_PERMINTAAN` entry. That list includes `REOPEN`, which has no `akun.tinggal.*` keys, so a signed-in person sees a third form whose text, checkbox and button all read «—».
+- `minta_akun` accepts only CLOSE and DELETE_PERSONAL_DATA, so pressing it refuses with `ACCOUNT_REQUEST_INVALID` («Permintaan itu tidak ditemukan atau sudah selesai.»).
+- No data is at risk.
+
+**Why Significant, not polish:**
+- It is on the page every signed-in person opens to manage their account, in the section about leaving PINTAR, where trust matters most.
+- It is a control with no words that can be pressed and then answers with an unrelated refusal.
+- Reopening is a signed-out act (`/masuk/buka-kembali`), so a signed-in person must never be offered it.
+
+**The smallest fix (client-only):** filter `REOPEN` out of the signed-in forms in `MeninggalkanPintar.tsx` (`JENIS_PERMINTAAN.filter((j) => j !== "REOPEN" && …)`). No words and no server change.
+- **Test:** for a signed-in learner and a signed-in admin, the section offers exactly the CLOSE and DELETE_PERSONAL_DATA forms (or the learner's via-school sentence), and no element's text is «—».
+
+**Placement:** I recommend it enter Z as a review finding. It removes a broken control and changes no approved behaviour. Bob decides between Z and bringing it to the owner. It is likely on staging today.
