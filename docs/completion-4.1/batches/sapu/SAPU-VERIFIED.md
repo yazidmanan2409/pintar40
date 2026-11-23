@@ -57,3 +57,19 @@
 - **Owner:**
   - K-02 «Sudah dikuasai» (already logged);
   - T-03: one name for the platform administrator, «Admin PINTAR» or «Admin platform».
+
+## Daisy's final words (ruling 78)
+
+Daisy's final words are at `ux-1/daisy-experience` `81b757b8`, `SAPU-KATA-RULING-78.md`. They are accepted. Bob settled her three [B] checks:
+
+1. **K-02, the alasan fallback: CONFIRMED.**
+   - For a KUAT card there are no wrong answers, so `reading_map`'s alasan falls back to `r.statement` (`20270117100000:278-287`), and the card prints the statement twice.
+   - `map.kuat.arti` replaces the alasan slot for KUAT cards. This is UI only.
+2. **K-01, the gate item's objectives in the suggested lessons: NOT AVAILABLE.**
+   - `tujuan_belum_tercapai` (latest `20270111100000`) returns only objectives whose per-domain mastery is below the pass mark. A must-be-right item missed inside an objective that is above the mark is not returned.
+   - Including it needs an SQL change: return the `objective_ids` of the session's missed safety-critical items. The read already gives the objective only, with no item or answer.
+   - **Sharon reviews it.** It is part of the K-01 consumer inventory.
+3. **«tim PINTAR» in `lapor.*`: no change.**
+   - The platform reader of the queue is the platform context. That is the `SYSTEM_ADMIN` role, the role Admin PINTAR names.
+   - But «tim PINTAR» describes who reads a report, in privacy and next-step text. It is not a role label, and it is accurate.
+   - Ruling 78's «Admin PINTAR» applies to the role name. «tim PINTAR» and «pengelola PINTAR» stay.
