@@ -1306,8 +1306,10 @@
 .pin-input[readonly] { background: var(--surface-2); border-color: var(--line); }
 .pin-hint { margin: 0; font-size: var(--type-meta); color: var(--ink-3); }
 .pin-value { margin: 0; font-size: var(--type-body); }
+/* Daisy's Z6 ruling: a segmented control never scrolls (a scroll hid options, at 320 px and at 1280, and clipped its
+   own focus ring); it wraps between options, each option whole on one line */
 .pin-seg {
-  display: inline-flex; max-width: 100%; min-width: 0; overflow-x: auto; justify-self: start;
+  display: inline-flex; flex-wrap: wrap; max-width: 100%; min-width: 0; overflow-x: visible; justify-self: start;
   background: var(--surface-2); border-radius: var(--radius-md);
 }
 .pin-seg label { position: relative; display: block; flex: none; }
@@ -1376,7 +1378,9 @@
   /* Tabs keep one row on a phone and scroll inside it (v3 Tabs); the page never does. */
   .pin-switch { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; max-width: 100%; }
   .pin-switch a { flex: none; white-space: nowrap; }
-  .pin-seg { display: grid; grid-template-columns: repeat(3, 1fr); }
+  /* Z6: a phone's segmented control takes the row and wraps between whole options (it was three fixed columns, which a
+     fourth option or a long one overflowed) */
+  .pin-seg { display: flex; }
   .pin-seg span { text-align: center; }
   .pin-isian .pin-input { width: 100%; }
   .pin-paket, .pin-hidup { padding: var(--space-5); }
@@ -3336,6 +3340,10 @@ select:not([multiple]):not([size]) {
 .pin-sempit-saja { display: none; }
 /* R-11 (Daisy, Z-SIAP §2): a collection's rows as blocks of their own (BarisKoleksi.tumpuk), drawn only below 640 px */
 .pin-koleksi-tumpuk { display: none; }
+/* Daisy's Z6 ruling (6): the pager returns to the collection; under the phone's sticky bar it lands below the bar, not
+   under it (the bar is two lines at 320 px when its place word wraps) */
+@media (max-width: 1023px) { .pin-koleksi { scroll-margin-top: calc(var(--shell-bar) + var(--space-4)); } }
+@media (max-width: 360px) { .pin-koleksi { scroll-margin-top: calc(var(--shell-bar) + var(--shell-bar)); } }
 @container (max-width: 639px) {
   /* R-11: where a table would scroll sideways, its rows are blocks: one learner each, the name its heading, each part
      with its own visible label; the list keeps the rows' order and is named as the table is */

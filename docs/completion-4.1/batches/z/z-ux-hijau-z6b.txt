@@ -1,0 +1,26 @@
+# Daisy's Z6 rulings, after the fix (23 Nov 2026)
+## lint and typecheck: 0 errors
+## the restated tests
+UX1-S0-TOKEN-01 PASS    every re-set Experience surface resolves its colours, radii, type sizes and spacing to a token in the source file src/app/globals.css; every surface is declared either re-set or pending, so a new one cannot be added outside the lint; and every allow-listed constant still exists and carries a reason (249 re-set surface(s), 6 awaiting their slice, 68 classified implementation constant(s))
+KOLEKSI-TABEL-01 FAIL    (id) «Sebelumnya» does not lead to page 1 keeping the search and filter; (id) «Berikutnya» does not lead to page 3 keeping the search and filter; (en) «Previous» does not lead to page 1 keeping the search and filter; (en) «Next» does not lead to page 3 keeping the search and filter
+Z-BINGKAI-01 PASS    executes BINGKAI from the rendered-check helper audit/a11y.mjs against a page built in the test: a wide table's frame that is a named, focusable region (aria-label or aria-labelledby) passes, and one missing its role, tabindex or name is caught once, as itself; any other box that scrolls sideways is caught; a segmented control wider than itself is caught, scrolling or not; the tab row (.pin-switch, designed) is not; a part wider than the window in no scrolling box is; a hidd
+Z-R11-01    PASS    renders Koleksi three ways: rows with their block are drawn as a list named as the table, each block the name as its heading, then the sitting's line, the visible «Keadaan» label with the state, then «Atur»; rows without, and an empty result, stay the table alone; the CSS file replaces the table with the blocks below 640 px (Koleksi's container), wraps the instrument switch one option a line below 360 px and every segmented control between whole options (never scrolling),
+KOLEKSI-TABEL-01 is restated (the pager's anchor is now the collection, #…-koleksi) and passes with D168-K2-1.
+
+## static runner, every static id: 3 failures, all known and outside Z (F06-S01, D060-J78-01: stream A's D-1; BOB26-K01: CARD_PEPPER); KOLEKSI-TABEL-01 restated after this run
+507 passed, 4 failed, 231 skipped, 14 justified skips accepted (local only), 0 contract problem(s) → RED
+
+## app runner with the local stack
+D168-B1-1   PASS    every older Konfigurasi address (the actions' results, a section's own parameters, its pagers) lands on its section's page with every parameter; that page draws its section alone u
+JEJAK-A01   PASS    as Alpha's admin, with 13 runs and 1,310 related rows at the newest end of the trail (more than max_rows): each run is one entry on exactly one page of the trail with its exact cou
+KENAIKAN-A01 PASS    as Alpha's admin, through the screen (rendered, route): Kelas 5X chosen; all four learners listed, the Tingkat-only one marked; «Naikkan semua ke» pre-selected 6X for the Kelas'
+A1-A01      PASS    as the class's teacher in the running app: «Siapa yang sudah mengumpulkan» shows each learner's state (not started; open with its start and time left; handed in; «Waktu habis» 
+A1-J01      PASS    «a power cut during Uji Penguasaan», through the running app with no engineer: the learner starts the Uji Penguasaan from its orientation and answers two questions; the class's t
+C1W-A01     PASS    as the package's author in the running app: «Ubah soal ini» turns one article into its form in place, fields in Daisy's order, its heading focusable; a save with problems is refu
+B1-L01      PASS    a teacher is refused; the school's admin reads their own sign-in by name without any network origin; the platform admin reads it with its /24 and never the address; a reference not
+B1-A04      PASS    a staff member of Alpha, suspended (the right and a wrong password), then closed, each attempt one failure answered and recorded exactly as a wrong password (401 MASUK_TIDAK_COCOK,
+Z-R10-01    PASS    in the running app as the bootstrap school's administrator and as the platform administrator (R-10, option A): on catatan-masuk, kesempatan, keamanan, sertifikat, email-uji, staf a
+C2W-B3      PASS    in the running app, on a published package: the head of department finds «Catatan peninjau (0)» after «Riwayat soal», never printed, with «Tulis catatan» on each option; the 
+10 passed, 0 failed, 0 skipped, 0 contract problem(s) → GREEN
+
+## the sweep after the fix: z6-sapu-1.txt (run 1 of 2), GREEN; BINGKAI_DIKETAHUI is empty

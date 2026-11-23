@@ -58,6 +58,11 @@ const UKUR = () => {
  * wider than the window that no such box holds. null when there is none.
  * The one designed exception is the tab row (`.pin-switch`, v3 Tabs and Daisy F10): it keeps one line on a phone and
  * scrolls inside it, its edge fading while more tabs follow.
+ * Daisy's Z6 ruling (TINJAUAN-Z6-f322c25c): a wide DATA TABLE may scroll in its frame (WCAG 1.4.10 allows two-dimensional
+ * scrolling for data tables) when the frame is a `.pin-tabel-bingkai` that a keyboard can reach and a reader is told of:
+ * role="region", tabindex="0" and an accessible name that resolves to text (aria-label, or aria-labelledby). A frame
+ * missing any of the three is caught. A segmented control (`.pin-seg`) never holds more than its width, scrolling or not:
+ * it wraps between whole options.
  */
 export const BINGKAI = () => {
   const akar = document.querySelector("main") ?? document.body;
@@ -65,6 +70,13 @@ export const BINGKAI = () => {
   const nama = (el) => el.tagName.toLowerCase() + (el.id ? `#${el.id}` : "") + [...el.classList].slice(0, 3).map((c) => `.${c}`).join("");
   const SENGAJA = ".pin-switch";
   const gulir = (c) => c.overflowX === "auto" || c.overflowX === "scroll";
+  const bernama = (el) => {
+    const label = (el.getAttribute("aria-label") ?? "").trim();
+    if (label) return true;
+    const ids = (el.getAttribute("aria-labelledby") ?? "").trim().split(/\s+/).filter(Boolean);
+    return ids.length > 0 && ids.every((i) => (document.getElementById(i)?.textContent ?? "").trim().length > 0);
+  };
+  const tabelBoleh = (el) => el.classList.contains("pin-tabel-bingkai") && el.getAttribute("role") === "region" && el.getAttribute("tabindex") === "0" && bernama(el);
   const diGulir = (el) => { for (let a = el.parentElement; a && a !== akar.parentElement; a = a.parentElement) if (gulir(getComputedStyle(a))) return true; return false; };
   const sebab = [];
   for (const el of akar.querySelectorAll("*")) {
@@ -72,7 +84,9 @@ export const BINGKAI = () => {
     const r = el.getBoundingClientRect();
     if (r.width === 0 || r.height === 0 || c.visibility === "hidden" || c.position === "fixed") continue;
     if (el.closest(SENGAJA)) continue;
-    if (gulir(c) && el.scrollWidth > el.clientWidth + 1) sebab.push(`${nama(el)} scrolls sideways (${el.scrollWidth} px in ${el.clientWidth} px)`);
+    const lebih = el.scrollWidth > el.clientWidth + 1;
+    if (gulir(c) && lebih) { if (!tabelBoleh(el)) sebab.push(`${nama(el)} scrolls sideways (${el.scrollWidth} px in ${el.clientWidth} px)`); }
+    else if (lebih && el.classList.contains("pin-seg")) sebab.push(`${nama(el)} holds more than its width (${el.scrollWidth} px in ${el.clientWidth} px)`);
     else if (r.right > lebar + 1 && !diGulir(el)) sebab.push(`${nama(el)} is wider than the window (${Math.round(r.width)} px, to ${Math.round(r.right)} in ${lebar})`);
     if (sebab.length >= 6) break;
   }
@@ -81,13 +95,9 @@ export const BINGKAI = () => {
 
 // Z6 (R-11; Daisy, Z-SIAP §2): a box inside `main` that scrolls sideways at 320 px is broken, as a page wider than the
 // window is (BINGKAI above; the crawl and the Z6 sweep both judge by bingkaiBaru). The parts below were found by the Z6 sweep (docs/completion-4.1/batches/z/
-// layar/sapu-z6.ts) and are on the ruling 79 audit list, not fixed in Z: each is reported, never counted as broken.
-// A part not listed here is broken.
-export const BINGKAI_DIKETAHUI = [
-  { jalan: /^\/aktivasi\/orang(?:[?#]|$)/, bagian: "div#pin-orang.pin-tabel-bingkai", audit: "ruling 79 audit, Z6 sweep: «Orang» table at 390 and 320" },
-  { jalan: /^\/konfigurasi(?:\/audit)?(?:[?#]|$)/, bagian: "div.pin-tabel-bingkai.mt-2", audit: "ruling 79 audit, Z6 sweep: «Jejak audit» table at 390 and 320" },
-  { jalan: /^\/mengajar\/[^/]+\/uji-cepat(?:[?#]|$)/, bagian: "div.pin-seg", audit: "ruling 79 audit, Z6 sweep: Uji Cepat's minutes at 320" },
-];
+// layar/sapu-z6.ts). Daisy's Z6 ruling: nothing is parked; the list is EMPTY, and a part ever added to it carries its
+// own audit item. A part not listed here is broken.
+export const BINGKAI_DIKETAHUI = [];
 export const bingkaiBaru = (path, b) => {
   if (!b) return null;
   const sisa = b.sebab.filter((x) => !BINGKAI_DIKETAHUI.some((k) => k.jalan.test(path) && x.startsWith(`${k.bagian} `)));

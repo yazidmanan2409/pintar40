@@ -11,6 +11,7 @@
  * reviewer's note on option B replaced once; removed after the run.
  */
 import { writeFileSync } from "node:fs";
+import { psql } from "../../../../../selftest/bob26.test";
 import { join } from "node:path";
 import { createRequire } from "node:module";
 import { bersihkan as bersihkanA1, dunia as duniaA1, muat as muatA1, mulai } from "../../../../../selftest/a1-layar.test";
@@ -44,6 +45,16 @@ const jeda = (ms: number) => new Promise((r) => setTimeout(r, ms));
   const a1 = duniaA1(tag);
   if (typeof a1 === "string") throw new Error(a1);
   for (const nama of ["buka", "serah", "dinilai"]) mulai(a1.murid[nama].uid, a1.pre, 2);
+  // Daisy's Z6 ruling (6): 45 more learners (no account), so «Siapa» has a second page to walk to; removed after the run
+  psql(`do $$ declare m record; v_p uuid; v_e uuid; begin
+      perform set_config('app.seed_intent', 'synthetic', true);
+      select e.institution_id, e.academic_period_id, e.programme_id into m from public.memberships mm join public.enrollments e on e.id = mm.enrollment_id
+        where mm.node_id = '${a1.kelas}' and mm.valid_to is null limit 1;
+      for i in 1..45 loop
+        insert into public.persons (display_name) values ('Murid A1 Tambah ' || lpad(i::text, 2, '0') || ' ${tag}') returning id into v_p;
+        insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status) values (v_p, m.institution_id, m.academic_period_id, m.programme_id, 'ACTIVE') returning id into v_e;
+        insert into public.memberships (enrollment_id, node_id, academic_period_id) values (v_e, '${a1.kelas}', m.academic_period_id);
+      end loop; end $$`);
   const c1 = duniaC1w(tag, `C1W layar Z6c ${tag}`);
   if (typeof c1 === "string") throw new Error(c1);
   terbitkan(c1.course);
@@ -93,6 +104,37 @@ const jeda = (ms: number) => new Promise((r) => setTimeout(r, ms));
       await rekam(p, "04-siapa-atur", w, `panel: ${(await p.locator("#atur").count()) > 0}`);
       await p.context().close();
     }
+    // Daisy's Z6 ruling: a segmented control wraps between whole options and never scrolls. Uji Cepat's minutes (focus on
+    // the last option) at 1280, 390 and 320; «Siapa»'s state filter at 1280 (focus on its last option)
+    for (const w of [1280, 390, 320]) {
+      const p = await halaman(guru, w);
+      await p.goto(`${ASAL}/mengajar/${a1.kelas}/uji-cepat`, { waitUntil: "networkidle" });
+      const menit = p.locator("main .pin-seg:not(.pin-seg-tautan):not(.pin-lebar-saja) input").last();
+      if ((await menit.count()) > 0) {
+        await menit.focus();
+        await p.locator("main .pin-seg:not(.pin-seg-tautan):not(.pin-lebar-saja)").first().scrollIntoViewIfNeeded();
+        await rekam(p, "06-uji-cepat-menit", w, `options: ${(await p.locator("main .pin-seg:not(.pin-seg-tautan):not(.pin-lebar-saja) label").allInnerTexts()).join(" | ")}`);
+      } else catatan.push(`06-uji-cepat-menit-${w}\tthe minutes control was not on the page`);
+      if (w === 1280) {
+        await p.goto(siapa(a1.pre), { waitUntil: "networkidle" });
+        const saring = p.locator("main .pin-seg.pin-lebar-saja input").last();
+        await saring.focus();
+        await p.locator("main .pin-seg.pin-lebar-saja").scrollIntoViewIfNeeded();
+        await rekam(p, "07-siapa-saring", w, `options: ${(await p.locator("main .pin-seg.pin-lebar-saja label").allInnerTexts()).join(" | ")}`);
+      } else {
+        // (6): below 640 px, «Berikutnya» by keyboard lands the reader at the collection, its blocks in view
+        await p.goto(siapa(a1.pre), { waitUntil: "networkidle" });
+        const lanjut = p.locator("a[rel=next]:visible").first();
+        await lanjut.focus();
+        await p.keyboard.press("Enter");
+        await p.waitForURL(/hal=2/, { timeout: 15000 });
+        await p.waitForLoadState("networkidle");
+        await jeda(400);
+        const di = await p.evaluate(`(() => { const k = document.querySelector(".pin-koleksi[id]"); return k ? k.id + " at " + Math.round(k.getBoundingClientRect().top) + " px" : "none"; })()`);
+        await rekam(p, "08-siapa-berikutnya", w, `the collection: ${di}`);
+      }
+      await p.context().close();
+    }
     // N-8: the notes in Studio, opened by keyboard
     for (const w of [1280, 390, 320]) {
       const p = await halaman(kadep, w);
@@ -109,6 +151,7 @@ const jeda = (ms: number) => new Promise((r) => setTimeout(r, ms));
   } finally {
     await browser.close();
     bersihkanA1();
+    psql(`begin; set local session_replication_role = replica; delete from public.persons where display_name like 'Murid A1 Tambah % ${tag}'; commit;`);
     bersihkanC1w();
     writeFileSync(join(KE, "CATATAN-Z6.txt"), catatan.join("\n") + "\n");
   }

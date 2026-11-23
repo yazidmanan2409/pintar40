@@ -1,34 +1,70 @@
-# Z6 fix, run 1 of 2 (before Second Eye's second integration merge)
+# Z6 after Daisy's rulings, run 1 of 2 (before Second Eye's second integration merge)
 # the files that draw pin-tabel-bingkai or pin-seg: src/app/konfigurasi/catatan-masuk/page.tsx, src/app/konfigurasi/page.tsx, src/app/mengajar/[kelas]/siapa/page.tsx, src/app/mengajar/[kelas]/uji-cepat/page.tsx, src/components/koleksi/Koleksi.tsx, src/components/studio/SoalKerja.tsx
+PASS  /mengajar/:id at 1280: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id at 1280: 0 link mark(s) drawn as a box of their own
 PASS  /mengajar/:id at 390: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id at 390: 0 link mark(s) drawn as a box of their own
 PASS  /mengajar/:id at 320: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id at 320: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id/siapa?penugasan=:id at 1280: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/siapa?penugasan=:id at 1280: every option of its segmented controls lies inside the control, its focus ring uncut
+PASS  /mengajar/:id/siapa?penugasan=:id at 1280: 0 link mark(s) drawn as a box of their own
 PASS  /mengajar/:id/siapa?penugasan=:id at 390: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/siapa?penugasan=:id at 390: every option of its segmented controls lies inside the control, its focus ring uncut
+PASS  /mengajar/:id/siapa?penugasan=:id at 390: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id/siapa?penugasan=:id at 390: the pager's target #pin-siapa-murid-koleksi is the collection the reader lands on ({"atas":72,"bawahBar":57,"tampak":true,"blok":"grid","ujung":false,"layar":900})
 PASS  /mengajar/:id/siapa?penugasan=:id at 320: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/siapa?penugasan=:id at 320: every option of its segmented controls lies inside the control, its focus ring uncut
+PASS  /mengajar/:id/siapa?penugasan=:id at 320: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id/siapa?penugasan=:id at 320: the pager's target #pin-siapa-murid-koleksi is the collection the reader lands on ({"atas":112,"bawahBar":83,"tampak":true,"blok":"grid","ujung":false,"layar":900})
+PASS  /mengajar/:id/siapa?penugasan=:id at 1280: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/siapa?penugasan=:id at 1280: every option of its segmented controls lies inside the control, its focus ring uncut
+PASS  /mengajar/:id/siapa?penugasan=:id at 1280: 0 link mark(s) drawn as a box of their own
 PASS  /mengajar/:id/siapa?penugasan=:id at 390: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/siapa?penugasan=:id at 390: every option of its segmented controls lies inside the control, its focus ring uncut
+PASS  /mengajar/:id/siapa?penugasan=:id at 390: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id/siapa?penugasan=:id at 390: the pager's target #pin-siapa-murid-koleksi is the collection the reader lands on ({"atas":72,"bawahBar":57,"tampak":true,"blok":"grid","ujung":false,"layar":900})
 PASS  /mengajar/:id/siapa?penugasan=:id at 320: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/siapa?penugasan=:id at 320: every option of its segmented controls lies inside the control, its focus ring uncut
+PASS  /mengajar/:id/siapa?penugasan=:id at 320: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id/siapa?penugasan=:id at 320: the pager's target #pin-siapa-murid-koleksi is the collection the reader lands on ({"atas":112,"bawahBar":83,"tampak":true,"blok":"grid","ujung":false,"layar":900})
+PASS  /mengajar/:id/uji-cepat at 1280: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/uji-cepat at 1280: every option of its segmented controls lies inside the control, its focus ring uncut
+PASS  /mengajar/:id/uji-cepat at 1280: 0 link mark(s) drawn as a box of their own
 PASS  /mengajar/:id/uji-cepat at 390: nothing inside main scrolls sideways or is wider than the window
-AUDIT /mengajar/:id/uji-cepat at 320: div.pin-seg scrolls sideways (286 px in 256 px) (on the ruling 79 audit list)
-PASS  /mengajar/:id/uji-cepat at 320: nothing else inside main scrolls sideways or is wider than the window
-AUDIT /aktivasi/orang at 390: div#pin-orang.pin-tabel-bingkai scrolls sideways (693 px in 324 px) (on the ruling 79 audit list)
-PASS  /aktivasi/orang at 390: nothing else inside main scrolls sideways or is wider than the window
-AUDIT /aktivasi/orang at 320: div#pin-orang.pin-tabel-bingkai scrolls sideways (693 px in 254 px) (on the ruling 79 audit list)
-PASS  /aktivasi/orang at 320: nothing else inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/uji-cepat at 390: every option of its segmented controls lies inside the control, its focus ring uncut
+PASS  /mengajar/:id/uji-cepat at 390: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id/uji-cepat at 320: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/uji-cepat at 320: every option of its segmented controls lies inside the control, its focus ring uncut
+PASS  /mengajar/:id/uji-cepat at 320: 0 link mark(s) drawn as a box of their own
+PASS  /aktivasi/orang at 1280: nothing inside main scrolls sideways or is wider than the window
+PASS  /aktivasi/orang at 1280: 0 link mark(s) drawn as a box of their own
+PASS  /aktivasi/orang at 390: nothing inside main scrolls sideways or is wider than the window
+PASS  /aktivasi/orang at 390: 0 link mark(s) drawn as a box of their own
+PASS  /aktivasi/orang at 320: nothing inside main scrolls sideways or is wider than the window
+PASS  /aktivasi/orang at 320: 0 link mark(s) drawn as a box of their own
+PASS  /konfigurasi/catatan-masuk at 1280: nothing inside main scrolls sideways or is wider than the window
+PASS  /konfigurasi/catatan-masuk at 1280: 0 link mark(s) drawn as a box of their own
 PASS  /konfigurasi/catatan-masuk at 390: nothing inside main scrolls sideways or is wider than the window
+PASS  /konfigurasi/catatan-masuk at 390: 0 link mark(s) drawn as a box of their own
 PASS  /konfigurasi/catatan-masuk at 320: nothing inside main scrolls sideways or is wider than the window
-AUDIT /konfigurasi/audit at 390: div.pin-tabel-bingkai.mt-2 scrolls sideways (623 px in 322 px) (on the ruling 79 audit list)
-PASS  /konfigurasi/audit at 390: nothing else inside main scrolls sideways or is wider than the window
-AUDIT /konfigurasi/audit at 320: div.pin-tabel-bingkai.mt-2 scrolls sideways (623 px in 252 px) (on the ruling 79 audit list)
-PASS  /konfigurasi/audit at 320: nothing else inside main scrolls sideways or is wider than the window
-N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-riwayat-soal is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
-N-8   /studio/paket/:id at 320: details.pin-disclosure is 210 px wide; paddings and borders around it (inner first): pin-daftar:2, article:18, pin-panel:26
-N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-catatan-peninjau.pin-noprint is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
-N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-riwayat-soal is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
-N-8   /studio/paket/:id at 320: details.pin-disclosure is 210 px wide; paddings and borders around it (inner first): pin-daftar:2, article:18, pin-panel:26
-N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-catatan-peninjau.pin-noprint is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+PASS  /konfigurasi/catatan-masuk at 320: 0 link mark(s) drawn as a box of their own
+PASS  /konfigurasi/audit at 1280: nothing inside main scrolls sideways or is wider than the window
+PASS  /konfigurasi/audit at 1280: 0 link mark(s) drawn as a box of their own
+PASS  /konfigurasi/audit at 390: nothing inside main scrolls sideways or is wider than the window
+PASS  /konfigurasi/audit at 390: 0 link mark(s) drawn as a box of their own
+PASS  /konfigurasi/audit at 320: nothing inside main scrolls sideways or is wider than the window
+PASS  /konfigurasi/audit at 320: 0 link mark(s) drawn as a box of their own
 N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-riwayat-soal is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
 N-8   /studio/paket/:id at 320: details.pin-disclosure is 210 px wide; paddings and borders around it (inner first): pin-daftar:2, article:18, pin-panel:26
 N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-catatan-peninjau.pin-noprint is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
 N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-noprint is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-riwayat-soal is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure is 210 px wide; paddings and borders around it (inner first): pin-daftar:2, article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-catatan-peninjau.pin-noprint is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-riwayat-soal is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure is 210 px wide; paddings and borders around it (inner first): pin-daftar:2, article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-catatan-peninjau.pin-noprint is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
 N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-riwayat-soal is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
 N-8   /studio/paket/:id at 320: details.pin-disclosure is 210 px wide; paddings and borders around it (inner first): pin-daftar:2, article:18, pin-panel:26
 N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-catatan-peninjau.pin-noprint is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26

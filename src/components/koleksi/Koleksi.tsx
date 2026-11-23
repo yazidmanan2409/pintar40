@@ -160,7 +160,9 @@ export default function Koleksi({
   // R-11: rows that can be stacked are, below 640 px; an empty result keeps the table's own empty row
   const tumpuk = p.total > 0 && baris.length > 0 && baris.every((b) => b.tumpuk);
   return (
-    <div className="pin-koleksi" data-tumpuk={tumpuk ? "" : undefined}>
+    // Daisy's Z6 ruling (6): the pager returns to the collection itself, which both views show (below 640 px the blocks
+    // hide the frame)
+    <div className="pin-koleksi" id={`${id}-koleksi`} data-tumpuk={tumpuk ? "" : undefined}>
       <FormKoleksi saring={param.saring}>
         {Object.entries(tetap).filter(([k, v]) => v !== "" && ![param.cari, param.saring, param.hal].includes(k))
           .map(([k, v]) => <input key={k} type="hidden" name={k} value={v} />)}
@@ -248,7 +250,7 @@ export default function Koleksi({
         </ul>
       ) : null}
       <HalamanKoleksi posisi={p} benda={benda} jalan={jalan} tetap={tetap} cari={cari} saring={nilaiSaring} param={param}
-        jangkar={id} locale={locale} untuk={untuk} />
+        jangkar={`${id}-koleksi`} locale={locale} untuk={untuk} />
     </div>
   );
 }

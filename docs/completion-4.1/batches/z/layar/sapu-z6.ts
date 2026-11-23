@@ -27,7 +27,8 @@ import { ADMIN, GURU, KADEP, bersihkan as bersihkanC1w, dunia as duniaC1w, masuk
 const { chromium } = createRequire(__filename)("playwright");
 const ASAL = process.env.SAPU_ASAL ?? "http://127.0.0.1:3999";
 const AKAR = join(__dirname, "..", "..", "..", "..", "..");
-const LEBAR = [390, 320] as const;
+// Daisy's Z6 ruling: 1280 too (a segmented control scrolled there as well)
+const LEBAR = [1280, 390, 320] as const;
 const hasil: string[] = [];
 const tercakup: string[] = [];
 const tidak: string[] = [];
@@ -53,6 +54,17 @@ function penggambar(): string[] {
   if (typeof a1 === "string") throw new Error(`A1's world: ${a1}`);
   // three open sittings on the Pemetaan Awal, as A1's own walks start them, so «Siapa» has rows with their lines and «Atur»
   for (const nama of ["buka", "serah", "dinilai"]) mulai(a1.murid[nama].uid, a1.pre, 2);
+  // Daisy's Z6 ruling (6): «Siapa» pages at 50; 45 more learners (no account) so «Berikutnya» exists and can be walked.
+  // Named «Murid A1 …», so A1's own cleanup ends their places; the people themselves are removed after the run.
+  psql(`do $$ declare m record; v_p uuid; v_e uuid; begin
+      perform set_config('app.seed_intent', 'synthetic', true);
+      select e.institution_id, e.academic_period_id, e.programme_id into m from public.memberships mm join public.enrollments e on e.id = mm.enrollment_id
+        where mm.node_id = '${a1.kelas}' and mm.valid_to is null limit 1;
+      for i in 1..45 loop
+        insert into public.persons (display_name) values ('Murid A1 Tambah ' || lpad(i::text, 2, '0') || ' ${tag}') returning id into v_p;
+        insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status) values (v_p, m.institution_id, m.academic_period_id, m.programme_id, 'ACTIVE') returning id into v_e;
+        insert into public.memberships (enrollment_id, node_id, academic_period_id) values (v_e, '${a1.kelas}', m.academic_period_id);
+      end loop; end $$`);
   const c1 = duniaC1w(tag, `C1W layar Z6 ${tag}`);
   if (typeof c1 === "string") throw new Error(`C1w's world: ${c1}`);
   const guru = await masuk(ASAL, GURU, `MENGAJAR:${a1.inst}`);
@@ -110,6 +122,54 @@ function penggambar(): string[] {
         const dikenal = b ? b.sebab.filter((x: string) => !(baru?.sebab ?? []).includes(x)) : [];
         if (dikenal.length) hasil.push(`AUDIT ${label} at ${w}: ${dikenal.join("; ")} (on the ruling 79 audit list)`);
         periksa(baru === null, `${label} at ${w}: ${baru ? baru.sebab.join("; ") : dikenal.length ? "nothing else inside main scrolls sideways or is wider than the window" : "nothing inside main scrolls sideways or is wider than the window"}`);
+        // Daisy's Z6 ruling: every option of a segmented control lies inside it, and its focus ring is cut by nothing around it
+        const seg = await p.evaluate(`(() => {
+          const out = [];
+          for (const s of document.querySelectorAll("main .pin-seg")) {
+            const k = s.getBoundingClientRect();
+            if (k.width === 0 || k.height === 0) continue;
+            for (const o of s.querySelectorAll(":scope > label, :scope > a")) {
+              const r = o.getBoundingClientRect();
+              if (r.left < k.left - 1 || r.right > k.right + 1 || r.top < k.top - 1 || r.bottom > k.bottom + 1) out.push("«" + o.textContent.trim() + "» lies outside its control");
+              const f = o.querySelector("input") ?? o; f.focus({ preventScroll: true });
+              const g = (o.querySelector("span") ?? o).getBoundingClientRect(); const w = 3;
+              for (let a = o.parentElement; a && a.tagName !== "BODY"; a = a.parentElement) {
+                const c = getComputedStyle(a); if (c.overflowX === "visible" && c.overflowY === "visible") continue;
+                const b = a.getBoundingClientRect();
+                if (g.left - w < b.left - 0.5 || g.right + w > b.right + 0.5 || g.top - w < b.top - 0.5 || g.bottom + w > b.bottom + 0.5) { out.push("«" + o.textContent.trim() + "»'s focus ring is cut by " + a.tagName.toLowerCase() + "." + [...a.classList].join(".")); break; }
+              }
+            }
+          }
+          document.activeElement?.blur?.();
+          return out;
+        })()`) as string[];
+        if (await p.evaluate(`document.querySelectorAll("main .pin-seg").length`) as number > 0) {
+          periksa(seg.length === 0, `${label} at ${w}: ${seg.length ? seg.join("; ") : "every option of its segmented controls lies inside the control, its focus ring uncut"}`);
+        }
+        // Daisy's Z6 ruling: no link mark (TandaTautan) draws a box of its own
+        const tanda = await p.evaluate(`[...document.querySelectorAll(".pin-tanda-tautan")].filter((t) => { const r = t.getBoundingClientRect(); return r.width > 2 && r.height > 2; }).length`) as number;
+        periksa(tanda === 0, `${label} at ${w}: ${tanda} link mark(s) drawn as a box of their own`);
+        // Daisy's Z6 ruling (6): below 640 px, after «Berikutnya» (by keyboard), the reader lands at the collection
+        if (w < 640 && /siapa/.test(alamat)) {
+          const tujuan = await p.evaluate(`(() => { const k = document.querySelector(".pin-koleksi[id]"); return k ? k.id : ""; })()`) as string;
+          const lanjut = p.locator("a[rel=next]:visible").first();
+          if ((await lanjut.count()) === 0) { periksa(false, `${label} at ${w}: no «Berikutnya» to walk`); continue; }
+          await lanjut.focus();
+          await p.keyboard.press("Enter");
+          await p.waitForURL(/hal=2/, { timeout: 15000 });
+          await p.waitForLoadState("networkidle");
+          await p.waitForTimeout(400);
+          const di = await p.evaluate(`(() => { const k = document.getElementById(${JSON.stringify(tujuan)}); if (!k) return null; const r = k.getBoundingClientRect();
+            const blok = k.querySelector(".pin-koleksi-tumpuk"); const d = document.documentElement;
+            const bar = document.querySelector("header.pin-staf"); const bawahBar = bar && getComputedStyle(bar).position === "sticky" ? Math.round(bar.getBoundingClientRect().bottom) : 0;
+            return { atas: Math.round(r.top), bawahBar, tampak: r.height > 0, blok: blok ? getComputedStyle(blok).display : "none",
+              ujung: Math.ceil(window.scrollY + window.innerHeight) >= d.scrollHeight - 1, layar: window.innerHeight }; })()`) as { atas: number; bawahBar: number; tampak: boolean; blok: string; ujung: boolean; layar: number } | null;
+          // it is scrolled to the top of the view, or, where the page ends before that, the page is at its end with it in view
+          // and it is not under the phone's sticky bar
+          periksa(di !== null && di.tampak && di.atas >= di.bawahBar && (di.atas < di.bawahBar + 200 || (di.ujung && di.atas < di.layar - 100)) && di.blok !== "none",
+            `${label} at ${w}: the pager's target #${tujuan} is the collection the reader lands on (${JSON.stringify(di)})`);
+          await p.goto(`${ASAL}${alamat}`, { waitUntil: "networkidle" });
+        }
         if (process.env.SAPU_DIAM) await p.screenshot({ path: `${process.env.SAPU_DIAM}${label.replace(/[^a-z0-9]+/gi, "_")}-${w}.png`, fullPage: true });
       }
       if (n8) {
@@ -138,6 +198,7 @@ function penggambar(): string[] {
   } finally {
     await browser.close();
     bersihkanA1();
+    psql(`begin; set local session_replication_role = replica; delete from public.persons where display_name like 'Murid A1 Tambah % ${tag}'; commit;`);
     bersihkanC1w();
     const teks = [`# ${process.argv[2] ?? ""}`, ...hasil, "", `## covered (${tercakup.length})`, ...tercakup.map((x) => `- ${x}`),
       "", `## not covered (${tidak.length})`, ...tidak.map((x) => `- ${x}`), "", gagal ? `RED: ${gagal} framed overflow(s)` : "GREEN"].join("\n");
