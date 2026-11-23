@@ -195,3 +195,8 @@ The harness commit `4f904638` was explained and pushed under `0959a62c`. A full 
 - **Rules:** no code; preferences are not findings; each finding classed Z, later or no change.
 - **Checks:** Bob verifies each finding against the server; Sharon only for a server change; the owner decides what is fixed.
 - **Priority:** C3w-1's round-2 recheck pre-empts the sweep. Budget: about one day.
+- **02:50 UTC · Sweep addition (owner).** Daisy tags each finding **A** (a confirmed mismatch, both sides cited) or **B** (needs verification; Bob checks it). Bob verifies every A and settles every B before reporting.
+- **The report is ordered by severity, then destination.** The severity scale:
+  - **S1:** a misleading educational conclusion, or a wrong account-state or security-relevant message;
+  - **S2:** misleads an action (a person does the wrong thing or retries needlessly);
+  - **S3:** inconsistent terminology or cosmetic.
