@@ -24,7 +24,7 @@
 **The cause:** these pages use `CangkangPengalaman kind="pendataan"` with `halamanKini`, which adds only the current page's item, instead of the Konfigurasi shell.
 
 **Fix specification:**
-1. **Every Konfigurasi sub-page renders the same navigation as `/konfigurasi`,** for the same reader. That means «Tempat kerja Anda» in full, and the Konfigurasi section list, with the current section marked `aria-current="page"`. The place word in the bar is «Konfigurasi».
+1. ~~**Every Konfigurasi sub-page renders the same navigation as `/konfigurasi`,** for the same reader. That means «Tempat kerja Anda» in full, and the Konfigurasi section list, with the current section marked `aria-current="page"`.~~ **Superseded 23 Nov (Option A, Bob's question):** «Tempat kerja Anda» in full, from one shared source, on every sub-page, with `aria-current` on the page's own item (or «Konfigurasi»). The 14-section list stays the index's body, as B1 and D-166(a) designed. Section pages keep «← Konfigurasi». The «seven» below counts the six standalone sub-pages plus the section route `/konfigurasi/[bagian]` (the control). The place word in the bar is «Konfigurasi».
 2. **«Aktivasi akun» and «Pendataan»'s own pages keep their own shell.** They are places of their own.
 3. **The rule:** a page's navigation is the navigation of the item it is reached from. One source, not a per-page list.
 4. **Test:** for each of the seven sub-pages, as the school admin and as the platform admin:
