@@ -391,3 +391,8 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
 - **15:00 UTC · Sharon: the Z9 promotion evidence PASS** (`3c5cffad`). Her own sha256 match and her own diff agree. Line 87's ordering is accepted. **C4 is CLOSED. Nothing is open from Sharon's Z reviews** apart from the 4.2 notes in Z8.
 - **15:07 UTC · The REOPEN fix is in** (`944520b0`; Z-R15-11 red first, then green; client only). The dry run was retaken on it (`dryrun-944520b0`): the same DIFF, and both checks OK. **The Z CANDIDATE is frozen at `claude/z df0cbc9c` (308).** Bob gave Second Eye the GO for the one full pre-flight; Daisy checks the REOPEN captures in parallel. CI and the journeys may need a PR into main, which is the owner's call.
 - **15:14 UTC · Daisy: the REOPEN fix PASS; Z's UX COMPLETE** (`7ed39412`). Sharon has nothing open, so **all Z reviews are passed.** Only the Z9 full pre-flight (running) and CI/journeys remain.
+- **16:02 UTC · Z9 full pre-flight on `df0cbc9c`: RED, 1385 passed and 2 failed** (`41b82c6b`; plants 175/175, red cases 11/11). Both failures are Z-introduced:
+  - **F06-S04:** a manifest `proves` sentence (Z-R15-11).
+  - **BOB18-A01:** Konfigurasi pages ask `is_system_admin` twice (from R-10's NavKonfigurasi).
+  - **Bob's decision:** fix both on the candidate (allowed: Z-row defects). The second fix switches to the request-cached `isSystemAdmin()`, so behaviour is unchanged; Sharon is asked to confirm, since it is an auth call site.
+  - **Then ONE GREEN full pre-flight on the new head** (the red run is kept as evidence), then `ci.yml` and `audit-journeys.yml` dispatched once each per D-012/D-025. Both run on a local stack with no deploy (Bob checked). No PR, merge or promotion.
