@@ -90,3 +90,14 @@ Read: the product delta, 7 migrations (`20270122120000` to `180000`) and the rou
 **C3-2 to C3-10** are on Second Eye's figures. I did not re-run them.
 
 **Note, not a condition:** `ai_tersedia` says yes when the entitlement is active and the reader may draft. It does not consider whether the option is QUALIFIED or whether the date window is open. The button can therefore show while the request is refused `AI_TIDAK_TERSEDIA` or `AI_HAK_BERAKHIR`. That fails closed. Align it with `ai_minta_draf`'s checks when convenient (Daisy's screen).
+
+## Addendum · round 2: eda28393..3ab40cd3, head bc6e50da (23 Nov 2026, 06:00 UTC)
+
+Read: migration `20270122190000_a_draft_s_objectives_are_its_target_lesson_s.sql` (sha256 `1b0873b4…`) and the `tanamTujuan` helper. CI, the journeys and the pre-flight (1327/0, plants 175/175, red-case 11/11, A2A-L01 0 breaches) are on Bob's and Second Eye's figures. **PASS.**
+- **`ai_minta_draf`:** I diffed its body against `20270122170000`'s. **The only change is the two new checks:**
+  - `AI_TANPA_TUJUAN`: the target lesson has no objectives;
+  - `AI_TUJUAN_LAIN`: an objective line is not one of the target lesson's statements.
+
+  Both return, writing nothing, before R-3, before any request row and before any reservation. **Every earlier condition is untouched:** identity from the session, the lesson required, VALIDATED refused, R-3 before reservation with no hash on a refusal, and the grants. The lock order and `p_soal` are in `ai_cadangkan` and `ai_tulis_draf`, which this migration does not change.
+- **`ai_tersedia` is now aligned with the request's checks:** the entitlement active, the option `QUALIFIED` with `henti_keras_terverifikasi`, inside the date window, and `draf_boleh_tulis`. **My note from 02:05 is closed.** It still answers only yes or no.
+- **`tanamTujuan` is test-only.** It appears nowhere outside `selftest/`. It uses `set local session_replication_role = replica` inside its own test transaction (an owner-only setting, restored to `origin` straight after), as the other fixtures do. **No guard is changed.**
