@@ -24,22 +24,24 @@ export const PILIHAN_DIIZINKAN = ["fn:grade_kunci", "fn:grade_response", "fn:pil
 /** D-1's seven, repaired by 20270123100000 (Z1) and so off this list. A reader is added here only by Sharon's ruling. */
 export const PILIHAN_MENUNGGU_D1: readonly string[] = [];
 
-const SKALAR = `->>\\s*''pilihan''`;
-const CABANG = `jsonb_typeof\\s*\\([^)]*->\\s*''pilihan''`;
+// Sharon (Z-D1-GUARD-CHOSEN-f9530db0.md, fc9f07ed): every scalar reading of a response's pilihan, as written and as
+// Postgres prints it back (a BEGIN ATOMIC body is stored parsed, so `'pilihan'::text`): ->> 'pilihan', #>> '{pilihan}',
+// jsonb_extract_path_text(…, 'pilihan') and (… -> 'pilihan')::text.
+const SKALAR = String.raw`->>\s*''pilihan''|#>>\s*''\{pilihan\}''|jsonb_extract_path_text\s*\([^;]*?''pilihan''|->\s*''pilihan''(::text)?\s*\)+\s*::\s*text`;
+const CABANG = String.raw`jsonb_typeof\s*\([^)]*->\s*''pilihan''`;
 
-export const zD1Tests: SelfTest[] = [
-  {
-    id: "Z-D1-02",
-    requires: ["db"],
-    run: async () => {
-      const c = new Checks();
-      const baris = psql(`
+/** The guard's read: every body that reads pilihan as one label, by its definition as printed (Sharon (a): never prosrc,
+ *  which is empty for BEGIN ATOMIC), and whether it branches on jsonb_typeof. `tanam` runs first, in the same rolled-back
+ *  transaction, so a planted reader is read as a real one would be. */
+export function pembacaPilihan(tanam = ""): Map<string, boolean> {
+  const baris = psql(`begin;
+${tanam}
 select k || '|' || bercabang from (
   select 'fn:' || case when n.nspname = 'public' then '' else n.nspname || '.' end || p.proname as k,
-         (p.prosrc ~ '${CABANG}')::text as bercabang
+         (pg_get_functiondef(p.oid) ~ '${CABANG}')::text as bercabang
     from pg_proc p join pg_namespace n on n.oid = p.pronamespace
    where n.nspname not in ('pg_catalog', 'information_schema', 'selftest') and n.nspname !~ '^pg_(toast|temp)'
-     and p.prosrc ~ '${SKALAR}'
+     and p.prokind in ('f', 'p') and pg_get_functiondef(p.oid) ~ '${SKALAR}'
   union
   select 'view:' || case when v.schemaname = 'public' then '' else v.schemaname || '.' end || v.viewname,
          (v.definition ~ '${CABANG}')::text
@@ -50,21 +52,47 @@ select k || '|' || bercabang from (
          (m.definition ~ '${CABANG}')::text
     from pg_matviews m
    where m.schemaname <> 'selftest' and m.definition ~ '${SKALAR}'
-) x order by 1;`).split("\n").filter(Boolean);
-      const ditemukan = new Map(baris.map((b) => { const [k, v] = b.split("|"); return [k, v === "true"] as const; }));
+) x order by 1;
+rollback;`).split("\n").filter((b) => /^(fn|view):/.test(b));
+  return new Map(baris.map((b) => { const [k, v] = b.split("|"); return [k, v === "true"] as const; }));
+}
+
+/** Sharon's planted red cases: each a new scalar reader the guard must name. */
+export const PILIHAN_TANAMAN: Array<[string, string]> = [
+  ["fn:z_tanam_atomic", "create function public.z_tanam_atomic(v jsonb) returns text language sql begin atomic select v ->> 'pilihan'; end;"],
+  ["fn:z_tanam_path", "create function public.z_tanam_path(v jsonb) returns text language sql as $$ select v #>> '{pilihan}' $$;"],
+  ["fn:z_tanam_extract", "create function public.z_tanam_extract(v jsonb) returns text language plpgsql as $$ begin return jsonb_extract_path_text(v, 'pilihan'); end $$;"],
+  ["fn:z_tanam_cast", "create function public.z_tanam_cast(v jsonb) returns text language sql as $$ select (v -> 'pilihan')::text $$;"],
+  ["view:z_tanam_view", "create view public.z_tanam_view as select (r.value -> 'pilihan')::text as x from public.responses r;"],
+];
+
+export const zD1Tests: SelfTest[] = [
+  {
+    id: "Z-D1-02",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      const ditemukan = pembacaPilihan();
       const izin = new Set<string>(PILIHAN_DIIZINKAN);
       const tunggu = new Set<string>(PILIHAN_MENUNGGU_D1);
 
       const asing = [...ditemukan.keys()].filter((k) => !izin.has(k) && !tunggu.has(k));
-      c.expect(asing.length === 0, `a reader of ->> 'pilihan' on neither list: ${asing.join(", ")} (a new scalar reader; make it array-aware, or put it to Sharon)`);
+      c.expect(asing.length === 0, `a reader of pilihan as one label on neither list: ${asing.join(", ")} (a new scalar reader; make it array-aware, or put it to Sharon)`);
       const tanpaCabang = [...izin].filter((k) => ditemukan.has(k) && !ditemukan.get(k));
       c.expect(tanpaCabang.length === 0, `on the allowed list but no longer branching on jsonb_typeof(... 'pilihan'): ${tanpaCabang.join(", ")}`);
       const hilang = [...tunggu].filter((k) => !ditemukan.has(k));
-      c.expect(hilang.length === 0, `pending D-1 but no longer reading ->> 'pilihan': ${hilang.join(", ")} (repaired? remove it from PILIHAN_MENUNGGU_D1 in the same commit)`);
+      c.expect(hilang.length === 0, `pending D-1 but no longer reading pilihan as one label: ${hilang.join(", ")} (repaired? remove it from PILIHAN_MENUNGGU_D1 in the same commit)`);
+      // Sharon (a) and (b): each planted form, a BEGIN ATOMIC body among them, is named by the guard
+      const terlewat: string[] = [];
+      for (const [k, ddl] of PILIHAN_TANAMAN) {
+        const dgn = pembacaPilihan(ddl);
+        if (!dgn.has(k) || dgn.get(k)) terlewat.push(k);
+      }
+      c.expect(terlewat.length === 0, `planted scalar readers the guard does not name: ${terlewat.join(", ")}`);
       const menunggu = [...tunggu].filter((k) => ditemukan.has(k));
-      return c.verdict(`reads every function, view and materialised view body outside the system schemas and the harness's selftest schema (pg_proc, pg_views, pg_matviews): ${ditemukan.size} read ->> 'pilihan'; `
+      return c.verdict(`reads every function and procedure by pg_get_functiondef (BEGIN ATOMIC included), every view and materialised view, outside the system schemas and the harness's selftest schema, for ->> 'pilihan', #>> '{pilihan}', jsonb_extract_path_text(…, 'pilihan') and (… -> 'pilihan')::text: ${ditemukan.size} found; `
         + `allowed and array-aware: ${[...izin].filter((k) => ditemukan.has(k)).join(", ") || "none"}; `
-        + `pending D-1 (Z1): ${menunggu.length} (${menunggu.join(", ") || "none"}); on neither list: none`);
+        + `pending D-1: ${menunggu.length}; on neither list: none; each of ${PILIHAN_TANAMAN.length} planted readers (${PILIHAN_TANAMAN.map(([k]) => k).join(", ")}) is named`);
     },
   },
 ];
@@ -173,6 +201,12 @@ export const zD1Tests_01: SelfTest[] = [
         `the teacher's evidence of the wrong answer: ${salah.guru} (chosen null, never JSON text; chosen_all [${s1}, ${s2}])`);
       c.expect(gb !== null && gb.chosen === null && JSON.stringify(gb.chosen_all) === JSON.stringify([b1, b2]) && gb.right === true,
         `the teacher's evidence of the right answer: ${benar.guru}`);
+      // Sharon's rule 1: in the teacher's whole evidence, no chosen is JSON text, and every answer carries chosen_all
+      const semuaJawab = psql(`begin; select selftest.as_user(${lit(GURU)});
+select coalesce(string_agg(case when (a ->> 'chosen') like '[%' then 'JSON' when jsonb_typeof(a -> 'chosen_all') <> 'array' then 'TANPA' else 'ok' end, ',' order by 1), '')
+  from jsonb_array_elements(public.teacher_question_evidence('${d.tugas}', '${d.kelas}') -> 'learners') l, jsonb_array_elements(l -> 'answers') a; rollback;`)
+        .split("\n").find((b) => /^(ok|JSON|TANPA)/.test(b)) ?? "";
+      c.expect(semuaJawab !== "" && semuaJawab.split(",").every((x) => x === "ok"), `the teacher's answers: ${semuaJawab} (no chosen starting with «[», chosen_all on every answer)`);
       // the teacher's class view (soal-kelas.ts) counts a multi-answer once on each option chosen, and names it by them all
       const { susunBuktiSoal } = await import("../src/lib/soal-kelas");
       const kelas = susunBuktiSoal({ sittings: 2, questions: [{ item_id: "q", stem: "", options: [], presented: 2, answered: 2, right: 0 } as never],
