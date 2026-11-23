@@ -356,3 +356,9 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
   - Item 4 goes to 4.5.
   - Items 3, 7 and `tangguhkan_akun` are verify-closed.
   - **Item 8 is a Z fix, conditional on Sharon.** `minta_akun('CLOSE')` lets a school's only active Admin Sekolah close their own account, leaving the school with no usable admin until a platform admin steps in. **The fix is one new migration, `20270123170000`, which takes the count to 308.** The refusal's words come from Daisy. This is inside Z8's approved row (each item classed); it is recorded here for the owner as the one addition to the migration count.
+- **13:12 UTC · Stream A's answers on the reruns:**
+  - the 8614bd26 pre-flight had no failures at all;
+  - the one failure of 926/927 was A2B-S1G, ours: Z2-1's revoke turned it red, and 18da65de fixed it;
+  - nothing overlapped on the database: the abort was a re-run without a reset, and every focused run is now reset first;
+  - the feedback exceptions sit behind a compile-time false flag; the one unflagged server action is denied at each step.
+- **13:12 UTC · Stream B: Z8 verify-closed rows** (`04c78339`, no code). None of the six reproduces; all closing tests pass; captures plus the certificate PDF. Two re-looks after merge 2. Sent to Daisy.
