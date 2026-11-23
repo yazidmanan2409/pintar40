@@ -7,8 +7,9 @@ import { kunciIdentitas } from "@/lib/card";
 /**
  * OWNER RULING 2 (9 Nov): «MINTA AKUN DIBUKA KEMBALI», served at `/masuk/buka-kembali/kirim` (next.config.ts rewrites it
  * here; the proxy lists it as public). A person whose account is closed cannot sign in, so the request is made signed
- * out: their sign-in email or PINTAR ID, and how they can be reached. minta_buka_kembali (service role, its one use
- * here) records it in the PINTAR Administrator's queue only for a closed account, and reopens nothing; the answer is the
+ * out: their sign-in email, username or PINTAR ID, and how they can be reached. The PINTAR ID is found however it was
+ * typed (the card's grouping, a hyphen, lower case, I or L for 1, O for 0: pintar_id_canonical, Z R-27(b)); an input
+ * with @ is an email and is never read as an ID. minta_buka_kembali (service role, its one use here) records it in the PINTAR Administrator's queue only for a closed account, and reopens nothing; the answer is the
  * same for every address, and no sooner than a fixed wait, so it tells no one whether an account exists. Flooding is
  * paced by the code requests' own pace (code_request_pace: one at a time, five an hour), keyed by the caller's address
  * through kunciIdentitas as recovery by PIN is, so no new mechanism. POST only, same origin only; the answer is a 303
