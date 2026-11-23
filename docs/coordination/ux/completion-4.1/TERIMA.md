@@ -62,3 +62,4 @@
 | 23 Nov, 00:05 | Pete (owner request) | Catalogue wording check, `claude/hopeful-turing-43hvpr` | `85f11d87` (head moved past `872d5f96`) | Reply sent: 4 changes (map tiers, sitting extension, minutes, Lulus pair source), rest PASS |
 | 23 Nov, 00:10 | Pete | Exam journey «Belajar, ujian, dan mengulang sampai lulus» | `2fb74409` | Reply sent: closing sentence to «akan dibangun»; «Belum lulus» provisional until D2-R review; one smoothing; correct-count to check against ruling 74 |
 | 23 Nov, 01:46 | Bob | C3w-1 drafting screens review | `claude/c3w-1` `6ace7b2f` | **PASS with conditions**: C-1 objectives follow target, C-2 «Hapus» names its draft; divergences 1, 2, 4 accepted; captures to Second Eye |
+| 23 Nov, 02:49 | Bob (owner request) | Read-only consistency sweep, `main` `706fe8c5` | — | `SAPU-KONSISTENSI-706fe8c5.md`: 37 findings (Q1/Q2 16, Q3 9, Q4 12); A/B tagged |

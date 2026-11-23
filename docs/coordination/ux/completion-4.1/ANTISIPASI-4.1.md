@@ -92,3 +92,5 @@
 - **At each result review:** a table like the ones above, in the review itself.
 
 - **C3W-D4 (mine, 23 Nov):** `C3W-1-WORDS-TAMBAHAN.md` §1 tied the source option to the target lesson, but not the objectives. The build kept the on-screen lesson's objectives. Question 2 (the neighbours) would have caught it. Fixed as C-1 in `TINJAUAN-C3W-1-LAYAR-6ace7b2f.md`.
+
+- **DAISY-SAPU-1 (23 Nov):** the consistency sweep found S-01, S-02 and K-01. In each, a form's or verdict's *other* fields or causes were not read together with the one under review. Question 2 (the neighbours) applies to hidden fields and composite verdicts, not only to visible states. See `SAPU-KONSISTENSI-706fe8c5.md`.
