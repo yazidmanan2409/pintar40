@@ -36,7 +36,9 @@
 | 1 | the whole suite on a forced-reset database, which leaves the world used | 1389 rows: 1386 PASS, 3 FAIL (C3W-C32, C36, C310; see below) | `bukti-usedb-run1*.txt` |
 | 2, the old way | `F01-*,F02-*,F03-*,A2A-C*` on that used database, **no reset** | **I-2 exactly:** «runner aborted: PL/pgSQL function selftest.run_fable03() line 19», and **505 rows read FAIL**. Before the fix below, that was evidence against the code | `bukti-usedb-run1-kelas-ulang.txt` |
 | 3, as the pre-flight now runs it | the same selection, same used database, **forced reset first** | **96 PASS, 0 FAIL, RUN GREEN** | same |
-| 2 again, after the fix | the old way repeated (`--tanpa-reset`) | USEDB2-PENDING | `bukti-usedb.txt` |
+| 1 again | the whole suite on a forced-reset database | **1388 PASS, 0 FAIL, RUN GREEN** (the three C3W rows passed this time) | `bukti-usedb.txt` |
+| 2 again, after the fix | the old way repeated (`--tanpa-reset`) on that used database | the same 505 failing rows, now **INFRA suite: world: the database was not reset … RUN VOID**: never FAIL | same |
+| 3 again | forced reset first | **96 PASS, RUN GREEN** | same |
 
 **The fix after run 2.** A step run with `--tanpa-reset` now classes INFRA («world: the database was not reset»), so the
 run is VOID whichever way it went. The plan asks that I-2 «classify as INFRA or VOID, never as FAIL», and the forced
@@ -48,8 +50,9 @@ breaks a second run. The whole suite does.
 
 **C3W-C32, C36 and C310 (for Bob, not ruling 83's).** These failed in run 1's whole suite with «invalid input syntax
 for type uuid: ""; the scenario did not run». They run **24/24 GREEN** alone on a fresh reset
-(`~/pintar-preflight/c3w-sendiri`), and Z9 ran them GREEN on this commit. So something earlier in the same whole-suite
-run, or the clock, leaves them without their world. The runner rightly classes them FAIL: the machine was healthy.
+(`~/pintar-preflight/c3w-sendiri`), and Z9 ran them GREEN on this commit. The whole suite's second run passed them too (1388/0).
+So they are **intermittent** in a whole-suite run: something earlier in the run, or the clock, sometimes leaves them
+without their world. The runner rightly classes them FAIL: the machine was healthy.
 They go to the audit list. They are stream A's tests.
 
 ## What the proofs turned up in the scripts themselves (fixed before the records above)
