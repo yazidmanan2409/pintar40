@@ -1,0 +1,59 @@
+# bukti-usedb · 2026-11-23T19:32:19Z · commit f5700bd1
+
+## I-2 replayed: the db suites twice on one database, the second time WITHOUT a reset (the old way)
+
+$ scripts/dev/preflight.sh --langkah=suite --keluar=/root/pintar-preflight/bukti-usedb-1 -- --only=F01-*,F02-*,F03-*,A2A-C*
+== bersih: bersih: 0 removed, 0; 17 kept
+== siap: READY
+PASS   suite  rc=0 (42s)  96 passed, 0 failed, 0 skipped, 1 justified skips accepted (local only), 0 contract problem(s) → GREEN
+preflight: RUN GREEN (/root/pintar-preflight/bukti-usedb-1)
+[rc=0]
+
+$ scripts/dev/preflight.sh --langkah=suite --tanpa-reset --keluar=/root/pintar-preflight/bukti-usedb-2-tanpa-reset -- --only=F01-*,F02-*,F03-*,A2A-C*
+== bersih: bersih: 0 removed, 0; 18 kept
+== siap: READY
+PASS   suite  rc=0 (42s)  96 passed, 0 failed, 0 skipped, 1 justified skips accepted (local only), 0 contract problem(s) → GREEN
+preflight: RUN GREEN (/root/pintar-preflight/bukti-usedb-2-tanpa-reset)
+[rc=0]
+
+$ cat /root/pintar-preflight/bukti-usedb-2-tanpa-reset/SUMMARY.txt
+commit f5700bd140c7dfeae8791f5e206d594862b2fb56
+started 2026-11-23T19:34:08Z
+steps suite
+heartbeat every 120s
+== bersih: bersih: 0 removed, 0; 18 kept
+== siap: READY
+== suite
+PASS   suite  rc=0 (42s)  96 passed, 0 failed, 0 skipped, 1 justified skips accepted (local only), 0 contract problem(s) → GREEN
+rows: 97 classed; 0 FAIL, 0 INFRA (ROWS.txt)
+finished 2026-11-23T19:34:56Z
+RUN GREEN
+[rc=0]
+
+$ bash -c grep -v ' PASS ' '/root/pintar-preflight/bukti-usedb-2-tanpa-reset/ROWS.txt' | head -20
+F01-R04     SKIP*  PASS
+[rc=0]
+
+## GREEN: the same replay on the same used database, as the pre-flight now runs it (forced reset first)
+
+$ scripts/dev/preflight.sh --langkah=suite --keluar=/root/pintar-preflight/bukti-usedb-3 -- --only=F01-*,F02-*,F03-*,A2A-C*
+== bersih: bersih: 0 removed, 0; 19 kept
+== siap: READY
+PASS   suite  rc=0 (45s)  96 passed, 0 failed, 0 skipped, 1 justified skips accepted (local only), 0 contract problem(s) → GREEN
+preflight: RUN GREEN (/root/pintar-preflight/bukti-usedb-3)
+[rc=0]
+
+$ cat /root/pintar-preflight/bukti-usedb-3/SUMMARY.txt
+commit f5700bd140c7dfeae8791f5e206d594862b2fb56
+started 2026-11-23T19:34:56Z
+steps suite
+heartbeat every 120s
+== bersih: bersih: 0 removed, 0; 19 kept
+== siap: READY
+== suite
+forced reset: done (supabase db reset --local)
+PASS   suite  rc=0 (45s)  96 passed, 0 failed, 0 skipped, 1 justified skips accepted (local only), 0 contract problem(s) → GREEN
+rows: 97 classed; 0 FAIL, 0 INFRA (ROWS.txt)
+finished 2026-11-23T19:36:48Z
+RUN GREEN
+[rc=0]

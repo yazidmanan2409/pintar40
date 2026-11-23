@@ -1,0 +1,44 @@
+# bukti-port · 2026-11-23T19:20:07Z · commit f5700bd1
+
+## plant: a stale production server left on :3999 (the checkout's existing build, started and abandoned)
+
+$ bash -c fuser -v -n tcp 3999
+                     USER        PID ACCESS COMMAND
+3999/tcp:            root       3148 F.... next-server (v1
+[rc=0]
+
+## RED: the check-only gate names the leaked server
+
+$ scripts/dev/siap.sh --tanpa-pulih
+siap: disk ok (55G free, minimum 10G)
+siap: runtime ok
+siap: images ok (6 present, all pinned by digest)
+siap: stack ok (database, Auth, Mailpit)
+INFRA port: 3999 is held by a leaked app server (pid 3148)
+[rc=3]
+
+## GREEN: the full gate stops it and frees the port
+
+$ scripts/dev/siap.sh
+siap: disk ok (55G free, minimum 10G)
+siap: runtime ok
+siap: images ok (6 present, all pinned by digest)
+siap: stack ok (database, Auth, Mailpit)
+siap: port 3999 held by a leaked app server (pid 3148, started Mon Nov 23 19:20:06 2026): stopping it
+siap: port 3999 pulih (leaked server stopped)
+READY
+[rc=0]
+
+$ bash -c fuser -n tcp 3999 || echo "3999: free"
+3999: free
+[rc=0]
+
+## and a port held by something that is not ours is named, not killed
+
+$ scripts/dev/siap.sh
+siap: disk ok (55G free, minimum 10G)
+siap: runtime ok
+siap: images ok (6 present, all pinned by digest)
+siap: stack ok (database, Auth, Mailpit)
+INFRA port: 3999 is held by pid 3432 (python3 -m http.server 3999 --bind 127.0.0.1 ), which is not an app server this harness starts
+[rc=3]

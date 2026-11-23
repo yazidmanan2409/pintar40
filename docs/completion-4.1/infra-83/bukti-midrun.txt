@@ -1,0 +1,49 @@
+# bukti-midrun · 2026-11-23T19:27:46Z · commit f5700bd1
+
+## plant: kill the runtime 20 s after the suite step itself starts, past its forced reset (heartbeat every 15 s)
+
+$ scripts/dev/preflight.sh --langkah=suite,plants --keluar=/root/pintar-preflight/bukti-midrun -- --only=F01-*,F02-*,F03-*,F04-*,F05-*
+== bersih: bersih: 0 removed, 0; 15 kept
+== siap: READY
+[planted] 19:29:13Z dockerd and containerd killed
+INFRA  suite  rc=1: the machine was lost by the end of the step: runtime: docker does not answer (dockerd or containerd is dead)
+NOT RUN plants  (the run is VOID)
+preflight: RUN VOID (/root/pintar-preflight/bukti-midrun)
+[rc=3]
+elapsed 90s
+
+$ cat /root/pintar-preflight/bukti-midrun/SUMMARY.txt
+commit f5700bd140c7dfeae8791f5e206d594862b2fb56
+started 2026-11-23T19:27:46Z
+steps suite,plants
+heartbeat every 15s
+== bersih: bersih: 0 removed, 0; 15 kept
+== siap: READY
+== suite
+forced reset: done (supabase db reset --local)
+INFRA  suite  rc=1: the machine was lost by the end of the step: runtime: docker does not answer (dockerd or containerd is dead)
+rows: 131 classed; 4 FAIL, 0 INFRA (ROWS.txt)
+NOT RUN plants  (the run is VOID)
+finished 2026-11-23T19:29:16Z
+RUN VOID
+VOID, not a result: an INFRA row above says what the machine did. Fix that and repeat the run on the same commit.
+[rc=0]
+
+$ cat /root/pintar-preflight/bukti-midrun/HEARTBEAT.txt
+19:29:09Z READY
+19:29:16Z INFRA runtime: docker does not answer (dockerd or containerd is dead)
+[rc=0]
+
+## recovery for the next proof
+
+$ scripts/dev/siap.sh
+siap: disk ok (54.6G free, minimum 10G)
+siap: runtime dead: restarting containerd and dockerd
+siap: runtime pulih (restarted; containerd and dockerd answer)
+siap: images ok (6 present, all pinned by digest)
+siap: stack not running: supabase start
+siap: Mailpit not answering: (re)starting the sink as CI does
+siap: stack pulih (database, Auth, Mailpit healthy)
+siap: port 3999 ok (free)
+READY
+[rc=0]

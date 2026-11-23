@@ -1,0 +1,37 @@
+# bukti-defect · 2026-11-23T19:17:23Z · commit f5700bd1
+
+## plant: a real code defect (a user-facing string a static test pins), on a healthy machine
+
+$ git diff --stat
+ src/lib/hle.ts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+[rc=0]
+
+$ scripts/dev/preflight.sh --langkah=suite --keluar=/root/pintar-preflight/bukti-defect -- --only=Z-T03-01
+== bersih: bersih: 0 removed, 0; 12 kept
+== siap: READY
+FAIL   suite  rc=1: FAILED  Z-T03-01  email.aman.diatur_ulang.isi (en): «An Admin PINTAT reset recovery with a PIN for your account. Your old PIN no longer works, and you have been signed out of every device: sign in to
+preflight: RUN RED (/root/pintar-preflight/bukti-defect)
+[rc=1]
+
+$ cat /root/pintar-preflight/bukti-defect/SUMMARY.txt
+commit f5700bd140c7dfeae8791f5e206d594862b2fb56
+started 2026-11-23T19:17:24Z
+steps suite
+heartbeat every 120s
+== bersih: bersih: 0 removed, 0; 12 kept
+== siap: READY
+== suite
+forced reset: done (supabase db reset --local)
+FAIL   suite  rc=1: FAILED  Z-T03-01  email.aman.diatur_ulang.isi (en): «An Admin PINTAT reset recovery with a PIN for your account. Your old PIN no longer works, and you have been signed out of every device: sign in to
+rows: 1 classed; 1 FAIL, 0 INFRA (ROWS.txt)
+finished 2026-11-23T19:18:38Z
+RUN RED
+[rc=0]
+
+$ cat /root/pintar-preflight/bukti-defect/ROWS.txt
+Z-T03-01    FAIL   FAIL
+[rc=0]
+
+$ git diff --stat
+[rc=0]
