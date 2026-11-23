@@ -1887,6 +1887,7 @@ export type HleEvent =
   | "studio.definisi.simpan" | "studio.definisi.buat" | "studio.kanonik.beri"
   | "studio.definisi.versi_baru"
   | "studio.definisi.tetap"
+  | "studio.definisi.dibuat"
   | "studio.integritas.judul"
   | "studio.integritas.penjelasan"
   | "studio.integritas.kosong"
@@ -1944,7 +1945,7 @@ export type HleEvent =
   | "galat.action_unchanged"
   | "galat.action_failed"
   | "galat.rollover_input_incomplete"
-  | "galat.definition_mix_total" | "galat.definition_safety_over"
+  | "galat.definition_mix_total" | "galat.definition_safety_over" | "galat.definition_mix_total_baris"
   | "galat.transfer_input_incomplete"
   | "galat.role_input_incomplete"
   | "galat.role_reason_required"
@@ -6361,6 +6362,7 @@ const table: Table = {
   "studio.kanonik.beri": { default: "Berikan izin", en: "Grant permission" },
   "studio.definisi.versi_baru": { default: "Perubahan ini mengubah cara hasil dibaca, jadi tersimpan sebagai aturan baru. Hasil lama tetap dibaca dengan aturan lamanya.", en: "This change alters how results are read, so it is saved as a new rule. Older results keep being read under their own rule." },
   "studio.definisi.tetap": { default: "Nama diperbarui. Cara hasil dibaca tidak berubah.", en: "The name is updated. How results are read has not changed." },
+  "studio.definisi.dibuat": { default: "Aturan baru dibuat.", en: "The new rule has been created." },
   "studio.integritas.judul": { default: "Tinjauan Integritas", en: "Integrity Review" },
   "studio.integritas.penjelasan": { default: "Catatan ini bahan pertimbangan manusia, bukan kesimpulan tentang murid.", en: "These notes are material for a human to weigh, not a conclusion about a student." },
   "studio.integritas.menunggu_lain": { default: "Di departemen lain, {n} catatan menunggu tinjauan Kepala departemennya.", en: "In other departments, {n} notes are waiting for their head of department's review." },
@@ -6422,6 +6424,7 @@ const table: Table = {
   "galat.action_failed": { default: "Ada kendala di PINTAR. Coba sekali lagi. Bila masih terjadi, sampaikan kode rujukan berikut kepada yang mengurus PINTAR di sekolah Anda.", en: "PINTAR ran into a problem. Try once more. If it happens again, give whoever looks after PINTAR at your school the reference that follows." },
   // S-05: save_assessment_definition's two refusals a person can act on, naming the fields at fault (words for Daisy)
   "galat.definition_mix_total": { default: "Jumlah soal per tingkat kesulitan harus sama dengan Jumlah soal. Periksa keduanya, lalu coba lagi.", en: "The questions per difficulty must add up to the Number of questions. Check both, then try again." },
+  "galat.definition_mix_total_baris": { default: "Aturan ini membagi soalnya per tingkat kesulitan, jadi Jumlah soal tidak dapat diubah di sini. Buat aturan baru dengan jumlah yang diinginkan.", en: "This rule divides its questions by difficulty, so the Number of questions cannot be changed here. Create a new rule with the number you want." },
   "galat.definition_safety_over": { default: "Minimum soal keselamatan tidak boleh lebih dari Jumlah soal.", en: "The minimum safety questions cannot be more than the Number of questions." },
   "galat.rollover_input_incomplete": { default: "Pilih tahun ajaran asal dan tujuan, lalu kelas tujuan untuk sedikitnya satu kelas.", en: "Choose the academic years to move from and to, then a destination class for at least one class." },
   "galat.transfer_input_incomplete": { default: "Pilih murid, lalu isi kode sekolah tujuan dan kode tahun ajaran tujuan.", en: "Choose the student, then fill in the destination school code and the destination academic-year code." },

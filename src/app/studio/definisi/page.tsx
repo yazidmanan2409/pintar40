@@ -91,9 +91,13 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
   const opsional = s("bentuk.opsional");
 
   // the definition's two outcomes are whole sentences of their own
-  const banner = sp.hasil === "ok" && (sp.kode === "DEFINITION_NEW_VERSION" || sp.kode === "DEFINITION_KEPT")
-    ? s(kunciKode(sp.kode))
-    : outcomeLine(sp, locale);
+  const tersimpan = sp.hasil === "ok" && (sp.kode === "DEFINITION_NEW_VERSION" || sp.kode === "DEFINITION_KEPT");
+  // a row's edit (definisi-baris). C-2 (Daisy, Z5 review): a row shows only its name and count, so a mix that no longer
+  // adds up is said as what the row cannot do, never «Periksa keduanya» about a mix it does not show
+  const mix = (x: string | null) => x?.replace(s("galat.definition_mix_total"), s("galat.definition_mix_total_baris")) ?? null;
+  const banner = tersimpan ? s(kunciKode(sp.kode!)) : sp.kode === "DEFINITION_MIX_TOTAL" ? mix(outcomeLine(sp, locale)) : outcomeLine(sp, locale);
+  // the new-rule form (definisi). (a) (Daisy, Z5 review): its success is a creation, said as one; it keeps definition_mix_total
+  const bannerBaru = tersimpan ? s("studio.definisi.dibuat") : outcomeLine(sp, locale);
 
   return (
     <div className="pin-studio-halaman">
@@ -205,7 +209,7 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
           <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.definisi.buat")}</TombolKirim>
         </form>
         <SimpanIsian form="definisi-baru" ditolak={ditolak("definisi")} pemilik={pemilik} />
-        <HasilDi q={sp} bagian="definisi" kalimat={banner} />
+        <HasilDi q={sp} bagian="definisi" kalimat={bannerBaru} />
       </section>
 
       <section className="pin-studio-halaman">

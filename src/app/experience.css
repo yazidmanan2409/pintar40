@@ -3096,6 +3096,8 @@ input[type="file"]:disabled::file-selector-button { background: var(--surface-2)
     background: var(--surface-0); border-bottom: 0; border-right: var(--border-hairline) solid var(--line);
   }
   .pin-staf-kepala { padding: 0 var(--space-2) var(--space-3); }
+  /* the brand and the place word's row (Z5 review, finding b) is a box of its own only under 1024 px */
+  .pin-staf-judul { display: contents; }
   .pin-staf .pin-bar-tempat, .pin-staf .pin-laci-tombol { display: none; }
   .pin-staf .pin-laci { display: flex; flex-direction: column; flex: 1 0 auto; gap: var(--space-2); }
   .pin-staf-bawah { margin-top: auto; padding-top: var(--space-3); border-top: var(--border-hairline) solid var(--line); }
@@ -3119,13 +3121,26 @@ input[type="file"]:disabled::file-selector-button { background: var(--surface-2)
   }
   .pin-staf .pin-merek { --merek-tinggi: var(--logo-height-phone); }
   .pin-staf-kepala { order: 0; display: flex; align-items: center; min-height: var(--shell-bar); }
-  /* W6.4: the page's name wraps onto a second line rather than being cut off: at 320 px, beside the logo and the menu
-     button, it has about 78 px, and «Laporkan masalah», «Konfigurasi» or «Ringkasan Kelas» lost their ends */
-  .pin-staf .pin-bar-tempat {
-    order: 1; flex: 1; min-width: 0;
-    font-weight: var(--weight-strong); white-space: normal; overflow-wrap: anywhere; line-height: var(--leading-tight);
-    padding-block: var(--space-1);
+  /* W6.4: the page's name is never cut off: at 320 px, beside the logo, the «Keluar» button and the menu button, it has
+     about 66 px, and «Laporkan masalah», «Konfigurasi» or «Ringkasan Kelas» lost their ends.
+     Daisy (Z5 review, finding b): nor does it ever break inside a word, and it is never shortened with an ellipsis: it
+     says where the person is. The brand and the place word are one wrapping row (.pin-staf-judul) whose place word is
+     at least its longest word wide, so a word that does not fit beside the brand takes the whole place word to the
+     row's second line and the bar grows; between its words it may wrap, never inside one. */
+  .pin-staf-judul {
+    order: 0; flex: 1 1 0; min-width: 0;
+    display: flex; flex-wrap: wrap; align-items: center; column-gap: var(--space-3);
   }
+  .pin-staf .pin-bar-tempat {
+    flex: 1 1 0; min-width: min-content;
+    font-weight: var(--weight-strong); white-space: normal; overflow-wrap: normal; word-break: normal; hyphens: manual;
+    line-height: var(--leading-tight); padding-block: var(--space-1);
+  }
+  /* «Keluar» and the menu button stay on the brand's line when the place word takes a second one */
+  .pin-staf > :is(.pin-sesi, .pin-laci-tombol, .pin-laci-js) {
+    align-self: flex-start; margin-block-start: calc((var(--shell-bar) - var(--control-md)) / 2);
+  }
+  .pin-staf[data-laci="buka"] > .pin-sesi, .pin-laci-saklar:checked ~ .pin-sesi { margin-block-start: 0; }
   .pin-staf .pin-sesi { order: 2; width: auto; border: 0; padding: 0; flex-wrap: nowrap; }
   .pin-staf .pin-sesi-ket, .pin-staf .pin-sesi-akun { display: none; }
   .pin-staf .pin-laci-tombol {

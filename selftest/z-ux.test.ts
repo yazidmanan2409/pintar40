@@ -577,7 +577,8 @@ export const zUxStaticTests: SelfTest[] = [
       }
       const aksi = buang(readFileSync(join(repoRoot, "src", "app", "pendataan", "actions.ts"), "utf8"));
       const fn = /export async function simpanKodeAksi[\s\S]*?\n\}/.exec(aksi)?.[0] ?? "";
-      c.expect(fn.indexOf('if (!kodeSekolahSah(kode)) redirect("/pendataan?galat=kode_bentuk");') >= 0
+      // RESTATED (Daisy's Z5 review, C-1): the shape refusal also sends back what was typed (kenapa); the order is unchanged
+      c.expect(fn.indexOf('if (!kodeSekolahSah(kode)) redirect(`/pendataan?galat=kode_bentuk&kenapa=${encodeURIComponent(kode)}`);') >= 0
         && fn.indexOf("kodeSekolahSah(kode)") < fn.indexOf('rpc("reserve_institution_namespace"'), "the code's shape is not checked in the action before the database is asked");
       const hal = buang(readFileSync(join(repoRoot, "src", "app", "pendataan", "page.tsx"), "utf8"));
       c.expect(/sp\.galat === "kode_bentuk" \? <BarisHasil nada="gagal">\{s\("pendataan\.kode\.bentuk_salah"\)\}<\/BarisHasil>/.test(hal), "the page does not say the shape's own line");
@@ -792,6 +793,39 @@ export const zUxStaticTests: SelfTest[] = [
       return c.verdict("R-15's one-string items: reads DaftarKeputusan.tsx (Kenaikan step 2's status joined by «, »), executes src/lib/kenaikan.ts's urutRingkas (the review summary names the main group first, the others in their order; no main group, no change) and reads KenaikanKelas.tsx using it; the copy table's certificate column «Paket» / «Package» (X12)");
     },
   },
+  {
+    id: "Z-Z5R-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const baca = (...f: string[]) => buang(readFileSync(join(repoRoot, ...f), "utf8"));
+      // Daisy's Z5 review (TINJAUAN-Z5-bc5749ff): C-2's and finding (a)'s words, word for word
+      kata(c, [
+        ["galat.definition_mix_total_baris", "Aturan ini membagi soalnya per tingkat kesulitan, jadi Jumlah soal tidak dapat diubah di sini. Buat aturan baru dengan jumlah yang diinginkan.",
+          "This rule divides its questions by difficulty, so the Number of questions cannot be changed here. Create a new rule with the number you want."],
+        ["studio.definisi.dibuat", "Aturan baru dibuat.", "The new rule has been created."],
+      ], "staff");
+      // C-1: the shape refusal sends back what was typed, and the field shows it
+      const aksi = baca("src", "app", "pendataan", "actions.ts");
+      c.expect(/redirect\(`\/pendataan\?galat=kode_bentuk&kenapa=\$\{encodeURIComponent\(kode\)\}`\)/.test(aksi), "C-1: the shape refusal does not send back what was typed");
+      const hal = baca("src", "app", "pendataan", "page.tsx");
+      c.expect(/defaultValue=\{ketikan \?\? dipilih\.kode \?\? ""\}/.test(hal) && /sp\.galat === "kode_bentuk"[^\n]*sp\.kenapa/.test(hal), "C-1: the code field is not refilled from kenapa after a refusal");
+      // C-2 and (a): the row's refusal and the new rule's success are their own sentences, each where it is answered
+      const def = baca("src", "app", "studio", "definisi", "page.tsx");
+      c.expect(/<HasilDi q=\{sp\} bagian="definisi" kalimat=\{bannerBaru\} \/>/.test(def) && (def.match(/bagian="definisi-baris"[^>]*kalimat=\{banner\}/g) ?? []).length === 2
+        && /const banner = [^\n]*sp\.kode === "DEFINITION_MIX_TOTAL" \? mix\(outcomeLine\(sp, locale\)\)/.test(def),
+        "the new-rule form and the rows do not each answer in their own words");
+      // (b): the place word in the bar never breaks inside a word and is never shortened
+      const css = readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8");
+      const aturanTempat = [...css.matchAll(/([^{}]*\.pin-bar-tempat[^{}]*)\{([^}]*)\}/g)].map((m) => m[2]).join(";");
+      c.expect(!/overflow-wrap:\s*anywhere|word-break:\s*break|hyphens:\s*auto|text-overflow:\s*ellipsis/.test(aturanTempat) && /min-width:\s*min-content/.test(aturanTempat),
+        `(b): the place word may break inside a word or be shortened: ${aturanTempat.replace(/\s+/g, " ").slice(0, 300)}`);
+      const shell = baca("src", "components", "CangkangPengalaman.tsx");
+      c.expect(/<div className="pin-staf-judul">\s*<div className="pin-staf-kepala">[\s\S]*?<\/div>\s*<span className="pin-bar-tempat">\{kini\}<\/span>\s*<\/div>/.test(shell),
+        "(b): the brand and the place word are not one wrapping row");
+      return c.verdict("Daisy's Z5 review: the copy table's two new sentences (C-2's row refusal, (a)'s creation) word for word in ID and EN; the source of Pendataan's action and page sends back and refills a refused code (C-1); the rule page's source answers the new-rule form with bannerBaru and the rows with banner, whose mix-total refusal is the row's own; the CSS file gives the bar's place word no break inside a word, no hyphenation and no ellipsis, at least its longest word wide, and the shell's source wraps it with the brand in one row (b; the browser measure is tempat-320.ts)");
+    },
+  },
 ];
 
 export const zUxAppTests: SelfTest[] = [
@@ -994,5 +1028,86 @@ export const zUxAppTests: SelfTest[] = [
       return c.verdict("in the running app as the bootstrap school's administrator and as the platform administrator (R-10, option A): on catatan-masuk, kesempatan, keamanan, sertifikat, email-uji, staf and the section route (the control), the rendered html's «Tempat kerja Anda» has exactly the index's links for the same reader (with «Kirim email uji» for the platform administrator), aria-current on the page's own item or else «Konfigurasi», and a way back to Konfigurasi");
     },
   },
+  {
+    id: "Z-C1-01",
+    requires: ["app", "network", "db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const { psql } = await import("./bob26.test");
+      const { BOOT_ADMIN, masuk } = await import("./c1w-layar.test");
+      const { formDengan, ke } = await import("./a1-layar.test");
+      const asal = ctx.appUrl!;
+      // C-1 (Daisy, Z5 review; ruling 81 «work kept»): a code of the wrong shape is refused, and the field holds what was typed
+      const sekolah = psql(`select ra.institution_id from public.role_assignments ra join public.accounts a on a.person_id = ra.person_id
+        join auth.users u on u.id = a.auth_user_id where u.email = 'boot-admin@bootstrap.pintar.test' and ra.institution_id is not null
+         and ra.revoked_at is null order by ra.id limit 1`);
+      const k0 = await masuk(asal, BOOT_ADMIN, `MENGELOLA:${sekolah}`);
+      if (!c.expect(typeof k0 !== "string", String(k0))) return c.verdict("");
+      const k = k0 as Exclude<typeof k0, string>;
+      const bentuk = formDengan(await (await k.halaman("/pendataan")).text(), 'name="kode"', { kode: "A-" });
+      if (!c.expect(typeof bentuk !== "string", `the school-code form: ${bentuk}`)) return c.verdict("");
+      const r = await k.kirim("/pendataan", { form: bentuk as Record<string, string> });
+      const lokasi = ke(r);
+      c.expect(/galat=kode_bentuk/.test(lokasi), `the wrong shape answered ${r.status} ${lokasi}`);
+      const h = await (await k.halaman(lokasi.replace(/^https?:\/\/[^/]+/, "") || "/pendataan")).text();
+      const isian = /<input\b[^>]*\bid="pin-kode-isi"[^>]*>/.exec(h)?.[0] ?? "";
+      c.expect(/\bvalue="A-"/.test(isian), `after the refusal the field does not hold «A-»: ${isian}`);
+      c.expect(h.includes(t("pendataan.kode.bentuk_salah", "staff", { locale: "id" })), "the shape's own sentence is not on the page");
+      return c.verdict("in the running app as the bootstrap school's administrator (C-1): «A-» posted as the school code is refused galat=kode_bentuk, and the page it lands on holds «A-» in the code field beside pendataan.kode.bentuk_salah; nothing is saved");
+    },
+  },
+  {
+    id: "Z-C2A-01",
+    requires: ["app", "network", "db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const { lit, psql } = await import("./bob26.test");
+      const { ADMIN, masuk, muat, dunia, bersihkan } = await import("./c1w-layar.test");
+      const { formDengan, ke } = await import("./a1-layar.test");
+      const asal = ctx.appUrl!;
+      const s = (k: string) => t(k as HleEvent, "staff", { locale: "id" });
+      // C-2 and finding (a) (Daisy, Z5 review), on C1w's draft package in the cycle school
+      muat(ctx.repoRoot);
+      const tag = `c2a${Date.now().toString(36)}`;
+      const d = dunia(tag, `C1W layar C2A ${tag}`);
+      if (!c.expect(typeof d !== "string", String(d))) return c.verdict("");
+      const { course, inst } = d as Exclude<typeof d, string>;
+      try {
+        const [id, jumlah] = psql(`select d.id || '|' || d.item_count from public.assessment_definitions d where d.course_id = ${lit(course)} order by d.mode, d.created_at limit 1`).split("|");
+        // a rule that divides its questions by difficulty, as its author could have set it
+        psql(`begin; set local session_replication_role = replica;
+          update public.assessment_definitions set difficulty_mix = jsonb_build_object('MUDAH', item_count) where id = ${lit(id)}; commit;`);
+        const k0 = await masuk(asal, ADMIN, `MENGELOLA:${inst}`);
+        if (!c.expect(typeof k0 !== "string", String(k0))) return c.verdict("");
+        const k = k0 as Exclude<typeof k0, string>;
+        // C-2: the row changes the count; its refusal says what the row cannot do, and the new rule is the way
+        let bentuk: Record<string, string> | string = "not found";
+        for (let hal = 1; hal <= 8 && typeof bentuk === "string"; hal++) {
+          bentuk = formDengan(await (await k.halaman(`/studio/definisi?hal=${hal}&ubah=${id}`)).text(), `id="definisi-${id}"`, { jumlah: String(Number(jumlah) + 1) });
+          if (typeof bentuk !== "string" && !bentuk.judul) bentuk.judul = psql(`select title from public.assessment_definitions where id = ${lit(id)}`);
+        }
+        if (!c.expect(typeof bentuk !== "string", `the rule's row form: ${bentuk}`)) return c.verdict("");
+        const r = await k.kirim("/studio/definisi", { form: bentuk as Record<string, string> });
+        const lokasi = ke(r).replace(/^https?:\/\/[^/]+/, "");
+        c.expect(/kode=DEFINITION_MIX_TOTAL/.test(lokasi), `the row's count change answered ${r.status} ${lokasi}`);
+        const h = (await (await k.halaman(lokasi || "/studio/definisi")).text()).replace(/&#x27;/g, "'");
+        c.expect(h.includes(s("galat.definition_mix_total_baris")) && !h.includes(s("galat.definition_mix_total")),
+          "C-2: the row's refusal points to a mix the row does not show (or says nothing)");
+        // (a): a new rule through the new-rule form is said as created
+        const baru = formDengan(await (await k.halaman("/studio/definisi")).text(), 'id="definisi-baru"', {
+          course, judul: `Aturan ${tag}`, mode: "POST_TEST", bank: "PRACTICE", jumlah: "3", acak: "ITEMS_AND_OPTIONS",
+        });
+        if (!c.expect(typeof baru !== "string", `the new-rule form: ${baru}`)) return c.verdict("");
+        const r2 = await k.kirim("/studio/definisi", { form: baru as Record<string, string> });
+        const lokasi2 = ke(r2).replace(/^https?:\/\/[^/]+/, "");
+        c.expect(/hasil=ok/.test(lokasi2), `the new rule answered ${r2.status} ${lokasi2}`);
+        const h2 = await (await k.halaman(lokasi2 || "/studio/definisi")).text();
+        c.expect(h2.includes(s("studio.definisi.dibuat")) && !h2.includes(s("studio.definisi.versi_baru")),
+          "(a): a brand-new rule is not said as created, or is said as a new version of an old one");
+      } finally {
+        bersihkan();
+      }
+      return c.verdict("in the running app as the cycle school's administrator on C1w's draft package: a rule divided by difficulty, its count changed through its own row, is refused DEFINITION_MIX_TOTAL and the row says galat.definition_mix_total_baris, not «Periksa keduanya» (C-2); a rule made through the new-rule form is answered studio.definisi.dibuat «Aturan baru dibuat.», not versi_baru (finding a)");
+    },
+  },
 ];
-

@@ -6916,6 +6916,21 @@
       "proves": "selftest/z-ux.test.ts, R-15's one-string items: reads the source file DaftarKeputusan.tsx (status joined by «, »), executes urutRingkas in src/lib/kenaikan.ts (main group first) and reads KenaikanKelas.tsx using it; the copy table's certificate column «Paket» / «Package» (X12)."
     },
     {
+      "id": "Z-Z5R-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, Daisy's Z5 review: the copy table's C-2 and (a) sentences word for word; the source of Pendataan's action and page refills a refused code (C-1); the rule page's source answers each form in its own words; the CSS file keeps the bar's place word whole, and the shell's source wraps it with the brand (b)."
+    },
+    {
+      "id": "Z-C1-01",
+      "runner": "app",
+      "proves": "selftest/z-ux.test.ts, in the running app (C-1): a school code of the wrong shape posted to Pendataan is refused and the rendered page holds what was typed in the field."
+    },
+    {
+      "id": "Z-C2A-01",
+      "runner": "app",
+      "proves": "selftest/z-ux.test.ts, in the running app on C1w's draft package: a row's count change on a rule divided by difficulty is refused with the row's own rendered sentence (C-2), and a rule made by the new-rule form is answered «Aturan baru dibuat.» (finding a); read back from the rendered html."
+    },
+    {
       "id": "Z-N9-02",
       "runner": "app",
       "proves": "selftest/z-ux.test.ts, from the rendered html of the running app's /konfigurasi/staf as the bootstrap school's administrator (N-9): no person, an unknown person and another school's staff member get the same neutral refusal and status."

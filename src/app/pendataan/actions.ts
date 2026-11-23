@@ -54,7 +54,8 @@ export async function simpanKodeAksi(formData: FormData): Promise<void> {
   const kode = String(formData.get("kode") ?? "").trim();
   if (!institusi || !kode) redirect("/pendataan?galat=kode");
   // S-04: the shape is said as the shape, before the database is asked (the database keeps its own check)
-  if (!kodeSekolahSah(kode)) redirect("/pendataan?galat=kode_bentuk");
+  // C-1 (Daisy, Z5 review; ruling 81's «work kept»): what was typed comes back in the field
+  if (!kodeSekolahSah(kode)) redirect(`/pendataan?galat=kode_bentuk&kenapa=${encodeURIComponent(kode)}`);
   await wajibDalamKonteks({ sekolah: institusi });
 
   const supabase = await supabaseServer();

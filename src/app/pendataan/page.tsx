@@ -42,9 +42,11 @@ export const dynamic = "force-dynamic";
 export default async function Pendataan({
   searchParams,
 }: {
-  searchParams: Promise<{ sekolah?: string; galat?: string; kode?: string }>;
+  searchParams: Promise<{ sekolah?: string; galat?: string; kode?: string; kenapa?: string }>;
 }) {
   const sp = await searchParams;
+  // C-1 (Daisy, Z5 review): after a refused code the field holds what was typed (the action sends it back as kenapa)
+  const ketikan = (sp.galat === "kode" || sp.galat === "kode_bentuk") && typeof sp.kenapa === "string" && sp.kenapa.length <= 12 ? sp.kenapa : null;
   const locale = await currentLocale();
   const s = (k: HleEvent) => t(k, "staff", { locale });
 
@@ -127,7 +129,7 @@ export default async function Pendataan({
               <form action={simpanKodeAksi} className="pin-baris-aksi">
                 <input type="hidden" name="institusi" value={dipilih.id} />
                 <BidangTeks id="pin-kode-isi" name="kode" label={s("pendataan.kode.label")} petunjuk={s("pendataan.kode.bentuk")}
-                  defaultValue={dipilih.kode ?? ""} maxLength={3} size={3} autoComplete="off" spellCheck={false} pattern="[A-Za-z0-9]{3}" />
+                  defaultValue={ketikan ?? dipilih.kode ?? ""} maxLength={3} size={3} autoComplete="off" spellCheck={false} pattern="[A-Za-z0-9]{3}" />
                 <TombolKirim className={dipilih.kode ? "pin-btn" : "pin-btn pin-primary"} sibuk={s("tombol.menyimpan")}>{s("pendataan.kode.simpan")}</TombolKirim>
               </form>
             </>
