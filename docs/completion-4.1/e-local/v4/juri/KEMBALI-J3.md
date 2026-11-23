@@ -27,3 +27,6 @@
 | File | SHA-256 |
 |---|---|
 | J3's second workbook (as received) | `fc883d4e88b5b2a4f494d786073e0558a08fc83586036d1ef0012c78a8eb1ee4` |
+| Its conversion, `lembar-nilai-J3-keputusan.csv` (`lembar_j3.py tocsv`; exit 0, "5 rows written") | `a881169182692e5c2bc47b99d4d8737b870ba64c388eebcbb3f5a4689a5bbf7c` |
+
+**J3's sheet is complete and well-formed.** The converter refuses an empty routed cell, a column that was not routed, and a changed code. The CSV is kept outside the repository. No score is shown here. **The map stays sealed** until `nilai-juri.mjs json` has run.
