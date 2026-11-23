@@ -8,7 +8,7 @@ import { tanggal } from "@/lib/tanggal";
 import BarisHasil from "@/components/BarisHasil";
 import Kosong from "@/components/Kosong";
 import TombolKirim from "@/components/TombolKirim";
-import { ALASAN_KELUAR, adalahUuid, kelasDenganTahun, kelompokkan, namaTingkat, nilaiDari, tahunPendek, urai, type KeputusanMurid } from "@/lib/kenaikan";
+import { ALASAN_KELUAR, adalahUuid, kelasDenganTahun, kelompokkan, namaTingkat, urutRingkas, nilaiDari, tahunPendek, urai, type KeputusanMurid } from "@/lib/kenaikan";
 import DaftarKeputusan, { type OpsiKeputusan } from "@/components/kenaikan/DaftarKeputusan";
 import { terapkanKenaikanAksi } from "@/app/konfigurasi/kenaikan-aksi";
 
@@ -225,7 +225,8 @@ export default async function KenaikanKelas({ sekolah, sp, locale }: { sekolah: 
     const tanpaGuru = tujuan.filter((k) => k.guru.length === 0);
     const adaTujuan = tujuan.length > 0 || hasil.some((h) => h.kelas_tujuan || h.keputusan === "NAIK" || h.keputusan === "TINGGAL");
     // Daisy (bcecb425, B8.2): the groups are joined by «, », so the «·» inside a group («6A · 2027/28») reads as part of it
-    const ringkas = g.kelompok.map((k) => judulKelompok(s, k.isi[0], k.isi.length, tahun.nama)).join(", ");
+    // R-15: the main group first (urutRingkas)
+    const ringkas = urutRingkas(g).map((k) => judulKelompok(s, k.isi[0], k.isi.length, tahun.nama)).join(", ");
     return (
       <div className="pin-kenaikan" data-kenaikan-langkah="tinjau">
         {langkahKe(3, "kenaikan.langkah.tinjau")}

@@ -123,3 +123,11 @@ export function kelompokkan<T extends HasilKelompok>(hasil: T[]): { utama: strin
   const pengecualian = hasil.filter((h) => kunciKelompok(h) !== utama || h.sumber === "TINGKAT");
   return { utama, pengecualian, kelompok };
 }
+
+/**
+ * R-15: THE REVIEW'S SUMMARY NAMES THE MAIN GROUP FIRST («4 lulus, 1 keluar», never «1 keluar, 4 lulus»); the others keep
+ * their order. The main group is kelompokkan's own, so the summary and the sentence under it agree.
+ */
+export function urutRingkas<K extends { kunci: string }>(g: { utama: string | null; kelompok: K[] }): K[] {
+  return [...g.kelompok.filter((k) => k.kunci === g.utama), ...g.kelompok.filter((k) => k.kunci !== g.utama)];
+}

@@ -84,6 +84,31 @@ const K05: Array<[string, string, string]> = [
     "This may change once the issuing school finishes reviewing the certificate."],
 ];
 
+const T03: Array<[string, string, string]> = [
+  ["peran.perpanjang.sendiri", "Anda satu-satunya Admin PINTAR yang aktif, jadi Anda memperpanjang peran Anda sendiri. Alasannya dicatat.", "You are the only active Admin PINTAR, so you renew your own role. The reason is recorded."],
+  ["peran.saya.berakhir_platform", "Peran Anda sebagai {peran} berakhir pada {tanggal}. Minta Admin PINTAR lain memperpanjangnya sebelum tanggal itu.", "Your role as {peran} ends on {tanggal}. Ask another Admin PINTAR to renew it before then."],
+  ["peran.saya.berakhir_sendiri", "Peran Anda sebagai {peran} berakhir pada {tanggal}, dan Anda satu-satunya Admin PINTAR yang aktif. Perpanjang sendiri di Peran & akses.", "Your role as {peran} ends on {tanggal}, and you are the only active Admin PINTAR. Renew it yourself in Roles & access."],
+  ["laporan.templat.tak_berwenang", "Menyusun templat laporan memerlukan wewenang Admin sekolah atau Admin PINTAR.", "Assembling a report template requires institution administrator authority."],
+  ["config.kesehatan.bukan_admin", "Pemeriksaan ini dijalankan oleh Admin PINTAR.", "An Admin PINTAR runs these checks."],
+  ["config.refused", "Halaman ini hanya untuk Admin sekolah atau Admin PINTAR.", "This page is only for a school administrator or an Admin PINTAR."],
+  ["galat.maintenance_not_allowed", "Anda tidak berwenang mengatur pemeliharaan atau pengumuman untuk cakupan itu. Admin sekolah mengatur sekolahnya sendiri; Admin PINTAR mengatur sekolah mana pun dan seluruh platform.", "You are not authorised to set maintenance or notices for that scope. A school admin sets their own school's; an Admin PINTAR sets any school's and the whole platform's."],
+  ["studio.paket.masalah.package_could_not_be_saved", "Paket ini belum bisa disimpan. Coba lagi, atau hubungi Admin PINTAR.", "This package could not be saved. Try again, or contact an Admin PINTAR."],
+  ["role.SYSTEM_ADMIN", "Admin PINTAR", "Admin PINTAR"],
+  ["galat.role_scope_required", "Pilih Lingkup, yaitu bagian sekolah tempat peran ini berlaku. Hanya Admin PINTAR yang tidak memerlukannya.", "Choose the Scope, the part of the school where this role applies. Only an Admin PINTAR needs none."],
+  ["emailuji.r.ditolak", "Hanya Admin PINTAR yang dapat melihat riwayat email.", "Only an Admin PINTAR can see the email history."],
+  ["emailuji.ditolak", "Halaman ini hanya untuk Admin PINTAR.", "This page is for an Admin PINTAR only."],
+  ["emailuji.galat.ditolak", "Hanya Admin PINTAR yang dapat mengirim email uji.", "Only an Admin PINTAR can send a test email."],
+  ["email.uji.alasan", "Anda menerima email ini karena Admin PINTAR sedang menguji pengiriman email.", "You are receiving this email because an Admin PINTAR is testing email delivery."],
+  ["aktivasi.ditolak", "Halaman ini untuk Admin sekolah atau Admin PINTAR.", "This page is for the people who manage a school's records."],
+  ["aktivasi.galat.baru_ditolak", "PINTAR menolak, dan tidak ada yang dibuat. Hanya Admin PINTAR yang bisa membuat orang di luar pendataan.", "PINTAR refused, and nothing was made. Only an Admin PINTAR can create a person outside the intake."],
+  ["orang.intro.sekolah", "Orang di sekolah ini yang sudah punya akun email. Anda bisa mengoreksi alamat email yang salah sebelum orangnya mengaktifkan akun. Nama dan username dikoreksi oleh Admin PINTAR.", "People at this school who have an email account. You can correct a wrong email address before the person activates their account. Names and usernames are corrected by an Admin PINTAR."],
+  ["orang.email.hanya_platform", "Akun ini sudah aktif: emailnya hanya bisa dikoreksi oleh Admin PINTAR.", "This account is active: its email can only be corrected by an Admin PINTAR."],
+  ["orang.identitas.hanya_platform", "Nama dan username hanya bisa dikoreksi oleh Admin PINTAR.", "Names and usernames can only be corrected by an Admin PINTAR."],
+  ["email.aman.ditangguhkan.isi_admin", "Pemulihan dengan PIN untuk PINTAR ID ini dihentikan setelah ditutup sementara tiga kali. Hanya pemulihan lewat email (lalu PIN baru) atau atur ulang oleh Admin PINTAR yang memulihkannya.", "Recovery with a PIN for this PINTAR ID has been stopped after being locked three times. Only an email recovery (then a new PIN) or a reset by an Admin PINTAR restores it."],
+  ["email.aman.diatur_ulang.isi_admin", "Pemulihan dengan PIN untuk PINTAR ID ini diatur ulang oleh admin sekolah atau Admin PINTAR. Pemiliknya harus membuat PIN baru.", "A school administrator or an Admin PINTAR reset recovery with a PIN for this PINTAR ID. Its owner must make a new PIN."],
+  ["audit.aksi.role.first_system_admin_bootstrapped", "Admin PINTAR pertama ditetapkan", "First Admin PINTAR set up"],
+];
+
 export const zUxStaticTests: SelfTest[] = [
   {
     id: "Z-K02-01",
@@ -644,6 +669,127 @@ export const zUxStaticTests: SelfTest[] = [
       const kan = baca("src", "app", "studio", "kanonik", "page.tsx");
       c.expect(/\{s\("studio\.kanonik\.beri"\)\}<\/TombolKirim>/.test(kan) && !/studio\.definisi\.simpan/.test(kan), "Kanonik's grant still borrows the rule's «Simpan»; it is not «Berikan izin» (studio.kanonik.beri)");
       return c.verdict("reads the copy table and the source files of the Studio rule and Kanonik pages (R-26 item 3): «Perbarui status», «Simpan nama», «Buat aturan» (the new rule, its own key), «Simpan perubahan» (a rule's edit) and «Berikan izin» (Kanonik's grant, its own key studio.kanonik.beri); ID and EN");
+    },
+  },
+  {
+    id: "Z-T03-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      // T-03 (ruling 78 (d), Daisy's final words): one name for the platform's administrator, «Admin PINTAR», in its 22 keys
+      kata(c, T03, "staff");
+      // and the one EN key that said «PINTAR administrator»
+      kata(c, [["email.aman.diatur_ulang.isi",
+        "Admin PINTAR mengatur ulang pemulihan dengan PIN untuk akun Anda. PIN lama Anda tidak berlaku lagi, dan Anda sudah dikeluarkan dari semua perangkat: masuk ke PINTAR, lalu buat PIN baru di Akun saya.",
+        "An Admin PINTAR reset recovery with a PIN for your account. Your old PIN no longer works, and you have been signed out of every device: sign in to PINTAR, then make a new PIN in My account."]], "staff");
+      // no word of the copy table, in either language, still names the role another way (the 22 were all of them)
+      const hle = readFileSync(join(repoRoot, "src", "lib", "hle.ts"), "utf8");
+      const sisa = [...hle.matchAll(/^ {2}"([^"]+)": \{[^\n]*/gm)].filter((m) => /admin platform|platform admin|PINTAR administrator/i.test(m[0])).map((m) => m[1]);
+      c.expect(sisa.length === 0, `the copy table still names the platform's administrator otherwise: ${sisa.join(", ")}`);
+      return c.verdict("reads the copy table (T-03): the 22 keys of ruling 78 (d) say «Admin PINTAR» word for word in ID and EN («an Admin PINTAR» in running text), email.aman.diatur_ulang.isi's English too, and no key in either language still says «Admin platform», «platform admin(istrator)» or «PINTAR administrator»");
+    },
+  },
+  {
+    id: "Z-T09-T02-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      // T-09: the assessment names in English are their English names
+      kata(c, [
+        ["mengajar.ulang.belum_uji", "belum menyelesaikan Uji Penguasaan", "has not finished the Mastery Check"],
+        ["staf.tj.can_quick_assessment", "Membuat Uji Cepat", "Creating Quick Assessments"],
+      ], "staff");
+      kata(c, [["pengerjaan.pulih.perlu_izin_isi",
+        "Karena Anda masuk lagi atau berganti perangkat, Uji Penguasaan ini hanya dapat dilanjutkan bila guru Anda mengizinkannya. Permintaan Anda tampil di daftar kelas guru Anda. Beri tahu guru Anda juga: {judul}. Setelah guru mengizinkan, pilih Coba lagi.",
+        "Because you signed in again or changed device, this Mastery Check can only continue if your teacher allows it. Your request shows on your teacher's class list. Tell your teacher too: {judul}. Once your teacher allows it, choose Try again."]], "learner");
+      // T-02 (⚑ delete): mengajar.langkah.f2 is shown nowhere, so it is gone from the copy table and its type
+      const hle = readFileSync(join(repoRoot, "src", "lib", "hle.ts"), "utf8");
+      c.expect(!/"mengajar\.langkah\.f2"/.test(hle), "mengajar.langkah.f2 is still in the copy table");
+      c.expect(/"mengajar\.langkah\.f2w"/.test(hle), "mengajar.langkah.f2w, which is shown, went with it");
+      return c.verdict("reads the copy table: T-09's three keys name «Mastery Check» and «Quick Assessments» in English, the Indonesian unchanged; T-02's unused mengajar.langkah.f2 is absent from the copy table and its type, and f2w is kept");
+    },
+  },
+  {
+    id: "Z-S09-S10-S14-01",
+    requires: [],
+    run: async () => {
+      const c = new Checks();
+      kata(c, [
+        // S-09: the PIN path's wait is keyed by the network address, so it speaks of the network
+        ["lupa.pin.sering", "Terlalu banyak percobaan dari jaringan ini.", "Too many tries from this network."],
+        // S-10: a reset PIN is no PIN that can be used
+        ["kunci.tanpa_pin", "Akun ini belum punya PIN yang bisa dipakai, jadi layar ini tidak bisa dibuka dengan PIN. Keluar, lalu masuk lagi.",
+          "This account has no PIN that can be used, so this screen can't be opened with a PIN. Sign out, then sign in again."],
+        // S-14 (⚑ neutral): the wait is keyed on what was typed, an address or a username
+        ["aktifkan.minta_sering", "Kode sudah terlalu sering diminta untuk email atau username yang Anda ketik, jadi kode tidak dikirim.",
+          "A code has been asked for too often for the email or username you typed, so no code was sent."],
+        ["aktifkan.kode_sering", "Kode sudah terlalu sering dicoba untuk email atau username yang Anda ketik.",
+          "The code has been tried too many times for the email or username you typed."],
+      ], "learner");
+      return c.verdict("reads the copy table: S-09 «jaringan ini», S-10 «PIN yang bisa dipakai» and S-14's two waits «email atau username yang Anda ketik», word for word in ID and EN");
+    },
+  },
+  {
+    id: "Z-N1-N2-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      // N-1 and N-2 (R-12; Daisy, Z-SIAP §3): the maintenance banner, RENDERED with a class window, at stage 0 and at T−15
+      kata(c, [["pemeliharaan.pita.asesmen_baru_staf", "Murid tidak dapat memulai asesmen baru sampai pemeliharaan selesai.",
+        "Students cannot start a new assessment until maintenance ends."]], "staff");
+      const r = render(repoRoot, `
+        const P = (await imp("src/components/pemeliharaan/PengingatPemeliharaan.tsx")).default;
+        const { PathnameContext } = await import("next/dist/shared/lib/hooks-client-context.shared-runtime.js");
+        const j = (keadaan, mulai) => ({ id: "w", jenis: "PLANNED", keadaan, mulai, selesai: "2026-11-23T10:00:00Z", pesan: null, menguasai: false,
+          berjalan: false, terkumpul: null, kelas: ["5B"], kelasId: ["k5b"], cakupan: "TEMPAT", sekolah: "Sekolah Uji", zona: "Asia/Jakarta" });
+        for (const [nama, path, keadaan, mulai, staf] of [
+          ["pemain", "/belajar/asesmen/x", "AKTIF", "2026-11-23T07:00:00Z", false], ["lain", "/belajar", "AKTIF", "2026-11-23T07:00:00Z", false],
+          ["t15murid", "/belajar", "MENJELANG", "2026-11-23T08:10:00Z", false], ["t15staf", "/mengajar", "MENJELANG", "2026-11-23T08:10:00Z", true]]) {
+          out[nama] = r(h(PathnameContext.Provider, { value: path }, h(P, { locale: "id", staf, status: { pemeliharaan: [j(keadaan, mulai)],
+            pengumuman: [], terhenti: null, sekarang: "2026-11-23T08:00:00.000Z" } })));
+        }`);
+      if (!c.expect(r.ok, `the banner could not be rendered: ${r.galat}`)) return c.verdict("");
+      const s = (k: string, p: "learner" | "staff" = "learner") => t(k as HleEvent, p, { locale: "id" });
+      const arti = s("pemeliharaan.tempat.arti").replace("{untuk}", "kelas 5B");
+      const lega = s("pemeliharaan.pita.asesmen");
+      const [pemain, lain, t15murid, t15staf] = [teks(r.out.pemain), teks(r.out.lain), teks(r.out.t15murid), teks(r.out.t15staf)];
+      // N-1: on the player the reassurance leads, and the restriction it would follow is not said there
+      c.expect(pemain.includes(lega) && !pemain.toLowerCase().includes(arti.toLowerCase()),
+        `N-1: on the player the banner does not lead with «${lega}»: «${pemain}»`);
+      c.expect(lain.toLowerCase().includes(arti.toLowerCase()), `N-1: off the player the banner no longer explains the class window: «${lain}»`);
+      // N-2: at T−15 a learner is told they cannot start; staff are told their learners cannot
+      c.expect(t15murid.includes(s("pemeliharaan.pita.asesmen_baru")) && !t15murid.includes(s("pemeliharaan.pita.asesmen_baru_staf", "staff")),
+        `N-2: a learner's T−15 banner is not the learner's sentence: «${t15murid}»`);
+      c.expect(t15staf.includes(s("pemeliharaan.pita.asesmen_baru_staf", "staff")) && !t15staf.includes(s("pemeliharaan.pita.asesmen_baru")),
+        `N-2: a staff member's T−15 banner speaks to a learner: «${t15staf}»`);
+      // the reader is staff by their own roles, read on the server once (PitaPemeliharaan)
+      const pita = buang(readFileSync(join(repoRoot, "src", "components", "pemeliharaan", "PitaPemeliharaan.tsx"), "utf8"));
+      c.expect(/peranSaya\(\)/.test(pita) && /staf=\{/.test(pita), "PitaPemeliharaan does not tell the banner whether its reader is staff");
+      return c.verdict("renders PengingatPemeliharaan with a class window: at stage 0 on the player it leads with pemeliharaan.pita.asesmen and drops the restriction (N-1), off the player it keeps it; at T−15 a learner reads pita.asesmen_baru and a staff member the new pita.asesmen_baru_staf «Murid tidak dapat memulai asesmen baru …» (N-2), the reader's kind given by PitaPemeliharaan from peranSaya; the new sentence word for word in ID and EN");
+    },
+  },
+  {
+    id: "Z-R15-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      // R-15's one-string items (Z-BUILD-PLAN, Z7)
+      // 1. Kenaikan step 2's live status line joins its parts with «, » (the «·» inside a part, «6A · 2027/28», stays its own)
+      const dk = buang(readFileSync(join(repoRoot, "src", "components", "kenaikan", "DaftarKeputusan.tsx"), "utf8"));
+      c.expect(/const status = bagian\.join\(", "\)/.test(dk) && !/bagian\.join\(" · "\)/.test(dk), "Kenaikan step 2's status line still joins with «·»");
+      // 2. the review's summary names the main group first, executed
+      const { urutRingkas } = await import(join(repoRoot, "src", "lib", "kenaikan.ts")) as { urutRingkas?: (g: { utama: string | null; kelompok: Array<{ kunci: string }> }) => Array<{ kunci: string }> };
+      if (c.expect(typeof urutRingkas === "function", "src/lib/kenaikan.ts has no urutRingkas")) {
+        const urut = urutRingkas!({ utama: "LULUS", kelompok: [{ kunci: "KELUAR:PINDAH_SEKOLAH" }, { kunci: "LULUS" }, { kunci: "TINGGAL:x" }] }).map((k) => k.kunci);
+        c.expect(JSON.stringify(urut) === JSON.stringify(["LULUS", "KELUAR:PINDAH_SEKOLAH", "TINGGAL:x"]), `the summary's order is ${urut.join(", ")}, not the main group first`);
+        const tanpa = urutRingkas!({ utama: null, kelompok: [{ kunci: "A" }, { kunci: "B" }] }).map((k) => k.kunci);
+        c.expect(tanpa.join() === "A,B", "with no main group the order changed");
+      }
+      const kk = buang(readFileSync(join(repoRoot, "src", "components", "kenaikan", "KenaikanKelas.tsx"), "utf8"));
+      c.expect(/urutRingkas\(g\)\.map\(/.test(kk), "the review's summary does not use urutRingkas");
+      // 3. X12: the certificate list's column names the package
+      kata(c, [["sertifikat.kelola.kolom.kursus", "Paket", "Package"]], "staff");
+      return c.verdict("R-15's one-string items: reads DaftarKeputusan.tsx (Kenaikan step 2's status joined by «, »), executes src/lib/kenaikan.ts's urutRingkas (the review summary names the main group first, the others in their order; no main group, no change) and reads KenaikanKelas.tsx using it; the copy table's certificate column «Paket» / «Package» (X12)");
     },
   },
 ];

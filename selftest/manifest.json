@@ -6891,6 +6891,31 @@
       "proves": "selftest/z-ux.test.ts, from the source file of the activation form FormAktivasi.tsx (S-16): the new person's name field has maxLength={200}."
     },
     {
+      "id": "Z-T03-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, reading the copy table (T-03): the 22 keys of ruling 78 (d) and email.aman.diatur_ulang.isi's English say «Admin PINTAR» word for word in ID and EN, and no key in the copy table still names the role «Admin platform», «platform admin(istrator)» or «PINTAR administrator»."
+    },
+    {
+      "id": "Z-T09-T02-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, reading the copy table (T-09, T-02): three English keys name «Mastery Check» and «Quick Assessments»; the unused mengajar.langkah.f2 is absent from the copy table and its type, f2w kept."
+    },
+    {
+      "id": "Z-S09-S10-S14-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, reading the copy table (S-09, S-10, S-14): «jaringan ini», «PIN yang bisa dipakai» and «email atau username yang Anda ketik», word for word in ID and EN."
+    },
+    {
+      "id": "Z-N1-N2-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, rendering PengingatPemeliharaan with a class window (N-1, N-2): on the player at stage 0 the reassurance leads and the restriction is not said; at T−15 a staff reader gets the new staff sentence and a learner the learner's; reads the source file PitaPemeliharaan.tsx giving the reader's kind from peranSaya."
+    },
+    {
+      "id": "Z-R15-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, R-15's one-string items: reads the source file DaftarKeputusan.tsx (status joined by «, »), executes urutRingkas in src/lib/kenaikan.ts (main group first) and reads KenaikanKelas.tsx using it; the copy table's certificate column «Paket» / «Package» (X12)."
+    },
+    {
       "id": "Z-N9-02",
       "runner": "app",
       "proves": "selftest/z-ux.test.ts, from the rendered html of the running app's /konfigurasi/staf as the bootstrap school's administrator (N-9): no person, an unknown person and another school's staff member get the same neutral refusal and status."

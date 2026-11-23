@@ -46,7 +46,9 @@ export default function DaftarKeputusan({ locale, kelas, tahun, baris, opsi, uta
   }
   const bagian = [...hitung].map(([r, n]) => `${n} ${r}`);
   bagian.push(`${belum.length} ${kata.belum}`);
-  const status = bagian.join(" · ") + (belum.length > 0 && belum.length <= 5 ? `. ${kata.belumNama} ${belum.map((b) => b.nama).join(", ")}.` : "");
+  // R-15 (Daisy, bcecb425 B8.2, as the review's summary): the parts are joined by «, », so the «·» inside a part
+  // («6A · 2027/28») reads as part of it
+  const status = bagian.join(", ") + (belum.length > 0 && belum.length <= 5 ? `. ${kata.belumNama} ${belum.map((b) => b.nama).join(", ")}.` : "");
 
   return (
     <form action={tinjauKenaikanAksi} className="pin-kenaikan">
