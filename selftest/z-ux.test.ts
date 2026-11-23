@@ -278,7 +278,7 @@ export const zUxStaticTests: SelfTest[] = [
         && !/onClick/.test(asli), "the native-post button does not hold a second submit at the capture-phase guard, say its busy words, or return to its verb on pageshow");
       // item 4: the width at the captured submit is kept only while busy; at rest the style is the caller's own
       c.expect(/sibuk && lebar \? \{ \.\.\.gaya, minInlineSize: lebar \} : gaya/.test(tk)
-        && /style=\{gayaSibuk\(pending, lebar, rest\.style\)\}/.test(tk) && /style=\{gayaSibuk\(menunggu, lebar, rest\.style\)\}/.test(tk)
+        && /style=\{gayaSibuk\(pending(?: \|\| tuntas)?, lebar, rest\.style\)\}/.test(tk) && /style=\{gayaSibuk\(menunggu, lebar, rest\.style\)\}/.test(tk)
         && (tk.match(/setLebar\(lebarKini\(tombol\.current\)\);/g) ?? []).length === 2, "a busy button may narrow (no min-inline-size from the width at submit), or the rule applies at rest");
       const hal = buang(readFileSync(join(repoRoot, "src", "app", "masuk", "buka-kembali", "page.tsx"), "utf8"));
       c.expect(/<TombolKirim asli className="pin-btn pin-primary" sibuk=\{s\("tombol\.mengirim"\)\}>\{s\("buka_kembali\.kirim"\)\}<\/TombolKirim>/.test(hal)
@@ -461,6 +461,31 @@ export const zUxStaticTests: SelfTest[] = [
         ["galat.pass_mark_input_incomplete", "Isi nilai bulat dari 1 sampai 100 dan alasannya.", "Enter a whole number from 1 to 100 and a reason."],
       ], "staff");
       return c.verdict("reads the copy table: config.ketuntasan.arti and galat.pass_mark_input_incomplete state K-07's range, «1 sampai 100» / «1 to 100», and nothing else in them changed; ID and EN");
+    },
+  },
+  {
+    id: "Z-N16-01",
+    requires: [],
+    run: async () => {
+      const c = new Checks();
+      // N-16 (Daisy, Z4 review; S-12's approved wording): the pace is said without claiming that something was sent
+      kata(c, [["buka_kembali.galat.tunggu", "Tunggu sebentar, lalu coba lagi.", "Wait a little, then try again."]], "public");
+      return c.verdict("reads the copy table (N-16, S-12's wording): buka_kembali.galat.tunggu is «Tunggu sebentar, lalu coba lagi.» / «Wait a little, then try again.», with no claim that a request was sent");
+    },
+  },
+  {
+    id: "Z-N17-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const tk = buang(readFileSync(join(repoRoot, "src", "components", "TombolKirim.tsx"), "utf8"));
+      const aksi = /function TombolAksi\([\s\S]*?\nfunction TombolAsli/.exec(tk)?.[0] ?? "";
+      // N-17 (Daisy, Z4 review): the width taken at the captured submit holds until the VERB returns: while pending and
+      // through «✓ {selesai}»; a change to the form (diubah) ends «tuntas», and with it the hold
+      c.expect(/style=\{gayaSibuk\(pending \|\| tuntas, lebar, rest\.style\)\}/.test(aksi),
+        "a server-action button lets go of its width when it shows «✓ {selesai}», so a shorter result word can pull a neighbour left");
+      c.expect(/const tuntas = !pending && selesai !== undefined && !diubah;/.test(aksi), "«tuntas» no longer ends when the form changes");
+      return c.verdict("reads the source file of TombolKirim (N-17, R-26 item 4's sibling): a server-action button keeps the width taken at its captured submit while pending and through «✓ {selesai}», until a change to the form returns its verb; the browser check is docs/completion-4.1/batches/z/layar/n17-lebar.ts");
     },
   },
 ];

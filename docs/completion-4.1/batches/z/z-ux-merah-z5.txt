@@ -1,0 +1,11 @@
+# Z5 (stream B) · red on 954aa9bc (each fix stashed)
+## N-16
+Z-N16-01    FAIL    buka_kembali.galat.tunggu (id): «Baru saja ada permintaan dari jaringan ini. Tunggu beberapa menit, lalu coba lagi.», not «Tunggu sebentar, lalu coba lagi.»; buka_kembali.galat.tunggu (en): «A request was just sent from this network. Wait a few minutes, then try again.», no
+0 passed, 1 failed, 0 skipped, 0 contract problem(s) → RED
+## N-17 (source rule; the browser measure, n17-lebar.ts, cannot go red on a reachable button: «Minta membaca lagi» fills its column, and «Terbitkan» and «Sediakan» get longer result words)
+Z-N17-01    FAIL    a server-action button lets go of its width when it shows «✓ {selesai}», so a shorter result word can pull a neighbour left
+0 passed, 1 failed, 0 skipped, 0 contract problem(s) → RED
+# base: the build of 3f34689b + 954aa9bc's fixes (no N-17)
+PASS  N-17 the button shows its result «✓ Terkirim» (data-keadaan=selesai)
+PASS  N-17 «Minta membaca lagi» does not narrow when it shows «✓ Terkirim» (rest 688.0 px, after 688.0 px)
+PASS  N-17 after a change the verb «Minta membaca lagi» returns at its own width (688.0 px)

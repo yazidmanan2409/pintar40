@@ -6841,6 +6841,16 @@
       "proves": "selftest/z-ux.test.ts, from the copy table (K-07's floor, Daisy's words via Bob): config.ketuntasan.arti and galat.pass_mark_input_incomplete say «1 sampai 100» / «1 to 100», nothing else changed."
     },
     {
+      "id": "Z-N16-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the copy table (N-16, S-12's approved wording): the reopening page's wait line says «Tunggu sebentar, lalu coba lagi.» / «Wait a little, then try again.», never that a request was sent."
+    },
+    {
+      "id": "Z-N17-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the source file of TombolKirim (N-17): a server-action button keeps the width taken at its submit while pending and through «✓ {selesai}», until a change to the form returns its verb. Browser check: docs/completion-4.1/batches/z/layar/n17-lebar.ts."
+    },
+    {
       "id": "Z-S12-01",
       "runner": "app",
       "proves": "selftest/z-ux.test.ts, posting to the running app's reopening route (route redirects and the rendered html) from one address (S-12): two refused inputs each answer the input's own line, never «a request was just sent», and use no pace; a well-formed request is then sent and a second at once is paced."

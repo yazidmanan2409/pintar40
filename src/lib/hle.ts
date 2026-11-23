@@ -7058,7 +7058,8 @@ const table: Table = {
   "buka_kembali.terkirim": { default: "Terima kasih. Jika akun itu memang sudah ditutup, permintaan Anda kini menunggu di Admin PINTAR. Akun dibuka kembali hanya setelah Admin PINTAR memastikan identitas Anda.", en: "Thank you. If that account has been closed, your request is now waiting with an Admin PINTAR. The account is reopened only after an Admin PINTAR has confirmed who you are." },
   // R-27(a) (ruling 77): the field is labelled «Email atau username», and the refusal names it so
   "buka_kembali.galat.isian": { default: "Isi email atau username, dan pesan 10 sampai 500 karakter.", en: "Fill in the email or username, and a message of 10 to 500 characters." },
-  "buka_kembali.galat.tunggu": { default: "Baru saja ada permintaan dari jaringan ini. Tunggu beberapa menit, lalu coba lagi.", en: "A request was just sent from this network. Wait a few minutes, then try again." },
+  // N-16 (Daisy, Z4 review; S-12's approved wording): the pace, with no claim that a request was sent
+  "buka_kembali.galat.tunggu": { default: "Tunggu sebentar, lalu coba lagi.", en: "Wait a little, then try again." },
   "buka_kembali.galat.umum": { default: "Permintaan belum terkirim. Coba lagi.", en: "The request was not sent. Try again." },
   "buka_kembali.ke_masuk": { default: "Kembali ke halaman masuk", en: "Back to sign-in" },
   "keamanan.permintaan.buka_kembali": { default: "Buka kembali akun", en: "Reopen the account" },

@@ -41,6 +41,8 @@ import { useFormStatus } from "react-dom";
  *   rendered width is kept as its `min-inline-size` until its verb returns,
  *   so «Mengirim…» in place of a longer verb never pulls its neighbours left.
  *   At rest nothing is set, so a button at rest is drawn exactly as before.
+ *   N-17 (Daisy, Z4 review): held through «✓ {selesai}» too, until a change to
+ *   the form returns the verb, so a shorter result word never pulls a neighbour.
  * - ITEM 1, `asli`: A NATIVE POST FORM (one without a server action, such as
  *   «Minta akun dibuka kembali», which posts signed out to a route) has no
  *   form status to read. With `asli` the same capture-phase guard sets the
@@ -149,7 +151,7 @@ function TombolAksi({
         type="submit"
         disabled={pending || disabled}
         aria-busy={pending ? "true" : undefined}
-        style={gayaSibuk(pending, lebar, rest.style)}
+        style={gayaSibuk(pending || tuntas, lebar, rest.style)}
         data-keadaan={tuntas ? "selesai" : undefined}
         aria-disabled={tuntas ? "true" : rest["aria-disabled"]}
       >
