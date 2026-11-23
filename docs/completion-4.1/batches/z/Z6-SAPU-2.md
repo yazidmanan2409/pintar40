@@ -4,7 +4,8 @@
 > database reset to its migrations):
 > - **Sweep run 2: GREEN, 130 checks on 13 pages,** six of them stream A's K-01 verdict screens (`z6-sapu-2.txt`).
 > - **«Menga jar» does not reproduce.** No code change.
-> - **«target 60 %»: captured for Daisy, not changed.** It is on stream A's K-01 page.
+> - **«target 60 %»: the intended order, not a 320 reflow** (§3, ruled after Daisy's Z3-A verdict). Recorded for the
+>   ruling 79 audit; no change.
 > - **The re-looks, captured for Daisy:** A1-R4's queue rows and C1-R4's printed predicate.
 
 ## 1 · Sweep run 2 (`layar/sapu-z6.ts`, one command)
@@ -47,6 +48,18 @@ The merge added no new file drawing `pin-tabel-bingkai` or `pin-seg` (the sweep 
   (Enter on «Minta membaca lagi»). Notes are in `layar/CATATAN-ULANG.txt`.
 - **The page is stream A's** (K-01, `src/app/mengajar/[kelas]/ulang/page.tsx`), so it is not changed here.
 - **Also seen there:** at 390 and 320 the breadcrumb's second line begins with a bare «/» («/ 5B / 2026/27»).
+
+
+**Decision (after Daisy's Z3-A verdict `29a4e841`): the intended order, not a reflow, so it goes on the ruling 79 audit list.**
+- It is the last line of the page head (`div.pin-head`: eyebrow, h1, intro, then «target 60%»), before the form, in
+  `src/app/mengajar/[kelas]/ulang/page.tsx:79-81`. That is source order, unchanged since `30d6d049` (9 Oct).
+- Run 2 places it the same at 1280, 390 and 320, with no overflow. A reflow would show only at the narrow width.
+- «Murid» sits further right because the form's fieldset is inset. The target line belongs to the head, not to the list.
+- **Audit item (design question):** should the target sit by the learner list, where each learner already shows «di
+  bawah target · n%», or stay in the head? Moving it would be a design change on stream A's page, not a Z6 fix.
+
+**«Menga jar» (same verdict, ruled a Z6 defect):** already fixed by `3472d3a4`. Red: `z-ux-merah-z5r.txt`. Green: §2
+and `z6-sapu-2.txt`. No new commit.
 
 ## 4 · Z8's two re-looks after merge 2 (`layar/tangkap-z8.ts`, same session)
 
