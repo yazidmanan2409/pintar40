@@ -33,3 +33,6 @@ Z-S06-01    FAIL    pengerjaan.galat.window_not_changeable (id): «Jadwal materi
 Z-S07-01    FAIL    a deactivation with a reason of spaces is not answered STRUCTURE_REASON_REQUIRED
 0 passed, 3 failed, 0 skipped, 0 contract problem(s) → RED
 Z-S16-01    FAIL    the new person's name field takes more than authorize_new_person accepts: <input ref={namaBaruRef} className="pin-input" value={baru.nama} autoComplete="off"
+## R-26 item 3 (Z-R26-03, on a28f4d35 before the fix)
+Z-R26-03    FAIL    lapor.triase.simpan (id): «Simpan», not «Perbarui status»; lapor.triase.simpan (en): «Save», not «Update status»; config.struktur.simpan (id): «Simpan», not «Simpan nama»; config.struktur.simpan (en): «Save», not «Save name»; studio.definisi.buat (id): «—», not «Buat aturan»; studio.definisi.buat (en): «—», not «Create rule»; studio.definisi.simpan (
+0 passed, 1 failed, 0 skipped, 0 contract problem(s) → RED

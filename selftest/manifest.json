@@ -6816,6 +6816,11 @@
       "proves": "selftest/z-ux.test.ts, from the source file experience.css (R-26 item 2, ruling 75): a.pin-konteks-pilih keeps its control-sm look and its hit area is extended to control-md (44 px) by an ::after. The browser proof (hit area and identical pixels at 320, 390, 1280) is docs/completion-4.1/batches/z/layar/r26-tekan.ts."
     },
     {
+      "id": "Z-R26-03",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the copy table and the source files of the Studio rule and Kanonik pages (R-26 item 3): the four «Simpan» labels say what they do, each its own key, and Kanonik's grant is studio.kanonik.beri «Berikan izin»."
+    },
+    {
       "id": "Z-S15-01",
       "runner": "static",
       "proves": "selftest/z-ux.test.ts, executing src/components/aktivasi/hasil.ts and reading the activation route's source file and the copy table (S-15): only an address Auth reports as already registered is told «mungkin sudah dipakai»; an outage or a rate limit reads «Akun belum bisa dibuat. Coba lagi sebentar lagi.»"

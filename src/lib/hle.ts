@@ -1884,7 +1884,7 @@ export type HleEvent =
   | "studio.kanonik.unit.tujuan"
   | "studio.definisi.judul"
   | "studio.definisi.batas"
-  | "studio.definisi.simpan"
+  | "studio.definisi.simpan" | "studio.definisi.buat" | "studio.kanonik.beri"
   | "studio.definisi.versi_baru"
   | "studio.definisi.tetap"
   | "studio.integritas.judul"
@@ -5363,7 +5363,8 @@ const table: Table = {
   "lapor.triase.kosong": { default: "Belum ada laporan.", en: "No reports yet." },
   "lapor.triase.ubah": { default: "Ubah status", en: "Change status" },
   "lapor.triase.langkah": { default: "Langkah berikutnya untuk pelapor", en: "Next step for the reporter" },
-  "lapor.triase.simpan": { default: "Simpan", en: "Save" },
+  // R-26 item 3 (ruling 75; Daisy's package): the button says what it does
+  "lapor.triase.simpan": { default: "Perbarui status", en: "Update status" },
   "lapor.triase.tangkapan": { default: "Lihat tangkapan layar", en: "View the screenshot" },
   "lapor.triase.ok": { default: "Status laporan diperbarui.", en: "The report's status has been updated." },
   // #148 (D-094, D-100): maintenance and notices; WIB is the zone the copy speaks (D-094(e))
@@ -5533,7 +5534,8 @@ const table: Table = {
   "config.struktur.nonaktif": { default: "Nonaktif", en: "Inactive" },
   "config.struktur.ubah_nama": { default: "Ubah nama", en: "Rename" },
   "config.struktur.nama_baru": { default: "Nama baru", en: "New name" },
-  "config.struktur.simpan": { default: "Simpan", en: "Save" },
+  // R-26 item 3 (ruling 75; Daisy's package): the button says what it does
+  "config.struktur.simpan": { default: "Simpan nama", en: "Save name" },
   "config.struktur.batal": { default: "Batal", en: "Cancel" },
   "config.struktur.sibuk": { default: "Menyimpan…", en: "Saving…" },
   "config.struktur.nonaktifkan": { default: "Nonaktifkan", en: "Deactivate" },
@@ -6353,7 +6355,10 @@ const table: Table = {
   "studio.kanonik.unit.tujuan": { default: "tujuan pembelajaran", en: "learning objectives" },
   "studio.definisi.judul": { default: "Aturan Asesmen", en: "Assessment Rules" },
   "studio.definisi.batas": { default: "Batas yang berlaku", en: "The thresholds in force" },
-  "studio.definisi.simpan": { default: "Simpan", en: "Save" },
+  // R-26 item 3 (ruling 75; Daisy's package): the button says what it does
+  "studio.definisi.simpan": { default: "Simpan perubahan", en: "Save changes" },
+  "studio.definisi.buat": { default: "Buat aturan", en: "Create rule" },
+  "studio.kanonik.beri": { default: "Berikan izin", en: "Grant permission" },
   "studio.definisi.versi_baru": { default: "Perubahan ini mengubah cara hasil dibaca, jadi tersimpan sebagai aturan baru. Hasil lama tetap dibaca dengan aturan lamanya.", en: "This change alters how results are read, so it is saved as a new rule. Older results keep being read under their own rule." },
   "studio.definisi.tetap": { default: "Nama diperbarui. Cara hasil dibaca tidak berubah.", en: "The name is updated. How results are read has not changed." },
   "studio.integritas.judul": { default: "Tinjauan Integritas", en: "Integrity Review" },

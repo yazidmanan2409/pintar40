@@ -162,7 +162,7 @@ export default async function Kanonik({ searchParams }: { searchParams: Search }
               <span>{s("config.ketuntasan.alasan")}</span>
               <input className={field} name="alasan" />
             </label>
-            <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.definisi.simpan")}</TombolKirim>
+            <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.kanonik.beri")}</TombolKirim>
           </form>
           <SimpanIsian form="izin-beri" ditolak={ditolak("izin-beri")} pemilik={pemilik} />
           <HasilDi q={sp} bagian="izin-beri" kalimat={banner} />

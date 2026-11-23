@@ -622,6 +622,30 @@ export const zUxStaticTests: SelfTest[] = [
       return c.verdict("reads the source file of the activation form (S-16): the new person's name field has maxLength={200}, authorize_new_person's own limit");
     },
   },
+  {
+    id: "Z-R26-03",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      // R-26 item 3 (ruling 75; Daisy's package): four «Simpan» say what they do, each its own key; the busy words unchanged
+      kata(c, [
+        ["lapor.triase.simpan", "Perbarui status", "Update status"],
+        ["config.struktur.simpan", "Simpan nama", "Save name"],
+        ["studio.definisi.buat", "Buat aturan", "Create rule"],
+        ["studio.definisi.simpan", "Simpan perubahan", "Save changes"],
+        ["studio.kanonik.beri", "Berikan izin", "Grant permission"],
+      ], "staff");
+      const baca = (...f: string[]) => buang(readFileSync(join(repoRoot, ...f), "utf8"));
+      const def = baca("src", "app", "studio", "definisi", "page.tsx");
+      const baru = /<form action=\{saveDefinitionAction\} id="definisi-baru"[\s\S]*?<\/form>/.exec(def)?.[0] ?? "";
+      const baris = /<form action=\{saveDefinitionAction\} id=\{`definisi-\$\{d\.id\}`\}[\s\S]*?<\/form>/.exec(def)?.[0] ?? "";
+      c.expect(/sibuk=\{s\("tombol\.menyimpan"\)\}>\{s\("studio\.definisi\.buat"\)\}<\/TombolKirim>/.test(baru), "the new rule's button is not «Buat aturan» (studio.definisi.buat)");
+      c.expect(/sibuk=\{s\("tombol\.menyimpan"\)\}>\{s\("studio\.definisi\.simpan"\)\}<\/TombolKirim>/.test(baris), "a rule's edit row is not «Simpan perubahan» (studio.definisi.simpan)");
+      const kan = baca("src", "app", "studio", "kanonik", "page.tsx");
+      c.expect(/\{s\("studio\.kanonik\.beri"\)\}<\/TombolKirim>/.test(kan) && !/studio\.definisi\.simpan/.test(kan), "Kanonik's grant still borrows the rule's «Simpan»; it is not «Berikan izin» (studio.kanonik.beri)");
+      return c.verdict("reads the copy table and the source files of the Studio rule and Kanonik pages (R-26 item 3): «Perbarui status», «Simpan nama», «Buat aturan» (the new rule, its own key), «Simpan perubahan» (a rule's edit) and «Berikan izin» (Kanonik's grant, its own key studio.kanonik.beri); ID and EN");
+    },
+  },
 ];
 
 export const zUxAppTests: SelfTest[] = [

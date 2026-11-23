@@ -202,7 +202,7 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
             <input type="hidden" name="luring_ada" value="1" />
           </fieldset>
           <input type="hidden" name="definisi" value="" />
-          <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.definisi.simpan")}</TombolKirim>
+          <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.definisi.buat")}</TombolKirim>
         </form>
         <SimpanIsian form="definisi-baru" ditolak={ditolak("definisi")} pemilik={pemilik} />
         <HasilDi q={sp} bagian="definisi" kalimat={banner} />
