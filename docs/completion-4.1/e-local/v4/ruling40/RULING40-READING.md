@@ -281,3 +281,8 @@ The hosts were extracted from the saved file only. No new request was made in th
 - **new, Q-S2:** whether "Worldwide" processing is acceptable should personal data ever come into scope.
 
 **For D-7:** a provider becomes offerable only when its conditions hold **and** counsel clears it. Technical conditions are not contractual compliance.
+
+**Owner, 23 Nov:**
+- **Collect Anthropic's API retention document by manual PDF.** The page is the one cited in E-DECISION-PACK §1: `https://privacy.claude.com/en/articles/7996866`.
+- Sharon then completes her assessment and settles blocking condition (1).
+- C3w-1's review gates are left undisturbed.
