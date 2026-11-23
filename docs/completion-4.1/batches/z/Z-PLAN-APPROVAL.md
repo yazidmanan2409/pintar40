@@ -118,3 +118,10 @@ They refine the owner's suggestion, and ruling 81 makes them Daisy's approved wo
 The migration header records the reason (no collected round exists on staging or production) and the restore path. Z-D6-01 asserts that `authenticated` has no EXECUTE on any of the nine, and that every row count is unchanged.
 
 **Daisy's V2 words: approved by the owner.**
+
+**V2's words, a crossing.** Daisy's FINAL (ux-1 `794baef7`) replaces her earlier two-key text. The earlier text is the one the owner approved.
+- **The final text:** one key, `hasil.ulang_berjalan`, for learner and teacher. «Uji Penguasaan ulang sedang berlangsung. Hasil yang tampil adalah hasil uji sebelumnya.» / «A Mastery Check retake is in progress. The result shown is from the earlier check.»
+- **Where:** a separate `pin-meta` line, neutral, outside the verdict banner, with no ✓, icon, colour or figure. Learner: under the result on `/belajar/[tugas]/hasil` and on the chapter's row in Hasil Belajar. Teacher: the per-learner page's row, and any class view of that learner's result for that chapter.
+- **When:** only while a retake is open (begun, not ended). Not after abandon, time-out, a teacher's end, withdrawal or finalisation.
+
+**The owner chooses between the two texts.** Second Eye uses the placement and timing now. The text waits for the owner's word; it is not needed before Z3.
