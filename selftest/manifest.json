@@ -6861,6 +6861,11 @@
       "proves": "selftest/z-ux.test.ts, from the rendered html of the running app's /konfigurasi/staf as the bootstrap school's administrator (N-9): no person, an unknown person and another school's staff member get the same neutral refusal and status."
     },
     {
+      "id": "Z-S01-01",
+      "runner": "app",
+      "proves": "selftest/z-ux.test.ts, through the running app's Studio rule form (route redirect) and read back from the database (S-01, before its fix): renaming a rule with pause and offline on keeps its one version and every other setting."
+    },
+    {
       "id": "Z-S12-01",
       "runner": "app",
       "proves": "selftest/z-ux.test.ts, posting to the running app's reopening route (route redirects and the rendered html) from one address (S-12): two refused inputs each answer the input's own line, never «a request was just sent», and use no pace; a well-formed request is then sent and a second at once is paced."

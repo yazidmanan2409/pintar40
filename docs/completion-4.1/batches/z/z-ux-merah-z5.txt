@@ -13,3 +13,6 @@ PASS  N-17 after a change the verb «Minta membaca lagi» returns at its own wid
 Z-N9-01     FAIL    staf.tidak_dapat_dibuka (id): «—», not «Data staf ini tidak dapat dibuka. Mungkin sudah tidak ada, atau bukan untuk Anda.»; staf.tidak_dapat_dibuka (en): «—», not «This staff record cannot be opened. It may no longer exist, or it is not for you.»; the staff page still refuses with the certificate page's sentence; no person, and an unknown or forbidden one, do not ge
 Z-N9-02     FAIL    no person: the staff page does not answer «—» (or still names the certificate page); an unknown person: the staff page does not answer «—» (or still names the certificate page); another school's staff member: the staff page does not answer «—» (or still names the certificate page)
 0 passed, 2 failed, 0 skipped, 0 contract problem(s) → RED
+## S-01 (Z-S01-01, the preserve-all-settings test, on 56ef4c10 before the fix)
+Z-S01-01    FAIL    renaming saved a new version (1 → 2 in the line): the rename was read as an interpretive change; the new name was not saved
+0 passed, 1 failed, 0 skipped, 0 contract problem(s) → RED

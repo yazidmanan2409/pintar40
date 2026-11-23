@@ -196,6 +196,10 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
               <span>{s("studio.definisi.f.luring")}</span>
               <small>{s("studio.definisi.petunjuk.luring")}</small>
             </label>
+            {/* S-01: this form carries the two settings, so an unticked box means «off»; a form without these marks (a
+                row's rename) leaves them as they are */}
+            <input type="hidden" name="jeda_ada" value="1" />
+            <input type="hidden" name="luring_ada" value="1" />
           </fieldset>
           <input type="hidden" name="definisi" value="" />
           <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.definisi.simpan")}</TombolKirim>

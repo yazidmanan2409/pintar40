@@ -604,4 +604,55 @@ export const zUxAppTests: SelfTest[] = [
       return c.verdict("as the bootstrap school's administrator in the running app (N-9): /konfigurasi/staf with no person, an unknown person and another school's staff member each answer «Data staf ini tidak dapat dibuka. Mungkin sudah tidak ada, atau bukan untuk Anda.» in the rendered html, with one status, never the certificate page's sentence");
     },
   },
+  {
+    id: "Z-S01-01",
+    requires: ["app", "network", "db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const { lit, psql } = await import("./bob26.test");
+      const { ADMIN, masuk, muat, dunia, bersihkan } = await import("./c1w-layar.test");
+      const { formDengan, ke } = await import("./a1-layar.test");
+      const asal = ctx.appUrl!;
+      // S-01 (SAPU-VERIFIED; the preserve-all-settings test before the fix): C1w's screen fixture uploads a draft package
+      // in the cycle school (a row's form opens only for a draft chapter); one of its rules gets pause and offline on, as
+      // its author could have set them, then its administrator renames it through the row's own form
+      muat(ctx.repoRoot);
+      const tag = `s01${Date.now().toString(36)}`;
+      const d = dunia(tag, `C1W layar S01 ${tag}`);
+      if (!c.expect(typeof d !== "string", String(d))) return c.verdict("");
+      const { course, inst } = d as Exclude<typeof d, string>;
+      try {
+        const [id, judul, jumlah] = psql(`select d.id || '|' || d.title || '|' || d.item_count from public.assessment_definitions d
+          where d.course_id = ${lit(course)} order by d.mode, d.created_at limit 1`).split("|");
+        if (!c.expect(/^[0-9a-f-]{36}$/.test(id ?? ""), `the draft package has no rule: ${id}`)) return c.verdict("");
+        psql(`begin; set local session_replication_role = replica;
+          update public.assessment_definitions set allows_pause = true, offline_tolerant = true where id = ${lit(id)}; commit;`);
+        const kolom = "allows_pause, offline_tolerant, item_count, mode, bank_type, shuffle_policy, attempt_limit, safety_critical_minimum, hesitation_window_seconds, late_sync_grace_seconds, difficulty_mix, course_id, module_id, status";
+        const garis = `(select coalesce(d.lineage_root_definition_id, d.id) from public.assessment_definitions d where d.id = ${lit(id)})`;
+        const sebelum = psql(`select row_to_json(t)::text from (select ${kolom} from public.assessment_definitions where id = ${lit(id)}) t`);
+        const versiSebelum = psql(`select count(*) from public.assessment_definitions where coalesce(lineage_root_definition_id, id) = ${garis}`);
+        const admin = await masuk(asal, ADMIN, `MENGELOLA:${inst}`);
+        if (!c.expect(typeof admin !== "string", String(admin))) return c.verdict("");
+        const k = admin as Exclude<typeof admin, string>;
+        const namaBaru = `${judul} (S-01)`;
+        let bentuk: Record<string, string> | string = "not found";
+        for (let hal = 1; hal <= 8 && typeof bentuk === "string"; hal++) {
+          bentuk = formDengan(await (await k.halaman(`/studio/definisi?hal=${hal}&ubah=${id}`)).text(), `id="definisi-${id}"`, { judul: namaBaru, jumlah });
+        }
+        if (!c.expect(typeof bentuk !== "string", `the rule's row form: ${bentuk}`)) return c.verdict("");
+        const r = await k.kirim("/studio/definisi", { form: bentuk as Record<string, string> });
+        c.expect(r.status === 303 || r.status === 200, `the rename answered ${r.status} ${ke(r)}`);
+        const versiSesudah = psql(`select count(*) from public.assessment_definitions where coalesce(lineage_root_definition_id, id) = ${garis}`);
+        const terbaru = psql(`select d.id from public.assessment_definitions d where coalesce(d.lineage_root_definition_id, d.id) = ${garis} order by d.version desc limit 1`);
+        const sesudah = psql(`select row_to_json(t)::text from (select ${kolom} from public.assessment_definitions where id = ${lit(terbaru)}) t`);
+        c.expect(versiSesudah === versiSebelum && terbaru === id, `renaming saved a new version (${versiSebelum} → ${versiSesudah} in the line): the rename was read as an interpretive change`);
+        c.expect(sesudah === sebelum, `renaming changed other settings: before ${sebelum} · after ${sesudah}`);
+        c.expect(psql(`select title from public.assessment_definitions where id = ${lit(terbaru)}`) === namaBaru, "the new name was not saved");
+      } finally {
+        bersihkan();
+      }
+      return c.verdict("in the running app as the cycle school's administrator, on C1w's draft package (S-01): a rule with pause and offline on, renamed through its own row form, keeps its one version and every other setting (pause, offline, count, mode, bank, shuffle, attempts, safety, hesitation, grace, mix, chapter, status), with the new name saved; read back from the database");
+    },
+  },
 ];
+
