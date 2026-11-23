@@ -32,3 +32,17 @@ The four read RPCs granted to `authenticated` are as follows.
 **My default, absent the counts, is to revoke all four.** I expect 0 closed rounds before launch, but the counts decide.
 
 **Could reasonably have been anticipated:** the stranded `OPEN` round. The ruling 55 record (item 2) offered keeping the reads without asking what an unclosable `OPEN` cycle leaves readable. That is my own gap.
+
+## Outcome (23 Nov 2026, 09:40 UTC)
+
+- **Bob's counts:** taken read-only, under the owner's authorisation (`Z-PLAN-APPROVAL.md` `40a87d25`).
+
+  | Environment | `feedback_cycles` | `feedback_results` |
+  |---|---|---|
+  | production | 0 | 0 |
+  | staging | 0 | 0 |
+
+- **There is no closed round anywhere,** so all four reads are revoked and all nine RPCs are dark.
+- **At Z2 I check:**
+  - the migration header's reason and its restore path (a re-grant);
+  - Z-D6-01's assertions: none of the nine is executable by authenticated or anon, and every feedback table's row count is unchanged.
