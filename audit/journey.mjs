@@ -2529,7 +2529,7 @@ await step("S23d", "the dean: the school admin adds the dean by the screens; the
     for (const jalan of ["/konfigurasi", "/aktivasi", "/studio", "/pendataan"]) {
       await d.goto(`${APP}${jalan}`, { waitUntil: "networkidle" });
       const ditolak = (await d.locator(".pin-refusal").count()) > 0 || new URL(d.url()).pathname !== jalan;
-      const tombolTulis = await d.locator('button:has-text("Berikan peran"), button:has-text("Aktifkan dengan email"), button:has-text("Simpan")').count();
+      const tombolTulis = await d.locator('button:has-text("Berikan peran"), button:has-text("Aktifkan dengan email"), button:has-text("Simpan"), button:has-text("Perbarui status")').count();
       tolak[jalan] = ditolak ? "refused" : `opened (${tombolTulis} write button(s))`;
     }
     rec.shots.push(await shot(d, "j7-3-dekan-ditolak"));
@@ -2878,7 +2878,7 @@ await step("S23l", "«Laporkan masalah»: the teacher reports a problem from /me
     await li.locator('select[name="status"]').waitFor({ timeout: SLOW });
     await li.locator('select[name="status"]').selectOption({ label: ke });                             // :670-673; hle.ts:2786-2787
     await li.locator('input[name="langkah"]').fill(langkah);                                           // :675-676
-    await li.getByRole("button", { name: "Simpan", exact: true }).click();                              // :678; hle.ts:2799
+    await li.getByRole("button", { name: "Perbarui status", exact: true }).click();                     // lapor.triase.simpan, renamed by R-26 item 3 (6a4a5231)
     await page.waitForURL((u) => u.searchParams.get("bagian") === "laporan-masalah" && u.searchParams.has("lapor"), { timeout: SLOW }).catch(() => {});  // lapor/actions.ts:139, 150
     await page.waitForLoadState("networkidle");
     return { ada: true, status, isi, jawab: new URL(page.url()).searchParams.get("lapor"), kalimat: await teks(page.locator("#laporan-masalah")) };
@@ -3522,7 +3522,8 @@ await step("S26", "the school admin corrects the structure on Struktur sekolah: 
   // rename
   await baris().getByRole("button", { name: "Ubah nama", exact: true }).click();
   await a.locator(`#str-ubah-${satuB}`).fill("Kelas 1 Biru");
-  await a.locator("#struktur form.pin-str-ubah").first().getByRole("button", { name: "Simpan", exact: true }).click();
+  // config.struktur.simpan, renamed «Simpan nama» by R-26 item 3 (6a4a5231)
+  await a.locator("#struktur form.pin-str-ubah").first().getByRole("button", { name: "Simpan nama", exact: true }).click();
   for (let i = 0; i < 30; i++) {
     if (sql(`select name from public.org_nodes where id='${satuB}'`).trim() === "Kelas 1 Biru") break;
     await a.waitForTimeout(500);
