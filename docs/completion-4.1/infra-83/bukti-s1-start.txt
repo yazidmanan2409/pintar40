@@ -1,0 +1,67 @@
+# bukti-s1-start · 2026-11-23T23:20:58Z · commit 9768e349
+
+## plant: a defect that stops next start (the server's register() exits the process), on a healthy machine; one app test selected
+
+$ git status --short src/instrumentation.ts
+?? src/instrumentation.ts
+[rc=0]
+
+## RED: the runner as it was at 61bb1e3e reads the missing app facility as INFRA, VOID: the defect is hidden
+
+$ bash scripts/dev/.preflight-61bb1e3e.sh --langkah=suite --keluar=/root/pintar-preflight/bukti-s1-start-lama -- --only=F01-R01
+== bersih: bersih: 0 removed, 0; 33 kept
+== siap: READY
+INFRA  suite  rc=1: F01-R01 is INFRA (facility: facility missing: app), and 1 row(s) in all
+preflight: RUN VOID (/root/pintar-preflight/bukti-s1-start-lama)
+[rc=3]
+
+$ bash -c grep -E '^(PASS|FAIL|INFRA|RUN|rows)' '/root/pintar-preflight/bukti-s1-start-lama/SUMMARY.txt'; grep -m3 -iE 'planted|refuses|could not start|did not start' '/root/pintar-preflight/bukti-s1-start-lama/suite.log' | cut -c1-200
+INFRA  suite  rc=1: F01-R01 is INFRA (facility: facility missing: app), and 1 row(s) in all
+rows: 24 classed; 0 FAIL, 1 INFRA (ROWS.txt)
+RUN VOID
+  [90m2 |[0m   console.error([32m"planted (ruling 83 S-1): the server refuses to start"[0m);
+  app did not start on http://127.0.0.1:3999
+planted (ruling 83 S-1): the server refuses to start
+[rc=0]
+
+## GREEN: the runner now: the machine is healthy, so «facility missing: app» is FAIL and the run is RED
+
+$ scripts/dev/preflight.sh --langkah=suite --keluar=/root/pintar-preflight/bukti-s1-start -- --only=F01-R01
+== bersih: bersih: 0 removed, 0; 34 kept
+== siap: READY
+FAIL   suite  rc=1: 1 FAIL row(s), first F01-R01 facility missing: app
+preflight: RUN RED (/root/pintar-preflight/bukti-s1-start)
+[rc=1]
+
+$ bash -c grep -E '^(PASS|FAIL|INFRA|RUN|rows)' '/root/pintar-preflight/bukti-s1-start/SUMMARY.txt'; cat '/root/pintar-preflight/bukti-s1-start/ROWS.txt'
+FAIL   suite  rc=1: 1 FAIL row(s), first F01-R01 facility missing: app
+rows: 24 classed; 1 FAIL, 0 INFRA (ROWS.txt; the machine healthy through the step)
+RUN RED
+F01-T01     PASS   PASS
+F01-T02     PASS   PASS
+F01-T03     PASS   PASS
+F01-T04     PASS   PASS
+F01-T05     PASS   PASS
+F01-T06     PASS   PASS
+F01-T07     PASS   PASS
+F01-T08     PASS   PASS
+F01-T09     PASS   PASS
+F01-T10     PASS   PASS
+F01-T11     PASS   PASS
+F01-T12     PASS   PASS
+F01-T13     PASS   PASS
+F01-T13b    PASS   PASS
+F01-T14     PASS   PASS
+F01-T15     PASS   PASS
+F01-T16     PASS   PASS
+F01-T17     PASS   PASS
+F01-T18     PASS   PASS
+F01-T19     PASS   PASS
+F01-T20     PASS   PASS
+F01-T21     PASS   PASS
+F01-T22     PASS   PASS
+F01-R01     SKIP   FAIL (a facility: facility missing: app signal, on a healthy machine)
+[rc=0]
+
+$ git status --short src
+[rc=0]

@@ -5,6 +5,8 @@
 > - `scripts/dev/images.lock`: the six images, pinned by digest.
 > - `scripts/dev/bersih.sh`: the cleanup (P-2).
 > - `scripts/dev/preflight.sh`: the pre-flight runner (P-2, P-4, P-5).
+> - `scripts/dev/kelas.sh` (how a failure is classed, after S-1) and `scripts/dev/tapis.sh` (keys stripped before any
+>   log, S-2), both sourced.
 > - `scripts/dev/README.md` gains a section on using them.
 >
 > **Every proof planted its failure in this builder's own container, and each was seen red before green.** Nothing
@@ -37,12 +39,12 @@
 | 2, the old way | `F01-*,F02-*,F03-*,A2A-C*` on that used database, **no reset** | **I-2 exactly:** «runner aborted: PL/pgSQL function selftest.run_fable03() line 19», and **505 rows read FAIL**. Before the fix below, that was evidence against the code | `bukti-usedb-run1-kelas-ulang.txt` |
 | 3, as the pre-flight now runs it | the same selection, same used database, **forced reset first** | **96 PASS, 0 FAIL, RUN GREEN** | same |
 | 1 again | the whole suite on a forced-reset database | **1388 PASS, 0 FAIL, RUN GREEN** (the three C3W rows passed this time) | `bukti-usedb.txt` |
-| 2 again, after the fix | the old way repeated (`--tanpa-reset`) on that used database | the same 505 failing rows, now **INFRA suite: world: the database was not reset … RUN VOID**: never FAIL | same |
+| 2 again, after the fix | the old way repeated (`--tanpa-reset`) on that used database | at the time, **INFRA suite: world … RUN VOID**. **Superseded by S-1:** it is now RED, with the world INFRA beside it (see «Sharon's safety review») | same |
 | 3 again | forced reset first | **96 PASS, RUN GREEN** | same |
 
-**The fix after run 2.** A step run with `--tanpa-reset` now classes INFRA («world: the database was not reset»), so the
-run is VOID whichever way it went. The plan asks that I-2 «classify as INFRA or VOID, never as FAIL», and the forced
-reset alone only prevents it.
+**The fix after run 2, since superseded by S-1.** For a time, a step run with `--tanpa-reset` was classed INFRA, so
+the run was VOID. Sharon's S-1 (a) makes FAIL rows take precedence, so such a run is now RED with the world INFRA
+listed beside it. The forced reset before every db step is what keeps I-2 from happening.
 
 **Two replays that did NOT reproduce I-2,** kept for the record: `F01-*…F05-*` twice, and `F01-*…F03-*,A2A-C*` twice,
 without a reset in between (`bukti-usedb-f01-f05.txt`, `bukti-usedb-targeted.txt`). Those suites leave nothing that
@@ -71,6 +73,41 @@ it was a test's own intermittent, not the infrastructure.
   with `GIT_OPTIONAL_LOCKS=0`, which reads without writing.
 - **Free space was rounded to whole gigabytes,** so the refusal read «52G free, below the minimum of 52G». It now
   prints one decimal.
+
+## Sharon's safety review (INFRA83-SAFETY-c1f04845): S-1, S-2, N-1 to N-3
+
+Every fix below was seen red first, each red against the scripts as they stood at `61bb1e3e`, before the fix.
+
+| Item | Planted | Red (61bb1e3e) | Green (now) | File |
+|---|---|---|---|---|
+| **S-1 (a), (c)** | a suite log with a real defect row, a simulated INFRA row («Cannot connect to the Docker daemon») and a «facility missing: app» row | the INFRA row collapses the suite into **one INFRA row** and VOID is checked before RED: **RUN VOID**, the defect hidden | `kelas.sh`, healthy machine: 2 FAIL rows (the defect, and the facility signal on a healthy machine), 1 INFRA beside them: **RUN RED**. On an unhealthy machine: 1 FAIL and 2 INFRA, still **RUN RED**. Without the defect row on an unhealthy machine: **RUN VOID** (VOID only when nothing failed) | `bukti-s1-baris.txt` |
+| **S-1 (b), (c)** | a real code defect that stops `next start` (`src/instrumentation.ts`: `register()` exits the process), on a healthy machine, with one app test selected | the run reads «facility missing: app» as **INFRA suite … RUN VOID** | the machine is healthy through the step, so the row is **FAIL (a facility signal, on a healthy machine)**: **RUN RED**. The plant is removed and `src` is clean | `bukti-s1-start.txt` |
+| S-1, control | a defect in a pinned EN string (`Z-T03-01`), on a healthy machine | | FAIL, **RUN RED** | `bukti-defect.txt` |
+| S-1, control | dockerd killed mid-suite | | a heartbeat lost, **INFRA**, the later steps NOT RUN, **RUN VOID** (no row failed) | `bukti-midrun2.txt` |
+| **S-2** | an `npx` shim that makes `supabase start` print planted keys (JSON and a `JWT secret:` line), with the stack stopped | the planted keys reach `$TMPDIR/pintar-siap-log/supabase-start.log` | after `tapis.sh` filters the output before it is written, the files holding a planted key are **(none)**. The log shows 12 «redacted» and 0 key shapes. Each gate also scrubs what older versions left in that folder, and `redact()` now covers it too | `bukti-s2.txt` |
+| **N-1** | a harness file creating the prefix «ab», and an aged `/tmp/abN1pl4x` | the dry run would remove `/tmp/abN1pl4x` | «refusing the harness prefix «ab» (shorter than 4 characters)», and the folder survives `--hapus` | `bukti-nits.txt` |
+| **N-2** | an abandoned red-case clone with a commit that no branch or tag reaches | the dry run would remove it (196 MB) | «keep … a clone whose HEAD (0fd97f1a) no branch or tag reaches». It survives `--hapus` | same |
+| **N-3** | a server named `next-server` on :3999, owned by `nobody` | `siap.sh` stops it | **INFRA port: … an app server of another user (pid …, uid 65534): not stopped**, and it is still running. Both scripts now say they are for a single-user sandbox | same |
+
+**The rule now** (`scripts/dev/kelas.sh`, sourced by `preflight.sh`):
+- RED takes precedence. Any FAIL row makes the run RED, and its INFRA rows are listed beside it.
+- A failure is INFRA only in two cases: the machine was not healthy through the step (a heartbeat lost, or not READY at the step's end), or its signal is one code cannot produce (the runtime gone, a registry refusal, a REBOOT found by the next gate).
+- The other signals are FAIL on a healthy machine: a missing facility, a port in use, a refused database, a full disk. Code can cause each of them.
+- After any INFRA row the remaining steps are NOT RUN.
+- VOID only when there is an INFRA row and no FAIL.
+
+**What S-1 changes in the I-2 replay.** Run 2 again, on a used database without a reset, is now **RED**: 508 FAIL rows,
+with «INFRA suite world: the database was not reset» listed beside them. Under (a), FAIL rows are never hidden. This
+replaces the «always VOID» rule I added after the first replay. The first replay's whole suite was GREEN (1388/0),
+and the forced-reset replay was GREEN (96/0) (`bukti-usedb.txt`). The forced reset is what removes I-2:
+`--tanpa-reset` exists only to replay it, and its INFRA row says why such a run's FAIL rows are suspect.
+
+**A first S-1(c) plant that did not work.** `register()` throwing still let `next start` come up and serve 500s, so
+both runners read a plain FAIL (`bukti-s1-start-register-throw.txt`). The plant that stops the server is the record
+above.
+
+**L-5** (from Bob's 22:50Z message). The size warning now also says «Keep the session active for the whole run (wait
+on it within the turn: an idle session may be suspended or reclaimed, L-5), or use CI …» (`bukti-ukuran.txt`).
 
 ## Ruling 86's additions (L-1, L-2)
 

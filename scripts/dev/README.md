@@ -102,6 +102,10 @@ scripts/dev/preflight.sh            # lint, typecheck, build-identity, suite, pl
   `images.lock`** with backoff, starts the stack and the Mailpit sink, and stops a leaked app server on :3999.
 - `preflight.sh` forces `supabase db reset --local` before the suite and the plants. Every `PREFLIGHT_DENYUT` seconds
   (default 120) it runs `siap.sh --denyut` (disk, runtime, database). The first lost heartbeat stops the run.
-- Every step and every suite row is classed PASS, FAIL (the code) or INFRA (the machine, with its signal). Any INFRA
-  row makes the run VOID: not evidence either way, and kept like every run under `$HOME/pintar-preflight/`.
+- Every step and every suite row is classed PASS, FAIL (the code) or INFRA (the machine, with its signal), by
+  `kelas.sh`. Any FAIL makes the run RED, with INFRA rows listed beside it. VOID (not evidence either way) only when an
+  INFRA row exists and nothing failed. A signal code can produce counts as INFRA only on an unhealthy machine. Every
+  run is kept under `$HOME/pintar-preflight/`, with the machine trace `jejak-mesin.log`.
+- `tapis.sh` strips keys from anything the gate writes. `preflight.sh --ukur` estimates a run against the machine's
+  measured uptime, and warns when it won't fit.
 - A CLI upgrade that changes an image tag updates `images.lock` in the same commit.

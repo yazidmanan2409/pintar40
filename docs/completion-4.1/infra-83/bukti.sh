@@ -156,8 +156,8 @@ LOG
   ;;
 s1-start)
   f=src/instrumentation.ts
-  note "plant: a defect that stops next start (the server's register() throws), on a healthy machine; one app test selected"
-  printf '%s\n' 'export function register() {' '  throw new Error("planted (ruling 83 S-1): the server refuses to start");' '}' > "$f"
+  note "plant: a defect that stops next start (the server's register() exits the process), on a healthy machine; one app test selected"
+  printf '%s\n' 'export function register() {' '  console.error("planted (ruling 83 S-1): the server refuses to start");' '  process.exit(1);' '}' > "$f"
   step git status --short "$f"
   note "RED: the runner as it was at 61bb1e3e reads the missing app facility as INFRA, VOID: the defect is hidden"
   git show 61bb1e3e:scripts/dev/preflight.sh > scripts/dev/.preflight-61bb1e3e.sh
