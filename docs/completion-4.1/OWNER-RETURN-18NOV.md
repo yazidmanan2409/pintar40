@@ -362,3 +362,4 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
   - nothing overlapped on the database: the abort was a re-run without a reset, and every focused run is now reset first;
   - the feedback exceptions sit behind a compile-time false flag; the one unflagged server action is denied at each step.
 - **13:12 UTC · Stream B: Z8 verify-closed rows** (`04c78339`, no code). None of the six reproduces; all closing tests pass; captures plus the certificate PDF. Two re-looks after merge 2. Sent to Daisy.
+- **13:13 UTC · Sharon: Z3-A SQL PASS; C2 CLOSED** (`2ca89a44`). `tujuan_gerbang_kode` reads the same row as the verdict, exposes nothing new, and leaves grants and the registry unchanged. A nit for Daisy: in the C2 case the teacher's page could say that the must-be-right question has no linked objective. **The only Z1 item still open is C4**, the convalidated check after promotion, carried as line 84 of `PRESERVATION-Z-DELTA.md`.
