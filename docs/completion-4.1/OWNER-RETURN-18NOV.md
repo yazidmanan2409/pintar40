@@ -248,3 +248,11 @@ The harness commit `4f904638` was explained and pushed under `0959a62c`. A full 
 - **Request 2:** the merge, staging 290 → 300 with the sha-checked migrations, `c3w-r3-bahan.sql` after the promotion, the AFTER read, and the hosted checks.
 
 **Neither request is authorisation until the owner approves it.**
+
+**23 Nov, 09:10 UTC · C3w-1 IS ON STAGING at 300** (owner's Request 2).
+- PR #27 was merged as `01bba241`, and staging.yml 45143556783 succeeded.
+- **AFTER:** only lines 10, 82 and 83 moved.
+- **Sharon's checks (a), (b) and (c)** pass.
+- **environment-facts** 45144060424 is green.
+- **Open:** check (d), the owner's look at the staging Vercel env names for `PINTAR_AI_STUB_HARNESS`.
+- **Production is untouched at 111.**
