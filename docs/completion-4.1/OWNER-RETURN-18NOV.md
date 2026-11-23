@@ -208,3 +208,8 @@ The harness commit `4f904638` was explained and pushed under `0959a62c`. A full 
   2. the frozen `score.mjs`;
   3. the results;
   4. the map is unsealed.
+
+**23 Nov, 05:36 UTC · The ruling 40 reading has started** (owner, option 1).
+- **The environment:** `pintar40-e-evaluation` was confirmed to have exactly six read-only hosts and no secrets. Default is unchanged.
+- **The reader:** session `session_01FXjU1nR7a38dx8d1SqpcfP`. It follows `ruling40/READING-BRIEF.md` and writes `ruling40/RULING40-READING.md` on `claude/ruling40-reading`.
+- **Bounds:** no API call, key, spend or activation. D-7 is preserved.
