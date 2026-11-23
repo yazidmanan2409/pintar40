@@ -60,3 +60,4 @@
 | 21 Nov, 09:50 | Owner (via team) | Pause and save | — | `DAISY-JEDA.md`: paused clean |
 | 22 Nov, 22:05 | Bob | Resume (ruling 71) | — | Waiting for the C3w-1 head; walkthrough plan set aside to after 5.0, marked in place |
 | 23 Nov, 00:05 | Pete (owner request) | Catalogue wording check, `claude/hopeful-turing-43hvpr` | `85f11d87` (head moved past `872d5f96`) | Reply sent: 4 changes (map tiers, sitting extension, minutes, Lulus pair source), rest PASS |
+| 23 Nov, 00:10 | Pete | Exam journey «Belajar, ujian, dan mengulang sampai lulus» | `2fb74409` | Reply sent: closing sentence to «akan dibangun»; «Belum lulus» provisional until D2-R review; one smoothing; correct-count to check against ruling 74 |
