@@ -235,6 +235,17 @@ No new batch; no merge, promotion or deployment authorised | Z-READINESS R-27 |
 
 No implementation now | MASTER-SEQUENCE §2b |
 | 80 | 23 Nov | **C3w-1 ACCEPTED on staging at 300** (owner). Every verification passed (`c3w-1-evidence/C3W-1-OWNER-REQUESTS.md`): PR #27 merged as `01bba241`; staging.yml 45143556783; AFTER moved only lines 10, 82 and 83; Sharon's (a), (b) and (c) pass; (d) owner-confirmed in Vercel; environment-facts 45144060424 green. **Z opens**, in the approved order. No deployment beyond staging, no provider activation, no spend. Production is untouched at 111 | `batches/c3w-1-evidence/` |
+| 81 | 23 Nov | **The Z plan, approved in principle with eight refinements** (owner):
+1. **Verification efficiency:** focused checks during development, broader integration checks at meaningful boundaries, and **one full pre-flight on the final acceptance candidate.** Bob decides where intermediate full runs are justified.
+2. **D-6:** read access only for a legitimate operational need, on Sharon's security recommendation. Not retained without a clear purpose, and documented.
+3. **V2:** the latest completed result stays visible. An attempt in progress is shown as a separate, secondary status in Daisy's approved wording (the owner's suggestion: «Ujian ulang sedang berlangsung.»). Unfinished, abandoned and later-finalised attempts are distinguished correctly.
+4. **AI drafting:** the single-answer restriction stays for C3w-1. Repairing multi-answer handling does not by itself authorise multi-answer AI generation.
+5. **K-01:** the integrated check covers learner and teacher results, class reports, retake eligibility, certificates and recalculated results. Two scenarios: percentage met but a must-be-right question missed; and a result changed by an approved key correction.
+6. **K-07:** confirm the existing data before the 1–100 constraint is applied. Historical rules and outcomes are not silently altered.
+7. **Human experience:** beyond the responsive and keyboard checks, a person must understand an unsuccessful operation, its consequences and the recovery.
+8. **Scope:** Z stays bounded. The ruling 79 audit and ruling 54's rationalisation stay separate.
+
+Independent reviews run alongside the build where genuinely independent. Nothing dependent is built on an unresolved design decision | `batches/z/Z-PLAN-APPROVAL.md` |
 
 ## 8 · Open with the owner
 

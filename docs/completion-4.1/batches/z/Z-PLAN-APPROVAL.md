@@ -42,3 +42,49 @@
 **The effort** is about **15.5 working days plus about 3 days of slack.** The earlier estimate was 4–6 days, made before rulings 75–78 added R-26 to R-28 (about 30 items).
 - **4.1 gates closed** moves from "about 2–3 weeks" to **about 4–5 weeks** from 23 Nov.
 - Reviews overlap the next chunk, as the plan says.
+
+---
+
+## Owner's refinements (ruling 81) and Bob's implementation
+
+1. **The verification cadence** replaces "a full pre-flight per chunk":
+   - **Every chunk:** focused checks only. That means lint and typecheck, the chunk's own red-first cases, the tests of every file it touches, the plants in its area, and A2A-L01 when it adds a migration.
+   - **One intermediate full pre-flight, after Z2.** By then every migration (300 → 307) and every SQL change is in, so schema-level breakage shows up before the screens build on it. That one run is justified.
+   - **One full pre-flight on the final candidate (Z9),** followed by CI and the journeys once.
+   - **No other full runs,** unless a focused check fails in a way that suggests a wider break; Bob decides that case by case.
+2. **D-6:** Sharon states whether any read RPC serves a **legitimate existing purpose**, for example a leader reading rounds already collected.
+   - **If none:** the reads are revoked too (dark). Revoking EXECUTE is reversible and deletes nothing.
+   - **If one does:** only that read stays, the purpose is written in the migration header, and Z-D6-01 asserts its authority.
+   - This supersedes Bob's earlier "reads stay".
+3. **V2:** the latest completed result, plus a **secondary line while an attempt is open.**
+   - **The words:** Daisy's to finalise, with the owner's suggestion «Ujian ulang sedang berlangsung.» as the start. The line must never read as the open attempt's result.
+   - **The red cases:**
+     - begun and open (the line is shown);
+     - abandoned or ended unfinished (no line, and the completed result is still shown);
+     - finalised later (the new result replaces it, and the D14 marker where it applies).
+   - This supersedes "no line".
+4. **AI single-answer:** stays (unchanged).
+5. **K-01's integrated check:**
+   - **The consumers:** learner result, teacher pages, class reports (including Kenaikan), retake eligibility, certificates and recalculated results.
+   - **Two scripted learners:**
+     - (i) mastery at or above the mark, with a must-be-right item missed;
+     - (ii) a verdict changed by an approved key correction.
+6. **K-07, the existing data, read-only on staging on 23 Nov:**
+   - `school_pass_marks.percent` (smallint): 38 rows, **60–70**, 0 out of range.
+   - **`assessment_assignments.pass_mark` and `assessment_sessions.pass_mark` are stored as FRACTIONS (numeric 0.60–0.70),** not percent. That covers 182 and 1,779 rows, 0 out of range.
+   - **333 sessions have a null pass mark** (legacy or diagnostic).
+
+   **So:**
+   - the floor is expressed **per column in its own unit**: 1–100 for `percent`, and 0.01–1.00 for the fraction columns;
+   - **null stays allowed**, so the legacy rows are untouched;
+   - the constraint is added `NOT VALID`, then validated **only after** a read confirms zero violators;
+   - **no existing row is updated.**
+
+   Production's values are not read: that needs the owner's permission. They must be checked before any production release of Z.
+7. **Human experience:** each Z3–Z5 screen row with a failure path gets a short **recovery walk**:
+   - provoke the failure;
+   - check the person can tell what happened and whether their work was kept;
+   - then the next step.
+
+   Committed beside the captures.
+8. **Scope:** bounded to the authorised rows. Anything new goes to the ruling 79 audit or later, not into Z.
