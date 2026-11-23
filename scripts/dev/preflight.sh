@@ -11,8 +11,8 @@
 #   1. bersih.sh --hapus, then siap.sh. Nothing runs until siap prints READY; if it prints INFRA, the run is VOID
 #      before minute one (disk, runtime, image, registry, stack or port, named).
 #   2. Each step in turn. The suite and the plants are each preceded by a FORCED `supabase db reset --local`, so a db
-#      suite never runs on a world another run has used (I-2). `--tanpa-reset` skips it, for replaying I-2 only, and
-#      classes those steps INFRA (world), so such a run is always VOID.
+#      suite never runs on a world another run has used (I-2). `--tanpa-reset` skips it, for replaying I-2 only: those
+#      steps carry an INFRA (world) row, and under S-1 such a run is never GREEN (RED if a row fails, else VOID), its FAIL rows not attributed to the code until a reset run reproduces them.
 #   3. While a step runs, a heartbeat every PREFLIGHT_DENYUT seconds (default 120): `siap.sh --denyut`, the runtime,
 #      the database and the disk. The FIRST lost heartbeat stops the step at once and the run is VOID (I-1).
 #
