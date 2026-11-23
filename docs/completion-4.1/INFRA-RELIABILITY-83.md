@@ -63,3 +63,9 @@ They also hit a full disk (16 GB of stale /tmp) and registry refusals after a re
 - **Test it:** correlate each restart time with the session's turn ends.
 - **If confirmed:** keep the session active for the whole run (wait on the run within the turn, rather than ending the turn), or run it on CI.
 - **For the next round:** preflight.sh's L-2 warning names this.
+
+**L-6 (23 Nov, 23:42Z; Second Eye's review): a planted proof isn't the incident.**
+- The restart-recovery proof killed processes within one boot, and passed.
+- A real reboot leaves a stale `/run/containerd/containerd.sock`, which stops dockerd from starting. The gate failed after 60 s, and only removing the socket fixed it.
+- **The rule from now on:** every infrastructure fix is also proved against the real incident where it can be reproduced. Here that is easy: the session reboots whenever it goes idle.
+- Also from the review: the registry signals must cover all of today's real refusal texts (Docker Hub 429, public ECR «Data limit exceeded», the GHCR proxy block), not only the 429.

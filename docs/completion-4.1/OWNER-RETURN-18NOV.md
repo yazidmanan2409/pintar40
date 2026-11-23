@@ -438,3 +438,9 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
   - Its head became `a8d9ff27`: Second Eye's README correction, pushed before Bob's hold reached him. That is one file under docs/, with 0 non-docs files since 7615d6b1 and no `[skip ci]`, so it is not material.
   - **Step 0 on staging: 0/0/0. The BEFORE read at 300:** line 10 digest `47bb9138` equals C3w-1's AFTER; lines 20–83 are byte-identical to C3w-1's AFTER; lines 84–86 are as predicted. batas = ('2026-11-23 23:30:21.280782+00', 10697). Evidence is in `batches/z/z-promotion/`.
   - The PR's CI run 45288739714 is in progress. The merge follows when every required check is green.
+- **23:40 UTC · Ruling 83:**
+  - Sharon PASS at 7696819e, with three addendum items, all done by a3bc9516.
+  - **Second Eye's review is NOT YET.** BLOCKER: recovery fails on a REAL reboot (a stale containerd.sock), found by testing on a genuinely rebooted machine. SHOULD-FIX: the ECR and GHCR refusal texts are unrecognised.
+  - Both are sent to the builder, with proof required on a real reboot.
+  - L-6 is recorded: planted proofs are not enough; prove against the real incident where it can be reproduced.
+  - Second Eye's review confirmed the classes against today's real runs (df0cbc9c and ec082bc4 RED, f5700bd1 GREEN, the voids VOID).
