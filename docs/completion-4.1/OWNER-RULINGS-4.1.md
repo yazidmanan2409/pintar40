@@ -198,6 +198,7 @@ The version floors and the Mac minimum are formalised in that review. **No work 
 4. `TombolKirim`'s width while busy, changed only if a shift is confirmed.
 
 Daisy prepares an implementation-ready package (read-only). Bob recommends order, effort, dependencies and any owner decision. **No separate batch; no interruption of C3w-1; no code, merge or deployment yet.** "UX refinement, not redesign" | Z-READINESS R-26 |
+| 76 | 23 Nov | **R-26 code authorised within Z** (owner, decision 1: YES), in Bob's order: items 1 and 4 together (`TombolKirim`), then 2, then 3 after C3w-1 merges. Tests are written to fail first, with regression verification and Daisy's rendered checks at 320, 390 and 1280 px. No separate batch, no redesign, no interruption. **Decision 2 (`buka_kembali.galat.isian`) is HELD** pending Bob's read-only check of the sign-in identifiers | `batches/ux-75/` |
 
 ## 8 · Open with the owner
 
