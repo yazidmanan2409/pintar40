@@ -88,3 +88,9 @@
 
    Committed beside the captures.
 8. **Scope:** bounded to the authorised rows. Anything new goes to the ruling 79 audit or later, not into Z.
+
+**V2's words (Daisy, ux-1 `c208d953`, `Z-V2-KATA.md`).** Neutral tone. Shown only while a retake of that chapter's Uji Penguasaan is open:
+- **Learner,** `hasil.ulang_berjalan`: «Anda sedang mengerjakan Uji Penguasaan ini lagi. Sampai selesai, yang tampil di sini hasil sebelumnya.» / «You are taking this Mastery Check again. Until you finish, this shows your previous result.»
+- **Teacher,** `mengajar.murid1.ulang_berjalan`: «Sedang mengerjakan Uji Penguasaan ini lagi. Sampai selesai, yang tampil hasil sebelumnya.» / «Taking this Mastery Check again. Until it is finished, the previous result is shown.»
+
+They refine the owner's suggestion, and ruling 81 makes them Daisy's approved wording. They go to stream A's `// Z-A` block.
