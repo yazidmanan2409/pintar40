@@ -58,8 +58,9 @@ const AWAL = [
    insert into public.ai_hak_sekolah (sekolah, opsi, aktif, jatah, mulai)
      select ${G("inst")}, o.id, true, 100000000, now() - interval '1 day' from public.ai_opsi o where o.kunci = 'c3-' || ${S("tag")}
      on conflict (sekolah) do update set opsi = excluded.opsi, aktif = true, jatah = excluded.jatah, mulai = excluded.mulai, berakhir = null;`,
-  langkah("t_minta", "guru", `select set_config('c1.t_minta', (public.ai_minta_draf(${G("d1")}, ${PELAJARAN}, 'Budi membeli lima apel di pasar.',
-      'Membandingkan pecahan', 2, 'c3-satu', true) ->> 'permintaan'), true)`),
+  langkah("diag_minta", "guru", `select set_config('c1.diag_minta', (public.ai_minta_draf(${G("d1")}, ${PELAJARAN}, 'Budi membeli lima apel di pasar.',
+      'Membandingkan pecahan', 2, 'c3-satu', true))::text, true)`),
+  langkah("t_minta", null, `select set_config('c1.t_minta', current_setting('c1.diag_minta', true)::jsonb ->> 'permintaan', true)`),
   langkah("t_coba", null, `select set_config('c1.t_coba', public.ai_cadangkan(current_setting('c1.t_minta')::uuid)::text, true)`),
   langkah("t_kirim", null, `select public.ai_tandai_kirim(current_setting('c1.t_coba')::uuid)::text`),
   `perform set_config('c1.z', ${soalZ}::text, true);
