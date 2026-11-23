@@ -66,3 +66,27 @@ Ruled on Bob's message, which names F-1 fixed at `d5d23f09`. I review that fix i
 - **Q2 and Q3:** no addition. They stand as accepted in the design (§3; §9, answer 2; C3-1).
 
 **Second Eye's four readings at `feafc7d6`: all confirmed.** (1) `ai_tulis_draf` takes the closed `p_penggunaan` and settles under the three locks, in order. (2) As corrected above. (3) A VALIDATED package is refused. (4) Every request names its target lesson, fixed at insert and re-checked at write. **Also noted for the hand-off:** the provenance and decision rows keep `item_id` as a plain id, because HAPUS removes drafts; `ai_draf_belum_diputuskan` returns a count only, with the person from the session and CAN_DRAFT required.
+
+## Addendum · the hand-off build: 992b568f..eda28393, head 6ace7b2f (23 Nov 2026, 02:05 UTC)
+
+Read: the product delta, 7 migrations (`20270122120000` to `180000`) and the route (`src/lib/ai/jalur.ts`, `src/app/api/draf-ai/route.ts`, `src/lib/ai/penyedia.ts`). Bob verified CI and the journeys on `6ace7b2f`. The pre-flight on `eda28393` is on Second Eye's figures: 1326/0, plants 175/175, red-case 11/11, 0 lock breaches. **PASS.**
+
+**Everything I set is met:**
+
+| Condition | Met by |
+|---|---|
+| **F-1** | `panjang_karakter` (1 to 20,000) is stored on the request; `ai_cadangkan` reserves `ceil(length × ai_token_per_karakter()) + batas_token_prompt` as its input bound, and refuses a request with no length (`120000`) |
+| **F-2** | A lesson's text is read **once** from `c3w_bahan` as the teacher; that same text goes to `ai_minta_draf` and its R-3 check; before `ai_tandai_kirim` the route refuses `AI_TEKS_BERUBAH` unless `sha256(the built excerpt) = sidik` (`jalur.ts:126–137`) |
+| **Q1, addition 1** | `ai_tulis_draf` locks the course and refuses `AI_DRAF_TIDAK_TERBUKA` or `AI_TIDAK_BOLEH_MENULIS` at write time |
+| **Q1, addition 2** | `p_soal` is closed: the keys are `stem` and `options`, and per option `label`, `body`, `is_correct`, `rationale`. Lengths are bounded (stem 2,000; body 500; rationale 1,000), 2 to 5 options, distinct labels, the exact count, and `MCQ_SINGLE` only. The author is `m.pemohon` from the request |
+| **Q1, addition 3** | `isi_sha256 = ai_isi_soal_sha256(item)` is computed after the insert |
+| **Bob's four readings** | `p_penggunaan` is checked by `ai_penggunaan_sah`. **A sent attempt is never released:** `ai_tulis_draf` and `ai_gagal` settle only `keadaan = 'RESERVED' and dikirim_at is not null`, under the school, option and platform locks, in order. VALIDATED is refused `AI_PAKET_LOLOS_PERIKSA` before any reservation (`170000`). The lesson is required (`AI_TANPA_PELAJARAN`) |
+| **D-3's constant** | `ai_batas_kirim_tanpa_akhir()` is 7 minutes; `BATAS_PANGGILAN_MS` is 120,000; the route passes it; C3W-D3 ties the two |
+| **D-1 to D-5, and R3-01 to R3-07** | As accepted earlier, unchanged in substance; `ai_lepaskan`'s three locks are unchanged |
+| **`ai_asal_paket`** (`180000`) | `CAN_DRAFT` or `CAN_REVIEW` in the package's school; no `anon` access; the names shown are staff attribution only (requester, decider) |
+| **BOB32-K02's fix** | The parser now also stops at `end $function$;`, the end `pg_get_functiondef` writes, so it no longer reads a migration's check block as live refusals. **It reads exactly the function body: tighter, not weaker** |
+| **INV-03, a rationale per option** | Output only: nothing new is sent to the provider, and the rationale is closed, bounded and stored like any authored rationale. Learner visibility follows the existing item rules. **No data-exposure risk** |
+
+**C3-2 to C3-10** are on Second Eye's figures. I did not re-run them.
+
+**Note, not a condition:** `ai_tersedia` says yes when the entitlement is active and the reader may draft. It does not consider whether the option is QUALIFIED or whether the date window is open. The button can therefore show while the request is refused `AI_TIDAK_TERSEDIA` or `AI_HAK_BERAKHIR`. That fails closed. Align it with `ai_minta_draf`'s checks when convenient (Daisy's screen).
