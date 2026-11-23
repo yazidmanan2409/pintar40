@@ -86,3 +86,4 @@
 | 23 Nov, 12:38 | Bob | Z6 rulings (framed overflow) | `claude/z-ux` `f322c25c` | Framed table scroll by design (2,3: assertion allows named focusable frames); pin-seg wraps, never scrolls (1,4,5): fix in Z6; pager anchor (6): fix in Z6; TandaTautan neutralised: blessed |
 | 23 Nov, 13:03 | Bob | Z6 rulings recheck | `claude/z-ux` `2d19d3cf` | **PASS**; Z6 complete pending sweep run 2 |
 | 23 Nov, 13:14 | Bob | Z8 verify-closed (stream B) | `claude/z-ux` `04c78339` | **All six confirmed**; C1-R2 needs no fresh render; two re-looks ride the post-merge sweep |
+| 23 Nov, 13:14 | Bob | Z8 item 8 words (last school admin closing own account) | — | `akun.tinggal.galat.account_last_school_admin`; capture asked |
