@@ -7069,6 +7069,11 @@
       "id": "Z-K07-01",
       "runner": "static",
       "proves": "Z K-07 (ruling 78; ruling 81 refinement 6), red first, selftest/z-k07.test.ts, writes each value against the migrations in its own rolled-back transaction with triggers off, so only the column's checks decide: school_pass_marks.percent refuses 0 and 101 and accepts 1 and 100; assessment_assignments.pass_mark and assessment_sessions.pass_mark (fractions) refuse 0 and 1.01, accept 0.01 and 1.00, and allow null; set_school_pass_mark as the school's admin refuses 0 in its own words (from 1 to 100) and accepts 1; the three floors are validated. On 300 a mark of 0 is accepted everywhere."
+    },
+    {
+      "id": "Z-K01-01",
+      "runner": "static",
+      "proves": "Z K-01's SQL (ruling 78; Sharon's Q1-Q3; Bob's Q2), red first, selftest/z-k01.test.ts, executes session_outcome, tujuan_belum_tercapai and percobaan_antrean against the migrations, rolled back, on the seeded finalised Uji Penguasaan made a gate-only failure: the learner reads lulus false with tujuan_gerbang, the missed must-be-right item's objectives; the teacher's objectives not yet reached are exactly those; the head of department's retake queue shows gerbang false beside the figure and target, the school admin none; the gate passed gives tujuan_gerbang [] and nothing to the teacher; another learner is refused; a pre-test carries no key; the objectives come from the result row's own key (a basis key accepting the answer leaves nothing missed)."
     }
   ]
 }
