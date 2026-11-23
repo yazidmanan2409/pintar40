@@ -229,3 +229,7 @@ The harness commit `4f904638` was explained and pushed under `0959a62c`. A full 
   - **N-12 (optional; taken):** `AI_TUJUAN_LAIN` gets its own sentence.
   - **N-13** (links in text have no underline) goes to the ruling 79 audit.
   - **Round 3 sent to Second Eye at 05:55:** one prop change, red first. Daisy rechecks from the diff; Sharon is not needed.
+- **07:36 UTC · C3w-1 round 3 verified** (`8668a695`; C-3 and N-12, red-first C3W-K01; no migration).
+  - **Runs:** CI 45127093652 and journeys 45127097404 are both success.
+  - **Pre-flight:** 1328/0; plants 175/175; red-case 11/11.
+  - **Sent to Daisy** for the recheck. Sharon is not needed.
