@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { t, format, type HleEvent } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
 import { currentLocale } from "@/lib/locale";
 import * as engine from "@/lib/assessment-engine";
+import { tugasSaya } from "@/lib/tugas-saya";
 import { posisi, statusKey, lessonRead, tanpaPemetaan } from "@/lib/siklus";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
@@ -31,8 +31,8 @@ export default async function Tugas({ params }: { params: Promise<{ tugas: strin
   const db = (await supabaseServer()) as unknown as engine.EngineClient;
   const s = (k: HleEvent) => t(k, "learner", { locale });
 
-  const mine = (await engine.myAssignments(db)).find((a) => a.learning_assignment_id === tugas);
-  if (!mine) notFound();
+  // R-8 (X-2): the one guard every page of this assignment shares
+  const mine = await tugasSaya(db, tugas);
 
   const [state, lessons] = await Promise.all([
     engine.cycleState(db, tugas),

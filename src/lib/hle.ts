@@ -173,7 +173,7 @@ export type HleEvent =
   | "laporan.komposisi.penguatan_judul" | "laporan.komposisi.penguatan_arti" | "laporan.komposisi.penguatan_nihil"
   | "laporan.komposisi.penguatan_ulang" | "laporan.komposisi.berikutnya_penguatan"
   | "laporan.kisi.pola" | "laporan.kisi.pola_banyak" | "laporan.kisi.tanpa_target" | "laporan.kisi.tanpa_pola" | "laporan.kisi.arti" | "laporan.kisi.belum"
-  | "laporan.sekolah.zona" | "laporan.sekolah.perhatian" | "laporan.sekolah.semua_cukup" | "laporan.sekolah.angka"
+  | "laporan.sekolah.zona" | "laporan.sekolah.perhatian" | "laporan.sekolah.semua_cukup" | "laporan.sekolah.semua_cukup_sebagian" | "laporan.sekolah.angka"
   | "laporan.sekolah.dasar_gerbang" | "laporan.sekolah.dasar_sertifikat" | "laporan.sekolah.kohort_arti" | "laporan.sekolah.berikutnya_kesiapan"
   // ── WP4. The Management surface. `pimpinan` is Indonesian for the people who
   // lead a part of a school — the word the approved Management design uses for
@@ -526,6 +526,7 @@ export type HleEvent =
   | "studio.koreksi.galat.correction_failed"
   | "verifikasi.status.DITINJAU"
   | "verifikasi.status.DITINJAU.arti"
+  | "verifikasi.fakta.seperti_terbit" | "verifikasi.fakta.ditinjau"
   | "hasil.dikoreksi"
   | "hasil.dikoreksi.tanda"
   | "hasil.dikoreksi.asli"
@@ -1387,6 +1388,7 @@ export type HleEvent =
   | "map.tier.WAJIB"
   | "map.tier.DISARANKAN"
   | "map.tier.KUAT"
+  | "map.kuat.arti" | "map.tingkat.arti"
   | "map.page"
   | "map.to_lesson"
   | "lesson.title"
@@ -2446,6 +2448,7 @@ export type HleEvent =
   | "mengajar.murid1.tujuan"
   | "mengajar.murid1.tujuan_arti"
   | "mengajar.murid1.tujuan_kosong"
+  | "mengajar.murid1.tujuan_belum_uji" | "mengajar.murid1.tujuan_gagal"
   | "mengajar.murid.judul"
   | "mengajar.murid.sub"
   | "mengajar.murid.kosong"
@@ -3793,6 +3796,8 @@ const table: Table = {
   "laporan.sekolah.zona": { default: "Batas pita: di bawah 60% «{penguatan}» · 60–79% «{berkembang}» · 80% ke atas «{mantap}».", en: "Band limits: below 60% «{penguatan}» · 60–79% «{berkembang}» · 80% and above «{mantap}»." },
   "laporan.sekolah.perhatian": { default: "{daftar} masih di pita «{pita}».", en: "{daftar}: still in the «{pita}» band." },
   "laporan.sekolah.semua_cukup": { default: "Semua bidang kompetensi berada di 60% ke atas.", en: "Every competency domain is at 60% or above." },
+  // K-04 (Daisy's sweep): «all» only of the domains with a figure, when any is withheld (the class report's _sebagian, D13)
+  "laporan.sekolah.semua_cukup_sebagian": { default: "Semua bidang kompetensi yang punya angka berada di 60% ke atas.", en: "Every competency domain with a figure is at 60% or above." },
   "laporan.sekolah.angka": { default: "Angka utama", en: "Headline figures" },
   "laporan.sekolah.dasar_gerbang": { default: "Dari {s} hasil Uji Penguasaan yang memuat soal wajib, milik {n} murid.", en: "From {s} Mastery Check results that hold required items, from {n} students." },
   "laporan.sekolah.dasar_gerbang_murid": { default: "Dari {n} murid yang mengerjakan Uji Penguasaan.", en: "From {n} students who sat a Mastery Check." },
@@ -4450,6 +4455,9 @@ const table: Table = {
   "studio.koreksi.galat.correction_failed": { default: "Koreksi belum tersimpan. Coba lagi.", en: "The correction was not saved. Try again." },
   // C1w on the screens (Daisy, TINJAUAN-A1-C1W: Q5, Q6, §C1·N1, §C1·N2, C1-B1, C1-B2, C1-R1..R5)
   "verifikasi.status.DITINJAU": { default: "Sedang ditinjau", en: "Under review" },
+  // K-05 (ruling 78; Daisy §b): the facts under «Sedang ditinjau» and «Dicabut» are the issue-time ones, headed so
+  "verifikasi.fakta.seperti_terbit": { default: "Seperti saat diterbitkan", en: "As issued" },
+  "verifikasi.fakta.ditinjau": { default: "Isi ini dapat berubah setelah sekolah penerbit selesai meninjau sertifikat ini.", en: "This may change once the issuing school finishes reviewing the certificate." },
   "verifikasi.status.DITINJAU.arti": { default: "Sertifikat ini benar diterbitkan oleh {sekolah}. Penilaian satu soal di asesmennya diperbaiki, dan sekolah penerbit sedang meninjau sertifikat ini. Sampai selesai, sertifikat ini tidak dinyatakan berlaku. Hubungi sekolah penerbit untuk keterangan.", en: "This certificate was genuinely issued by {sekolah}. The marking of one question in its assessment was corrected, and the issuing school is reviewing this certificate. Until that is finished, this certificate is not declared valid. Contact the issuing school for details." },
   "hasil.dikoreksi": { default: "Hasil ini dihitung ulang karena penilaian satu soal diperbaiki. Hasil asli tetap tersimpan.", en: "This result was recalculated because the marking of one question was corrected. The original result is kept." },
   "hasil.dikoreksi.tanda": { default: "Dihitung ulang", en: "Recalculated" },
@@ -5766,7 +5774,12 @@ const table: Table = {
   "map.tier.PERLU_SEGERA": { default: "Baca ini lebih dulu", en: "Read this first" },
   "map.tier.WAJIB": { default: "Perlu dibaca", en: "Needs reading" },
   "map.tier.DISARANKAN": { default: "Sebaiknya dibaca", en: "Worth reading" },
-  "map.tier.KUAT": { default: "Sudah dikuasai", en: "You already have this" },
+  // K-02 (ruling 78; Daisy, SAPU-KATA-RULING-78 §a): the fourth tier is an order of reading, never a statement of mastery
+  "map.tier.KUAT": { default: "Sudah kuat", en: "Already strong" },
+  // K-02: a KUAT card's line, in the reason slot (reading_map falls back to the statement there, so it printed twice)
+  "map.kuat.arti": { default: "Jawaban Anda di Pemetaan Awal untuk bagian ini sudah tepat. Anda boleh membacanya sekilas.", en: "Your Initial Mapping answers for this part were right. You may skim it." },
+  // K-02: wherever the tiers are explained (under the map, where they are drawn)
+  "map.tingkat.arti": { default: "Tanda ini adalah saran urutan membaca dari hasil Pemetaan Awal. Tanda ini bukan nilai dan bukan pernyataan penguasaan.", en: "These marks suggest an order of reading, from the Initial Mapping. They are not a score, and not a statement of mastery." },
   "map.page": { default: "Bagian bacaan", en: "Reading section" },
   "map.to_lesson": { default: "Buka pelajarannya", en: "Open the lesson" },
 
@@ -7782,6 +7795,9 @@ const table: Table = {
   "mengajar.murid1.tujuan": { default: "Tujuan pembelajaran yang belum tercapai", en: "Learning objectives not yet reached" },
   "mengajar.murid1.tujuan_arti": { default: "Dari Uji Penguasaan terakhir murid ini di kelas ini: tujuan yang penguasaannya masih di bawah target. Ini yang perlu dipelajari lagi, bukan penilaian atas muridnya.", en: "From this student's latest Mastery Check in this class: the objectives whose mastery is still below the target. This is what to work on next, not a judgment of the student." },
   "mengajar.murid1.tujuan_kosong": { default: "Tidak ada tujuan pembelajaran yang tercatat di bawah target pada Uji Penguasaan murid ini di kelas ini.", en: "No learning objective is recorded below the target on this student's Mastery Checks in this class." },
+  // K-03 (SAPU-VERIFIED; Daisy's sweep words): no scored Uji Penguasaan here is its own state, and a failed read is said
+  "mengajar.murid1.tujuan_belum_uji": { default: "Belum ada Uji Penguasaan dari murid ini di kelas ini.", en: "This student has no Mastery Check in this class yet." },
+  "mengajar.murid1.tujuan_gagal": { default: "Tujuan pembelajaran yang belum tercapai belum dapat dibaca. Muat ulang halaman ini.", en: "The learning objectives not yet reached could not be read. Reload this page." },
   "mengajar.murid.judul": { default: "Murid", en: "Students" },
   "mengajar.murid.sub": { default: "Nama diurutkan abjad; tidak ada peringkat.", en: "Names in alphabetical order; there is no ranking." },
   "mengajar.murid.kosong": { default: "Belum ada murid terdaftar di kelas ini.", en: "No student is enrolled in this class yet." },

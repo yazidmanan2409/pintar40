@@ -397,6 +397,9 @@
 .pin-status .pin-big.pin-quietbig { font-size: var(--type-section); }
 
 .pin-dl { border: 1px solid var(--line); border-radius: var(--radius-2); overflow: hidden; margin: 0; }
+/* K-05: the facts under «Sedang ditinjau» and «Dicabut» are headed as the issue-time ones */
+.pin-verif-fakta-judul { font-size: var(--t-body); font-weight: 600; color: var(--ink-1); margin: var(--space-4) 0 var(--space-2); }
+.pin-verif-fakta-arti { font-size: var(--t-body); color: var(--ink-2); margin: 0 0 var(--space-3); }
 .pin-dl > div {
   display: grid; grid-template-columns: 180px 1fr; gap: var(--space-1) var(--space-5);
   align-items: baseline; padding: var(--space-4) var(--space-5); border-top: 1px solid var(--line);

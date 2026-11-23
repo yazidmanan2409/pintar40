@@ -1971,7 +1971,7 @@
     {
       "id": "BOB04-K01",
       "runner": "static",
-      "proves": "BOB-04 (D-008, D-011, D-014). Read from the migration source and the source files src/lib/penugasan-kontrak.ts, src/app/mengajar/actions.ts, src/app/mengajar/[kelas]/siapkan/page.tsx and the learner pages src/app/belajar/[tugas]/pemetaan/page.tsx and penguasaan/page.tsx: the codes assign_refuse raises for assigning are exactly the contract's and each is raised (with the seal's, the boundary's and, since D-183, the exposure guard's code read from migration 20261228100000_exposed_questions_never_give_a_real_verdict.sql); every code has a copy key in both languages without machinery words; sediakanMateri calls assign_release with its declared arguments; the review page shows a refused code's sentence; and neither learner test page can answer 404."
+      "proves": "BOB-04 (D-008, D-011, D-014). Read from the migration source and the source files src/lib/penugasan-kontrak.ts, src/app/mengajar/actions.ts, src/app/mengajar/[kelas]/siapkan/page.tsx and the learner pages src/app/belajar/[tugas]/pemetaan/page.tsx and penguasaan/page.tsx: the codes assign_refuse raises for assigning are exactly the contract's and each is raised (with the seal's, the boundary's and, since D-183, the exposure guard's code read from migration 20261228100000_exposed_questions_never_give_a_real_verdict.sql); every code has a copy key in both languages without machinery words; sediakanMateri calls assign_release with its declared arguments; the review page shows a refused code's sentence; and neither learner test page can answer 404 for the learner's own assignment (Z, R-8: an id that is not theirs answers «not found» through the one ownership guard of /belajar/[tugas]/)."
     },
     {
       "id": "W221-K01",
@@ -6749,6 +6749,41 @@
       "id": "Z-J01",
       "runner": "app",
       "proves": "selftest/c3w-z.test.ts, reading the rendered html of the running app's Studio routes: all seven Studio pages and five refusal paths each draw one <main>, the only id=\"isi\", the skip link's target, and exactly one <h1> (Daisy, 19 Nov); on each refusal the first heading in that <main> is the refusal's; the unknown correction gets Daisy's one neutral answer; a learner opening Studio meets the layout's refusal with its own <main>."
+    },
+    {
+      "id": "Z-K02-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, with the copy table and PetaBacaan rendered to html (K-02; Daisy, SAPU-KATA-RULING-78 §a): a KUAT card reads «Sudah kuat» with map.kuat.arti once in its reason slot and its statement once; other tiers keep the engine's reason; map.tingkat.arti once under the map; the words ID and EN."
+    },
+    {
+      "id": "Z-K03-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the copy table and the source files of tujuanBelum and the teacher's one-learner page (K-03): a failed tujuan_belum_tercapai read is null, never []; the page says it as a failure, and «no Uji Penguasaan yet» as its own state, before «no objective below target»."
+    },
+    {
+      "id": "Z-K04-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, with the copy table and KomposisiSekolah rendered to html (K-04): «Semua bidang kompetensi berada di 60% ke atas» only when no domain is withheld; semua_cukup_sebagian when some are; neither when none has a figure."
+    },
+    {
+      "id": "Z-K05-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the copy table and the source file of the public verification page (K-05; Daisy §b): under DITINJAU and DICABUT the facts are headed «Seperti saat diterbitkan», with verifikasi.fakta.ditinjau under DITINJAU only; BERLAKU, DIGANTIKAN and TIDAK SAH unchanged."
+    },
+    {
+      "id": "Z-M1M2-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the source files LanjutkanDiSini.tsx and PermukaanAsesmen.tsx (R-20 M1, M2; Daisy, Z-M1-M2-SPESIFIKASI): the recovery outcomes the learner did not cause are neutral, OFFLINE stays an error; the teacher is told «Uji Penguasaan · {bab}»."
+    },
+    {
+      "id": "Z-R8-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the source file of every page under /belajar/[tugas]/ (R-8, X-2; Daisy, X2-CATATAN-DESAIN): each calls one ownership guard (src/lib/tugas-saya.ts, notFound) before any learning-state read."
+    },
+    {
+      "id": "Z-R8-02",
+      "runner": "app",
+      "proves": "selftest/z-ux.test.ts, from the rendered html and status of each route of the running app, as the bootstrap learner (R-8): all eight /belajar/{id}/… routes, with a classmate's assignment, an assessment-assignment id and an unknown id, answer with the not-found page («Halaman ini tidak ada») and never the error page or a reference code."
     },
     {
       "id": "C3W-D1",

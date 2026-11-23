@@ -81,8 +81,11 @@ export const daisy40Tests: SelfTest[] = [
       const detail = code(readFileSync(join(repoRoot, "src", "app", "belajar", "[tugas]", "sertifikat", "page.tsx"), "utf8"));
       // RESTATED (cross-batch, 6 Nov): my_cycle_state first, as before; when it answers nothing (the chapter no longer
       // assigned), the learner's own certificate whose own sitting belongs to this chapter (tugasSertifikatSaya)
-      c.expect(/const state = await engine\.cycleState\(db, tugas\)\.catch\(\(\) => null\);\s*let sessionId = state\?\.post_session \?\? null;/.test(detail)
-        && /if \(!sessionId\) \{[\s\S]{0,260}tugasSertifikatSaya\(milik\.map\(\(c\) => c\.session_id\)\)[\s\S]{0,160}tugasDari\.get\(c\.session_id\) === tugas/.test(detail),
+      // RESTATED again (Z, R-8): the same two places, in the same order, behind the segment's ownership guard, which lets
+      // the learner's own certificate of a chapter no longer assigned through (jugaMilik)
+      c.expect(/const state = mine \? await engine\.cycleState\(db, tugas\)\.catch\(\(\) => null\) : null;\s*const sessionId = state\?\.post_session \?\? \(await lama\(\)\);/.test(detail)
+        && /tugasSertifikatSaya\(milik\.map\(\(c\) => c\.session_id\)\)[\s\S]{0,160}tugasDari\.get\(c\.session_id\) === tugas/.test(detail)
+        && /const mine = await tugasSaya\(db, tugas, \{ jugaMilik: async \(\) => \(await lama\(\)\) !== null \}\);/.test(detail),
         "the certificate page no longer finds its session by my_cycle_state's post_session first and the learner's own sitting after, so the list's links no longer open it");
       // the helper reads only the learner's own sessions, by the ids of their own certificates
       const lib = code(readFileSync(join(repoRoot, "src", "lib", "sertifikat.ts"), "utf8"));

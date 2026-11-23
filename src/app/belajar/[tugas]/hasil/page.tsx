@@ -6,6 +6,7 @@ import { t, format, type HleEvent } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
 import { currentLocale } from "@/lib/locale";
 import * as engine from "@/lib/assessment-engine";
+import { tugasSaya } from "@/lib/tugas-saya";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import PerTujuan from "@/components/siklus/PerTujuan";
@@ -40,6 +41,8 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
   const db = (await supabaseServer()) as unknown as engine.EngineClient;
   const s = (k: HleEvent) => t(k, "learner", { locale });
 
+  // R-8 (X-2): an id that is not one of the learner's answers «not found», as every page of this assignment does
+  await tugasSaya(db, tugas);
   const state = await engine.cycleState(db, tugas);
   if (!state.post_session || state.post_status !== "FINALIZED") notFound();
 

@@ -3,6 +3,7 @@ import { namaBab } from "@/lib/nama-bab";
 import { supabaseServer } from "@/lib/supabase/server";
 import { currentLocale } from "@/lib/locale";
 import * as engine from "@/lib/assessment-engine";
+import { tugasSaya } from "@/lib/tugas-saya";
 import PermukaanAsesmen from "../../_components/PermukaanAsesmen";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
@@ -29,14 +30,14 @@ export default async function Pemetaan({ params }: { params: Promise<{ tugas: st
   const db = (await supabaseServer()) as unknown as engine.EngineClient;
   const locale = await currentLocale();
 
-  // NEVER A 404 (BOB-04, D-008). An assignment that is not the reader's gets
-  // the one refusal page every refusal gets; a lesson whose test is not there
-  // says so, and the way back is to the lesson.
-  const mine = (await engine.myAssignments(db)).find((a) => a.learning_assignment_id === tugas);
-  const state = mine ? await engine.cycleState(db, tugas).catch(() => null) : null;
+  // A test that is not there is never a 404 (BOB-04, D-008): it says so, and the way back is to the lesson. R-8 (X-2;
+  // Daisy, X2-CATATAN-DESAIN.md): an assignment that is not the reader's answers «not found», as the assignment's own
+  // page does, so «not yours» and «does not exist» are one answer; a failed read of their own stays the refusal page.
+  const mine = await tugasSaya(db, tugas);
+  const state = await engine.cycleState(db, tugas).catch(() => null);
   // W2.16 (DAISY-35 item 2): a refusal here speaks to the reader's own context (an educator reads as an educator)
   const persona = personaPembelajaran(await peranSaya());
-  if (!mine || !state) return <HalamanPenolakan locale={locale} persona={persona} />;
+  if (!state) return <HalamanPenolakan locale={locale} persona={persona} />;
   if (!state.pre_assignment) {
     // W2.12 (RV-7): nothing offers this any more (src/lib/siklus.ts tanpaPemetaan); reached by its address, it is
     // said inside the learner's shell, never as a dead end without one
@@ -61,6 +62,7 @@ export default async function Pemetaan({ params }: { params: Promise<{ tugas: st
       kembali={{ href: `/belajar/${tugas}`, key: "cycle.title" }}
       diriHref={`/belajar/${tugas}/pemetaan`}
       selesaiHref={`/belajar/${tugas}/peta`}
+      bab={{ jenis: "PRE_TEST", judul: mine.title }}
       mode="PEMETAAN"
     />
   );
