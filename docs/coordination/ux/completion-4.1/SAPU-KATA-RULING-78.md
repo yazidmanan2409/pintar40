@@ -90,3 +90,19 @@ These words assume the single verdict of ruling 78: the session's `lulus`, which
 - **Otherwise:** `hasil` stays for a gate pass, and `hasil_saja` stays when there is no target. With no mark there is no verdict, so the gate isn't mentioned.
 - **It ends in the same words as the teacher's `mengajar.murid1.gerbang`** («… belum tepat»), so the approver and the teacher read one verdict.
 - **It needs `percobaan_antrean` to return the gate**, under the same condition as the figure (the inventory's proposal).
+
+## K-01 · The gate not known (added 23 Nov, 09:50; Sharon's Q3 condition)
+
+**The state:** `safety_gate_passed` is null, withheld or an error. The words use the decided vocabulary «Belum dapat disimpulkan». They never say «tercapai» or «capai», and never give a figure-based verdict.
+
+| Where | New key | ID | EN |
+|---|---|---|---|
+| Teacher, per-learner chapter row (beside `mengajar.murid1.gerbang`) | `mengajar.murid1.gerbang_tak_diketahui` | «belum dapat disimpulkan apakah target tercapai · target {p}» | «whether the target is reached cannot be concluded yet · target {p}» |
+| Same page, the reason and what helps, once under the table when any row has this state | `mengajar.murid1.gerbang_tak_diketahui_arti` | «Data soal penting untuk hasil ini tidak dapat dibaca sekarang. Muat ulang halaman ini nanti.» | «The important-question data for this result cannot be read right now. Reload this page later.» |
+| Retake queue (beside `kesempatan.baris.hasil_gerbang`) | `kesempatan.baris.hasil_tak_diketahui` | «hasil terakhir {hasil}, target {target}: belum dapat disimpulkan apakah tercapai» | «last result {hasil}, target {target}: whether it is reached cannot be concluded yet» |
+| «Minta membaca lagi», the learner's row | `mengajar.ulang.tak_diketahui` | «Belum dapat disimpulkan apakah target tercapai.» | «Whether the target is reached cannot be concluded yet.» |
+
+**Behaviour the words rely on:**
+- **«Minta membaca lagi»:** such a learner is listed, but **not pre-ticked**. Sort them after those below target and before those who reached it. The teacher may tick them.
+- **«Beri ulang»:** the link stays on the teacher's row, as for any learner not known to have reached the target.
+- **The figure still shows:** it is a fact. Only the verdict is withheld.

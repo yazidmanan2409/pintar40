@@ -71,3 +71,4 @@
 | 23 Nov, 09:31 | Bob | Z opened; review points Z3–Z7; V2 question | `claude/z` `f258e5f4` | V2 «in progress» words: `Z-V2-KATA.md` |
 | 23 Nov, 09:35 | Bob (ruling 81) | V2 in-progress status, final words | — | `Z-V2-KATA.md` rewritten (first draft superseded) |
 | 23 Nov, 09:44 | Bob | K-01 retake-queue line | `c9466159` inventory | `kesempatan.baris.hasil_gerbang`, in `SAPU-KATA-RULING-78.md` |
+| 23 Nov, 09:49 | Bob | K-01 gate-unknown words | — | Added to `SAPU-KATA-RULING-78.md` |
