@@ -5,7 +5,7 @@ import { daftarKata } from "@/components/laporan/tata";
 import { currentLocale } from "@/lib/locale";
 import { supabaseServer } from "@/lib/supabase/server";
 import { konteksHalaman } from "@/lib/konteks-server";
-import CangkangPengalaman from "@/components/CangkangPengalaman";
+import NavKonfigurasi from "@/components/konfigurasi/NavKonfigurasi";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import BarisHasil from "@/components/BarisHasil";
@@ -103,7 +103,8 @@ export default async function StafSekolah({ searchParams }: { searchParams: Prom
 
   return (
     <>
-      <CangkangPengalaman locale={locale} kind="pendataan" />
+      {/* R-10 (Daisy, option A): the index's own «Tempat kerja Anda» */}
+      <NavKonfigurasi locale={locale} kini="konfigurasi" />
       <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href="/konfigurasi/roles">← {s("config.section.roles")}</Link>
         <div className="pin-head">

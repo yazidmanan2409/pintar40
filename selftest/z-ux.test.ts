@@ -654,5 +654,56 @@ export const zUxAppTests: SelfTest[] = [
       return c.verdict("in the running app as the cycle school's administrator, on C1w's draft package (S-01): a rule with pause and offline on, renamed through its own row form, keeps its one version and every other setting (pause, offline, count, mode, bank, shuffle, attempts, safety, hesitation, grace, mix, chapter, status), with the new name saved; read back from the database");
     },
   },
+  {
+    id: "Z-R10-01",
+    requires: ["app", "network", "db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const { lit, psql } = await import("./bob26.test");
+      const { BOOT_ADMIN, masuk } = await import("./c1w-layar.test");
+      const asal = ctx.appUrl!;
+      // R-10 (Daisy, Z-SIAP §1, option A): «Tempat kerja Anda» is the index's on every standalone Konfigurasi page, for the
+      // same reader; aria-current marks the page's own item, else «Konfigurasi»; [bagian] is the control
+      const { tersusun } = await import("./konteks-uji");
+      // the shell streams its later items (<template id="P:x"> filled from <div hidden id="S:x">): read as assembled
+      const tempat = (h0: string) => {
+        const h = tersusun(h0);
+        const nav = /<nav class="pin-tabs"[^>]*>([\s\S]*?)<\/nav>/.exec(h)?.[1] ?? "";
+        const a = [...nav.matchAll(/<a\b[^>]*>/g)].map((m) => m[0]);
+        return {
+          set: a.map((x) => /href="([^"]*)"/.exec(x)?.[1] ?? "").sort().join(" "),
+          kini: a.filter((x) => /aria-current="page"/.test(x)).map((x) => /href="([^"]*)"/.exec(x)?.[1] ?? ""),
+        };
+      };
+      const sekolah = psql(`select ra.institution_id from public.role_assignments ra join public.accounts a on a.person_id = ra.person_id
+        join auth.users u on u.id = a.auth_user_id where u.email = 'boot-admin@bootstrap.pintar.test' and ra.institution_id is not null
+         and ra.revoked_at is null order by ra.id limit 1`);
+      const diri = psql(`select a.person_id from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = ${lit(BOOT_ADMIN.identitas)}`);
+      const pembaca: Array<[string, { identitas: string; password: string }, string, Array<[string, string]>]> = [
+        ["the school's administrator", BOOT_ADMIN, `MENGELOLA:${sekolah}`, [
+          ["/konfigurasi/catatan-masuk", "/konfigurasi"], ["/konfigurasi/kesempatan", "/konfigurasi"], ["/konfigurasi/keamanan", "/konfigurasi/keamanan"],
+          ["/konfigurasi/sertifikat", "/konfigurasi/sertifikat"], [`/konfigurasi/staf?orang=${diri}`, "/konfigurasi"], ["/konfigurasi/audit", "/konfigurasi"]]],
+        ["the platform administrator", { identitas: "sysadmin@synthetic.pintar.test", password: "Sintetis-Sys-91!" }, "MENGELOLA:PLATFORM", [
+          ["/konfigurasi/catatan-masuk", "/konfigurasi"], ["/konfigurasi/keamanan", "/konfigurasi/keamanan"], ["/konfigurasi/sertifikat", "/konfigurasi/sertifikat"],
+          ["/konfigurasi/email-uji", "/konfigurasi/email-uji"], ["/konfigurasi/audit", "/konfigurasi"]]],
+      ];
+      for (const [siapa, akun, konteks, halaman] of pembaca) {
+        const k0 = await masuk(asal, akun, konteks);
+        if (!c.expect(typeof k0 !== "string", `${siapa}: ${k0}`)) continue;
+        const k = k0 as Exclude<typeof k0, string>;
+        const induk = tempat(await (await k.halaman("/konfigurasi")).text());
+        c.expect(induk.set.includes("/konfigurasi/keamanan") && JSON.stringify(induk.kini) === JSON.stringify(["/konfigurasi"]), `${siapa}: the index's own «Tempat kerja Anda» is not as expected: ${induk.set} · ${induk.kini}`);
+        if (siapa.startsWith("the platform")) c.expect(induk.set.includes("/konfigurasi/email-uji"), "the platform administrator's index has no «Kirim email uji»");
+        for (const [alamat, mauKini] of halaman) {
+          const h = await (await k.halaman(alamat)).text();
+          const ini = tempat(h);
+          c.expect(ini.set === induk.set, `${siapa}, ${alamat}: «Tempat kerja Anda» is not the index's (${ini.set || "none"} · index: ${induk.set})`);
+          c.expect(JSON.stringify(ini.kini) === JSON.stringify([mauKini]), `${siapa}, ${alamat}: aria-current is on ${JSON.stringify(ini.kini)}, not ${mauKini}`);
+          c.expect(/class="pin-back[^"]*"[^>]*href="\/konfigurasi[^"]*"|href="\/konfigurasi[^"]*"[^>]*class="pin-back/.test(h), `${siapa}, ${alamat}: no way back to Konfigurasi (pin-back)`);
+        }
+      }
+      return c.verdict("in the running app as the bootstrap school's administrator and as the platform administrator (R-10, option A): on catatan-masuk, kesempatan, keamanan, sertifikat, email-uji, staf and the section route (the control), the rendered html's «Tempat kerja Anda» has exactly the index's links for the same reader (with «Kirim email uji» for the platform administrator), aria-current on the page's own item or else «Konfigurasi», and a way back to Konfigurasi");
+    },
+  },
 ];
 
