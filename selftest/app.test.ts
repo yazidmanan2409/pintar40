@@ -13,6 +13,7 @@ import { readFileSync } from "node:fs";
 import { createServerClient } from "@supabase/ssr";
 import { Checks, visibleText, type SelfTest, type Context } from "./lib";
 import { INTERNAL_WORDS, t, type HleEvent } from "../src/lib/hle";
+import { UMPAN_BALIK_TERBUKA } from "../src/lib/umpanbalik-kontrak";
 import { bacaJawabanKartu } from "../src/components/masuk/kartu";
 import { bob26AppTests } from "./bob26.test";
 import { akunTerkunciAppTests } from "./akun-terkunci.test";
@@ -317,6 +318,77 @@ function bagianUmpanBalik(raw: string): string {
   const awal = raw.lastIndexOf("<section", mulai);
   const akhir = raw.indexOf("</section>", mulai);
   return awal >= 0 && akhir > awal ? visibleText(raw.slice(awal, akhir)) : "";
+}
+
+/**
+ * Z · D-6 (R-17; 20270123140000): while the round is dark (UMPAN_BALIK_TERBUKA false) the three feedback journeys below
+ * prove the containment instead, through the running app and its REST surface: every one of the nine RPCs is refused
+ * to the learner and to Management; Belajar shows no feedback section and no link into a round; the class page offers
+ * no feedback link; Pimpinan carries no feedback section; and every round address answers PINTAR's not-found page (under a
+ * 200 where a loading boundary streams). Their full journeys
+ * stay as written and run again when a ruling restores the round.
+ */
+async function umpanBalikGelap(ctx: Context, c: Checks): Promise<string> {
+  const base = ctx.appUrl!;
+  const anon = ctx.supabaseAnonKey!;
+  const NOL = "00000000-0000-0000-0000-000000000000";
+  const halaman = async (sesi: Session, path: string) => {
+    const res = await get(`${base}${path}`, { headers: { cookie: sesi.cookie } });
+    return { status: res.status, raw: await res.text() };
+  };
+  const rpc = async (sesi: Session, fn: string, body: unknown) => {
+    const r = await fetch(`${ctx.supabaseUrl}/rest/v1/rpc/${fn}`, {
+      method: "POST", headers: { apikey: anon, authorization: `Bearer ${sesi.accessToken}`, "content-type": "application/json" },
+      body: JSON.stringify(body ?? {}),
+    });
+    return { ok: r.ok, status: r.status, body: await r.text() };
+  };
+  const murid = await signIn(ctx, PERSONA.cycleLearner);
+  const guru = await signIn(ctx, PERSONA.cycleEducator);
+  const hod = await signIn(ctx, PERSONA.cycleHod);
+  const panggil: Array<[string, unknown]> = [
+    ["open_feedback_cycle", { p_node: NOL, p_subject_person_id: NOL }], ["submit_feedback", { p_cycle: NOL, p_answers: {} }],
+    ["close_feedback_cycle", { p_cycle: NOL }], ["publish_feedback_question_set", { p_version: "z", p_note: "z", p_questions: [] }],
+    ["publish_feedback_threshold", { p_version: "z", p_minimum_responses: 5, p_statement_key: "z", p_note: "z" }],
+    ["feedback_questionnaire", { p_cycle: NOL }], ["my_feedback_cycles", {}], ["feedback_subjects_for_class", { p_node: NOL }],
+    ["feedback_result", { p_cycle: NOL }],
+  ];
+  const lolos: string[] = [];
+  for (const sesi of [murid, hod]) {
+    for (const [fn, body] of panggil) {
+      const r = await rpc(sesi, fn, body);
+      if (r.ok || !/permission denied|42501/i.test(r.body)) lolos.push(`${fn} → ${r.status} ${r.body.slice(0, 60)}`);
+    }
+  }
+  c.expect(lolos.length === 0, `a feedback RPC answered a client while the round is dark: ${lolos.join("; ")}`);
+  const belajar = await halaman(murid, "/belajar");
+  c.expect(belajar.status === 200 && !belajar.raw.includes('aria-labelledby="pin-ub-saya"') && !/\/belajar\/umpan-balik\//.test(belajar.raw),
+    `Belajar (${belajar.status}) still shows a feedback section or a link into a round`);
+  const kelasId = /\/mengajar\/([0-9a-f-]{36})/.exec((await halaman(guru, "/mengajar")).raw)?.[1] ?? "";
+  const kelas = await halaman(guru, `/mengajar/${kelasId}`);
+  c.expect(kelasId !== "" && kelas.status === 200 && !/\/umpan-balik/.test(kelas.raw), `the class page (${kelas.status}) still offers a feedback link`);
+  const simpulId = /\/pimpinan\/([0-9a-f-]{36})/.exec((await halaman(hod, "/pimpinan")).raw)?.[1] ?? "";
+  const simpul = await halaman(hod, `/pimpinan/${simpulId}`);
+  c.expect(simpulId !== "" && simpul.status === 200 && !simpul.raw.includes('aria-labelledby="pin-ub"') && !/\/umpan-balik/.test(simpul.raw),
+    `Pimpinan (${simpul.status}) still carries a feedback section`);
+  const alamat: Array<[Session, string]> = [[murid, `/belajar/umpan-balik/${NOL}`], [guru, `/mengajar/${kelasId}/umpan-balik`],
+    [hod, `/pimpinan/${simpulId}/umpan-balik`], [hod, `/pimpinan/${simpulId}/umpan-balik/${NOL}`], [hod, `/pimpinan/${simpulId}/umpan-balik/kelas/${kelasId}`]];
+  const hidup: string[] = [];
+  // a segment with a loading boundary streams, so notFound() arrives under a 200 (Next.js)
+  // control: a page that exists does not carry the not-found sentence anywhere in its response
+  // Next's own not-found marker in the streamed payload (notFound() raised; the robots noindex goes with it); a page
+  // that exists carries neither, which the control checks so the test cannot pass on a marker every page has
+  const TIDAK_ADA_TANDA = "NEXT_HTTP_ERROR_FALLBACK;404";
+  c.expect(!belajar.raw.includes(TIDAK_ADA_TANDA), `Belajar's own response carries ${TIDAK_ADA_TANDA}, so the not-found check below proves nothing`);
+  for (const [sesi, path] of alamat) {
+    const h = await halaman(sesi, path);
+    const teks = visibleText(h.raw);
+    // streamed: notFound() arrives as Next's marker in the late segment, and the browser shows PINTAR's not-found page
+    if (!(h.status === 404 || (h.status === 200 && h.raw.includes(TIDAK_ADA_TANDA))))
+      hidup.push(`${path} → ${h.status}${h.raw.includes(TIDAK_ADA_TANDA) ? "" : ` (no not-found: «${teks.slice(0, 160)}»)`}`);
+  }
+  c.expect(hidup.length === 0, `a round address answers while dark: ${hidup.join("; ")}`);
+  return `the round is dark (D-6, 20270123140000): the nine feedback RPCs refuse the learner and Management (permission denied); Belajar shows no feedback section or link; the class page offers no feedback link; Pimpinan carries no feedback section; the five round addresses answer PINTAR's not-found page`;
 }
 
 function noInternalWords(c: Checks, html: string, where: string) {
@@ -1515,6 +1587,8 @@ export const appTests: SelfTest[] = [
     requires: ["app", "network"],
     run: async (ctx) => {
       const c = new Checks();
+      // Z D-6: while the round is dark this journey proves the containment instead (umpanBalikGelap)
+      if (!UMPAN_BALIK_TERBUKA) return c.verdict(await umpanBalikGelap(ctx, c));
       const base = ctx.appUrl!;
       const anon = ctx.supabaseAnonKey!;
 
@@ -1763,6 +1837,8 @@ export const appTests: SelfTest[] = [
     requires: ["app", "network"],
     run: async (ctx) => {
       const c = new Checks();
+      // Z D-6: while the round is dark this journey proves the containment instead (umpanBalikGelap)
+      if (!UMPAN_BALIK_TERBUKA) return c.verdict(await umpanBalikGelap(ctx, c));
       const base = ctx.appUrl!;
       const anon = ctx.supabaseAnonKey!;
 
@@ -1927,6 +2003,8 @@ export const appTests: SelfTest[] = [
     requires: ["app", "network"],
     run: async (ctx) => {
       const c = new Checks();
+      // Z D-6: while the round is dark this journey proves the containment instead (umpanBalikGelap)
+      if (!UMPAN_BALIK_TERBUKA) return c.verdict(await umpanBalikGelap(ctx, c));
       const base = ctx.appUrl!;
       const anon = ctx.supabaseAnonKey!;
 

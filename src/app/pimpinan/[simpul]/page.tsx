@@ -1,3 +1,4 @@
+import { UMPAN_BALIK_TERBUKA } from "@/lib/umpanbalik-kontrak";
 import Link from "next/link";
 import Kosong from "@/components/Kosong";
 import { t, type HleEvent } from "@/lib/hle";
@@ -120,13 +121,16 @@ export default async function SimpulPimpinan({
             way the roster is. It is a LIST of rounds, one class and one
             educator each: nothing on the other side of this link adds two
             classes together, and nothing compares two educators. */}
-        <section className="pin-sec" aria-labelledby="pin-ub">
-          <h2 id="pin-ub">{s("umpanbalik.pimpinan.judul")}</h2>
-          <p className="pin-mm">{s("umpanbalik.pimpinan.sub")}</p>
-          <Link className="pin-btn" href={`/pimpinan/${encodeURIComponent(node.id)}/umpan-balik`}>
-            {s("umpanbalik.pimpinan.buka")}
-          </Link>
-        </section>
+        {/* Z D-6: dark while the round is (UMPAN_BALIK_TERBUKA) */}
+        {UMPAN_BALIK_TERBUKA ? (
+          <section className="pin-sec" aria-labelledby="pin-ub">
+            <h2 id="pin-ub">{s("umpanbalik.pimpinan.judul")}</h2>
+            <p className="pin-mm">{s("umpanbalik.pimpinan.sub")}</p>
+            <Link className="pin-btn" href={`/pimpinan/${encodeURIComponent(node.id)}/umpan-balik`}>
+              {s("umpanbalik.pimpinan.buka")}
+            </Link>
+          </section>
+        ) : null}
 
         <section className="pin-sec" aria-labelledby="pin-murid">
           <h2 id="pin-murid">{s("pimpinan.murid.judul")}</h2>

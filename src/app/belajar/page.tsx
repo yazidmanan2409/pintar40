@@ -1,3 +1,4 @@
+import { UMPAN_BALIK_TERBUKA } from "@/lib/umpanbalik-kontrak";
 import Link from "next/link";
 import { menitTersisa } from "@/lib/pengerjaan-tampil";
 import Kosong from "@/components/Kosong";
@@ -184,7 +185,8 @@ export default async function Belajar({
   //
   // Not a tab and not a centre. One quiet section on the home a learner
   // already has, present only when somebody has actually been asked.
-  const umpanBalik = (await ub.siklusSaya()) ?? [];
+  // Z D-6: dark (UMPAN_BALIK_TERBUKA): no read, so no section
+  const umpanBalik = UMPAN_BALIK_TERBUKA ? ((await ub.siklusSaya()) ?? []) : [];
 
   // ───────────────────────────────────────────────── the first-login tour (UX-1)
   //

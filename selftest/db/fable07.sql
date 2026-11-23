@@ -86,6 +86,23 @@ revoke all on function selftest.f07_note(jsonb, text, text) from public;
 grant execute on function selftest.f07_note(jsonb, text, text) to authenticated;
 
 -- ═══════════════════════════════════════════════════════════════ the suite
+-- Z D-6 (20270123140000): the round is dark for every client. This suite still proves the dormant logic (anonymity,
+-- eligibility, exactly-once) so that it is sound if a ruling ever restores it: it grants the nine to authenticated for
+-- its own one statement and revokes them before it returns. The runner calls the suite as one statement, so a failure
+-- rolls the grant back with everything else, and no grant outlives the suite either way.
+create or replace function selftest.f07_umpan_balik(p_buka boolean)
+returns void language plpgsql set search_path = public, pg_temp as $$
+declare f text;
+begin
+  foreach f in array array['public.open_feedback_cycle(uuid, uuid)', 'public.submit_feedback(uuid, jsonb)',
+                           'public.close_feedback_cycle(uuid)', 'public.publish_feedback_question_set(text, text, jsonb)',
+                           'public.publish_feedback_threshold(text, integer, text, text)', 'public.feedback_questionnaire(uuid)',
+                           'public.my_feedback_cycles()', 'public.feedback_subjects_for_class(uuid)', 'public.feedback_result(uuid)'] loop
+    execute format(case when p_buka then 'grant execute on function %s to authenticated' else 'revoke execute on function %s from authenticated' end, f);
+  end loop;
+end $$;
+revoke all on function selftest.f07_umpan_balik(boolean) from public;
+
 create or replace function selftest.run_fable07()
 returns table (id text, area text, ok boolean, detail text)
 language plpgsql set search_path = public, pg_temp as $$
@@ -110,6 +127,7 @@ declare
   v_ok boolean; v_detail text;
 begin
   perform selftest.as_owner();
+  perform selftest.f07_umpan_balik(true);   -- Z D-6: for this statement only
   begin
     ---------------------------------------------------------------- fixture
     perform set_config('app.seed_intent', 'synthetic', true);
@@ -1499,6 +1517,8 @@ begin
     return next;
   end loop;
 
+  perform selftest.as_owner();
+  perform selftest.f07_umpan_balik(false);  -- Z D-6: dark again before the suite returns
   id := 'F07-DONE'; area := 'suite'; ok := v_fatal = ''; 
   detail := case when v_fatal = '' then 'FABLE-07 suite complete; every row rolled back'
                  else 'the suite did not complete: ' || left(v_fatal, 200) end;

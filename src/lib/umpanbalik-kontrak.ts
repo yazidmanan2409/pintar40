@@ -36,6 +36,14 @@
  * opposite obligation.
  */
 
+/**
+ * Z · D-6 (R-17; ruling 55): THE ROUND IS DARK. Migration 20270123140000 revokes every feedback RPC from the client roles;
+ * with this false the links are not drawn (Belajar, a class's page, Pimpinan) and the routes answer «not found», so no
+ * page offers or reaches a round that no client can open, answer or read. Nothing is deleted. To restore, by a ruling:
+ * re-grant the nine (the migration's header lists them) and set this true.
+ */
+export const UMPAN_BALIK_TERBUKA = false;
+
 // ─────────────────────────────────────────────────────── the governed sheet
 /** One closed option a learner may choose. Keys only; the words are the HLE's. */
 export type Pilihan = { option_key: string; label_key: string; ordinal: number };
