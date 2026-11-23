@@ -265,3 +265,5 @@ The harness commit `4f904638` was explained and pushed under `0959a62c`. A full 
 - **B, the Z-UX builder** (`session_01FXjU1mft4BFWiDHFccgN5x`, `claude/z-ux`): UX and words, no SQL, owns `TombolKirim`.
 - **Integration:** merges at Z2 and before the candidate. Reviews and promotion evidence run in parallel.
 - **The critical path is about 11 working days**, against 15.5 + 3. **4.1's gates close in about 3.5–4 weeks.**
+
+**23 Nov · D-6:** the owner authorised two read-only counts on production. They read 0 feedback rounds and 0 results; staging is the same. **All four reads are revoked as well** (all nine RPCs dark; reversible; nothing deleted). **Daisy's V2 words are approved by the owner.**

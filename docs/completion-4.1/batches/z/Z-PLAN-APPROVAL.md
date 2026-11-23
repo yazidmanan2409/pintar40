@@ -104,3 +104,17 @@ They refine the owner's suggestion, and ruling 81 makes them Daisy's approved wo
 **Production** is not read, because that needs the owner's permission.
 - **Default** (Sharon's, absent production's counts): **revoke all four reads,** so all nine RPCs are dark. That is reversible and deletes nothing.
 - **If the owner permits the two-count read on production** and it shows a closed round, `feedback_result` stays, with its purpose in the header and its tests: a non-subject educator and a learner refused, anon with no EXECUTE, and an OPEN cycle returning no number.
+
+**D-6, production (owner-authorised; two read-only counts, 23 Nov).**
+- **The project:** `trtlvibiybwixfumjrrx` "pintar-production", verified first.
+- **The read:** in `set transaction read only`. No personal data, no content, nothing modified.
+- **The result:** **`feedback_cycles` has 0 rows, and `feedback_results` has 0 rows.**
+
+**Decision (Sharon's recommendation on these findings): revoke all four read RPCs.** All nine feedback RPCs go dark for `authenticated`. EXECUTE is revoked only:
+- every record is preserved;
+- no table, row or function is dropped;
+- it is reversible by a grant.
+
+The migration header records the reason (no collected round exists on staging or production) and the restore path. Z-D6-01 asserts that `authenticated` has no EXECUTE on any of the nine, and that every row count is unchanged.
+
+**Daisy's V2 words: approved by the owner.**
