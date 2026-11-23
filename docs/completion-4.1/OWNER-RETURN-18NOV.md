@@ -178,3 +178,10 @@ The harness commit `4f904638` was explained and pushed under `0959a62c`. A full 
 - **01:49 UTC · Sharon: build PASS** (`C3W-1-BUILD-992b568f.md` on her branch).
   - F-1, F-2, Q1's additions, the four readings, D-3, `ai_asal_paket`, BOB32-K02 (tighter, not weaker) and INV-03 (output only, bounded) all hold.
   - **One non-blocking note:** `ai_tersedia` ignores the option's QUALIFIED status and its date window. The button can therefore show and the request is then refused, which fails closed. To be bundled with Daisy's outcome for Second Eye.
+- **01:51 UTC · Daisy: screens PASS WITH CONDITIONS** (`808a2227`, `TINJAUAN-C3W-1-LAYAR-6ace7b2f.md`). She accepts divergences 1, 2 and 4.
+  - **Required:**
+    - **C-1 (C3W-D4):** the objectives follow the chosen target lesson, on screen and refused on the server, with a no-objectives line;
+    - **C-2:** «Hapus» carries the screen-reader position;
+    - **C3-11:** captures by Second Eye, judged by Daisy.
+  - **Optional, taken in the same push:** N-10 and N-11, plus Sharon's `ai_tersedia` alignment.
+  - **Round 2 sent to Second Eye at 01:53.** Sharon reviews any server delta for C-1.
