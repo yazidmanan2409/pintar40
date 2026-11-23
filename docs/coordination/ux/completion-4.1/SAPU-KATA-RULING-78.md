@@ -76,3 +76,17 @@ These words assume the single verdict of ruling 78: the session's `lulus`, which
 - **K-02's double statement:** confirmed. `map.kuat.arti` replaces that slot.
 - **K-01's gate-item objectives:** not available today, because `tujuan_belum_tercapai` returns only objectives below the mark. This needs an SQL change, which Sharon reviews in Z. The words above stand.
 - **«tim PINTAR» and «pengelola PINTAR»:** they stay. They describe readers, not a role name.
+
+## K-01 · The approver's retake queue (added 23 Nov, 09:45; Second Eye's inventory §3 Q2)
+
+**Today:** the row reads `kesempatan.baris.hasil` «hasil terakhir {hasil}, target {target}» (`DaftarAntrean.tsx:62-63`). For a gate-only failure this reads as the target reached.
+
+**New key `kesempatan.baris.hasil_gerbang`:**
+- ID: «hasil terakhir {hasil}, target {target} belum tercapai: soal penting belum tepat»
+- EN: «last result {hasil}, target {target} not reached: an important question is not right yet»
+
+**When:**
+- **Use it** when the last result has a target and `safety_gate_passed` is false.
+- **Otherwise:** `hasil` stays for a gate pass, and `hasil_saja` stays when there is no target. With no mark there is no verdict, so the gate isn't mentioned.
+- **It ends in the same words as the teacher's `mengajar.murid1.gerbang`** («… belum tepat»), so the approver and the teacher read one verdict.
+- **It needs `percobaan_antrean` to return the gate**, under the same condition as the figure (the inventory's proposal).
