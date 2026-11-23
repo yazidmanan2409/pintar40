@@ -337,3 +337,5 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
 - **11:45 UTC · Stream B: Z5 handed off** (`bc5749ff`). No migrations.
 - **11:50 UTC · Daisy: Z5 PASS with two client-only conditions** (`c9892041`), C-1 (S-04 refills the code) and C-2 (`galat.definition_mix_total_baris`). Both ride Z7, with the walk findings (a) `studio.definisi.dibuat` and (b) the place word wrapping whole. The S-06 cause and optional N-19 go to the ruling 79 audit.
 - **Ruling 82:** the owner is away until 24 Nov, with a standing instruction to keep moving. The team has been told, and the driver is updated.
+- **11:52 UTC · Stream B: Z7 (the words) handed off** (`00c71229`). No migrations. The Z5 conditions follow as a Z7 addendum.
+- **11:59 UTC · Daisy: Z7 PASS with three word-only conditions** (`43132ad5`): S-14 neutral wording, since the keys are shared with activation; the T-03 EN keys name «a school administrator or an Admin PINTAR»; X12's column is «Paket Pembelajaran» / «Learning Package»; the summary puts the main group first, then a fixed outcome order. All of these ride the addendum.
