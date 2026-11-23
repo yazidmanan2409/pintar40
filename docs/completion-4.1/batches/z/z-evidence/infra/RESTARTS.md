@@ -111,4 +111,13 @@ is no longer available here.
 - A long run left in the background after a turn ends is not protected.
 - The idle time before a restart varied, from 5 to 50 minutes.
 
+**Restart #8 (after the table above was written) settles the order of events.**
+
+- The turn ended at about 22:46Z (no local run was going).
+- The logger shows the machine idle and healthy until 22:48:53Z: 0.39 GB in use, MemAvailable 16.0 GB, failcnt 0, oom_kill 0.
+- The logger's next line (22:49:23Z) was never written, so the VM was gone **about 3 minutes into the idle gap**.
+- It booted again at **22:56:40Z, 1 s after the next wake-up was queued (22:56:39Z)**.
+
+So the VM is stopped soon after the session goes idle, and started again when a message arrives. The boot times of #6 and #8 are the wake times, not the stop times. `vakt-before-restart-8.txt` has the lines.
+
 **What follows:** a long local run can only be relied on inside an active turn. Runs on GitHub's machines (CI, journeys) are not affected.
