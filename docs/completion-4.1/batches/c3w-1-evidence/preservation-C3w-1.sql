@@ -28,7 +28,7 @@
 --     rename on ai_opsi/ai_permintaan; 130000: foreign keys from ai_asal_soal and ai_penerimaan to items dropped;
 --     150000: ai_permintaan.lesson_id made not null, on a table that is empty at that point of the promotion).
 --   * Migration-time inserts go only to registries no preserved line reads: record_class_registry and orang_lampiran
---     (100000, 110000), client_rpc_registry (110000, 130000, 180000; line 83).
+--     (100000, 110000), client_rpc_registry (110000, 130000, 180000: five rows; line 83).
 --   * One trigger is added to an existing table: ai_bukan_sumber_metrik on public.metric_sources (110000), which refuses
 --     an AI table as a metric source. It writes nothing and no preserved line reads metric_sources.
 --   * Every other change is a function: new (ai_*, c3w_*), or restated in full (langkah_konten in 130000, which only
@@ -237,7 +237,7 @@ sidik(n, garis, nilai) as (
               ', ' order by c.relname), '-')
        from pg_class c where c.relnamespace = 'public'::regnamespace and c.relkind = 'r'
         and c.relname in ('ai_opsi', 'ai_plafon_platform', 'ai_hak_sekolah', 'ai_permintaan', 'ai_percobaan', 'ai_asal_soal', 'ai_penerimaan'))
-  union all select 83, 'state · client_rpc_registry rows for the AI functions (0 BEFORE; 4 AFTER)',
+  union all select 83, 'state · client_rpc_registry rows for the AI functions (0 BEFORE; 5 AFTER)',
     (select count(*) || ': ' || coalesce(string_agg(function_name, ', ' order by function_name), '-')
        from public.client_rpc_registry where function_name like 'ai\_%')
 
