@@ -123,13 +123,13 @@ Source: `OWNER-RULINGS-4.1.md` on `claude/bob-41-master-plan` at `3b5edd66`. Eac
 
 ---
 
-## Revision 5 · Sol's editorial brief (23 Nov)
+## Revision 5 · Review X's editorial brief (23 Nov)
 
-Source: Sol's review and consolidated brief, passed on by the owner. It applies on top of revision 4, and no ruling has changed.
+Source: Review X's review and consolidated brief, passed on by the owner. It applies on top of revision 4, and no ruling has changed.
 
 **For Bob to confirm**
 1. **Count.** The former 4.2 list is now **14 entries**: 4.2-06 is split into «Menambahkan satu orang» (4.2-06a, `42-satu-orang`, «Sebagian siap») and «Membetulkan nama setelah akun aktif» (4.2-06b, `42-koreksi-nama`, «Menunggu keputusan», D-06), following `MASTER-SEQUENCE-4.1-TO-5.0.md` §2a. The planning states for the 14 are 1 siap, 4 sebagian siap and 9 menunggu keputusan. The catalogue total is **101** (4.0: 48, 4.1: 20, 4.5: 27, 5.0: 6) plus 14 candidates.
-2. **«Lihat per soal» (`40-per-soal`).** The sentence "Hanya jawaban yang sudah dikumpulkan yang dipakai" is **removed** until you confirm it; Sol raised it under verification finding V3, which I can't find. Does the teacher's per-question page use final answers only?
+2. **«Lihat per soal» (`40-per-soal`).** The sentence "Hanya jawaban yang sudah dikumpulkan yang dipakai" is **removed** until you confirm it; Review X raised it under verification finding V3, which I can't find. Does the teacher's per-question page use final answers only?
 3. **Statuses** are unchanged from revision 4: 4.1 is 18 accepted on staging, 1 in development (C3w-1) and 1 «Rancangan disetujui; belum dibangun» (D2-R).
 
 **Changes**
@@ -162,7 +162,7 @@ Source: Sol's review and consolidated brief, passed on by the owner. It applies 
 
 **Unchanged:** no provider names, evaluation results, prices, reviewer names or real-person data appear in the PDF (checked).
 
-### Revision 5 · Sol's three confirmation points (23 Nov)
+### Revision 5 · Review X's three confirmation points (23 Nov)
 
 - **Exam journey (ruling 74a).** Fixed: the story now opens by saying it describes the rules approved for 4.1 but not yet built, and that Uji Penguasaan still uses the old rules. It ends by saying the rules take effect only after acceptance. The earlier closing line ("sudah disetujui dan dibangun") could be read as already built.
 - **Guest Mode.** It remains «Arah disetujui; belum direncanakan», with planning paused until 4.1 is accepted. This matches rulings 66–68 and 71; no later ruling on `claude/bob-41-master-plan` (`3b5edd66`) changes it. Bob to confirm.
