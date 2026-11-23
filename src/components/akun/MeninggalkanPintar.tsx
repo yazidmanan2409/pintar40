@@ -45,7 +45,9 @@ export default function MeninggalkanPintar({ locale, bisaMinta, permintaan, hasi
         </ul>
       ) : null}
       {bisaMinta ? (
-        JENIS_PERMINTAAN.filter((j) => !terbuka(j)).map((j) => (
+        // Z8 (Daisy, SIGNIFICANT; via Bob 14:53Z): reopening is a signed-out act («Minta dibuka kembali» on the sign-in page),
+        // and minta_akun accepts only CLOSE and DELETE_PERSONAL_DATA, so a signed-in person is never offered REOPEN here
+        JENIS_PERMINTAAN.filter((j) => j !== "REOPEN" && !terbuka(j)).map((j) => (
           <form key={j} action={mintaAkunAksi} className="pin-tinggal-minta" data-minta-akun={j}>
             <input type="hidden" name="jenis" value={j} />
             <h3>{s(`akun.tinggal.jenis.${j.toLowerCase()}` as HleEvent)}</h3>

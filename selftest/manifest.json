@@ -7321,6 +7321,11 @@
       "proves": "Z8 item 8, selftest/z-r15.test.ts, reads migration 20270123170000, src/lib/akun-kontrak.ts and src/lib/hle.ts: admin_sekolah_lain_ada is the one «another usable administrator» question and kunci_admin_sekolah the one advisory-lock taker (school id order), both used by peran_terakhir_kode and by minta_akun after the person's lock; no revoking function or the guard is rewritten; ACCOUNT_LAST_SCHOOL_ADMIN is in akun_tolak, raised by minta_akun, in the screens' contract, and has Daisy's ID and EN words; every function created is revoked from PUBLIC."
     },
     {
+      "id": "Z-R15-11",
+      "runner": "static",
+      "proves": "Z8 item 8, Daisy's SIGNIFICANT finding (via Bob 14:53Z), selftest/z-r15.test.ts, renders src/components/akun/MeninggalkanPintar.tsx in ID and EN: a signed-in learner is offered no request form and told to ask through the school; a signed-in admin is offered exactly CLOSE and DELETE_PERSONAL_DATA, never REOPEN (a signed-out act that minta_akun does not accept); no element on the section reads «—»."
+    },
+    {
       "id": "Z-N15-01",
       "runner": "static",
       "proves": "Z N-15, selftest/z-n15.test.ts: the source of pengajar.perluPenguatan keeps a failed tujuan_belum_tercapai read as null, and the rendered KomposisiKelas section «Murid yang perlu penguatan» says mengajar.murid1.tujuan_gagal (ID and EN) for that learner only, beside a learner read with an objective and one read with none."

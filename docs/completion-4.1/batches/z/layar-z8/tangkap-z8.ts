@@ -34,7 +34,11 @@ async function rekam(p: Page, nama: string, bagian?: string, atas?: string) {
   if (atas) {
     await p.locator(atas).first().evaluate((e: Element) => e.scrollIntoView({ block: "start" })).catch(() => undefined);
     // the sticky header would cover the element's first lines
-    await p.evaluate(() => window.scrollBy(0, -((document.querySelector("header")?.getBoundingClientRect().height ?? 0) + 24)));
+    await p.evaluate(() => {
+      // only a slim bar across the top covers it (at 1280 the shell's header is the side rail, which covers nothing)
+      const h = [...document.querySelectorAll("header")].map((e) => e.getBoundingClientRect()).find((r) => r.top <= 0 && r.height < 200 && r.width > window.innerWidth / 2);
+      window.scrollBy(0, -((h?.height ?? 0) + 24));
+    });
   }
   const info = await p.evaluate(() => {
     const el = document.activeElement as HTMLElement | null;
@@ -107,6 +111,15 @@ async function tutupAkun(p: Page) {
     // the same page further down: Admin Alpha's role, still listed
     await rekam(c, "05-cabut-peran-tetap", `#peran-${raAdmin}`, `#peran-${raAdmin}`);
     catatan.push(`  after the refused revocation: Admin Alpha's role ${satu(`select case when revoked_at is null then 'live' else 'REVOKED' end from public.role_assignments where id = '${raAdmin}'`)}; listed: ${await c.locator(`#peran-${raAdmin}`).count()}; ROLE_LAST_SCHOOL_ADMIN said: ${(await c.content()).includes("hasil=gagal") || /kode=ROLE_LAST_SCHOOL_ADMIN/.test(c.url())}`);
+
+    // ─── Daisy's REOPEN finding (via Bob 14:53Z): the section as a signed-in admin meets it, before any request: exactly
+    //     «Tutup akun saya» and «Hapus data pribadi saya», never a blank REOPEN form
+    for (const w of [390, 1280]) {
+      const p = await masuk(w);
+      await p.goto(`${ASAL}/akun#meninggalkan`, { waitUntil: "networkidle" });
+      await rekam(p, "07-akun-bagian", "#meninggalkan", '[data-minta-akun="CLOSE"]');
+      catatan.push(`  the section's forms: ${(await p.locator("#meninggalkan [data-minta-akun]").evaluateAll((f: Element[]) => f.map((x: Element) => x.getAttribute("data-minta-akun")))).join(", ")}; «—» drawn: ${await p.locator("#meninggalkan").evaluate((e: Element) => /(^|\n)\s*—\s*(\n|$)/.test((e as HTMLElement).innerText))}`);
+    }
 
     // ─── step 1: the closure refused, the form kept (390, then 1280)
     for (const w of [390, 1280]) {

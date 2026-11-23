@@ -5,7 +5,7 @@
 > - **The world:** Sekolah Sintetis Alpha. Admin Alpha is its only Admin sekolah; Guru Alpha teaches 5A there.
 > - **Keyboard only:** each field is reached by focus and Tab, chosen with the arrow keys, typed, ticked with Space and
 >   sent with Enter. No clicks.
-> - **`CATATAN-Z8.txt`** has, per shot: the address, the horizontal overflow (**0 px in all 8 shots**), the focused
+> - **`CATATAN-Z8.txt`** has, per shot: the address, the horizontal overflow (**0 px in all 10 shots**), the focused
 >   element, the live-region text and the section's text, with the database's state after each step.
 > - **Script:** `tangkap-z8.sh` (a fresh reset, a build, `next start`, the walk, a reset again) and `tangkap-z8.ts`.
 
@@ -16,6 +16,12 @@
 | 1. The closure refused | `z8-01-tutup-tolak-390` (and `-1280`) | Akun saya › Meninggalkan PINTAR. «Tutup akun saya» ticked and sent: `akun.tinggal.galat.account_last_school_admin` in the result line (`role="alert"`), Daisy's words, naming no school. The account is not closed, and the «Tutup akun saya» form is still offered under the line |
 | 2. Appoint a second Admin sekolah | `z8-02-tunjuk-isi-390`, `z8-03-tunjuk-yakin-390`, `z8-04-tunjuk-ok-390` | Peran & akses › Berikan peran: Guru Alpha, Admin sekolah, Sekolah Sintetis Alpha, an end date. D-101's confirmation («Ya, jadikan admin sekolah»), then «Peran diberikan» with the new row listed. The school now has two usable administrators |
 | 3. The closure goes through | `z8-06-tutup-ok-390` | The same request, sent again: the account is closed and the person signed out (`/keluar?akun=ditutup`) |
+
+## Daisy's REOPEN finding (SIGNIFICANT; via Bob 14:53Z), fixed
+
+| Shot | What it shows |
+|---|---|
+| `z8-07-akun-bagian-390`, `-1280` | Akun saya › Meninggalkan PINTAR as a signed-in admin meets it: exactly «Tutup akun saya» and «Hapus data pribadi saya». The blank «Minta akun dibuka kembali» form (REOPEN, «—» for its words) is no longer offered: reopening is a signed-out act, and minta_akun accepts only the two. Z-R15-11, red first (`../z8-reopen-merah.txt`) |
 
 ## The refused revocation, at 390
 
@@ -32,9 +38,4 @@ the form sent.
 
 ## For Daisy to judge
 
-1. **Seen in passing, not item 8's:** Akun saya draws a third form, «Minta akun dibuka kembali», for a signed-in
-   person, with «—» for its description, its confirmation and its button (`-1280` shows it at the bottom).
-   `JENIS_PERMINTAAN` includes REOPEN, and MeninggalkanPintar draws every kind that has no open request; REOPEN has no
-   `akun.tinggal.akibat/konfirmasi/tombol` keys. A closed account asks to be reopened signed out, from the sign-in page.
-   This is in `MeninggalkanPintar.tsx` and the existing keys, so it is not mine to change.
-2. The refusal after a revocation is drawn under the role list (`05-…-peran-tetap`), as every result on Peran & akses is.
+1. The refusal after a revocation is drawn under the role list (`05-…-peran-tetap`), as every result on Peran & akses is.

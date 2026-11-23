@@ -14,6 +14,10 @@
  *   Z-R15-10  Concurrency (Sharon (e)): while one administrator's closure is open, a second connection's closure of the
  *             other administrator, and its revocation of its own role, wait on the school's advisory lock (they time
  *             out under lock_timeout instead of passing). Both roll back. Red on 307: neither waits.
+ *   Z-R15-11  Daisy's SIGNIFICANT finding on item 8's row (via Bob 14:53Z): Akun saya's «Meninggalkan PINTAR», rendered for
+ *             a signed-in learner and a signed-in admin, offers exactly that person's forms (none for a learner, who asks
+ *             through the school; CLOSE and DELETE_PERSONAL_DATA for an admin), never REOPEN (a signed-out act;
+ *             minta_akun accepts only the two), and no element reads «—». Red on f970bace.
  *   Z-R15-09  The contract: one definition. admin_sekolah_lain_ada is the only «another usable administrator»
  *             question, called by the guard's locked question and by minta_akun; kunci_admin_sekolah is the only taker
  *             of the advisory lock, in school id order; no revoking function is rewritten; the code is in akun_tolak,
@@ -203,6 +207,35 @@ export const zR15Tests: SelfTest[] = [
         spawnSync("psql", ["-qAt", "-c", `set session_replication_role = replica; update public.role_assignments set revoked_at = now(), revoked_reason = '${ALASAN}' where id = '${raG}'`, db()]);
       }
       return c.verdict("while one administrator's closure is open, the other's closure and own revocation wait on the school's lock");
+    },
+  },
+  {
+    id: "Z-R15-11",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const r = spawnSync(process.execPath, ["--import", "tsx", "-e", `(async () => {
+        const { createElement: h } = await import("react"); const { renderToStaticMarkup } = await import("react-dom/server");
+        const m = await import("file://" + process.cwd() + "/src/components/akun/MeninggalkanPintar.tsx"); const K = m.default?.default ?? m.default;
+        const p = { permintaan: [], hasil: "gagal", kode: "ACCOUNT_LAST_SCHOOL_ADMIN" };
+        const out = {};
+        for (const locale of ["id", "en"]) {
+          out["murid-" + locale] = renderToStaticMarkup(h(K, { ...p, locale, bisaMinta: false, persona: "learner" }));
+          out["admin-" + locale] = renderToStaticMarkup(h(K, { ...p, locale, bisaMinta: true, persona: "staff" }));
+        }
+        process.stdout.write(JSON.stringify(out));
+      })().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });`], { cwd: repoRoot, encoding: "utf8" });
+      if (!c.expect(r.status === 0, `Meninggalkan PINTAR could not be rendered: ${(r.stderr || "").split("\n").slice(0, 3).join(" ")}`)) return c.verdict("");
+      const out = JSON.parse(r.stdout) as Record<string, string>;
+      for (const [k, html] of Object.entries(out)) {
+        const formulir = [...html.matchAll(/data-minta-akun="([A-Z_]+)"/g)].map((x) => x[1]).join(",");
+        const mau = k.startsWith("murid") ? "" : "CLOSE,DELETE_PERSONAL_DATA";
+        c.expect(formulir === mau, `${k}: the section offers [${formulir}] (expected [${mau}])`);
+        c.expect(!/>\s*—\s*</.test(html), `${k}: an element on the section reads «—»`);
+        if (k.startsWith("murid")) c.expect(html.includes("data-tinggal-lewat-sekolah"), `${k}: the learner is not told the request goes through the school`);
+      }
+      return c.verdict("Meninggalkan PINTAR, rendered in ID and EN: a signed-in learner is offered no form and told to ask through the school; a signed-in admin "
+        + "exactly CLOSE and DELETE_PERSONAL_DATA; never REOPEN; no element reads «—»");
     },
   },
   {

@@ -1,0 +1,2 @@
+# Daisy's REOPEN finding (via Bob 14:53Z), red on 0237cf2a (same component as f970bace)
+Z-R15-11    FAIL    admin-id: the section offers [CLOSE,DELETE_PERSONAL_DATA,REOPEN] (expected [CLOSE,DELETE_PERSONAL_DATA]); admin-id: an element on the section reads «—»; admin-en: the section offers [CLOSE,DELETE_PERSONAL_DATA,REOPEN] (expected [CLOSE,DELETE_PERSONAL_DATA]); admin-en: an element on the section reads «—»
