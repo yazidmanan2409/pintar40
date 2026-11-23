@@ -21,3 +21,9 @@
 - The workbook is kept outside the repository, beside the judges' package.
 - No score or reason appears in this record.
 - **The provider map stays sealed.**
+
+## The second return (23 Nov 2026), recorded before conversion
+
+| File | SHA-256 |
+|---|---|
+| J3's second workbook (as received) | `fc883d4e88b5b2a4f494d786073e0558a08fc83586036d1ef0012c78a8eb1ee4` |
