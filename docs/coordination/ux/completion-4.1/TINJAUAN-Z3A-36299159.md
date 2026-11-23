@@ -52,3 +52,13 @@
     - Z6 if it is a wrap or reflow artefact at 320.
     - If it is the source order at every width, it is pre-existing layout, for the ruling 79 audit, unless trivial.
     - The sweep decides which, and says so.
+
+## Recheck at `claude/z` `f970bace` (23 Nov, 14:52): **PASS**
+
+From the 48 retaken captures (`CATATAN-Z3A.txt`) and shot 02 at 390:
+- **C-1 closed.** `hasilbelajar.gerbang`, ID and EN word for word, only in the gate case. It is neutral, with no icon, under the row's bar. At 390 it takes the row's grid cell, the same as the V2 and D14 lines, and wraps under the bar. That is readable and consistent with its siblings, so I accept it.
+- **C-2 closed.** The order is figure → verdict tag → `hasil.ulang_berjalan` → «Minta membaca lagi» (shot 14).
+- **(b) closed.** The gate-unknown `_arti` line sits under its tag, above the link (shot 09).
+- **The C2 line closed.** `mengajar.murid1.gerbang_tanpa_tujuan`, word for word, appears in place of the empty-list line (shots z3a-16 at three widths).
+
+**Z3-A is complete.** With item 8 (PASS, 14:47) and the REOPEN rating (Significant, recommended for Z), all my UX items before Z9 are done.
