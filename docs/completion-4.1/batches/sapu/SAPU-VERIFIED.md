@@ -17,7 +17,7 @@
 
 | Id | What is wrong | Destination | Notes |
 |---|---|---|---|
-| S-01 | Renaming an Aturan Asesmen sends pause and offline as false (`studio/actions.ts:532-533`). The save takes them (`20270121210000:327-330`), counts them as interpretive (`:397-405`), and saves a new version with both off | Z | No SQL. Send the flags only when their fields are present. **Bob to check staging read-only for rules already changed this way** |
+| S-01 | Renaming an Aturan Asesmen sends pause and offline as false (`studio/actions.ts:532-533`). The save takes them (`20270121210000:327-330`), counts them as interpretive (`:397-405`), and saves a new version with both off | Z | No SQL. Send the flags only when their fields are present. **Staging checked read-only (23 Nov): 158 rules, 58 later versions, none with both flags off, so no rule has been changed this way yet** |
 | K-01 | The verdict is gate AND mastery (`20261102100000:375-376`). A learner who fails only the must-be-right gate is told their mastery is below target. Their teacher's pages judge on the percentage alone (`murid/[orang]/page.tsx:126-128`; `pengajar.ts:1157`) and show «reached», with no «Beri ulang» | Z | **This changes teacher-visible behaviour:** gate-failed learners will appear as below target. It may need a read change for `lulus`, in which case Sharon reviews it |
 | K-03 | `tujuanBelum` returns `[]` on any error (`pengajar.ts:1029`). A failed read, or no assessment yet, reads as "no objectives below target", against the file's own rule (`:1040`) | Z | No SQL |
 | S-02 | Ubah peran drops a chosen role silently when no date is given (`staf/actions.ts:80-82`). The person is then told to "choose a role" | Z | No SQL |
