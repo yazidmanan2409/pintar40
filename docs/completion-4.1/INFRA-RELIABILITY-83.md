@@ -41,3 +41,18 @@
 - **Now:** this record, and the builder starts on its own branch. It runs in its own container, so it shares nothing with Second Eye's Z9 run.
 - **After Z9:** Second Eye's review, then Sharon's, then the merge into the next round's base.
 - **From the next round:** every expensive run starts with `siap.sh` and runs with the heartbeat. VOID is a recorded outcome.
+
+## 5 · Ruling 86's addition (23 Nov 2026): when the local machine cannot hold a long run
+
+**The observation:** Z9's local pre-flights were interrupted by session-container restarts roughly every hour:
+- ec082bc4 at about 16:06Z;
+- 7615d6b1 at about 21:18Z (uptime 143 s at 21:20Z);
+- plus restarts during the C3w-1 and stream B work.
+
+They also hit a full disk (16 GB of stale /tmp) and registry refusals after a restart.
+
+**The lessons, added to the plan:**
+- **L-1 · Find the cause before rerunning.** Record uptime, cgroup memory events (`oom_kill`) and disk at the start of a run and at every heartbeat (P-4), so a restart has a named cause: a memory limit, a session lifetime, or something else.
+- **L-2 · Size runs to the machine.** If the container cannot hold a run of about an hour, a long run on it is a gamble, not verification. Either the run is split into groups that each fit (with Sharon confirming equivalent coverage), or it runs where it can complete.
+- **L-3 · GitHub Actions is the stable executor for full verification.** CI already runs the equivalent, and stricter, set: lint, typecheck, build and build identity; clean and upgrade-path migrations; every plant in the red-case matrix; and the whole manifest with no skips. From the next round, **the local pre-flight is the fast filter and CI is the authoritative full run**, unless Sharon finds a coverage gap.
+- **L-4 · Never launch a long run on unchanged conditions after an infrastructure failure.** The readiness gate (P-1/P-3) and the VOID class (P-5) enforce this.
