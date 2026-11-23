@@ -200,3 +200,11 @@ The harness commit `4f904638` was explained and pushed under `0959a62c`. A full 
   - **S1:** a misleading educational conclusion, or a wrong account-state or security-relevant message;
   - **S2:** misleads an action (a person does the wrong thing or retries needlessly);
   - **S3:** inconsistent terminology or cosmetic.
+
+**23 Nov · E: J3's sheet is complete.** The second return (`fc883d4e…`) was converted with exit 0, "5 rows written". The CSV's checksum, `a8811691…`, was committed before scoring (`KEMBALI-J3.md`). No score has been read.
+- **The next step is on the owner's Mac:** extract the slots only from the sealed map (`nilai-juri.mjs slot`). The map's fingerprint must equal `112714f4…`. Then send `slots.json`, which holds no provider or folder name.
+- **Then Bob:**
+  1. `nilai-juri.mjs json`, with the three committed SHAs;
+  2. the frozen `score.mjs`;
+  3. the results;
+  4. the map is unsealed.
