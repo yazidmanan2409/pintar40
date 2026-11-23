@@ -388,3 +388,4 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
   - The BEFORE digest `47bb9138…` equals staging's C3w-1 AFTER. Bob verified the DIFF.
   - Sent to Sharon, with one difference for her: line 87 orders by to_jsonb, since seven feedback tables have no id.
   - The full pre-flight starts once the REOPEN fix freezes the candidate.
+- **15:00 UTC · Sharon: the Z9 promotion evidence PASS** (`3c5cffad`). Her own sha256 match and her own diff agree. Line 87's ordering is accepted. **C4 is CLOSED. Nothing is open from Sharon's Z reviews** apart from the 4.2 notes in Z8.
