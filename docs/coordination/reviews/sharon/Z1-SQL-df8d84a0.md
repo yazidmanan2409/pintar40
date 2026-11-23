@@ -94,3 +94,22 @@ Read-only, from the source. I did not re-run the tests (Bob's focused run: 50 gr
   - Whether the screen shows «n murid» and never a share is Z3's to show; I check the capture there.
 - **D-1: PASS.** The containment may lift at Bob's and the owner's call. The single-answer AI restriction stays until the owner rules (ruling 81).
 - **C2 to C5 stand.**
+
+## Addendum · Z3-A at `36299159`: the `tujuan_gerbang_kode` delta PASS, C2 closed (23 Nov 2026, 13:20 UTC)
+
+**`session_outcome.tujuan_gerbang_kode` (130000, corrected in place, undeployed): PASS.**
+- **The same row:** it reads `tujuan_gerbang_terlewat(v_r.id)`, the row the verdict reads.
+- **Pre-test and passed gate:** it is returned only after the PRE_TEST return, and is `[]` when the gate passed.
+- **Nothing new is exposed.**
+  - It names the codes of the caller's own missed must-be-right objectives, under `session_is_mine`.
+  - The learner already receives objective codes as `per_domain`'s keys, and already sees which must-be-right questions were wrong in their own review.
+  - The `learning_objectives` read is inside the SECURITY DEFINER body; the learner gains no table read.
+- **Grants and registry are unchanged** (CREATE OR REPLACE, with no new function).
+
+**C2: closed, by the second option.**
+- **The learner's page:** an empty list draws nothing. `hasil.target.belum_gerbang` reads as a whole sentence without one: the mastery meets the target, but an important question is not right yet, so the target is not reached. Z-K01-02 covers it.
+- **Nit for Daisy, not a condition:** in the C2 case, the teacher's one-learner page shows the row `mengajar.murid1.gerbang`, and then `mengajar.murid1.tujuan_kosong` («Tidak ada tujuan … di bawah target»). That is true as stated, but a line that the important question has no objective linked would read better.
+
+**Z-K01-03,** the ruling 81 integrated check, was red first; I accept it.
+
+**From Z1, only C4 stays open:** the K-07 `convalidated` check on the after-promotion list.
