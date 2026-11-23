@@ -79,3 +79,18 @@ Read-only, from the source. I did not re-run the tests (Bob's focused run: 50 gr
 - **The fix:** read both from `hasil_terkini_id(s.id)`. This is one line each, and it may ride in Z2.
 
 **Could reasonably have been anticipated:** C2 was mine to see in Z0's Q1. I chose a source of objectives without asking whether every must-be-right item has one.
+
+## Addendum · head moved to `fc6ddea8` (23 Nov 2026, 10:35 UTC): C1 met, D-1 PASS
+
+- **The migrations are unchanged** (304). The commit touches only `selftest/z-d1.test.ts`, `selftest/d088k.test.ts` and `src/lib/soal-kelas.ts`.
+- **C1 is met.** Z-D1-02 now:
+  - reads `pg_get_functiondef` for `prokind` f and p;
+  - matches all four forms, including Postgres's printed-back form;
+  - plants five red cases in a rolled-back transaction (`BEGIN ATOMIC`, path, extract, cast, view), each of which must be named.
+- **The `chosen` rules are met:**
+  - `chosen_all` is required on every answer;
+  - `soal-kelas.ts` counts and names by `chosen_all` only, with no fallback to `chosen`;
+  - the comment states that counts are learners per option.
+  - Whether the screen shows «n murid» and never a share is Z3's to show; I check the capture there.
+- **D-1: PASS.** The containment may lift at Bob's and the owner's call. The single-answer AI restriction stays until the owner rules (ruling 81).
+- **C2 to C5 stand.**
