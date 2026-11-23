@@ -1,0 +1,88 @@
+# Daisy's Z6 rulings (TINJAUAN-Z6-f322c25c), RED on Z6's head f322c25c (23 Nov 2026)
+## the two restated tests, before the fix
+Z-BINGKAI-01 FAIL    a named, focusable region frame holding a wide table is reported; a frame named by aria-labelledby is reported; a segmented control wider than itself is not caught: [{"lebar":390,"sebab":["div.pin-seg scrolls sideways (286 px in 256 px)"]},null]; parts are still excused: [{"jalan":{},"bagian":"div#pin-orang.pin-tabel-bingkai","audit":"ruling 79 audit, Z6 sweep: «Orang» table at 390 and 320"},{"jalan":{},"bagian":"div.pin-tabel-bingkai.mt-2","audit":"ruling 79 audit, Z6 sweep: «Jejak audit» table at 390 and 320"},{"jalan":{},"bagian":"div.pin-seg","audit":"ruling 79 audit, Z6 sweep: Uji Cepat's minutes at 320"}]
+Z-R11-01    FAIL    the pager does not return to the collection: /x?hal=2#uji; a segmented control may still scroll or cut its options:  display: inline-flex; max-width: 100%; min-width: 0; overflow-x: auto; justify-self: start; background: var(--surface-2); border-radius: var(--radius-md); 
+0 passed, 2 failed, 0 skipped, 0 contract problem(s) → RED
+
+## sapu-z6.ts, with the ruled checks, against next start of the f322c25c build
+# base for Daisy's Z6 rulings (the f322c25c build), measured by the ruled checks
+# the files that draw pin-tabel-bingkai or pin-seg: src/app/konfigurasi/catatan-masuk/page.tsx, src/app/konfigurasi/page.tsx, src/app/mengajar/[kelas]/siapa/page.tsx, src/app/mengajar/[kelas]/uji-cepat/page.tsx, src/components/koleksi/Koleksi.tsx, src/components/studio/SoalKerja.tsx
+PASS  /mengajar/:id at 1280: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id at 1280: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id at 390: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id at 390: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id at 320: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id at 320: 0 link mark(s) drawn as a box of their own
+FAIL  /mengajar/:id/siapa?penugasan=:id at 1280: div.pin-seg.pin-lebar-saja scrolls sideways (778 px in 712 px)
+FAIL  /mengajar/:id/siapa?penugasan=:id at 1280: «Pemetaan Awal»'s focus ring is cut by nav.pin-seg.pin-seg-tautan; «Uji Penguasaan»'s focus ring is cut by nav.pin-seg.pin-seg-tautan; «Semua»'s focus ring is cut by div.pin-seg.pin-lebar-saja; «Sudah mengumpulkan · 0»'s focus ring is cut by div.pin-seg.pin-lebar-saja; «Sudah mulai, belum mengumpulkan · 3»'s focus ring is cut by div.pin-seg.pin-lebar-saja; «Belum mengerjakan · 6» lies outside its control; «Belum mengerjakan · 6»'s focus ring is cut by div.pin-seg.pin-lebar-saja
+PASS  /mengajar/:id/siapa?penugasan=:id at 1280: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id/siapa?penugasan=:id at 390: nothing inside main scrolls sideways or is wider than the window
+FAIL  /mengajar/:id/siapa?penugasan=:id at 390: «Pemetaan Awal»'s focus ring is cut by nav.pin-seg.pin-seg-tautan; «Uji Penguasaan»'s focus ring is cut by nav.pin-seg.pin-seg-tautan
+PASS  /mengajar/:id/siapa?penugasan=:id at 390: 0 link mark(s) drawn as a box of their own
+FAIL  /mengajar/:id/siapa?penugasan=:id at 390: the pager's target # is the collection the reader lands on (null)
+PASS  /mengajar/:id/siapa?penugasan=:id at 320: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/siapa?penugasan=:id at 320: every option of its segmented controls lies inside the control, its focus ring uncut
+PASS  /mengajar/:id/siapa?penugasan=:id at 320: 0 link mark(s) drawn as a box of their own
+FAIL  /mengajar/:id/siapa?penugasan=:id at 320: the pager's target # is the collection the reader lands on (null)
+FAIL  /mengajar/:id/siapa?penugasan=:id at 1280: div.pin-seg.pin-lebar-saja scrolls sideways (779 px in 712 px)
+FAIL  /mengajar/:id/siapa?penugasan=:id at 1280: «Pemetaan Awal»'s focus ring is cut by nav.pin-seg.pin-seg-tautan; «Uji Penguasaan»'s focus ring is cut by nav.pin-seg.pin-seg-tautan; «Semua»'s focus ring is cut by div.pin-seg.pin-lebar-saja; «Sudah mengumpulkan · 0»'s focus ring is cut by div.pin-seg.pin-lebar-saja; «Sudah mulai, belum mengumpulkan · 0»'s focus ring is cut by div.pin-seg.pin-lebar-saja; «Belum mengerjakan · 9» lies outside its control; «Belum mengerjakan · 9»'s focus ring is cut by div.pin-seg.pin-lebar-saja
+PASS  /mengajar/:id/siapa?penugasan=:id at 1280: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id/siapa?penugasan=:id at 390: nothing inside main scrolls sideways or is wider than the window
+FAIL  /mengajar/:id/siapa?penugasan=:id at 390: «Pemetaan Awal»'s focus ring is cut by nav.pin-seg.pin-seg-tautan; «Uji Penguasaan»'s focus ring is cut by nav.pin-seg.pin-seg-tautan
+PASS  /mengajar/:id/siapa?penugasan=:id at 390: 0 link mark(s) drawn as a box of their own
+FAIL  /mengajar/:id/siapa?penugasan=:id at 390: the pager's target # is the collection the reader lands on (null)
+PASS  /mengajar/:id/siapa?penugasan=:id at 320: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/siapa?penugasan=:id at 320: every option of its segmented controls lies inside the control, its focus ring uncut
+PASS  /mengajar/:id/siapa?penugasan=:id at 320: 0 link mark(s) drawn as a box of their own
+FAIL  /mengajar/:id/siapa?penugasan=:id at 320: the pager's target # is the collection the reader lands on (null)
+PASS  /mengajar/:id/uji-cepat at 1280: nothing inside main scrolls sideways or is wider than the window
+FAIL  /mengajar/:id/uji-cepat at 1280: «10 menit»'s focus ring is cut by div.pin-seg; «15 menit»'s focus ring is cut by div.pin-seg; «30 menit»'s focus ring is cut by div.pin-seg
+PASS  /mengajar/:id/uji-cepat at 1280: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id/uji-cepat at 390: nothing inside main scrolls sideways or is wider than the window
+FAIL  /mengajar/:id/uji-cepat at 390: «10 menit»'s focus ring is cut by div.pin-seg; «15 menit»'s focus ring is cut by div.pin-seg; «30 menit»'s focus ring is cut by div.pin-seg
+PASS  /mengajar/:id/uji-cepat at 390: 0 link mark(s) drawn as a box of their own
+FAIL  /mengajar/:id/uji-cepat at 320: div.pin-seg scrolls sideways (286 px in 256 px)
+FAIL  /mengajar/:id/uji-cepat at 320: «10 menit»'s focus ring is cut by div.pin-seg; «15 menit»'s focus ring is cut by div.pin-seg; «30 menit» lies outside its control; «30 menit»'s focus ring is cut by div.pin-seg
+PASS  /mengajar/:id/uji-cepat at 320: 0 link mark(s) drawn as a box of their own
+PASS  /aktivasi/orang at 1280: nothing inside main scrolls sideways or is wider than the window
+PASS  /aktivasi/orang at 1280: 0 link mark(s) drawn as a box of their own
+PASS  /aktivasi/orang at 390: nothing inside main scrolls sideways or is wider than the window
+PASS  /aktivasi/orang at 390: 0 link mark(s) drawn as a box of their own
+PASS  /aktivasi/orang at 320: nothing inside main scrolls sideways or is wider than the window
+PASS  /aktivasi/orang at 320: 0 link mark(s) drawn as a box of their own
+PASS  /konfigurasi/catatan-masuk at 1280: nothing inside main scrolls sideways or is wider than the window
+PASS  /konfigurasi/catatan-masuk at 1280: 0 link mark(s) drawn as a box of their own
+PASS  /konfigurasi/catatan-masuk at 390: nothing inside main scrolls sideways or is wider than the window
+PASS  /konfigurasi/catatan-masuk at 390: 0 link mark(s) drawn as a box of their own
+PASS  /konfigurasi/catatan-masuk at 320: nothing inside main scrolls sideways or is wider than the window
+PASS  /konfigurasi/catatan-masuk at 320: 0 link mark(s) drawn as a box of their own
+PASS  /konfigurasi/audit at 1280: nothing inside main scrolls sideways or is wider than the window
+PASS  /konfigurasi/audit at 1280: 0 link mark(s) drawn as a box of their own
+PASS  /konfigurasi/audit at 390: nothing inside main scrolls sideways or is wider than the window
+PASS  /konfigurasi/audit at 390: 0 link mark(s) drawn as a box of their own
+PASS  /konfigurasi/audit at 320: nothing inside main scrolls sideways or is wider than the window
+PASS  /konfigurasi/audit at 320: 0 link mark(s) drawn as a box of their own
+
+## covered (7)
+- /mengajar/:id (Koleksi (the class's learners)): 1 frame(s) or segmented control(s)
+- /mengajar/:id/siapa?penugasan=:id (Koleksi + pin-seg pin-seg-tautan (Pemetaan Awal)): 3 frame(s) or segmented control(s)
+- /mengajar/:id/siapa?penugasan=:id (Koleksi + pin-seg pin-seg-tautan (Uji Penguasaan)): 3 frame(s) or segmented control(s)
+- /mengajar/:id/uji-cepat (pin-seg (the window's minutes)): 1 frame(s) or segmented control(s)
+- /aktivasi/orang (Koleksi (people)): 1 frame(s) or segmented control(s)
+- /konfigurasi/catatan-masuk (pin-tabel-bingkai (the sign-in record)): 1 frame(s) or segmented control(s)
+- /konfigurasi/audit (pin-tabel-bingkai (Jejak audit)): 1 frame(s) or segmented control(s)
+
+## not covered (4)
+- /studio/tinjau/kunci/[koreksi] (SoalKerja): not reached, no pending key correction in this database
+- /mengajar/:id/uji-cepat/hasil (Koleksi (a Quick Assessment's results)): not reached as drawn (HTTP 200, 0 frame(s) or segmented control(s) in main: nothing to list here)
+- /konfigurasi/sertifikat (Koleksi (certificates)): not reached as drawn (HTTP 200, 0 frame(s) or segmented control(s) in main: nothing to list here)
+- /studio/paket/:id (SoalKerja (a lesson's questions); N-8's nested disclosures): no frame drawn on this package (HTTP 200); measured for N-8 only
+
+RED: 14 framed overflow(s)
+
+## then, after the .pin-seg and pager fixes and before the scroll margin: the pager's collection landed under the phone's sticky bar
+FAIL  /mengajar/:id/siapa?penugasan=:id at 390: the pager's target #pin-siapa-murid-koleksi is the collection the reader lands on ({"atas":26,"bawahBar":57,"tampak":true,"blok":"grid","ujung":true,"layar":900})
+FAIL  /mengajar/:id/siapa?penugasan=:id at 320: the pager's target #pin-siapa-murid-koleksi is the collection the reader lands on ({"atas":0,"bawahBar":83,"tampak":true,"blok":"grid","ujung":false,"layar":900})
+FAIL  /mengajar/:id/siapa?penugasan=:id at 390: the pager's target #pin-siapa-murid-koleksi is the collection the reader lands on ({"atas":26,"bawahBar":57,"tampak":true,"blok":"grid","ujung":true,"layar":900})
+FAIL  /mengajar/:id/siapa?penugasan=:id at 320: the pager's target #pin-siapa-murid-koleksi is the collection the reader lands on ({"atas":0,"bawahBar":83,"tampak":true,"blok":"grid","ujung":false,"layar":900})
+RED: 4 framed overflow(s)

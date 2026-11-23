@@ -6,7 +6,7 @@ import { konteksHalaman } from "@/lib/konteks-server";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { tanggal } from "@/lib/tanggal";
 import { zonaSekolahBanyak } from "@/lib/zona-sekolah";
-import CangkangPengalaman from "@/components/CangkangPengalaman";
+import NavKonfigurasi from "@/components/konfigurasi/NavKonfigurasi";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import Kosong from "@/components/Kosong";
@@ -114,7 +114,8 @@ export default async function CatatanMasuk({ searchParams }: { searchParams: Pro
 
   return (
     <>
-      <CangkangPengalaman locale={locale} kind="pendataan" />
+      {/* R-10 (Daisy, option A): the index's own «Tempat kerja Anda» */}
+      <NavKonfigurasi locale={locale} kini="konfigurasi" />
       <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href="/konfigurasi/audit">← {s("config.section.audit")}</Link>
         <div className="pin-head">

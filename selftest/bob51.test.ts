@@ -231,7 +231,8 @@ export const bob51Tests: SelfTest[] = [
       const halaman = baca("src/app/konfigurasi/email-uji/page.tsx");
       c.expect(/rpc\("is_system_admin"\)/.test(halaman) && /if \(sistem !== true\) \{[\s\S]*?HalamanPenolakan/.test(halaman),
         "the page does not ask is_system_admin and refuse everyone else");
-      const konf = baca("src/app/konfigurasi/page.tsx");
+      // RESTATED (Z, R-10): the page and its one navigation source, NavKonfigurasi
+      const konf = baca("src/app/konfigurasi/page.tsx") + baca("src/components/konfigurasi/NavKonfigurasi.tsx");
       // L3 (D-132 C7): the link is «Seluruh platform»'s (platformIni: Admin platform in that context; a persona as before)
       // (D-138 step 3: a place in the staff navigation is an ItemNav, a Link with its icon)
       c.expect(/\{platformIni \? <(?:Link|ItemNav) href="\/konfigurasi\/email-uji"/.test(konf), "Konfigurasi does not link the page for the platform admin alone");

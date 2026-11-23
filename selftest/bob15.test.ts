@@ -207,7 +207,7 @@ export const bob15Tests: SelfTest[] = [
       const stafSendiri = cangkang.slice(cangkang.indexOf("\nexport async function CangkangStaf("));
       c.expect((tata.match(/<TautanLapor /g) ?? []).length === 1 && (inti.match(/return shellStaf\(/g) ?? []).length === 4
         && !/<TautanLapor /.test(inti) && /return shellStaf\(/.test(stafSendiri)
-        && /<CangkangStaf\b/.test(baca("src", "app", "studio", "layout.tsx")) && /<CangkangStaf\b/.test(baca("src", "app", "konfigurasi", "page.tsx")),
+        && /<CangkangStaf\b/.test(baca("src", "app", "studio", "layout.tsx")) && /<NavKonfigurasi\b/.test(baca("src", "app", "konfigurasi", "page.tsx")) && /<CangkangStaf\b/.test(baca("src", "components", "konfigurasi", "NavKonfigurasi.tsx")),
         "«Laporkan masalah» is not on every staff shell, Studio and Konfigurasi");
       const naik = baca("src", "app", "api", "assets", "upload-url", "route.ts");
       c.expect(/jalur = `laporan\/\$\{personId\}\/\$\{tangkapan\[1\]\}`/.test(naik) && /createSignedUploadUrl\(jalur\)/.test(naik),

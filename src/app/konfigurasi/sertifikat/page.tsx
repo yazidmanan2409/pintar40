@@ -3,7 +3,7 @@ import { format, t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import { supabaseServer } from "@/lib/supabase/server";
 import { konteksHalaman } from "@/lib/konteks-server";
-import CangkangPengalaman from "@/components/CangkangPengalaman";
+import NavKonfigurasi from "@/components/konfigurasi/NavKonfigurasi";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import BarisHasil from "@/components/BarisHasil";
@@ -136,7 +136,8 @@ export default async function SertifikatSekolah({ searchParams }: { searchParams
 
   return (
     <>
-      <CangkangPengalaman locale={locale} kind="pendataan" halamanKini="sertifikat" />
+      {/* R-10 (Daisy, option A): the index's own «Tempat kerja Anda» */}
+      <NavKonfigurasi locale={locale} kini="sertifikat" />
       <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href="/konfigurasi">← {s("nav.konfigurasi")}</Link>
         <div className="pin-head">

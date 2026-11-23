@@ -6816,6 +6816,11 @@
       "proves": "selftest/z-ux.test.ts, from the source file experience.css (R-26 item 2, ruling 75): a.pin-konteks-pilih keeps its control-sm look and its hit area is extended to control-md (44 px) by an ::after. The browser proof (hit area and identical pixels at 320, 390, 1280) is docs/completion-4.1/batches/z/layar/r26-tekan.ts."
     },
     {
+      "id": "Z-R26-03",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the copy table and the source files of the Studio rule and Kanonik pages (R-26 item 3): the four «Simpan» labels say what they do, each its own key, and Kanonik's grant is studio.kanonik.beri «Berikan izin»."
+    },
+    {
       "id": "Z-S15-01",
       "runner": "static",
       "proves": "selftest/z-ux.test.ts, executing src/components/aktivasi/hasil.ts and reading the activation route's source file and the copy table (S-15): only an address Auth reports as already registered is told «mungkin sudah dipakai»; an outage or a rate limit reads «Akun belum bisa dibuat. Coba lagi sebentar lagi.»"
@@ -6839,6 +6844,116 @@
       "id": "Z-K07-02",
       "runner": "static",
       "proves": "selftest/z-ux.test.ts, from the copy table (K-07's floor, Daisy's words via Bob): config.ketuntasan.arti and galat.pass_mark_input_incomplete say «1 sampai 100» / «1 to 100», nothing else changed."
+    },
+    {
+      "id": "Z-N16-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the copy table (N-16, S-12's approved wording): the reopening page's wait line says «Tunggu sebentar, lalu coba lagi.» / «Wait a little, then try again.», never that a request was sent."
+    },
+    {
+      "id": "Z-N17-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the source file of TombolKirim (N-17): a server-action button keeps the width taken at its submit while pending and through «✓ {selesai}», until a change to the form returns its verb. Browser check: docs/completion-4.1/batches/z/layar/n17-lebar.ts."
+    },
+    {
+      "id": "Z-N9-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the staff page's source file and the copy table (N-9): no person, an unknown and a forbidden person all answer «Data staf ini tidak dapat dibuka. …», never the certificate page's sentence."
+    },
+    {
+      "id": "Z-S02-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, executing src/lib/staf-kontrak.ts and reading the staff page's and action's source files and the copy table (S-02, S-03): a role chosen without a valid date is refused ROLE_UNTIL_INVALID in the review and the act, never dropped; the sentence says «hari ini atau sesudahnya»."
+    },
+    {
+      "id": "Z-S04-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, executing src/lib/kode-sekolah.ts and reading the source files of Pendataan's action and page, and the copy table (S-04): a school code of the wrong shape is checked by the database's own rule before the database is asked and said as its shape, never «maybe taken»."
+    },
+    {
+      "id": "Z-S05-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, executing src/lib/galat-kontrak.ts and reading the copy table (S-05): the mix-total and safety-over refusals of save_assessment_definition have their own codes and sentences, and the mix hint states the rule."
+    },
+    {
+      "id": "Z-S06-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the copy table (S-06): pengerjaan.galat.window_not_changeable no longer says «saat ini» / «right now» for a refusal that may be lasting."
+    },
+    {
+      "id": "Z-S07-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the source file of Konfigurasi's actions (S-07): a deactivation reason of spaces answers STRUCTURE_REASON_REQUIRED, the reason's own sentence."
+    },
+    {
+      "id": "Z-S16-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the source file of the activation form FormAktivasi.tsx (S-16): the new person's name field has maxLength={200}."
+    },
+    {
+      "id": "Z-T03-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, reading the copy table (T-03): the 22 keys of ruling 78 (d) and email.aman.diatur_ulang.isi's English say «Admin PINTAR» word for word in ID and EN, and no key in the copy table still names the role «Admin platform», «platform admin(istrator)» or «PINTAR administrator»."
+    },
+    {
+      "id": "Z-T09-T02-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, reading the copy table (T-09, T-02): three English keys name «Mastery Check» and «Quick Assessments»; the unused mengajar.langkah.f2 is absent from the copy table and its type, f2w kept."
+    },
+    {
+      "id": "Z-S09-S10-S14-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, reading the copy table (S-09, S-10, S-14): «jaringan ini», «PIN yang bisa dipakai» and «email atau username yang Anda ketik», word for word in ID and EN."
+    },
+    {
+      "id": "Z-N1-N2-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, rendering PengingatPemeliharaan with a class window (N-1, N-2): on the player at stage 0 the reassurance leads and the restriction is not said; at T−15 a staff reader gets the new staff sentence and a learner the learner's; reads the source file PitaPemeliharaan.tsx giving the reader's kind from peranSaya."
+    },
+    {
+      "id": "Z-R15-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, R-15's one-string items: reads the source file DaftarKeputusan.tsx (status joined by «, »), executes urutRingkas in src/lib/kenaikan.ts (main group first) and reads KenaikanKelas.tsx using it; the copy table's certificate column «Paket» / «Package» (X12)."
+    },
+    {
+      "id": "Z-Z5R-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, Daisy's Z5 review: the copy table's C-2 and (a) sentences word for word; the source of Pendataan's action and page refills a refused code (C-1); the rule page's source answers each form in its own words; the CSS file keeps the bar's place word whole, and the shell's source wraps it with the brand (b)."
+    },
+    {
+      "id": "Z-BINGKAI-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, executing BINGKAI from the rendered-check helper audit/a11y.mjs against a page built in the test (R-11): a frame scrolling sideways is caught once, the designed tab row is not, a part wider than the window is, a hidden frame is not; reads the source of audit/crawl.mjs, which holds such a page broken at 320 px unless listed for the ruling 79 audit."
+    },
+    {
+      "id": "Z-R11-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, rendering Koleksi with stacked rows, with none and empty (R-11); reads the CSS file (the blocks below 640 px, the instrument switch wrapping below 360 px, N-8's padding at 360 px and under) and the source of «Siapa»."
+    },
+    {
+      "id": "Z-C1-01",
+      "runner": "app",
+      "proves": "selftest/z-ux.test.ts, in the running app (C-1): a school code of the wrong shape posted to Pendataan is refused and the rendered page holds what was typed in the field."
+    },
+    {
+      "id": "Z-C2A-01",
+      "runner": "app",
+      "proves": "selftest/z-ux.test.ts, in the running app on C1w's draft package: a row's count change on a rule divided by difficulty is refused with the row's own rendered sentence (C-2), and a rule made by the new-rule form is answered «Aturan baru dibuat.» (finding a); read back from the rendered html."
+    },
+    {
+      "id": "Z-N9-02",
+      "runner": "app",
+      "proves": "selftest/z-ux.test.ts, from the rendered html of the running app's /konfigurasi/staf as the bootstrap school's administrator (N-9): no person, an unknown person and another school's staff member get the same neutral refusal and status."
+    },
+    {
+      "id": "Z-S01-01",
+      "runner": "app",
+      "proves": "selftest/z-ux.test.ts, through the running app's Studio rule form (route redirect) and read back from the database (S-01, before its fix): renaming a rule with pause and offline on keeps its one version and every other setting."
+    },
+    {
+      "id": "Z-R10-01",
+      "runner": "app",
+      "proves": "selftest/z-ux.test.ts, from the rendered html of the running app's Konfigurasi pages as a school's and the platform's administrator (R-10, option A): every standalone page's «Tempat kerja Anda» is the index's link set, aria-current on its own item or «Konfigurasi», with a way back; the section route is the control."
     },
     {
       "id": "Z-S12-01",

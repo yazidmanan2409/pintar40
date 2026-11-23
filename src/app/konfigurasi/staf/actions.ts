@@ -5,7 +5,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { wajibDalamKonteks } from "@/lib/konteks-server";
 import { batasHari } from "@/lib/hle";
 import { zonaSekolah } from "@/lib/zona-sekolah";
-import { kodeStafDariGalat, type KodeStaf } from "@/lib/staf-kontrak";
+import { kodeStafDariGalat, tambahanPeran, type KodeStaf } from "@/lib/staf-kontrak";
 import { KODE_PERAN_DICATAT, kodePeranDariGalat, type KodePeran } from "@/lib/peran-kontrak";
 
 /**
@@ -77,8 +77,11 @@ export async function ubahPeranAksi(fd: FormData): Promise<void> {
   const tempat = teks(fd, "tambah_tempat");
   const sampai = teks(fd, "tambah_sampai");
   const supabase = await supabaseServer();
+  // S-02: a role chosen without a valid last day is refused, never dropped
+  const tambahan = tambahanPeran(peran, tempat, sampai);
+  if ("kode" in tambahan) kembali(orang, "ubah", "gagal", tambahan.kode);
   // Sharon F1: the last day on this school's own clock (WIB, WITA or WIT)
-  const tambah = peran && UUID.test(tempat) && HARI.test(sampai)
+  const tambah = tambahan.ada
     ? [{ role: peran, scope_node_id: tempat, valid_until: batasHari(sampai, "akhir", await zonaSekolah(supabase, sekolah)) }]
     : [];
   const { error } = await supabase.rpc("ubah_peran", {

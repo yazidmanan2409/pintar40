@@ -331,11 +331,15 @@ async function shellStaf({
   const blok = await blokKonteks({ locale });
   return (
     <header className="pin-top pin-shell pin-noprint pin-staf">
-      <div className="pin-staf-kepala">
-        <MerekPintar />
-        <TombolCiut ciutkan={t("nav.ciutkan", persona, { locale })} lebarkan={t("nav.lebarkan", persona, { locale })} />
+      {/* Daisy (Z5 review, finding b): under 1024 px the brand and the place word are one wrapping row, so a place word
+          that does not fit beside the brand moves whole to the bar's second line; at 1024 and over this box is not drawn */}
+      <div className="pin-staf-judul">
+        <div className="pin-staf-kepala">
+          <MerekPintar />
+          <TombolCiut ciutkan={t("nav.ciutkan", persona, { locale })} lebarkan={t("nav.lebarkan", persona, { locale })} />
+        </div>
+        <span className="pin-bar-tempat">{kini}</span>
       </div>
-      <span className="pin-bar-tempat">{kini}</span>
       <input type="checkbox" id="pin-laci" className="pin-laci-saklar" aria-label={t("nav.menu", persona, { locale })} aria-controls="pin-laci-isi" />
       <label htmlFor="pin-laci" className="pin-laci-tombol" aria-hidden="true">
         <Ikon nama="menu" kelas="pin-ikon-buka" />

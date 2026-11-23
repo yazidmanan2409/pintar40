@@ -588,7 +588,9 @@ export async function nonaktifkanStrukturAksi(_prev: HasilStruktur | null, fd: F
   const simpul = uuidOrNull(str(fd, "simpul"));
   // D-097(a): a deactivation states why; the database asks again (STRUCTURE_REASON_REQUIRED)
   const alasan = str(fd, "alasan");
-  if (!simpul || !alasan || alasan.length > 300) return KURANG;
+  // S-07: a reason of spaces is the missing reason, said as the reason (config.struktur.galat.alasan_kosong)
+  if (!simpul || alasan.length > 300) return KURANG;
+  if (!alasan) return { ok: false, code: "STRUCTURE_REASON_REQUIRED" };
   await wajibDalamKonteks({ sekolah: await sekolahDari("simpul", simpul) });
   return struktur("deactivate_school_node", { p_node: simpul, p_reason: alasan });
 }

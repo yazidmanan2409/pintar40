@@ -1,7 +1,8 @@
+import Link from "next/link";
 import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import { supabaseServer } from "@/lib/supabase/server";
-import CangkangPengalaman from "@/components/CangkangPengalaman";
+import NavKonfigurasi from "@/components/konfigurasi/NavKonfigurasi";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import FormEmailUji from "@/components/email-uji/FormEmailUji";
@@ -43,8 +44,11 @@ export default async function EmailUji() {
 
   return (
     <>
-      <CangkangPengalaman locale={locale} kind="pendataan" halamanKini="emailuji" />
+      {/* R-10 (Daisy, option A): the index's own «Tempat kerja Anda» */}
+      <NavKonfigurasi locale={locale} kini="emailuji" />
       <main id="isi" tabIndex={-1} className="pin-col">
+        {/* R-10 (Daisy): the way back to the list, as the section pages have it */}
+        <Link className="pin-back" href="/konfigurasi">← {s("nav.konfigurasi")}</Link>
         <div className="pin-head">
           <p className="pin-eyebrow">{s("emailuji.eyebrow")}</p>
           <h1 className="pin-h1">{s("emailuji.judul")}</h1>

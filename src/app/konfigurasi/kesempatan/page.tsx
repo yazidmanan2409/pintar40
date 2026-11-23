@@ -3,7 +3,7 @@ import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import { konteksHalaman } from "@/lib/konteks-server";
 import { judulHalaman } from "@/lib/judul-halaman";
-import CangkangPengalaman from "@/components/CangkangPengalaman";
+import NavKonfigurasi from "@/components/konfigurasi/NavKonfigurasi";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import DaftarAntrean from "@/components/kesempatan/DaftarAntrean";
@@ -27,7 +27,8 @@ export default async function Kesempatan({ searchParams }: { searchParams: Promi
   }
   return (
     <>
-      <CangkangPengalaman locale={locale} kind="pendataan" />
+      {/* R-10 (Daisy, option A): the index's own «Tempat kerja Anda» */}
+      <NavKonfigurasi locale={locale} kini="konfigurasi" />
       <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href="/konfigurasi">← {s("nav.konfigurasi")}</Link>
         <div className="pin-head">

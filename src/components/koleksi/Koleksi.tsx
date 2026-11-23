@@ -39,6 +39,12 @@ export type BarisKoleksi = {
   nama: ReactNode;
   /** The other cells, in the order of the columns after the first. */
   sel: ReactNode[];
+  /**
+   * R-11 (Daisy, Z-SIAP §2): the row as a block of its own, for a frame narrower than 640 px, where the table would
+   * scroll sideways: its heading (the row's name), then its parts in reading order, each carrying its own visible label.
+   * A collection whose rows carry one is read as a list of blocks there, and as the table wider.
+   */
+  tumpuk?: { judul: ReactNode; bagian: ReactNode[] };
 };
 
 type Tautan = { jalan: string; tetap?: Record<string, string>; param?: ParamKoleksi; jangkar?: string };
@@ -151,8 +157,12 @@ export default function Koleksi({
   const p = posisiHalaman(posisi.total, posisi.halaman, posisi.ukuran);
   const kelasKolom = (k: KolomKoleksi) => [k.angka ? "pin-angka" : "", k.sempit ? "pin-sempit" : ""].filter(Boolean).join(" ") || undefined;
 
+  // R-11: rows that can be stacked are, below 640 px; an empty result keeps the table's own empty row
+  const tumpuk = p.total > 0 && baris.length > 0 && baris.every((b) => b.tumpuk);
   return (
-    <div className="pin-koleksi">
+    // Daisy's Z6 ruling (6): the pager returns to the collection itself, which both views show (below 640 px the blocks
+    // hide the frame)
+    <div className="pin-koleksi" id={`${id}-koleksi`} data-tumpuk={tumpuk ? "" : undefined}>
       <FormKoleksi saring={param.saring}>
         {Object.entries(tetap).filter(([k, v]) => v !== "" && ![param.cari, param.saring, param.hal].includes(k))
           .map(([k, v]) => <input key={k} type="hidden" name={k} value={v} />)}
@@ -229,8 +239,18 @@ export default function Koleksi({
           </tbody>
         </table>
       </div>
+      {tumpuk ? (
+        <ul className="pin-koleksi-tumpuk" aria-label={nama}>
+          {baris.map((b) => (
+            <li key={b.kunci}>
+              <h3 className="pin-koleksi-tumpuk-judul">{b.tumpuk!.judul}</h3>
+              {b.tumpuk!.bagian.map((x, i) => <div key={i} className="pin-koleksi-tumpuk-bagian">{x}</div>)}
+            </li>
+          ))}
+        </ul>
+      ) : null}
       <HalamanKoleksi posisi={p} benda={benda} jalan={jalan} tetap={tetap} cari={cari} saring={nilaiSaring} param={param}
-        jangkar={id} locale={locale} untuk={untuk} />
+        jangkar={`${id}-koleksi`} locale={locale} untuk={untuk} />
     </div>
   );
 }

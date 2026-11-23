@@ -1,5 +1,6 @@
 import type { Locale } from "@/lib/hle";
 import { statusSaya } from "@/lib/pemeliharaan";
+import { peranSaya } from "@/lib/tur-negara";
 import PengingatPemeliharaan from "./PengingatPemeliharaan";
 
 /**
@@ -9,5 +10,7 @@ import PengingatPemeliharaan from "./PengingatPemeliharaan";
 export default async function PitaPemeliharaan({ locale }: { locale: Locale }) {
   const status = await statusSaya();
   if (!status.terhenti && status.pemeliharaan.length === 0 && status.pengumuman.length === 0) return null;
-  return <PengingatPemeliharaan locale={locale} status={status} />;
+  // N-2 (R-12): staff are told what their learners cannot do; the roles are the request's one read (peranSaya is cached)
+  const staf = ((await peranSaya()) ?? []).some((r) => r !== "STUDENT");
+  return <PengingatPemeliharaan locale={locale} status={status} staf={staf} />;
 }

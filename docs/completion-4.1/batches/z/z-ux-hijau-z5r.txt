@@ -1,0 +1,56 @@
+# Daisy's Z5 review (C-1, C-2, findings a and b), after the fix (23 Nov 2026)
+## lint and typecheck: 0 errors
+## app runner with the local stack: the three new tests and the neighbours (Studio rule forms, shell, Pendataan)
+F01-R01     PASS    anonymous access refused; dev tooling absent in the production build; public copy clean
+F06-R01     PASS    38 served route(s) fetched and scanned for internal words in rendered output; the inventory is the fetch list, and F06-S02 fails if the application serves a route absent from it
+DAISY-04-TIDAK-ADA-01 PASS    an anonymous visitor to an address that leads nowhere gets a 404 carrying PINTAR's own page in the language they chose, never Next's English default, with a way back (4 requests: two paths under /verifikasi/, in Indonesian and English)
+DAISY-17-KIRIM-02 PASS    Konfigurasi offers Menambahkan orang exactly when /pendataan admits the same reader, for the platform administrator and for Alpha's school administrator; a school administrator refused Pimpinan reads the staff refusal, not "ask your teacher" (SYSTEM_ADMIN: refused, not offe
+Z-J01       PASS    renders, in the running app (Daisy's three Z-2 conditions): as the bootstrap school's admin, all seven Studio pages and five refusal paths (an unknown and a malformed correction, an unknown package, Kanonik release and lesson preview) each draw exactly one <main>, and it is the o
+Z-Z5R-01    PASS    Daisy's Z5 review: the copy table's two new sentences (C-2's row refusal, (a)'s creation) word for word in ID and EN; the source of Pendataan's action and page sends back and refills a refused code (C-1); the rule page's source answers the new-rule form with bannerBaru and the ro
+Z-C1-01     PASS    in the running app as the bootstrap school's administrator (C-1): «A-» posted as the school code is refused galat=kode_bentuk, and the page it lands on holds «A-» in the code field beside pendataan.kode.bentuk_salah; nothing is saved
+Z-C2A-01    PASS    in the running app as the cycle school's administrator on C1w's draft package: a rule divided by difficulty, its count changed through its own row, is refused DEFINITION_MIX_TOTAL and the row says galat.definition_mix_total_baris, not «Periksa keduanya» (C-2); a rule made throu
+Z-S01-01    PASS    in the running app as the cycle school's administrator, on C1w's draft package (S-01): a rule with pause and offline on, renamed through its own row form, keeps its one version and every other setting (pause, offline, count, mode, bank, shuffle, attempts, safety, hesitation, grac
+Z-R10-01    PASS    in the running app as the bootstrap school's administrator and as the platform administrator (R-10, option A): on catatan-masuk, kesempatan, keamanan, sertifikat, email-uji, staf and the section route (the control), the rendered html's «Tempat kerja Anda» has exactly the index'
+68 passed, 0 failed, 0 skipped, 0 contract problem(s) → GREEN
+## after keeping the rows' result variable named banner (DAISY-18-DENGAR-01, D168-K4-1 unchanged): the Studio app tests again
+Z-J01       PASS    renders, in the running app (Daisy's three Z-2 conditions): as the bootstrap school's admin, all seven Studio pages and five refusal paths (an unknown and a malformed correction, an unknown package, Kanonik release and lesson preview) each draw exactly one <main>, and it is the o
+Z-C1-01     PASS    in the running app as the bootstrap school's administrator (C-1): «A-» posted as the school code is refused galat=kode_bentuk, and the page it lands on holds «A-» in the code field beside pendataan.kode.bentuk_salah; nothing is saved
+Z-C2A-01    PASS    in the running app as the cycle school's administrator on C1w's draft package: a rule divided by difficulty, its count changed through its own row, is refused DEFINITION_MIX_TOTAL and the row says galat.definition_mix_total_baris, not «Periksa keduanya» (C-2); a rule made throu
+Z-S01-01    PASS    in the running app as the cycle school's administrator, on C1w's draft package (S-01): a rule with pause and offline on, renamed through its own row form, keeps its one version and every other setting (pause, offline, count, mode, bank, shuffle, attempts, safety, hesitation, grac
+4 passed, 0 failed, 0 skipped, 0 contract problem(s) → GREEN
+
+## static runner, every static id: 3 failures, all known and outside Z (F06-S01, D060-J78-01: stream A's D-1; BOB26-K01: CARD_PEPPER). Z-S04-01 restated for C-1's kenapa
+506 passed, 3 failed, 231 skipped, 14 justified skips accepted (local only), 0 contract problem(s) → RED
+
+## (b) in a real browser, tempat-320.ts against next start of this build
+# fix
+PASS  /konfigurasi/kesempatan at 320: «Konfigurasi», each word one line box (Konfigurasi:1), on the bar's second line
+PASS  /konfigurasi/kesempatan at 320: «Konfigurasi» is whole (text-overflow clip, clipped false)
+PASS  /konfigurasi/kesempatan at 320: the menu button stays on the brand's line (true) and the page does not scroll sideways (0 px)
+PASS  /konfigurasi/kesempatan at 390: «Konfigurasi», each word one line box (Konfigurasi:1)
+PASS  /konfigurasi/kesempatan at 390: «Konfigurasi» is whole (text-overflow clip, clipped false)
+PASS  /konfigurasi/kesempatan at 390: the menu button stays on the brand's line (true) and the page does not scroll sideways (0 px)
+PASS  /pendataan at 320: «Pendataan», each word one line box (Pendataan:1), on the bar's second line
+PASS  /pendataan at 320: «Pendataan» is whole (text-overflow clip, clipped false)
+PASS  /pendataan at 320: the menu button stays on the brand's line (true) and the page does not scroll sideways (0 px)
+PASS  /pendataan at 390: «Pendataan», each word one line box (Pendataan:1)
+PASS  /pendataan at 390: «Pendataan» is whole (text-overflow clip, clipped false)
+PASS  /pendataan at 390: the menu button stays on the brand's line (true) and the page does not scroll sideways (0 px)
+PASS  /aktivasi at 320: «Aktivasi akun», each word one line box (Aktivasi:1 akun:1), on the bar's second line
+PASS  /aktivasi at 320: «Aktivasi akun» is whole (text-overflow clip, clipped false)
+PASS  /aktivasi at 320: the menu button stays on the brand's line (true) and the page does not scroll sideways (0 px)
+PASS  /aktivasi at 390: «Aktivasi akun», each word one line box (Aktivasi:1 akun:1)
+PASS  /aktivasi at 390: «Aktivasi akun» is whole (text-overflow clip, clipped false)
+PASS  /aktivasi at 390: the menu button stays on the brand's line (true) and the page does not scroll sideways (0 px)
+PASS  /konfigurasi/keamanan at 320: «Konfigurasi», each word one line box (Konfigurasi:1), on the bar's second line
+PASS  /konfigurasi/keamanan at 320: «Konfigurasi» is whole (text-overflow clip, clipped false)
+PASS  /konfigurasi/keamanan at 320: the menu button stays on the brand's line (true) and the page does not scroll sideways (0 px)
+PASS  /konfigurasi/keamanan at 390: «Konfigurasi», each word one line box (Konfigurasi:1)
+PASS  /konfigurasi/keamanan at 390: «Konfigurasi» is whole (text-overflow clip, clipped false)
+PASS  /konfigurasi/keamanan at 390: the menu button stays on the brand's line (true) and the page does not scroll sideways (0 px)
+PASS  /lapor at 320: «Laporkan masalah», each word one line box (Laporkan:1 masalah:1), on the bar's second line
+PASS  /lapor at 320: «Laporkan masalah» is whole (text-overflow clip, clipped false)
+PASS  /lapor at 320: the menu button stays on the brand's line (true) and the page does not scroll sideways (0 px)
+PASS  /lapor at 390: «Laporkan masalah», each word one line box (Laporkan:1 masalah:1)
+PASS  /lapor at 390: «Laporkan masalah» is whole (text-overflow clip, clipped false)
+PASS  /lapor at 390: the menu button stays on the brand's line (true) and the page does not scroll sideways (0 px)

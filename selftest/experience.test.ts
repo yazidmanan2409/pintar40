@@ -526,6 +526,9 @@ const EXEMPTIONS: Array<{ file: string; literal: string; reason: string }> = [
     reason: "The option key's column, in em so A/B/C/D stays aligned with the type rather than the page." },
   { file: "src/app/experience.css", literal: "20ch",
     reason: "The review question's flex basis, in characters because it wraps prose." },
+  // RESTATED (Z6, R-11; Daisy, Z-SIAP-DAISY-7ba18b03 §2): one exemption more, beside 360px's
+  { file: "src/app/experience.css", literal: "359px",
+    reason: "R-11: the instrument switch («Pemetaan Awal | Uji Penguasaan») wraps one option a line BELOW 360 px, so 360 less one pixel; CSS cannot read a custom property inside @media." },
   { file: "src/app/experience.css", literal: "360px",
     reason: "An inline lesson illustration: wide enough to read a diagram, narrow enough to stay inside the measure." },
   { file: "src/app/experience.css", literal: "0.4",
@@ -8674,7 +8677,12 @@ export const experienceTests: SelfTest[] = [
         "the viewer or the roles are no longer read once per request");
       for (const f of ["studio/layout.tsx", "konfigurasi/page.tsx"]) {
         const src = code(readFileSync(join(repoRoot, "src", "app", f), "utf8"));
-        c.expect(/<CangkangStaf\b/.test(src), `${f} does not draw the staff shell, with who is signed in and the way out`);
+        // RESTATED (Z, R-10): Konfigurasi draws the staff shell through its one navigation source, NavKonfigurasi, which
+        // reads the roles once, together with the rest it needs
+        const nav = f === "konfigurasi/page.tsx" ? code(readFileSync(join(repoRoot, "src", "components", "konfigurasi", "NavKonfigurasi.tsx"), "utf8")) : "";
+        c.expect(/<CangkangStaf\b/.test(src) || (/<NavKonfigurasi\b/.test(src) && /<CangkangStaf\b/.test(nav)
+          && (nav.match(/peranSaya\(\)/g) ?? []).length === 1 && /await Promise\.all\(\[\s*peranSaya\(\),/.test(nav)),
+          `${f} does not draw the staff shell, with who is signed in and the way out`);
         c.expect((src.match(/currentViewer\(\)/g) ?? []).length <= 1 && (src.match(/peranSaya\(\)/g) ?? []).length <= 1
           && (!/peranSaya\(\)/.test(src) || /await Promise\.all\(\[currentViewer\(\), peranSaya\(\)/.test(src)),
           `${f} reads the viewer or their roles more than once, or in sequence`);
@@ -8866,7 +8874,8 @@ export const experienceTests: SelfTest[] = [
        *    Aktivasi and Studio (M3) and the administrator's other places;
        *    Studio links back to the person's places.
        */
-      const konfig = code(readFileSync(join(repoRoot, "src", "app", "konfigurasi", "page.tsx"), "utf8"));
+      // RESTATED (Z, R-10): the page and its one navigation source, NavKonfigurasi, which it draws
+      const konfig = code(readFileSync(join(repoRoot, "src", "app", "konfigurasi", "page.tsx"), "utf8")) + code(readFileSync(join(repoRoot, "src", "components", "konfigurasi", "NavKonfigurasi.tsx"), "utf8"));
       for (const h of ["/pendataan", "/aktivasi", "/studio"]) {
         // D-138 step 3: a place in the staff navigation is an ItemNav, which is a Link with its icon (DAISY-18 reads it)
         c.expect(new RegExp(`<(?:Link|ItemNav) href="${h}"`).test(konfig), `Konfigurasi has no link to ${h}`);
@@ -11060,7 +11069,8 @@ export const experienceTests: SelfTest[] = [
       const tolak = code(readFileSync(join(repoRoot, "src", "components", "HalamanPenolakan.tsx"), "utf8"));
       c.expect(/const s = \(k: HleEvent\) => t\(k, persona, \{ locale \}\);/.test(tolak) && /\{s\("tolak\.arti"\)\}/.test(tolak),
         "the refusal page does not say tolak.arti in its reader's own register");
-      const konf = code(readFileSync(join(repoRoot, "src", "app", "konfigurasi", "page.tsx"), "utf8"));
+      // RESTATED (Z, R-10): the page and its one navigation source, NavKonfigurasi, which it draws
+      const konf = code(readFileSync(join(repoRoot, "src", "app", "konfigurasi", "page.tsx"), "utf8")) + code(readFileSync(join(repoRoot, "src", "components", "konfigurasi", "NavKonfigurasi.tsx"), "utf8"));
       c.expect(/sekolahPendataan\(\)\.then\(\(x\) => x\.length > 0\)/.test(konf)
         // D-138 step 3: drawn as the staff shell's navigation item; still offered only by /pendataan's own predicate
         && /\{bolehPendataan \? <(?:Link|ItemNav) href="\/pendataan"/.test(konf) && (konf.match(/href="\/pendataan"/g) ?? []).length === 1,
@@ -13313,7 +13323,8 @@ export const experienceTests: SelfTest[] = [
       c.expect(!/\.pin-tabs > [^{]*\{[^}]*\border:/.test(css), "CSS still reorders the places on screen only");
       // RV-3/RV-4: a page that is not a place names itself in the phone bar and marks its parent
       for (const [f, h] of [["konfigurasi/keamanan/page.tsx", "keamanan"], ["konfigurasi/email-uji/page.tsx", "emailuji"], ["akun/page.tsx", "akun"], ["lapor/page.tsx", "lapor"], ["lapor/saya/page.tsx", "lapor"]]) {
-        c.expect(new RegExp(`<CangkangPengalaman [^>]*halamanKini="${h}"`).test(baca("src", "app", ...f.split("/"))), `${f} does not name itself to the shell`);
+        // RESTATED (Z, R-10): a Konfigurasi page names itself to Konfigurasi's one navigation (NavKonfigurasi kini=…)
+        c.expect(new RegExp(`<CangkangPengalaman [^>]*halamanKini="${h}"|<NavKonfigurasi [^>]*kini="${h}"`).test(baca("src", "app", ...f.split("/"))), `${f} does not name itself to the shell`);
       }
       const cangkang = baca("src", "components", "CangkangPengalaman.tsx");
       c.expect((cangkang.match(/kini: kataKini \?\? /g) ?? []).length === 4, "a staff shell's phone bar ignores the page's own name");

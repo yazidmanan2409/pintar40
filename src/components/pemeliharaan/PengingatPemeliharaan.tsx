@@ -28,7 +28,11 @@ import { bacaUlangStatusSaya } from "@/app/pemeliharaan/actions";
  * never on an interval. An extension or an early end is therefore shown at the next stage, and a stale stage never
  * shows. A read that fails shows nothing new: the stage on screen stays.
  */
-export default function PengingatPemeliharaan({ locale, status: awal }: { locale: Locale; status: StatusSaya }) {
+/**
+ * `staf`: the reader holds a role other than a learner's (PitaPemeliharaan reads it from their roles once). N-2 (R-12):
+ * the T−15 line «no new assessment can be started» is a learner's sentence; a teacher is told their learners cannot.
+ */
+export default function PengingatPemeliharaan({ locale, status: awal, staf = false }: { locale: Locale; status: StatusSaya; staf?: boolean }) {
   const path = usePathname() ?? "/";
   const [status, setStatus] = useState<StatusSaya>(awal);
   // the database's clock as it answered: the first render reads it on the server and in the browser alike, and from
@@ -105,7 +109,8 @@ export default function PengingatPemeliharaan({ locale, status: awal }: { locale
       baris.push(
         <p key="aktif">
           <strong>{s("pemeliharaan.tempat.berlangsung").replace("{untuk}", untuk)}</strong>{" "}
-          {kapitalAwal(s("pemeliharaan.tempat.arti").replace("{untuk}", untuk))}{" "}
+          {/* N-1 (R-12): on the player the reassurance leads, and the class's restriction is not the learner's news there */}
+          {asesmen ? s("pemeliharaan.pita.asesmen") : kapitalAwal(s("pemeliharaan.tempat.arti").replace("{untuk}", untuk))}{" "}
           {jendela.selesai ? <>{s("pemeliharaan.pita.selesai_kira")} {jamPenuh(jendela.selesai, jendela, kini, locale)}.</> : null}
         </p>,
       );
@@ -128,7 +133,7 @@ export default function PengingatPemeliharaan({ locale, status: awal }: { locale
           {gagal ? null : <>{tempat ? s("pemeliharaan.tempat.pukul").replace("{untuk}", untuk) : s("pemeliharaan.pita.pukul")} {jamPenuh(jendela.mulai, jendela, kini, locale)}.{" "}</>}
           {jendela.selesai ? <>{s("pemeliharaan.pita.selesai_kira")} {jamPenuh(jendela.selesai, jendela, kini, locale)}. </> : null}
           {asesmen ? s("pemeliharaan.pita.asesmen") : tempat ? s("pemeliharaan.tempat.biasa").replace("{untuk}", untuk) : s("pemeliharaan.pita.biasa")}{" "}
-          {tahap === 15 ? s("pemeliharaan.pita.asesmen_baru") : null}
+          {tahap === 15 ? s(staf ? "pemeliharaan.pita.asesmen_baru_staf" : "pemeliharaan.pita.asesmen_baru") : null}
         </p>,
       );
     }
