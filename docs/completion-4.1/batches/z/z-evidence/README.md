@@ -1,7 +1,7 @@
 # Z · staging promotion evidence
 
 > **The pair:** 300 → 308. Line 10 reads `300 / 20270122190000` BEFORE and `308 / 20270123170000` AFTER.
-> - **Prepared on** `claude/z` at `f970bace`, before Z9's full pre-flight (Bob, 14:51Z: prepare the evidence, do not
+> - **Prepared on** `claude/z` at `944520b0`, before Z9's full pre-flight (Bob, 14:51Z: prepare the evidence, do not
 >   start the pre-flight). If the head moves before the freeze, the dry run is taken again on the frozen head.
 > - **The method** is C3w-1's (`c3w-1-evidence/`), with Bob's delta (`PRESERVATION-Z-DELTA.md`, claude/bob-41-master-plan).
 > - **Local only:** nothing here touched staging or production.
@@ -36,7 +36,7 @@ The promotion checks each one against the deployed file before migrating. Any di
     - 87: every feedback record, identical.
   - **One difference from Bob's draft:** line 87 orders each table's rows by their `to_jsonb` text, because seven of the
     nine `feedback_*` tables have no `id` column. Sharon to confirm.
-- **`dryrun-f970bace/`:** the local dry run.
+- **`dryrun-944520b0/`:** the local dry run.
   - **`reset-300.log`, `step0-BEFORE.txt`, `preservation-Z-BEFORE.txt`:** the eight migrations were held aside, the stack
     reset with the seed (300 / 20270122190000), then step 0 (all three counts 0) and the BEFORE read.
   - **`migration-up.log`:** `supabase migration up --local` applying the eight, with no notice. K-07 validated all three
