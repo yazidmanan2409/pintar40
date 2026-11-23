@@ -341,3 +341,9 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
 - **11:59 UTC · Daisy: Z7 PASS with three word-only conditions** (`43132ad5`): S-14 neutral wording, since the keys are shared with activation; the T-03 EN keys name «a school administrator or an Admin PINTAR»; X12's column is «Paket Pembelajaran» / «Learning Package»; the summary puts the main group first, then a fixed outcome order. All of these ride the addendum.
 - **12:15 UTC · Daisy: stream B's conditions all closed.** The Z5 conditions PASS (`3472d3a4`, record `ca1f4a30`; optional N-20 goes to the audit). The Z7 conditions PASS (`6e8c4f36`, record `a96f99a0`). So **Z3 (non-verdict), Z4, Z5 and Z7 are all passed.** Z6 (client-only) is assigned to stream B now; its sweep re-runs after the second merge. SERTIFIKAT-A01 is a run-alone precondition, shown at Z9.
 - **Bob:** a draft of the preservation delta (`PRESERVATION-Z-DELTA.md`, `02ed5c41`): 300 → 307; lines 20–83 unchanged; step 0 for C4; new lines 84–87.
+- **12:36 UTC · Stream B: Z6 handed off** (`f322c25c`, no SQL). Sent to Daisy, with a ruling asked on the six framed-overflow items: fix them in Z6 unless the scroll is by design. BINGKAI_DIKETAHUI is to hold only the honest deferrals.
+- **12:38 UTC · Stream A: Z2 hand-off** (`18da65de`, 307).
+  - **The one full pre-flight after Z2 on `8614bd26` is GREEN:** 1357 passed and 0 failed; plants 175/175; red cases 11/11.
+  - The edit pass adds Z2-1 (SELECT revoked on the two feedback tables; Z-D6-01 red first), the markers, and V5's final words. Focused checks: 927/927 on a fresh reset.
+  - The fable03 abort was a static run on an unreset DB. Its rerun after a reset is the 927.
+  - Sent to Sharon for the Z2-1 recheck. Stream A is now on Z3-A.
