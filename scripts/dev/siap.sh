@@ -129,6 +129,31 @@ cek_disk() {
 
 # ---- runtime ----------------------------------------------------------------------------------------------------
 runtime_hidup() { timeout 10 docker info >/dev/null 2>&1; }
+# Second Eye's blocker (I-1, a REAL reboot): the previous boot leaves /run/containerd/containerd.sock on disk with
+# nothing behind it; dockerd tries it, is refused, and exits. So before starting the runtime, each runtime socket and
+# pid file is checked for life, and removed only when nothing is behind it:
+#   a socket is live if the kernel lists it as bound (/proc/net/unix) or a connection to it succeeds;
+#   a pid file is live if its pid is a running process.
+# A live one is never removed.
+soket_hidup() { # <path>
+  awk -v p="$1" '$NF == p { f = 1 } END { exit !f }' /proc/net/unix 2>/dev/null && return 0
+  timeout 3 python3 -c 'import socket,sys; s=socket.socket(socket.AF_UNIX); s.settimeout(2); s.connect(sys.argv[1])' "$1" 2>/dev/null
+}
+bersihkan_soket() {
+  local f p
+  for f in /run/containerd/containerd.sock /run/containerd/containerd.sock.ttrpc /var/run/docker.sock \
+           /var/run/docker/containerd/containerd.sock /var/run/docker/containerd/containerd.sock.ttrpc; do
+    [ -S "$f" ] || continue
+    if soket_hidup "$f"; then say "runtime: $f is live (a process is behind it): kept"; continue; fi
+    rm -f -- "$f" && say "runtime: removed the stale socket $f (nothing behind it, left by a previous boot or a killed daemon)"
+  done
+  for f in /var/run/docker.pid /run/containerd/containerd.pid /var/run/docker/containerd/containerd.pid; do
+    [ -f "$f" ] || continue
+    p="$(tr -dc 0-9 < "$f")"
+    if [ -n "$p" ] && kill -0 "$p" 2>/dev/null; then say "runtime: $f names a running process ($p): kept"; continue; fi
+    rm -f -- "$f" && say "runtime: removed the stale pid file $f"
+  done
+}
 cek_runtime() {
   if runtime_hidup; then say "runtime ok"; return; fi
   [ "$MODE" = full ] || infra runtime "docker does not answer (dockerd or containerd is dead)"
@@ -137,7 +162,7 @@ cek_runtime() {
   pkill -x dockerd 2>/dev/null; pkill -x containerd 2>/dev/null
   for _ in $(seq 1 20); do pgrep -x dockerd >/dev/null || pgrep -x containerd >/dev/null || break; sleep 0.5; done
   pkill -9 -x dockerd 2>/dev/null; pkill -9 -x containerd 2>/dev/null
-  rm -f /var/run/docker.pid /run/containerd/containerd.pid 2>/dev/null
+  bersihkan_soket
   # dockerd starts its own containerd when none is running.
   setsid nohup dockerd >>"$LOGDIR/dockerd.log" 2>&1 < /dev/null &
   for _ in $(seq 1 60); do runtime_hidup && break; sleep 1; done
@@ -153,7 +178,7 @@ tarik() { # <ref> <digest>: pull by digest with backoff, then tag; prints the ca
   local ref="$1" dg="$2" repo="${1%:*}" n=1 w="$WAIT0" out
   while :; do
     out="$(timeout 600 docker pull -q "$repo@$dg" 2>&1)" && { docker tag "$repo@$dg" "$ref" >/dev/null 2>&1; return 0; }
-    if echo "$out" | grep -qiE 'toomanyrequests|429 Too Many Requests|rate limit'; then kind=registry; else kind=image; fi
+    if echo "$out" | grep -qiE 'toomanyrequests|429 Too Many Requests|rate limit|Data limit exceeded|failed to pull docker image from all registries|request blocked: no rule allows host|agent proxy: no rule or network setting allows this host'; then kind=registry; else kind=image; fi
     say "image $ref: pull $n/$TRIES failed ($kind: $(echo "$out" | tail -1 | cut -c1-300))"
     [ "$n" -ge "$TRIES" ] && { echo "$kind" > "$LOGDIR/pull-cause"; return 1; }
     sleep "$w"; w=$((w * 3)); n=$((n + 1))
@@ -169,7 +194,7 @@ cek_images() {
     say "image $ref missing (or another digest): pulling by digest"
     if ! tarik "$ref" "$dg"; then
       local k; k="$(cat "$LOGDIR/pull-cause" 2>/dev/null || echo image)"
-      [ "$k" = registry ] && infra registry "the registry refused $ref after $TRIES tries with backoff (rate limit)"
+      [ "$k" = registry ] && infra registry "the registry refused $ref after $TRIES tries with backoff (a rate or data limit, or the proxy blocking its host)"
       infra image "$ref could not be pulled after $TRIES tries"
     fi
     punya_digest "$ref" "$dg" || infra image "$ref was pulled but does not carry $dg"

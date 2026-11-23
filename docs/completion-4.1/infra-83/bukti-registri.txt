@@ -1,0 +1,41 @@
+# bukti-registri · 2026-11-23T23:51:59Z · commit a3bc9516
+
+## plant: Second Eye's three real refusal lines (Docker Hub, public ECR, GHCR through the proxy), ECR's phrase alone, and two controls: the proxy's words alone, and the proxy refusing an app request to a non-registry host. Each a failing row's text, on a healthy machine
+
+## classes by kelas.sh at 7696819e
+INFRA registry: unexpected status from HEAD request to https   ←  unexpected status from HEAD request to https://registry-1.docker.io/v2/supabase/realtime/manifests/v2.130.0: 429 Too Many Requests
+FAIL   ←  failed to pull docker image from all registries: public.ecr.aws/supabase/realtime:v2.130.0 attempt 1: Error response from daemon: error from registry: Data limit exceeded
+FAIL   ←  ghcr.io/supabase/realtime:v2.130.0 … failed to copy: httpReadSeeker: failed open: failed to do request: Get "<blob URL>": Forbidden (agent proxy: no rule or network setting allows this host)
+FAIL   ←  error from registry: Data limit exceeded
+FAIL   ←  Forbidden (agent proxy: no rule or network setting allows this host)
+FAIL   ←  fetch https://api.example.com/v1/x failed: Forbidden (agent proxy: no rule or network setting allows this host)
+
+## classes by kelas.sh at now
+INFRA registry: unexpected status from HEAD request to https   ←  unexpected status from HEAD request to https://registry-1.docker.io/v2/supabase/realtime/manifests/v2.130.0: 429 Too Many Requests
+INFRA registry: failed to pull docker image from all registr   ←  failed to pull docker image from all registries: public.ecr.aws/supabase/realtime:v2.130.0 attempt 1: Error response from daemon: error from registry: Data limit exceeded
+INFRA registry: ghcr.io/supabase/realtime:v2.130.0 … faile   ←  ghcr.io/supabase/realtime:v2.130.0 … failed to copy: httpReadSeeker: failed open: failed to do request: Get "<blob URL>": Forbidden (agent proxy: no rule or network setting allows this host)
+INFRA registry: error from registry: Data limit exceeded   ←  error from registry: Data limit exceeded
+FAIL   ←  Forbidden (agent proxy: no rule or network setting allows this host)
+FAIL   ←  fetch https://api.example.com/v1/x failed: Forbidden (agent proxy: no rule or network setting allows this host)
+
+## and the gate's own pull: a shim answering every pull with ECR's data limit
+
+## RED: siap.sh at 7696819e
+
+$ bash -c bash scripts/dev/.siap-7696819e.sh | grep -E "pull 4/4|^INFRA"
+siap: image axllent/mailpit:v1.31.3: pull 4/4 failed (image: Error response from daemon: error from registry: Data limit exceeded)
+INFRA image: axllent/mailpit:v1.31.3 could not be pulled after 4 tries
+[rc=0]
+
+## GREEN: siap.sh now
+
+$ bash -c scripts/dev/siap.sh | grep -E "pull 4/4|^INFRA"
+siap: image axllent/mailpit:v1.31.3: pull 4/4 failed (registry: Error response from daemon: error from registry: Data limit exceeded)
+INFRA registry: the registry refused axllent/mailpit:v1.31.3 after 4 tries with backoff (a rate or data limit, or the proxy blocking its host)
+[rc=0]
+
+## the registry back
+
+$ bash -c scripts/dev/siap.sh | tail -1
+READY
+[rc=0]

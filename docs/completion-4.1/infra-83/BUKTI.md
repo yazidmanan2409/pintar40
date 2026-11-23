@@ -174,3 +174,33 @@ search of every kept file and `bukti-*.txt` for a JWT or an `sb_secret_`/`sb_pub
 3. **`tapis.sh` redacts a URL's user and password** (`postgresql://postgres:postgres@…`, any `user:pass@`, and a
    password-only `:pass@`). Proof with planted lines: `tapis.sh` at `55fa2a14` passes all four through; now each reads
    `«user:password redacted»@`, a URL without user-info is untouched, and none is left (`bukti-tapis-url.txt`).
+
+## Second Eye's review at 7696819e: the real-reboot blocker (I-1) and the registry signals (I-4)
+
+| Item | Planted / observed | Red (7696819e) | Green (now) | File |
+|---|---|---|---|---|
+| **I-1 blocker** | the runtime dead, and `/run/containerd/containerd.sock` on disk with nothing behind it, as a real reboot leaves it on Second Eye's machine | **INFRA runtime: dockerd did not come back within 60 s**. dockerd's log: «failed to start daemon: failed to get containerd plugins: … dial unix /run/containerd/containerd.sock», exactly Second Eye's failure | «removed the stale socket /run/containerd/containerd.sock (nothing behind it …)», then the runtime, the stack and Mailpit come back: **READY in 29 s** | `bukti-soket.txt` |
+| I-1, liveness | a live listener planted at the same path, the runtime dead | | «/run/containerd/containerd.sock is live (a process is behind it): kept». The listener keeps running; the gate reports INFRA runtime instead of removing it. Once the listener stops, READY | same |
+| I-1, a real reboot | **this container really rebooted** at 23:36:20Z (boot `0a78ca62…` at uptime 4521 s, then `8b8ec0ed…`) | | the first gate in the new boot named it («a REBOOT at 23:36:20Z, after uptime 4521s … oom_kill=0»), restarted the runtime and was READY. **It did not reproduce the blocker:** here dockerd runs its own managed containerd, and the previous boot left no `/run/containerd/containerd.sock`. That is why the blocker's proof is the planted socket above | `bukti-reboot-nyata.txt` |
+| **I-4** | Second Eye's three real refusal lines, verbatim (`review-second-eye/EVIDENCE.md` §5): Docker Hub 429; public ECR «failed to pull docker image from all registries: … error from registry: Data limit exceeded»; GHCR «… httpReadSeeker … Forbidden (agent proxy: no rule or network setting allows this host)». Also ECR's phrase alone, and two controls: the proxy's words alone, and the proxy refusing an app request to `api.example.com` | the ECR and GHCR lines read **FAIL**, as Second Eye found | all four registry refusals read **INFRA registry**. **Both controls stay FAIL**, because app code can be refused by the proxy too. So the proxy's words count only on a line that is an image pull: `ghcr.io`, `httpReadSeeker`, `/v2/`, `docker image` or `registr…` | `bukti-registri.txt` |
+| I-4, the gate's pull | a pull answered with «Error response from daemon: error from registry: Data limit exceeded» | the gate reports **INFRA image: … could not be pulled** | the gate reports **INFRA registry: … (a rate or data limit, or the proxy blocking its host)** | same |
+
+**How the socket fix works.** When the runtime is dead, `siap.sh` stops what is left of it. It then checks each
+runtime socket (`/run/containerd/containerd.sock`, `/var/run/docker.sock`, dockerd's managed containerd sockets) and
+each pid file:
+- a socket is removed only if the kernel lists nothing bound to it (`/proc/net/unix`) and a connection to it fails;
+- a pid file is removed only if its pid is not running.
+
+A live one is never removed.
+
+**The texts used for I-4** are Second Eye's real lines, verbatim. One narrowing, deliberate and for review: Bob asked
+for the proxy's «Forbidden (agent proxy: …)» in SIG_MESIN, «the code under test never pulls images». But the proxy
+gives the same words to any refused request, including an app's call to an outside host, which code can produce. So it
+counts as INFRA on an image-pull line, and a bare or app-request line stays FAIL (S-1 (b)).
+
+**`realtime` and `edge-runtime` are not in `images.lock`, and rightly so.** The pre-flight's stack starts with
+`-x studio,imgproxy,realtime,edge-runtime,…`, as CI's `local-stack` does, so it never pulls them. Today's refusals for
+`supabase/realtime:v2.130.0` and `edge-runtime:v1.74.3` came from a stack started without those exclusions.
+
+**The size warning** now leads with «keep the session active for the whole run (… L-5), or use CI», then gives the
+estimate.

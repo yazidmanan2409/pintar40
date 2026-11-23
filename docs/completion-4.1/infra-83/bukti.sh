@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Ruling 83: the planted failures, one per improvement, each recorded red first (see BUKTI.md).
 #
-#   bash docs/completion-4.1/infra-83/bukti.sh <proof>     proof: image registry clean disk dockerd port midrun midrun2 usedb defect reboot ukuran s1-baris s1-start s2 nits
+#   bash docs/completion-4.1/infra-83/bukti.sh <proof>     proof: image registry clean disk dockerd port midrun midrun2 usedb defect reboot ukuran s1-baris s1-start s2 nits soket registri
 #
 # Each proof writes docs/completion-4.1/infra-83/bukti-<proof>.txt: the commands, their output, and what was checked.
 # Run in the builder's own container only: the proofs kill the runtime, fill the disk and stop servers.
@@ -228,6 +228,63 @@ nits)
   step bash -c 'scripts/dev/siap.sh | grep -E "port|READY|INFRA"'
   step bash -c 'fuser -n tcp 3999 >/dev/null 2>&1 && echo "still running (not stopped)" || echo "stopped"'
   pkill -f "next-server \(planted"
+  ;;
+soket)
+  S=/run/containerd/containerd.sock
+  note "the machine: boot $(cat /proc/sys/kernel/random/boot_id), uptime $(cut -d' ' -f1 /proc/uptime) s"
+  note "plant: what a real reboot leaves on Second Eye's machine: the runtime dead, and $S on disk with nothing behind it"
+  pkill -9 -x dockerd; pkill -9 -x containerd; sleep 2
+  mkdir -p /run/containerd; rm -f "$S"
+  python3 -c 'import socket,sys; s=socket.socket(socket.AF_UNIX); s.bind(sys.argv[1])' "$S"
+  step bash -c "ls -la $S; awk -v p=$S '\$NF==p' /proc/net/unix | wc -l"
+  note "RED: siap.sh at 7696819e"
+  git show 7696819e:scripts/dev/siap.sh > scripts/dev/.siap-7696819e.sh
+  t0=$(date +%s); step bash scripts/dev/.siap-7696819e.sh; echo "elapsed $(( $(date +%s) - t0 ))s"
+  rm -f scripts/dev/.siap-7696819e.sh
+  step bash -c "grep -iE 'containerd.sock|failed to dial|exit' ${TMPDIR:-/tmp}/pintar-siap-log/dockerd.log | tail -3 | cut -c1-220"
+  step bash -c "ls -la $S 2>&1"
+  note "GREEN: siap.sh now removes the stale socket (nothing behind it), then the runtime and the stack come back"
+  t0=$(date +%s); step scripts/dev/siap.sh; echo "elapsed $(( $(date +%s) - t0 ))s"
+  note "LIVENESS: a socket with a live process behind it is never removed (a listener planted at $S, the runtime dead)"
+  pkill -9 -x dockerd; pkill -9 -x containerd; sleep 2; rm -f "$S"
+  python3 -c 'import socket,sys,time; s=socket.socket(socket.AF_UNIX); s.bind(sys.argv[1]); s.listen(1); time.sleep(600)' "$S" &
+  LP=$!; sleep 1
+  t0=$(date +%s); step scripts/dev/siap.sh; echo "elapsed $(( $(date +%s) - t0 ))s"
+  step bash -c "ls -la $S; kill -0 $LP && echo 'its listener is still running'"
+  kill $LP; sleep 1; rm -f "$S"
+  note "the listener gone, the gate recovers"
+  step scripts/dev/siap.sh
+  ;;
+registri)
+  R="$HOME/pintar-preflight/bukti-registri"; rm -rf "$R"; mkdir -p "$R"
+  note "plant: Second Eye's three real refusal lines (Docker Hub, public ECR, GHCR through the proxy), ECR's phrase alone, and two controls: the proxy's words alone, and the proxy refusing an app request to a non-registry host. Each a failing row's text, on a healthy machine"
+  # Second Eye's real refusal texts (review-second-eye/EVIDENCE.md §5), verbatim, then controls code could produce
+  cat > "$R/lines.txt" <<'TXT'
+unexpected status from HEAD request to https://registry-1.docker.io/v2/supabase/realtime/manifests/v2.130.0: 429 Too Many Requests
+failed to pull docker image from all registries: public.ecr.aws/supabase/realtime:v2.130.0 attempt 1: Error response from daemon: error from registry: Data limit exceeded
+ghcr.io/supabase/realtime:v2.130.0 … failed to copy: httpReadSeeker: failed open: failed to do request: Get "<blob URL>": Forbidden (agent proxy: no rule or network setting allows this host)
+error from registry: Data limit exceeded
+Forbidden (agent proxy: no rule or network setting allows this host)
+fetch https://api.example.com/v1/x failed: Forbidden (agent proxy: no rule or network setting allows this host)
+TXT
+  git show 7696819e:scripts/dev/kelas.sh > "$R/kelas-7696819e.sh"
+  for v in "7696819e:$R/kelas-7696819e.sh" "now:scripts/dev/kelas.sh"; do
+    note "classes by kelas.sh at ${v%%:*}"
+    while IFS= read -r l; do printf '%s\n' "$l" > "$R/one.txt"; echo "$(bash -c "source '${v#*:}'; kelas_teks '$R/one.txt' 1" | cut -c1-60)   ←  $l"; done < "$R/lines.txt"
+  done
+  note "and the gate's own pull: a shim answering every pull with ECR's data limit"
+  SHIM="$(mktemp -d)"; REAL="$(command -v docker)"
+  printf '%s\n' '#!/usr/bin/env bash' 'if [ "$1" = pull ]; then echo "Error response from daemon: error from registry: Data limit exceeded" >&2; exit 1; fi' "exec \"$REAL\" \"\$@\"" > "$SHIM/docker"; chmod +x "$SHIM/docker"
+  docker rmi -f axllent/mailpit:v1.31.3 "axllent/mailpit@sha256:ed9b00c609e77e99c79b93f1178255ebc271868920f2c69a8d166bd5634ed10d" >/dev/null 2>&1
+  git show 7696819e:scripts/dev/siap.sh > scripts/dev/.siap-7696819e.sh
+  note "RED: siap.sh at 7696819e"
+  PATH="$SHIM:$PATH" SIAP_PULL_WAIT=1 step bash -c 'bash scripts/dev/.siap-7696819e.sh | grep -E "pull 4/4|^INFRA"'
+  rm -f scripts/dev/.siap-7696819e.sh
+  note "GREEN: siap.sh now"
+  PATH="$SHIM:$PATH" SIAP_PULL_WAIT=1 step bash -c 'scripts/dev/siap.sh | grep -E "pull 4/4|^INFRA"'
+  rm -rf "$SHIM"
+  note "the registry back"
+  step bash -c 'scripts/dev/siap.sh | tail -1'
   ;;
 reboot)
   J="$HOME/pintar-preflight/bukti-reboot"; rm -rf "$J"; mkdir -p "$J"

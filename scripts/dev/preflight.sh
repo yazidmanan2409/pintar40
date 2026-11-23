@@ -117,7 +117,7 @@ EST="$(perkiraan)"; LIFE="$(umur_mesin)"
 if [ -n "$LIFE" ]; then
   read -r MED BOOTS <<< "$LIFE"
   if [ "$EST" -gt "$MED" ]; then
-    row "WARN   size  the run is estimated at $((EST / 60)) min, but this machine stayed up a median $((MED / 60)) min over its last $BOOTS boot(s) (the trace): a long run here may be cut by a restart. Keep the session active for the whole run (wait on it within the turn: an idle session may be suspended or reclaimed, L-5), or use CI, the full run's stable route (L-3: push, or dispatch ci.yml). Starting anyway."
+    row "WARN   size  keep the session active for the whole run (wait on it within the turn: an idle session may be suspended or reclaimed, L-5), or use CI, the full run's stable route (L-3: push, or dispatch ci.yml). The run is estimated at $((EST / 60)) min, but this machine stayed up a median $((MED / 60)) min over its last $BOOTS boot(s) (the trace). Starting anyway."
   else
     echo "size: estimated $((EST / 60)) min, within this machine's median uptime of $((MED / 60)) min ($BOOTS boot(s))" >> "$SUM"
   fi

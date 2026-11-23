@@ -1,0 +1,88 @@
+# bukti-soket · 2026-11-23T23:44:54Z · commit a3bc9516
+
+## the machine: boot 8b8ec0ed-7987-454a-b1d4-05ab6e7a1eac, uptime 514.45 s
+
+## plant: what a real reboot leaves on Second Eye's machine: the runtime dead, and /run/containerd/containerd.sock on disk with nothing behind it
+
+$ bash -c ls -la /run/containerd/containerd.sock; awk -v p=/run/containerd/containerd.sock '$NF==p' /proc/net/unix | wc -l
+srwxr-xr-x 1 root root 0 Nov 23 23:44 /run/containerd/containerd.sock
+0
+[rc=0]
+
+## RED: siap.sh at 7696819e
+
+$ bash scripts/dev/.siap-7696819e.sh
+siap: trace: same boot as the last check (uptime 516s)
+siap: disk ok (54.0G free, minimum 10G)
+siap: runtime dead: restarting containerd and dockerd
+INFRA runtime: dockerd did not come back within 60 s (its log: /tmp/pintar-siap-log/dockerd.log)
+[rc=3]
+elapsed 63s
+
+$ bash -c grep -iE 'containerd.sock|failed to dial|exit' /tmp/pintar-siap-log/dockerd.log | tail -3 | cut -c1-220
+time="2026-11-23T23:44:56.457084023Z" level=error msg="Failed to get event" error="rpc error: code = Unavailable desc = connection error: desc = \"transport: Error while dialing: dial unix /run/containerd/containerd.sock
+time="2026-11-23T23:44:56.462828001Z" level=info msg="Daemon shutdown complete" error="failed to start daemon: failed to get containerd plugins: Unavailable: connection error: desc = \"transport: Error while dialing: dia
+failed to start daemon: failed to get containerd plugins: Unavailable: connection error: desc = "transport: Error while dialing: dial unix /run/containerd/containerd.sock: connect: connection refused"
+[rc=0]
+
+$ bash -c ls -la /run/containerd/containerd.sock 2>&1
+srwxr-xr-x 1 root root 0 Nov 23 23:44 /run/containerd/containerd.sock
+[rc=0]
+
+## GREEN: siap.sh now removes the stale socket (nothing behind it), then the runtime and the stack come back
+
+$ scripts/dev/siap.sh
+siap: trace: same boot as the last check (uptime 580s)
+siap: disk ok (54.0G free, minimum 10G)
+siap: runtime dead: restarting containerd and dockerd
+siap: runtime: removed the stale socket /run/containerd/containerd.sock (nothing behind it, left by a previous boot or a killed daemon)
+siap: runtime: removed the stale socket /var/run/docker.sock (nothing behind it, left by a previous boot or a killed daemon)
+siap: runtime: removed the stale socket /var/run/docker/containerd/containerd.sock (nothing behind it, left by a previous boot or a killed daemon)
+siap: runtime: removed the stale socket /var/run/docker/containerd/containerd.sock.ttrpc (nothing behind it, left by a previous boot or a killed daemon)
+siap: runtime: removed the stale pid file /var/run/docker/containerd/containerd.pid
+siap: runtime pulih (restarted; containerd and dockerd answer)
+siap: images ok (6 present, all pinned by digest)
+siap: stack not running: supabase start
+siap: Mailpit not answering: (re)starting the sink as CI does
+siap: stack pulih (database, Auth, Mailpit healthy)
+siap: port 3999 ok (free)
+READY
+[rc=0]
+elapsed 29s
+
+## LIVENESS: a socket with a live process behind it is never removed (a listener planted at /run/containerd/containerd.sock, the runtime dead)
+
+$ scripts/dev/siap.sh
+siap: trace: same boot as the last check (uptime 611s)
+siap: disk ok (54.0G free, minimum 10G)
+siap: runtime dead: restarting containerd and dockerd
+siap: runtime: /run/containerd/containerd.sock is live (a process is behind it): kept
+siap: runtime: removed the stale socket /var/run/docker.sock (nothing behind it, left by a previous boot or a killed daemon)
+siap: runtime: removed the stale socket /var/run/docker/containerd/containerd.sock (nothing behind it, left by a previous boot or a killed daemon)
+siap: runtime: removed the stale socket /var/run/docker/containerd/containerd.sock.ttrpc (nothing behind it, left by a previous boot or a killed daemon)
+siap: runtime: removed the stale pid file /var/run/docker.pid
+siap: runtime: removed the stale pid file /var/run/docker/containerd/containerd.pid
+INFRA runtime: dockerd did not come back within 60 s (its log: /tmp/pintar-siap-log/dockerd.log)
+[rc=3]
+elapsed 118s
+
+$ bash -c ls -la /run/containerd/containerd.sock; kill -0 14196 && echo 'its listener is still running'
+srwxr-xr-x 1 root root 0 Nov 23 23:46 /run/containerd/containerd.sock
+its listener is still running
+[rc=0]
+
+## the listener gone, the gate recovers
+
+$ scripts/dev/siap.sh
+siap: trace: same boot as the last check (uptime 730s)
+siap: disk ok (54.0G free, minimum 10G)
+siap: runtime dead: restarting containerd and dockerd
+siap: runtime: removed the stale socket /var/run/docker.sock (nothing behind it, left by a previous boot or a killed daemon)
+siap: runtime pulih (restarted; containerd and dockerd answer)
+siap: images ok (6 present, all pinned by digest)
+siap: stack not running: supabase start
+siap: Mailpit not answering: (re)starting the sink as CI does
+siap: stack pulih (database, Auth, Mailpit healthy)
+siap: port 3999 ok (free)
+READY
+[rc=0]

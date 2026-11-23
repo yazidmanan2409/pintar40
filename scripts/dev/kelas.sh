@@ -18,6 +18,14 @@ SIG_MESIN=(
   'docker.sock: connect|runtime'
   'toomanyrequests|registry'
   '429 Too Many Requests|registry'
+  'Data limit exceeded|registry'                          # public ECR: «error from registry: Data limit exceeded» (Second Eye, I-4)
+  'failed to pull docker image from all registries|registry'   # the supabase CLI's summary after every registry refused
+  # GHCR through the session's agent proxy: «… Forbidden (agent proxy: no rule or network setting allows this host)».
+  # The proxy's words alone could come from app code reaching any host, so only on a line that is an image pull
+  '(ghcr\.io|httpReadSeeker|/v2/|docker image|registr).*agent proxy: no rule or network setting allows this host|registry'
+  # the session's agent proxy refusing a REGISTRY host (GHCR and its blob host). Only a registry host: app code can
+  # also be refused by the proxy, and that is not the machine's
+  'request blocked: no rule allows host.*(ghcr\.io|pkg-containers\.githubusercontent\.com|docker\.io|docker\.com|ecr\.aws)|registry'
 )
 # Signals code can produce: INFRA only when the machine was not healthy.
 SIG_MUNGKIN=(
