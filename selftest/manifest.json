@@ -6861,6 +6861,11 @@
       "proves": "selftest/z-ux.test.ts, executing src/lib/staf-kontrak.ts and reading the staff page's and action's source files and the copy table (S-02, S-03): a role chosen without a valid date is refused ROLE_UNTIL_INVALID in the review and the act, never dropped; the sentence says «hari ini atau sesudahnya»."
     },
     {
+      "id": "Z-S04-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, executing src/lib/kode-sekolah.ts and reading the source files of Pendataan's action and page, and the copy table (S-04): a school code of the wrong shape is checked by the database's own rule before the database is asked and said as its shape, never «maybe taken»."
+    },
+    {
       "id": "Z-N9-02",
       "runner": "app",
       "proves": "selftest/z-ux.test.ts, from the rendered html of the running app's /konfigurasi/staf as the bootstrap school's administrator (N-9): no person, an unknown person and another school's staff member get the same neutral refusal and status."

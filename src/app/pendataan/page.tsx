@@ -119,13 +119,15 @@ export default async function Pendataan({
                   it can help. */}
               <p className="pin-msg pin-msg-note">{s("pendataan.kode.peringatan")}</p>
               {sp.galat === "kode" ? <BarisHasil nada="gagal">{s("pendataan.kode.gagal")}</BarisHasil> : null}
+              {/* S-04: a code of the wrong shape, said as its shape */}
+              {sp.galat === "kode_bentuk" ? <BarisHasil nada="gagal">{s("pendataan.kode.bentuk_salah")}</BarisHasil> : null}
               {sp.kode === "tersimpan" && dipilih.kode ? <BarisHasil nada="ok">{s("pendataan.kode.tersimpan")}</BarisHasil> : null}
               {/* W3.7 (Batch 4; RV-22): Daisy's TextField: the label in sentence case, the hint directly under it and named
                   by the field, the field and its button on one row at the same height */}
               <form action={simpanKodeAksi} className="pin-baris-aksi">
                 <input type="hidden" name="institusi" value={dipilih.id} />
                 <BidangTeks id="pin-kode-isi" name="kode" label={s("pendataan.kode.label")} petunjuk={s("pendataan.kode.bentuk")}
-                  defaultValue={dipilih.kode ?? ""} maxLength={3} size={3} autoComplete="off" spellCheck={false} />
+                  defaultValue={dipilih.kode ?? ""} maxLength={3} size={3} autoComplete="off" spellCheck={false} pattern="[A-Za-z0-9]{3}" />
                 <TombolKirim className={dipilih.kode ? "pin-btn" : "pin-btn pin-primary"} sibuk={s("tombol.menyimpan")}>{s("pendataan.kode.simpan")}</TombolKirim>
               </form>
             </>

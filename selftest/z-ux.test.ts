@@ -535,6 +535,31 @@ export const zUxStaticTests: SelfTest[] = [
       return c.verdict("executes the rule src/lib/staf-kontrak.ts tambahanPeran and reads the source files of the staff page and its action, and the copy table (S-02, S-03): a role chosen with no valid date is refused ROLE_UNTIL_INVALID in the review and in the act, a role with no place ROLE_SCOPE_INVALID, nothing chosen adds nothing; the refusal reads «Tanggal berlaku sampai harus hari ini atau sesudahnya.»");
     },
   },
+  {
+    id: "Z-S04-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      // S-04 (SAPU-VERIFIED ⚑): a code of the wrong shape is fully knowable, so it is said as the shape, never «maybe taken»
+      kata(c, [["pendataan.kode.bentuk_salah", "Kode sekolah terdiri dari tiga huruf atau angka.", "A school code is three letters or digits."]], "staff");
+      const modul = join(repoRoot, "src", "lib", "kode-sekolah.ts");
+      if (c.expect(existsSync(modul), "src/lib/kode-sekolah.ts (the shape check) does not exist")) {
+        const { kodeSekolahSah } = (await import(modul)) as { kodeSekolahSah: (k: string) => boolean };
+        // the database's own rule: upper(btrim(x)) ~ '^[A-Z0-9]{3}$' (btrim: spaces only)
+        for (const [k, mau] of [["AB1", true], ["ab1", true], [" ab1 ", true], ["AB", false], ["ABCD", false], ["A-1", false], ["", false], ["\tAB1", false], ["ÄB1", false]] as const) {
+          c.expect(kodeSekolahSah(k) === mau, `kodeSekolahSah(${JSON.stringify(k)}) is ${!mau}, not ${mau}`);
+        }
+      }
+      const aksi = buang(readFileSync(join(repoRoot, "src", "app", "pendataan", "actions.ts"), "utf8"));
+      const fn = /export async function simpanKodeAksi[\s\S]*?\n\}/.exec(aksi)?.[0] ?? "";
+      c.expect(fn.indexOf('if (!kodeSekolahSah(kode)) redirect("/pendataan?galat=kode_bentuk");') >= 0
+        && fn.indexOf("kodeSekolahSah(kode)") < fn.indexOf('rpc("reserve_institution_namespace"'), "the code's shape is not checked in the action before the database is asked");
+      const hal = buang(readFileSync(join(repoRoot, "src", "app", "pendataan", "page.tsx"), "utf8"));
+      c.expect(/sp\.galat === "kode_bentuk" \? <BarisHasil nada="gagal">\{s\("pendataan\.kode\.bentuk_salah"\)\}<\/BarisHasil>/.test(hal), "the page does not say the shape's own line");
+      c.expect(/pattern="\[A-Za-z0-9\]\{3\}"/.test(hal), "the code field has no pattern");
+      return c.verdict("executes src/lib/kode-sekolah.ts and reads the source files of Pendataan's action and page, and the copy table (S-04): a code of the wrong shape is checked in the action, by the database's own rule, before the database is asked, and is said «Kode sekolah terdiri dari tiga huruf atau angka.»; the field carries pattern=[A-Za-z0-9]{3}; «maybe taken» is left for the rest");
+    },
+  },
 ];
 
 export const zUxAppTests: SelfTest[] = [

@@ -22,3 +22,6 @@ Z-R10-01    FAIL    the school's administrator, /konfigurasi/catatan-masuk: «Te
 ## S-02, S-03 (Z-S02-01, on 75f1fde7 before the fix)
 Z-S02-01    FAIL    staf.galat.role_until_invalid (id): «Tanggal berlaku sampai harus setelah hari ini.», not «Tanggal berlaku sampai harus hari ini atau sesudahnya.»; staf.galat.role_until_invalid (en): «The valid-until date must be after today.», not «The valid-until date must be today or later.»; there is no one rule (tambahanPeran) for the role being added; the role-change action still drops a role without a date (no tambahanPeran refusal); the role-change review still drops a role w
 0 passed, 1 failed, 0 skipped, 0 contract problem(s) → RED
+## S-04 (Z-S04-01, on 0b15e72e before the fix)
+Z-S04-01    FAIL    pendataan.kode.bentuk_salah (id): «—», not «Kode sekolah terdiri dari tiga huruf atau angka.»; pendataan.kode.bentuk_salah (en): «—», not «A school code is three letters or digits.»; src/lib/kode-sekolah.ts (the shape check) does not exist; the code's shape is not checked in the action before the database is asked; the page does not say the shape's own line; the cod
+0 passed, 1 failed, 0 skipped, 0 contract problem(s) → RED

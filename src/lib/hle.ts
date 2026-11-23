@@ -2348,6 +2348,7 @@ export type HleEvent =
   // a job is "Menunggu" where the same word on a learner's screen would be the
   // system telling a child to wait.
   | "pendataan.eyebrow" | "pendataan.judul" | "pendataan.intro" | "pendataan.ditolak" | "pendataan.sekolah" | "pendataan.nomor.arti"
+  | "pendataan.kode.bentuk_salah"
   | "pendataan.kode.judul" | "pendataan.kode.belum" | "pendataan.kode.arti"
   | "pendataan.kode.bentuk" | "pendataan.kode.contoh" | "pendataan.kode.peringatan"
   | "pendataan.kode.simpan" | "pendataan.kode.tersimpan" | "pendataan.kode.beku" | "pendataan.kode.gagal" | "pendataan.kode.label"
@@ -3996,6 +3997,8 @@ const table: Table = {
   "pendataan.kode.simpan": { default: "Simpan kode", en: "Save the code" },
   "pendataan.kode.tersimpan": { default: "Kode sekolah tersimpan. Daftar orang sekarang bisa diunggah di bawah.", en: "The school code is saved. The list of people can now be uploaded below." },
   "pendataan.kode.beku": { default: "Kode ini sudah dipakai pada nomor registrasi sekolah yang diterbitkan, jadi tidak bisa diubah lagi.", en: "This code is already part of issued school registration numbers, so it can no longer be changed." },
+  // S-04 (Daisy's sweep): a code of the wrong shape, said as its shape (the hint «Tiga huruf atau angka.» as a sentence)
+  "pendataan.kode.bentuk_salah": { default: "Kode sekolah terdiri dari tiga huruf atau angka.", en: "A school code is three letters or digits." },
   "pendataan.kode.gagal": { default: "Kode itu tidak bisa dipakai. Mungkin sudah dipakai sekolah lain, atau bentuknya tidak sesuai.", en: "That code cannot be used. It may already belong to another school, or its shape is wrong." },
   "pendataan.kode.label": { default: "Kode", en: "Code" },
 

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
 import { wajibDalamKonteks } from "@/lib/konteks-server";
 import type { Kemajuan } from "@/lib/pendataan-kontrak";
+import { kodeSekolahSah } from "@/lib/kode-sekolah";
 
 /**
  * THE SIX ACTS OF AN INTAKE, AND EVERY ONE OF THEM IS A WP5A CALL.
@@ -52,6 +53,8 @@ export async function simpanKodeAksi(formData: FormData): Promise<void> {
   const institusi = String(formData.get("institusi") ?? "").trim();
   const kode = String(formData.get("kode") ?? "").trim();
   if (!institusi || !kode) redirect("/pendataan?galat=kode");
+  // S-04: the shape is said as the shape, before the database is asked (the database keeps its own check)
+  if (!kodeSekolahSah(kode)) redirect("/pendataan?galat=kode_bentuk");
   await wajibDalamKonteks({ sekolah: institusi });
 
   const supabase = await supabaseServer();
