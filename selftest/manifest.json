@@ -7048,7 +7048,17 @@
     {
       "id": "Z-D1-02",
       "runner": "static",
-      "proves": "Z D-1's guard (R-16; Sharon's RULING55 D-1 table), selftest/z-d1.test.ts, read from pg_proc, pg_views and pg_matviews outside the system schemas: every body reading ->> 'pilihan' is on the allowed list (grade_kunci, grade_response, session_answers, each still branching on jsonb_typeof(... 'pilihan')) or on D-1's pending list of seven (reading_map, session_misconceptions, session_review, teacher_question_evidence, service_cohort_misconceptions, service_distractor_uptake, service_item_statistics), each still found until it is repaired and removed; a reader on neither list fails."
+      "proves": "Z D-1's guard (R-16; Sharon's RULING55 D-1 table), selftest/z-d1.test.ts, read from pg_proc, pg_views and pg_matviews outside the system schemas: every body reading ->> 'pilihan' is on the allowed list (grade_kunci, grade_response, pilihan_dipilih, pilihan_tunggal, session_answers, each still branching on jsonb_typeof(... 'pilihan')) or on D-1's pending list, empty since 20270123100000 repaired the seven (a reader is added there only by Sharon's ruling); a reader on neither list fails."
+    },
+    {
+      "id": "Z-D1-01",
+      "runner": "static",
+      "proves": "Z D-1 (R-16), red first, selftest/z-d1.test.ts, executes the seven readers against the migrations, rolled back, on the seeded human-evaluation sitting with question 1 made multi-answer (A and C right): for {A, B} session_review reads both options' texts in label order, wrong, with their reason; session_misconceptions, reading_map and service_cohort_misconceptions find B's misconception; service_item_statistics counts one response, right by grade_kunci (1:0, and 1:1 for {A, C}); service_distractor_uptake counts each chosen option; teacher_question_evidence's chosen is null, never JSON text, and chosen_all lists every label. The untouched single-answer sitting reads md5-identically to 300 on all seven (the teacher's added chosen_all aside)."
+    },
+    {
+      "id": "Z-D1-03",
+      "runner": "static",
+      "proves": "Z D-1, Sharon's ruling-56 condition (a check, not a promise), selftest/z-d1.test.ts, reads and runs scripts/release/before-import/d1-multi-answer.sql against the migrations and seeds: one read-only transaction, rolled back, with no write; on the seeded world it reports «Pecahan»'s APPROVED multi-answer items, their final responses (0) and the verdict REPORT, to go to Bob and Sharon before an import or a walkthrough world proceeds."
     }
   ]
 }
