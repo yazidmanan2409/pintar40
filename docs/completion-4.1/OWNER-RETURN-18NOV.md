@@ -347,3 +347,5 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
   - The edit pass adds Z2-1 (SELECT revoked on the two feedback tables; Z-D6-01 red first), the markers, and V5's final words. Focused checks: 927/927 on a fresh reset.
   - The fable03 abort was a static run on an unreset DB. Its rerun after a reset is the 927.
   - Sent to Sharon for the Z2-1 recheck. Stream A is now on Z3-A.
+- **12:42 UTC · Daisy: Z6 rulings** (`56253ef1`). A framed table scrolling inside its own named, focusable region is the design, so the assertion allows exactly that. «pin-seg scrolls» ((1), (4) and (5)) and the pager (6) are fixed in Z6. BINGKAI_DIKETAHUI ends empty, and nothing is deferred.
+- **12:42 UTC · Sharon: Z2-1 CLOSED; Z2 PASS with nothing open** (`247e5911`). Column grants are covered, no view reads feedback, and the A2B-S1G exceptions are acceptable. Open from Z1: C2 (Z3-A) and C4 (after promotion).
