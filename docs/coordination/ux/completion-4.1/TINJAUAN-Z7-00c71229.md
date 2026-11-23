@@ -39,3 +39,11 @@
 | S-14 | C-1 |
 | N-1, N-2 | `pemeliharaan.pita.asesmen_baru_staf` «Murid tidak dapat memulai asesmen baru sampai pemeliharaan selesai.» / «Students cannot start a new assessment until maintenance ends.» It is accurate, staff only, and DAISY-25 is clean |
 | R-15 | Kenaikan's «, » join is accepted; the order is in §1.5; the column is C-3 |
+
+## Recheck of the conditions at `6e8c4f36` (23 Nov, 12:13): **PASS**
+
+From the diff `3472d3a4..6e8c4f36` (`hle.ts`, `kenaikan.ts`; no SQL):
+- **C-1 closed.** «Kode sudah terlalu sering dicoba.» and «Kode sudah terlalu sering diminta, jadi kode tidak dikirim.», word for word, ID and EN.
+- **C-2 closed.** Both EN keys say «a school administrator or an Admin PINTAR».
+- **C-3 closed.** «Paket Pembelajaran» / «Learning Package».
+- **(5) closed.** The main group first, then KEPUTUSAN's fixed order, then the key, the same for reversed input.
