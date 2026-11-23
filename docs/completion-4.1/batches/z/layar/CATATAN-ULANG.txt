@@ -1,0 +1,3 @@
+ulang-1280	overflow 0px	«target 60%» <p.pin-meta> at x 408, y 322; «Murid» at x 432, y 351 (the target line is above it)
+ulang-390	overflow 0px	«target 60%» <p.pin-meta> at x 32, y 446; «Murid» at x 56, y 475 (the target line is above it)
+ulang-320	overflow 0px	«target 60%» <p.pin-meta> at x 32, y 472; «Murid» at x 56, y 501 (the target line is above it)

@@ -39,6 +39,8 @@ const jeda = (ms: number) => new Promise((r) => setTimeout(r, ms));
     catatan.push(`${nama}-${w}\toverflow ${info.lebih}px\tinside main: ${b ? b.sebab.join("; ") : "none"}\tfocus ${info.fokus}\tlive «${info.live}»${lain ? "\t" + lain : ""}`);
     await p.screenshot({ path: join(KE, `z6-${nama}-${w}.png`) });
   }
+  // fable04 before A1's fixtures: fable06 asks for it, and a freshly reset database has not seen it
+  for (const f of ["fable01.sql", "fable03.sql", "fable04.sql"]) psql(`\\i ${join(AKAR, "selftest", "db", f)}`);
   muatA1(AKAR);
   muatC1w(AKAR);
   const tag = `z6c${Date.now().toString(36)}`;

@@ -1,0 +1,174 @@
+# run 2 of 2, on the merged tree (claude/z 6bc4123a)
+# the files that draw pin-tabel-bingkai or pin-seg: src/app/konfigurasi/catatan-masuk/page.tsx, src/app/konfigurasi/page.tsx, src/app/mengajar/[kelas]/siapa/page.tsx, src/app/mengajar/[kelas]/uji-cepat/page.tsx, src/components/koleksi/Koleksi.tsx, src/components/studio/SoalKerja.tsx
+PASS  /mengajar/:id at 1280: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id at 1280: every word in the bar is whole
+PASS  /mengajar/:id at 1280: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id at 390: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id at 390: every word in the bar is whole
+PASS  /mengajar/:id at 390: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id at 320: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id at 320: every word in the bar is whole
+PASS  /mengajar/:id at 320: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id/siapa?penugasan=:id at 1280: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/siapa?penugasan=:id at 1280: every option of its segmented controls lies inside the control, its focus ring uncut
+PASS  /mengajar/:id/siapa?penugasan=:id at 1280: every word in the bar is whole
+PASS  /mengajar/:id/siapa?penugasan=:id at 1280: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id/siapa?penugasan=:id at 390: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/siapa?penugasan=:id at 390: every option of its segmented controls lies inside the control, its focus ring uncut
+PASS  /mengajar/:id/siapa?penugasan=:id at 390: every word in the bar is whole
+PASS  /mengajar/:id/siapa?penugasan=:id at 390: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id/siapa?penugasan=:id at 390: the pager's target #pin-siapa-murid-koleksi is the collection the reader lands on ({"atas":72,"bawahBar":57,"tampak":true,"blok":"grid","ujung":false,"layar":900})
+PASS  /mengajar/:id/siapa?penugasan=:id at 320: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/siapa?penugasan=:id at 320: every option of its segmented controls lies inside the control, its focus ring uncut
+PASS  /mengajar/:id/siapa?penugasan=:id at 320: every word in the bar is whole
+PASS  /mengajar/:id/siapa?penugasan=:id at 320: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id/siapa?penugasan=:id at 320: the pager's target #pin-siapa-murid-koleksi is the collection the reader lands on ({"atas":112,"bawahBar":83,"tampak":true,"blok":"grid","ujung":false,"layar":900})
+PASS  /mengajar/:id/siapa?penugasan=:id at 1280: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/siapa?penugasan=:id at 1280: every option of its segmented controls lies inside the control, its focus ring uncut
+PASS  /mengajar/:id/siapa?penugasan=:id at 1280: every word in the bar is whole
+PASS  /mengajar/:id/siapa?penugasan=:id at 1280: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id/siapa?penugasan=:id at 390: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/siapa?penugasan=:id at 390: every option of its segmented controls lies inside the control, its focus ring uncut
+PASS  /mengajar/:id/siapa?penugasan=:id at 390: every word in the bar is whole
+PASS  /mengajar/:id/siapa?penugasan=:id at 390: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id/siapa?penugasan=:id at 390: the pager's target #pin-siapa-murid-koleksi is the collection the reader lands on ({"atas":72,"bawahBar":57,"tampak":true,"blok":"grid","ujung":false,"layar":900})
+PASS  /mengajar/:id/siapa?penugasan=:id at 320: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/siapa?penugasan=:id at 320: every option of its segmented controls lies inside the control, its focus ring uncut
+PASS  /mengajar/:id/siapa?penugasan=:id at 320: every word in the bar is whole
+PASS  /mengajar/:id/siapa?penugasan=:id at 320: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id/siapa?penugasan=:id at 320: the pager's target #pin-siapa-murid-koleksi is the collection the reader lands on ({"atas":112,"bawahBar":83,"tampak":true,"blok":"grid","ujung":false,"layar":900})
+PASS  /mengajar/:id/uji-cepat at 1280: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/uji-cepat at 1280: every option of its segmented controls lies inside the control, its focus ring uncut
+PASS  /mengajar/:id/uji-cepat at 1280: every word in the bar is whole
+PASS  /mengajar/:id/uji-cepat at 1280: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id/uji-cepat at 390: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/uji-cepat at 390: every option of its segmented controls lies inside the control, its focus ring uncut
+PASS  /mengajar/:id/uji-cepat at 390: every word in the bar is whole
+PASS  /mengajar/:id/uji-cepat at 390: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id/uji-cepat at 320: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/uji-cepat at 320: every option of its segmented controls lies inside the control, its focus ring uncut
+PASS  /mengajar/:id/uji-cepat at 320: every word in the bar is whole
+PASS  /mengajar/:id/uji-cepat at 320: 0 link mark(s) drawn as a box of their own
+PASS  /aktivasi/orang at 1280: nothing inside main scrolls sideways or is wider than the window
+PASS  /aktivasi/orang at 1280: every word in the bar is whole
+PASS  /aktivasi/orang at 1280: 0 link mark(s) drawn as a box of their own
+PASS  /aktivasi/orang at 390: nothing inside main scrolls sideways or is wider than the window
+PASS  /aktivasi/orang at 390: every word in the bar is whole
+PASS  /aktivasi/orang at 390: 0 link mark(s) drawn as a box of their own
+PASS  /aktivasi/orang at 320: nothing inside main scrolls sideways or is wider than the window
+PASS  /aktivasi/orang at 320: every word in the bar is whole
+PASS  /aktivasi/orang at 320: 0 link mark(s) drawn as a box of their own
+PASS  /konfigurasi/catatan-masuk at 1280: nothing inside main scrolls sideways or is wider than the window
+PASS  /konfigurasi/catatan-masuk at 1280: every word in the bar is whole
+PASS  /konfigurasi/catatan-masuk at 1280: 0 link mark(s) drawn as a box of their own
+PASS  /konfigurasi/catatan-masuk at 390: nothing inside main scrolls sideways or is wider than the window
+PASS  /konfigurasi/catatan-masuk at 390: every word in the bar is whole
+PASS  /konfigurasi/catatan-masuk at 390: 0 link mark(s) drawn as a box of their own
+PASS  /konfigurasi/catatan-masuk at 320: nothing inside main scrolls sideways or is wider than the window
+PASS  /konfigurasi/catatan-masuk at 320: every word in the bar is whole
+PASS  /konfigurasi/catatan-masuk at 320: 0 link mark(s) drawn as a box of their own
+PASS  /konfigurasi/audit at 1280: nothing inside main scrolls sideways or is wider than the window
+PASS  /konfigurasi/audit at 1280: every word in the bar is whole
+PASS  /konfigurasi/audit at 1280: 0 link mark(s) drawn as a box of their own
+PASS  /konfigurasi/audit at 390: nothing inside main scrolls sideways or is wider than the window
+PASS  /konfigurasi/audit at 390: every word in the bar is whole
+PASS  /konfigurasi/audit at 390: 0 link mark(s) drawn as a box of their own
+PASS  /konfigurasi/audit at 320: nothing inside main scrolls sideways or is wider than the window
+PASS  /konfigurasi/audit at 320: every word in the bar is whole
+PASS  /konfigurasi/audit at 320: 0 link mark(s) drawn as a box of their own
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-riwayat-soal is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure is 210 px wide; paddings and borders around it (inner first): pin-daftar:2, article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-catatan-peninjau.pin-noprint is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-riwayat-soal is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure is 210 px wide; paddings and borders around it (inner first): pin-daftar:2, article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-catatan-peninjau.pin-noprint is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-noprint is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-riwayat-soal is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure is 210 px wide; paddings and borders around it (inner first): pin-daftar:2, article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-catatan-peninjau.pin-noprint is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-riwayat-soal is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure is 210 px wide; paddings and borders around it (inner first): pin-daftar:2, article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-catatan-peninjau.pin-noprint is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-riwayat-soal is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure is 210 px wide; paddings and borders around it (inner first): pin-daftar:2, article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-catatan-peninjau.pin-noprint is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-riwayat-soal is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure is 210 px wide; paddings and borders around it (inner first): pin-daftar:2, article:18, pin-panel:26
+N-8   /studio/paket/:id at 320: details.pin-disclosure.pin-catatan-peninjau.pin-noprint is 212 px wide; paddings and borders around it (inner first): article:18, pin-panel:26
+PASS  /mengajar/:id at 1280: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id at 1280: every word in the bar is whole
+PASS  /mengajar/:id at 1280: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id at 390: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id at 390: every word in the bar is whole
+PASS  /mengajar/:id at 390: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id at 320: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id at 320: every word in the bar is whole
+PASS  /mengajar/:id at 320: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id/murid/:id at 1280: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/murid/:id at 1280: every word in the bar is whole
+PASS  /mengajar/:id/murid/:id at 1280: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id/murid/:id at 390: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/murid/:id at 390: every word in the bar is whole
+PASS  /mengajar/:id/murid/:id at 390: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id/murid/:id at 320: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/murid/:id at 320: every word in the bar is whole
+PASS  /mengajar/:id/murid/:id at 320: 0 link mark(s) drawn as a box of their own
+PASS  /belajar/:id/hasil at 1280: nothing inside main scrolls sideways or is wider than the window
+PASS  /belajar/:id/hasil at 1280: every word in the bar is whole
+PASS  /belajar/:id/hasil at 1280: 0 link mark(s) drawn as a box of their own
+PASS  /belajar/:id/hasil at 390: nothing inside main scrolls sideways or is wider than the window
+PASS  /belajar/:id/hasil at 390: every word in the bar is whole
+PASS  /belajar/:id/hasil at 390: 0 link mark(s) drawn as a box of their own
+PASS  /belajar/:id/hasil at 320: nothing inside main scrolls sideways or is wider than the window
+PASS  /belajar/:id/hasil at 320: every word in the bar is whole
+PASS  /belajar/:id/hasil at 320: 0 link mark(s) drawn as a box of their own
+PASS  /pimpinan at 1280: nothing inside main scrolls sideways or is wider than the window
+PASS  /pimpinan at 1280: every word in the bar is whole
+PASS  /pimpinan at 1280: 0 link mark(s) drawn as a box of their own
+PASS  /pimpinan at 390: nothing inside main scrolls sideways or is wider than the window
+PASS  /pimpinan at 390: every word in the bar is whole
+PASS  /pimpinan at 390: 0 link mark(s) drawn as a box of their own
+PASS  /pimpinan at 320: nothing inside main scrolls sideways or is wider than the window
+PASS  /pimpinan at 320: every word in the bar is whole
+PASS  /pimpinan at 320: 0 link mark(s) drawn as a box of their own
+PASS  /konfigurasi/kesempatan at 1280: nothing inside main scrolls sideways or is wider than the window
+PASS  /konfigurasi/kesempatan at 1280: every word in the bar is whole
+PASS  /konfigurasi/kesempatan at 1280: 0 link mark(s) drawn as a box of their own
+PASS  /konfigurasi/kesempatan at 390: nothing inside main scrolls sideways or is wider than the window
+PASS  /konfigurasi/kesempatan at 390: every word in the bar is whole
+PASS  /konfigurasi/kesempatan at 390: 0 link mark(s) drawn as a box of their own
+PASS  /konfigurasi/kesempatan at 320: nothing inside main scrolls sideways or is wider than the window
+PASS  /konfigurasi/kesempatan at 320: every word in the bar is whole
+PASS  /konfigurasi/kesempatan at 320: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id/ulang?penugasan=:id&murid=:id at 1280: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/ulang?penugasan=:id&murid=:id at 1280: every word in the bar is whole
+PASS  /mengajar/:id/ulang?penugasan=:id&murid=:id at 1280: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id/ulang?penugasan=:id&murid=:id at 390: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/ulang?penugasan=:id&murid=:id at 390: every word in the bar is whole
+PASS  /mengajar/:id/ulang?penugasan=:id&murid=:id at 390: 0 link mark(s) drawn as a box of their own
+PASS  /mengajar/:id/ulang?penugasan=:id&murid=:id at 320: nothing inside main scrolls sideways or is wider than the window
+PASS  /mengajar/:id/ulang?penugasan=:id&murid=:id at 320: every word in the bar is whole
+PASS  /mengajar/:id/ulang?penugasan=:id&murid=:id at 320: 0 link mark(s) drawn as a box of their own
+
+## covered (13)
+- /mengajar/:id (Koleksi (the class's learners)): 1 frame(s) or segmented control(s)
+- /mengajar/:id/siapa?penugasan=:id (Koleksi + pin-seg pin-seg-tautan (Pemetaan Awal)): 3 frame(s) or segmented control(s)
+- /mengajar/:id/siapa?penugasan=:id (Koleksi + pin-seg pin-seg-tautan (Uji Penguasaan)): 3 frame(s) or segmented control(s)
+- /mengajar/:id/uji-cepat (pin-seg (the window's minutes)): 1 frame(s) or segmented control(s)
+- /aktivasi/orang (Koleksi (people)): 1 frame(s) or segmented control(s)
+- /konfigurasi/catatan-masuk (pin-tabel-bingkai (the sign-in record)): 1 frame(s) or segmented control(s)
+- /konfigurasi/audit (pin-tabel-bingkai (Jejak audit)): 1 frame(s) or segmented control(s)
+- /mengajar/:id (K-01: the class page): 1 frame(s) or segmented control(s)
+- /mengajar/:id/murid/:id (K-01: the teacher's page for one learner below target): 0 frame(s) or segmented control(s)
+- /belajar/:id/hasil (K-01: the learner's result): 0 frame(s) or segmented control(s)
+- /pimpinan (K-01: the head of department's home): 0 frame(s) or segmented control(s)
+- /konfigurasi/kesempatan (K-01: the approver's queue): 0 frame(s) or segmented control(s)
+- /mengajar/:id/ulang?penugasan=:id&murid=:id (K-01: «Minta membaca lagi»): 0 frame(s) or segmented control(s)
+
+## not covered (4)
+- /studio/tinjau/kunci/[koreksi] (SoalKerja): not reached, no pending key correction in this database
+- /mengajar/:id/uji-cepat/hasil (Koleksi (a Quick Assessment's results)): not reached as drawn (HTTP 200, 0 frame(s) or segmented control(s) in main: nothing to list here)
+- /konfigurasi/sertifikat (Koleksi (certificates)): not reached as drawn (HTTP 200, 0 frame(s) or segmented control(s) in main: nothing to list here)
+- /studio/paket/:id (SoalKerja (a lesson's questions); N-8's nested disclosures): no frame drawn on this package (HTTP 200); measured for N-8 only
+
+GREEN

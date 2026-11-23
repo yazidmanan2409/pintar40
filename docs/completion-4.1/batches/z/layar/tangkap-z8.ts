@@ -45,8 +45,9 @@ const bersihSertifikat = () => psql(`begin; set local session_replication_role =
   commit; select selftest.purge_certificates();`);
 
 (async () => {
-  muatA1(AKAR);
+  // fable04 before A1's fixtures: fable06 asks for it, and a freshly reset database has not seen it
   for (const f of ["fable01.sql", "fable03.sql", "fable04.sql"]) psql(`\\i ${join(AKAR, "selftest", "db", f)}`);
+  muatA1(AKAR);
   const tag = `z8${Date.now().toString(36)}`;
   const d = duniaA1(tag);
   if (typeof d === "string") throw new Error(d);
@@ -116,6 +117,14 @@ const bersihSertifikat = () => psql(`begin; set local session_replication_role =
       await gk.focus();
       await gk.scrollIntoViewIfNeeded();
       await rekam(k, "03-kadep-beranda", w, `line: ${await teksDi(k, '[data-menunggu-jenis="kesempatan"]')}`);
+      // after merge 2 (A1-R4's re-look): the queue a head of department decides from, whose rows carry the result words
+      // (a school admin's rows carry none, by design); Enter on the line
+      await k.keyboard.press("Enter");
+      await k.waitForSelector("[data-permintaan]", { timeout: 20000 }).catch(() => undefined);
+      await k.waitForLoadState("networkidle");
+      await k.locator("[data-permintaan]").last().scrollIntoViewIfNeeded().catch(() => undefined);
+      const hasil = (await k.locator("[data-permintaan]").allInnerTexts()).map((x: string) => (/(hasil terakhir[^\n·]*(?:·[^\n]*)?)/.exec(x)?.[1] ?? "(no result words)").replace(/\s+/g, " ")).join(" | ");
+      await rekam(k, "03b-kadep-antrean", w, `rows: ${await k.locator("[data-permintaan]").count()}\tresult words: ${hasil}`);
       // ---- A1-R2: the class page's «Ubah jadwal», by keyboard
       const g = await halaman(guru, w);
       await g.goto(`${ASAL}/mengajar/${d.kelas}`, { waitUntil: "networkidle" });
@@ -136,7 +145,8 @@ const bersihSertifikat = () => psql(`begin; set local session_replication_role =
           klaim: (t.match(/Berlaku|BERLAKU|Valid|VALID|Sedang ditinjau|Under review/g) || []).join(", "), panjang: t.length }; })()`) as { qr: number; bannerTampak: boolean; klaim: string; panjang: number };
       // (print media at a phone's width: the card keeps its paper layout, which a window this narrow does not model; the
       // printed page is the PDF)
-      await rekam(sp, "06-sertifikat-cetak", w, `print: QR images ${cetakan.qr}; the review banner printed: ${cetakan.bannerTampak}; status words on paper: «${cetakan.klaim || "none"}»`, true);
+      const predikat = await sp.evaluate(`(() => { const t = document.body.innerText; const m = /PREDIKAT\\s*\\n?\\s*([^\\n]+)/i.exec(t); return m ? m[1].trim() : "(none)"; })()`);
+      await rekam(sp, "06-sertifikat-cetak", w, `printed predicate: «${predikat}»\tprint: QR images ${cetakan.qr}; the review banner printed: ${cetakan.bannerTampak}; status words on paper: «${cetakan.klaim || "none"}»`, true);
       await sp.emulateMedia({ media: "screen" });
       if (w === 1280) await sp.pdf({ path: join(KE, "z8-06-sertifikat-cetak.pdf"), printBackground: true }).catch(() => undefined);
       // ---- K-05 in the same session: the public check of the same certificate

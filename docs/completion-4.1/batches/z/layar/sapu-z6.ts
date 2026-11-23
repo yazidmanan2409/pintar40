@@ -22,7 +22,7 @@ import { join, relative } from "node:path";
 import { createRequire } from "node:module";
 import { psql } from "../../../../../selftest/bob26.test";
 import { bersihkan as bersihkanA1, dunia as duniaA1, muat as muatA1, mulai } from "../../../../../selftest/a1-layar.test";
-import { ADMIN, GURU, KADEP, bersihkan as bersihkanC1w, dunia as duniaC1w, masuk, muat as muatC1w, sebagai, soalDi, terbitkan } from "../../../../../selftest/c1w-layar.test";
+import { ADMIN, BOOT_ADMIN, BOOT_GURU, BOOT_KADEP, BOOT_SISWA, GURU, KADEP, bersihkan as bersihkanC1w, dunia as duniaC1w, masuk, muat as muatC1w, sebagai, soalDi, terbitkan } from "../../../../../selftest/c1w-layar.test";
 
 const { chromium } = createRequire(__filename)("playwright");
 const ASAL = process.env.SAPU_ASAL ?? "http://127.0.0.1:3999";
@@ -47,6 +47,8 @@ function penggambar(): string[] {
   type Bingkai = { lebar: number; sebab: string[] } | null;
   const { BINGKAI, bingkaiBaru } = await import(join(AKAR, "audit", "a11y.mjs")) as { BINGKAI: () => Bingkai; bingkaiBaru: (p: string, b: Bingkai) => Bingkai };
   hasil.push(`# the files that draw pin-tabel-bingkai or pin-seg: ${penggambar().join(", ")}`);
+  // fable04 before A1's fixtures: fable06 asks for it, and a freshly reset database has not seen it
+  for (const f of ["fable01.sql", "fable03.sql", "fable04.sql"]) psql(`\\i ${join(AKAR, "selftest", "db", f)}`);
   muatA1(AKAR);
   muatC1w(AKAR);
   const tag = `z6${Date.now().toString(36)}`;
@@ -82,6 +84,22 @@ function penggambar(): string[] {
   void GURU;
   const koreksi = psql(`select coalesce((select id::text from public.key_corrections where status = 'PENDING' limit 1), '')`);
   // [address, who, drawn by]
+  // Run 2 (Bob, after merge 2): stream A's K-01 verdict screens, in the bootstrap school, with its learner below target
+  // (selftest.boot_attempt(false), as n17-lebar.ts reads it). They are measured whether or not they draw a frame
+  for (const f of ["fable01.sql", "fable03.sql", "fable04.sql"]) psql(`\\i ${join(AKAR, "selftest", "db", f)}`);
+  // the learner's own latest finished sitting when there is one (one attempt only), else a new one below target
+  const ada = psql(`select coalesce((select s.id::text from public.assessment_sessions s join public.accounts a on a.person_id = s.person_id
+    join auth.users u on u.id = a.auth_user_id where u.email = 'boot-siswa@bootstrap.pintar.test' and s.finalized_at is not null order by s.created_at desc limit 1), '')`);
+  const sesiK01 = ada || psql("select selftest.boot_attempt(false)").split("\n").pop()!.trim();
+  const [bKelas, bOrang, bSekolah, bTugas] = psql(`select concat_ws('|', aa.node_id, s.person_id, s.institution_id, aa.learning_assignment_id) from public.assessment_sessions s
+    join public.assessment_assignments aa on aa.id = s.assessment_assignment_id where s.id = '${sesiK01}'`).split("|");
+  const bGuru = await masuk(ASAL, BOOT_GURU, `MENGAJAR:${bSekolah}`);
+  const bSiswa = await masuk(ASAL, BOOT_SISWA, "BELAJAR");
+  const bKadep = await masuk(ASAL, BOOT_KADEP, `MENGELOLA:${bSekolah}`);
+  const bAdmin = await masuk(ASAL, BOOT_ADMIN, `MENGELOLA:${bSekolah}`);
+  for (const x of [bGuru, bSiswa, bKadep, bAdmin]) if (typeof x === "string") throw new Error(x);
+  const SEMUA = new Set<string>();
+  const k01 = (a: string) => { SEMUA.add(a); return a; };
   const halaman: Array<[string, unknown, string]> = [
     [`/mengajar/${a1.kelas}`, guru, "Koleksi (the class's learners)"],
     [`/mengajar/${a1.kelas}/siapa?penugasan=${a1.pre}`, guru, "Koleksi + pin-seg pin-seg-tautan (Pemetaan Awal)"],
@@ -94,6 +112,11 @@ function penggambar(): string[] {
     ["/konfigurasi/audit", admin, "pin-tabel-bingkai (Jejak audit)"],
     [`/studio/paket/${c1.course}`, peninjau, "SoalKerja (a lesson's questions); N-8's nested disclosures"],
     ...(koreksi ? [[`/studio/tinjau/kunci/${koreksi}`, admin, "SoalKerja (a key correction)"] as [string, unknown, string]] : []),
+    [k01(`/mengajar/${bKelas}`), bGuru, "K-01: the class page"],
+    [k01(`/mengajar/${bKelas}/murid/${bOrang}`), bGuru, "K-01: the teacher's page for one learner below target"],
+    [k01(`/belajar/${bTugas}/hasil`), bSiswa, "K-01: the learner's result"],
+    [k01("/pimpinan"), bKadep, "K-01: the head of department's home"],
+    [k01("/konfigurasi/kesempatan"), bAdmin, "K-01: the approver's queue"],
   ];
   if (!koreksi) tidak.push("/studio/tinjau/kunci/[koreksi] (SoalKerja): not reached, no pending key correction in this database");
   const browser = await chromium.launch();
@@ -106,14 +129,20 @@ function penggambar(): string[] {
       const ada = await p.evaluate(`document.querySelectorAll("main .pin-tabel-bingkai, main .pin-seg").length`) as number;
       const label = alamat.replace(/[0-9a-f]{8}-[0-9a-f-]{27,}/g, ":id");
       const n8 = alamat.startsWith("/studio/paket/");
-      if (!r || r.status() >= 400 || (ada === 0 && !n8)) {
+      // «Minta membaca lagi» is reached from the teacher's page for one learner (its own link)
+      if (alamat.startsWith(`/mengajar/${bKelas}/murid/`)) {
+        const ulang = await p.locator("a.pin-ulang-tautan").first().getAttribute("href").catch(() => null);
+        if (ulang && !halaman.some(([x]) => x === ulang)) halaman.push([k01(ulang), bGuru, "K-01: «Minta membaca lagi»"]);
+      }
+      const semua = SEMUA.has(alamat);
+      if (!r || r.status() >= 400 || (ada === 0 && !n8 && !semua)) {
         tidak.push(`${label} (${apa}): not reached as drawn (HTTP ${r?.status()}, ${ada} frame(s) or segmented control(s) in main: nothing to list here)`);
         await ctx.close();
         continue;
       }
-      if (ada === 0) tidak.push(`${label} (${apa}): no frame drawn on this package (HTTP ${r.status()}); measured for N-8 only`);
+      if (ada === 0 && n8) tidak.push(`${label} (${apa}): no frame drawn on this package (HTTP ${r.status()}); measured for N-8 only`);
       else tercakup.push(`${label} (${apa}): ${ada} frame(s) or segmented control(s)`);
-      for (const w of ada === 0 ? [] : LEBAR) {
+      for (const w of ada === 0 && !semua ? [] : LEBAR) {
         await p.setViewportSize({ width: w, height: 900 });
         await p.waitForTimeout(250);
         const b = await p.evaluate(BINGKAI);
@@ -146,6 +175,21 @@ function penggambar(): string[] {
         if (await p.evaluate(`document.querySelectorAll("main .pin-seg").length`) as number > 0) {
           periksa(seg.length === 0, `${label} at ${w}: ${seg.length ? seg.join("; ") : "every option of its segmented controls lies inside the control, its focus ring uncut"}`);
         }
+        // Z6's rule (Daisy, finding b; Second Eye's «Menga jar»): no word in the bar breaks inside itself
+        const pecah = await p.evaluate(`(() => { const out = [];
+          for (const h of document.querySelectorAll("header")) {
+            const w = document.createTreeWalker(h, NodeFilter.SHOW_TEXT);
+            for (let n = w.nextNode(); n; n = w.nextNode()) {
+              const el = n.parentElement; if (!el || el.offsetParent === null) continue;
+              const cs = getComputedStyle(el); if (cs.clipPath !== "none" || el.getBoundingClientRect().width <= 1) continue;
+              // a name cut with an ellipsis by design (the reader's name in the rail) is truncated, not broken
+              let elipsis = false; for (let a = el; a && a !== h; a = a.parentElement) if (getComputedStyle(a).textOverflow === "ellipsis") { elipsis = true; break; }
+              if (elipsis) continue;
+              let i = 0; for (const k of n.textContent.split(" ")) { if (k.length > 1) { const r = document.createRange(); r.setStart(n, i); r.setEnd(n, i + k.length);
+                const kotak = [...r.getClientRects()].filter((x) => x.width > 0).length; if (kotak > 1) out.push("«" + k + "» (" + kotak + " line boxes)"); } i += k.length + 1; }
+            }
+          } return out; })()`) as string[];
+        periksa(pecah.length === 0, `${label} at ${w}: ${pecah.length ? "a word in the bar breaks inside itself: " + pecah.join(", ") : "every word in the bar is whole"}`);
         // Daisy's Z6 ruling: no link mark (TandaTautan) draws a box of its own
         const tanda = await p.evaluate(`[...document.querySelectorAll(".pin-tanda-tautan")].filter((t) => { const r = t.getBoundingClientRect(); return r.width > 2 && r.height > 2; }).length`) as number;
         periksa(tanda === 0, `${label} at ${w}: ${tanda} link mark(s) drawn as a box of their own`);
