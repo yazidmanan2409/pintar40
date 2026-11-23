@@ -1,0 +1,12 @@
+# Z9-K01 (Sharon's condition 1), red first (23 Nov 2026)
+## on df0cbc9c (the candidate the first full run was red on): the direct calls
+df0cbc9c:src/app/konfigurasi/actions.ts:184:    const { data: isSys } = await supabase.rpc("is_system_admin");
+df0cbc9c:src/app/konfigurasi/actions.ts:214:  const { data: isSys } = await supabase.rpc("is_system_admin");
+df0cbc9c:src/app/konfigurasi/catatan-masuk/page.tsx:48:  const { data: sistem } = await supabase.rpc("is_system_admin");
+df0cbc9c:src/app/konfigurasi/email-uji/page.tsx:36:  const { data: sistem } = await supabase.rpc("is_system_admin");
+df0cbc9c:src/app/konfigurasi/keamanan/page.tsx:39:    supabase.rpc("is_system_admin"),
+df0cbc9c:src/app/konfigurasi/page.tsx:186:    supabase.rpc("is_system_admin"),
+df0cbc9c:src/app/konfigurasi/sertifikat/page.tsx:57:  const { data: sistem } = await supabase.rpc("is_system_admin");
+df0cbc9c:src/components/konfigurasi/NavKonfigurasi.tsx:35:    supabase.rpc("is_system_admin"),
+## on e0c6ac55 (after the page fix), Z9-K01:
+Z9-K01      FAIL    Konfigurasi still calls rpc("is_system_admin") directly in: src/app/konfigurasi/actions.ts

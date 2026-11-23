@@ -7321,6 +7321,11 @@
       "proves": "Z8 item 8, selftest/z-r15.test.ts, reads migration 20270123170000, src/lib/akun-kontrak.ts and src/lib/hle.ts: admin_sekolah_lain_ada is the one «another usable administrator» question and kunci_admin_sekolah the one advisory-lock taker (school id order), both used by peran_terakhir_kode and by minta_akun after the person's lock; no revoking function or the guard is rewritten; ACCOUNT_LAST_SCHOOL_ADMIN is in akun_tolak, raised by minta_akun, in the screens' contract, and has Daisy's ID and EN words; every function created is revoked from PUBLIC."
     },
     {
+      "id": "Z9-K01",
+      "runner": "static",
+      "proves": "Z9, Sharon's condition (1) on the BOB18-A01 fix, selftest/z-r15.test.ts, reads every source file under src/app/konfigurasi and src/components/konfigurasi/NavKonfigurasi.tsx: none calls rpc(\"is_system_admin\") directly; and src/lib/auth.ts's isSystemAdmin() is React cache() around the request's own rpc(\"is_system_admin\") returning «data === true», so a failed call denies."
+    },
+    {
       "id": "Z-R15-11",
       "runner": "static",
       "proves": "Z8 item 8, Daisy's SIGNIFICANT finding (via Bob 14:53Z), selftest/z-r15.test.ts, reads the source file src/components/akun/MeninggalkanPintar.tsx and checks its rendered output (HTML) in ID and EN: a signed-in learner is offered no request form and told to ask through the school; a signed-in admin is offered exactly CLOSE and DELETE_PERSONAL_DATA, never REOPEN (a signed-out act that minta_akun does not accept); no element on the section reads «—»."

@@ -13,6 +13,7 @@ import { ALASAN_LAINNYA_MAKS, KONFIRMASI_HENTIKAN, kodeAlasan, waktuSekolah } fr
 import { batasHari } from "@/lib/hle";
 import { zonaSekolah } from "@/lib/zona-sekolah";
 import { KODE_PERAN_DICATAT, kodePeranDariGalat } from "@/lib/peran-kontrak";
+import { isSystemAdmin } from "@/lib/auth";
 
 /**
  * Config Studio actions (FABLE-01 §10). Every action is a thin call to an
@@ -181,7 +182,9 @@ export async function grantRoleAction(fd: FormData): Promise<void> {
   // D-101 (2): a School Admin appoints another explicitly. «Admin sekolah» named on the form comes back to Peran &
   // akses once, saying what it will do, and is granted on that second press; the Platform Admin's grant is as before.
   if (role === "INSTITUTION_ADMIN" && str(fd, "yakin") !== "ya") {
-    const { data: isSys } = await supabase.rpc("is_system_admin");
+    // Z9-K01 (Sharon): the request-cached isSystemAdmin(), the same rpc read as «data === true»; a presentation step only,
+    // grant_role decides in the database
+    const isSys = await isSystemAdmin();
     if (isSys !== true) {
       const q = new URLSearchParams({ bagian: "roles", angkat: person ?? "", lingkup: scope ?? "", sampai: until });
       redirect(alamatBagian("roles", q, "roles"));
@@ -211,7 +214,9 @@ export async function tunjukAdminPertamaAction(fd: FormData): Promise<void> {
   if (!person || !sekolah || !/^\d{4}-\d{2}-\d{2}$/.test(until)) back("roles", { ok: false, kode: "ROLE_INPUT_INCOMPLETE" }, fd);
   await wajibDalamKonteks({ sekolah }, "roles");
   const supabase = await supabaseServer();
-  const { data: isSys } = await supabase.rpc("is_system_admin");
+  // Z9-K01 (Sharon): the request-cached isSystemAdmin(), the same rpc read as «data === true» (a failed call refuses);
+  // grant_role still decides in the database
+  const isSys = await isSystemAdmin();
   if (isSys !== true) back("roles", { ok: false, kode: "ACTION_NOT_ALLOWED" }, fd);
   if (await adaAdminSekolah(supabase, sekolah!)) back("roles", { ok: false, kode: "ACTION_NOT_ALLOWED" }, fd);
   if (!(await calonAdminPertama(supabase)).some((p) => p.person_id === person)) back("roles", { ok: false, kode: "ACTION_NOT_ALLOWED" }, fd);

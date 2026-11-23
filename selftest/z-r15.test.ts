@@ -18,13 +18,18 @@
  *             a signed-in learner and a signed-in admin, offers exactly that person's forms (none for a learner, who asks
  *             through the school; CLOSE and DELETE_PERSONAL_DATA for an admin), never REOPEN (a signed-out act;
  *             minta_akun accepts only the two), and no element reads «—». Red on f970bace.
+ *   Z9-K01    Sharon's condition (1) on the BOB18-A01 fix (via Bob 16:10Z): no Konfigurasi caller (every source file under
+ *             src/app/konfigurasi, and src/components/konfigurasi/NavKonfigurasi.tsx) calls rpc("is_system_admin")
+ *             directly; each asks the request-cached isSystemAdmin() (src/lib/auth.ts), which runs that same rpc once per
+ *             request and reads «data === true», so a failed call denies. Red on df0cbc9c (NavKonfigurasi, the index page,
+ *             four standalone pages and actions.ts).
  *   Z-R15-09  The contract: one definition. admin_sekolah_lain_ada is the only «another usable administrator»
  *             question, called by the guard's locked question and by minta_akun; kunci_admin_sekolah is the only taker
  *             of the advisory lock, in school id order; no revoking function is rewritten; the code is in akun_tolak,
  *             the screens' contract and the copy table in both languages, in Daisy's words.
  */
 import { spawn, spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { KODE_AKUN_DB } from "../src/lib/akun-kontrak";
@@ -236,6 +241,29 @@ export const zR15Tests: SelfTest[] = [
       }
       return c.verdict("Meninggalkan PINTAR, rendered in ID and EN: a signed-in learner is offered no form and told to ask through the school; a signed-in admin "
         + "exactly CLOSE and DELETE_PERSONAL_DATA; never REOPEN; no element reads «—»");
+    },
+  },
+  {
+    id: "Z9-K01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const berkas: string[] = [];
+      const jalan = (d: string) => {
+        for (const n of readdirSync(join(repoRoot, d), { withFileTypes: true })) {
+          const p = join(d, n.name);
+          if (n.isDirectory()) jalan(p); else if (/\.(ts|tsx)$/.test(n.name)) berkas.push(p);
+        }
+      };
+      jalan("src/app/konfigurasi");
+      berkas.push("src/components/konfigurasi/NavKonfigurasi.tsx");
+      c.expect(berkas.length > 10, `only ${berkas.length} Konfigurasi file(s) found`);
+      const langsung = berkas.filter((f) => /\.rpc\(\s*["'`]is_system_admin["'`]/.test(readFileSync(join(repoRoot, f), "utf8")));
+      c.expect(langsung.length === 0, `Konfigurasi still calls rpc("is_system_admin") directly in: ${langsung.join(", ")}`);
+      const auth = readFileSync(join(repoRoot, "src/lib/auth.ts"), "utf8");
+      c.expect(/export const isSystemAdmin = cache\(async \(\): Promise<boolean> => \{\s*const supabase = await supabaseServer\(\);\s*const \{ data \} = await supabase\.rpc\("is_system_admin"\);\s*return data === true;\s*\}\);/.test(auth),
+        "isSystemAdmin() in src/lib/auth.ts is no longer React cache() around the request's own rpc(\"is_system_admin\") reading «data === true» (deny on error)");
+      return c.verdict(`${berkas.length} Konfigurasi source files, none calling rpc("is_system_admin") directly; isSystemAdmin() is cache() around the request's own rpc, reading «data === true», so a failed call denies`);
     },
   },
   {
