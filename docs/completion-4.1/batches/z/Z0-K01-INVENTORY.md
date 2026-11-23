@@ -69,7 +69,10 @@ changed in Z. **Not a verdict** means it states no reached or not-reached.
 | Teacher, «Minta membaca lagi» | `ulang/page.tsx:79,121` (data `pengajar.ts:1140-1162` `urutUlang`, `:1225-1235`) | status `bawah` only if `p < batas` | **K-01**: a gate-only failure is «capai», and is neither listed nor pre-ticked | Z3: `urutUlang` takes the gate; the learner is `bawah`, with `mengajar.ulang.gerbang` |
 | Teacher, objectives not yet reached | `murid/[orang]/page.tsx:69` → `pengajar.ts:1026-1030` (`tujuanBelum`) | `tujuan_belum_tercapai` | **K-01** (via the SQL); also K-03 (`[]` on error, `:1029`) | Z1 (SQL), Z3 (K-03) |
 | Teacher, topic grid | `KisiTopik.tsx:134,200`, `KomposisiKelas.tsx:182` | a topic's mastery below the mark: «di bawah target», for the topic | **Not the verdict**: a per-topic statement, true as stated | — (unchanged; named so it is not mistaken for one) |
-| Approver's retake queue | `DaftarAntrean.tsx:62-63` (`percobaan_antrean`) | «hasil {x} · target {y}», figures only | **Implied** | §3 Q2 |
+| Class report, topic and chapter means | `KomposisiKelas.tsx:68,287,306,357` (beside `:182`) | a topic's or chapter's mean below the mark | **Not the verdict**: a mean over learners, true as stated (Sharon, PASS condition 1) | — |
+| Learners needing reinforcement | `murid_perlu_penguatan` | reads `safety_gate_passed` with the mastery (latest result per learner) | **OK**: already gate-aware (Sharon, PASS condition 1) | — |
+| The class's pass mark | `target_kelas` (`target-kelas.ts:21`) | the sealed mark only | **Not a verdict** (Sharon, PASS condition 1) | — |
+| Approver's retake queue | `DaftarAntrean.tsx:62-63` (`percobaan_antrean`) | «hasil {x} · target {y}», figures only | **Implied** → **K-01** (Bob's Q2: yes) | Z1: the gate column, under the same `CAN_VIEW_LEARNER_RESULT` condition; the line never reads as reached for a gate failure |
 | Retake eligibility | `may_start_assessment`, `minta_percobaan`, `putuskan_percobaan`, `percobaan_izin_jumlah` | attempts and permissions; none reads mastery, the gate or the mark (checked) | **Not a verdict**: unchanged by K-01 | — |
 | Certificate (learner) | `belajar/[tugas]/sertifikat/page.tsx:90` | `outcome.lulus === true` | **OK** | — |
 | Certificate review (Konfigurasi) | `konfigurasi/sertifikat/page.tsx:96,158` | before, after and target figures, for a certificate under review | **Not a verdict** (only gate passes are certified) | — |
@@ -115,3 +118,24 @@ changed in Z. **Not a verdict** means it states no reached or not-reached.
   Every **OK** row is unchanged, asserted on the same world: the certificate, verification, Pengembangan, Studio and the
   Belajar card.
 - **Both run on a multi-answer sitting too,** after D-1 (plan §3.1).
+
+## 5 · Answers (Sharon PASS with conditions, `Z0-K01-INVENTORY-c9466159.md`, her `e26c405a`; Bob, 23 Nov)
+
+- **Q1, the gate's objectives:** a key in `session_outcome`, computed by one internal helper (result → the objectives of
+  its missed must-be-right items).
+  - The helper's EXECUTE is revoked from client roles, and it has no registry row.
+  - `tujuan_belum_tercapai` calls the same helper under its staff rule.
+  - `session_outcome` stays `session_is_mine`.
+  - The objectives come from the same current result row the verdict reads, never from regrading with today's key.
+  - It is `[]` when the gate passed, and there is no key on PRE_TEST.
+  - Z-K01-01 asserts the learner's key equals `tujuan_belum_tercapai`'s gate rows, and that another learner's session
+    is refused.
+- **Q2, the retake queue:** in K-01 (Bob). The gate column goes in `percobaan_antrean`; Sharon checks it in Z1. The words
+  are Daisy's.
+- **Q3, the teacher pages:** yes. A null, withheld or error `safety_gate_passed` reads as «not known», never «capai», and
+  never pre-ticked as reached.
+- **Integrated check (ruling 81):**
+  - **Scope:** learner, teacher, class reports including Kenaikan, retake eligibility, certificates and recalculated
+    results.
+  - **Learner (i):** the percentage is met, but a must-be-right item is missed.
+  - **Learner (ii):** an approved key correction changes the verdict.
