@@ -151,3 +151,10 @@ The harness commit `4f904638` was explained and pushed under `0959a62c`. A full 
 - OpenAI: US$0.151946 (run 3, 18 Nov).
 - Total: US$0.634200 of US$10.
 - No other spend.
+
+**23 Nov, 00:13 UTC · catalogue revision 5 (Pete, `db6d9e63`).**
+- Closed, with my answers and Daisy's wording check applied. The total is 100.
+- Two forward fixes requested:
+  - the reviewer name in `PERUBAHAN-UNTUK-BOB.md` and `README.md` becomes "Review X" (the PDF text is clean);
+  - the README count becomes 100.
+- **A product question for the owner and Daisy, with no action now:** Peta Bacaan's top tier on screen reads «Sudah dikuasai». A diagnostic of a few questions cannot establish mastery, and ruling 74a defers mastery claims to 4.5. To be triaged with Z's minors.
