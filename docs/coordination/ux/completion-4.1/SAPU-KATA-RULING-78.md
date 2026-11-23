@@ -70,3 +70,9 @@ These words assume the single verdict of ruling 78: the session's `lulus`, which
 **Not changed:**
 - «tim PINTAR» (`lapor.*`) and «pengelola PINTAR» (`pemeliharaan.pesan`) stay. They name the people who handle reports and maintenance, not the role.
 - [B: Bob confirms that the report queue really reaches more than SYSTEM_ADMIN. If it reaches only that role, these become «Admin PINTAR» too.]
+
+## Settled by Bob (23 Nov, 03:24)
+
+- **K-02's double statement:** confirmed. `map.kuat.arti` replaces that slot.
+- **K-01's gate-item objectives:** not available today, because `tujuan_belum_tercapai` returns only objectives below the mark. This needs an SQL change, which Sharon reviews in Z. The words above stand.
+- **«tim PINTAR» and «pengelola PINTAR»:** they stay. They describe readers, not a role name.
