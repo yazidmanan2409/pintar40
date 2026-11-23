@@ -1,0 +1,11 @@
+-- C3w-1 · Sharon's staging checks after the promotion (owner's Request 2). Run by Bob, 23 Nov 2026, about 09:08 UTC, read-only,
+-- on keijhmdtsgrfvnvocfvk. Merge 01bba241 (PR #27, tree equals ed4a90cc); staging.yml 45143556783 success (300 / 20270122190000).
+(a) C3W-R3-BAHAN (scripts/release/after-promotion/c3w-r3-bahan.sql at main, comment lines removed, read-only): OK
+(b) V6: authenticator rolconfig = pgrst.db_pre_request=pintar_permintaan.periksa (unchanged; set by 20261117100000:143); pintar_permintaan.periksa() exists
+(c) ai_* functions (23), EXECUTE by role:
+    authenticated EXECUTE on exactly the five registered: ai_asal_paket, ai_draf_belum_diputuskan, ai_minta_draf, ai_putuskan, ai_tersedia (reg=true)
+    the other 18 are service_role only, with reg=false
+    anon EXECUTE on any ai_* function: 0
+(d) PINTAR_AI_STUB_HARNESS: absent from .github/, every config and every script on main (it occurs only in src/ and selftest/).
+    Staging's Vercel environment-variable NAMES: NOT READ. The Vercel connector refused the team scope (403), and Bob did not widen access.
+    The owner confirms by eye: Vercel → pintar40-staging → Settings → Environment Variables has no PINTAR_AI_STUB_HARNESS.
