@@ -6783,7 +6783,7 @@
     {
       "id": "Z-R8-03",
       "runner": "static",
-      "proves": "selftest/z-ux.test.ts, executing src/lib/tugas-saya.ts with a stand-in database (Sharon's R-8 review): a not-yours id is notFound(), an own certificate's chapter is let through, and a failed certificate read re-throws to the error page, never reading as «not found»."
+      "proves": "selftest/z-ux.test.ts, which executes the source file src/lib/tugas-saya.ts with a stand-in database (Sharon's R-8 review): a not-yours id is notFound(), an own certificate's chapter is let through, and a failed certificate read re-throws to the error page, never reading as «not found»."
     },
     {
       "id": "Z-R8-02",
@@ -6813,7 +6813,7 @@
     {
       "id": "Z-R26-02",
       "runner": "static",
-      "proves": "selftest/z-ux.test.ts, from the stylesheet experience.css (R-26 item 2, ruling 75): a.pin-konteks-pilih keeps its control-sm look and its hit area is extended to control-md (44 px) by an ::after. The browser proof (hit area and identical pixels at 320, 390, 1280) is docs/completion-4.1/batches/z/layar/r26-tekan.ts."
+      "proves": "selftest/z-ux.test.ts, from the source file experience.css (R-26 item 2, ruling 75): a.pin-konteks-pilih keeps its control-sm look and its hit area is extended to control-md (44 px) by an ::after. The browser proof (hit area and identical pixels at 320, 390, 1280) is docs/completion-4.1/batches/z/layar/r26-tekan.ts."
     },
     {
       "id": "Z-S15-01",

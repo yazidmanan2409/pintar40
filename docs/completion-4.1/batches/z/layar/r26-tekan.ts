@@ -123,12 +123,12 @@ const jeda = (ms: number) => new Promise((r) => setTimeout(r, ms));
       const pilih = sp.locator("a.pin-konteks-pilih:visible").first();
       const kotak = await pilih.boundingBox();
       if (!kotak) { periksa(false, `Z-R26-02 «${w}»: a.pin-konteks-pilih is not on screen`); continue; }
-      // the element under a point 3.5 px beyond each edge (string, so the bundler's helpers never reach the page)
-      const kena = async (y: number) => sp.evaluate(`(() => { const e = document.elementFromPoint(${kotak.x + kotak.width / 2}, ${y});
-        return Boolean(e && e.closest("a.pin-konteks-pilih")); })()`);
-      const atas = await kena(kotak.y - 3.5), bawah = await kena(kotak.y + kotak.height + 3.5);
-      periksa(kotak.height + (atas ? 4 : 0) + (bawah ? 4 : 0) >= 44 && atas && bawah && kotak.width >= 44,
-        `Z-R26-02 at ${w} px the hit area of «${(await pilih.innerText()).trim()}» is at least 44 px (drawn ${kotak.width.toFixed(0)}×${kotak.height.toFixed(0)}; 3.5 px above ${atas ? "hits" : "misses"}, below ${bawah ? "hits" : "misses"})`);
+      // the hit area's height, measured: the span of rows, in half-pixel steps along the link's centre line, whose topmost
+      // element is the link (string, so the bundler's helpers never reach the page)
+      const tinggi = await sp.evaluate(`(() => { let n = 0; for (let y = ${kotak.y} - 12; y <= ${kotak.y + kotak.height} + 12; y += 0.5) {
+        const e = document.elementFromPoint(${kotak.x + kotak.width / 2}, y); if (e && e.closest("a.pin-konteks-pilih")) n++; } return n / 2; })()`) as number;
+      periksa(tinggi >= 43.5 && kotak.width >= 44,
+        `Z-R26-02 at ${w} px the hit area of «${(await pilih.innerText()).trim()}» is at least 44 px (drawn ${kotak.width.toFixed(0)}×${kotak.height.toFixed(0)}; it answers over ${tinggi} px)`);
       if (process.env.R26_DIAM) await sp.locator(".pin-konteks-blok:visible").first().screenshot({ path: `${process.env.R26_DIAM}-konteks-${w}.png` });
     }
   } catch (e) {

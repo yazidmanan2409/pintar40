@@ -52,7 +52,7 @@ export default function AkunPlatform({ locale, pid, pidKetik, pidSalah = false, 
         {/* S-11: 12 characters, so «A14C D7ST» or «A14C-D7ST» pasted whole is read (kanonikPintarId) */}
         <input id="akun-pid" name="pid" className="pin-input" defaultValue={pidKetik ?? pid} maxLength={12} autoComplete="off" spellCheck={false}
           aria-invalid={pidSalah ? "true" : undefined} aria-describedby={pidSalah ? "akun-pid-salah" : undefined} />
-        {pidSalah ? <p className="pin-msg pin-msg-err" id="akun-pid-salah">{t("lupa.pin.id_salah", "public", { locale })}</p> : null}
+        {pidSalah ? <BarisHasil nada="gagal" id="akun-pid-salah">{t("lupa.pin.id_salah", "public", { locale })}</BarisHasil> : null}
         <button type="submit" className="pin-btn">{s("keamanan.akun.cari_tombol")}</button>
       </form>
       {pid && !akun ? <p className="pin-meta">{s("keamanan.akun.tidak_ada")}</p> : null}

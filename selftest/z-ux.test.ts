@@ -412,7 +412,7 @@ export const zUxStaticTests: SelfTest[] = [
       const ap = buang(readFileSync(join(repoRoot, "src", "components", "keamanan", "AkunPlatform.tsx"), "utf8"));
       const isian = /<input id="akun-pid"[^>]*\/>/.exec(ap)?.[0] ?? "";
       c.expect(/maxLength=\{12\}/.test(isian) && /aria-invalid=\{pidSalah \? "true" : undefined\}/.test(isian), `the lookup field cuts a pasted ID short or does not mark a malformed one: ${isian}`);
-      c.expect(/\{pidSalah \? <p className="pin-msg pin-msg-err" id="akun-pid-salah">\{t\("lupa\.pin\.id_salah", "public", \{ locale \}\)\}<\/p> : null\}/.test(ap),
+      c.expect(/\{pidSalah \? <BarisHasil nada="gagal" id="akun-pid-salah">\{t\("lupa\.pin\.id_salah", "public", \{ locale \}\)\}<\/BarisHasil> : null\}/.test(ap),
         "a malformed PINTAR ID is not said with the existing sentence (ID_TIDAK_SAH, lupa.pin.id_salah)");
       return c.verdict("executes kanonikPintarId over the shared fixture list (selftest/fixtures/z/pintar-id-normalisasi.json, which R-27(b)'s SQL also uses) and reads the source files of the platform account lookup (S-11): a pasted «A14C D7ST» and its I/L/O, hyphen and space forms are found; the field takes 12 characters; a malformed entry is said with the existing ID_TIDAK_SAH sentence, never an empty page");
     },

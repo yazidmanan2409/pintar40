@@ -3,8 +3,8 @@
 Z-S12-02    FAIL    the reopening route uses the network's pace before it checks the input (S-12); a refused input is not answered as the input's own line (ISIAN), after the same fixed wait; src/lib/buka-kembali.ts (the route's input check) does not exist
 Z-S12-01    FAIL    no identity: answered 303 /masuk/buka-kembali?kode=TUNGGU, not the input's own line (kode=ISIAN); no identity: the page does not say the input's own line, or says «a request was just sent»; a well-formed request after two refused ones was not sent: /masuk/buka-kembali?kode=TUNGGU
 0 passed, 2 failed, 0 skipped, 0 contract problem(s) → RED
-## R-26 items 1+4, docs/completion-4.1/batches/z/layar/r26-tekan.ts in Chromium against next start of 4bf300da (S-12 and R-26 stashed)
-# base 4bf300da (S-12 and R-26 stashed)
+## R-26 items 1, 2 and 4: docs/completion-4.1/batches/z/layar/r26-tekan.ts in Chromium, against next start of a worktree of 4bf300da (port 3998)
+# base 4bf300da (a worktree of it, next start on 3998)
 FAIL  Z-R26-01 Enter twice on «Kirim permintaan» posts once (2 POST)
 PASS  Z-R26-01 the answer is «Terima kasih. …», not «Tunggu» (/masuk/buka-kembali?hasil=terkirim)
 FAIL  Z-R26-01 while on its way the button says «Mengirim…», busy and disabled (null)
@@ -12,7 +12,10 @@ FAIL  Z-R26-04 the reopening button does not narrow while busy (rest 358.0 px, b
 PASS  Z-R26-01 Back shows the verb again, enabled ({"teks":"Kirim permintaan","mati":false,"busy":null})
 FAIL  Z-R26-04 Pendataan's button, busy as «Menyimpan…», does not narrow (rest 247.8 px, busy 136.0 px)
 FAIL  Z-R26-04 the field beside it does not grow into the button's place (452.2 → 564.0 px; code «»)
-## at rest, the two buttons' images on the base and on this tree: identical (cmp), so the width rule changes nothing at rest
+FAIL  Z-R26-02 at 1280 px the hit area of «Mau ke mana hari ini?» is at least 44 px (drawn 164×36; it answers over 36.5 px)
+FAIL  Z-R26-02 at 390 px the hit area of «Mau ke mana hari ini?» is at least 44 px (drawn 164×36; it answers over 36.5 px)
+FAIL  Z-R26-02 at 320 px the hit area of «Mau ke mana hari ini?» is at least 44 px (drawn 164×36; it answers over 36.5 px)
+## at rest, the images of «Kirim permintaan», Pendataan's button and the context block at 1280/390/320, base vs this tree: identical (cmp)
 Z-R26-01    FAIL    TombolKirim has no opt-in `asli` for a native post form, or it changes the server-action path; the native-post button does not hold a second submit at the capture-phase guard, say its busy words, or return to its verb on pageshow; a busy button may narrow (no min-inline-size from the width at submit), or the rule applies at rest; «Kirim permintaan» is still a plain submit but
 0 passed, 1 failed, 0 skipped, 0 contract problem(s) → RED
 Z-R27-02    FAIL    buka_kembali.galat.isian (id): «Isi email atau PINTAR ID, dan pesan 10 sampai 500 karakter.», not «Isi email atau username, dan pesan 10 sampai 500 karakter.»; buka_kembali.galat.isian (en): «Fill in the email or PINTAR ID, and a message of 10 to 500 characters.», not «Fill in the email or username, and a message of 10 to 500 characters.»
