@@ -2273,7 +2273,8 @@ export const experienceTests: SelfTest[] = [
       // change in the institution mark
       // MOVED TO 302, Z: a finished result stays in force while a retake is open (20270123110000, V2): no brand or copy
       // change in the institution mark
-      c.expect(migrations.length === 302, `${migrations.length} migrations; the frozen baseline has 302`);
+      // MOVED TO 303, Z: a pass mark has a floor (20270123120000, K-07): no brand or copy change in the institution mark
+      c.expect(migrations.length === 303, `${migrations.length} migrations; the frozen baseline has 303`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4204,7 +4205,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED TO 300, C3w-1: none of its ten migrations is a tour RPC.
       // MOVED TO 301, Z: D-1's 20270123100000 is not a tour RPC.
       // MOVED TO 302, Z: V2's 20270123110000 is not a tour RPC.
-      c.expect(migs.length === 302, `${migs.length} migrations; the baseline has 302`);
+      // MOVED TO 303, Z: K-07's 20270123120000 is not a tour RPC.
+      c.expect(migs.length === 303, `${migs.length} migrations; the baseline has 303`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

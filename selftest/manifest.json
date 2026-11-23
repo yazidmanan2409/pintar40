@@ -7064,6 +7064,11 @@
       "id": "Z-V2-01",
       "runner": "static",
       "proves": "Z V2 (R-22; Sharon's conditions; ruling 81), red first, selftest/z-v2.test.ts, executes hasil_belajar_sesi_saya as the learner on the seeded finalised Uji Penguasaan, each case rolled back with a later sitting of the same test: none, SELESAI with the finished result; a retake begun or paused, the finished result stays in force with ulang_berjalan; a retake ended unfinished (TERMINATED, EXPIRED), the result kept and no line; a retake finalised later replaces it, no line; an audited recalculation of the result in force is marked on it (D14, sesi_saya_dihitung_ulang). On 300 a later sitting begun or ended turns the summary to BERJALAN with no result. The two-person key-correction path is C1W-S05's world, which now also reads the summary."
+    },
+    {
+      "id": "Z-K07-01",
+      "runner": "static",
+      "proves": "Z K-07 (ruling 78; ruling 81 refinement 6), red first, selftest/z-k07.test.ts, writes each value against the migrations in its own rolled-back transaction with triggers off, so only the column's checks decide: school_pass_marks.percent refuses 0 and 101 and accepts 1 and 100; assessment_assignments.pass_mark and assessment_sessions.pass_mark (fractions) refuse 0 and 1.01, accept 0.01 and 1.00, and allow null; set_school_pass_mark as the school's admin refuses 0 in its own words (from 1 to 100) and accepts 1; the three floors are validated. On 300 a mark of 0 is accepted everywhere."
     }
   ]
 }
