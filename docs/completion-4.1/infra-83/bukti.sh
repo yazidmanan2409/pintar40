@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Ruling 83: the planted failures, one per improvement, each recorded red first (see BUKTI.md).
 #
-#   bash docs/completion-4.1/infra-83/bukti.sh <proof>     proof: image registry clean disk dockerd port midrun midrun2 usedb defect reboot ukuran s1-baris s1-start s2 nits soket registri
+#   bash docs/completion-4.1/infra-83/bukti.sh <proof>     proof: image registry clean disk dockerd port midrun midrun2 usedb defect reboot ukuran s1-baris s1-start s2 nits soket registri reboot-asli
 #
 # Each proof writes docs/completion-4.1/infra-83/bukti-<proof>.txt: the commands, their output, and what was checked.
 # Run in the builder's own container only: the proofs kill the runtime, fill the disk and stop servers.
@@ -285,6 +285,34 @@ TXT
   rm -rf "$SHIM"
   note "the registry back"
   step bash -c 'scripts/dev/siap.sh | tail -1'
+  ;;
+reboot-asli)
+  # B-1 on a REAL reboot. Before the reboot, `tanam` left a socket at /run/containerd/containerd.sock with nothing
+  # behind it (on this machine /run survives a reboot), recording the boot it was planted in. After the reboot this is
+  # exactly Second Eye's state: the runtime not running, the previous boot's socket on disk.
+  S=/run/containerd/containerd.sock; M="$HOME/pintar-preflight/reboot-asli.tanam"
+  if [ "${2:-}" = tanam ]; then
+    mkdir -p /run/containerd; rm -f "$S"
+    python3 -c 'import socket,sys; s=socket.socket(socket.AF_UNIX); s.bind(sys.argv[1])' "$S"
+    echo "$(date -u +%FT%TZ) boot=$(cat /proc/sys/kernel/random/boot_id) uptime=$(cut -d' ' -f1 /proc/uptime)" > "$M"
+    step cat "$M"; step ls -la --time-style=+%FT%T "$S"
+    exit 0
+  fi
+  note "planted in: $(cat "$M" 2>/dev/null || echo '(no plant record)')"
+  note "this boot: $(cat /proc/sys/kernel/random/boot_id), uptime $(cut -d' ' -f1 /proc/uptime) s, kernel booted $(date -u -d "@$(( $(date +%s) - $(cut -d. -f1 /proc/uptime) ))" +%FT%TZ)"
+  grep -q "boot=$(cat /proc/sys/kernel/random/boot_id)" "$M" 2>/dev/null && { echo "NOT A REBOOT: still the boot the socket was planted in"; exit 1; }
+  step bash -c "ls -la --time-style=+%FT%T $S; echo \"bound in the kernel: \$(awk -v p=$S '\$NF==p' /proc/net/unix | wc -l)\"; pgrep -ax dockerd || echo 'no dockerd'; pgrep -ax containerd || echo 'no containerd'"
+  step bash -c "tail -2 '$HOME/pintar-preflight/jejak-mesin.log' | perl -pe 's/ mem_avail=\\S+//'"
+  note "RED: siap.sh at 7696819e, the check-only gate and then the full gate"
+  git show 7696819e:scripts/dev/siap.sh > scripts/dev/.siap-7696819e.sh
+  step bash scripts/dev/.siap-7696819e.sh --tanpa-pulih
+  t0=$(date +%s); step bash scripts/dev/.siap-7696819e.sh; echo "elapsed $(( $(date +%s) - t0 ))s"
+  rm -f scripts/dev/.siap-7696819e.sh
+  step bash -c "grep -E 'Creating a containerd client|Daemon shutdown complete' ${TMPDIR:-/tmp}/pintar-siap-log/dockerd.log | tail -2 | cut -c1-240"
+  note "GREEN: siap.sh now"
+  t0=$(date +%s); step scripts/dev/siap.sh; echo "elapsed $(( $(date +%s) - t0 ))s"
+  step bash -c "ls -la $S 2>&1; docker ps --format '{{.Names}}' | sort | tr '\n' ' '"
+  rm -f "$M"
   ;;
 reboot)
   J="$HOME/pintar-preflight/bukti-reboot"; rm -rf "$J"; mkdir -p "$J"
