@@ -267,3 +267,11 @@ The harness commit `4f904638` was explained and pushed under `0959a62c`. A full 
 - **The critical path is about 11 working days**, against 15.5 + 3. **4.1's gates close in about 3.5–4 weeks.**
 
 **23 Nov · D-6:** the owner authorised two read-only counts on production. They read 0 feedback rounds and 0 results; staging is the same. **All four reads are revoked as well** (all nine RPCs dark; reversible; nothing deleted). **Daisy's V2 words are approved by the owner.**
+
+**23 Nov, 09:46 UTC · Z0's K-01 inventory: Sharon PASS with conditions** (`e26c405a`).
+- **Complete,** once three not-a-verdict rows are added.
+- **Q1:** one internal helper feeds a `session_outcome` key and `tujuan_belum_tercapai`. Its objectives come from the current result row only, it returns [] on a gate pass, and it has no client access.
+- **Q3:** teacher pages may read `safety_gate_passed`; null reads as «not known», never "reached".
+- **Q2:** the retake queue gets the gate.
+
+Relayed to Second Eye. K-01's SQL is unblocked, in order.
