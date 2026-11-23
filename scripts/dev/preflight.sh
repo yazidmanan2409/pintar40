@@ -19,11 +19,12 @@
 # Every step, and every row of the suite, is classed:
 #   PASS   it passed
 #   FAIL   it failed, and the machine was healthy: a finding about the code
-#   INFRA  the machine failed: a lost heartbeat, or a failure whose output carries an infrastructure signal
-#          (disk full, the runtime gone, a registry refusal, the database refusing connections, a missing facility).
-#          The signal that proved it is recorded beside it.
-# The run is GREEN (every step PASS), RED (a FAIL, and no INFRA), or VOID (any INFRA). A VOID run is never red or
-# green evidence, and it is kept like any other run.
+#   INFRA  the machine failed: a lost heartbeat, a heartbeat not READY at the step's end, or a signal code cannot
+#          produce (the runtime gone, a registry refusal). A signal code CAN produce (a missing facility, a port in
+#          use, a refused database, a full disk) is INFRA only on an unhealthy machine, and FAIL on a healthy one.
+# The run is RED when any row is FAIL (its INFRA rows listed beside it), VOID when a row is INFRA and none is FAIL,
+# and GREEN when every step passed (scripts/dev/kelas.sh, after Sharon's S-1). A VOID run is never red or green
+# evidence, and it is kept like any other run. After an INFRA row the remaining steps are NOT RUN.
 #
 # Output (kept, never cleaned): DIR (default $HOME/pintar-preflight/<commit>-<UTC time>): SUMMARY.txt, ROWS.txt (the
 # suite's rows with their class), HEARTBEAT.txt, and one log per step. The local stack's keys are redacted from them.
@@ -56,36 +57,16 @@ SUM="$OUT/SUMMARY.txt"; HB="$OUT/HEARTBEAT.txt"
 : > "$HB"
 { echo "commit $SHA"; echo "started $(date -u +%FT%TZ)"; echo "steps $STEPS"; echo "heartbeat every ${DENYUT}s"; } > "$SUM"
 
-# The infrastructure signals: <pattern>|<cause>. A failure carrying one is the machine's, not the code's.
-SIGNALS=(
-  'No space left on device|disk'
-  'ENOSPC|disk'
-  'nospc|disk'
-  'Check free disk space|disk'
-  'Cannot connect to the Docker daemon|runtime'
-  'docker.sock: connect|runtime'
-  'toomanyrequests|registry'
-  '429 Too Many Requests|registry'
-  'connection to server at "127.0.0.1", port 54322 failed|database'
-  'ECONNREFUSED 127.0.0.1:5432[0-9]|database'
-  'the database system is (shutting down|starting up|in recovery mode)|database'
-  'facility missing: (db|app|network|build|mail)|facility'
-  'EADDRINUSE.*:3999|port'
-)
-signal_in() { # <file>: prints "<cause>: <the line>" for the first infrastructure signal in it
-  local s pat cause line
-  for s in "${SIGNALS[@]}"; do
-    pat="${s%|*}"; cause="${s##*|}"
-    line="$(grep -m1 -E -- "$pat" "$1" 2>/dev/null)" && { echo "$cause: $(echo "$line" | cut -c1-200)"; return 0; }
-  done
-  return 1
-}
-redact() { # the local stack's keys never stay in a kept file
+# How a failure is classed (S-1: RED first; INFRA only on an unhealthy machine or a cause code cannot produce)
+source "$REPO/scripts/dev/kelas.sh"
+source "$REPO/scripts/dev/tapis.sh"
+redact() { # no kept file holds a key: the stack's own values, and every key shape tapis.sh knows (S-2)
   local f
-  for f in "$OUT"/*; do
-    [ -f "$f" ] || continue
+  for f in "$OUT"/* "${SIAP_LOG_DIR:-${TMPDIR:-/tmp}/pintar-siap-log}"/*; do
+    [ -f "$f" ] && [ ! -L "$f" ] || continue
     K1="${NEXT_PUBLIC_SUPABASE_ANON_KEY:-}" K2="${SUPABASE_SERVICE_ROLE_KEY:-}" perl -pi -e \
       'for my $k (@ENV{qw(K1 K2)}) { next unless length($k) > 8; s/\Q$k\E/«key redacted»/g }' "$f"
+    tapis_berkas "$f"
   done
 }
 row() { echo "$1" | tee -a "$SUM"; }
@@ -93,11 +74,13 @@ VOID=0; FAILED=0
 
 finish() {
   local verdict code
-  if [ "$VOID" = 1 ]; then verdict="VOID"; code=3
-  elif [ "$FAILED" = 1 ]; then verdict="RED"; code=1
-  else verdict="GREEN"; code=0; fi
+  verdict="$(putusan "$FAILED" "$VOID")"
+  case "$verdict" in RED) code=1 ;; VOID) code=3 ;; *) code=0 ;; esac
   { echo "finished $(date -u +%FT%TZ)"; echo "RUN $verdict"; } >> "$SUM"
-  [ "$VOID" = 1 ] && echo "VOID, not a result: an INFRA row above says what the machine did. Fix that and repeat the run on the same commit." >> "$SUM"
+  if [ "$verdict" = RED ] && [ "$VOID" = 1 ]; then
+    echo "RED, with INFRA beside it: the FAIL rows above are findings about the code; the INFRA rows listed with them say what the machine also did." >> "$SUM"
+  fi
+  [ "$verdict" = VOID ] && echo "VOID, not a result: an INFRA row above says what the machine did, and no row failed. Fix that and repeat the run on the same commit." >> "$SUM"
   rm -f "$JEJAK_DIR/berjalan"
   redact
   echo "preflight: RUN $verdict ($OUT)"
@@ -193,9 +176,13 @@ run_step() { # <name>
   echo "== $name" >> "$SUM"
   if [ "$RESET" = 1 ] && { [ "$name" = suite ] || [ "$name" = plants ]; }; then
     if ! timeout 900 npx --no-install supabase db reset --local > "$OUT/$name-reset.log" 2>&1; then
-      local why hb
-      why="$(signal_in "$OUT/$name-reset.log")" || { hb="$(heartbeat)" && why="the forced reset failed on a healthy machine (its log: $name-reset.log)" || why="$hb"; }
-      row "INFRA  $name  forced reset failed: $why"; VOID=1; return
+      local hb k sehat=1
+      hb="$(heartbeat)" || sehat=0
+      k="$(kelas_teks "$OUT/$name-reset.log" "$sehat")"
+      if [ "$sehat" = 0 ]; then row "INFRA  $name  forced reset failed, the machine not healthy: $hb"; VOID=1
+      elif [ "${k%% *}" = INFRA ]; then row "INFRA  $name  forced reset failed: ${k#INFRA }"; VOID=1
+      else row "FAIL   $name  forced reset failed on a healthy machine (a migration or seed?): ${k#FAIL} (its log: $name-reset.log)"; FAILED=1; fi
+      return
     fi
     echo "forced reset: done (supabase db reset --local)" >> "$SUM"
   fi
@@ -217,50 +204,45 @@ run_step() { # <name>
   if [ -n "$lost" ]; then
     row "INFRA  $name  heartbeat lost after $(( $(date +%s) - t0 ))s: $lost (step stopped)"; VOID=1; return
   fi
-  local why hb rows=""
-  [ "$name" = suite ] && rows="$(classify_rows "$log")"
+  # the machine's health through the step: every beat READY (a lost one stopped it above) and READY at its end
+  local hb sehat=1 k
+  hb="$(heartbeat)" || sehat=0
   if [ "$RESET" = 0 ] && { [ "$name" = suite ] || [ "$name" = plants ]; }; then
-    # I-2: a db step on a world that was not reset first is never evidence, whichever way it went
-    row "INFRA  $name  rc=$rc: world: the database was not reset before this step (--tanpa-reset), so its rows are not evidence"; VOID=1
-  elif [ "$rc" = 0 ]; then
-    row "PASS   $name  rc=0 ($(( $(date +%s) - t0 ))s)$( [ "$name" = suite ] && echo "  $(grep -E '→ (GREEN|RED)$' "$log" | tail -1)")"
-  elif ! hb="$(heartbeat)"; then
-    row "INFRA  $name  rc=$rc: the machine was lost by the end of the step: $hb"; VOID=1
-  elif [ "$name" = suite ] && [ -n "$rows" ]; then
-    # the suite: its rows decide (a justified skip's text must not void a real failure)
-    row "INFRA  $name  rc=$rc: $rows"; VOID=1
-  elif [ "$name" != suite ] && why="$(signal_in "$log")"; then
-    row "INFRA  $name  rc=$rc: $why"; VOID=1
-  else
-    row "FAIL   $name  rc=$rc: $(grep -E '→ RED$|^FAILED|failed|Error' "$log" | tail -1 | cut -c1-200)"; FAILED=1
+    # I-2: a db step on a world that was not reset is not clean evidence; listed as INFRA, and its FAIL rows still count
+    row "INFRA  $name  world: the database was not reset before this step (--tanpa-reset)"; VOID=1
   fi
-  [ "$name" = suite ] && cat "$OUT/rows.sum" >> "$SUM"
+  if [ "$name" = suite ]; then
+    kelas_baris "$log" "$sehat" "$OUT"
+    if [ "$N_FAIL" -gt 0 ]; then
+      row "FAIL   $name  rc=$rc: $N_FAIL FAIL row(s), first $FIRST_FAIL$([ "$N_INFRA" -gt 0 ] && echo "; beside them $N_INFRA INFRA row(s), first $FIRST_INFRA")"
+      FAILED=1; [ "$N_INFRA" -gt 0 ] && VOID=1
+    elif [ "$N_INFRA" -gt 0 ]; then
+      row "INFRA  $name  rc=$rc: $N_INFRA INFRA row(s), first $FIRST_INFRA"; VOID=1
+    elif [ "$rc" = 0 ]; then
+      row "PASS   $name  rc=0 ($(( $(date +%s) - t0 ))s)  $(grep -E '→ (GREEN|RED)$' "$log" | tail -1)"
+    elif [ "$sehat" = 0 ]; then
+      row "INFRA  $name  rc=$rc: the machine was lost by the end of the step: $hb"; VOID=1
+    else
+      k="$(tail -40 "$log" > "$OUT/.tail"; kelas_teks "$OUT/.tail" 1)"; rm -f "$OUT/.tail"
+      if [ "${k%% *}" = INFRA ]; then row "INFRA  $name  rc=$rc: ${k#INFRA }"; VOID=1
+      else row "FAIL   $name  rc=$rc: $(grep -E '→ RED$|^CONTRACT|crashed' "$log" | tail -1 | cut -c1-200) ${k#FAIL}"; FAILED=1; fi
+    fi
+    cat "$OUT/rows.sum" >> "$SUM"
+  elif [ "$rc" = 0 ]; then
+    row "PASS   $name  rc=0 ($(( $(date +%s) - t0 ))s)"
+  elif [ "$sehat" = 0 ]; then
+    row "INFRA  $name  rc=$rc: the machine was lost by the end of the step: $hb"; VOID=1
+  else
+    k="$(kelas_teks "$log" 1)"
+    if [ "${k%% *}" = INFRA ]; then row "INFRA  $name  rc=$rc: ${k#INFRA }"; VOID=1
+    else row "FAIL   $name  rc=$rc: $(grep -E '→ RED$|^FAILED|failed|Error' "$log" | tail -1 | cut -c1-200) ${k#FAIL}"; FAILED=1; fi
+  fi
 }
 
-classify_rows() { # the suite's rows, each with its class
-  local log="$1" id st detail cls sig n_infra=0 n_fail=0
-  : > "$OUT/ROWS.txt"
-  awk '/^id +status +detail$/{on=1; next} on && /^[0-9]+ passed, /{exit} on && NF' "$log" > "$OUT/rows.raw"
-  while IFS= read -r line; do
-    # fields by whitespace, not by column: run.ts pads ids to 11, and longer ids push the status right
-    read -r id st detail <<< "$line"
-    case "$st" in
-      PASS|SKIP\*) cls=PASS ;;
-      *) printf '%s\n' "$detail" > "$OUT/.row"
-         if sig="$(signal_in "$OUT/.row")"; then cls="INFRA ($sig)"; n_infra=$((n_infra + 1)); else cls=FAIL; n_fail=$((n_fail + 1)); fi ;;
-    esac
-    printf '%-11s %-6s %s\n' "$id" "$st" "$cls" >> "$OUT/ROWS.txt"
-  done < "$OUT/rows.raw"
-  rm -f "$OUT/.row" "$OUT/rows.raw"
-  echo "rows: $(wc -l < "$OUT/ROWS.txt") classed; $n_fail FAIL, $n_infra INFRA (ROWS.txt)" > "$OUT/rows.sum"
-  # prints the first INFRA row's signal (the caller voids the run on it); nothing when no row is INFRA
-  [ "$n_infra" -gt 0 ] && grep -m1 ' INFRA (' "$OUT/ROWS.txt" | sed -E 's/^([^ ]+) +[^ ]+ +INFRA \((.*)\)$/\1 is INFRA (\2), and '"$n_infra"' row(s) in all/'
-  return 0
-}
 
 IFS=, read -r -a LIST <<< "$STEPS"
 for s in "${LIST[@]}"; do
-  if [ "$VOID" = 1 ]; then row "NOT RUN $s  (the run is VOID)"; continue; fi
+  if [ "$VOID" = 1 ]; then row "NOT RUN $s  (an INFRA row above: the machine is not to be trusted for the rest)"; continue; fi
   run_step "$s"
 done
 finish

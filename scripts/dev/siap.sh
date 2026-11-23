@@ -21,6 +21,9 @@
 # Order: disk, runtime, images, stack, port. Each line it prints is `siap: <check> <ok|pulih|…>`; the last line is
 # READY or INFRA. It never prints a key, a token or `supabase status` output.
 #
+# Scope (N-3): a single-user sandbox (the builder's or a session container). A leaked app server is stopped only when
+# it belongs to the user running the gate; anything else on the port is named and left alone.
+#
 # Environment: SIAP_DISK_MIN_GB, SIAP_PORT (3999), SIAP_DB_URL (the local stack's), SIAP_LOG_DIR (where dockerd's log
 # goes; default $TMPDIR/pintar-siap-log), SIAP_PULL_TRIES (4), SIAP_PULL_WAIT (5: seconds, tripled per retry),
 # SIAP_HEALTH_WAIT (120 s).
@@ -49,6 +52,7 @@ WAIT0="${SIAP_PULL_WAIT:-5}"
 HEALTH_WAIT="${SIAP_HEALTH_WAIT:-120}"
 EXCLUDE="studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta,mailpit"
 
+source "$REPO/scripts/dev/tapis.sh"   # S-2: nothing this gate writes keeps a key
 say() { echo "siap: $*"; }
 RESULT=""
 infra() { RESULT="INFRA $1: $2"; echo "$RESULT"; exit 3; }
@@ -193,9 +197,9 @@ cek_stack() {
   if [ -z "$(docker ps -q --filter name=supabase_db_)" ]; then
     say "stack not running: supabase start"
     sudo -n sysctl -q -w net.ipv4.ip_local_reserved_ports=54320-54329 2>/dev/null || sysctl -q -w net.ipv4.ip_local_reserved_ports=54320-54329 2>/dev/null || true
-    (cd "$REPO" && timeout 900 npx --no-install supabase start -x "$EXCLUDE" >"$LOGDIR/supabase-start.log" 2>&1) \
+    (cd "$REPO" && timeout 900 npx --no-install supabase start -x "$EXCLUDE" 2>&1 | tapis >"$LOGDIR/supabase-start.log") \
       || { (cd "$REPO" && npx --no-install supabase stop --no-backup >/dev/null 2>&1); sleep 5;
-           (cd "$REPO" && timeout 900 npx --no-install supabase start -x "$EXCLUDE" >>"$LOGDIR/supabase-start.log" 2>&1) \
+           (cd "$REPO" && timeout 900 npx --no-install supabase start -x "$EXCLUDE" 2>&1 | tapis >>"$LOGDIR/supabase-start.log") \
              || infra stack "supabase start failed twice (its log: $LOGDIR/supabase-start.log)"; }
   fi
   if ! mail_ok; then
@@ -223,7 +227,11 @@ cek_port() {
   for p in $pids; do
     cmd="$(tr '\0' ' ' < "/proc/$p/cmdline" 2>/dev/null | cut -c1-120)"
     case "$cmd" in
-      *next-server*|*next\ start*|*next/dist/bin/next*) leaked="$leaked $p" ;;
+      *next-server*|*next\ start*|*next/dist/bin/next*)
+        # N-3: only this user's server is ours to stop
+        [ "$(stat -c %u "/proc/$p" 2>/dev/null)" = "$(id -u)" ] \
+          || infra port "$PORT is held by an app server of another user (pid $p, uid $(stat -c %u "/proc/$p" 2>/dev/null)): not stopped"
+        leaked="$leaked $p" ;;
       *) infra port "$PORT is held by pid $p ($cmd), which is not an app server this harness starts" ;;
     esac
   done
@@ -237,7 +245,7 @@ cek_port() {
   say "port $PORT pulih (leaked server stopped)"
 }
 
-[ "$MODE" = heartbeat ] || cek_mulai_ulang
+[ "$MODE" = heartbeat ] || { tapis_berkas "$LOGDIR"/*.log; cek_mulai_ulang; }
 if [ "$MODE" = heartbeat ]; then
   cek_disk; cek_runtime
   db_ok || infra stack "the database does not answer on 54322"

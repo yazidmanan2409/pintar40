@@ -22,6 +22,11 @@
 #   scripts/dev/bersih.sh --hapus    removes the candidates it printed (clones via `git worktree remove`)
 #
 # The last line is `bersih: <n> removed|would be removed, <size>; <k> kept`.
+#
+# SCOPE (N-3): this is for a single-user sandbox, the builder's or a session container, where the temp folder holds
+# only this user's runs. It still checks ownership, but it is not designed for a shared multi-user host.
+# Also kept (N-1, N-2): a name the harness creates whose literal prefix is shorter than 4 characters is refused as a
+# pattern, and a clone whose HEAD no branch or tag reaches (it may hold the only copy of a commit).
 # ---------------------------------------------------------------------------
 set -uo pipefail
 
@@ -44,13 +49,20 @@ esac
 case "$REPO/" in "$TMP"/*) echo "bersih: refusing: the checkout $REPO is inside the temp folder $TMP"; exit 2 ;; esac
 
 # ---- the names the harness creates, from its own source ----------------------------------------------------------
+MIN_PREFIX=4   # N-1: a harness name shorter than this would match too much; it is refused, not used
 patterns() {
+  local raw
   # mkdtemp: "<prefix>" + exactly six [A-Za-z0-9]
-  grep -rhoE 'mkdtempSync\(join\(tmpdir\(\), "[A-Za-z0-9._-]+"' "$REPO/selftest" "$REPO/scripts/dev" 2>/dev/null \
-    | sed -E 's/.*"([^"]+)"$/\1/' | sort -u | sed -E 's/[.]/\\./g; s/$/[A-Za-z0-9]{6}/'
+  while IFS= read -r raw; do
+    if [ "${#raw}" -lt "$MIN_PREFIX" ]; then echo "bersih: refusing the harness prefix «$raw» (shorter than $MIN_PREFIX characters)" >&2; continue; fi
+    printf '%s[A-Za-z0-9]{6}\n' "${raw//./\\.}"
+  done < <(grep -rhoE 'mkdtempSync\(join\(tmpdir\(\), "[A-Za-z0-9._-]+"' "$REPO/selftest" "$REPO/scripts/dev" 2>/dev/null | sed -E 's/.*"([^"]+)"$/\1/' | sort -u)
   # template names: join(tmpdir(), `<text${expr}text>`), each ${…} a run of digits (a pid)
-  grep -rhoE 'join\(tmpdir\(\), `[A-Za-z0-9._${}-]+`' "$REPO/selftest" "$REPO/scripts/dev" 2>/dev/null \
-    | sed -E 's/.*`([^`]+)`$/\1/' | sort -u | sed -E 's/[.]/\\./g; s/\$\{[^}]*\}/[0-9]+/g'
+  while IFS= read -r raw; do
+    local lit="${raw%%\$\{*}"
+    if [ "${#lit}" -lt "$MIN_PREFIX" ]; then echo "bersih: refusing the harness name «$raw» (a literal start shorter than $MIN_PREFIX characters)" >&2; continue; fi
+    raw="${raw//./\\.}"; printf '%s\n' "$(sed -E 's/\$\{[^}]*\}/[0-9]+/g' <<< "$raw")"
+  done < <(grep -rhoE 'join\(tmpdir\(\), `[A-Za-z0-9._${}-]+`' "$REPO/selftest" "$REPO/scripts/dev" 2>/dev/null | sed -E 's/.*`([^`]+)`$/\1/' | sort -u)
 }
 mapfile -t PATS < <(patterns)
 [ "${#PATS[@]}" -gt 0 ] || { echo "bersih: refusing: no harness names found in the source (wrong checkout?)"; exit 2; }
@@ -83,6 +95,10 @@ for path in "$TMP"/*; do
   clone=0
   if [ -d "$real" ] && [ -e "$real/.git" ]; then
     clone=1
+    # N-2: a clone whose HEAD no ref reaches holds commits that exist nowhere else
+    if [ -z "$(GIT_OPTIONAL_LOCKS=0 git -C "$real" for-each-ref --contains HEAD --count=1 2>/dev/null)" ]; then
+      keep "$path" "a clone whose HEAD ($(git -C "$real" rev-parse --short HEAD 2>/dev/null)) no branch or tag reaches"; continue
+    fi
     changed="$(GIT_OPTIONAL_LOCKS=0 git -C "$real" status --porcelain --untracked-files=all -- docs z-evidence ':(glob)**/z-evidence/**' 2>/dev/null | head -3)"
     if [ -n "$changed" ]; then keep "$path" "a clone with changed or untracked evidence: $(echo "$changed" | head -1 | cut -c4-)"; continue; fi
   elif [ -d "$real" ]; then

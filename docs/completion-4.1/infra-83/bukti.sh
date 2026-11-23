@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Ruling 83: the planted failures, one per improvement, each recorded red first (see BUKTI.md).
 #
-#   bash docs/completion-4.1/infra-83/bukti.sh <proof>     proof: image registry clean disk dockerd port midrun midrun2 usedb defect reboot ukuran
+#   bash docs/completion-4.1/infra-83/bukti.sh <proof>     proof: image registry clean disk dockerd port midrun midrun2 usedb defect reboot ukuran s1-baris s1-start s2 nits
 #
 # Each proof writes docs/completion-4.1/infra-83/bukti-<proof>.txt: the commands, their output, and what was checked.
 # Run in the builder's own container only: the proofs kill the runtime, fill the disk and stop servers.
@@ -126,6 +126,108 @@ midrun)
   step cat "$HOME/pintar-preflight/bukti-midrun/HEARTBEAT.txt"
   note "recovery for the next proof"
   step scripts/dev/siap.sh
+  ;;
+s1-baris)
+  L="$HOME/pintar-preflight/bukti-s1-baris"; rm -rf "$L"; mkdir -p "$L"
+  note "plant: a suite log with one real defect row, one INFRA row (a signal code cannot produce), one ambiguous row, and passes"
+  cat > "$L/suite.log" <<'LOG'
+id          status  detail
+Z-T03-01    FAIL    email.aman.diatur_ulang.isi (en): «An Admin PINTAT reset recovery …» (a planted defect)
+A2A-C705    FAIL    the scenario could not run: Cannot connect to the Docker daemon at unix:///var/run/docker.sock (simulated INFRA)
+F01-R01     SKIP    facility missing: app
+F01-T01     PASS    passes
+F01-R04     SKIP*   justified
+3 passed, 1 failed, 1 skipped, 0 contract problem(s) → RED
+LOG
+  step cat "$L/suite.log"
+  note "RED: the classifier as it was at 61bb1e3e (before S-1): an INFRA row collapses the suite into one INFRA row, and VOID is checked before RED"
+  git show 61bb1e3e:scripts/dev/preflight.sh > "$L/lama.sh"
+  { awk '/^SIGNALS=\(/,/^\)$/' "$L/lama.sh"; awk '/^signal_in\(\)/,/^}$/' "$L/lama.sh"; awk '/^classify_rows\(\)/,/^}$/' "$L/lama.sh"
+    echo 'OUT="$1"; r="$(classify_rows "$OUT/suite.log")"; cat "$OUT/ROWS.txt"; cat "$OUT/rows.sum"'
+    echo 'if [ -n "$r" ]; then echo "suite row: INFRA  suite  rc=1: $r"; echo "RUN VOID   (61bb1e3e: VOID is checked before RED)"; fi'; } > "$L/lama-kelas.sh"
+  step bash "$L/lama-kelas.sh" "$L"
+  note "GREEN: scripts/dev/kelas.sh, on a healthy machine (1) and on an unhealthy one (0)"
+  for sehat in 1 0; do
+    step bash -c "source scripts/dev/kelas.sh; kelas_baris '$L/suite.log' $sehat '$L'; cat '$L/ROWS.txt' '$L/rows.sum'; echo \"N_FAIL=\$N_FAIL N_INFRA=\$N_INFRA → RUN \$(putusan \$([ \$N_FAIL -gt 0 ] && echo 1 || echo 0) \$([ \$N_INFRA -gt 0 ] && echo 1 || echo 0))\""
+  done
+  note "and VOID only when no row failed: the same log without the defect row, on an unhealthy machine"
+  grep -v "Z-T03-01" "$L/suite.log" > "$L/s2.log"; mkdir -p "$L/tanpa"
+  step bash -c "source scripts/dev/kelas.sh; kelas_baris '$L/s2.log' 0 '$L/tanpa'; cat '$L/tanpa/ROWS.txt'; echo \"→ RUN \$(putusan \$([ \$N_FAIL -gt 0 ] && echo 1 || echo 0) \$([ \$N_INFRA -gt 0 ] && echo 1 || echo 0))\""
+  ;;
+s1-start)
+  f=src/instrumentation.ts
+  note "plant: a defect that stops next start (the server's register() throws), on a healthy machine; one app test selected"
+  printf '%s\n' 'export function register() {' '  throw new Error("planted (ruling 83 S-1): the server refuses to start");' '}' > "$f"
+  step git status --short "$f"
+  note "RED: the runner as it was at 61bb1e3e reads the missing app facility as INFRA, VOID: the defect is hidden"
+  git show 61bb1e3e:scripts/dev/preflight.sh > scripts/dev/.preflight-61bb1e3e.sh
+  step bash scripts/dev/.preflight-61bb1e3e.sh --langkah=suite --keluar="$HOME/pintar-preflight/bukti-s1-start-lama" -- --only=F01-R01
+  rm -f scripts/dev/.preflight-61bb1e3e.sh
+  step bash -c "grep -E '^(PASS|FAIL|INFRA|RUN|rows)' '$HOME/pintar-preflight/bukti-s1-start-lama/SUMMARY.txt'; grep -m3 -iE 'planted|refuses|could not start|did not start' '$HOME/pintar-preflight/bukti-s1-start-lama/suite.log' | cut -c1-200"
+  note "GREEN: the runner now: the machine is healthy, so «facility missing: app» is FAIL and the run is RED"
+  step scripts/dev/preflight.sh --langkah=suite --keluar="$HOME/pintar-preflight/bukti-s1-start" -- --only=F01-R01
+  step bash -c "grep -E '^(PASS|FAIL|INFRA|RUN|rows)' '$HOME/pintar-preflight/bukti-s1-start/SUMMARY.txt'; cat '$HOME/pintar-preflight/bukti-s1-start/ROWS.txt'"
+  rm -f "$f"; step git status --short src
+  ;;
+s2)
+  note "plant: a supabase start that prints planted keys first (an npx shim on PATH; everything else passes through to npx), with the stack stopped"
+  SHIM="$(mktemp -d)"; REALNPX="$(command -v npx)"
+  {
+    echo '#!/usr/bin/env bash'
+    echo 'if [[ " $* " == *" supabase start "* ]]; then'
+    echo "  echo '{\"ANON_KEY\":\"eyJhbGciOiJIUzI1NiJ9.eyJwbGFudGVkIjoiUzIifQ.PLANTEDPLANTEDPLANTED\",\"SERVICE_ROLE_KEY\":\"eyJhbGciOiJIUzI1NiJ9.eyJwbGFudGVkIjoiUzIifQ.PLANTEDSERVICEROLE00\",\"JWT_SECRET\":\"PLANTED-S2-jwt-secret-0123456789abcdef\",\"SECRET_KEY\":\"sb_secret_PLANTEDs2PLANTEDs2\"}'"
+    echo "  echo 'JWT secret: PLANTED-S2-jwt-secret-0123456789abcdef'"
+    echo 'fi'
+    echo "exec \"$REALNPX\" \"\$@\""
+  } > "$SHIM/npx"
+  chmod +x "$SHIM/npx"
+  LOGD="${TMPDIR:-/tmp}/pintar-siap-log"
+  hits() { grep -rlE 'PLANTED-S2|PLANTEDPLANTED|PLANTEDSERVICEROLE|sb_secret_PLANTED' "$LOGD" "$HOME/pintar-preflight" 2>/dev/null | grep -v 'bukti-s2' || echo "(none)"; }
+  note "RED: siap.sh as it was at 61bb1e3e"
+  git show 61bb1e3e:scripts/dev/siap.sh > scripts/dev/.siap-61bb1e3e.sh
+  step npx --no-install supabase stop
+  PATH="$SHIM:$PATH" step bash scripts/dev/.siap-61bb1e3e.sh
+  rm -f scripts/dev/.siap-61bb1e3e.sh
+  note "files holding a planted key:"; hits
+  note "GREEN: siap.sh now (it also scrubs what the old one left, at the start of the gate)"
+  step npx --no-install supabase stop
+  PATH="$SHIM:$PATH" step scripts/dev/siap.sh
+  note "files holding a planted key:"; hits
+  step bash -c "grep -oE '«redacted»|«key redacted»|«jwt[a-z ]*redacted»' '$LOGD/supabase-start.log' | sort | uniq -c"
+  step bash -c "grep -cE 'eyJ[A-Za-z0-9_-]{8,}\.|sb_secret_|super-secret-jwt|PLANTED' '$LOGD/supabase-start.log' || true"
+  rm -rf "$SHIM"
+  ;;
+nits)
+  T="${TMPDIR:-/tmp}"; old="$(date -d '-3 hours' '+%Y%m%d%H%M')"
+  note "plant N-1: a harness file that creates a 2-character prefix (ab), and an aged folder of that name"
+  printf '%s\n' 'import { mkdtempSync } from "node:fs"; import { join } from "node:path"; import { tmpdir } from "node:os";' 'export const planted = () => mkdtempSync(join(tmpdir(), "ab"));' > selftest/zz-n1-planted.ts
+  mkdir -p "$T/abN1pl4x"; echo "a folder some other tool made" > "$T/abN1pl4x/x"
+  note "plant N-2: an abandoned red-case clone with a commit that no branch or tag reaches"
+  git worktree add -q --detach "$T/pintar-redcase-990003" HEAD
+  ( cd "$T/pintar-redcase-990003" && echo n2 > n2-planted.txt && git add n2-planted.txt && git -c user.name=plant -c user.email=plant@example.invalid commit -q -m "N-2 planted: exists only here" )
+  find "$T/abN1pl4x" "$T/pintar-redcase-990003" -exec touch -h -t "$old" {} +
+  note "RED: bersih.sh as it was at 61bb1e3e (dry run): it would remove both"
+  git show 61bb1e3e:scripts/dev/bersih.sh > scripts/dev/.bersih-61bb1e3e.sh
+  step bash -c "bash scripts/dev/.bersih-61bb1e3e.sh | grep -E 'abN1pl4x|990003|^bersih'"
+  rm -f scripts/dev/.bersih-61bb1e3e.sh
+  note "GREEN: bersih.sh now (dry run, then --hapus): the prefix is refused and the clone kept"
+  step bash -c "scripts/dev/bersih.sh 2>&1 | grep -E 'refusing|abN1pl4x|990003|^bersih'"
+  step bash -c "scripts/dev/bersih.sh --hapus 2>&1 | grep -E 'refusing|abN1pl4x|990003|^bersih'"
+  step ls -d "$T/abN1pl4x" "$T/pintar-redcase-990003"
+  rm -f selftest/zz-n1-planted.ts; rm -rf "$T/abN1pl4x"; git worktree remove --force "$T/pintar-redcase-990003"
+  note "plant N-3: a server named next-server on :3999, owned by another user (nobody)"
+  setpriv --reuid=65534 --regid=65534 --clear-groups bash -c 'exec -a "next-server (planted, another user)" python3 -m http.server 3999 --bind 127.0.0.1' > /dev/null 2>&1 < /dev/null &
+  sleep 2; step bash -c 'fuser -v -n tcp 3999 2>&1 | tail -1'
+  note "RED: siap.sh as it was at 61bb1e3e stops it"
+  git show 61bb1e3e:scripts/dev/siap.sh > scripts/dev/.siap-61bb1e3e.sh
+  step bash -c 'bash scripts/dev/.siap-61bb1e3e.sh | grep -E "port|READY|INFRA"'
+  rm -f scripts/dev/.siap-61bb1e3e.sh
+  setpriv --reuid=65534 --regid=65534 --clear-groups bash -c 'exec -a "next-server (planted, another user)" python3 -m http.server 3999 --bind 127.0.0.1' > /dev/null 2>&1 < /dev/null &
+  sleep 2
+  note "GREEN: siap.sh now names it and leaves it"
+  step bash -c 'scripts/dev/siap.sh | grep -E "port|READY|INFRA"'
+  step bash -c 'fuser -n tcp 3999 >/dev/null 2>&1 && echo "still running (not stopped)" || echo "stopped"'
+  pkill -f "next-server \(planted"
   ;;
 reboot)
   J="$HOME/pintar-preflight/bukti-reboot"; rm -rf "$J"; mkdir -p "$J"
