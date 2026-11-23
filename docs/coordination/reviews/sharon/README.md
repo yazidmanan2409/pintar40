@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| Counsel brief (ruling 85) | NOT YET fit to send: 5 corrections (excerpt check, retention, tools, Q6 locations, Q4 wording) | a744f91a | [COUNSEL-BRIEF-R85-a744f91a.md](COUNSEL-BRIEF-R85-a744f91a.md) |
 | Z9 staging-promotion evidence (300→308) | PASS; C4 closed | 0237cf2a | [Z9-PROMOTION-0237cf2a.md](Z9-PROMOTION-0237cf2a.md) |
 | Z8 R-15 item classes; item 8 (last school admin) | 1–7 CONFIRMED; 8 Z agreed, with (b)–(e) incl. revoke_role route | 36299159 | [Z8-R15-CLASSES-36299159.md](Z8-R15-CLASSES-36299159.md) |
 | Z5 S-01 (a rename keeps every setting) | PASS | 4dbb448f | [Z5-S01-4dbb448f.md](Z5-S01-4dbb448f.md) |
