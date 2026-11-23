@@ -38,3 +38,22 @@
 1. The owner opens the map (the provider block), on his Mac.
 2. Then the ruling 40 checks.
 3. Then the **D-7 decision returns to the owner** (25 Nov, 10:00 UTC). **Nothing is activated automatically.**
+
+## The map opened (23 Nov 2026, after every score was final)
+
+The owner read the map on his Mac. **Its fingerprint matches the committed seal:** `112714f445ffc21731df68db70a0e038e33180e9ba6794cf734ea3a914315e59`. Only the provider block was printed.
+
+| Code | Provider | Accepted (Q1) | Q2: alignment / distractors / language / burden | Scoring verdict |
+|---|---|---|---|---|
+| **A** | **OpenAI** | 29/30 | 2.000 / 1.817 / 1.967 / 1.883 | Qualifies |
+| **B** | **Anthropic** | 26/30 | 2.000 / 1.733 / 1.850 / 1.667 | Qualifies |
+
+**Rank** (for the evidence, not a selection; §4.3): by summed educational score, A is first and B second. Both had 30/30 valid items and 0 critical key errors.
+
+**Ruling 40's other checks are not yet closed for either provider** (E-DECISION-PACK §1):
+- **OpenAI:** its terms are not read, which covers training, the eligibility of the educator-only workflow (ruling 44) and synthetic educational text.
+- **Both:** the subprocessor lists, G1 and G2, are not read.
+- **Both:** the personal-data transfer basis under Indonesian law (PR-1, with counsel).
+- **Operational:** run reliability and the cost per accepted draft, reported beside the results (§4.5) from the run records.
+
+**So no provider is commercially qualified yet, and nothing is activated.** The D-7 checkpoint (25 Nov, 10:00 UTC) returns to the owner with these facts.
