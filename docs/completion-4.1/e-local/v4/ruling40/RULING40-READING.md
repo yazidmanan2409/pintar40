@@ -286,3 +286,27 @@ The hosts were extracted from the saved file only. No new request was made in th
 - **Collect Anthropic's API retention document by manual PDF.** The page is the one cited in E-DECISION-PACK §1: `https://privacy.claude.com/en/articles/7996866`.
 - Sharon then completes her assessment and settles blocking condition (1).
 - C3w-1's review gates are left undisturbed.
+
+## Anthropic API retention: the owner's PDF (23 Nov 2026) · **READ**
+
+- **The file:** "How long do you store my organization's data? | Anthropic Privacy Center", from `privacy.claude.com/en/articles/7996866`.
+- **The page's date:** **July 2, 2026.**
+- **The copy:** created 23 Nov 2026, 06:00 UTC (3 pages). sha256 `e408e6d1ba73d4fdffc6577d857eff5db219343516fa2aaacd57d18e91fb15e9`. Supplied by the owner.
+
+**Verbatim:**
+- "For Anthropic API users, we automatically delete inputs and outputs on our backend within 30 days of receipt or generation, except:
+  - When you use a service with longer retention under your control (e.g. Files API)
+  - When you and we have agreed otherwise (e.g. zero data retention agreement)
+  - If we need to retain them for longer to enforce our Usage Policy (UP)
+  - In compliance with the law"
+- "**Covered Models.** Additionally, for Covered Models, we require limited data retention and review as a part of our safety work. To learn more about Covered Models and these requirements, see here."
+- "We retain inputs and outputs for up to 2 years and trust and safety classification scores for up to 7 years if your chat is flagged by our automated trust and safety systems as violating our Usage Policy."
+- "If permitted in your contract with us, we may anonymize your organization's data for research or statistical purposes, in which case we may retain this information for longer."
+- "Where you have provided feedback to us … we retain data associated with that submission for 5 years."
+
+**Interpretation:**
+- **Comparable to OpenAI's** 30-day default. Longer retention applies only to flagged content, which differs from OpenAI's, and to anything the law requires.
+- PINTAR uses no Files API and sends no feedback.
+- **New point: "Covered Models."** Their extra retention and review are **NOT READ**: the linked page was not collected. Whether the evaluated model is a Covered Model is unknown.
+
+**For Sharon:** does this settle blocking condition (1), and does "Covered Models" need reading first?
