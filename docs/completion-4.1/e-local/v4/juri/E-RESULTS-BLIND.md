@@ -70,3 +70,34 @@ The owner read the map on his Mac. **Its fingerprint matches the committed seal:
 **Total E spend: US$0.634200 of US$10.**
 
 These are single-run figures for one chapter pair. They are evidence for C3w's limits and later pricing (rulings 38–40), not a forecast.
+
+## Ruling 40 reading, first pass (23 Nov 2026, read-only, official pages only)
+
+**Anthropic: READ** (downloaded page text, quoted verbatim):
+- **Commercial Terms:** effective **17 Jun 2025, unchanged.**
+  - A.1 still permits use "to power products and services Customer makes available to its own customers and end users".
+  - §B: "Anthropic may not train models on Customer Content from Services".
+  - No age, minors or education clause.
+- **DPA:** effective 24 Feb 2025. **Incorporated automatically** by Commercial Terms §C.
+  - Transfers use the EU SCCs (Modules 2 and 3), with UK and Swiss addenda, plus help with transfer impact assessments.
+  - **Indonesia is not mentioned.**
+- **Usage Policy: CHANGED, effective 12 Nov 2026.** It is newer than the record, and the page also shows 17 Nov 2026.
+  1. "Products serving minors, including organizations providing minors with the ability to directly interact with products that incorporate our API(s)…" must follow extra guidelines.
+     - **PINTAR's design:** learners never interact with the AI; only adult educators draft, and their drafts go through acceptance. So it should fall outside this clause. **Bob's reading, for counsel to confirm.**
+  2. A high-risk category covers "grading an exam or assessment that determines … certification (outside of multiple-choice testing)".
+     - **PINTAR's design:** AI does not grade; it drafts multiple-choice items that a qualified educator accepts. That is outside the category.
+- **Subprocessor list: NOT READ.** `trust.anthropic.com` is blocked by this session's network.
+
+**OpenAI: NOT READ.** Every OpenAI host (`openai.com`, `cdn.openai.com`, `platform.openai.com`, `developers.openai.com`, `help.openai.com`) is blocked by this session's network.
+- Search summaries only, **unverified**:
+  - Services Agreement v.010126 (1 Jan 2026);
+  - Usage Policies (20 Nov 2026);
+  - API retention: abuse-monitoring logs up to 30 days; zero retention by prior approval;
+  - an under-18 developer guidance page;
+  - a DPA entered by form.
+- **None of these count as read.**
+
+**Still open for ruling 40:**
+- OpenAI's terms, usage policies, subprocessors and DPA;
+- Anthropic's subprocessors;
+- the transfer basis under Indonesian law (PR-1, counsel).
