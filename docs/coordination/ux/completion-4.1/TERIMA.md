@@ -72,3 +72,4 @@
 | 23 Nov, 09:35 | Bob (ruling 81) | V2 in-progress status, final words | — | `Z-V2-KATA.md` rewritten (first draft superseded) |
 | 23 Nov, 09:44 | Bob | K-01 retake-queue line | `c9466159` inventory | `kesempatan.baris.hasil_gerbang`, in `SAPU-KATA-RULING-78.md` |
 | 23 Nov, 09:49 | Bob | K-01 gate-unknown words | — | Added to `SAPU-KATA-RULING-78.md` |
+| 23 Nov, 10:11 | Bob | Z3 stream B review | `claude/z-ux` `4bf300da` | **PASS**; notes N-14 (tujuan_arti after K-01 SQL), N-15 |
