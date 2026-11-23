@@ -12,6 +12,9 @@
 --     recent attempt's effective result, under its existing staff rule. Restated in full from their live definitions.
 --   * percobaan_antrean gains gerbang, the same last result's gate, under the same CAN_VIEW_LEARNER_RESULT condition as
 --     the figure and the target; its return type changes, so it is dropped and created, its grant restated.
+--   * Bob's ruling on Sharon's pre-existing item (Z1-SQL-df8d84a0.md): the queue's last result, its figure and now its
+--     gate, is the result in force (hasil_terkini_id, D11), not the newest computed_at; a recalculation stamped before
+--     its original was read as superseded.
 -- ---------------------------------------------------------------------------------------------------------------
 
 create function public.tujuan_gerbang_terlewat(p_result uuid)
@@ -200,14 +203,13 @@ begin
            -- the last result and its target only for a reader who may see this learner's results (a head of department;
            -- a school admin decides without them: 20260924100000, an administrator is not an examiner)
            case when public.can_on_node('CAN_VIEW_LEARNER_RESULT', coalesce(s.class_node_id, s.cohort_node_id))
-                then (select ar.mastery from public.assessment_results ar where ar.session_id = s.id
-                       order by ar.computed_at desc, ar.id desc limit 1) end,
+                -- Z (Bob's ruling on Sharon's Z1 pre-existing item): the result in force (D11), not the newest computed_at
+                then (select ar.mastery from public.assessment_results ar where ar.id = public.hasil_terkini_id(s.id)) end,
            case when public.can_on_node('CAN_VIEW_LEARNER_RESULT', coalesce(s.class_node_id, s.cohort_node_id)) then s.pass_mark end,
            -- Z K-01 (Bob's Q2): that same last result's must-be-right gate, under the same condition, so a learner who
            -- missed one is never read as reached beside a figure above the target
            case when public.can_on_node('CAN_VIEW_LEARNER_RESULT', coalesce(s.class_node_id, s.cohort_node_id))
-                then (select ar.safety_gate_passed from public.assessment_results ar where ar.session_id = s.id
-                       order by ar.computed_at desc, ar.id desc limit 1) end
+                then (select ar.safety_gate_passed from public.assessment_results ar where ar.id = public.hasil_terkini_id(s.id)) end
       from public.attempt_requests r
       join public.assessment_sessions s on s.id = r.session_id
       join public.persons p on p.id = r.person_id
@@ -237,4 +239,14 @@ begin
      or not exists (select 1 from public.client_rpc_registry where function_name = 'percobaan_antrean') then
     raise exception 'Z K-01: percobaan_antrean lost its grant or registry row';
   end if;
+  if position('computed_at desc' in pg_get_functiondef('public.percobaan_antrean(uuid)'::regprocedure)) > 0
+     or position('hasil_terkini_id' in pg_get_functiondef('public.percobaan_antrean(uuid)'::regprocedure)) = 0 then
+    raise exception 'Z K-01: the retake queue does not read the result in force';
+  end if;
 end $$;
+
+-- ADR-0021 (F06-S01; Bob, found by stream B): every function this migration creates is revoked from PUBLIC after its
+-- last create. PUBLIC held no EXECUTE on any of them before (CREATE OR REPLACE keeps the grants), so this changes nothing
+-- at runtime; it states the rule where the rule is read.
+revoke execute on function public.session_outcome(uuid) from public;
+revoke execute on function public.tujuan_belum_tercapai(uuid, uuid) from public;

@@ -7183,12 +7183,12 @@
     {
       "id": "Z-V6-01",
       "runner": "static",
-      "proves": "Z V6 (R-25; Sharon VERIFY-58), selftest/z-v6.test.ts, reads and runs scripts/release/after-promotion/v6-pre-request.sql, the read-only check a promotion runs on staging and production: OK on the migrated world (authenticator's pgrst.db_pre_request is pintar_permintaan.periksa and the function exists); on two plants rolled back (the setting removed, the setting pointing elsewhere) it names each difference; OK again after."
+      "proves": "Z V6 (R-25; Sharon VERIFY-58), selftest/z-v6.test.ts, executes the file scripts/release/after-promotion/v6-pre-request.sql against the migrated database, the read-only check a promotion runs on staging and production: OK on the migrated world (authenticator's pgrst.db_pre_request is pintar_permintaan.periksa and the function exists); on two plants rolled back (the setting removed, the setting pointing elsewhere) it names each difference; OK again after."
     },
     {
       "id": "Z-R27-01",
       "runner": "static",
-      "proves": "Z R-27(b) (Sharon; the shared fixture selftest/fixtures/z/pintar-id-normalisasi.json), selftest/z-r27.test.ts: on a closed account whose PINTAR ID is the fixture's (rolled back), minta_buka_kembali records a REOPEN request exactly for the cases marked cocok (the card's grouping, a hyphen, lower case, I or L for 1) and for none of the others (a near miss, wrong lengths, U, an email containing the ID, a username, empty); pintar_id_canonical gives each case's kanonik; the answer is the same whether or not it matched."
+      "proves": "Z R-27(b) (Sharon; the shared fixture selftest/fixtures/z/pintar-id-normalisasi.json), selftest/z-r27.test.ts, executes minta_buka_kembali from migration 20270123160000 against the migrated database: on a closed account whose PINTAR ID is the fixture's (rolled back), minta_buka_kembali records a REOPEN request exactly for the cases marked cocok (the card's grouping, a hyphen, lower case, I or L for 1) and for none of the others (a near miss, wrong lengths, U, an email containing the ID, a username, empty); pintar_id_canonical gives each case's kanonik; the answer is the same whether or not it matched."
     }
   ]
 }

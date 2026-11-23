@@ -73,6 +73,12 @@ exec_now as (
    where n.nspname = 'public' and has_function_privilege('authenticated', p.oid, 'EXECUTE')),
 exec_release as (
   select function_name as f from public.client_rpc_registry
+  -- Z D-6 (R-17, 20270123140000): the anonymous feedback round is dark. Its nine stay registered (nothing is deleted;
+  -- its code still names them) and are revoked from authenticated by name, so they are pinned OUT of the released set:
+  -- a grant that comes back reads +name here until the round is reopened by its own migration, which removes this line
+   where function_name <> all (array['close_feedback_cycle', 'feedback_questionnaire', 'feedback_result',
+                                     'feedback_subjects_for_class', 'my_feedback_cycles', 'open_feedback_cycle',
+                                     'publish_feedback_question_set', 'publish_feedback_threshold', 'submit_feedback'])
   union
   select unnest(string_to_array(
   'bank_tier_rank difficulty_band eligible_items_for_definition engine_version evidence_readiness ' ||

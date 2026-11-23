@@ -69,3 +69,8 @@ begin
     raise exception 'Z V5: transfer_execute does not refuse a closed source enrolment by name';
   end if;
 end $$;
+
+-- ADR-0021 (F06-S01; Bob, found by stream B): every function this migration creates is revoked from PUBLIC after its
+-- last create. PUBLIC held no EXECUTE on any of them before (CREATE OR REPLACE keeps the grants), so this changes nothing
+-- at runtime; it states the rule where the rule is read.
+revoke execute on function public.transfer_execute(uuid) from public;

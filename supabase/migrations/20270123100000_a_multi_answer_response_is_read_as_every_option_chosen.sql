@@ -16,6 +16,12 @@
 --     counts a response right by the scorer itself, grade_kunci against the key in force, one row per response.
 --   * A single answer reads byte-identically (Z-D1-01 compares each reader's output on the seeded sitting). Every
 --     definition is restated in full from its live text; grants, view options and the registry are unchanged.
+--   * CATALOGUE: unchanged (D-060(c)). Every metric's definition, source list, calculator and audience keep their meaning;
+--     the three service sources now read the response the definition always meant (each option a multi-answer response
+--     chose; right by the key in force, as F-1 already made the item's own reading). A figure moves only where a
+--     multi-answer response or an approved key correction exists, and every single answer reads as before (Z-D1-01).
+--     scripts/release/before-import/d1-multi-answer.sql counts the multi-answer responses before a promotion. No new
+--     catalogue is published. ENGINE: no engine function is touched.
 -- ---------------------------------------------------------------------------------------------------------------
 
 create or replace function public.pilihan_dipilih(p_value jsonb)
@@ -352,3 +358,11 @@ begin
     raise exception 'Z D-1: the choice helpers are for SQL only';
   end if;
 end $$;
+
+-- ADR-0021 (F06-S01; Bob, found by stream B): every function this migration creates is revoked from PUBLIC after its
+-- last create. PUBLIC held no EXECUTE on any of them before (CREATE OR REPLACE keeps the grants), so this changes nothing
+-- at runtime; it states the rule where the rule is read.
+revoke execute on function public.session_review(uuid) from public;
+revoke execute on function public.session_misconceptions(uuid) from public;
+revoke execute on function public.reading_map(uuid) from public;
+revoke execute on function public.teacher_question_evidence(uuid, uuid) from public;

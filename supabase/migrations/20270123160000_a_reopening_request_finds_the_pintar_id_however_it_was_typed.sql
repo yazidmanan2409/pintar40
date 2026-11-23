@@ -66,3 +66,8 @@ begin
     raise exception 'Z R-27(b): minta_buka_kembali is no longer service_role only';
   end if;
 end $$;
+
+-- ADR-0021 (F06-S01; Bob, found by stream B): every function this migration creates is revoked from PUBLIC after its
+-- last create. PUBLIC held no EXECUTE on any of them before (CREATE OR REPLACE keeps the grants), so this changes nothing
+-- at runtime; it states the rule where the rule is read.
+revoke execute on function public.minta_buka_kembali(text, text) from public;
