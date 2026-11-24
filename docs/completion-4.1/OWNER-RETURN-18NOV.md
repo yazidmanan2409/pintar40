@@ -444,3 +444,9 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
   - Both are sent to the builder, with proof required on a real reboot.
   - L-6 is recorded: planted proofs are not enough; prove against the real incident where it can be reproduced.
   - Second Eye's review confirmed the classes against today's real runs (df0cbc9c and ec082bc4 RED, f5700bd1 GREEN, the voids VOID).
+- **24 Nov 00:06–00:09 UTC · Z MERGED AND PROMOTED TO STAGING (ruling 87).**
+  - PR #28 CI 45288739714 success; merged `61a6ff9e` (tree = `a8d9ff27`; 8 sha256 match).
+  - staging.yml 45294352172 success, 300 → 308.
+  - **AFTER: only lines 10, 84, 85 and 86 moved, as predicted**; the digest equals the dry run's; every preserved line and the feedback records are identical.
+  - C4 met (all three floors validated). v6 OK. c3w-r3-bahan OK.
+  - **Open for the owner:** the dashboard check for `PGRST_DB_PRE_REQUEST`; staging acceptance; the D-1 containment decision (not lifted). Evidence: `batches/z/z-promotion/`.

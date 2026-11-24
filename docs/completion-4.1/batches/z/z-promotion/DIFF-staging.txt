@@ -1,0 +1,12 @@
+3c3
+< 10|300 / 20270122190000; versions digest 47bb91380ff0f65fd09b13ab2f249c7b
+---
+> 10|308 / 20270123170000; versions digest 8844154d58534b221bc5d933607ed0aa
+63,65c63,65
+< 84|-
+< 85|9 (anon 0, authenticated 9)
+< 86|2: feedback_cycles/authenticated, feedback_opportunities/authenticated
+---
+> 84|assessment_assignments_pass_mark_floor:true, assessment_sessions_pass_mark_floor:true, school_pass_marks_percent_floor:true
+> 85|0 (anon 0, authenticated 0)
+> 86|0: -
