@@ -132,3 +132,18 @@ Every gate reads `bersertifikasi` (condition 2):
   - **S21 and C12d** use the owner's 74a words («Lulus.» / «Belum lulus.»).
   - **S23l** uses ruling 90's line.
 - **The PASS stands on `4d382ec2`** once both runs are green, all jobs in one attempt. **R-1 closes at the same moment.**
+
+## Addendum · FROZEN `177ab4d2` (ruling 93): the test restatements PASS, conditional on ci 45362136992 and journeys 45362140705, attempt 1 (24 Nov 2026, 09:20 UTC)
+
+- **The product diff is empty:** `git diff 5550e508 177ab4d2 -- src supabase` shows nothing, so the product PASS carries over.
+- **C1W-J01 is stronger.**
+  - The order is pinned: verdict, counts, `hasil.dikoreksi`, then `hasil.tidak_ditampilkan`.
+  - It still forbids any percentage under the title, `Hasil asli: <digit>`, and the delta line.
+  - The only relaxation is that the words «Hasil asli» may appear inside `hasil.dikoreksi`'s own sentence, with no figure. That is exactly the approved text, and no number can pass.
+- **J6.4b → J6.4:** J6.4 continues the same sitting on the same signed-in device session, instead of opening a new one.
+  - That removes the walk's accidental cross-device resume. It does not remove the rule: A3's controller tests still assert «Lanjutkan di sini» from another device, so the one-device rule remains proved where it belongs.
+- **The R-h pins** (S21h, B6 and B10, as checked at `4d382ec2`) are unchanged in substance. F06-S04's `proves` text is wording only.
+- **Noted, no condition:**
+  - L-43 (the teacher's screen not yet drawing `percobaan_ke`) and harness H-1 sit in the ledger.
+  - L-43 discloses nothing: it is an omission on a staff screen.
+- **D2-R: PASS on `177ab4d2`** once both runs are green in attempt 1. **R-1 closes then.** The promotion verdict follows on the AFTER read.
