@@ -57,3 +57,11 @@
 | W5 | Approved; Sharon's pre-build review pending |
 | W6 | Not started (after W3) |
 | W7 | Not started |
+
+## 4 · Pacing (owner, 24 Nov: usage isn't monitored overnight)
+
+Bob paces the work. The usage allowance is shared by every session.
+- **One heavy build at a time.** Second Eye's streams run in sequence, never in parallel. The builder's CI capture runs aren't stacked on top of Second Eye's full pre-flights.
+- **No waste.** Use focused tests during development, a full verification only at the acceptance boundary (ruling 93), and no speculative reruns. Messages stay short.
+- **If a session hits a usage limit, it stops cleanly.** It commits its work-in-progress notes (never a half-finished push to a PR), resumes after the reset from its own record, and never reports partial work as done.
+- **Quality isn't traded for pace.** If the allowance runs short, the work takes longer; it doesn't get thinner.
