@@ -7555,6 +7555,11 @@
       "proves": "Daisy's D2R-KATA §11 (deacb184), red first, d2r.test.ts, renders src/components/laporan/KomposisiMurid.tsx and reads src/lib/hasil-belajar.ts: every certifying row, Lulus or Belum lulus, gives its sections in hasilbelajar.baca_lagi and marks them hasilbelajar.baca_lagi_tanda by name in section B with no figure; more than two are counted in hasilbelajar.baca_lagi_banyak; non-certifying rows keep hasilbelajar.ulang and «pelajari lagi»."
     },
     {
+      "id": "D2R-C08",
+      "runner": "static",
+      "proves": "H-1 (Daisy's recheck of 5dace1ad, the owner's ruling), red first, d2r.test.ts, renders src/components/laporan/KomposisiMurid.tsx: a certifying row on Hasil Belajar and its print shows no Uji Penguasaan, Pemetaan Awal or target percentage, no bar or marks, while keeping its verdict and «{b} dari {t} soal»; the comparison line and the bar legend are drawn only with a non-certifying row; a non-certifying row is unchanged."
+    },
+    {
       "id": "D2R-F02",
       "runner": "static",
       "proves": "D2-R R-f, red first, d2r.test.ts, reads the source of src/components/siklus/HasilBersertifikasi.tsx: the certifying result shows the attempt ordinal from session_outcome."

@@ -372,6 +372,10 @@ export const d2rTests: SelfTest[] = [
       c.expect(/href="\/belajar\/t1\/sertifikat"/.test(S.isi) && teksHtml(S.isi) === harapSiap, `being prepared: not «${harapSiap}», as one line: «${teksHtml(S.isi)}»`);
       c.expect(!teksHtml(siap.out).includes(id("sertifikat.disiapkan.arti")) && !teksHtml(tanpa.out).includes(id("sertifikat.disiapkan.arti")), "the result draws sertifikat.disiapkan.arti");
       c.expect(siap.out.indexOf("data-sertifikat") < siap.out.indexOf("data-baca-lagi") && !/data-ulang-boleh/.test(siap.out), "on a pass the certificate is not before «Baca lagi:», or a retake line is drawn");
+      // N-22 (Daisy's recheck): the link is screen-only; in print it would read as bare words
+      c.expect(/<a[^>]*class="[^"]*\bpin-noprint\b[^"]*"[^>]*href="\/belajar\/t1\/sertifikat"|<a[^>]*href="\/belajar\/t1\/sertifikat"[^>]*class="[^"]*\bpin-noprint\b/.test(S.isi + T.isi)
+        && /@media print \{[^}]*\.pin-noprint \{ display: none !important; \}/.test(baca(ctx.repoRoot, "src/app/experience.css").replace(/\s+/g, " ")),
+        "the certificate link is printed (N-22: it must carry pin-noprint)");
       c.expect(!/\/sertifikat"/.test(belum.out), "a «Belum lulus.» result links to a certificate");
       const hasil = tanpaKomentar(baca(ctx.repoRoot, "src/app/belajar/[tugas]/hasil/page.tsx")).replace(/\s+/g, " ");
       c.expect(/engine\.myCertificate\([^)]*\)\.catch\(\(\) => null\)/.test(hasil) && /sedangDisiapkan\(/.test(hasil) && /<HasilBersertifikasi\b[^>]*\bsertifikatDisiapkan=\{/.test(hasil),
@@ -405,6 +409,7 @@ export const d2rTests: SelfTest[] = [
       c.expect(tautan !== null && tautan[1] === id("siklus.lihat_sertifikat"), "a certifying «Lulus» row does not link to its certificate with «siklus.lihat_sertifikat»");
       const iL = out.indexOf(`>${id("hasil.lulus")}</small>`);
       c.expect(iL >= 0 && tautan !== null && out.indexOf(tautan[0]) > iL && out.indexOf(tautan[0]) < out.indexOf("</li>", iL), "the row's certificate link is not after its «Lulus»");
+      c.expect(tautan !== null && /\bpin-noprint\b/.test(tautan[0]), "the row's certificate link is printed (N-22: it must carry pin-noprint)");
       c.expect(!/href="\/belajar\/t2\/sertifikat"/.test(out), "a «Belum lulus» row links to a certificate");
       c.expect(!/href="\/belajar\/t3\/sertifikat"/.test(out), "a non-certifying row gains the certificate link (Daisy's C-1 is the certifying result's)");
       return c.verdict("rendered: on Hasil Belajar a certifying «Lulus» row links to /belajar/{tugas}/sertifikat with «siklus.lihat_sertifikat» after its verdict; a «Belum lulus» row and a non-certifying row do not");
@@ -499,6 +504,44 @@ export const d2rTests: SelfTest[] = [
       c.expect(/const ulang = bersertifikasi \? bagianUlang\(null, null, peta, pelajaran, outcome\.tujuan_gerbang_kode \?\? \[\], outcome\.tujuan_ulang \?\? \[\]\)/.test(lib),
         "Hasil Belajar does not list a certifying result's sections whatever its decision");
       return c.verdict("rendered: on Hasil Belajar every certifying row, Lulus or Belum lulus, gives its sections in «Disarankan dibaca lagi:» and marks them «baca lagi» by name in section B with no figure; more than two are counted in «baca lagi»'s own words; non-certifying rows keep «Pelajari lagi»; the library lists a certifying pass's sections from its own list");
+    },
+  },
+  {
+    id: "D2R-C08",
+    run: async (ctx) => {
+      const c = new Checks();
+      const { t } = await import("../src/lib/hle");
+      const id = (k: string) => t(k as never, "learner", { locale: "id" });
+      // H-1 (Daisy's recheck of 5dace1ad, the owner's ruling): a certifying row on Hasil Belajar and its print shows no
+      // mastery figure, as the result page withholds it: no Uji Penguasaan, Pemetaan Awal or target percentage, no bar or
+      // marks, no comparison line; the verdict and «{b} dari {t} soal» stay. Non-certifying rows are unchanged.
+      const render = (bab: unknown[]) => {
+        const skrip = 'const { createElement: h } = await import("react");'
+          + 'const { renderToStaticMarkup } = await import("react-dom/server");'
+          + 'const m = await import("file://" + process.cwd() + "/src/components/laporan/KomposisiMurid.tsx");'
+          + "const K = m.default?.default ?? m.default;"
+          + "process.stdout.write(renderToStaticMarkup(h(K, { bab: JSON.parse(process.env.PROPS), locale: 'id' })));";
+        const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
+          `(async () => {${skrip}})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });`],
+        { cwd: ctx.repoRoot, encoding: "utf8", env: { ...process.env, PROPS: JSON.stringify(bab) } });
+        return { ok: anak.status === 0, out: anak.stdout, err: (anak.stderr || "").slice(0, 300) };
+      };
+      const sert = { tugas: "t1", judul: "IPA · Bab 2", keadaan: "SELESAI", awal: 0.25, akhir: 0.63, ambang: 0.7, tercapai: "BELUM", benar: 5, total: 8, bagian: [], ulang: [], bersertifikasi: true };
+      const biasa = { tugas: "t3", judul: "IPA · Bab 4", keadaan: "SELESAI", awal: 0.4, akhir: 0.9, ambang: 0.75, tercapai: "TERCAPAI", benar: 9, total: 10, bagian: [], ulang: [] };
+      const r = render([sert, biasa]);
+      const hanya = render([sert]);
+      if (!c.expect(r.ok && hanya.ok, `KomposisiMurid could not be rendered: ${r.err || hanya.err}`)) return c.verdict("");
+      const baris = (h: string, judul: string) => { const i = h.indexOf(`<span class="pin-lk-nama">${judul}</span>`); const a = h.lastIndexOf("<li", i); return i >= 0 ? h.slice(a, h.indexOf("</li>", i) + 5) : ""; };
+      const bS = baris(r.out, "IPA · Bab 2"), bN = baris(r.out, "IPA · Bab 4");
+      c.expect(bS !== "" && !/\d\s?%/.test(teksHtml(bS)) && !/(width|left):\s?\d/.test(bS) && !/pin-lk-isi|pin-lk-titik|pin-lk-target/.test(bS),
+        `a certifying row shows a mastery figure, its bar or its marks: «${teksHtml(bS)}»`);
+      c.expect(teksHtml(bS).includes(id("hasilbelajar.nilai").replace("{b}", "5").replace("{t}", "8")) && teksHtml(bS).includes(id("hasil.belum_lulus")),
+        "a certifying row lost its verdict or its «{b} dari {t} soal»");
+      c.expect(/pin-lk-isi/.test(bN) && /\d\s?%/.test(teksHtml(bN)), "a non-certifying row lost its figures (only certifying rows change)");
+      const arti = id("siklus.delta_arti");
+      c.expect(teksHtml(r.out).includes(arti) && !teksHtml(hanya.out).includes(arti), "the comparison line is drawn with only certifying rows, or dropped with a non-certifying one");
+      c.expect(!/pin-lk-pita-ket/.test(hanya.out), "the bar's legend is drawn with only certifying rows");
+      return c.verdict("rendered: a certifying row on Hasil Belajar shows no Uji Penguasaan, Pemetaan Awal or target percentage, no bar or marks, while keeping its verdict and «{b} dari {t} soal»; the comparison line and the bar legend are drawn only when a non-certifying row is; a non-certifying row is unchanged");
     },
   },
   {
