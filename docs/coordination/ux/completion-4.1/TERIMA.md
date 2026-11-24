@@ -105,3 +105,4 @@
 | 24 Nov, 02:00 | Bob | D2-R: attempt ordinal + STANDALONE no-help line | `claude/d2r` `e6544f57` | «Kesempatan ke-{n}»; `posttest.tanpa_bantuan_umum` |
 - **24 Nov 02:23Z · Bob:** usage at 82%; hold new work until D2-R's CI head arrives for 1f, or 03:30Z. Holding.
 - **24 Nov 03:21Z · Bob:** the owner says it is safe to resume. Two questions due at about 03:31 (J1's PIN-try count, the «kunci jawaban» exemption). 1f waits for Second Eye's CI head.
+- **24 Nov 03:31Z · Bob:** J1 walked at audit-79-world 7f360d93, with no OBSERVED rows; two notes (PIN ×3, a mistyped number). **Answered 03:35:** the count was already fixed at d7a96318; same wording for a mistyped number is kept (no enumeration), and the line must name both causes and the next step.
