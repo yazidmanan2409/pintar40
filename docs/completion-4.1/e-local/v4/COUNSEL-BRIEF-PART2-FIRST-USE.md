@@ -1,6 +1,6 @@
 # Request for legal advice, part 2: PINTAR's first use (a draft for the owner)
 
-**Status:** FIT TO SEND (Sharon, `COUNSEL-BRIEF-P2-371e3b48.md`) once the mail host's processing region is confirmed. Supabase was confirmed on 24 Nov. The backup is a proposal and is stated as such. Prepared by Bob on 24 Nov 2026 (ruling 89; readiness register PR-1, PR-2 and PR-19). It is for Sharon's check, then the owner's confirmation of scope.
+**Status:** FIT TO SEND (Sharon, `COUNSEL-BRIEF-P2-371e3b48.md`) with the provider locations as stated. Supabase and the `pintarselalu.com` hosting server (Singapore) were confirmed by the owner on 24 Nov. Namecheap's possible additional relay or processing locations are stated as unverified. The backup is a proposal and is stated as such. Prepared by Bob on 24 Nov 2026 (ruling 89; readiness register PR-1, PR-2 and PR-19). It is for Sharon's check, then the owner's confirmation of scope.
 - **It follows part 1** (`COUNSEL-BRIEF-RULING85.md`, the AI questions), which stays unchanged and fit to send.
 - **Fees:** the estimate requested in part 1 must be **re-confirmed for both parts together** before any work begins. No fees are incurred until the owner confirms in writing.
 
@@ -15,7 +15,7 @@
   |---|---|---|
   | Supabase | The database (accounts, learning activity, results, audit records), stored files, and its own daily backups | Singapore (`ap-southeast-1`), confirmed by the owner from the dashboard (24 Nov) |
   | Vercel | Hosts the application; personal data passes through it in requests and is not stored by PINTAR there | Singapore (`sin1`, from `vercel.json`) |
-  | Namecheap (the `pintarselalu.com` mail host) | Sends sign-in and notice emails over SMTPS (`pintarselalu.com:465`, from `noreply@pintarselalu.com`), configured in Supabase Auth by `configure-supabase-smtp.yml` | *Unverified: the owner confirms where Namecheap processes this mail* |
+  | Namecheap (the `pintarselalu.com` mail host) | Sends sign-in and notice emails over SMTPS (`pintarselalu.com:465`, from `noreply@pintarselalu.com`), configured in Supabase Auth by `configure-supabase-smtp.yml` | **Hosting server: Singapore**, confirmed by the owner (24 Nov). *Any further email processing or relay locations Namecheap may use are unverified* |
   | Google Cloud Storage, **if the off-site backup is authorised and switched on** (the owner's preferred option) | Encrypted off-site backup copies | Jakarta (`asia-southeast2`), proposed; not yet created |
 
 - **Who runs it:** PINTAR's owner operates the platform. The school appoints its own administrator, who enrols learners.
@@ -26,7 +26,7 @@
 1. **Status under UU PDP (Law 27/2022).** For the pilot, is PINTAR the controller, a processor for the school, or a joint controller? What written agreement with the school is needed?
 2. **PSE registration.** Does operating PINTAR for this pilot require registration as a private electronic system operator (PSE Lingkup Privat)? If so, before the pilot or before wider use?
 3. **Retention and deletion (roadmap decision R-2).** For each kind of record we keep, is our proposed retention lawful and proportionate? The records are: account data, learning activity and answers, results, audit records, and backups. The proposal is attached on request. Off-site backups are encrypted to two recovery keys held by separate custodians. In particular: may a backup keep data after a person's deletion request, until the backup expires (privacy line O11)?
-4. **Data location (E-K6-1).** Is holding the pilot's personal data with providers outside Indonesia acceptable? What safeguards or notices does UU PDP require for that transfer?
+4. **Data location (E-K6-1).** Is holding the pilot's personal data with providers outside Indonesia acceptable? What safeguards or notices does UU PDP require for that transfer? Where a provider's further processing locations are unknown (for example, an email provider's relays), what must PINTAR establish?
 5. **Content rights (Q5).** Educators upload or import their own teaching material and questions. What licence or terms should PINTAR obtain from the school and the educators to store, display and reuse that content within the school?
 6. **Notices and consent for adults.** What must the pilot's privacy notice say? Is consent the right basis for an adult learner's data, or another basis such as a contract with the school?
 7. **Breaches and people's requests.**
