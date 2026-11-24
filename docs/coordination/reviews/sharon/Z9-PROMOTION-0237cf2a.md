@@ -33,3 +33,13 @@
   - Record the frozen head on the README, as planned.
 
 **C4 (Z1) is closed by line 84.** From my Z reviews nothing is open, apart from the 4.2 notes recorded in Z8.
+
+## Addendum · staging AFTER (24 Nov 2026, 00:20 UTC): consistent, nothing to question
+
+- **The query on staging** is `preservation-Z.sql` at `595a0d3a`, sha256 `998d3f59…`. That equals the file I passed at `0237cf2a`.
+- **My own diff** of `z-promotion/preservation-Z-staging-BEFORE.txt` against AFTER, on `98911d5b`:
+  - only the header comments and lines 10, 84, 85 and 86 move;
+  - BEFORE's `batas` is written into AFTER;
+  - the AFTER digest `8844154d…` equals the dry run's.
+- **C4 is met on staging:** all three floors `convalidated` true. D-6 shows 9 → 0 and 2 → 0.
+- **Still the owner's:** the dashboard check for `PGRST_DB_PRE_REQUEST`, and staging acceptance.
