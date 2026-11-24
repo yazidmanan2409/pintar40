@@ -243,3 +243,9 @@ Migration 311 is changed in place (unmerged, applied nowhere; staging is at 310 
 3. Bob reads both conclusions from the API.
 4. Sharon checks the delta only (`9c6aae62..25681b11`).
 5. The owner's request.
+
+**Sharon on the re-freeze delta `9c6aae62..25681b11` (23:29Z, AUDIT79-CI2-VERIFY.md addendum `a2e75b5e`): PASS on the code.**
+- V-1 and V-2 are closed: `card_holders` returns only `terkunci`; there's one neutral line; CI2-P01 checks that the suspended and closed rows are byte-identical. CI2-G01 reads `pg_get_functiondef`, and plant Q14 must be caught.
+- The Z-S12-01 isolation changes isolation only and weakens nothing.
+- The 311 sha matches.
+- **Required before the run half closes:** ci and journeys on `25681b11` green, from the API conclusion.
