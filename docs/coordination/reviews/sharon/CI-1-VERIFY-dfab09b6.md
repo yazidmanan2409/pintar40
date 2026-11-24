@@ -58,6 +58,6 @@
 - **The delta from `dfab09b6`** is one test line in `selftest/c1w.test.ts`: C1W-S06's second correction now picks a question other than the first's.
   - It is a fixture fix, not a weakening: the correction was being refused as "unchanged" when the paper started with a safety-critical question.
   - **The product diff is empty.**
-- **The runs:** PR #30 ci 45439475500 and journeys 45439475500 / 45441914637 are green in one attempt.
+- **The runs:** PR #30 ci 45439475500 and journeys 45441914637 are green in one attempt.
 - **CI-1: PASS.** The merge and the staging promotion are the owner's. I give the promotion verdict on AFTER.
 - **Noted:** R1-K01 has a 16:00–24:00Z flake on main (UTC `current_date` passed to a school-clock function). The fix rides in CI-2, and I check it there.
