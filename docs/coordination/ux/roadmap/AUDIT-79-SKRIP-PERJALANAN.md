@@ -193,7 +193,7 @@ Each script has five parts:
 - **Start:** W16, two schools; a learner at school A with an open transfer request to school B.
 - **Steps:**
   1. the year-end promotion at A;
-  2. B presses «Terima perpindahan» → `TRANSFER_SOURCE_CLOSED`;
+  2. B presses «Terima perpindahan», then «Laksanakan» → `TRANSFER_SOURCE_CLOSED` at «Laksanakan» (L-35, corrected 24 Nov: the refusal comes at execution, not acceptance). **Watch:** what the old request shows afterwards (it stays AUTHORIZED), and whether «Laksanakan» is offered again on it;
   3. A makes a new request;
   4. B accepts.
 - **Check:**
@@ -221,7 +221,7 @@ Each script has five parts:
   1. Pimpinan's report;
   2. readiness bands;
   3. «Belum cukup bukti»;
-  4. «Semua bidang kompetensi yang punya angka…»;
+  4. the scope line `laporan.cakupan.sekolah` «Angka dihitung {waktu} dari semua bukti sekolah ini, di setiap tahun ajaran, sampai saat itu.» (L-37, corrected 24 Nov). **Watch:** «semua bukti» stays true because it names what was counted, not what is shown. The withheld domain must be named as withheld on the same page, so that «semua» is not read as «everything is shown»;
   5. the printed summary.
 - **Check:**
   - every «semua» or «all» against what was judged (D, B);
@@ -236,7 +236,7 @@ Each script has five parts:
   3. end it early;
   4. an emergency stop and its end;
   5. a test email;
-  6. a platform role renewed, then the last-admin refusal.
+  6. a platform role renewed; then the last Admin PINTAR's row (L-36, corrected 24 Nov). The screen prevents the refusal by offering only «Perpanjang», so the refusal `peran.galat.role_last_platform_admin` is not reached from the screen. **Watch:** the row says why no end action is offered (for example `peran.berakhir.terakhir` «satu-satunya admin yang aktif»). A missing control with no reason is an Improvement finding.
 - **Check:**
   - what learners and teachers see at each moment (B, with J4);
   - every consequential step confirmed in words that name the effect (E);
