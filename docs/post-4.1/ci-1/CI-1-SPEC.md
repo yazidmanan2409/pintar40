@@ -21,7 +21,7 @@
 
 ## 2 · What CI-1 preserves (ruling 97)
 
-- **Historical records:** no certificate, review, result or audit row is changed or deleted. The sealed issue payload stays as issued. The migration writes no rows.
+- **Historical records:** no certificate, review, result or audit row is changed or deleted. The sealed issue payload stays as issued. The migration writes no record rows. **Bob's ruling (24 Nov, routine):** the one metadata row in `client_rpc_registry`, for the new staff read `sertifikat_dipersoalkan_sekolah` (F04-T14; needed for Sharon's §6(b) Konfigurasi list), is allowed. It is the standard registration of a client RPC, not a record. The alternatives (changing `sertifikat_sekolah`'s OUT columns, or leaving the list on the open-review rule) are worse. Sharon confirms at verification.
 - **The approved correction procedures** (D-2 §1.2; C1w O41-21/22): a correction opens a review; a review ends CONFIRMED (still passing) or REVOKED; a reissue gives DIGANTIKAN; two people. Unchanged except that CONFIRMED is no longer possible on a now-failing result, which the policy never sanctioned.
 - **The public privacy boundaries:** K-05 and what `/verifikasi` discloses today; no new field.
 
