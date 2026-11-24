@@ -24,6 +24,7 @@
 >   - N-15, N-16 and N-17;
 >   - the 4.1 walkthrough plan's tasks and measures, as a source and not a substitute (that walkthrough stays after 5.0).
 > - **Synthetic data only, in approved environments.** No real names, no production.
+> - **Ruling 88 (24 Nov):** fixtures may include multi-answer items («Pilihan ganda banyak jawaban»), especially for J2, J3 and J7. AI drafts stay single-answer (ruling 81).
 
 ## The twelve journeys
 

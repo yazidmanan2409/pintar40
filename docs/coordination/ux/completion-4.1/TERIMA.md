@@ -93,3 +93,4 @@
 | 23 Nov, 14:47 | Bob | Z8 item 8 captures + REOPEN form finding | `claude/z` `f505166e` | Item 8 **PASS**; REOPEN «—» form rated **Significant**, recommend Z (client one-line filter) |
 | 23 Nov, 14:52 | Bob | Z3-A conditions recheck | `claude/z` `f970bace` | **PASS**; all UX items before Z9 done |
 | 23 Nov, 15:10 | Bob | REOPEN fix check | `claude/z` `944520b0` | **PASS**; Z UX complete |
+| 24 Nov, 00:38 | Bob (ruling 88) | Z accepted on staging; D-1 multi-answer containment lifted | — | Noted for fixture planning: walkthrough F-1–F-5 and audit journeys may include multi-answer items; AI drafts stay single-answer (ruling 81) |
