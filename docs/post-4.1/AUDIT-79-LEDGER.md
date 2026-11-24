@@ -160,3 +160,14 @@ L-08, L-11 and L-12 need the world to hold empty, untitled and integrity states.
 
 **An environment fact, not a finding:** `/api/email/uji` rejects 127.0.0.1 as cross-origin (`BUKAN_ASAL_SAMA`), because Next reports the origin as localhost. A deployment with one hostname has no such split.
 | L-38 | The receiving admin's transfer row shows its origin as «Qori Ananda · — →», with no source school, so the admin decides without knowing where the learner comes from | J9 capture (`078c8f2d`); Daisy | B, E | J9 | **Significant** by Daisy's rule. The builder's capture (`11-b-masuk-baru.png`, `12-b-diterima.png`, `13-b-dilaksanakan.png`) shows that **new requests show «—» too, in every state**. The source school is named only on the «Permintaan pindah masuk» card («dari SMP Sintetis Flamboyan (FLB)»), which disappears once the request is accepted. From «Disetujui» onwards, nothing names the source | The fix: show the source school's name as it was when the request was made. Goes with L-35 |
+
+## The owner's /konfigurasi sidebar observations (24 Nov, via Daisy `SIDEBAR-KONFIG-CATATAN.md`, `762312ca`): decided, held for the audit's ONE consolidated revision
+
+The owner: «you and bob decide what's best». Daisy decided and Bob agrees. **Nothing is built now.** These rows go into the audit's consolidated revision, together with whatever its visual-consistency pass finds.
+
+| L-id | Observation | Source | Dimension | Journey | Proposed severity | Decision |
+|---|---|---|---|---|---|---|
+| L-39 (K-1) | The «›» chevrons are misaligned. The row is justify-between over three children (the title, the chevron and a zero-width TandaTautan), so the chevron sits mid-row | Owner, staging /konfigurasi | E | All admin lists | **Required** | Pin the chevron right. Check **every** list that uses this row (sibling sweep) |
+| L-40 (K-2) | «Masuk sebagai» crowds the name | Owner | E | All | Improvement | Two rows; the name gets the full width |
+| L-41 (K-3) | «Keluar» lacks a visible control boundary | Owner | E | All | Improvement | A neutral outline, `--line-control` (3.4:1, which passes WCAG 1.4.11). Not orange (it isn't in the palette), not gold (2.5:1 fails, and gold is the certificate's colour), not amber (it means attention) |
+| L-42 (K-4) | The ID / EN control is unclear | Owner | E | All | Improvement | A text switch, «ID · EN»: targets of at least 24 px, with `aria-pressed` |
