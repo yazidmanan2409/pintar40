@@ -98,3 +98,5 @@
 - **DAISY-J1 (mine, 24 Nov):** the audit scripts' J1 gave a class-card learner a personal-PIN step and «Komputer siapa ini?». Both are by design absent for cards (D-086(c)). I wrote from the draft's memory, not from the card path's code. The builder's first CI run caught it. Rule: a script step is checked against the path's own guard before it is final.
 
 - **DAISY-J1b (24 Nov 03:26):** J1's script said the card sign-in waits after three wrong PINs. The code waits after five within 15 minutes (`card_signin_attempt`); three is the session lock's count. I mixed the two. **Fixed** in `AUDIT-79-SKRIP-PERJALANAN.md`. **The lesson:** check every count in a script against the code that enforces it.
+
+- **DAISY-D2R-1 (24 Nov 04:55):** D2R-KATA §3 kept «the counts line unchanged» on Hasil Belajar without naming the percentages, so the summary still prints the mastery figures the result page withholds (H-1). **The lesson:** when withholding on one surface, list every surface that shows the same figure.

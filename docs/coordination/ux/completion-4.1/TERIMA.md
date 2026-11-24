@@ -114,3 +114,4 @@
 - **24 Nov 04:18Z · Bob:** Hasil Belajar on a pass. **Answered:** D2R-KATA §11 (list the sections on a pass too, with «Disarankan dibaca lagi:»). The recheck of c20c7e47 or later is pending.
 - **24 Nov 04:22Z · Bob (FYI):** ruling 90b, PINTAR Support direction in docs/roadmap/4.5-OF-SUP/ (2215cb8a). I govern its journeys, terms, compositions, accessibility and simplicity, from 4.5's planning gate. No work now. Checked: my 4.1 «belum ditangani» already agrees with the coming status «Ditangani».
 - **24 Nov 04:26Z · Bob:** §9, §10 and §11 go to Second Eye as one final push. Don't read 589b9b41; the final head and its CI will be sent for the recheck. Waiting.
+- **24 Nov 04:36Z · Bob:** final head 5dace1ad; plus the C-line question. **Answered:** §12. **Recheck:** TINJAUAN-D2R-5dace1ad.md, with §9–§11 PASS and H-1 for decision.
