@@ -128,6 +128,42 @@ the audit's existing rows. There is no fresh replanning.
 
 **Proportionate:** this is not a commercial helpdesk platform. **No implementation is authorised now.** It is planned at 4.5's planning gate like the other operational-foundation items.
 
+**Ruling 90a (owner, 24 Nov): APPROVED as a proper, integrated support ticket system**, extending D-037. The person sees a simple messaging experience; underneath, PINTAR keeps comprehensive, governed support records.
+
+1. **Ticket management:**
+   - a unique ticket reference;
+   - the complete history of conversation, assignment, status, escalation and resolution;
+   - two-way communication;
+   - reopening an unresolved issue;
+   - history kept under the approved retention and privacy policies (R-2).
+2. **Routing and escalation:**
+   - learners and educators submit to their institution's administrator;
+   - institution administrators escalate to PINTAR administrators, with the relevant history;
+   - institution administrators submit their own issues directly to PINTAR;
+   - alternative routes for sensitive issues and for people unable to sign in.
+3. **Access and visibility:**
+   - people see their own ticket history;
+   - institution administrators see their institution's history, subject to safeguarding and privacy restrictions;
+   - authorised PINTAR administrators see across institutions;
+   - strict institutional isolation, with privileged access audited.
+4. **Notifications:**
+   - in-app;
+   - email where appropriate;
+   - a clear owner for every outstanding ticket.
+5. **Categorisation and intelligence:**
+   - type, severity, affected functionality, and root cause once established;
+   - authorised administrators refine a classification, with its history kept;
+   - summaries, recurring-issue identification and trends;
+   - tickets linked to a common underlying product issue;
+   - support evidence used to improve PINTAR, and measurement of whether an improvement reduced recurrence.
+6. **Design principles:**
+   - a proper ticket system underneath, simple messaging on the surface;
+   - never ask the person for technical classifications or for what PINTAR already knows;
+   - **Daisy** governs the human experience;
+   - **Sharon** governs permissions, privacy, safeguarding, retention and institutional boundaries.
+
+**The objective:** to learn from what is reported and keep improving PINTAR, not only to resolve the problems. Detailed specification and implementation follow the established sequence: 4.5's planning gate, then specification, then reviews, then batches. **There is no 4.1 expansion and no implementation now.**
+
 ## 3 · Decisions for the owner (each blocks a named stage, not today's work)
 
 | # | Decision | Why it matters | Bob recommends | Needed by |
