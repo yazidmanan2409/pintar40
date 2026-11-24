@@ -105,3 +105,16 @@ The write is bounded to exactly the BEFORE count of locked accounts.
 4. **F-6** reads right on sign-in and password recovery. **On the learner (PIN and card) pages a variant is needed**, because a learner's account goes through the school: «Bila akun Anda ditutup atau ditangguhkan, tanyakan kepada admin sekolah Anda.»
 
 **Sharon (24 Nov): §3 and §4 CONFIRMED, they reveal nothing.** Binding: both lines are **static, rendered in the page, never returned by the refusal**, so their presence can't vary by account. The response and timing are unchanged. The admin-only lines are fine, because the decider already knows the state.
+
+## 8 · Sharon's pre-freeze conditions on two new items (24 Nov 18:45Z): binding
+
+**1. The rotation's own write past `auth_password_write_guard` (a GUC-gated bypass): acceptable if:**
+- (a) `akun_rotasi` sets it with `set_config('pintar.kunci_rotasi', <id>, true)`, transaction-local, and clears it straight after its single-row update;
+- (b) the guard requires the GUC to **equal `new.id`**, only for an `encrypted_password` change;
+- (c) **single writer, asserted:** the only function bodies mentioning `pintar.kunci_rotasi` are `akun_rotasi` and the guard, and no SECURITY DEFINER function calls `set_config` with a caller-supplied name. Plant: a second setter turns red;
+- (d) clients can't set it (PostgREST sets only `request.*`, GoTrue never `pintar.*`), with (c) closing our own SQL;
+- (e) the A2A-L01 exception names exactly this pair plus the widened `akun_baru_terkunci` one.
+
+**2. `akun_auth_terkunci(uuid)`: acceptable if** its uuid comes **only** from the caller's verified session (`auth.getUser`), never from request input, and a locked account gets the route's ordinary refusal (the same status, body shape and timing). Plant: the route is fed a foreign uuid.
+
+**Q10:** agreed. **UX (Daisy):** a school PIN reset made during a lock won't work until reinstatement (OD-1's fresh PIN), and the screen says so.
