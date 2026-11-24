@@ -154,8 +154,9 @@ L-08, L-11 and L-12 need the world to hold empty, untitled and integrity states.
 - The refusal names the next step, but only for the *sending* school.
 - The row shows its origin as «Qori Ananda · — →», with no source school.
 
-By Daisy's test this is **Significant** on the human side; Daisy confirms. The placement stays 4.5 (Sharon), with (b) above becoming the fix that stops «Laksanakan» being offered. |
+**Significant, confirmed by Daisy.** The human fix, for 4.5 with Sharon: (1) the stale row stops offering «Laksanakan»; (2) the refusal also tells the receiver «Tolak permintaan ini. Permintaan baru dari sekolah asal akan muncul di daftar ini.»; (3) once a newer request for the same learner is «Selesai», the stale row closes itself or reads as superseded. The placement stays 4.5 (Sharon), with (b) above becoming the fix that stops «Laksanakan» being offered. |
 | L-36 | The last usable Admin PINTAR's own row offers only «Perpanjang», never «Lepaskan»: ROLE_LAST_PLATFORM_ADMIN guards a release the screen doesn't offer | J12 step 6 | E | J12 | — (it reads as a defence in depth) | Script note for Daisy |
 | L-37 | On the W18 state, the school summary's «semua» sentence is «…dari semua bukti sekolah ini…». The script's «Semua bidang kompetensi yang punya angka…» doesn't appear, because several domains are withheld | J11 step 4 | — | J11 | — | Script note for Daisy |
 
 **An environment fact, not a finding:** `/api/email/uji` rejects 127.0.0.1 as cross-origin (`BUKAN_ASAL_SAMA`), because Next reports the origin as localhost. A deployment with one hostname has no such split.
+| L-38 | The receiving admin's transfer row shows its origin as «Qori Ananda · — →», with no source school, so the admin decides without knowing where the learner comes from | J9 capture (`078c8f2d`); Daisy | B, E | J9 | **Improvement** if only the stale row shows «—» (the source year is closed); **Significant** if new requests show it too. J9's new-request capture decides | The fix: show the source school's name as it was when the request was made. Goes with L-35 |
