@@ -21,7 +21,7 @@
 | **C-4** | **Each «waiting for you» covers only one kind of decision** | The teacher's home falls back to «Tidak ada yang menunggu keputusan Anda» whenever there is no release to assign (`mengajar/page.tsx:140-176`). It never reads continue requests (`lanjut_diminta_pada`) or retake requests. The approver's Bagian A counts `management_decisions` only, while the line above it counts `percobaan_antrean` (`pimpinan/page.tsx:97-154`) | L-45, L-58; J4 confirms L-45 at a second school; **J7:** L-69 (a correction waits for the second person, who is told nothing waits) |
 | **C-5** | **Recommendations read an old result** | The chapter page and the map always read `readingMap(pre_session)`, the Pemetaan Awal, even after a newer Uji Penguasaan. `map.intro` shows whatever the step (`[tugas]/page.tsx:45-48,106`). The result page and Hasil Belajar read the post-test's map | L-46, L-59 |
 | **C-6** | **One verdict, words chosen per screen** | Every surface uses the shared `ketuntasan` (`siklus.ts:300`). But the start card and the Hasil Belajar headline ignore `bersertifikasi` when choosing their words: «Lulus» / «target tercapai» / «sudah mencapai target» | L-33, L-48, L-61 |
-| **C-7** (J7, new) | **A consequential choice is offered the same, whatever the facts beside it** | «Konfirmasi berlaku» is offered on a certificate whose result was recalculated to a fail exactly as on a passing one, with no confirmation naming the effect. The public record then asserts a pass the current result contradicts | L-67 (**CRITICAL provisionally, ruling 96; Sharon judging**) |
+| **C-7** (J7; widened by J5, ruling 97) | **An action is offered without its prerequisites: the rule is held only by the RPC that refuses it, or nowhere.** Buttons are gated on status and permission, not on what the action needs, and the rows often don't even select the needed column. Rules added later as a trigger or in the executing RPC were never carried back into the earlier steps or the reads | `siapkan`'s «Sediakan» is always enabled (`siapkan/page.tsx:300`), while `ASSIGN_PASS_MARK_MISSING` is raised by an insert trigger (`20261102100000:310`), the pass mark being added after the page. `transfer_execute` refuses SOURCE_CLOSED, but `transfer_terima`, `transfer_authorize` and the `pindah_masuk` read never check the source, so a transfer can be accepted into an AUTHORIZED state that can never be executed. Uji Cepat is offered on every class (`langkah/page.tsx:66`), while its page needs an ACTIVE assignment. `putuskan_tinjauan_sertifikat` has no result check at all (CI-1) | L-67, L-79, L-35, L-81; the J5 sweep found 9 such buttons (§3b) |
 | **C-8** (J7, new) | **The person who notices isn't the person who may act** | The teacher and the head of department see a wrong key but only the admin can flag it | L-71 |
 | **C-9** (J10, new) | **A refusal worded to hide a state from strangers is also shown to the person who has proven they own the account** | A closed account with the correct password gets the same «belum cocok» as a wrong password | L-75, L-76. **Sharon's rule:** say more only after the requester has proven what a stranger can't know, and only where the proof is strong: a password qualifies, a PIN doesn't |
 
@@ -68,6 +68,35 @@ Today `post_session` / `pre_session` is the latest *begun* sitting. **That meani
 | `lib/hasil-belajar.ts:59` (`adaHasilTertutup`) | whether any finished result exists | `post_status = FINALIZED` on the latest begun sitting: while a retake is open, it falls back to the pre-test | reads the result in force |
 
 **Rule for the build:** every consumer above is in the batch's «dependent screens» list, and each has a journey assertion, both during an open retake and after it.
+
+### 3b · J5's readiness cause (ruling 97), traced on main `429b7dcc`
+
+**Readiness is worked out per page from partial facts; no «may I do X» read exists for assigning.** The class page and `menungguKelas` say «Siap» from published + place fit, minus releases already held. The Siapkan list also drops a chapter line the class already has, so the two disagree. The review step reads the pass mark but only prints it. `assign_release` and its insert triggers hold the real list: NOT_ALLOWED, CLASS_INVALID, RELEASE_NOT_PUBLISHED, WINDOW_INVALID, EXISTS, PRE/POST_TEST_MISSING, PRE/POST_TEST_TOO_SHORT, CYCLE_OVERLAP, maintenance, plus the triggers' PASS_MARK_MISSING, CONTEXT_MISMATCH and EXPOSED_CONTENT. `instrumen()` re-derives the tests more loosely than `assign_release`, so the review can show tests the RPC would refuse.
+
+**PINTAR already has the pattern that works**, so no new abstraction is needed: **a read the database owns that answers «may do / why not» with the same codes the action raises.** For example:
+- «Akhiri» asks `akhiri_penugasan_pratinjau`;
+- re-enrolment reads `bisa_dikoreksi` / `di_sekolah_lain`;
+- place fit reads `releases_matching_place`;
+- Studio publishing reads `publish_readiness` / `studio_package_state`.
+
+**Direction (proposed; final after all twelve journeys):**
+- every consequential action with prerequisites gets that pattern: one read returning the action's own refusal codes, used by every indicator («Siap») and by the button's enabled state;
+- the refusal codes stay the database's own;
+- where the rule is missing entirely (L-67), it is added, which CI-1 does.
+
+The 9 buttons found:
+
+| # | Where | Action RPC | Unchecked prerequisite |
+|---|---|---|---|
+| 1 | `siapkan/page.tsx:300` | `assign_release` | the pass mark (L-79) |
+| 2 | the same | the same | PRE/POST_TEST missing or too short, CYCLE_OVERLAP, EXPOSED_CONTENT (`instrumen()` re-derives loosely) |
+| 3 | `uji-cepat/page.tsx:255` | `launch_selected_quick_assessment` | QUICK_PASS_MARK_MISSING (only for assignments predating school pass marks; to confirm) |
+| 4 | `studio/paket/[course]/page.tsx:742` | `move_learning_assignment_release` | RELEASE_MOVE_STARTED, RELEASE_MOVE_NO_CYCLE_DEFINITION |
+| 5 | `konfigurasi/page.tsx:1917` | `transfer_execute` | SOURCE_CLOSED, ALREADY_ENROLLED (L-35) |
+| 6 | `konfigurasi/page.tsx:1947` | `transfer_terima` | a closed source: **not refused by the database either** (L-35 (a), and Sharon's one helper) |
+| 7 | `konfigurasi/sertifikat/page.tsx:175` | `putuskan_tinjauan_sertifikat` | the result in force: **no rule anywhere** (L-67, CI-1) |
+| 8 | `langkah/page.tsx:66`, `[kelas]/page.tsx:152` | Uji Cepat | no chapter available (L-81); also `soalUjiCepat` turns any RPC error into «empty» (`pengajar.ts:643`), and the empty state offers no way on |
+| 9 | `[kelas]/page.tsx:261`, `pengajar.ts:842` | «Siap» and the f4 card | the chapter-line rule that Siapkan applies (whether the DB enforces it: to confirm) |
 
 **How it stays consistent (lasting, not per row):**
 - **L-8 extended to screens:** a change to a state also sweeps every screen that shows that state, in the same batch. The hand-off names them («dependent screens: N found, N updated»). This applies the existing principle; it is not a new procedure.
