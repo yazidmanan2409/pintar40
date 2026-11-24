@@ -25,7 +25,7 @@ artifact.
   windows, deadlines and expiries hold whenever it runs. The SERVER's clock is the machine's: the product has no clock
   override, and none is added.
 - The time zone fixed per school, set by an Admin PINTAR through `atur_zona_waktu_sekolah`: SD Sintetis Melati and SMP
-  Sintetis Cendekia are WIB (Asia/Jakarta); the WITA school joins with J12's state. The browser runs in the school's zone.
+  Sintetis Cendekia and Flamboyan are WIB (Asia/Jakarta); SMP Sintetis Kenari is WITA (Asia/Makassar). The browser runs in the school's zone.
 - A reset returns every state: `muat.sh` always starts from `supabase db reset --local`, and loads the world as one
   transaction.
 - Every result is SAT through the product's own functions, by the learner as themself (`dunia.duduk`:
@@ -51,4 +51,6 @@ artifact.
 | W10 · Ayu Lestari, a teacher new to PINTAR: of 8A and 8C, no prior action | `06-w9-w11.sql` | built |
 | W11 · 8C: four learners, nothing given, no result | `06-w9-w11.sql` | built |
 | W17 · Puspa Anggraini, a former teacher, closed her own account (`minta_akun('CLOSE')`). Staff, because next-base refuses a learner's own closing (ACCOUNT_LEARNER_VIA_SCHOOL) | `07-w17.sql` | built |
-| W7, W8 (J3's per-journey fixtures), W12–W16, W18, W19 | | next |
+| W16 · SMP Sintetis Flamboyan (WIB, this year and next; 7A of four) and SMP Sintetis Kenari (WITA): Qori's open transfer from Flamboyan to Kenari (`transfer_minta` by Flamboyan's admin) | `08-w16.sql` | built |
+| The WITA school (J12's banners): SMP Sintetis Kenari, Asia/Makassar | `08-w16.sql` | built |
+| W7, W8 (J3's per-journey fixtures), W12–W15, W18 | | next |
