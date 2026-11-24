@@ -117,3 +117,4 @@
 - **24 Nov 04:36Z · Bob:** final head 5dace1ad; plus the C-line question. **Answered:** §12. **Recheck:** TINJAUAN-D2R-5dace1ad.md, with §9–§11 PASS and H-1 for decision.
 - **24 Nov 04:40Z · Bob:** Sharon's disiapkan note; J9, J11 and J12 notes (L-35..L-37). **Answered:** D2R-KATA §13 (the null case shows nothing); the script corrected at f19d202c; L-35 is Significant if «Laksanakan» stays offered.
 - **24 Nov 04:45Z · Bob:** §12 and Sharon's disiapkan fix ride the final push; the rest on 5dace1ad is done (19471eaa). Waiting for the final head, to read the C line and the three certificate states, including §13's no-row case.
+- **24 Nov 04:50Z · Bob:** ruling 91 approves H-1. The final candidate carries H-1, §12, N-22 and Sharon's disiapkan fix (afa59994, «otherwise the link alone»). **Asked at 04:54:** does it carry §13's no-row state (nothing shown)?
