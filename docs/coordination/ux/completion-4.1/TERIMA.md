@@ -157,3 +157,5 @@
 - 24 Nov 21:40Z · J9 passes walked locally (EN, SR, throttled, reduced motion). All reached the end; the outcome is the same. New: J9-4 Significant (the transfers page untranslated in EN; hard-coded words), J9-5, J9-6.
 - 24 Nov 21:50Z · J11 passes walked locally. All reached the end. New: J11-3 (section letters differ across /pimpinan and the summary), J11-4 (an empty list; inconsistent regions).
 - 24 Nov 22:00Z · J12 passes walked locally. L1 to L4 reached the end in every run; L5 and L6 are environmental (no Mailpit), so the builder's. New: J12-5 (EN results on /konfigurasi untranslated; likely the same cause as J9-4).
+- 24 Nov 21:14Z · Bob: J8 recorded (L-127 to L-133); Sharon's identity rule (a73874d6). → J8-7 words fitted per case, ID and EN. One reading flagged for Sharon (no NIS and no date).
+- 24 Nov 21:19Z · Bob: J5 captured (9be73ecf); code answers (per-browser device question; L-134 conditional wording adopted). → J5 capture judged next.

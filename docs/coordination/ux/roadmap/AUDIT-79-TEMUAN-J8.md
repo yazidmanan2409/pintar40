@@ -72,3 +72,36 @@ Walked at `6b248975` on the reloaded audit world (W15, SD Sintetis Anggrek), at 
 | J8-13 (optional) | The last admin's refusal begins «Permintaan ini tidak diajukan» on an action that is an immediate close, not a request | — | C-6 | H | «Akun Anda belum dapat ditutup: Anda satu-satunya Admin sekolah …» |
 
 **J8's «left for the builder» lines:** walked, except pass marks and the renamed rule (world: no lesson, no package) and the passes.
+
+## J8-7 (L-127) · words fitted to Sharon's identity rule (`a73874d6`, 24 Nov 21:30)
+
+**The rule:**
+- the same NIS means a duplicate; a different NIS means different people;
+- with no NIS, the same name **and** the same birth date is a possible duplicate: warn, require «Dua orang berbeda», and audit it;
+- the same name with a different birth date means different people;
+- NIS is visible only to that school's intake and admin staff.
+
+### «Kolom mana untuk apa»: two more targets
+- **NIS (opsional)**
+  - ID: «Dipakai untuk membedakan murid yang namanya sama. Hanya terlihat oleh petugas pendataan dan admin sekolah ini.»
+  - EN: «Used to tell apart students with the same name. Visible only to this school's intake and admin staff.»
+- **Tanggal lahir (opsional)**
+  - ID: «Dipakai untuk membedakan murid yang namanya sama bila tidak ada NIS. Tulis seperti 2019-03-14.»
+  - EN: «Used to tell apart students with the same name when there's no NIS. Write it like 2019-03-14.»
+
+### The check («Periksa daftar ini»), by case
+
+| Case | Outcome | ID | EN |
+|---|---|---|---|
+| Same NIS on two rows | **Refused** (the whole list, as today) | «Baris {a} dan {b}: NIS {nis} tertulis dua kali. Satu NIS untuk satu murid: hapus salah satu baris, atau perbaiki NIS-nya.» | «Rows {a} and {b}: NIS {nis} appears twice. One NIS per student: remove one row, or correct the NIS.» |
+| Same name, different NIS | **Accepted**, no warning | (no message; in the approval list both rows show their NIS) | — |
+| Same name, no NIS, **same** birth date | **Warning**, with an explicit choice per pair | «Baris {a} dan {b}: nama dan tanggal lahirnya sama ({nama}, {tanggal}). Mungkin orang yang sama tertulis dua kali.» + choices «Dua orang berbeda» / «Orang yang sama: hapus baris {b}» + «Pilihan ini dicatat.» | «Rows {a} and {b} have the same name and birth date ({nama}, {tanggal}). The same person may be listed twice.» + «Two different people» / «The same person: remove row {b}» + «This choice is recorded.» |
+| Same name, no NIS, **different** birth dates | **Accepted**, no warning | — | — |
+| Same name, **neither** NIS nor birth date | **Warning**, as the same-birth-date case: nothing tells them apart. *My reading of the rule; Sharon to confirm.* | «Baris {a} dan {b}: namanya sama ({nama}), dan tidak ada NIS atau tanggal lahir untuk membedakannya.» + the same two choices + «Pilihan ini dicatat.» | «Rows {a} and {b} have the same name ({nama}), with no NIS or birth date to tell them apart.» + the same choices |
+| Fully identical rows (every mapped column the same) | **Refused**, as today, with the name | «Baris {a} dan {b}: {nama} tertulis dua kali dengan data yang sama. Hapus salah satunya.» | «Rows {a} and {b}: {nama} is listed twice with the same data. Remove one.» |
+
+**Rules for the composition:**
+- Row numbers follow J8-8: «Baris 2 (di spreadsheet: baris 3)».
+- «Ya, catat orang-orang ini» stays unavailable until every warned pair has a choice. Above it: «{n} pasangan nama sama belum dipilih.» / «{n} same-name pairs still need a choice.»
+- In the approval list, a pair confirmed as different carries «· dikonfirmasi berbeda» / «· confirmed different». The NIS column is shown on this page only (intake staff).
+- **No NIS anywhere else:** not on the learner's pages, the teacher's class list, the certificate or the public check.
