@@ -142,3 +142,4 @@
 - **24 Nov 11:09Z and 11:19Z · Bob:** J2 run judgements answered (61829330); recorded as L-86, L-87; C-7 widened. **J8 walked in part:** AUDIT-79-TEMUAN-J8.md; 6 Improvement; L-39 confirmed on a second school; proposed C-10 (browser-only validation).
 - **24 Nov 11:45Z · Bob:** ruling 99, the overnight charter (W1 J9/J11/J12 plus every builder capture; W2 severities; W3 causes review; W6 the pre-build words and the re-walk); ruling 98 in force. **J9 walked** with the builder's harness: AUDIT-79-TEMUAN-J9.md; 1 Significant (J9-1, upstream of L-35), 2 Improvement.
 - **24 Nov ~12:00Z · J11 and J12 walked** with the builder's harnesses: J11 (c30b115a), 2 Improvement; J12, 1 Significant (the maintenance «keluar» against the A3 test lock), 3 Improvement; proposed C-11.
+- **24 Nov 14:10Z · Bob:** ruling 100, OD-1 approved; the CI2-KATA words go in as written. No overnight pressure. Next: judge the captures as they land.
