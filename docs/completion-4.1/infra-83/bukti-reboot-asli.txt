@@ -1,0 +1,62 @@
+# bukti-reboot-asli · 2026-11-24T00:17:29Z · commit 2c6f306d
+
+## planted in: 2026-11-23T23:53:58Z boot=8b8ec0ed-7987-454a-b1d4-05ab6e7a1eac uptime=1058.87
+
+## this boot: d08b3d83-e5c0-4408-b340-538470391213, uptime 33.15 s, kernel booted 2026-11-24T00:16:56Z
+
+$ bash -c ls -la --time-style=+%FT%T /run/containerd/containerd.sock; echo "bound in the kernel: $(awk -v p=/run/containerd/containerd.sock '$NF==p' /proc/net/unix | wc -l)"; pgrep -ax dockerd || echo 'no dockerd'; pgrep -ax containerd || echo 'no containerd'
+srwxr-xr-x 1 root root 0 2026-11-23T23:53:58 /run/containerd/containerd.sock
+bound in the kernel: 0
+no dockerd
+no containerd
+[rc=0]
+
+$ bash -c tail -2 '/root/pintar-preflight/jejak-mesin.log' | perl -pe 's/ mem_avail=\S+//'
+2026-11-23T23:52:27Z boot=8b8ec0ed-7987-454a-b1d4-05ab6e7a1eac uptime=967 oom_kill=0 cg_oom_kill=0 mem_peak=2137169920 mem_failcnt=0 disk_free=58007273472 mode=full run=- result="INFRA registry: the registry refused axllent/mailpit:v1.31.3 after 4 tries with backoff (a rate or data limit, or the proxy blocking its host)"
+2026-11-23T23:52:50Z boot=8b8ec0ed-7987-454a-b1d4-05ab6e7a1eac uptime=990 oom_kill=0 cg_oom_kill=0 mem_peak=2137169920 mem_failcnt=0 disk_free=58007281664 mode=full run=- result="READY"
+[rc=0]
+
+## RED: siap.sh at 7696819e, the check-only gate and then the full gate
+
+$ bash scripts/dev/.siap-7696819e.sh --tanpa-pulih
+siap: the machine restarted since the last check: a REBOOT at 2026-11-24T00:16:57Z, after uptime 990s (the previous boot's last beat: 2026-11-23T23:52:50Z, oom_kill=0) (no run was in progress)
+siap: disk ok (54.0G free, minimum 10G)
+INFRA runtime: docker does not answer (dockerd or containerd is dead)
+[rc=3]
+
+$ bash scripts/dev/.siap-7696819e.sh
+siap: trace: same boot as the last check (uptime 33s)
+siap: disk ok (54.0G free, minimum 10G)
+siap: runtime dead: restarting containerd and dockerd
+INFRA runtime: dockerd did not come back within 60 s (its log: /tmp/pintar-siap-log/dockerd.log)
+[rc=3]
+elapsed 64s
+
+$ bash -c grep -E 'Creating a containerd client|Daemon shutdown complete' /tmp/pintar-siap-log/dockerd.log | tail -2 | cut -c1-240
+time="2026-11-24T00:17:30.936035427Z" level=info msg="Creating a containerd client" address=/run/containerd/containerd.sock timeout=1m0s
+time="2026-11-24T00:17:30.955596023Z" level=info msg="Daemon shutdown complete" error="failed to start daemon: failed to get containerd plugins: Unavailable: connection error: desc = \"transport: Error while dialing: dial unix /run/containe
+[rc=0]
+
+## GREEN: siap.sh now
+
+$ scripts/dev/siap.sh
+siap: trace: same boot as the last check (uptime 97s)
+siap: disk ok (54.0G free, minimum 10G)
+siap: runtime dead: restarting containerd and dockerd
+siap: runtime: removed the stale socket /run/containerd/containerd.sock (nothing behind it, left by a previous boot or a killed daemon)
+siap: runtime: removed the stale socket /var/run/docker.sock (nothing behind it, left by a previous boot or a killed daemon)
+siap: runtime: removed the stale socket /var/run/docker/containerd/containerd.sock (nothing behind it, left by a previous boot or a killed daemon)
+siap: runtime: removed the stale socket /var/run/docker/containerd/containerd.sock.ttrpc (nothing behind it, left by a previous boot or a killed daemon)
+siap: runtime: removed the stale pid file /var/run/docker/containerd/containerd.pid
+siap: runtime pulih (restarted; containerd and dockerd answer)
+siap: images ok (6 present, all pinned by digest)
+siap: Mailpit not answering: (re)starting the sink as CI does
+siap: stack pulih (database, Auth, Mailpit healthy)
+siap: port 3999 ok (free)
+READY
+[rc=0]
+elapsed 7s
+
+$ bash -c ls -la /run/containerd/containerd.sock 2>&1; docker ps --format '{{.Names}}' | sort | tr '\n' ' '
+ls: cannot access '/run/containerd/containerd.sock': No such file or directory
+mailpit supabase_auth_pintar40 supabase_db_pintar40 supabase_kong_pintar40 supabase_rest_pintar40 supabase_storage_pintar40 [rc=0]

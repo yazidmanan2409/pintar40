@@ -204,3 +204,16 @@ counts as INFRA on an image-pull line, and a bare or app-request line stays FAIL
 
 **The size warning** now leads with «keep the session active for the whole run (… L-5), or use CI», then gives the
 estimate.
+
+## Second Eye's recheck at 2c6f306d: B-1 and S-1 PASS on a real reboot; N-4 and the npx nit
+
+His evidence is verbatim in `review-second-eye/RECHECK-2c6f306d.md`.
+
+| Item | Planted / observed | Red | Green (now) | File |
+|---|---|---|---|---|
+| **N-4** | three app refusals as FAIL controls beside the real registry lines: `…/v2/messages failed: 403 Forbidden (agent proxy: …)`, `POST …/registration failed: Forbidden (agent proxy: …)`, `kirim email registrasi gagal: Forbidden (agent proxy: …)` | at **2c6f306d** all three read **INFRA registry** (`/v2/` and `registr` leaked) | all three read **FAIL**. Second Eye's four real refusal lines still read **INFRA registry**. The proxy's words count only with `ghcr.io`, `pkg-containers.githubusercontent.com`, `httpReadSeeker`, «Pulling from» or «docker image» | `bukti-registri.txt` |
+| nit | the stack stopped, and an `npx` that fails «supabase start» as a checkout without `node_modules` does | at 2c6f306d: «INFRA stack: supabase start failed twice» | «INFRA stack: the pinned supabase CLI is not installed («npx canceled due to missing packages and no YES option: ["supabase@3.3.0"]»): run npm ci in …» | `bukti-npx.txt` |
+| B-1 on **this** machine's real reboot | the socket planted before the reboot (`bukti-reboot-asli-tanam.txt`, boot `8b8ec0ed…`). The container then really restarted (boot `d08b3d83…`, kernel up at 00:16:56Z), leaving the runtime not running and the socket on disk, unbound | the gate at **7696819e**: «a REBOOT at 2026-11-24T00:16:57Z, after uptime 990s», then «INFRA runtime: dockerd did not come back within 60 s». dockerd's log: «Creating a containerd client address=/run/containerd/containerd.sock … failed to get containerd plugins» | the gate now removed the stale sockets and pid file. «runtime pulih», stack and Mailpit healthy: **READY in 7 s** | `bukti-reboot-asli.txt` |
+
+Second Eye's own real reboot already passed B-1 (no new proof was asked). The last row is the run I had prepared,
+taken because this container restarted at 00:16:56Z with the plant in place.

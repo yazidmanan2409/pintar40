@@ -266,9 +266,12 @@ ghcr.io/supabase/realtime:v2.130.0 … failed to copy: httpReadSeeker: failed op
 error from registry: Data limit exceeded
 Forbidden (agent proxy: no rule or network setting allows this host)
 fetch https://api.example.com/v1/x failed: Forbidden (agent proxy: no rule or network setting allows this host)
+fetch https://api.provider.example/v2/messages failed: 403 Forbidden (agent proxy: no rule or network setting allows this host)
+POST https://id.example.com/registration failed: Forbidden (agent proxy: no rule or network setting allows this host)
+kirim email registrasi gagal: Forbidden (agent proxy: no rule or network setting allows this host)
 TXT
-  git show 7696819e:scripts/dev/kelas.sh > "$R/kelas-7696819e.sh"
-  for v in "7696819e:$R/kelas-7696819e.sh" "now:scripts/dev/kelas.sh"; do
+  git show 7696819e:scripts/dev/kelas.sh > "$R/kelas-7696819e.sh"; git show 2c6f306d:scripts/dev/kelas.sh > "$R/kelas-2c6f306d.sh"
+  for v in "7696819e:$R/kelas-7696819e.sh" "2c6f306d (N-4's leak):$R/kelas-2c6f306d.sh" "now:scripts/dev/kelas.sh"; do
     note "classes by kelas.sh at ${v%%:*}"
     while IFS= read -r l; do printf '%s\n' "$l" > "$R/one.txt"; echo "$(bash -c "source '${v#*:}'; kelas_teks '$R/one.txt' 1" | cut -c1-60)   ←  $l"; done < "$R/lines.txt"
   done

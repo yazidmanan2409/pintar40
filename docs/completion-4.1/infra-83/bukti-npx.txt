@@ -1,0 +1,14 @@
+# bukti-npx · 2026-11-24T00:21:29Z · Second Eye's nit: a missing CLI install is named
+
+## plant: the stack stopped, and an npx that fails «supabase start» as a checkout without node_modules does (the text Second Eye saw)
+
+## RED: siap.sh at 2c6f306d
+siap: stack not running: supabase start
+INFRA stack: supabase start failed twice (its log: /tmp/pintar-siap-log/supabase-start.log)
+
+## GREEN: siap.sh now
+siap: stack not running: supabase start
+INFRA stack: the pinned supabase CLI is not installed («npx canceled due to missing packages and no YES option: ["supabase@3.3.0"]»): run npm ci in /home/user/pintar40
+
+## without the plant
+READY

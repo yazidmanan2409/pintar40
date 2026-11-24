@@ -225,7 +225,9 @@ cek_stack() {
     (cd "$REPO" && timeout 900 npx --no-install supabase start -x "$EXCLUDE" 2>&1 | tapis >"$LOGDIR/supabase-start.log") \
       || { (cd "$REPO" && npx --no-install supabase stop --no-backup >/dev/null 2>&1); sleep 5;
            (cd "$REPO" && timeout 900 npx --no-install supabase start -x "$EXCLUDE" 2>&1 | tapis >>"$LOGDIR/supabase-start.log") \
-             || infra stack "supabase start failed twice (its log: $LOGDIR/supabase-start.log)"; }
+             || { local np; np="$(grep -m1 -oE 'npx canceled due to missing packages[^]]*]?|missing packages?: [^ ]+' "$LOGDIR/supabase-start.log")"
+                  [ -n "$np" ] && infra stack "the pinned supabase CLI is not installed («$np»): run npm ci in $REPO"
+                  infra stack "supabase start failed twice (its log: $LOGDIR/supabase-start.log)"; }; }
   fi
   if ! mail_ok; then
     say "Mailpit not answering: (re)starting the sink as CI does"

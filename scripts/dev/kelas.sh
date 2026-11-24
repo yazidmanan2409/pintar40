@@ -21,8 +21,9 @@ SIG_MESIN=(
   'Data limit exceeded|registry'                          # public ECR: «error from registry: Data limit exceeded» (Second Eye, I-4)
   'failed to pull docker image from all registries|registry'   # the supabase CLI's summary after every registry refused
   # GHCR through the session's agent proxy: «… Forbidden (agent proxy: no rule or network setting allows this host)».
-  # The proxy's words alone could come from app code reaching any host, so only on a line that is an image pull
-  '(ghcr\.io|httpReadSeeker|/v2/|docker image|registr).*agent proxy: no rule or network setting allows this host|registry'
+  # The proxy's words alone could come from app code reaching any host, so only on a line that names a registry host
+  # or the image-pull machinery. Not «/v2/» (any versioned API) nor «registr…» (registration, registrasi): N-4
+  '(ghcr\.io|pkg-containers\.githubusercontent\.com|httpReadSeeker|Pulling from|docker image).*agent proxy: no rule or network setting allows this host|registry'
   # the session's agent proxy refusing a REGISTRY host (GHCR and its blob host). Only a registry host: app code can
   # also be refused by the proxy, and that is not the machine's
   'request blocked: no rule allows host.*(ghcr\.io|pkg-containers\.githubusercontent\.com|docker\.io|docker\.com|ecr\.aws)|registry'

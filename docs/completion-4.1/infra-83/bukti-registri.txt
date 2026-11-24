@@ -1,4 +1,4 @@
-# bukti-registri · 2026-11-23T23:51:59Z · commit a3bc9516
+# bukti-registri · 2026-11-24T00:19:02Z · commit 2c6f306d
 
 ## plant: Second Eye's three real refusal lines (Docker Hub, public ECR, GHCR through the proxy), ECR's phrase alone, and two controls: the proxy's words alone, and the proxy refusing an app request to a non-registry host. Each a failing row's text, on a healthy machine
 
@@ -9,6 +9,20 @@ FAIL   ←  ghcr.io/supabase/realtime:v2.130.0 … failed to copy: httpReadSeeke
 FAIL   ←  error from registry: Data limit exceeded
 FAIL   ←  Forbidden (agent proxy: no rule or network setting allows this host)
 FAIL   ←  fetch https://api.example.com/v1/x failed: Forbidden (agent proxy: no rule or network setting allows this host)
+FAIL   ←  fetch https://api.provider.example/v2/messages failed: 403 Forbidden (agent proxy: no rule or network setting allows this host)
+FAIL   ←  POST https://id.example.com/registration failed: Forbidden (agent proxy: no rule or network setting allows this host)
+FAIL   ←  kirim email registrasi gagal: Forbidden (agent proxy: no rule or network setting allows this host)
+
+## classes by kelas.sh at 2c6f306d (N-4's leak)
+INFRA registry: unexpected status from HEAD request to https   ←  unexpected status from HEAD request to https://registry-1.docker.io/v2/supabase/realtime/manifests/v2.130.0: 429 Too Many Requests
+INFRA registry: failed to pull docker image from all registr   ←  failed to pull docker image from all registries: public.ecr.aws/supabase/realtime:v2.130.0 attempt 1: Error response from daemon: error from registry: Data limit exceeded
+INFRA registry: ghcr.io/supabase/realtime:v2.130.0 … faile   ←  ghcr.io/supabase/realtime:v2.130.0 … failed to copy: httpReadSeeker: failed open: failed to do request: Get "<blob URL>": Forbidden (agent proxy: no rule or network setting allows this host)
+INFRA registry: error from registry: Data limit exceeded   ←  error from registry: Data limit exceeded
+FAIL   ←  Forbidden (agent proxy: no rule or network setting allows this host)
+FAIL   ←  fetch https://api.example.com/v1/x failed: Forbidden (agent proxy: no rule or network setting allows this host)
+INFRA registry: fetch https://api.provider.example/v2/messag   ←  fetch https://api.provider.example/v2/messages failed: 403 Forbidden (agent proxy: no rule or network setting allows this host)
+INFRA registry: POST https://id.example.com/registration fai   ←  POST https://id.example.com/registration failed: Forbidden (agent proxy: no rule or network setting allows this host)
+INFRA registry: kirim email registrasi gagal: Forbidden (age   ←  kirim email registrasi gagal: Forbidden (agent proxy: no rule or network setting allows this host)
 
 ## classes by kelas.sh at now
 INFRA registry: unexpected status from HEAD request to https   ←  unexpected status from HEAD request to https://registry-1.docker.io/v2/supabase/realtime/manifests/v2.130.0: 429 Too Many Requests
@@ -17,6 +31,9 @@ INFRA registry: ghcr.io/supabase/realtime:v2.130.0 … faile   ←  ghcr.io/supa
 INFRA registry: error from registry: Data limit exceeded   ←  error from registry: Data limit exceeded
 FAIL   ←  Forbidden (agent proxy: no rule or network setting allows this host)
 FAIL   ←  fetch https://api.example.com/v1/x failed: Forbidden (agent proxy: no rule or network setting allows this host)
+FAIL   ←  fetch https://api.provider.example/v2/messages failed: 403 Forbidden (agent proxy: no rule or network setting allows this host)
+FAIL   ←  POST https://id.example.com/registration failed: Forbidden (agent proxy: no rule or network setting allows this host)
+FAIL   ←  kirim email registrasi gagal: Forbidden (agent proxy: no rule or network setting allows this host)
 
 ## and the gate's own pull: a shim answering every pull with ECR's data limit
 
