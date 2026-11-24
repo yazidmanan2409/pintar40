@@ -1,0 +1,235 @@
+{
+  "perjalanan": "j5",
+  "nama": "Ayu · Rizky · Intan · Joko · Admin PINTAR · (L6) Bambang · Sinta",
+  "lebar": 1280,
+  "zona": "WIB",
+  "bahasa": "en",
+  "laluan": "standar",
+  "label": [
+    "L6: bukti OFFICIAL di tenant bootstrap dev/CI (sintetis)"
+  ],
+  "mulai": "2026-11-24T21:46:13.718Z",
+  "langkah": [
+    {
+      "id": "L1",
+      "judul": "Ayu's first look, then «Siapkan» W3's chapter for 8C («Sampai» left empty)",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-mengajar",
+        "02-kelas-8c",
+        "03-siapkan-pilih",
+        "04-siapkan-tinjau",
+        "05-siapkan-selesai"
+      ],
+      "amatan": [],
+      "data": {
+        "teacher_home": "SMP Sintetis Cendekia / TA 2026/2027 WEDNESDAY, 25 NOV 2026 Good morning, Ayu Lestari The one thing most worth doing first, then the classes in your teaching scope. Worth doing first The school's published material is not yet available to 8C Prepare learning Look at 8C CLASSES IN YOUR TEACHING SCOPE Based on the school's assignments. PINTAR does not mark a class as anyone's; what appears is the classes covered by your assignment. 8A Matematika 6 students Pemetaan Awal — Persamaan Linear Satu Variabel · 2/6 submitted Uji Penguasaan — Persamaan Linear Satu Variabel · 1/6 submitted Pemetaan Awal — Statistika Dasar · 1/6 submitted Uji Penguasaan — Statistika Dasar · 1/6 submitted See the student",
+        "class_8c": "← Classes SMP Sintetis Cendekia / 8C / TA 2026/2027 YOU ARE VIEWING 8C This class appears because the school assigned you to a scope that contains it. The student list comes from the school's enrolment, not from PINTAR. 8A 8C SUBJECT Matematika ENROLLED STUDENTS 4 MATERIAL AVAILABLE None yet Prepare learning Quick Assessment See evidence Class Summary What next OPEN IN THIS CLASS RIGHT NOW Nothing is open right now. MATERIAL FOR THIS CLASS Order follows the school's curriculum. Making material available is not the same as publishing it; the school publishes. Statistika Dasar Published by the school 25 Nov 2026 Ready to make available Persamaan Linear Satu Variabel Published by the school 25 ",
+        "prepare_review": "← 8C SMP Sintetis Cendekia / 8C / TA 2026/2027 CHOOSE MATERIAL REVIEW WHAT STUDENTS RECEIVE MAKE AVAILABLE PREPARE LEARNING · 8C Choose the material to make available Statistika Dasar School material Published by the school 25 Nov 2026 Ready to make available Persamaan Linear Satu Variabel School material Published by the school 25 Nov 2026 Ready to make available Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com",
+        "prepared": "What students will receive | | ✓The material is now available to this class. From Wednesday, 25 Nov 2026 · No end date.",
+        "given_to_8c": "1"
+      },
+      "tab": 36,
+      "url": "/",
+      "ms": 9099
+    },
+    {
+      "id": "L2",
+      "judul": "an Uji Cepat for 8A: the chapter, three questions, the window, the review, «Sediakan»",
+      "hasil": "SAMPAI",
+      "layar": [
+        "06-cepat-awal",
+        "07-cepat-pilih",
+        "08-cepat-tinjau",
+        "09-cepat-berjalan"
+      ],
+      "amatan": [],
+      "data": {
+        "questions_offered": 12,
+        "windows_offered": "10,15,30",
+        "review": "← Change the questions SMP Sintetis Cendekia / 8A / TA 2026/2027 CONFIGURE REVIEW MAKE AVAILABLE QUICK ASSESSMENT · 8A What will happen Persamaan Linear Satu Variabel · 3 items · 30 min Not yet available 1 Students in this class who are signed in see that Quick Assessment on their Learning page. 2 One attempt for each student, and the window starts the moment it is made available. 3 The result is recorded as learning evidence. A Quick Assessment does not issue a certificate. 4 A student who does not get to it is not recorded as unable — only as not yet submitted. THE QUESTIONS THE STUDENTS WILL RECEIVE 1. Latihan: manakah yang merupakan kalimat terbuka? A. 7 + 2 = 9 B. n + 2 = 9 C. 7 + 2 = 10 D. 9 = 9 2. Pada persamaan 3x − 2 = 10, manakah variabelnya? A. 3 B. x C. 10 D. −2 3. Manakah yang merupakan persamaan linear satu variabel? A. x + 4 = 9 B. x² = 16 C. x + y = 5 D. 3 + 4 = 7 The mom",
+        "made_available": "✓The Quick Assessment is now available to this class. |",
+        "assignment": "recorded"
+      },
+      "tab": 52,
+      "url": "/",
+      "ms": 9180
+    },
+    {
+      "id": "L3",
+      "judul": "Rizky takes it and submits; Ayu's running view",
+      "hasil": "SAMPAI",
+      "layar": [
+        "10-rizky-belajar",
+        "11-rizky-uji-cepat",
+        "12-rizky-soal-soal-1",
+        "13-rizky-soal-soal-terakhir",
+        "14-rizky-soal-konfirmasi",
+        "15-rizky-akhir",
+        "16-sesudah-rizky-guru-uji-cepat",
+        "17-sesudah-rizky-guru-hasil"
+      ],
+      "amatan": [],
+      "data": {
+        "rizky-learner_home": "HOME Hello, Rizky Here is what is under way for you today. YOUR NEXT STEP Matematika · Persamaan Linear Satu Variabel Finished Initial Mapping Personal Reading Map Lesson Mastery Check Result See the result See all the steps YOUR LEARNING MATEMATIKA · KELAS 8 Persamaan Linear Satu Variabel Initial Mapping Personal Reading Map Lesson Mastery Check Result Finished · target reached See the result MATEMATIKA · KELAS 8 Statistika Dasar Initial Mapping Personal Reading Map Lesson Mastery Check Result ",
+        "rizky-test_page": "← Home 8A Quick Assessment Work through it calmly. You can flag a question and come back to it. QUESTIONS 3 CLOSES Wednesday, 25 Nov 2026 WHAT YOU CAN DO Flag a question and come back to it Ask for a direction to think in when a question feels stuck About session records During the assessment, certain session activity may be recorded to support process integrity. These records are observations and do not automatically determine your result. Start Quick Assessment Not now Dr. dr. Gladys DT Tubara",
+        "rizky-soal_confirm_words": "Submit now? Once submitted, answers cannot be changed. Submit Check again",
+        "rizky-answered": {
+          "soal": 3,
+          "bantuan_ditawarkan_di": []
+        },
+        "rizky-end": "HOME Hello, Rizky Here is what is under way for you today. YOUR NEXT STEP Matematika · Persamaan Linear Satu Variabel Finished Initial Mapping Personal Reading Map Lesson Mastery Check Result See the result See all the steps YOUR LEARNING MATEMATIKA · KELAS 8 Persamaan Linear Satu Variabel Initial Mapping Personal Reading Map Lesson Mastery Check Result Finished · target reached See the result MAT",
+        "sittings": "FINALIZED Rizky Ramadhan",
+        "sesudah-rizky-teacher_running": "← 8A SMP Sintetis Cendekia / 8A / TA 2026/2027 CONFIGURE REVIEW MAKE AVAILABLE AVAILABLE TO THIS CLASS The Quick Assessment is open Quick Assessment · 25 Nov 2026, 04.46 WIB · 3 items SUBMITTED 1 / 6 TIME LEFT 29 min The numbers above are counts, not judgments. Those who have not submitted may simply not have opened PINTAR. See who has submitted See the result See question by question Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com",
+        "sesudah-rizky-teacher_result": "← Back to the Quick Assessment SMP Sintetis Cendekia / 8A / TA 2026/2027 QUICK ASSESSMENT · 25 NOV 2026, 04.46 WIB Quick Assessment result No scores yet. The class average appears here once someone has handed in. See question by question Score by person In alphabetical order. Not a ranking. All Have submitted Started, not submitted yet Not yet attempted Score by person · 8A Name Status Score Galih Pratama Not yet attempted — Hana Wirawan Not yet attempted — Intan Permatasari Not yet attempted — Joko Susilo Not yet attempted — Rizky Ramadhan Have submitted No score yet Wulan Sari Not yet attempted — Showing 1–6 of 6 students Previous Page 1 of 1 Next Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAY"
+      },
+      "tab": 58,
+      "url": "/",
+      "ms": 51621
+    },
+    {
+      "id": "L4",
+      "judul": "a stop while Intan is answering: her, Ayu's and the result page's views; then the stop ended",
+      "hasil": "SAMPAI",
+      "layar": [
+        "18-intan-belajar",
+        "19-intan-uji-cepat",
+        "20-intan-soal-soal-1",
+        "21-intan-akhir",
+        "22-henti",
+        "23-henti-intan",
+        "24-henti-guru-uji-cepat",
+        "25-henti-guru-hasil",
+        "26-henti-diakhiri",
+        "27-sesudah-henti-intan",
+        "28-intan-lanjut-soal-1",
+        "29-intan-lanjut-soal-terakhir",
+        "30-intan-lanjut-konfirmasi",
+        "31-intan-selesai"
+      ],
+      "amatan": [],
+      "data": {
+        "intan-learner_home": "HOME Hello, Intan Here is what is under way for you today. YOUR NEXT STEP Matematika · Persamaan Linear Satu Variabel Begin with the Initial Mapping Initial Mapping Personal Reading Map Lesson Mastery Check Result Start the Initial Mapping See all the steps YOUR LEARNING MATEMATIKA · KELAS 8 Persamaan Linear Satu Variabel Initial Mapping Personal Reading Map Lesson Mastery Check Result Begin with the Initial Mapping Start the Initial Mapping MATEMATIKA · KELAS 8 Statistika Dasar Initial Mapping ",
+        "intan-test_page": "← Home 8A Quick Assessment Work through it calmly. You can flag a question and come back to it. QUESTIONS 3 CLOSES Wednesday, 25 Nov 2026 WHAT YOU CAN DO Flag a question and come back to it Ask for a direction to think in when a question feels stuck About session records During the assessment, certain session activity may be recorded to support process integrity. These records are observations and do not automatically determine your result. Start Quick Assessment Not now Dr. dr. Gladys DT Tubara",
+        "intan-answered": {
+          "soal": 1,
+          "bantuan_ditawarkan_di": [],
+          "berhenti": true
+        },
+        "intan-end": "Time elapsed 00:01 Question list Latihan: manakah yang merupakan kalimat terbuka? A 7 + 2 = 10 B 9 = 9 C n + 2 = 9 D 7 + 2 = 9 Saved Flag this question Answered: 1 of 3. Back Next",
+        "stopped": "Pemeliharaan dan pengumuman | | | ✓Selesai. PINTAR dihentikan untuk cakupan itu. Akhiri dari daftar pemeliharaan bila sudah aman.",
+        "stopped_learner": "PINTAR ID EN PINTAR has been stopped for now An Admin PINTAR stopped PINTAR because a problem has to be dealt with first to keep data safe. Everything already saved is safe and has not been deleted. An answer that did not show «Saved» has not reached PINTAR. This stop does not submit or score an assessment that was in progress. It is held with the answers already saved and the time that was left. When PINTAR is back, open that assessment again; the time left is what it was when the stop began. O",
+        "henti-teacher_running": "PINTAR ID EN PINTAR has been stopped for now An Admin PINTAR stopped PINTAR because a problem has to be dealt with first to keep data safe. Everything already saved is safe and has not been deleted. An answer that did not show «Saved» has not reached PINTAR. This stop does not submit or score an assessment that was in progress. It is held with the answers already saved and the time that was left. When PINTAR is back, open that assessment again; the time left is what it was when the stop began. Open this page again later to see whether PINTAR is back. Sign out Fairer education, for more opportu",
+        "henti-teacher_result": "PINTAR ID EN PINTAR has been stopped for now An Admin PINTAR stopped PINTAR because a problem has to be dealt with first to keep data safe. Everything already saved is safe and has not been deleted. An answer that did not show «Saved» has not reached PINTAR. This stop does not submit or score an assessment that was in progress. It is held with the answers already saved and the time that was left. When PINTAR is back, open that assessment again; the time left is what it was when the stop began. Open this page again later to see whether PINTAR is back. Sign out Fairer education, for more opportunity.",
+        "sittings_stopped": "IN_PROGRESS Intan Permatasari; FINALIZED Rizky Ramadhan",
+        "after_stop_learner": "Continue here? You signed in again, so this assessment continues in a new session. Answers already saved are kept. Continue here Cancel",
+        "intan-lanjut_confirm_words": "Submit now? Once submitted, answers cannot be changed. Submit Check again",
+        "after_stop_answered": {
+          "soal": 2,
+          "bantuan_ditawarkan_di": []
+        },
+        "sittings_after_stop": "FINALIZED Intan Permatasari; FINALIZED Rizky Ramadhan"
+      },
+      "tab": 224,
+      "url": "/",
+      "ms": 72574
+    },
+    {
+      "id": "L5",
+      "judul": "the late joiner: Joko starts after the stop; Ayu's running view and the result page",
+      "hasil": "SAMPAI",
+      "layar": [
+        "32-joko-belajar",
+        "33-joko-uji-cepat",
+        "34-joko-soal-soal-1",
+        "35-joko-soal-soal-terakhir",
+        "36-joko-soal-konfirmasi",
+        "37-joko-akhir",
+        "38-akhir-guru-uji-cepat",
+        "39-akhir-guru-hasil"
+      ],
+      "amatan": [],
+      "data": {
+        "late_join_at": "02:05 after it opened; closes in 27:54",
+        "joko-learner_home": "HOME Hello, Joko Here is what is under way for you today. YOUR NEXT STEP Matematika · Persamaan Linear Satu Variabel Begin with the Initial Mapping Initial Mapping Personal Reading Map Lesson Mastery Check Result Start the Initial Mapping See all the steps YOUR LEARNING MATEMATIKA · KELAS 8 Persamaan Linear Satu Variabel Initial Mapping Personal Reading Map Lesson Mastery Check Result Begin with the Initial Mapping Start the Initial Mapping MATEMATIKA · KELAS 8 Statistika Dasar Initial Mapping P",
+        "joko-test_page": "← Home 8A Quick Assessment Work through it calmly. You can flag a question and come back to it. QUESTIONS 3 CLOSES Wednesday, 25 Nov 2026 WHAT YOU CAN DO Flag a question and come back to it Ask for a direction to think in when a question feels stuck About session records During the assessment, certain session activity may be recorded to support process integrity. These records are observations and do not automatically determine your result. Start Quick Assessment Not now Dr. dr. Gladys DT Tubara",
+        "joko-soal_confirm_words": "Submit now? Once submitted, answers cannot be changed. Submit Check again",
+        "joko-answered": {
+          "soal": 3,
+          "bantuan_ditawarkan_di": []
+        },
+        "joko-end": "HOME Hello, Joko Here is what is under way for you today. YOUR NEXT STEP Matematika · Persamaan Linear Satu Variabel Begin with the Initial Mapping Initial Mapping Personal Reading Map Lesson Mastery Check Result Start the Initial Mapping See all the steps YOUR LEARNING MATEMATIKA · KELAS 8 Persamaan Linear Satu Variabel Initial Mapping Personal Reading Map Lesson Mastery Check Result Begin with t",
+        "sittings": "FINALIZED Intan Permatasari; FINALIZED Joko Susilo; FINALIZED Rizky Ramadhan",
+        "akhir-teacher_running": "← 8A SMP Sintetis Cendekia / 8A / TA 2026/2027 CONFIGURE REVIEW MAKE AVAILABLE AVAILABLE TO THIS CLASS The Quick Assessment is open Quick Assessment · 25 Nov 2026, 04.46 WIB · 3 items SUBMITTED 3 / 6 TIME LEFT 27 min The numbers above are counts, not judgments. Those who have not submitted may simply not have opened PINTAR. See who has submitted See the result See question by question Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com",
+        "akhir-teacher_result": "← Back to the Quick Assessment SMP Sintetis Cendekia / 8A / TA 2026/2027 QUICK ASSESSMENT · 25 NOV 2026, 04.46 WIB Quick Assessment result No scores yet. The class average appears here once someone has handed in. See question by question Score by person In alphabetical order. Not a ranking. All Have submitted Started, not submitted yet Not yet attempted Score by person · 8A Name Status Score Galih Pratama Not yet attempted — Hana Wirawan Not yet attempted — Intan Permatasari Have submitted No score yet Joko Susilo Have submitted No score yet Rizky Ramadhan Have submitted No score yet Wulan Sari Not yet attempted — Showing 1–6 of 6 students Previous Page 1 of 1 Next Dr. dr. Gladys DT Tubarad,"
+      },
+      "tab": 58,
+      "url": "/",
+      "ms": 51359
+    },
+    {
+      "id": "L6",
+      "judul": "«Minta membaca lagi» sent (OFFICIAL evidence: the bootstrap's 8K, Bambang for Sinta)",
+      "hasil": "SAMPAI",
+      "layar": [
+        "40-sinta",
+        "41-minta-membaca",
+        "42-minta-membaca-terkirim",
+        "43-sinta-belajar"
+      ],
+      "amatan": [
+        "bukti OFFICIAL di tenant bootstrap dev/CI (sintetis): Bambang Sutrisno · Sinta Maharani, 8K"
+      ],
+      "data": {
+        "student_page_offers_it": true,
+        "request_page": "← Evidence PINTAR Bootstrap (OFFICIAL evidence — development and CI only) / 8K (dunia) / TA 2026/2027 (dunia audit) PERSAMAAN LINEAR SATU VARIABEL Ask to read again Choose the students who need support and the lessons they should read again. They will find the request on their home page. target 60% Students Sinta Maharani 83% · The percentage meets the target, but an important question is not right yet. Lessons to read again Kalimat Terbuka dan Persamaan Menyelesaikan Persamaan Persamaan dalam Soal Cerita The students' results do not change, and there is no new test. Ask to read again REQUESTS ALREADY SENT No requests for this chapter yet. Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com",
+        "sinta_preticked": true,
+        "sent": "Ask to read again | ✓Request sent to 1 student. |",
+        "learner_sees": "HOME Hello, Sinta Here is what is under way for you today. YOUR NEXT STEP Matematika · Persamaan Linear Satu Variabel Finished Initial Mapping Personal Reading Map Lesson Mastery Check Result See the result See all the steps YOUR TEACHER'S REQUEST Persamaan Linear Satu Variabel Bambang Sutrisno asked you to read these again: Kalimat Terbuka dan Persamaan Menyelesaikan Persamaan Persamaan dalam Soal Cerita YOUR LEARNING MATEMATIKA · KELAS 8 Persamaan Linear Satu Variabel Initial Mapping Personal "
+      },
+      "tab": 28,
+      "url": "/",
+      "ms": 13205
+    },
+    {
+      "id": "L7",
+      "judul": "«Ubah jadwal» on 8C's chapter: an end date set",
+      "hasil": "SAMPAI",
+      "layar": [
+        "44-jadwal",
+        "45-jadwal-disimpan"
+      ],
+      "amatan": [],
+      "data": {
+        "end_date_value": "2026-12-31T15:00",
+        "saved": "✓Schedule changed. Students who are already working keep their own deadline. |",
+        "until": "2026-12-31 15:00"
+      },
+      "tab": 36,
+      "url": "/",
+      "ms": 7087
+    },
+    {
+      "id": "L8",
+      "judul": "«Atur» → «Tambah waktu» on Galih's open Uji Penguasaan",
+      "hasil": "SAMPAI",
+      "layar": [
+        "46-atur",
+        "47-atur-tanya",
+        "48-atur-waktu-ditambah"
+      ],
+      "amatan": [],
+      "data": {
+        "add_time_panel": "Add time EXTRA TIME 5 minutes 10 minutes 15 minutes 30 minutes REASON 10 to 300 characters. Recorded in the school's audit trail and visible to this class's teachers. Add time",
+        "question": "Add 10 minutes for Galih Pratama? New deadline 24 May 2027, 04.56 WIB. Add time Cancel",
+        "added": "✓Galih Pratama was given 10 more minutes. New deadline 24 May 2027, 04.56 WIB. |",
+        "deadline": "2027-05-24 04:56"
+      },
+      "tab": 21,
+      "url": "/",
+      "ms": 7295
+    }
+  ],
+  "selesai": "2026-11-24T21:49:55.140Z",
+  "sampai_akhir": true
+}
