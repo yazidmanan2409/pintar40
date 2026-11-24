@@ -366,3 +366,10 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
 |---|---|---|---|---|---|---|
 | L-102 (J3-10) | **W8, the gate unreadable:** the learner gets counts with no decision and no reason, while the teacher reads «belum dapat disimpulkan …» with its reason | B, C | J3 | **Significant** | C-3 | «Keputusan lulus untuk Uji Penguasaan ini belum dapat ditentukan sekarang. Hasil Anda tetap tersimpan. Buka halaman ini lagi nanti.» |
 | L-103 (J2-11) | The certificate's A4 preview is read in full by the screen reader: two h1 «{nama}», two «Periksa keaslian», two QR images | G | J2 | Improvement | — | Hide the duplicate preview from the accessibility tree |
+
+**J4 captured** (builder, `1a4b8b76`, `audit/79/tangkapan/f606a740/j4/`): 10 walks, each reaching its last screen, including the three branches left for the builder. Daisy judges. The builder's observations:
+- **Ended without counting:** consistent on all surfaces («diakhiri tanpa dihitung … tidak memakai kesempatan»).
+- **Time ran out while away:** the sitting is EXPIRED, the teacher reads «Waktu habis», and the test page says «Tidak ada yang perlu dilanjutkan». **The learner's home still offers «Lanjutkan Uji Penguasaan»: siblings disagree** (C-2, the step derivation; with L-64).
+- **Maintenance:** the banner, the page and the learner's «tetap dapat diselesaikan» show as designed. The teacher's row reads «sisa 259199 menit» (L-47 again).
+- **The learner's result page is «Halaman ini tidak ada» in all three branch states** (L-54, C-1).
+- **For Daisy (J7):** a reissue is possible only once the certificate's data has changed.
