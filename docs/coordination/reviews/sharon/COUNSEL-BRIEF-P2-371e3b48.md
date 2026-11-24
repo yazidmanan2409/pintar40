@@ -21,3 +21,16 @@
    - What response times apply to an adult's request to access, correct or delete their data? PINTAR already offers account closure and a deletion request (`minta_akun`), so counsel can say whether that process is enough.
 
 **Optional:** in Q3, say that the backups are encrypted, and how long they are kept, if the retention proposal states it.
+
+## Addendum · revised (24 Nov 2026, 01:25 UTC): FIT TO SEND once the two regions are filled in
+
+- **All three additions are in:**
+  - the AI feature is off in the pilot;
+  - the provider table names Supabase, Vercel, Resend and AWS S3;
+  - Q7 covers breaches and requests from individuals, with minors moved to Q8.
+- **The optional backup point is accurate.** `backup-offsite.yml:81` encrypts to both custodians' keys (D-109(c)).
+- **The regions:**
+  - Vercel `sin1` matches `vercel.json`;
+  - Supabase `ap-southeast-1` is not in the repository, so cite where it was read (the project settings);
+  - **Resend's and S3's regions must be filled in by the owner before the brief is sent.** A brief asking about transfer abroad cannot leave its processors' locations blank.
+- Nothing sensitive.
