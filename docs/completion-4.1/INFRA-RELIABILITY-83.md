@@ -94,3 +94,5 @@ They also hit a full disk (16 GB of stale /tmp) and registry refusals after a re
   - The builder updates each dependent expectation in the same batch, before the hand-off.
   - Each replacement **proves the new behaviour**; it never simply removes the old assertion.
 - **The hand-off names this sweep and its result** ("dependent tests: N found, N restated"), and Bob checks for it before sending the batch to review.
+
+**H-1, a harness issue (24 Nov, Second Eye at D2-R's freeze check on `177ab4d2`): the pre-flight heartbeat reads the red-cases step's own `supabase db reset` as a dead database.** The heartbeat's single 10-second `select 1` fell during a reset twice and stopped the step; the second stop also left no db container. Those two attempts were VOID, not red. The green run used `PREFLIGHT_DENYUT=3600`, so that step ran effectively without a heartbeat. The red cases themselves passed (2141 s). **To fix after D2-R**, in `scripts/dev/`: the heartbeat pauses while a step resets the database, or it needs several consecutive misses. Nothing changed on the candidate.

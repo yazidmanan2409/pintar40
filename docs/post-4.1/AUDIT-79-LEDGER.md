@@ -171,3 +171,9 @@ The owner: «you and bob decide what's best». Daisy decided and Bob agrees. **N
 | L-40 (K-2) | «Masuk sebagai» crowds the name | Owner | E | All | Improvement | Two rows; the name gets the full width |
 | L-41 (K-3) | «Keluar» lacks a visible control boundary | Owner | E | All | Improvement | A neutral outline, `--line-control` (3.4:1, which passes WCAG 1.4.11). Not orange (it isn't in the palette), not gold (2.5:1 fails, and gold is the certificate's colour), not amber (it means attention) |
 | L-42 (K-4) | The ID / EN control is unclear | Owner | E | All | Improvement | A text switch, «ID · EN»: targets of at least 24 px, with `aria-pressed` |
+
+## Carried from D2-R's frozen candidate (`177ab4d2`, ruling 93; Bob, 24 Nov)
+
+| L-id | Observation | Source | Dimension | Journey | Proposed severity | Notes |
+|---|---|---|---|---|---|---|
+| L-43 | **R-f's staff display is not drawn.** Spec R-f / D2R-F01: the attempt ordinal is shown «on the learner's result and in authorised staff views only». The learner's result draws «Kesempatan ke-{n}». The teacher's sittings read carries `daftar_pengerjaan.percobaan_ke`, but the teacher's sittings screen doesn't draw it | D2-R hand-off item 131, disclosed to Sharon and Daisy before their PASS on `5550e508` | B | J4 / J5 (teacher evidence) | **Significant** (an approved display that isn't there) | No wording is missing: «Kesempatan» is Daisy's learner **and** teacher word (spec §7.3). The ordinal's restriction (no certificate, no public page) **is** enforced. Not changed on the frozen candidate, by ruling 93. Fix it in the audit's consolidated revision |
