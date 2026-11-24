@@ -110,3 +110,11 @@ With no threshold, every objective below the mark goes in the one revisit list. 
   - ID: «Selama asesmen ini, petunjuk, contoh, dan arah berpikir tidak tersedia.»
   - EN: «During this assessment, hints, examples and thinking prompts are not available.»
   - Uji Penguasaan keeps `posttest.tanpa_bantuan`.
+
+## 8 · `hasil.tidak_ditampilkan` reworded, so DAISY-26 needs no exemption (24 Nov, 03:33)
+
+DAISY-26 bans «kunci jawaban» from every learner line, because it can be read as "lock the answer". My own §3 line broke it. **Reword rather than exempt:** a guard with a named exception invites the next one.
+- ID: «Pada Uji Penguasaan, jawaban yang tepat dan hasil tiap soal tidak ditampilkan.»
+- EN: «In a Mastery Check, the right answers and the result of each question are not shown.» (unchanged in meaning)
+- **«tepat»** matches the counts line («5 dari 6 soal dijawab tepat»). It also avoids «benar … benar atau salahnya» in one sentence.
+- **Second Eye's exemption** (`claude/d2r` `c37e6884`, D2R-HANDOFF.md) can be removed once the key carries these words.

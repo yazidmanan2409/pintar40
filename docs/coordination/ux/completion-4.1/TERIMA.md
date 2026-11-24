@@ -106,3 +106,4 @@
 - **24 Nov 02:23Z · Bob:** usage at 82%; hold new work until D2-R's CI head arrives for 1f, or 03:30Z. Holding.
 - **24 Nov 03:21Z · Bob:** the owner says it is safe to resume. Two questions due at about 03:31 (J1's PIN-try count, the «kunci jawaban» exemption). 1f waits for Second Eye's CI head.
 - **24 Nov 03:31Z · Bob:** J1 walked at audit-79-world 7f360d93, with no OBSERVED rows; two notes (PIN ×3, a mistyped number). **Answered 03:35:** the count was already fixed at d7a96318; same wording for a mistyped number is kept (no enumeration), and the line must name both causes and the next step.
+- **24 Nov 03:32Z · Bob:** keep the «kunci jawaban» exemption for hasil.tidak_ditampilkan, or reword? **Answered:** reword (D2R-KATA §8); the exemption can go.
