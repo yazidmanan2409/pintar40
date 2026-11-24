@@ -131,6 +131,16 @@ jobs:
           set -euo pipefail
           node audit/perjalanan/j9.mjs
           AUDIT_BAHASA=en AUDIT_LEBAR=1280 node audit/perjalanan/j9.mjs
+      # J12 changes the world (maintenance, a stop, roles): it loads the world afresh before each walk itself
+      - name: J12 · operating PINTAR (1280, 390, 320; then EN at 1280)
+        if: success() || failure()
+        env:
+          APP_URL: http://127.0.0.1:3999
+          AUDIT_OUT: ${{ github.workspace }}/audit-out/perjalanan
+        run: |
+          set -euo pipefail
+          node audit/perjalanan/j12.mjs
+          AUDIT_BAHASA=en AUDIT_LEBAR=1280 node audit/perjalanan/j12.mjs
       - name: Keep the captures
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
