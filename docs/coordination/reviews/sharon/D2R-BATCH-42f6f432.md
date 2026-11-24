@@ -166,3 +166,5 @@ Every gate reads `bersertifikasi` (condition 2):
   - 0 sittings lack a capture, and 0 open certifying sittings offer help.
 - **One condition remains:** the `periksa` counter must read above 177,828 after one staging request, as at Z's §2.
 - **R-1: CLOSED.** R1-K01 to K03 are green in the run of record, and `zr1-1` proves the gate.
+
+**Final (10:05 UTC):** the `periksa` counter read 177,981 at 10:00:22Z, which is +153 over 177,828 (recorded at `d8011abc`). **V6 is met. The D2-R staging promotion: PASS, unconditional. R-1: CLOSED.**
