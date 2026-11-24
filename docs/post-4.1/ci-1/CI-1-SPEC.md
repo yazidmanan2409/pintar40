@@ -46,3 +46,38 @@
 
 - **Build:** Second Eye, on a fresh branch from main, after the L-78 test.
 - **Review:** Sharon (pre-build, and the independent verification). Daisy only for the refusal's wording, if it reaches a screen.
+
+## 6 · Sharon's pre-build review (`CI-1-PREBUILD-d99fa8d3.md`, 24 Nov): CORRECT IN SCOPE, with these amendments, which are binding for the build
+
+**(a) S-2's states. DICABUT is never derived from the result alone:**
+- REVOKED → DICABUT;
+- SUPERSEDED → DIGANTIKAN;
+- ISSUED, with an open review OR a result in force that fails → **DITINJAU**;
+- otherwise → BERLAKU.
+
+A row wrongly CONFIRMED has no revocation, so DICABUT would be a different false statement. DITINJAU is true, and the school's revocation then makes it DICABUT honestly.
+
+**(b) ONE SQL helper** (an open review OR a result in force that fails), used by every reader that states validity. This is within the integrity purpose:
+- the public `verify_certificate`;
+- the learner's `sertifikat_saya_ditinjau`, which feeds the certificate page, the `KartuSertifikat` card and print, `keadaanSertifikat`, and the A4 sheet through the card's data;
+- the staff Konfigurasi list.
+
+**(c) S-1's lock order:** take the review FOR UPDATE, then the sitting's row lock (A2A order), and only then read the result in force. `hitung_ulang_koreksi_kunci` writes under that lock.
+
+**Plants (each must turn the check red):**
+
+| # | Plant | What goes wrong |
+|---|---|---|
+| P1 | No S-1 check | A direct CONFIRMED on a failing review succeeds |
+| P2 | An over-strict S-1 | A passing review can't confirm |
+| P3 | A mastery-only check | A gate-only failure is confirmed |
+| P4 | `hasil_terkini_id` used instead of `hasil_murid_id` | The wrong result is read |
+| P5 | The old verify logic | A planted wrongly-confirmed row reads BERLAKU |
+| P6 | DICABUT without a revocation | A false DICABUT |
+| P7 | The learner's card or print | Shows a clean credential |
+
+**Also assert:**
+- the OUT signature is unchanged;
+- `assert_public_surface` and F04-S01 pass;
+- no rows are written;
+- the S-1 refusal shows on screen as a named refusal.
