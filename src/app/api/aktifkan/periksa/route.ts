@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { supabaseServer } from "@/lib/supabase/server";
 import { supabaseService } from "@/lib/supabase/service";
+import { keluarPerangkatIni } from "@/lib/keluar";
 import { alamatKlien, fetchBerpenerus } from "@/lib/auth-forwarding";
 import { asalSendiri } from "@/lib/kartu-masuk";
 import { HALAMAN_AKTIVASI } from "@/lib/aktivasi-kontrak";
@@ -60,11 +61,9 @@ export async function POST(request: NextRequest) {
       terkunci: async () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return false;
-        const { data: akun } = await layanan.from("accounts").select("person_id").eq("auth_user_id", user.id).maybeSingle();
-        if (!akun?.person_id) return false;
-        const { data: dikunci, error } = await layanan.rpc("orang_ditangguhkan", { p_person: akun.person_id });
+        const { data: dikunci, error } = await layanan.rpc("akun_auth_terkunci", { p_auth_user: user.id });
         if (error) throw new Error(error.code ?? "no answer");
-        if (dikunci === true) await supabase.auth.signOut().catch(() => undefined);
+        if (dikunci === true) await keluarPerangkatIni(supabase).catch(() => undefined);
         return dikunci === true;
       },
     },

@@ -310,7 +310,8 @@ export const ci2StaticTests: SelfTest[] = [
         c.expect(/not public\.orang_ditangguhkan\(a\.person_id\)/.test(def(f)), `${f} still answers for a locked person (F-5)`);
       }
       const aktivasi = baca("src/lib/aktivasi.ts"), rutePeriksa = baca("src/app/api/aktifkan/periksa/route.ts");
-      c.expect(/if \(alat\.terkunci && \(await alat\.terkunci\(\)/.test(aktivasi) && /orang_ditangguhkan/.test(rutePeriksa) && /signOut\(\)/.test(rutePeriksa),
+      c.expect(/if \(alat\.terkunci && \(await alat\.terkunci\(\)/.test(aktivasi) && /rpc\("akun_auth_terkunci"/.test(rutePeriksa) && /keluarPerangkatIni\(supabase\)/.test(rutePeriksa)
+        && /orang_ditangguhkan\(a\.person_id\)/.test(def("public.akun_auth_terkunci")),
         "the activation door does not answer a locked person's accepted code as the ordinary wrong code (F-5)");
       // F-4 bounded, and the end state asserted
       c.expect(/banned_until is not null/.test(mig) && /raise exception/.test(mig), "the migration does not assert that no account is left banned");

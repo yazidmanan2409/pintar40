@@ -1173,6 +1173,9 @@ begin perform 1 from public.institutions i where i.id = p for update; end $t$;`)
       const asli = psql(`select ${kolom} from public.account_setup where account_id = '${akun}'`).stdout.trim();
       if (!c.expect(!!asli, "Alpha's teacher has no set-up row")) return c.verdict("");
       const [st, ca, ps, nc] = asli.split("|");
+      // RESTATED, CI-2 (ruling 98, OD-1 ruling 100): the harness's real suspension rotates the teacher's secret and the lift
+      // re-keys it, so the seeded password is kept here and put back exactly (past the guard), like the set-up row
+      const sandiAsli = psql(`select encrypted_password from auth.users u join public.accounts a on a.auth_user_id = u.id where a.id = '${akun}'`).stdout.trim();
       const nilai = (x: string) => (x === "" ? "null" : `'${x}'::timestamptz`);
       const terbuka = () => psql(`select count(*) from public.person_suspensions where person_id = '${g}' and ended_at is null`).stdout.trim();
       if (!c.expect(terbuka() === "0", "Alpha's teacher is already suspended (the race cannot be set up)")) return c.verdict("");
@@ -1202,7 +1205,10 @@ begin perform 1 from public.institutions i where i.id = p for update; end $t$;`)
         if (terbuka() !== "0") psql(`begin; select selftest.as_user('${SYS}'); select public.aktifkan_kembali_akun('${g}', 'uji A3-R05N: pembersihan balapan'); commit;`);
         psql(`begin; set local session_replication_role = replica;
           update public.account_setup set state = '${st}', completed_at = ${nilai(ca)}, password_set_at = ${nilai(ps)}, name_confirmed_at = ${nilai(nc)}
-           where account_id = '${akun}'; commit;`);
+           where account_id = '${akun}';
+          update auth.users u set encrypted_password = '${sandiAsli}' from public.accounts a where a.id = '${akun}' and u.id = a.auth_user_id; commit;`);
+        c.expect(psql(`select encrypted_password from auth.users u join public.accounts a on a.auth_user_id = u.id where a.id = '${akun}'`).stdout.trim() === sandiAsli,
+          "Alpha's teacher's seeded password was not put back exactly after the harness's suspension (CI-2 re-keys it)");
         const kini = psql(`select ${kolom} from public.account_setup where account_id = '${akun}'`).stdout.trim();
         c.expect(kini === asli, `Alpha's teacher's set-up was not restored exactly: ${kini} (was ${asli})`);
         c.expect(terbuka() === "0", "a suspension of Alpha's teacher is left open");

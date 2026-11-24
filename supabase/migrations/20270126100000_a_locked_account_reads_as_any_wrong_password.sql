@@ -342,6 +342,16 @@ create or replace function public.activation_code_target(p_email text)
    limit 1
 $$;
 
+-- 7c. F-5 at the activation door: after a code Auth accepted, whether its account's person is locked. The database's one
+--     lookup (L2's rule: a route reads no accounts row itself); the service key only
+create or replace function public.akun_auth_terkunci(p_auth_user uuid)
+ returns boolean
+ language sql
+ stable security definer
+ set search_path = public, pg_temp as $$
+  select exists (select 1 from public.accounts a where a.auth_user_id = p_auth_user and public.orang_ditangguhkan(a.person_id))
+$$;
+
 -- ADR-0021: every function this file creates revokes PUBLIC's EXECUTE here; each keeps exactly the grants it had
 revoke all on function public.auth_password_write_guard() from public, anon, authenticated, service_role;
 revoke all on function public.akun_kunci(uuid, boolean) from public, anon, authenticated, service_role;
@@ -351,6 +361,7 @@ revoke all on function public.hapus_data_pribadi(uuid, text) from public, anon;
 revoke all on function public.akun_keadaan(uuid) from public, anon;
 revoke all on function public.recovery_code_target(text) from public, anon, authenticated;
 revoke all on function public.activation_code_target(text) from public, anon, authenticated;
+revoke all on function public.akun_auth_terkunci(uuid) from public, anon, authenticated;
 
 -- 8. F-4: today's bans lifted, and every account of a locked person rotated and revoked; bounded to the count read first.
 --    Staging only today (synthetic accounts); production has no ban (verified under PR-22, not here)
