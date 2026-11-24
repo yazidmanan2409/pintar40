@@ -336,3 +336,7 @@ Sharon's part waits until after A3's freeze (ruling 58).
 **Daisy's two strings:**
 - `hasil.percobaan_ke`: «Kesempatan ke-{n}» / «Attempt {n}». «Kesempatan» is the learner and teacher word.
 - A new key, `posttest.tanpa_bantuan_umum`, for a certifying STANDALONE only: «Selama asesmen ini, petunjuk, contoh, dan arah berpikir tidak tersedia.» / «During this assessment, hints, examples and thinking prompts are not available.»
+
+**Daisy (D2R-KATA §8, `2bfbd3d7`):**
+- `hasil.tidak_ditampilkan` is reworded: «Pada Uji Penguasaan, jawaban yang tepat dan hasil tiap soal tidak ditampilkan.» / «In a Mastery Check, the right answers and the result of each question are not shown.»
+- The DAISY-26 exemption is dropped, so that guard has no exceptions.
