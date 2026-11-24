@@ -1,0 +1,14 @@
+D2-R step 0 on staging (pintar-staging, keijhmdtsgrfvnvocfvk; verified with get_project), read only, 2026-11-24 ~05:13Z.
+Script: claude/d2r 5550e508 docs/completion-4.1/d2r/evidence/step0-D2R.sql (run in parts, set transaction read only)
+
+mode       will_capture_bersertifikasi  status     open   sittings  will_capture_help  will_capture_reveals
+POST_TEST  true                         FINALIZED  false  1424      true               true
+PRE_TEST   false                        FINALIZED  false  333       true               false
+QUICK      false                        FINALIZED  false  22        true               true
+
+sittings_whose_mode_has_no_policy = 0
+schema_migrations = 308
+
+Reading: 1779 sittings, ALL finalised; NONE open (so no sitting loses help mid-way).
+The 1424 POST_TEST sittings will be backfilled with bersertifikasi=true and the help they started with (true), which Sharon's
+condition 3 allows (the insert-only rule). Nothing was written.
