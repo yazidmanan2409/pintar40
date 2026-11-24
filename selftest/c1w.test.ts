@@ -45,6 +45,7 @@ import {
 
 const MIGRASI_A = "supabase/migrations/20270115100000_a_question_is_written_in_the_app_and_revised_in_its_line.sql";
 const MIGRASI_B = "supabase/migrations/20270115110000_a_wrong_key_is_corrected_by_two_people_and_kept_on_the_record.sql";
+const MIGRASI_CI1 = "supabase/migrations/20270125100000_a_now_failing_result_is_never_confirmed_or_read_valid.sql";
 const ALASAN = "uji C1w: kunci jawaban soal ini keliru";
 
 function db(): string {
@@ -427,10 +428,13 @@ export const c1wTests: SelfTest[] = [
     run: async ({ repoRoot }) => {
       const c = new Checks();
       const baca = (f: string) => { try { return readFileSync(join(repoRoot, f), "utf8"); } catch { return ""; } };
-      const a = baca(MIGRASI_A), b = baca(MIGRASI_B);
-      if (!c.expect(a.length > 0 && b.length > 0, `${MIGRASI_A} or ${MIGRASI_B} does not exist`)) return c.verdict("");
+      // RESTATED (CI-1, ruling 97): koreksi_tolak is last defined by CI-1's migration, which adds
+      // CERT_REVIEW_RESULT_NO_LONGER_PASSES; its codes are read from there first, and the codes raised from all three
+      const a = baca(MIGRASI_A), b0 = baca(MIGRASI_B), ci1 = baca(MIGRASI_CI1);
+      if (!c.expect(a.length > 0 && b0.length > 0 && ci1.length > 0, `${MIGRASI_A}, ${MIGRASI_B} or ${MIGRASI_CI1} does not exist`)) return c.verdict("");
+      const b = ci1 + "\n" + b0;
       const periksa = (sql: string, raiser: string, db: readonly string[], semua: readonly string[], kunci: (k: string) => string, gagal: string, err: string) => {
-        const blok = new RegExp(`create or replace function public\\.${raiser}[\\s\\S]*?end \\$\\$;`).exec(sql)?.[0] ?? "";
+        const blok = new RegExp(`create or replace function public\\.${raiser}[\\s\\S]*?end \\$(?:function)?\\$;?`, "i").exec(sql)?.[0] ?? "";
         const kode = [...blok.matchAll(/when '([A-Z_]+)'/g)].map((x) => x[1]);
         c.expect(kode.length >= 10, `${raiser} names ${kode.length} code(s)`);
         const dipakai = new Set([...(a + b).matchAll(new RegExp(`${raiser}\\('([A-Z_]+)'\\)`, "g"))].map((x) => x[1]));
@@ -1086,6 +1090,9 @@ export const c1wTests: SelfTest[] = [
       const verifikasi = `select v.validity || '|' || coalesce(v.pass::text, '-') from public.verify_certificate((select x.verification_token from public.certificates x where x.id = ${G("cert")})) v`;
       const sidikSert = `(select md5(c.canonical_payload::text || coalesce(c.signature, '') || c.certificate_number || c.verification_token || c.status::text) from public.certificates c where c.id = ${G("cert")})`;
       const presented = (n: number) => `(select p.item_id from public.presented_items p where p.session_id = ${G("bs")} order by p.position offset ${n} limit 1)`;
+      // RESTATED (CI-1, ruling 97): with S-1 the confirmation needs the corrected result to still pass, so the corrected question is
+      // the first presented one that is not safety-critical (the paper's order varies; a safety-critical one fails the gate)
+      const bukanGerbang = `(select p.item_id from public.presented_items p join public.items i on i.id = p.item_id where p.session_id = ${G("bs")} and not i.is_safety_critical order by p.position limit 1)`;
       const tidakDisajikan = `(select i.id from public.items i join public.lessons l on l.id = i.lesson_id join public.modules m on m.id = l.module_id
            join public.assessment_sessions s on s.id = ${G("bs")} join public.plp_releases r on r.id = s.plp_release_id
           where m.course_id = r.course_id and i.bank_type = 'TEST' and i.item_type = 'MCQ_SINGLE'
@@ -1111,7 +1118,7 @@ export const c1wTests: SelfTest[] = [
         langkah("tak_kena", "bkadep", `select (x ->> 'dihitung_ulang') || '|' || (x ->> 'tinjauan_sertifikat') from public.tegaskan_koreksi_kunci(${G("k0")}) x`),
         langkah("tak_kena_cek", null, verifikasi),
         // the result changes: under review from that moment, nothing of the certificate changed
-        ajukanB("k1", presented(0)),
+        ajukanB("k1", bukanGerbang),
         langkah("dampak", "bkadep", `select (x ->> 'sertifikat_ditinjau') || '|' || (x ->> 'hasil_berubah') || '|' || (x ? 'sertifikat_baru_layak') from public.koreksi_kunci_dampak(${G("k1")}) x`),
         langkah("kena", "bkadep", `select (x ->> 'dihitung_ulang') || '|' || (x ->> 'tinjauan_sertifikat') from public.tegaskan_koreksi_kunci(${G("k1")}) x`),
         langkah("ditinjau", null, `select (${verifikasi}) || '|' || (select c.status::text from public.certificates c where c.id = ${G("cert")}) || '|' || (${sidikSert} = ${S("sidik")})`),
@@ -1195,6 +1202,9 @@ export const c1wTests: SelfTest[] = [
       const c = new Checks();
       const sertifikat = `(select x.id from public.certificates x where x.session_id = ${G("bs")} order by x.issued_at desc limit 1)`;
       const presented = (n: number) => `(select p.item_id from public.presented_items p where p.session_id = ${G("bs")} order by p.position offset ${n} limit 1)`;
+      // RESTATED (CI-1, ruling 97): with S-1 the confirmation needs the corrected result to still pass, so the corrected question is
+      // the first presented one that is not safety-critical (the paper's order varies; a safety-critical one fails the gate)
+      const bukanGerbang = `(select p.item_id from public.presented_items p join public.items i on i.id = p.item_id where p.session_id = ${G("bs")} and not i.is_safety_critical order by p.position limit 1)`;
       const kunciLain = (it: string) => `(select o.label from public.item_options o where o.item_id = ${it} and not o.is_correct order by o.label limit 1)`;
       const putus = (k: string, siapa: string) =>
         langkah(k, siapa, `select public.putuskan_tinjauan_sertifikat(${G("rv")}, 'CONFIRMED', 'Hasil pengembangan profesi tetap di atas batas.') ->> 'status'`);
@@ -1205,7 +1215,7 @@ export const c1wTests: SelfTest[] = [
         `perform selftest.as_owner(); perform public.certificate_prepare(${G("bs")}, 1::smallint);`,
         `perform set_config('c1.cert', ${sertifikat}::text, true); perform public.certificate_seal(${G("cert")}, 1::smallint, repeat('a', 64));`,
         `perform selftest.as_owner();
-         perform set_config('c1.it_k1', (${presented(0)})::text, true);
+         perform set_config('c1.it_k1', (${bukanGerbang})::text, true);
          perform set_config('c1.kunci_k1', ${kunciLain(G("it_k1"))}, true);
          perform selftest.as_user_uid(${G("u_badmin")});
          perform set_config('c1.k1', public.ajukan_koreksi_kunci(${G("it_k1")}, array[${S("kunci_k1")}], '${ALASAN}') ->> 'koreksi', true);

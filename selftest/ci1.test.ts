@@ -35,7 +35,9 @@ const CABUT = "Hasil yang dikoreksi di bawah batas lulus.";
 export const MIGRASI_CI1 = "supabase/migrations/20270125100000_a_now_failing_result_is_never_confirmed_or_read_valid.sql";
 
 const sertifikat = `(select x.id from public.certificates x where x.session_id = ${G("bs")} order by x.issued_at desc limit 1)`;
-const presented = (n: number) => `(select p.item_id from public.presented_items p where p.session_id = ${G("bs")} order by p.position offset ${n} limit 1)`;
+/** The corrected question: the first presented one that is not safety-critical, so the correction changes the result but its
+ *  gate holds and it still passes (the paper's order varies; a safety-critical first question would fail the gate). */
+const bukanGerbang = `(select p.item_id from public.presented_items p join public.items i on i.id = p.item_id where p.session_id = ${G("bs")} and not i.is_safety_critical order by p.position limit 1)`;
 const kunciLain = (it: string) => `(select o.label from public.item_options o where o.item_id = ${it} and not o.is_correct order by o.label limit 1)`;
 const verifikasi = `select v.validity || '|' || coalesce(v.pass::text, '-') from public.verify_certificate((select x.verification_token from public.certificates x where x.id = ${G("cert")})) v`;
 const layak = `select public.sertifikat_layak_dengan(${G("bs")}, r.mastery, r.safety_gate_passed)::text from public.assessment_results r where r.id = public.hasil_murid_id(${G("bs")})`;
@@ -53,7 +55,7 @@ const dunia = (): string[] => [
   `perform selftest.as_owner(); perform public.certificate_prepare(${G("bs")}, 1::smallint);`,
   `perform set_config('c1.cert', ${sertifikat}::text, true); perform public.certificate_seal(${G("cert")}, 1::smallint, repeat('a', 64));`,
   `perform selftest.as_owner();
-   perform set_config('c1.it_k1', (${presented(0)})::text, true);
+   perform set_config('c1.it_k1', (${bukanGerbang})::text, true);
    perform set_config('c1.kunci_k1', ${kunciLain(G("it_k1"))}, true);
    perform selftest.as_user_uid(${G("u_badmin")});
    perform set_config('c1.k1', public.ajukan_koreksi_kunci(${G("it_k1")}, array[${S("kunci_k1")}], '${ALASAN_K}') ->> 'koreksi', true);
@@ -262,9 +264,13 @@ export const ci1Tests: SelfTest[] = [
       let mig = "";
       try { mig = readFileSync(join(repoRoot, MIGRASI_CI1), "utf8"); } catch { /* checked below */ }
       c.expect(mig.length > 0, `${MIGRASI_CI1} is the migration`);
-      // the migration writes no rows: outside the function bodies and the assertion blocks, no insert, update or delete
+      // the migration writes no record: outside the function bodies and the assertion blocks, no update, delete or truncate, and
+      // one insert only, the new staff read's client_rpc_registry row (its exposure class, F04-T14, as every client RPC has)
       const luar = mig.replace(/--[^\n]*/g, "").replace(/\$([a-z_]*)\$[\s\S]*?\$\1\$/g, "");
-      c.expect(!/\b(insert\s+into|update\s+[a-z_.]+\s+set|delete\s+from|truncate)\b/i.test(luar), "the migration writes rows outside a function body");
+      c.expect(!/\b(update\s+[a-z_.]+\s+set|delete\s+from|truncate)\b/i.test(luar), "the migration updates or deletes rows outside a function body");
+      const sisipan = [...luar.matchAll(/\binsert\s+into\s+([a-z_.]+)/gi)].map((x) => x[1]);
+      c.expect(sisipan.length === 1 && sisipan[0] === "public.client_rpc_registry" && /\('sertifikat_dipersoalkan_sekolah', 'STAFF'/.test(mig),
+        `the migration's only row is the staff read's registry row: inserts into ${sisipan.join(", ") || "nothing"}`);
       c.expect(/koreksi_tolak\('CERT_REVIEW_RESULT_NO_LONGER_PASSES'\)/.test(mig) && mig.includes(`when '${KODE}'`), "the S-1 refusal and its message in koreksi_tolak");
       // the code is the contract's and has its own words, so Konfigurasi shows it by name
       c.expect((KODE_KOREKSI_DB as readonly string[]).includes(KODE), `${KODE} is in KODE_KOREKSI_DB`);
@@ -277,7 +283,7 @@ export const ci1Tests: SelfTest[] = [
       c.expect(/s\(kunciKodeKoreksi\(kodeTinjau\)\)/.test(halaman) && /KODE_KOREKSI\.includes\(sp\.kode/.test(halaman), "Konfigurasi shows a refused decision by its code's words");
       c.expect(/rpc\("sertifikat_dipersoalkan_sekolah"/.test(halaman), "Konfigurasi reads the staff list's validity from sertifikat_dipersoalkan_sekolah");
       c.expect((halaman.match(/dipersoalkan\.has\(/g) ?? []).length >= 2, "both the list's pill and the selected certificate's state read the helper's set");
-      return c.verdict(`the migration writes no rows; S-1's refusal is ${KODE}, the contract's, with its own words in ID («${id}») and EN, `
+      return c.verdict(`the migration writes no record (its one row: the staff read's registry entry); S-1's refusal is ${KODE}, the contract's, with its own words in ID («${id}») and EN, `
         + "so Konfigurasi shows it by name; the list's pill and the selected certificate's state read sertifikat_dipersoalkan_sekolah");
     },
   },
