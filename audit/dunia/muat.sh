@@ -8,7 +8,9 @@
 #
 # 1. `supabase db reset --local`: every migration and the seed, so a reset returns every state (Daisy's rule).
 # 2. 00-pembantu.sql, then every other NN-*.sql here in order, as ONE transaction (psql -1, ON_ERROR_STOP): a part
-#    that fails leaves no half-built world.
+#    that fails leaves no half-built world. Then each LATER MOMENT (NNb-*.sql: something that must happen after the
+#    world exists, with its own now(), e.g. W18's re-sitting) as its own transaction; then 99-periksa.sql, the
+#    checks, last. If a later moment or the checks fail, the script fails: load again (it resets first).
 # 3. dunia.fakta exported to dunia.json, which the journey captures read (sign-in details, ids).
 # Local and CI only: the loader refuses any database but the local stack's (below), and the seed's own guards refuse
 # a production environment. Never run the selftests against a database where the world has loaded (Bob, 24 Nov).
@@ -43,8 +45,11 @@ else
   if [ "${1:-}" != "--tanpa-reset" ]; then
     (cd "$REPO" && npx --no-install supabase db reset --local >/dev/null)
   fi
-  for f in "$HERE"/[0-9][0-9]-*.sql; do args+=(-f "$f"); done
+  # the world as ONE transaction; then each later moment (NNb-*.sql) as its own, after it; then the checks, last
+  for f in "$HERE"/[0-9][0-9]-*.sql; do [ "$(basename "$f")" = "99-periksa.sql" ] || args+=(-f "$f"); done
   psql "$DB" "${args[@]}"
+  for f in "$HERE"/[0-9][0-9]b-*.sql; do [ -e "$f" ] && psql "$DB" -v ON_ERROR_STOP=1 -q -X -1 -f "$f"; done
+  psql "$DB" -v ON_ERROR_STOP=1 -q -X -1 -f "$HERE/99-periksa.sql"
 fi
 psql "$DB" -X -Atqc "select coalesce(jsonb_object_agg(k, case when left(v,1) in ('{','[') then v::jsonb else to_jsonb(v) end), '{}')::text from dunia.fakta" \
   | python3 -c 'import json,sys; print(json.dumps(json.load(sys.stdin), indent=2, ensure_ascii=False, sort_keys=True))' > "$HERE/dunia.json"

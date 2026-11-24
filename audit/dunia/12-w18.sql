@@ -24,7 +24,7 @@ do $$ begin perform set_config('app.seed_intent', 'synthetic', true); end $$;
 
 do $$
 declare b uuid := dunia.ambil('boot.sekolah')::uuid; ta uuid := dunia.ambil('boot.ta')::uuid; fak uuid; dep uuid; prog uuid; ang uuid;
-        kp uuid; kq uuid; kr uuid; n int := 0; nm text; r1 jsonb; r2 jsonb; r3 jsonb; mem uuid; pl uuid;
+        kp uuid; kq uuid; kr uuid; n int := 0; nm text; r1 jsonb; r2 jsonb; r3 jsonb;
         nama text[] := array['Putri Ayuningtyas', 'Pandu Wicaksono', 'Prita Handayani', 'Purnomo Saleh', 'Pelangi Ramadhani',
                              'Qonita Azzahra', 'Qomar Hidayat', 'Quinsha Maharani', 'Qurrota Ayun', 'Lukman Hakim'];
         kunci text;
@@ -124,22 +124,19 @@ begin
     ], "batas_percobaan": 2, "simpan": "w18.bab3"
   }$j$::jsonb);
 
-  -- R2 first: Lukman (w18.murid10) sits it in 8R, is moved to 8Q, and sits it again there
+  -- R2 first: Lukman (w18.murid10) sits it in 8R; his move to 8Q and his second sitting are a LATER MOMENT
+  -- (12b-w18-pindah.sql, its own transaction: one transaction gives every sitting the same now(), and «the latest
+  -- sitting» would then be decided by a random id)
   perform dunia.duduk('w18.murid10', (r2 ->> 'pa')::uuid);
   perform dunia.simpan('w18.sesi_pindah_lama', dunia.duduk('w18.murid10', (r2 ->> 'up')::uuid)::text);
-  select m.id into mem from public.memberships m join public.enrollments e on e.id = m.enrollment_id
-   where e.person_id = ((dunia.ambil('w18.murid10'))::jsonb ->> 'person')::uuid and m.node_id = kr and m.valid_to is null;
-  perform dunia.sebagai('w14.admin');
-  perform public.move_learner_to_class(mem, kq);
-  perform dunia.sebagai(null);
-  perform dunia.simpan('w18.sesi_pindah_baru', dunia.duduk('w18.murid10', (r2 ->> 'up')::uuid)::text);
   for n in 1..9 loop
     perform dunia.duduk('w18.murid' || n, (r2 ->> 'pa')::uuid);
     perform dunia.duduk('w18.murid' || n, (r2 ->> 'up')::uuid);
   end loop;
 
-  -- R1: every learner, in their current class; the three objectives at 0.9, 0.7 and 0.4
-  for n in 1..10 loop
+  -- R1: every learner, in their current class; the three objectives at 0.9, 0.7 and 0.4 (Lukman sits it after his
+  -- move, in 12b-w18-pindah.sql)
+  for n in 1..9 loop
     perform dunia.duduk('w18.murid' || n, (r1 ->> 'pa')::uuid);
     perform dunia.duduk('w18.murid' || n, (r1 ->> 'up')::uuid, array_remove(array[
       case when n = 1 then 'Organ pencernaan yang pertama dilalui makanan adalah?' end,
@@ -153,29 +150,4 @@ begin
     perform dunia.duduk('w18.murid' || n, (r3 ->> 'up')::uuid);
   end loop;
   raise notice 'dunia: W18 (IPA at the bootstrap: R1 shown in three bands, R2 withheld «moved», R3 withheld «learners», 8R under the minimum)';
-end $$;
-
--- W18's own checks: the domains as the product's calculator reads them, and the classes' counts
-do $$
-declare d jsonb; v_moved boolean; v_learners boolean;
-begin
-  perform dunia.sebagai('w18.dekan');
-  select public.metric_evaluate('institution.competency_outcomes', dunia.ambil('boot.sekolah')::uuid, dunia.ambil('boot.sekolah')::uuid) into d;
-  perform dunia.sebagai(null);
-  v_moved := jsonb_path_exists(d, '$.value[*] ? (@.code == "IPA8-G1" && @.withheld == "moved")');
-  v_learners := jsonb_path_exists(d, '$.value[*] ? (@.code == "IPA8-L1" && @.withheld == "learners")');
-  if not jsonb_path_exists(d, '$.value[*] ? (@.code == "IPA8-C1" && @.mean_score >= 0.8)')
-     or not jsonb_path_exists(d, '$.value[*] ? (@.code == "IPA8-C2" && @.mean_score >= 0.6 && @.mean_score < 0.8)')
-     or not jsonb_path_exists(d, '$.value[*] ? (@.code == "IPA8-C3" && @.mean_score < 0.6)') then
-    raise exception 'W18: R1''s domains are not one in each band';
-  end if;
-  if not v_moved then raise exception 'W18: no domain withheld for a moved learner'; end if;
-  if not v_learners then raise exception 'W18: no domain withheld for too few learners'; end if;
-  perform dunia.sebagai('w18.dekan');
-  if not exists (select 1 from public.kesiapan_kelas_per_mapel(dunia.ambil('boot.sekolah')::uuid) k
-                  where k.class_id = dunia.ambil('w18.kelas_r')::uuid and k.subject = 'IPA' and k.have = 1 and k.needed = 5) then
-    raise exception 'W18: 8R does not read 1 of 5 for IPA';
-  end if;
-  perform dunia.sebagai(null);
-  raise notice 'dunia: W18 checks: R1 in three bands; IPA8-G1 withheld moved; IPA8-L1 withheld learners; 8R 1 of 5';
 end $$;
