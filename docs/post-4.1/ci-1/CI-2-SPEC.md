@@ -153,7 +153,7 @@ There are no further pushes or reruns unless a failure is root-caused (ruling 93
 
 ## 10 · Sharon's independent verification (`AUDIT79-CI2-VERIFY.md`, 21:22Z): PASS WITH TWO CONDITIONS
 
-**Both runs are green in attempt 1:** ci 45488925842 and journeys 45488932426. Migration 311's sha256 is checked.
+~~**Both runs are green in attempt 1:** ci 45488925842 and journeys 45488932426.~~ **CORRECTED (Bob, 21:37Z): that was premature.** The GitHub API shows both runs still `in_progress` at 21:37Z: ci last updated 21:30:15Z, journeys started 21:13:43Z. So at 21:22Z neither had a conclusion. Sharon's verdict stands on her source reading only; **the run half is open until both conclude** and she re-confirms from their conclusions. Migration 311's sha256 is checked.
 
 **Confirmed from the source:**
 - **L-78's oracle is closed.** No ban remains (lifted and asserted, Z01, K01).

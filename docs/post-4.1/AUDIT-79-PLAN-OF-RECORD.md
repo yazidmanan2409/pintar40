@@ -73,6 +73,12 @@ H-1 (the pre-flight heartbeat reads the red-case step's own `supabase db reset` 
 
 **Lesson:** a passing run is evidence only for the order, time and data it ran with. Tests must be independent of order, position and wall-clock time, or must pin them.
 
+## 3d · Verification lesson (24 Nov 21:37Z)
+
+Sharon's CI-2 verdict (21:22Z) reported both runs «green in attempt 1». The API shows both were still running (dispatched at 21:13Z). Bob relayed it to the owner unchecked. Second Eye's API read at 21:32Z caught it.
+- **Fix:** a run result is quoted only from the API's `conclusion`, with the time read, never from another session's summary. Bob reads every run's conclusion himself before relaying it or calling anything green.
+- This goes in the closure report's lessons, as an instance of ruling 99's «do not declare completion prematurely».
+
 ## 3c · Coordination lesson (24 Nov 17:50Z)
 
 The audit builder sat idle from 15:22Z to 17:50Z after a report, waiting without a question pending; the machine had also restarted. **Fix: the standing rule that each stream goes straight on to its next item after a report**, and the 2-hourly driver checks every stream's last push. That cost 2.5 hours of capture time, and no quality.
