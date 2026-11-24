@@ -140,8 +140,11 @@ end $$;
 -- The display order is the product's own (option_display_order), read as the database owner, as the selftest's
 -- answer_paper reads it. Returns the session.
 -- p_berhenti: answer only the first N questions and leave the sitting open (W9: a learner mid-sitting).
-create function dunia.duduk(p_murid text, p_aa uuid, p_salah text[] default '{}', p_berhenti int default null)
+create function dunia.duduk(p_murid text, p_aa uuid, p_salah text[] default '{}', p_berhenti int default null,
+                           p_pilih jsonb default '{}')
 returns uuid language plpgsql as $$
+-- p_pilih: {stem: option label}, a single-answer question answered by that option exactly (W14: the true answer to a
+-- question whose key is wrong)
 declare s uuid; r record; v_pos int; v_positions int[]; v_benar boolean; n int := 0;
 begin
   perform dunia.sebagai(p_murid);
@@ -150,7 +153,11 @@ begin
              from public.presented_items p join public.items i on i.id = p.item_id
             where p.session_id = s order by p.position loop
     v_benar := not (r.stem = any (p_salah));
-    if r.item_type = 'MCQ_MULTI' then
+    if p_pilih ? r.stem then
+      select d.display_position into v_pos from public.option_display_order(s, r.item_id) d where d.label = p_pilih ->> r.stem;
+      if v_pos is null then raise exception 'dunia.duduk: no option % on «%»', p_pilih ->> r.stem, r.stem; end if;
+      perform public.record_answer(r.pid, 1, jsonb_build_object('posisi', v_pos));
+    elsif r.item_type = 'MCQ_MULTI' then
       select array_agg(d.display_position order by d.display_position) into v_positions
         from public.option_display_order(s, r.item_id) d
         join public.item_options o on o.item_id = r.item_id and o.label = d.label

@@ -64,6 +64,8 @@ jobs:
           export NEXT_PUBLIC_APP_URL="http://127.0.0.1:${APP_PORT}" PINTAR_BUILD_SHA="$GITHUB_SHA"
           export CARD_PEPPER=synthetic-card-pepper-fable01-32plus CARD_EMAIL_DOMAIN=cards.synthetic.pintar.test
           export CERT_SECRET_KEY_V1=synthetic-certificate-key-fable04-32plus
+          # J6 (W12): C3w-1's local stand-in answers only under this harness flag (src/lib/ai/pilih-penyedia.ts); no real provider
+          export PINTAR_AI_STUB_HARNESS=1
           export PINTAR_SMTP_HOST=127.0.0.1 PINTAR_SMTP_PORT=54325 PINTAR_SMTP_USER=noreply@pintarselalu.test PINTAR_SMTP_PASSWORD=sink-accepts-any
           npm run build > "$RUNNER_TEMP/build.log" 2>&1 || { tail -40 "$RUNNER_TEMP/build.log"; exit 1; }
           nohup npx next start -p "$APP_PORT" -H 127.0.0.1 > "$RUNNER_TEMP/app.log" 2>&1 &
@@ -102,6 +104,11 @@ jobs:
           AUDIT_OUT: ${{ github.workspace }}/audit-out/perjalanan
           AUDIT_CABANG: "1"
         run: node audit/perjalanan/j1.mjs
+      - name: W14 · the certificates, through the product's own route (each holder signs in; POST /api/certificates/issue)
+        if: success() || failure()
+        env:
+          APP_URL: http://127.0.0.1:3999
+        run: node audit/dunia/terbitkan.mjs
       - name: Keep the captures
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4

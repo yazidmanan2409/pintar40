@@ -58,4 +58,14 @@ artifact.
 | W13 · Melati has no entitlement (unset is never unlimited); 4A's teacher holds the draft package «Bangun Datar», so the absent AI button is seen on a real package | `10-w12-w13.sql` | built (checked at load) |
 | W7 · J3's fixture, two moments, on Sinta (W6). **W7a:** 8B's teacher requests a retake (`minta_percobaan`: a learner cannot ask herself), the head of department approves it, Sinta begins it and answers two, open (`ulang_berjalan` true). **W7b**, after W7a: the teacher ends it not counted (`akhiri_pengerjaan`, NOT_COUNTED); the line goes and W6's result stays | `fiksasi/w7a.sql`, `fiksasi/w7b.sql` (`muat.sh --fiksasi w7a`) | built (checked: the line, then its absence) |
 | W8 · J3's fixture: Sinta's W6 result with its gate unreadable (`safety_gate_passed` null). **A fixture-only state, written past today's guard** (`assessment_results_write` disabled for that one update and enabled again at once). Apply on a fresh world, not after W7 | `fiksasi/w8.sql` | built |
-| W14 (J7), W18 (J11) | | waiting on Bob: they need OFFICIAL evidence, and every world school is synthetic (see the note sent 24 Nov) |
+| W14 · **in the dev/CI bootstrap tenant** `pintar-bootstrap-official` (Bob, 24 Nov: certificates need OFFICIAL evidence, INV-20, and the bootstrap is the only non-synthetic school allowed outside production). Class «9A (dunia)» with its own year, admin, head of department and teacher; «Perkalian Bilangan Cacah» sealed at 60, 6 single-answer questions, **«7 × 8» keyed 54** (the truth is 56). Ratih 100 % (→ 83 % after the correction: the reissue case), Bayu 83 % answering the truth (→ 100 %), Citra 67 % (→ 50 %: the revocation case). Ratih's and Citra's certificates are issued **through the product** after the load: `node audit/dunia/terbitkan.mjs` (each signs in; `POST /api/certificates/issue`). Captures labelled «bukti OFFICIAL di tenant bootstrap dev/CI (sintetis)» | `11-w14.sql`, `terbitkan.mjs` | built (checked at load: OFFICIAL, each eligible; the seeded rows unchanged) |
+| W18 (J11) | | next, in the same tenant |
+
+## The bootstrap tenant (W14, W18)
+
+- **Only new rows.** The world adds its own year, structure, staff and learners to `pintar-bootstrap-official`, and
+  touches nothing seeded. `11-w14.sql` fingerprints every seeded row of the tenant first (each table with an
+  `institution_id`, and the tenant's own row), and `99-periksa.sql` fails the load unless every one is unchanged.
+- **The namespace X9W is world-only.** The tenant has none after a reset; PINTAR IDs need one, so the world sets it
+  inside its load transaction. It is not a real school's code and appears nowhere outside this world.
+- **Never run the selftests against a database where the world has loaded** (Bob, 24 Nov): reset first.

@@ -2,10 +2,13 @@
 # Ruling 79's audit world: the proof of Sharon's guard. muat.sh must refuse every database but the local stack's, with
 # exit 3, before it resets, connects or writes anything. Each case runs with `psql` and `npx` replaced by stand-ins that
 # record any call, so a refused case that reached either one fails this test. Then the local URL must pass the guard.
+# It runs on a copy of audit/dunia, so it never writes the real dunia.json.
 set -uo pipefail
-HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ASLI="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 T="$(mktemp -d)"; trap 'rm -rf "$T"' EXIT
 mkdir -p "$T/bin"
+# a copy of the loader and its parts, so no case can write the real dunia.json
+HERE="$T/audit/dunia"; mkdir -p "$HERE"; cp -r "$ASLI"/. "$HERE"/
 for b in psql npx; do printf '#!/bin/sh\necho "%s $*" >> "%s/dipanggil"\nexit 0\n' "$b" "$T" > "$T/bin/$b"; chmod +x "$T/bin/$b"; done
 gagal=0
 tolak() {
