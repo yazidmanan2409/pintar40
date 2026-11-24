@@ -17,6 +17,10 @@
 4. **R-1**, its own commit (`e6544f57`): `selftest/db/r1.sql` (R1-K01..K03) and plant `zr1-1`.
 5. **Sharon's four conditions on `bersertifikasi`** (Bob 02:04Z): every R-h gate reads it (session_answers included), the
    insert-only seal «certifying ⇒ no help», case D2R-H20 and plant d2r-16, step 0 by mode and purpose.
+6. **Daisy's two strings** (Bob 02:06Z): `hasil.percobaan_ke` «Kesempatan ke-{n}» / «Attempt {n}» (of record now); the
+   certifying Asesmen Mandiri's own line `posttest.tanpa_bantuan_umum`, drawn after its intro when
+   `assessment_orientation` says the sitting will certify (its new OUT column `bersertifikasi`, the policy row's
+   `certifies`, the value the start captures; dropped and recreated, grants restated). D2R-W01, D05 and D04 red first.
 
 ## What changed
 
@@ -29,7 +33,8 @@ defaults (no help, no rationale, counts only) for a row written past the seal by
 
 **R-d.** POST_TEST and STANDALONE allow no help (audited `mode_policy.changed`, D2-R R-d). The lint names a certifying
 mode that allows help. `open_assistance`, `assistance_state` and `session_state` read the capture; the orientation
-promises no help on a mode that offers none and says `posttest.tanpa_bantuan` on an Uji Penguasaan.
+promises no help on a mode that offers none, says `posttest.tanpa_bantuan` on an Uji Penguasaan and
+`posttest.tanpa_bantuan_umum` on an Asesmen Mandiri whose orientation says it certifies (`bersertifikasi`).
 
 **R-h.** Every learner gate reads `bersertifikasi`, never a mode name (D2R-H20, plant d2r-16): `session_review` refuses
 (PR081 RESULT_COUNTS_ONLY; then the F-3 review key and the PRE_TEST check); `session_answers` refuses a finished certifying
@@ -74,8 +79,6 @@ sittings read shows it; D2R-E01 proves it on no public surface, payload or snaps
 
 1. **Sharon:** the batch on the pushed head and CI (Bob 02:04Z). The fail-safe defaults; the list guard's three classes
    (D2R-H18); `session_answers` refusing only a FINISHED certifying sitting (an open one resumes from it).
-2. **Daisy:** `hasil.percobaan_ke` («Percobaan ke-{n}» / «Attempt {n}») is **provisional**, mine, with no string of record.
-   The R-b sentence is split on the card and sheet at `{kursus}`: the words before it on `pin-done`, the course and the
-   full stop on `pin-course` (R-13 on the new sheet is yours). The Asesmen Mandiri has no «no help» line yet (your words
-   name the Uji Penguasaan). The teacher's sittings screen does not yet draw `percobaan_ke` (no words).
+2. **Daisy:** your two strings of 02:06Z are in (W01 reads them word for word). The R-b sentence is split on the card and sheet at `{kursus}`: the words before it on `pin-done`, the course and the
+   full stop on `pin-course` (R-13 on the new sheet is yours). The teacher's sittings screen does not yet draw `percobaan_ke` (no words).
 3. **Bob:** the strings are `dc275f6a`, one commit after the spec's `e64f94c2` (Daisy's §6, the no-threshold words).

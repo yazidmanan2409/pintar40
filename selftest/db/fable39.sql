@@ -188,6 +188,12 @@ begin
     -- ═════════════════════════════════════════════════ Asesmen Mandiri, open: no help (D02, D04), extended (E01)
     v_sa_aa := selftest.f39_luncur('STANDALONE');
     perform selftest.as_user(SISWA);
+    -- Daisy (Bob 02:06Z): before any sitting exists, the orientation says whether it will certify (the value the start
+    -- captures, mode_policy.certifies), so the Asesmen Mandiri's «no help» line is drawn from the database
+    select to_jsonb(o) ->> 'bersertifikasi' into v_t from public.assessment_orientation(v_sa_aa) o;
+    if v_t is distinct from 'true' then
+      v_probs := selftest.f39_note(v_probs, 'D2R-D04', format('assessment_orientation on an Asesmen Mandiri says bersertifikasi %s, expected true', coalesce(v_t, 'nothing')));
+    end if;
     v_sa := public.start_learning_session(v_sa_aa);
     select s.mode::text into v_t from public.assessment_sessions s where s.id = v_sa;
     if v_t is distinct from 'STANDALONE' then raise exception 'the Asesmen Mandiri started as %, not STANDALONE', v_t; end if;
@@ -492,7 +498,7 @@ begin
         when 'D2R-D01' then 'POST_TEST''s policy row allows no help; on the learner''s open Uji Penguasaan, past its window, a direct open_assistance call is refused at level 1, so 2 and 3 are never reached'
         when 'D2R-D02' then 'STANDALONE''s policy row allows no help; on an open Asesmen Mandiri started by the ordinary start path, past its window, a direct open_assistance call is refused at level 1'
         when 'D2R-D03' then 'on the open Uji Penguasaan, assistance_state gives no window and is never due, and session_state gives the player no window, so it schedules no help'
-        when 'D2R-D04' then 'on the open Asesmen Mandiri, assistance_state gives no window and is never due, and session_state gives the player no window'
+        when 'D2R-D04' then 'before it starts, assessment_orientation says the Asesmen Mandiri certifies; on the open Asesmen Mandiri, assistance_state gives no window and is never due, and session_state gives the player no window'
         when 'D2R-D06' then 'Pemetaan Awal and an Uji Cepat each served levels 1, 2 and 3 past their window; PRE_TEST, PRACTICE, QUICK and PUBLIC_DEMO still allow help and none certifies'
         when 'D2R-D07' then 'an Asesmen Mandiri started while its mode allowed help still served all three levels after the policy row stopped allowing it: the sitting reads what it captured'
         when 'D2R-D08' then 'assert_mode_policy_complete passes, and with POST_TEST allowing help it names POST_TEST'

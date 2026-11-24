@@ -868,6 +868,7 @@ export type HleEvent =
   | "sertifikat.predikat"
   | "siklus.siap.saran"
   | "posttest.tanpa_bantuan"
+  | "posttest.tanpa_bantuan_umum"
   | "hasil.lulus"
   | "hasil.lulus_arti"
   | "hasil.belum_lulus"
@@ -4851,6 +4852,7 @@ const table: Table = {
   // D2-R (Daisy's D2R-KATA.md, ux-1 dc275f6a): R-g's advisory line, the pre-start «no help» line, and R-h's result words
   "siklus.siap.saran": { default: "Uji Penguasaan sudah dapat dikerjakan. Sebaiknya baca semua pelajaran lebih dulu.", en: "You can take the Mastery Check now. It is best to read every lesson first." },
   "posttest.tanpa_bantuan": { default: "Selama Uji Penguasaan, petunjuk, contoh, dan arah berpikir tidak tersedia.", en: "During the Mastery Check, hints, examples and thinking prompts are not available." },
+  "posttest.tanpa_bantuan_umum": { default: "Selama asesmen ini, petunjuk, contoh, dan arah berpikir tidak tersedia.", en: "During this assessment, hints, examples and thinking prompts are not available." },
   "hasil.lulus": { default: "Lulus.", en: "Passed." },
   "hasil.lulus_arti": { default: "Hasil Uji Penguasaan ini memenuhi kriteria kelulusan bab ini.", en: "This Mastery Check result meets this chapter's passing criteria." },
   "hasil.belum_lulus": { default: "Belum lulus.", en: "Not passed yet." },
@@ -4862,7 +4864,7 @@ const table: Table = {
   "hasil.dijawab_tepat": { default: "dijawab tepat", en: "answered right" },
   "hasil.tidak_ditampilkan": { default: "Pada Uji Penguasaan, kunci jawaban dan benar atau salahnya tiap soal tidak ditampilkan.", en: "In a Mastery Check, the answer key and whether each question was right are not shown." },
   // D2-R R-f: PROVISIONAL, for Daisy (no string of record yet): the attempt ordinal on the learner's result
-  "hasil.percobaan_ke": { default: "Percobaan ke-{n}", en: "Attempt {n}" },
+  "hasil.percobaan_ke": { default: "Kesempatan ke-{n}", en: "Attempt {n}" },
   "sertifikat.tanggal": { default: "Tanggal terbit", en: "Issue date" },
   "sertifikat.periksa.judul": { default: "Periksa keaslian", en: "Check it is genuine" },
   "sertifikat.periksa.arti": { default: "Pindai kode ini atau buka tautannya. Halaman itu memastikan sertifikat ini benar diterbitkan dan masih berlaku.", en: "Scan this code or open the link. That page confirms this certificate was genuinely issued and is still valid." },

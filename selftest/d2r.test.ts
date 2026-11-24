@@ -99,6 +99,9 @@ export const KATA_D2R: Array<[HleEvent, string, string]> = [
   ["verifikasi.lulus" as HleEvent, "Lulus", "Passed"],
   ["siklus.siap.saran" as HleEvent, "Uji Penguasaan sudah dapat dikerjakan. Sebaiknya baca semua pelajaran lebih dulu.", "You can take the Mastery Check now. It is best to read every lesson first."],
   ["posttest.tanpa_bantuan" as HleEvent, "Selama Uji Penguasaan, petunjuk, contoh, dan arah berpikir tidak tersedia.", "During the Mastery Check, hints, examples and thinking prompts are not available."],
+  // Daisy via Bob 02:06Z: the certifying Asesmen Mandiri's own line, and «kesempatan», the word learners and teachers use
+  ["posttest.tanpa_bantuan_umum" as HleEvent, "Selama asesmen ini, petunjuk, contoh, dan arah berpikir tidak tersedia.", "During this assessment, hints, examples and thinking prompts are not available."],
+  ["hasil.percobaan_ke" as HleEvent, "Kesempatan ke-{n}", "Attempt {n}"],
   ["hasil.lulus" as HleEvent, "Lulus.", "Passed."],
   ["hasil.lulus_arti" as HleEvent, "Hasil Uji Penguasaan ini memenuhi kriteria kelulusan bab ini.", "This Mastery Check result meets this chapter's passing criteria."],
   ["hasil.belum_lulus" as HleEvent, "Belum lulus.", "Not passed yet."],
@@ -270,8 +273,12 @@ export const d2rTests: SelfTest[] = [
       c.expect(/assistanceWindow=\{session\?\.hesitation_window_seconds \?\? null\}/.test(muka), "the player takes its help window from somewhere other than session_state");
       const ori = tanpaKomentar(baca(ctx.repoRoot, "src/components/siklus/OrientasiAsesmen.tsx"));
       c.expect(/orientasi\.hesitation_window_seconds != null/.test(ori), "the orientation promises help without the database's window");
-      c.expect(/posttest\.tanpa_bantuan/.test(ori), "the orientation does not say that a certifying mode offers no help");
-      return c.verdict("the player schedules help only from session_state's window, which the database withholds on a certifying sitting (D2R-D03/D04); the orientation promises help only with the window and says «tanpa bantuan» on Uji Penguasaan");
+      c.expect(/orientasi\.mode === "POST_TEST"[^\n]*posttest\.tanpa_bantuan"/.test(ori), "the orientation does not say that an Uji Penguasaan offers no help");
+      // Daisy via Bob 02:06Z: a certifying Asesmen Mandiri has its own line, drawn from the database's bersertifikasi
+      c.expect(/orientasi\.mode === "STANDALONE" && orientasi\.bersertifikasi === true[^\n]*posttest\.tanpa_bantuan_umum"/.test(ori),
+        "the orientation does not draw posttest.tanpa_bantuan_umum on a STANDALONE that the database says certifies");
+      c.expect(!/posttest\.tanpa_bantuan_umum"[^\n]*POST_TEST|POST_TEST[^\n]*posttest\.tanpa_bantuan_umum"/.test(ori), "the Uji Penguasaan must keep posttest.tanpa_bantuan");
+      return c.verdict("the player schedules help only from session_state's window, which the database withholds on a certifying sitting (D2R-D03/D04); the orientation promises help only with the window, says posttest.tanpa_bantuan on an Uji Penguasaan, and posttest.tanpa_bantuan_umum on an Asesmen Mandiri the orientation says certifies");
     },
   },
   {

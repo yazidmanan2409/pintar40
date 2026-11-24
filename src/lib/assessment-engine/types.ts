@@ -189,4 +189,7 @@ export type Orientation = {
   tolak_mulai?: string | null;
   tolak_selesai?: string | null;
   tolak_kelas?: string[] | null;
+  /** D2-R (Daisy via Bob 02:06Z): whether a sitting started now would certify (mode_policy.certifies, the value the start
+   *  captures); a certifying Asesmen Mandiri says before it starts that it offers no help */
+  bersertifikasi?: boolean;
 };

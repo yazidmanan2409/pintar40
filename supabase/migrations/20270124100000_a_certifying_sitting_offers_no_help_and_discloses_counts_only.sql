@@ -423,8 +423,12 @@ begin
      where s.id = p_session;
 end $function$;
 
-CREATE OR REPLACE FUNCTION public.assessment_orientation(p_assessment_assignment uuid)
- RETURNS TABLE(mode assessment_mode, title text, item_count smallint, allows_pause boolean, hesitation_window_seconds integer, opens_at timestamp with time zone, closes_at timestamp with time zone, attempt_limit smallint, attempts_used integer, tolak_pemeliharaan text, tolak_cakupan text, tolak_mulai timestamp with time zone, tolak_selesai timestamp with time zone, tolak_kelas text[])
+-- Daisy (Bob 02:06Z): the orientation also says whether the sitting will certify (the value the start captures, read
+-- from the same policy row), so a certifying Asesmen Mandiri says before it starts that it offers no help. A new OUT
+-- column changes the return type: dropped and recreated, its grants restated below.
+drop function public.assessment_orientation(uuid);
+CREATE FUNCTION public.assessment_orientation(p_assessment_assignment uuid)
+ RETURNS TABLE(mode assessment_mode, title text, item_count smallint, allows_pause boolean, hesitation_window_seconds integer, opens_at timestamp with time zone, closes_at timestamp with time zone, attempt_limit smallint, attempts_used integer, tolak_pemeliharaan text, tolak_cakupan text, tolak_mulai timestamp with time zone, tolak_selesai timestamp with time zone, tolak_kelas text[], bersertifikasi boolean)
  LANGUAGE sql
  STABLE SECURITY DEFINER
  SET search_path TO 'public', 'pg_temp'
@@ -439,7 +443,9 @@ AS $function$
              and s.person_id = public.current_person_id()),
          t.kode, t.cakupan, t.mulai, w.ends_at,
          case when cardinality(w.node_ids) > 0 then
-           (select array_agg(n.name order by n.name) from public.org_nodes n where n.id = any (w.node_ids)) end
+           (select array_agg(n.name order by n.name) from public.org_nodes n where n.id = any (w.node_ids)) end,
+         -- fail-safe as the capture's default: a mode with no policy row is said to certify
+         coalesce((select m.certifies from public.mode_policy m where m.mode = d.mode), true)
     from public.assessment_assignments aa
     join public.assessment_definitions d on d.id = aa.assessment_definition_id
     cross join lateral (select e.ok, e.reason from public.may_start_assessment(aa.id) e) m
