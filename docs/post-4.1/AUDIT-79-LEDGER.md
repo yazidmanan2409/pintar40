@@ -751,3 +751,5 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
   - It refuses **`ROLE_LAST_SCHOOL_ADMIN`** (true cause, naming no one) unless the actor is an active platform admin. The words exist (`peran.galat.role_last_school_admin`).
   - (Sharon's read of `revoke_role` in `20261111100000` is the function's last definition, but the guard is the trigger, not the function.)
   - **So L-152 is UX:** the database refuses correctly, but the screen shows «…diakhiri oleh admin lain» and offers «Lepaskan». **AR-79** traces why the staff-page path maps the refusal to the wrong line (C-12), and draws the button disabled with the true cause.
+
+**J11 captured (builder, `eccb71ad`, `audit/79/tangkapan/1ed2d250/j11/`):** 7 walks reached their last screen, on W18 at the bootstrap (OFFICIAL evidence, labelled synthetic). The printed summary is kept as a PDF, and EN stayed EN. Daisy judges it.
