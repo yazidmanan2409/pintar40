@@ -13,7 +13,9 @@
  *            for the public verify_certificate, the learner's sertifikat_saya_ditinjau and the staff Konfigurasi reads.
  *            A row wrongly CONFIRMED on a failing result (planted past S-1) reads DITINJAU, never BERLAKU (P5) and
  *            never DICABUT without a revocation (P6); the learner's card and print read it under review (P7); a clean
- *            confirmed row reads BERLAKU everywhere. The OUT signatures are unchanged and assert_public_surface passes.
+ *            confirmed row reads BERLAKU everywhere, and stays so when its mode stops certifying afterwards (the sitting's
+ *            captured bersertifikasi is read, never today's mode_policy; P8). The OUT signatures are unchanged and
+ *            assert_public_surface passes.
  *   CI1-K01  reads the source: the migration writes no rows; the new code is the contract's, mapped to its own words in
  *            ID and EN, so the refusal shows on Konfigurasi as a named refusal; the page's pill, the selected
  *            certificate's state and the «dikonfirmasi» note read the helper.
@@ -40,7 +42,7 @@ const sertifikat = `(select x.id from public.certificates x where x.session_id =
 const bukanGerbang = `(select p.item_id from public.presented_items p join public.items i on i.id = p.item_id where p.session_id = ${G("bs")} and not i.is_safety_critical order by p.position limit 1)`;
 const kunciLain = (it: string) => `(select o.label from public.item_options o where o.item_id = ${it} and not o.is_correct order by o.label limit 1)`;
 const verifikasi = `select v.validity || '|' || coalesce(v.pass::text, '-') from public.verify_certificate((select x.verification_token from public.certificates x where x.id = ${G("cert")})) v`;
-const layak = `select public.sertifikat_layak_dengan(${G("bs")}, r.mastery, r.safety_gate_passed)::text from public.assessment_results r where r.id = public.hasil_murid_id(${G("bs")})`;
+const layak = `select public.sertifikat_hasil_lulus(${G("bs")})::text`;
 const putus = (k: string, keputusan: "CONFIRMED" | "REVOKED") =>
   langkah(k, "badmin", `select public.putuskan_tinjauan_sertifikat(${G("rv")}, '${keputusan}', '${keputusan === "CONFIRMED" ? KONFIRMASI : CABUT}') ->> 'status'`);
 const tertulis = `select coalesce((select v.decision from public.certificate_reviews v where v.id = ${G("rv")}), '-') || '|'
@@ -171,7 +173,7 @@ export const ci1Tests: SelfTest[] = [
       c.expect(b.konfirmasi === "ok:ISSUED", `the result in force passes, a newer row fails: ${b.konfirmasi}; expected ok:ISSUED`);
       // P3: a mastery-only check — the gate-only failure is confirmed
       const p3 = jalankan(new Checks(), repoRoot, gerbang([tanam("public.sertifikat_hasil_lulus(uuid)",
-        "public.sertifikat_layak_dengan(p_session, r.mastery, r.safety_gate_passed)", "public.sertifikat_layak_dengan(p_session, r.mastery, true)")]));
+        "and coalesce(r.safety_gate_passed, false) and", "and")]));
       c.expect(p3 !== null && p3.konfirmasi !== `PR190:${KODE}`, `P3 (a mastery-only check) must be caught: the gate-only failure answered ${p3?.konfirmasi}`);
       // P4: hasil_terkini_id for hasil_murid_id — the wrong row is read, and both ways round the answer flips
       const p4tanam = tanam("public.sertifikat_hasil_lulus(uuid)", "public.hasil_murid_id(p_session)", "public.hasil_terkini_id(p_session)");
@@ -215,11 +217,26 @@ export const ci1Tests: SelfTest[] = [
       harap("cabut_langsung", "ok:REVOKED", "the school revoking it");
       harap("sesudah_cabut", "ok:DICABUT|true", "the public check once revoked (DICABUT only from a revocation)");
       // a clean row: confirmed by the product on a still-passing result
-      const bersih = (): string[] => [...dunia(), putus("konfirmasi", "CONFIRMED"), ...baca];
+      // ... and stays so when its mode stops certifying afterwards (Bob 13:23Z): the sitting's captured purpose is read, never
+      // today's mode_policy.certifies, so a policy toggle never changes the standing of a certificate already issued
+      const kebijakanBerubah = paksa(`update public.mode_policy set certifies = false
+        where mode = (select s.mode from public.assessment_sessions s where s.id = current_setting('c1.bs')::uuid)`);
+      const bersih = (tanaman: string[] = []): string[] => [...dunia(), putus("konfirmasi", "CONFIRMED"), ...baca,
+        kebijakanBerubah, ...tanaman,
+        langkah("publik_kebijakan", null, verifikasi),
+        `perform selftest.as_user('boot-siswa@bootstrap.pintar.test');
+         v := v || jsonb_build_object('murid_kebijakan', public.sertifikat_saya_ditinjau(${G("bs")})::text);
+         perform selftest.as_owner();`];
       const n = jalankan(c, repoRoot, bersih());
       if (!n) return c.verdict("");
       c.expect(n.konfirmasi === "ok:ISSUED" && n.publik === "ok:BERLAKU|true" && n.murid === "false" && n.dikonfirmasi === "ok:true" && n.dipersoalkan === "ok:false",
         `a clean confirmed certificate: ${[n.konfirmasi, n.publik, n.murid, n.dikonfirmasi, n.dipersoalkan].join(", ")}; expected BERLAKU everywhere`);
+      c.expect(n.publik_kebijakan === "ok:BERLAKU|true" && n.murid_kebijakan === "false",
+        `the same certificate once its mode stops certifying: ${n.publik_kebijakan}, ${n.murid_kebijakan}; expected BERLAKU, not under review`);
+      // P8: today's mode_policy.certifies for the captured purpose — the toggle changes an issued certificate's standing
+      const p8 = jalankan(new Checks(), repoRoot, bersih([tanam("public.sertifikat_hasil_lulus(uuid)", "select coalesce((select s.bersertifikasi",
+        "select coalesce((select coalesce((select m.certifies from public.mode_policy m where m.mode = s.mode), false)")]));
+      c.expect(p8 !== null && p8.publik_kebijakan !== "ok:BERLAKU|true", `P8 (today's mode_policy.certifies) must be caught: answered ${p8?.publik_kebijakan}`);
       // one helper, the contract unchanged
       const k = jalankan(c, repoRoot, [
         langkah("hasil", null, `select pg_get_function_result('public.verify_certificate(text)'::regprocedure) || ' / '
@@ -253,7 +270,8 @@ export const ci1Tests: SelfTest[] = [
       return c.verdict("S-2: one helper (an open review or a result in force that fails) states validity for the public check, the learner's "
         + "own read (certificate page, card, print) and the staff list and «dikonfirmasi» note: a certificate wrongly CONFIRMED on a failing "
         + "result reads DITINJAU (as issued) everywhere and DICABUT only once revoked; a clean confirmed certificate reads BERLAKU everywhere; "
-        + "the OUT signatures are unchanged, the helper is internal, assert_public_surface passes; the plants P5, P6 and P7 are caught");
+        + "a clean one stays BERLAKU when its mode stops certifying afterwards (the captured purpose is read); the OUT signatures are "
+        + "unchanged, the helper is internal, assert_public_surface passes; the plants P5, P6, P7 and P8 are caught");
     },
   },
   {

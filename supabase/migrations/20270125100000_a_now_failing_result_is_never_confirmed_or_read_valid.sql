@@ -6,9 +6,11 @@
 -- L-67: after an answer-key correction recalculates a certified result to a fail, the school could press «Konfirmasi
 -- berlaku» and the public check then read «Berlaku · Lulus», although the result in force contradicts it.
 --
---   (1) ONE RULE ON THE RESULT IN FORCE. sertifikat_hasil_lulus(session): the certifying rule (sertifikat_layak_dengan:
---       the mode certifies, an official sitting, a pass mark, the gate, mastery at or above the mark) on the result in
---       force, hasil_murid_id, never the newest row (hasil_terkini_id) and never mastery alone.
+--   (1) ONE RULE ON THE RESULT IN FORCE. sertifikat_hasil_lulus(session): the certifying rule's parts, as
+--       certificate_eligibility asks them at issue (the sitting certifies, OFFICIAL evidence, a sealed mark, the gate,
+--       mastery at or above the mark), on the result in force, hasil_murid_id, never the newest row (hasil_terkini_id) and
+--       never mastery alone. «The sitting certifies» is its CAPTURED bersertifikasi (D2-R, sealed at the start), not today's
+--       mode_policy.certifies (Bob 13:23Z): a policy toggle never changes the standing of a certificate already issued.
 --   (2) S-1. putuskan_tinjauan_sertifikat refuses CONFIRMED while that rule fails, PR190 CERT_REVIEW_RESULT_NO_LONGER_PASSES,
 --       and writes nothing. Lock order (Sharon §6 (c)): the review FOR UPDATE, then the sitting's row (A2A order; the
 --       recalculation, hitung_ulang_koreksi_kunci, writes under it), and only then the result in force is read. REVOKED is
@@ -32,8 +34,16 @@ begin;
 -- ═══════════════════════════════════════════════════════════ (1) the certifying rule on the result in force
 create or replace function public.sertifikat_hasil_lulus(p_session uuid)
 returns boolean language sql stable security definer set search_path = public, pg_temp as $$
-  select coalesce((select public.sertifikat_layak_dengan(p_session, r.mastery, r.safety_gate_passed)
-                     from public.assessment_results r where r.id = public.hasil_murid_id(p_session)), false)
+  -- the certifying rule's parts, as certificate_eligibility asks them at issue, on the result in force: the sitting's
+  -- CAPTURED purpose (bersertifikasi, sealed at its start; Bob 13:23Z: a later mode_policy toggle never changes the
+  -- standing of a certificate issued under the old policy), OFFICIAL evidence, a sealed mark, the gate, mastery at the mark
+  select coalesce((select s.bersertifikasi
+                          and exists (select 1 from public.official_sessions o where o.id = s.id)
+                          and s.pass_mark is not null and r.mastery is not null
+                          and coalesce(r.safety_gate_passed, false) and r.mastery >= s.pass_mark
+                     from public.assessment_sessions s
+                     left join public.assessment_results r on r.id = public.hasil_murid_id(p_session)
+                    where s.id = p_session), false)
 $$;
 revoke all on function public.sertifikat_hasil_lulus(uuid) from public, anon, authenticated;
 
