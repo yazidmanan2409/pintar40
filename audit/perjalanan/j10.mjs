@@ -67,6 +67,7 @@ async function masukKartu(j, kartu, pin) {
 }
 
 const hasil = [];
+if (process.env.AUDIT_CABANG === "1") process.exit(await cabang());
 for (const lebar of LEBAR) {
   muatUlang();
   const D = dunia();
@@ -266,6 +267,9 @@ for (const lebar of LEBAR) {
     await lewatiTur(j);
     await page.goto(`${APP}/belajar`);
     await tunggu();
+    // the welcome tour opens on /belajar too: skipped, as a person leaving the computer would have (an open tour is
+    // the branch «tur-terbuka», AUDIT_CABANG=1)
+    data("tour_skipped", await lewatiTur(j));
     const t0 = Date.now();
     await foto("bersama-belajar");
     data("sessions_start", sesi(intan));
@@ -395,3 +399,41 @@ for (const lebar of LEBAR) {
   hasil.push(await j.selesai());
 }
 process.exit(ringkas("j10", hasil));
+
+/** AUDIT_CABANG=1, 1280: «tur-terbuka»: the same shared-computer wait with the welcome tour left open on /belajar;
+ *  the screen's activity reports and the session's state are sampled every 30 s for up to 9 minutes. Recorded, not judged. */
+async function cabang() {
+  muatUlang();
+  const D = dunia();
+  const intan = D["w2.murid_pin"];
+  const j = await jalan({ perjalanan: "j10-cabang-tur-terbuka", lebar: 1280, zona: "WIB", nama: "Intan", label: [] });
+  const { page } = j;
+  let t0 = Date.now();
+  const detak = [];
+  page.on("request", (r) => { if (r.url().includes("/api/sesi/detak")) detak.push(Math.round((Date.now() - t0) / 1000)); });
+  await j.langkah("C1", "a shared computer left with the welcome tour open: does it lock?", async ({ foto, data, amati }) => {
+    await masukEmail(j, intan, "bersama");
+    await lewatiTur(j);
+    await page.goto(`${APP}/belajar`);
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForTimeout(1500);
+    t0 = Date.now();
+    data("tour_open", await page.locator('.pin-tur-kartu[role="dialog"]').isVisible().catch(() => false));
+    await foto("tur-terbuka");
+    const sampel = [];
+    let kunci = null;
+    for (let i = 1; i <= 18; i++) {
+      await page.waitForTimeout(30000);
+      const v = j.baca(`select public.sesi_keadaan(ds, now()) || ' last ' || to_char(last_activity_at, 'HH24:MI:SS') from public.device_sessions ds where auth_user_id = '${intan.auth}' and ended_at is null`);
+      sampel.push(`${i * 30}s ${v} ${new URL(page.url()).pathname}`);
+      if (i === 9) await foto("tur-terbuka-4.5-menit");
+      if (/TERKUNCI/.test(v) || new URL(page.url()).pathname.startsWith("/terkunci")) { kunci = i * 30; break; }
+    }
+    await foto("tur-terbuka-akhir");
+    data("samples", sampel);
+    data("heartbeats_s", detak);
+    data("locked_after_s", kunci ?? "not within 9 minutes");
+    amati(kunci ? `locked after about ${kunci} s` : "not locked within 9 minutes with the tour open");
+  });
+  return ringkas("j10-cabang", [await j.selesai()]);
+}
