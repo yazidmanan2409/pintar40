@@ -171,6 +171,18 @@ jobs:
           node audit/perjalanan/j5.mjs
           AUDIT_BAHASA=en AUDIT_LEBAR=1280 node audit/perjalanan/j5.mjs
           for L in pembaca-layar gerak-dikurangi jaringan-lambat; do AUDIT_LALUAN=$L AUDIT_LEBAR=1280 node audit/perjalanan/j5.mjs; done
+      # J6 changes the world (AI drafts, refusals, the package checked, submitted and approved); the app runs with
+      # PINTAR_AI_STUB_HARNESS=1 (the local stand-in, never a real provider); the ceiling is set and reset by fixture
+      - name: J6 · authoring with AI drafts (1280, 390, 320; EN; the three passes)
+        if: success() || failure()
+        env:
+          APP_URL: http://127.0.0.1:3999
+          AUDIT_OUT: ${{ github.workspace }}/audit-out/perjalanan
+        run: |
+          set -euo pipefail
+          node audit/perjalanan/j6.mjs
+          AUDIT_BAHASA=en AUDIT_LEBAR=1280 node audit/perjalanan/j6.mjs
+          for L in pembaca-layar gerak-dikurangi jaringan-lambat; do AUDIT_LALUAN=$L AUDIT_LEBAR=1280 node audit/perjalanan/j6.mjs; done
       # J10 changes the world (set-up done, passwords recovered, sessions locked): it loads the world afresh per walk;
       # the email path reads its code from the Mailpit sink started above; L5 waits the real 5-minute lock
       - name: J10 · locked out (1280, 390, 320; EN; the three passes; the tour-open branch)

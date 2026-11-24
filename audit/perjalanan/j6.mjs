@@ -27,7 +27,7 @@ import { APP, dunia, jalan, lewatiTur, pilihBahasa, masukEmail, muatUlang, kelua
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const LABEL = ["penyedia AI: penyedia lokal (stand-in), bukan penyedia AI nyata",
-  "keadaan fiksasi di L4 (tujuan pembelajaran dipindah saat formulir terbuka) dan L5 (plafon platform dihentikan, lalu dilepas; dunia lokal)"];
+  "keadaan fiksasi di L4 (tujuan pembelajaran diganti saat formulir terbuka) dan L5 (plafon platform dihentikan, lalu dilepas; dunia lokal)"];
 const RAPI = (t) => (t ?? "").replace(/\s+/g, " ").trim();
 
 function fiksasi(nama) {
@@ -47,12 +47,13 @@ for (const lebar of LEBAR) {
   const pesan = async () => RAPI((await page.locator('[role="alert"], [role="status"]').allInnerTexts().catch(() => [])).join(" | "));
   const tunggu = async () => { await page.waitForLoadState("networkidle").catch(() => {}); await page.waitForTimeout(800); };
   const paket = async (p = 1) => { await page.goto(`${APP}/studio/paket/${encodeURIComponent(kursus)}?pelajaran=${p}`).catch(() => {}); await tunggu(); };
-  const permintaan = () => j.baca(`select coalesce(string_agg(coalesce(hasil, '(none)') || ' len ' || coalesce(panjang_karakter::text, '-'), '; ' order by created_at), 'none') from public.ai_permintaan`);
+  const permintaan = () => j.baca(`select coalesce(string_agg(coalesce(hasil, '(none)') || ' len ' || coalesce(panjang_karakter::text, '-'), '; ' order by dibuat_at), 'none') from public.ai_permintaan`);
   // an AI draft is an item with an AI origin (ai_asal_soal) and, once decided, an acceptance (ai_penerimaan); a deleted
   // draft's item is gone
   const draf = () => j.baca(`select count(*) filter (where p.id is null)::text || ' waiting, ' || count(*) filter (where p.id is not null)::text || ' accepted, ' || count(*)::text || ' from AI in the package'
     from public.ai_asal_soal a join public.items i on i.id = a.item_id join public.lessons l on l.id = i.lesson_id join public.modules m on m.id = l.module_id
     left join public.ai_penerimaan p on p.item_id = a.item_id where m.course_id = '${kursus}'`);
+  let tabKedua = null;
   const keadaanPaket = () => j.baca(`select status::text from public.courses where id = '${kursus}'`);
 
   /** the AI form opened, the source chosen, the count set, the rights ticked; returns without sending */
@@ -98,12 +99,7 @@ for (const lebar of LEBAR) {
     if (!/DRAFTED/.test(rec.data.requests)) throw new Error(`the first request was not drafted (${rec.data.requests})`);
   });
 
-  await j.langkah("L2", "one draft accepted, one deleted (its confirmation)", async ({ rec, foto, data }) => {
-    const terima = page.getByRole("button", { name: /^(Terima|Accept)\b/ }).first();
-    rec.tab += await j.tekan(terima, 400);
-    await tunggu();
-    await foto("diterima");
-    data("after_accept", await pesan() || "(no status line)");
+  await j.langkah("L2", "one draft deleted (its confirmation); the other left waiting", async ({ rec, foto, data }) => {
     const hapus = page.locator("button[data-bahaya-buka]", { hasText: /^(Hapus|Delete)/ }).first();
     rec.tab += await j.tekan(hapus, 400);
     const tanya = page.locator("[data-bahaya-tanya]").first();
@@ -161,19 +157,10 @@ for (const lebar of LEBAR) {
     data("requests", permintaan());
   });
 
-  await j.langkah("L7", "«Tandai sudah tersusun» held while an AI draft waits; the last decided; then marked", async ({ rec, foto, data }) => {
+  await j.langkah("L7", "«Tandai sudah tersusun» with an AI draft still waiting", async ({ rec, foto, data }) => {
     await paket(1);
-    const ditahan = page.locator("button[aria-describedby=lt-ai-belum]").first();
-    data("held", await ditahan.count() ? `${RAPI(await ditahan.innerText())} (disabled) · ${RAPI(await page.locator("#lt-ai-belum").innerText().catch(() => ""))}` : "(not held)");
-    await ditahan.scrollIntoViewIfNeeded().catch(() => {});
-    await foto("tersusun-ditahan");
-    for (let n = 0; n < 6; n++) {
-      const terima = page.getByRole("button", { name: /^(Terima|Accept)\b/ }).first();
-      if (!(await terima.count())) break;
-      rec.tab += await j.tekan(terima, 400);
-      await tunggu();
-    }
-    data("drafts", draf());
+    // the hold is on «Ajukan» only (LangkahTerbit: AI_BELUM_DITERIMA); here the draft still waits
+    data("drafts_waiting_when_marked", draf());
     rec.tab += await j.tekan(page.getByRole("button", { name: /^(Tandai sudah tersusun|Mark as put together)$/ }).first(), 600);
     await tunggu();
     await foto("tersusun");
@@ -184,6 +171,12 @@ for (const lebar of LEBAR) {
   await j.langkah("L8", "L-124: «Tandai lolos pemeriksaan» before any check has run; then «Periksa isi sekarang»", async ({ rec, foto, data }) => {
     await paket(1);
     data("findings_before", RAPI(await page.locator("h2", { hasText: /Temuan|Findings/ }).locator("xpath=..").innerText().catch(() => "")).slice(0, 300));
+    // a second tab, the AI form open in it before the package is marked as passed (L9 sends from it)
+    tabKedua = await page.context().newPage();
+    await tabKedua.goto(`${APP}/studio/paket/${encodeURIComponent(kursus)}?pelajaran=2`).catch(() => {});
+    await tabKedua.waitForLoadState("networkidle").catch(() => {});
+    data("second_tab_ai_button", await tabKedua.locator("button[data-draf-ai]").count());
+    await page.bringToFront();
     rec.tab += await j.tekan(page.getByRole("button", { name: /^(Tandai lolos pemeriksaan|Mark the check as passed)$/ }).first(), 600);
     await tunggu();
     await foto("lolos-tanpa-periksa");
@@ -196,21 +189,47 @@ for (const lebar of LEBAR) {
     data("package_after_check", keadaanPaket());
   });
 
-  await j.langkah("L9", "«already passed the check»: an AI request on the package marked as passed", async ({ rec, foto, data }) => {
+  await j.langkah("L9", "«already passed the check»: an AI request from a tab opened before the package was marked", async ({ rec, foto, data }) => {
     await paket(1);
-    const buka = page.locator("button[data-draf-ai]").first();
-    data("ai_button_offered", await buka.count() > 0);
-    if (await buka.count()) {
-      await bukaForm(rec, "pelajaran");
-      data("response", await kirim(rec));
-      await foto("sudah-lolos");
-      data("refusal", await pesan());
-    } else await foto("sudah-lolos-tanpa-tombol");
+    data("ai_button_now", await page.locator("button[data-draf-ai]").count());
+    if (!tabKedua) throw new Error("no second tab");
+    // the second tab: the form opened (it was loaded before the mark) and sent, by keyboard on that tab
+    const p2 = tabKedua;
+    await p2.bringToFront();
+    const k = { ...j, page: p2 };
+    const tabKe = async (loc, maks = 200) => { const h = await loc.elementHandle({ timeout: 15000 }); for (let i = 0; i <= maks; i++) { if (await h.evaluate((el) => el === document.activeElement)) return i; await p2.keyboard.press("Tab"); } throw new Error("not reached by Tab on the second tab"); };
+    rec.tab += await tabKe(p2.locator("button[data-draf-ai]").first()); await p2.keyboard.press("Enter");
+    await p2.getByRole("button", { name: /^(Buat draf|Create drafts)$/ }).first().waitFor({ timeout: 20000 });
+    const hak = p2.locator("input[type=checkbox][aria-describedby=draf-ai-hak-arti]").first();
+    rec.tab += await tabKe(hak); await p2.keyboard.press("Space");
+    const tunggal = p2.waitForResponse((r) => r.url().includes("/api/draf-ai"), { timeout: 60000 }).catch(() => null);
+    rec.tab += await tabKe(p2.getByRole("button", { name: /^(Buat draf|Create drafts)$/ }).first()); await p2.keyboard.press("Enter");
+    const r = await tunggal;
+    await p2.waitForTimeout(1200);
+    data("response", `${r ? r.status() : "(no response)"} ${r ? JSON.stringify(await r.json().catch(() => null)).slice(0, 120) : ""}`);
+    await p2.screenshot({ path: join(j.out, "sudah-lolos-tab-kedua.png"), fullPage: true });
+    data("refusal", RAPI((await p2.locator('[role="alert"], [role="status"]').allInnerTexts().catch(() => [])).join(" | ")));
     data("requests", permintaan());
+    void k;
+    await p2.close(); tabKedua = null;
+    await page.bringToFront();
   });
 
-  await j.langkah("L10", "«Ajukan untuk ditinjau»; the second person's count, the package, «Setujui isi»", async ({ rec, foto, data }) => {
+  await j.langkah("L10", "«Ajukan» held while an AI draft waits; the draft accepted; «Ajukan»; the second person's count and «Setujui isi»", async ({ rec, foto, data }) => {
     await paket(1);
+    const ditahan = page.locator("button[aria-describedby=lt-ai-belum]").first();
+    data("held", await ditahan.count() ? `${RAPI(await ditahan.innerText())} (disabled) · ${RAPI(await page.locator("#lt-ai-belum").innerText().catch(() => ""))}` : "(not held)");
+    await ditahan.scrollIntoViewIfNeeded().catch(() => {});
+    await foto("ajukan-ditahan");
+    // the waiting draft accepted: is anything said (Daisy's J6-2)?
+    const sebelum = await pesan();
+    rec.tab += await j.tekan(page.getByRole("button", { name: /^(Terima|Accept)\b/ }).first(), 600);
+    await tunggu();
+    await foto("diterima");
+    const sesudah = await pesan();
+    data("after_accept", sesudah === sebelum ? `(no new status line) ${sesudah}` : sesudah);
+    data("drafts", draf());
+    data("package_after_accept", keadaanPaket());
     rec.tab += await j.tekan(page.getByRole("button", { name: /^(Ajukan untuk ditinjau|Send for review)$/ }).first(), 600);
     await tunggu();
     await foto("diajukan");
