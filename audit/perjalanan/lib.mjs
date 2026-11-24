@@ -163,6 +163,15 @@ export async function pilihBahasa(j) {
   if (BAHASA !== "en") return;
   await j.tekan(j.page.getByRole("button", { name: "EN", exact: true }).first());
   await j.page.waitForLoadState("networkidle").catch(() => {});
+  // the local server answers on 127.0.0.1 and, after some of its own redirects, on «localhost» (Next names the bound
+  // host so): the browser cookie of the choice is mirrored to both, an artefact of the local set-up, not a choice
+  const ctx = j.page.context();
+  const pilihan = (await ctx.cookies()).find((c) => c.name === "pintar-lang");
+  if (pilihan) {
+    const u = new URL(APP);
+    const lain = u.hostname === "localhost" ? "127.0.0.1" : "localhost";
+    await ctx.addCookies([{ name: "pintar-lang", value: pilihan.value, url: `${u.protocol}//${lain}:${u.port}` }]);
+  }
 }
 
 /** The record of a whole journey run: one line per walk, and an exit code (0 only when every walk reached its end). */
