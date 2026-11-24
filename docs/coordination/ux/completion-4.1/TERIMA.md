@@ -111,3 +111,4 @@
 - **24 Nov 03:57Z · Bob:** D2-R 1f at 42f6f432. **Done:** TINJAUAN-D2R-42f6f432.md, PASS once C-1 lands and CI is green; C-1 is that a «Lulus» result does not lead to the certificate.
 - **24 Nov 04:02Z and 04:06Z · Bob (owner's direction):** 74a items 2 and 4, and the support words; the support words are then HELD for a read-only look at existing support. **Answered** items 1–2 in D2R-KATA §9; item 3 held.
 - **24 Nov 04:11Z · Bob:** ruling 90 un-holds the support words. **Answered:** D2R-KATA §10.
+- **24 Nov 04:18Z · Bob:** Hasil Belajar on a pass. **Answered:** D2R-KATA §11 (list the sections on a pass too, with «Disarankan dibaca lagi:»). The recheck of c20c7e47 or later is pending.

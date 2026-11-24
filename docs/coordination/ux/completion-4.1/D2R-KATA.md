@@ -155,3 +155,21 @@ There is no retake line on a pass. The certificate comes before the advice, beca
 - **Dropped from option (b):** «di sini». The reporter is not looking at the triage list, so «here» pointed at nothing.
 - **No time period anywhere.** The time-bound wording waits for 4.5-OF-SUP, or for PR-12 and PR-15 to name a monitored process.
 - **The key «Langkah berikutnya:»** heads both lines, and still reads correctly.
+
+## 11 · Hasil Belajar and its print: sections on a certifying result, passed or not (24 Nov, 04:20)
+
+**Decision: the row lists the sections on a pass too** (ruling 74a item 2 applies to every certifying result). The print is what goes home, so the advice must read as advice without the result page's note beside it. The row therefore carries the advice in its own words.
+
+**On a certifying result (Lulus or Belum lulus), new keys:**
+
+| Key | ID | EN |
+|---|---|---|
+| `hasilbelajar.baca_lagi` | «Disarankan dibaca lagi: {daftar}.» | «Suggested for reading again: {daftar}.» |
+| `hasilbelajar.baca_lagi_banyak` | «Ada {n} bagian yang disarankan untuk dibaca lagi; semuanya ditandai «baca lagi» di bagian B.» | «{n} parts are suggested for reading again; each is marked «read again» in section B.» |
+| `hasilbelajar.baca_lagi_tanda` (the mark in section B) | «baca lagi» | «read again» |
+
+**Rules:**
+- The verb is «baca lagi», as on the result page («Baca lagi:», §6). One concept, one name, so «pelajari lagi» is not used on certifying rows.
+- **Pass and not passed use the same words.** The verdict beside them says which result it is. On «Belum lulus», the existing gate and teacher lines (`hasilbelajar.gerbang`, «… tanyakan kepada guru …») stay as they are.
+- **Non-certifying rows** (Pemetaan Awal, Uji Cepat, practice) keep `hasilbelajar.ulang`, `hasilbelajar.ulang_banyak` and «pelajari lagi», unchanged.
+- **The certificate on the Hasil Belajar row:** the link only (§9). Not `sertifikat.disiapkan.arti`.
