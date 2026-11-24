@@ -145,3 +145,8 @@ The wrapper only distinguishes infrastructure failure from a test result, so the
 There are no further pushes or reruns unless a failure is root-caused (ruling 93).
 
 **H-1 evidence from this run:** at the default heartbeat, 23 resets raised no false INFRA (the earlier pre-flights tonight voided at 366 s and 1449 s). No beat landed inside a reset window, so the RESET path is proven only by H-1's own forced test. H-1 freezes separately.
+
+**Pushed (Second Eye, 21:17Z):** `origin/claude/ci-2` = `9c6aae62f15a809bb42cc5e6490c9e4d3f49548a`, with nothing from `claude/h1`.
+- **PR:** [#31](https://github.com/yazidmanan2409/pintar40/pull/31), "not to be merged without the owner's authorisation". It's stacked on CI-1's head `94ce6727`, so until #30 merges, #31's diff against main also shows CI-1's 8 commits (the body says so).
+- **Runs:** ci 45488925842, and journeys 45488932426 dispatched once with the full sha.
+- **Next:** both results, then Sharon's independent verification, then the owner's request.
