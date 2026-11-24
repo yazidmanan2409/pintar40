@@ -1,0 +1,39 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - navigation "Belajar":
+    - link "Belajar":
+      - /url: /belajar
+    - link "Sertifikat":
+      - /url: /belajar/sertifikat
+  - button "Bantuan"
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - link "← Perjalanan belajar Anda":
+    - /url: /belajar/e0ff4020-7959-4409-948e-875076a7cd6c
+  - paragraph: Matematika · Perkalian Bilangan Cacah
+  - heading "Hasil" [level=1]
+  - status:
+    - paragraph:
+      - strong: Lulus.
+      - text: Hasil Uji Penguasaan ini memenuhi kriteria kelulusan bab ini.
+  - paragraph:
+    - link "Lihat sertifikat":
+      - /url: /belajar/e0ff4020-7959-4409-948e-875076a7cd6c/sertifikat
+  - paragraph: 5 dari 6 soal dijawab tepat · Kesempatan ke-1
+  - paragraph: Dihitung ulang Hasil ini dihitung ulang karena penilaian satu soal diperbaiki. Hasil asli tetap tersimpan.
+  - paragraph: Pada Uji Penguasaan, jawaban yang tepat dan hasil tiap soal tidak ditampilkan.
+  - link "Apa berikutnya →":
+    - /url: /belajar/e0ff4020-7959-4409-948e-875076a7cd6c/lanjut
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- alert

@@ -1,0 +1,16 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- main:
+  - paragraph: PINTAR
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Made Wirawan":
+      - strong: Made Wirawan
+    - button "Keluar"
+  - heading "Mau ke mana hari ini?" [level=1]
+  - paragraph: Halo, Made Wirawan.
+  - button "Saya mengajar · PINTAR Bootstrap (OFFICIAL evidence — development and CI only)"
+  - status
+  - button "Saya memimpin bagian sekolah · PINTAR Bootstrap (OFFICIAL evidence — development and CI only)"
+  - status
+- alert

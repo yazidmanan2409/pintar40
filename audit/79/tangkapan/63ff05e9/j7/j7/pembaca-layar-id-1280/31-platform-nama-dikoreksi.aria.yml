@@ -1,0 +1,266 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- alert: Koreksi data orang
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - strong: Seluruh platform
+    - link "Mau ke mana hari ini?":
+      - /url: /
+    - link "Konfigurasi":
+      - /url: /konfigurasi
+    - link "Aktivasi akun":
+      - /url: /aktivasi
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Faktivasi%2Forang
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Hendra Kusuma":
+      - strong: Hendra Kusuma
+    - button "Keluar"
+- main:
+  - link "← Aktifkan akun":
+    - /url: /aktivasi
+  - paragraph: Akun
+  - heading "Koreksi data orang" [level=1]
+  - paragraph: Semua orang yang punya akun email. Koreksi alamat email, nama, atau username dengan alasan; setiap koreksi dicatat.
+  - searchbox "Cari orang"
+  - region "Koreksi data orang":
+    - table "Koreksi data orang":
+      - caption: Koreksi data orang
+      - rowgroup:
+        - row "Nama PINTAR ID Email Username Akun Tindakan":
+          - columnheader "Nama"
+          - columnheader "PINTAR ID"
+          - columnheader "Email"
+          - columnheader "Username"
+          - columnheader "Akun"
+          - columnheader "Tindakan"
+      - rowgroup:
+        - row "Admin Alpha (sintetis) 5GVS A2R5 alpha-admin@synthetic.pintar.test uji.alpha.admin ✓ Aktif Koreksi":
+          - rowheader "Admin Alpha (sintetis)"
+          - cell "5GVS A2R5"
+          - cell "alpha-admin@synthetic.pintar.test"
+          - cell "uji.alpha.admin"
+          - cell "✓ Aktif"
+          - cell "Koreksi":
+            - link "Koreksi":
+              - /url: /aktivasi/orang?pilih=2eaf8a92-141a-4935-9e76-d34c49ba9946#koreksi
+        - row "Admin Beta (sintetis) HH0S F8CS beta-admin@synthetic.pintar.test uji.beta.admin ✓ Aktif Koreksi":
+          - rowheader "Admin Beta (sintetis)"
+          - cell "HH0S F8CS"
+          - cell "beta-admin@synthetic.pintar.test"
+          - cell "uji.beta.admin"
+          - cell "✓ Aktif"
+          - cell "Koreksi":
+            - link "Koreksi":
+              - /url: /aktivasi/orang?pilih=3eed2417-cf6a-489e-a980-a32bedc4c38f#koreksi
+        - row "Admin Bootstrap BHBF XCXS boot-admin@bootstrap.pintar.test uji.boot.admin ✓ Aktif Koreksi":
+          - rowheader "Admin Bootstrap"
+          - cell "BHBF XCXS"
+          - cell "boot-admin@bootstrap.pintar.test"
+          - cell "uji.boot.admin"
+          - cell "✓ Aktif"
+          - cell "Koreksi":
+            - link "Koreksi":
+              - /url: /aktivasi/orang?pilih=a1c4cf43-fb16-4def-98d3-ecc46130b231#koreksi
+        - row "Admin Platform (sintetis) G7B0 TFFK sysadmin@synthetic.pintar.test uji.sysadmin ✓ Aktif Koreksi":
+          - rowheader "Admin Platform (sintetis)"
+          - cell "G7B0 TFFK"
+          - cell "sysadmin@synthetic.pintar.test"
+          - cell "uji.sysadmin"
+          - cell "✓ Aktif"
+          - cell "Koreksi":
+            - link "Koreksi":
+              - /url: /aktivasi/orang?pilih=ead16306-ab87-4b01-9558-34ca30ea6d6a#koreksi
+        - row "Admin Siklus (sintetis) 7S8B JPPZ siklus-admin@synthetic.pintar.test uji.siklus.admin ✓ Aktif Koreksi":
+          - rowheader "Admin Siklus (sintetis)"
+          - cell "7S8B JPPZ"
+          - cell "siklus-admin@synthetic.pintar.test"
+          - cell "uji.siklus.admin"
+          - cell "✓ Aktif"
+          - cell "Koreksi":
+            - link "Koreksi":
+              - /url: /aktivasi/orang?pilih=61b3db51-5f63-4a6a-8ac7-64ae7327a5e9#koreksi
+        - row "Agus Santoso 1MQA AR0R wakasek.melati@dunia.pintar.test — ✓ Aktif Koreksi":
+          - rowheader "Agus Santoso"
+          - cell "1MQA AR0R"
+          - cell "wakasek.melati@dunia.pintar.test"
+          - cell "—"
+          - cell "✓ Aktif"
+          - cell "Koreksi":
+            - link "Koreksi":
+              - /url: /aktivasi/orang?pilih=de473fb6-8698-4fc9-9f4a-e4fe9092dc1d#koreksi
+        - row "Andi Mappanyompa 0QFE 4F2Y admin.kenari@dunia.pintar.test — ✓ Aktif Koreksi":
+          - rowheader "Andi Mappanyompa"
+          - cell "0QFE 4F2Y"
+          - cell "admin.kenari@dunia.pintar.test"
+          - cell "—"
+          - cell "✓ Aktif"
+          - cell "Koreksi":
+            - link "Koreksi":
+              - /url: /aktivasi/orang?pilih=cdddc67e-e985-4e3b-a251-884205926e5c#koreksi
+        - row "Ani Susilowati PFWV 52D6 guru-ipa.bootstrap-dunia@dunia.pintar.test — ✓ Aktif Koreksi":
+          - rowheader "Ani Susilowati"
+          - cell "PFWV 52D6"
+          - cell "guru-ipa.bootstrap-dunia@dunia.pintar.test"
+          - cell "—"
+          - cell "✓ Aktif"
+          - cell "Koreksi":
+            - link "Koreksi":
+              - /url: /aktivasi/orang?pilih=be26a778-0194-41ba-9514-8344ac19548b#koreksi
+        - row "Ayu Lestari VMJM PPXF ayu.lestari@dunia.pintar.test — ✓ Aktif Koreksi":
+          - rowheader "Ayu Lestari"
+          - cell "VMJM PPXF"
+          - cell "ayu.lestari@dunia.pintar.test"
+          - cell "—"
+          - cell "✓ Aktif"
+          - cell "Koreksi":
+            - link "Koreksi":
+              - /url: /aktivasi/orang?pilih=fd1ad33b-3cbe-4476-bf6e-2ac254b1d6b0#koreksi
+        - row "Bambang Prasetyo 4P3D GPTW kepala.cendekia@dunia.pintar.test — ✓ Aktif Koreksi":
+          - rowheader "Bambang Prasetyo"
+          - cell "4P3D GPTW"
+          - cell "kepala.cendekia@dunia.pintar.test"
+          - cell "—"
+          - cell "✓ Aktif"
+          - cell "Koreksi":
+            - link "Koreksi":
+              - /url: /aktivasi/orang?pilih=81ee3b45-d82c-44cd-bed5-885ab95007ac#koreksi
+        - row "Bambang Sutrisno AVNR VDZ5 guru8k.bootstrap-dunia@dunia.pintar.test — ✓ Aktif Koreksi":
+          - rowheader "Bambang Sutrisno"
+          - cell "AVNR VDZ5"
+          - cell "guru8k.bootstrap-dunia@dunia.pintar.test"
+          - cell "—"
+          - cell "✓ Aktif"
+          - cell "Koreksi":
+            - link "Koreksi":
+              - /url: /aktivasi/orang?pilih=39b5d989-7e83-4e7d-9d3e-0a6fd3c65f83#koreksi
+        - row "Bayu Pratama W6B2 X607 bayu.pratama@dunia.pintar.test — ✓ Aktif Koreksi":
+          - rowheader "Bayu Pratama"
+          - cell "W6B2 X607"
+          - cell "bayu.pratama@dunia.pintar.test"
+          - cell "—"
+          - cell "✓ Aktif"
+          - cell "Koreksi":
+            - link "Koreksi":
+              - /url: /aktivasi/orang?pilih=96ba9bd8-79e3-4fbb-8203-845ab495328d#koreksi
+        - row "Citra Lestari 6TP7 9263 citra.lestari@dunia.pintar.test — ✓ Aktif Koreksi":
+          - rowheader "Citra Lestari"
+          - cell "6TP7 9263"
+          - cell "citra.lestari@dunia.pintar.test"
+          - cell "—"
+          - cell "✓ Aktif"
+          - cell "Koreksi":
+            - link "Koreksi":
+              - /url: /aktivasi/orang?pilih=f88c9911-7492-422e-b229-057009232726#koreksi
+        - row "Dekan Alpha (sintetis) 7K9X K229 alpha-dean@synthetic.pintar.test uji.alpha.dean ✓ Aktif Koreksi":
+          - rowheader "Dekan Alpha (sintetis)"
+          - cell "7K9X K229"
+          - cell "alpha-dean@synthetic.pintar.test"
+          - cell "uji.alpha.dean"
+          - cell "✓ Aktif"
+          - cell "Koreksi":
+            - link "Koreksi":
+              - /url: /aktivasi/orang?pilih=cdaa7ce2-730b-4a31-8f65-69f0f7de25dd#koreksi
+        - row "Dimas Saputra X2SF 5T29 guru8a.cendekia@dunia.pintar.test — ✓ Aktif Koreksi":
+          - rowheader "Dimas Saputra"
+          - cell "X2SF 5T29"
+          - cell "guru8a.cendekia@dunia.pintar.test"
+          - cell "—"
+          - cell "✓ Aktif"
+          - cell "Koreksi":
+            - link "Koreksi":
+              - /url: /aktivasi/orang?pilih=7013ef49-bcc9-41e4-a4a7-b335146541ba#koreksi
+        - row "Galih Pratama YZPX 7WAT galih.pratama@dunia.pintar.test — ✓ Aktif Koreksi":
+          - rowheader "Galih Pratama"
+          - cell "YZPX 7WAT"
+          - cell "galih.pratama@dunia.pintar.test"
+          - cell "—"
+          - cell "✓ Aktif"
+          - cell "Koreksi":
+            - link "Koreksi":
+              - /url: /aktivasi/orang?pilih=44eacb58-b87e-470d-9d94-0116be5ddc1a#koreksi
+        - row "Guru Alpha (sintetis) P2XM RB5X alpha-guru@synthetic.pintar.test uji.alpha.guru ✓ Aktif Koreksi":
+          - rowheader "Guru Alpha (sintetis)"
+          - cell "P2XM RB5X"
+          - cell "alpha-guru@synthetic.pintar.test"
+          - cell "uji.alpha.guru"
+          - cell "✓ Aktif"
+          - cell "Koreksi":
+            - link "Koreksi":
+              - /url: /aktivasi/orang?pilih=37d74c29-bd18-458a-98da-cd2a3ce47ce0#koreksi
+        - row "Guru Bootstrap ZE3M 5VTM boot-guru@bootstrap.pintar.test uji.boot.guru ✓ Aktif Koreksi":
+          - rowheader "Guru Bootstrap"
+          - cell "ZE3M 5VTM"
+          - cell "boot-guru@bootstrap.pintar.test"
+          - cell "uji.boot.guru"
+          - cell "✓ Aktif"
+          - cell "Koreksi":
+            - link "Koreksi":
+              - /url: /aktivasi/orang?pilih=c73e2b8a-0abc-40ab-9150-1f5bae72552a#koreksi
+        - row "Guru Siklus (sintetis) JZ6P ZNB1 siklus-guru@synthetic.pintar.test uji.siklus.guru ✓ Aktif Koreksi":
+          - rowheader "Guru Siklus (sintetis)"
+          - cell "JZ6P ZNB1"
+          - cell "siklus-guru@synthetic.pintar.test"
+          - cell "uji.siklus.guru"
+          - cell "✓ Aktif"
+          - cell "Koreksi":
+            - link "Koreksi":
+              - /url: /aktivasi/orang?pilih=a4f05945-b968-4a6e-9fee-ea07bf6c580b#koreksi
+        - row "Hana Wirawan CTAB RA9Q hana.wirawan@dunia.pintar.test — ✓ Aktif Koreksi":
+          - rowheader "Hana Wirawan"
+          - cell "CTAB RA9Q"
+          - cell "hana.wirawan@dunia.pintar.test"
+          - cell "—"
+          - cell "✓ Aktif"
+          - cell "Koreksi":
+            - link "Koreksi":
+              - /url: /aktivasi/orang?pilih=58dc6ff2-737f-4ee5-b465-c6a5f11dbcd9#koreksi
+  - navigation "Halaman daftar orang":
+    - text: Menampilkan 1–20 dari 71 orang
+    - link "Halaman sebelumnya" [disabled]: Sebelumnya
+    - text: Halaman 1 dari 4
+    - link "Halaman berikutnya":
+      - /url: /aktivasi/orang?hal=2#pin-orang-koleksi
+      - text: Berikutnya
+  - region "Koreksi · Ratih Kusumawati":
+    - heading "Koreksi · Ratih Kusumawati" [level=2]
+    - paragraph: PINTAR Bootstrap (OFFICIAL evidence — development and CI only) · Aktif
+    - heading "Alamat email" [level=3]
+    - paragraph: "Sekarang: ratih.kusuma@dunia.pintar.test"
+    - text: Alamat yang benar
+    - textbox "Alamat yang benar"
+    - text: Alasan
+    - paragraph: Mengapa dikoreksi. Dicatat bersama koreksinya.
+    - textbox "Alasan"
+    - button "Koreksi email"
+    - heading "Nama" [level=3]
+    - paragraph: Sertifikat yang sudah terbit tetap memakai nama saat diterbitkan.
+    - text: Nama yang benar
+    - textbox "Nama yang benar": Ratih Kusumawati
+    - text: Alasan
+    - paragraph: Mengapa dikoreksi. Dicatat bersama koreksinya.
+    - textbox "Alasan"
+    - button "Koreksi nama"
+    - status
+    - status: Nama dikoreksi dan dicatat.
+    - heading "Username" [level=3]
+    - paragraph: Username dipakai untuk masuk. Beri tahu orangnya username yang baru.
+    - text: Username yang benar
+    - paragraph: "4–20 karakter: huruf kecil, angka, titik, garis bawah; diawali huruf."
+    - textbox "Username yang benar"
+    - text: Alasan
+    - paragraph: Mengapa dikoreksi. Dicatat bersama koreksinya.
+    - textbox "Alasan"
+    - button "Koreksi username"
+    - status
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com

@@ -1,0 +1,71 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - strong: PINTAR Bootstrap (OFFICIAL evidence — development and CI only)
+    - link "Konfigurasi":
+      - /url: /konfigurasi
+    - link "Pendataan":
+      - /url: /pendataan
+    - link "Aktivasi akun":
+      - /url: /aktivasi
+    - link "Studio":
+      - /url: /studio
+    - link "Keamanan akun":
+      - /url: /konfigurasi/keamanan
+    - link "Sertifikat sekolah":
+      - /url: /konfigurasi/sertifikat
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fkonfigurasi%2Fsertifikat
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Yohana Simanjuntak":
+      - strong: Yohana Simanjuntak
+    - button "Keluar"
+- main:
+  - link "← Konfigurasi":
+    - /url: /konfigurasi
+  - paragraph: Konfigurasi
+  - heading "Sertifikat sekolah" [level=1]
+  - paragraph: Sertifikat yang sudah diterbitkan sekolah Anda. Sertifikat yang keliru diterbitkan dapat dicabut di sini; pemeriksaan keasliannya lalu menyatakannya dicabut.
+  - searchbox "Cari sertifikat": Ratih
+  - link "Hapus pencarian":
+    - /url: /konfigurasi/sertifikat#pin-sertifikat
+  - paragraph: 1 sertifikat cocok dengan «Ratih»
+  - region "Sertifikat sekolah":
+    - table "Sertifikat sekolah":
+      - caption: Sertifikat sekolah
+      - rowgroup:
+        - row "Pemegang Nomor sertifikat Materi Pembelajaran Diterbitkan Keadaan Tindakan":
+          - columnheader "Pemegang"
+          - columnheader "Nomor sertifikat"
+          - columnheader "Materi Pembelajaran"
+          - columnheader "Diterbitkan"
+          - columnheader "Keadaan"
+          - columnheader "Tindakan"
+      - rowgroup:
+        - row "Ratih Kusumawati EW9QXW09/00001 Perkalian Bilangan Cacah 24 Nov 2026 ✓ Berlaku Dikonfirmasi setelah dihitung ulang · Hasil dihitung ulang 83%, tetap di atas target 60%. Cabut":
+          - rowheader "Ratih Kusumawati"
+          - cell "EW9QXW09/00001"
+          - cell "Perkalian Bilangan Cacah"
+          - cell "24 Nov 2026"
+          - cell "✓ Berlaku Dikonfirmasi setelah dihitung ulang · Hasil dihitung ulang 83%, tetap di atas target 60%."
+          - cell "Cabut":
+            - link "Cabut":
+              - /url: /konfigurasi/sertifikat?pilih=70b84d85-63b9-4733-a14e-65228bd7ed22&cari=Ratih#cabut
+  - navigation "Halaman daftar sertifikat":
+    - text: Menampilkan 1–1 dari 1 sertifikat
+    - link "Halaman sebelumnya" [disabled]: Sebelumnya
+    - text: Halaman 1 dari 1
+    - link "Halaman berikutnya" [disabled]: Berikutnya
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- alert

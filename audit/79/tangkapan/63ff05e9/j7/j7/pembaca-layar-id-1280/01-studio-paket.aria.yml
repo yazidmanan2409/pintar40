@@ -1,0 +1,279 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - strong: PINTAR Bootstrap (OFFICIAL evidence — development and CI only)
+    - link "Konfigurasi":
+      - /url: /konfigurasi
+    - link "Pendataan":
+      - /url: /pendataan
+    - link "Aktivasi akun":
+      - /url: /aktivasi
+    - link "Studio":
+      - /url: /studio
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fstudio%2Fpaket%2Fc58e6da8-db3d-40ed-a3af-5a9bd82d3519
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Yohana Simanjuntak":
+      - strong: Yohana Simanjuntak
+    - button "Keluar"
+- main:
+  - paragraph:
+    - link "Studio":
+      - /url: /studio
+  - heading "Perkalian Bilangan Cacah" [level=1]
+  - region "Perkalian Bilangan Cacah":
+    - paragraph: Matematika · SMP · Kelas 9
+    - paragraph: Terbit
+    - paragraph: Paket ini sudah terbit. Guru dapat menyediakannya untuk kelas mereka.
+    - link "Lihat seperti murid":
+      - /url: /studio/pratinjau/8b3f6dbf-a2fb-4b40-a2f1-4a06aa608160
+  - region "Soal dalam paket ini":
+    - heading "Soal dalam paket ini" [level=2]
+    - paragraph: Periksa setiap soal, kunci jawabannya, dan alasan setiap pilihan sebelum menyetujui. Hanya staf Studio sekolah ini yang melihat bagian ini; murid tidak pernah melihat kunci atau alasannya di sini.
+    - paragraph: 7 soal dalam 1 pelajaran
+    - text: Pelajaran
+    - combobox "Pelajaran":
+      - option "Perkalian (7 soal)" [selected]
+    - button "Buka"
+    - region "Perkalian · 7 soal":
+      - heading "Perkalian · 7 soal" [level=3]
+      - list:
+        - listitem:
+          - article "Berapakah 3 × 4?":
+            - paragraph: Soal 1 dari 7 · Pemetaan Awal · Mudah
+            - heading "Berapakah 3 × 4?" [level=4]
+            - list "Soal 1 dari 7":
+              - listitem:
+                - paragraph:
+                  - text: A. 12
+                  - strong: Kunci
+                - paragraph: "Alasan: 4 + 4 + 4 = 12."
+              - listitem:
+                - paragraph: B. 7
+                - paragraph: "Alasan: Itu 3 + 4."
+                - paragraph: "Pemahaman keliru: Dijumlahkan, bukan dikalikan X9W-TAMBAH"
+              - listitem:
+                - paragraph: C. 16
+                - paragraph: "Alasan: Itu 4 × 4."
+                - paragraph: "Pemahaman keliru: Fakta perkalian tertukar X9W-HAFAL"
+              - listitem:
+                - paragraph: D. 9
+                - paragraph: "Alasan: Itu 3 × 3."
+                - paragraph: "Pemahaman keliru: Fakta perkalian tertukar X9W-HAFAL"
+            - paragraph:
+              - link "Kunci jawaban keliru? · Soal 1 dari 7":
+                - /url: /studio/paket/c58e6da8-db3d-40ed-a3af-5a9bd82d3519?pelajaran=1&kunci=c399deba-6ff8-49a4-91e3-04d5a55decee&langkah=1#kunci-c399deba-6ff8-49a4-91e3-04d5a55decee
+            - group: Riwayat soal (1 versi)
+            - group: Catatan peninjau (0)
+        - listitem:
+          - article "Berapakah 8 × 2?":
+            - paragraph: Soal 2 dari 7 · Uji Penguasaan · Mudah
+            - heading "Berapakah 8 × 2?" [level=4]
+            - list "Soal 2 dari 7":
+              - listitem:
+                - paragraph: A. 10
+                - paragraph: "Alasan: Itu 8 + 2."
+                - paragraph: "Pemahaman keliru: Dijumlahkan, bukan dikalikan X9W-TAMBAH"
+              - listitem:
+                - paragraph:
+                  - text: B. 16
+                  - strong: Kunci
+                - paragraph: "Alasan: 8 + 8 = 16."
+              - listitem:
+                - paragraph: C. 18
+                - paragraph: "Alasan: Itu 9 × 2."
+                - paragraph: "Pemahaman keliru: Fakta perkalian tertukar X9W-HAFAL"
+              - listitem:
+                - paragraph: D. 14
+                - paragraph: "Alasan: Itu 7 × 2."
+                - paragraph: "Pemahaman keliru: Fakta perkalian tertukar X9W-HAFAL"
+            - paragraph:
+              - link "Kunci jawaban keliru? · Soal 2 dari 7":
+                - /url: /studio/paket/c58e6da8-db3d-40ed-a3af-5a9bd82d3519?pelajaran=1&kunci=3d96871f-cc74-4d83-9be3-64f91d96f5b8&langkah=1#kunci-3d96871f-cc74-4d83-9be3-64f91d96f5b8
+            - group: Riwayat soal (1 versi)
+            - group: Catatan peninjau (0)
+        - listitem:
+          - article "Berapakah 4 × 8?":
+            - paragraph: Soal 3 dari 7 · Uji Penguasaan · Mudah
+            - heading "Berapakah 4 × 8?" [level=4]
+            - list "Soal 3 dari 7":
+              - listitem:
+                - paragraph: A. 12
+                - paragraph: "Alasan: Itu 4 + 8."
+                - paragraph: "Pemahaman keliru: Dijumlahkan, bukan dikalikan X9W-TAMBAH"
+              - listitem:
+                - paragraph: B. 28
+                - paragraph: "Alasan: Itu 4 × 7."
+                - paragraph: "Pemahaman keliru: Fakta perkalian tertukar X9W-HAFAL"
+              - listitem:
+                - paragraph:
+                  - text: C. 32
+                  - strong: Kunci
+                - paragraph: "Alasan: Empat kali delapan."
+              - listitem:
+                - paragraph: D. 36
+                - paragraph: "Alasan: Itu 4 × 9."
+                - paragraph: "Pemahaman keliru: Fakta perkalian tertukar X9W-HAFAL"
+            - paragraph:
+              - link "Kunci jawaban keliru? · Soal 3 dari 7":
+                - /url: /studio/paket/c58e6da8-db3d-40ed-a3af-5a9bd82d3519?pelajaran=1&kunci=5b97075c-22e1-4eac-bf5c-35d607cade36&langkah=1#kunci-5b97075c-22e1-4eac-bf5c-35d607cade36
+            - group: Riwayat soal (1 versi)
+            - group: Catatan peninjau (0)
+        - listitem:
+          - article "Berapakah 7 × 8?":
+            - paragraph: Soal 4 dari 7 · Uji Penguasaan · Mudah
+            - heading "Berapakah 7 × 8?" [level=4]
+            - list "Soal 4 dari 7":
+              - listitem:
+                - paragraph:
+                  - text: A. 54
+                  - strong: Kunci
+                - paragraph: "Alasan: Hasil perkalian 7 dan 8."
+              - listitem:
+                - paragraph: B. 56
+                - paragraph: "Alasan: Hitung ulang penjumlahannya."
+                - paragraph: "Pemahaman keliru: Fakta perkalian tertukar X9W-HAFAL"
+              - listitem:
+                - paragraph: C. 15
+                - paragraph: "Alasan: Itu 7 + 8."
+                - paragraph: "Pemahaman keliru: Dijumlahkan, bukan dikalikan X9W-TAMBAH"
+              - listitem:
+                - paragraph: D. 63
+                - paragraph: "Alasan: Itu 7 × 9."
+                - paragraph: "Pemahaman keliru: Fakta perkalian tertukar X9W-HAFAL"
+            - paragraph:
+              - link "Kunci jawaban keliru? · Soal 4 dari 7":
+                - /url: /studio/paket/c58e6da8-db3d-40ed-a3af-5a9bd82d3519?pelajaran=1&kunci=a446dcba-11ef-42d3-91bf-e0010ed98e56&langkah=1#kunci-a446dcba-11ef-42d3-91bf-e0010ed98e56
+            - group: Riwayat soal (1 versi)
+            - group: Catatan peninjau (0)
+        - listitem:
+          - article "Berapakah 5 × 7?":
+            - paragraph: Soal 5 dari 7 · Uji Penguasaan · Mudah
+            - heading "Berapakah 5 × 7?" [level=4]
+            - list "Soal 5 dari 7":
+              - listitem:
+                - paragraph:
+                  - text: A. 35
+                  - strong: Kunci
+                - paragraph: "Alasan: Lima kali tujuh."
+              - listitem:
+                - paragraph: B. 12
+                - paragraph: "Alasan: Itu 5 + 7."
+                - paragraph: "Pemahaman keliru: Dijumlahkan, bukan dikalikan X9W-TAMBAH"
+              - listitem:
+                - paragraph: C. 30
+                - paragraph: "Alasan: Itu 5 × 6."
+                - paragraph: "Pemahaman keliru: Fakta perkalian tertukar X9W-HAFAL"
+              - listitem:
+                - paragraph: D. 40
+                - paragraph: "Alasan: Itu 5 × 8."
+                - paragraph: "Pemahaman keliru: Fakta perkalian tertukar X9W-HAFAL"
+            - paragraph:
+              - link "Kunci jawaban keliru? · Soal 5 dari 7":
+                - /url: /studio/paket/c58e6da8-db3d-40ed-a3af-5a9bd82d3519?pelajaran=1&kunci=e05bc129-ba92-4cfd-985c-ba45c6697fb5&langkah=1#kunci-e05bc129-ba92-4cfd-985c-ba45c6697fb5
+            - group: Riwayat soal (1 versi)
+            - group: Catatan peninjau (0)
+        - listitem:
+          - article "Berapakah 9 × 3?":
+            - paragraph: Soal 6 dari 7 · Uji Penguasaan · Mudah
+            - heading "Berapakah 9 × 3?" [level=4]
+            - list "Soal 6 dari 7":
+              - listitem:
+                - paragraph:
+                  - text: A. 27
+                  - strong: Kunci
+                - paragraph: "Alasan: 9 + 9 + 9 = 27."
+              - listitem:
+                - paragraph: B. 12
+                - paragraph: "Alasan: Itu 9 + 3."
+                - paragraph: "Pemahaman keliru: Dijumlahkan, bukan dikalikan X9W-TAMBAH"
+              - listitem:
+                - paragraph: C. 24
+                - paragraph: "Alasan: Itu 8 × 3."
+                - paragraph: "Pemahaman keliru: Fakta perkalian tertukar X9W-HAFAL"
+              - listitem:
+                - paragraph: D. 36
+                - paragraph: "Alasan: Itu 9 × 4."
+                - paragraph: "Pemahaman keliru: Fakta perkalian tertukar X9W-HAFAL"
+            - paragraph:
+              - link "Kunci jawaban keliru? · Soal 6 dari 7":
+                - /url: /studio/paket/c58e6da8-db3d-40ed-a3af-5a9bd82d3519?pelajaran=1&kunci=f02d9f45-a5e5-403d-a35b-c3e4089c4e68&langkah=1#kunci-f02d9f45-a5e5-403d-a35b-c3e4089c4e68
+            - group: Riwayat soal (1 versi)
+            - group: Catatan peninjau (0)
+        - listitem:
+          - article "Berapakah 6 × 5?":
+            - paragraph: Soal 7 dari 7 · Uji Penguasaan · Mudah
+            - heading "Berapakah 6 × 5?" [level=4]
+            - list "Soal 7 dari 7":
+              - listitem:
+                - paragraph: A. 11
+                - paragraph: "Alasan: Itu 6 + 5."
+                - paragraph: "Pemahaman keliru: Dijumlahkan, bukan dikalikan X9W-TAMBAH"
+              - listitem:
+                - paragraph:
+                  - text: B. 30
+                  - strong: Kunci
+                - paragraph: "Alasan: Enam kali lima."
+              - listitem:
+                - paragraph: C. 35
+                - paragraph: "Alasan: Itu 7 × 5."
+                - paragraph: "Pemahaman keliru: Fakta perkalian tertukar X9W-HAFAL"
+              - listitem:
+                - paragraph: D. 25
+                - paragraph: "Alasan: Itu 5 × 5."
+                - paragraph: "Pemahaman keliru: Fakta perkalian tertukar X9W-HAFAL"
+            - paragraph:
+              - link "Kunci jawaban keliru? · Soal 7 dari 7":
+                - /url: /studio/paket/c58e6da8-db3d-40ed-a3af-5a9bd82d3519?pelajaran=1&kunci=f6b9298b-ec2b-4ea1-8020-c1681f80c72b&langkah=1#kunci-f6b9298b-ec2b-4ea1-8020-c1681f80c72b
+            - group: Riwayat soal (1 versi)
+            - group: Catatan peninjau (0)
+  - region "Langkah menuju terbit":
+    - heading "Langkah menuju terbit" [level=2]
+    - paragraph: Tujuh langkah dari unggahan sampai terbit, dalam urutan yang dijalankan PINTAR. Tombol hanya muncul untuk orang yang boleh mengambil langkah itu.
+    - list "Langkah menuju terbit":
+      - listitem:
+        - paragraph: Susun isi (Selesai)
+      - listitem:
+        - paragraph: Periksa isi (Selesai)
+      - listitem:
+        - paragraph: Ajukan untuk ditinjau (Selesai)
+      - listitem:
+        - paragraph: Setujui isi (Selesai)
+      - listitem:
+        - paragraph: Buat terbitan (Selesai)
+      - listitem:
+        - paragraph: Kunci terbitan (Selesai)
+      - listitem:
+        - paragraph: Terbitkan (Selesai)
+      - listitem:
+        - paragraph: Terbit
+    - paragraph: Sekarang
+    - heading "Terbit" [level=3]
+    - paragraph: Terbit sejak 24 Nov 2026. Menerbitkan belum menyediakan. Murid baru melihatnya setelah guru menyediakannya untuk kelas.
+    - text: Alasan penarikan
+    - textbox "Alasan penarikan"
+    - button "Tarik dari peredaran"
+  - heading "Temuan" [level=2]
+  - paragraph: Tidak ada catatan mutu yang menunggu.
+  - heading "Riwayat perbaikan" [level=2]
+  - list:
+    - listitem:
+      - paragraph: 1.0.0 · 24 Nov 2026, 22.03 WIB · halaman ini
+      - paragraph: Versi pertama
+      - list:
+        - listitem:
+          - paragraph: Disetujui · oleh Made Wirawan
+          - paragraph: 24 Nov 2026, 22.03 WIB
+  - heading "Perbaiki paket ini" [level=2]
+  - paragraph: Perbaiki buku kerjanya, lalu unggah sebagai perbaikan paket ini. Paket asli tetap utuh beserta seluruh catatan pengerjaan murid; perbaikan menjadi versi berikutnya, ditinjau dan diterbitkan seperti biasa.
+  - paragraph:
+    - link "Unggah buku kerja perbaikan":
+      - /url: /studio/unggah?revisi=c58e6da8-db3d-40ed-a3af-5a9bd82d3519#buku-kerja
+- alert

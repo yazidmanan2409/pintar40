@@ -1,0 +1,56 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - strong: PINTAR Bootstrap (OFFICIAL evidence — development and CI only)
+    - link "Mau ke mana hari ini?":
+      - /url: /
+    - link "Pimpinan":
+      - /url: /pimpinan
+    - link "Studio":
+      - /url: /studio
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fstudio%2Ftinjau%2Fkunci%2F42ce49f2-1dfd-42de-9b50-523697f8e325
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Made Wirawan":
+      - strong: Made Wirawan
+    - button "Keluar"
+- main:
+  - paragraph:
+    - link "Antrean Tinjauan":
+      - /url: /studio/tinjau
+  - heading "Perbaikan kunci jawaban" [level=1]
+  - paragraph: Perkalian Bilangan Cacah
+  - region "Pertanyaan":
+    - heading "Pertanyaan" [level=2]
+    - paragraph: Berapakah 7 × 8?
+    - list:
+      - listitem: A. 54
+      - listitem: B. 56
+      - listitem: C. 15
+      - listitem: D. 63
+    - term: Kunci sekarang
+    - definition: A
+    - term: Kunci yang diusulkan
+    - definition: B
+    - term: Alasan
+    - definition: 7 × 8 = 56; kuncinya tertulis 54 (pilihan A).
+    - term: Diusulkan oleh
+    - definition: Yohana Simanjuntak · 24 Nov 2026, 22.03 WIB
+  - region "Yang terdampak":
+    - heading "Yang terdampak" [level=2]
+    - paragraph: Soal ini ada di 3 sesi yang sudah selesai, di 1 sekolah.
+    - paragraph: "Bila kunci diperbaiki: 3 hasil berubah · 1 keputusan target berubah · 2 sertifikat akan ditinjau sekolahnya · 0 sertifikat baru dapat diterbitkan."
+    - list:
+      - listitem: Pilihan A akan kehilangan alasan dan pemahaman keliru terkaitnya, karena benar-salahnya berubah. Kunci diperbaiki sekarang; alasannya ditulis sesudahnya.
+      - listitem: Pilihan B akan kehilangan alasan dan pemahaman keliru terkaitnya, karena benar-salahnya berubah. Kunci diperbaiki sekarang; alasannya ditulis sesudahnya.
+  - region "Konfirmasi perbaikan":
+    - heading "Konfirmasi perbaikan" [level=2]
+    - paragraph: Selesai. 3 hasil dihitung ulang pada 24 Nov 2026, 22.04 WIB. Hasil asli dan jawaban murid tetap tersimpan.
+- alert: Perbaikan kunci jawaban

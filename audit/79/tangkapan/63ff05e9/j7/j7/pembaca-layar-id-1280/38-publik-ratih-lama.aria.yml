@@ -1,0 +1,27 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR Pemeriksaan sertifikat
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+- main:
+  - paragraph: Pemeriksaan
+  - heading "Verifikasi Sertifikat" [level=1]
+  - paragraph: Hasil pemeriksaan untuk tautan yang Anda buka.
+  - paragraph: Status
+  - paragraph: Digantikan sertifikat yang lebih baru
+  - paragraph: Penerbit telah menerbitkan sertifikat pengganti. Mintalah sertifikat yang baru kepada pemegangnya.
+  - term: Hasil
+  - definition: Lulus
+  - term: Diterbitkan oleh
+  - definition: PINTAR Bootstrap (OFFICIAL evidence — development and CI only)
+  - term: Tanggal terbit
+  - definition: 24 Nov 2026
+  - paragraph: Halaman ini memastikan sertifikat yang Anda pegang benar diterbitkan. Nama pemegang tertera pada sertifikatnya.
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- alert

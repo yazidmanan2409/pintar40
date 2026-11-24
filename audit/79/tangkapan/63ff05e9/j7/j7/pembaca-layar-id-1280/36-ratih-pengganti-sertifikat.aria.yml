@@ -1,0 +1,42 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - navigation "Belajar":
+    - link "Belajar":
+      - /url: /belajar
+    - link "Sertifikat":
+      - /url: /belajar/sertifikat
+  - button "Bantuan"
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - link "← Semua sertifikat":
+    - /url: /belajar/sertifikat
+  - status:
+    - heading "Sertifikat ini sudah digantikan dengan yang lebih baru" [level=2]
+    - paragraph: Penerbit membuat sertifikat pengganti. Gunakan yang baru; yang ini tetap tercatat.
+    - link "Buka sertifikat yang baru":
+      - /url: /verifikasi/21OuLzZfZdo3v6J8ydkHVafI8d2EIT_G0f56wI1g3Ik
+    - text: EW9QXW09/00002
+  - article:
+    - paragraph: PINTAR Bootstrap (OFFICIAL evidence — development and CI only)
+    - paragraph: Sertifikat
+    - heading "Ratih Kusuma" [level=1]
+    - paragraph: "Telah dinyatakan memenuhi kriteria kelulusan yang ditetapkan berdasarkan hasil asesmen pada Materi Pembelajaran:"
+    - paragraph: Matematika · Perkalian Bilangan Cacah.
+    - separator
+    - term: Tanggal terbit
+    - definition: 24 November 2026
+    - term: Nomor sertifikat
+    - definition: EW9QXW09/00001
+  - text: PINTAR Bootstrap (OFFICIAL evidence — development and CI only) Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- alert

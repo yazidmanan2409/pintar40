@@ -1,0 +1,16 @@
+- main:
+  - paragraph: Sertifikat
+  - text: PINTAR
+  - heading "Citra Lestari" [level=1]
+  - paragraph: "Telah dinyatakan memenuhi kriteria kelulusan yang ditetapkan berdasarkan hasil asesmen pada Materi Pembelajaran:"
+  - paragraph: Matematika · Perkalian Bilangan Cacah.
+  - term: Tanggal terbit
+  - definition: 24 November 2026
+  - term: Nomor sertifikat
+  - definition: 6TP79263/00001
+  - paragraph: Diterbitkan oleh
+  - paragraph: PINTAR Bootstrap (OFFICIAL evidence — development and CI only)
+  - heading "Periksa keaslian" [level=3]
+  - paragraph: Pindai kode ini atau buka tautannya. Halaman itu memastikan sertifikat ini benar diterbitkan dan masih berlaku.
+  - paragraph: http://127.0.0.1:3999/verifikasi/ueCtal9neOj4IKKJ3j6FtPpzIsH8TV0KUspMfEbP-fM
+  - img "Periksa keaslian"

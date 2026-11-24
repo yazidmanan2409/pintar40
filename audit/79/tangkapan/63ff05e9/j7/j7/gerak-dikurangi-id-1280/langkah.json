@@ -1,0 +1,177 @@
+{
+  "perjalanan": "j7",
+  "nama": "Yohana · Made · Ratih · Bayu · Citra · Admin PINTAR",
+  "lebar": 1280,
+  "zona": "WIB",
+  "bahasa": "id",
+  "laluan": "gerak-dikurangi",
+  "label": [
+    "bukti OFFICIAL di tenant bootstrap dev/CI (sintetis)"
+  ],
+  "mulai": "2026-11-24T15:06:51.070Z",
+  "langkah": [
+    {
+      "id": "L1",
+      "judul": "the school admin proposes the correction: «Kunci jawaban keliru?», the three steps, «Kirim untuk konfirmasi»",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-studio-paket",
+        "02-langkah-1",
+        "03-langkah-2",
+        "04-langkah-3",
+        "05-terkirim"
+      ],
+      "amatan": [],
+      "data": {
+        "step2_impact": "Studio Perkalian Bilangan Cacah Matematika · SMP · Kelas 9 Terbit Paket ini sudah terbit. Guru dapat menyediakannya untuk kelas mereka. Lihat seperti murid Soal dalam paket ini Periksa setiap soal, kunci jawabannya, dan alasan setiap pilihan sebelum menyetujui. Hanya staf Studio sekolah ini yang melihat bagian ini; murid tidak pernah melihat kunci atau alasannya di sini. 7 soal dalam 1 pelajaran Pelajaran Perkalian (7 soal) Buka Perkalian · 7 soal Soal 1 dari 7 · Pemetaan Awal · Mudah Berapakah 3 × 4? A A. 12 Kunci Alasan: 4 + 4 + 4 = 12. B B. 7 Alasan: Itu 3 + 4. Pemahaman keliru: Dijumlahkan, bukan dikalikan X9W-TAMBAH C C. 16 Alasan: Itu 4 × 4. Pemahaman keliru: Fakta perkalian tertukar X9W-HAFAL D D. 9 Alasan: Itu 3 × 3. Pemahaman keliru: Fakta perkalian tertukar X9W-HAFAL Kunci jawaban keliru? · Soal 1 dari 7 Riwayat soal (1 versi) Catatan peninjau (0) Soal 2 dari 7 · Uji Penguasaan · Mudah Berapakah 6 × 5? A A. 11 Alasan: Itu 6 + 5. Pemahaman keliru: Dijumlahkan, bukan dikalikan X9W-TAMBAH B B. 30 Kunci Alasan: Enam kali lima. C C. 35 Alasan: Itu 7 × 5. Pemahaman keliru: Fakta perkalian tertukar X9W-HAFAL D D. 25 Alasan: Itu 5 × 5. Pemahaman keliru: Fakta perkalian tertukar X",
+        "words": "✓Perbaikan terkirim untuk dikonfirmasi orang kedua.",
+        "correction": "PENDING A→B"
+      },
+      "tab": 16,
+      "url": "/",
+      "ms": 9841
+    },
+    {
+      "id": "L2",
+      "judul": "the head of department: what tells him a correction waits, then «Konfirmasi perbaikan»",
+      "hasil": "SAMPAI",
+      "layar": [
+        "06-kaprodi-masuk",
+        "07-kaprodi-studio",
+        "08-kaprodi-pimpinan",
+        "09-kaprodi-antrean",
+        "10-kaprodi-koreksi",
+        "11-kaprodi-konfirmasi-dialog",
+        "12-kaprodi-selesai"
+      ],
+      "amatan": [],
+      "data": {
+        "approver_studio": "PINTAR Masuk sebagai Made Wirawan Keluar Mau ke mana hari ini? Halo, Made Wirawan. Saya mengajar · PINTAR Bootstrap (OFFICIAL evidence — development and CI only) Saya memimpin bagian sekolah · PINTAR Bootstrap (OFFICIAL evidence — development and CI only)",
+        "approver_pimpinan": "PINTAR Masuk sebagai Made Wirawan Keluar Mau ke mana hari ini? Halo, Made Wirawan. Saya memimpin bagian sekolah · PINTAR Bootstrap (OFFICIAL evidence — development and CI only)",
+        "approver_antrean": "Studio Studio Buat Paket Antrean Tinjauan Pustaka PINTAR Bank Soal Tinjauan Integritas Antrean Tinjauan Perbaikan kunci menunggu konfirmasi Perbaikan kunci jawaban Soal di Perkalian Bilangan Cacah · kunci A → B · diusulkan Yohana Simanjuntak, 24 Nov 2026, 22.06 WIB Tidak ada yang menunggu tinjauan Anda.",
+        "correction_page": "Antrean Tinjauan Perbaikan kunci jawaban Perkalian Bilangan Cacah Pertanyaan Berapakah 7 × 8? A. 54 B. 56 C. 15 D. 63 KUNCI SEKARANG A KUNCI YANG DIUSULKAN B ALASAN 7 × 8 = 56; kuncinya tertulis 54 (pilihan A). DIUSULKAN OLEH Yohana Simanjuntak · 24 Nov 2026, 22.06 WIB Yang terdampak Soal ini ada di 3 sesi yang sudah selesai, di 1 sekolah. Bila kunci diperbaiki: 3 hasil berubah · 1 keputusan target berubah · 2 sertifikat akan ditinjau sekolahnya · 0 sertifikat baru dapat diterbitkan. Pilihan A akan kehilangan alasan dan pemahaman keliru terkaitnya, karena benar-salahnya berubah. Kunci diperbaiki sekarang; alasannya ditulis sesudahnya. Pilihan B akan kehilangan alasan dan pemahaman keliru terkaitnya, karena benar-salahnya berubah. Kunci diperbaiki sekarang; alasannya ditulis sesudahnya. Kelas Murid Hasil Target Sertifikat 9A (dunia) Bayu Pratama 83% → 100% tercapai — 9A (dunia) Citra Lestari 67% → 50% tercapai → belum tercapai akan ditinjau 9A (dunia) Ratih Kusuma 100% → 83% tercapai ak",
+        "dialog": "Konfirmasi perbaikan Hasil 3 sesi dihitung ulang. Hasil asli tetap tersimpan. Batal Konfirmasi perbaikan",
+        "done": "Antrean Tinjauan Perbaikan kunci jawaban Perkalian Bilangan Cacah Pertanyaan Berapakah 7 × 8? A. 54 B. 56 C. 15 D. 63 KUNCI SEKARANG A KUNCI YANG DIUSULKAN B ALASAN 7 × 8 = 56; kuncinya tertulis 54 (pilihan A). DIUSULKAN OLEH Yohana Simanjuntak · 24 Nov 2026, 22.06 WIB Yang terdampak Soal ini ada di 3 sesi yang sudah selesai, di 1 sekolah. Bila kunci diperbaiki: 3 hasil berubah · 1 keputusan target berubah · 2 sertifikat akan ditinjau sekolahnya · 0 sertifikat baru dapat diterbitkan. Pilihan A a",
+        "correction": "CONFIRMED A→B",
+        "result_Ratih": "100% (asli) → 83% (dihitung ulang)",
+        "result_Bayu": "83% (asli) → 100% (dihitung ulang)",
+        "result_Citra": "67% (asli) → 50% (dihitung ulang)"
+      },
+      "tab": 39,
+      "url": "/",
+      "ms": 9404
+    },
+    {
+      "id": "L3",
+      "judul": "after the recalculation: the three learners, the printed copies, the public checks",
+      "hasil": "SAMPAI",
+      "layar": [
+        "13-ratih-hasil",
+        "14-ratih-sertifikat",
+        "15-ratih-sertifikat-cetak",
+        "16-bayu-hasil",
+        "17-citra-hasil",
+        "18-citra-sertifikat",
+        "19-citra-sertifikat-cetak",
+        "20-publik-ratih",
+        "21-publik-citra"
+      ],
+      "amatan": [],
+      "data": {
+        "ratih-result_page": "← Perjalanan belajar Anda MATEMATIKA · PERKALIAN BILANGAN CACAH Hasil Lulus. Hasil Uji Penguasaan ini memenuhi kriteria kelulusan bab ini. Lihat sertifikat 5 dari 6 soal dijawab tepat · Kesempatan ke-1 Dihitung ulang Hasil ini dihitung ulang karena penilaian satu soal diperbaiki. Hasil asli tetap tersimpan. Pada Uji Penguasaan, jawaban yang tepat dan hasil tiap soal tidak ditampilkan. Apa berikutnya → Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com",
+        "ratih-certificate_page": "← Semua sertifikat Sedang ditinjau Sekolah Anda sedang meninjau sertifikat ini karena penilaian satu soal diperbaiki. Sertifikat tetap tersimpan. Selama ditinjau, pemeriksaan sertifikat menyebutnya sedang ditinjau. PINTAR Bootstrap (OFFICIAL evidence — development and CI only) SERTIFIKAT Ratih Kusuma Telah dinyatakan memenuhi kriteria kelulusan yang ditetapkan berdasarkan hasil asesmen pada Materi Pembelajaran: Matematika · Perkalian Bilangan Cacah. TANGGAL TERBIT 24 November 2026 NOMOR SERTIFIKAT 0DE6C00N/00001 Periksa keaslian Pindai kode ini atau buka tautannya. Halaman itu memastikan sertifikat ini benar diterbitkan dan masih berlaku. http://127.0.0.1:3999/verifikasi/UM6E1wIvlZ0zdwJFqxX3ukQMdpyV_Jynhczttsdgulk Cetak atau simpan PDF Salin tautan verifikasi PRATINJAU CETAK Sertifikat · A4 Satu lembar A4 tegak. Komposisinya tetap pada setiap lebar layar; yang berubah hanya skalanya. SER",
+        "ratih-printed_copy": "SERTIFIKAT PINTAR Ratih Kusuma Telah dinyatakan memenuhi kriteria kelulusan yang ditetapkan berdasarkan hasil asesmen pada Materi Pembelajaran: Matematika · Perkalian Bilangan Cacah. TANGGAL TERBIT 24 November 2026 NOMOR SERTIFIKAT 0DE6C00N/00001 DITERBITKAN OLEH PINTAR Bootstrap (OFFICIAL evidence — development and CI only) PERIKSA KEASLIAN Pindai kode ini atau buka tautannya. Halaman itu memastikan sertifikat ini benar diterbitkan dan masih berlaku. http://127.0.0.1:3999/verifikasi/UM6E1wIvlZ0zdwJFqxX3ukQMdpyV_Jynhczttsdgulk",
+        "bayu-result_page": "← Perjalanan belajar Anda MATEMATIKA · PERKALIAN BILANGAN CACAH Hasil Lulus. Hasil Uji Penguasaan ini memenuhi kriteria kelulusan bab ini. 6 dari 6 soal dijawab tepat · Kesempatan ke-1 Dihitung ulang Hasil ini dihitung ulang karena penilaian satu soal diperbaiki. Hasil asli tetap tersimpan. Pada Uji Penguasaan, jawaban yang tepat dan hasil tiap soal tidak ditampilkan. Apa berikutnya → Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com",
+        "citra-result_page": "← Perjalanan belajar Anda MATEMATIKA · PERKALIAN BILANGAN CACAH Hasil Belum lulus. Hasil Uji Penguasaan ini belum memenuhi kriteria kelulusan bab ini. Baca lagi: Perkalian · Menghitung hasil perkalian dua bilangan satu angka. Bagian ini disarankan untuk dibaca lagi. Saran ini bukan penilaian atas penguasaan Anda pada bagian ini. Anda dapat mengerjakan Uji Penguasaan lagi sesuai aturan sekolah. Tanyakan kepada guru Anda kapan dapat mengulang. 3 dari 6 soal dijawab tepat · Kesempatan ke-1 Dihitung ulang Hasil ini dihitung ulang karena penilaian satu soal diperbaiki. Hasil asli tetap tersimpan. Pada Uji Penguasaan, jawaban yang tepat dan hasil tiap soal tidak ditampilkan. Apa berikutnya → Dr. d",
+        "citra-certificate_page": "← Semua sertifikat Sedang ditinjau Sekolah Anda sedang meninjau sertifikat ini karena penilaian satu soal diperbaiki. Sertifikat tetap tersimpan. Selama ditinjau, pemeriksaan sertifikat menyebutnya sedang ditinjau. PINTAR Bootstrap (OFFICIAL evidence — development and CI only) SERTIFIKAT Citra Lestari Telah dinyatakan memenuhi kriteria kelulusan yang ditetapkan berdasarkan hasil asesmen pada Materi Pembelajaran: Matematika · Perkalian Bilangan Cacah. TANGGAL TERBIT 24 November 2026 NOMOR SERTIFIKAT VZ0HKZFY/00001 Periksa keaslian Pindai kode ini atau buka tautannya. Halaman itu memastikan sertifikat ini benar diterbitkan dan masih berlaku. http://127.0.0.1:3999/verifikasi/5xvlX5RbQGPE8ZXy9m37Z4vaK2-LaL6-JnNEsiZdsaE Cetak atau simpan PDF Salin tautan verifikasi PRATINJAU CETAK Sertifikat · A4 Satu lembar A4 tegak. Komposisinya tetap pada setiap lebar layar; yang berubah hanya skalanya. SE",
+        "citra-printed_copy": "SERTIFIKAT PINTAR Citra Lestari Telah dinyatakan memenuhi kriteria kelulusan yang ditetapkan berdasarkan hasil asesmen pada Materi Pembelajaran: Matematika · Perkalian Bilangan Cacah. TANGGAL TERBIT 24 November 2026 NOMOR SERTIFIKAT VZ0HKZFY/00001 DITERBITKAN OLEH PINTAR Bootstrap (OFFICIAL evidence — development and CI only) PERIKSA KEASLIAN Pindai kode ini atau buka tautannya. Halaman itu memastikan sertifikat ini benar diterbitkan dan masih berlaku. http://127.0.0.1:3999/verifikasi/5xvlX5RbQGPE8ZXy9m37Z4vaK2-LaL6-JnNEsiZdsaE",
+        "public_ratih": "PEMERIKSAAN Verifikasi Sertifikat Hasil pemeriksaan untuk tautan yang Anda buka. STATUS Sedang ditinjau Sertifikat ini benar diterbitkan oleh PINTAR Bootstrap (OFFICIAL evidence — development and CI only). Penilaian satu soal di asesmennya diperbaiki, dan sekolah penerbit sedang meninjau sertifikat ini. Sampai selesai, sertifikat ini tidak dinyatakan berlaku. Hubungi sekolah penerbit untuk keterangan. Seperti saat diterbitkan Isi ini dapat berubah setelah sekolah penerbit selesai meninjau sertifikat ini. HASIL Lulus DITERBITKAN OLEH PINTAR Bootstrap (OFFICIAL evidence — development and CI only",
+        "public_citra": "PEMERIKSAAN Verifikasi Sertifikat Hasil pemeriksaan untuk tautan yang Anda buka. STATUS Sedang ditinjau Sertifikat ini benar diterbitkan oleh PINTAR Bootstrap (OFFICIAL evidence — development and CI only). Penilaian satu soal di asesmennya diperbaiki, dan sekolah penerbit sedang meninjau sertifikat ini. Sampai selesai, sertifikat ini tidak dinyatakan berlaku. Hubungi sekolah penerbit untuk keterangan. Seperti saat diterbitkan Isi ini dapat berubah setelah sekolah penerbit selesai meninjau sertifikat ini. HASIL Lulus DITERBITKAN OLEH PINTAR Bootstrap (OFFICIAL evidence — development and CI only",
+        "certificate_Ratih": "0DE6C00N/00001 ISSUED review OPEN",
+        "certificate_Citra": "VZ0HKZFY/00001 ISSUED review OPEN"
+      },
+      "tab": 0,
+      "url": "/verifikasi/5xvlX5RbQGPE8ZXy9m37Z4vaK2-LaL6-JnNEsiZdsaE",
+      "ms": 17919
+    },
+    {
+      "id": "L4",
+      "judul": "the admin's «Sedang ditinjau»: Ratih «Konfirmasi berlaku»; Citra «Cabut» through its confirmation",
+      "hasil": "SAMPAI",
+      "layar": [
+        "22-admin-ditinjau",
+        "23-admin-ratih-dikonfirmasi",
+        "24-admin-citra-cabut-tanya",
+        "25-admin-citra-dicabut"
+      ],
+      "amatan": [],
+      "data": {
+        "review_section": "SEDANG DITINJAU (2) Penilaian satu soal diperbaiki, jadi hasil sertifikat-sertifikat ini dihitung ulang. Selama ditinjau, pemeriksaan sertifikat menyebutnya sedang ditinjau. Ratih Kusuma · Perkalian Bilangan Cacah · hasil dihitung ulang 100% → 83%, target 60% · sejak 24 Nov 2026 0DE6C00N/00001 Alasan keputusan 10 sampai 300 karakter. Dicatat di log audit. Konfirmasi berlaku · 0DE6C00N/00001 Cabut Citra Lestari · Perkalian Bilangan Cacah · hasil dihitung ulang 67% → 50%, target 60% · sejak 24 Nov 2026 VZ0HKZFY/00001 Alasan keputusan 10 sampai 300 karakter. Dicatat di log audit. Konfirmasi berlaku · VZ0HKZFY/00001 Cabut",
+        "after_confirm": "✓Sertifikat dikonfirmasi berlaku. |",
+        "revoke_question": "Cabut sertifikat VZ0HKZFY/00001? Pemeriksaan sertifikat lalu menyebutnya dicabut. Cabut Batal",
+        "after_revoke": "✓Sertifikat dicabut.",
+        "certificate_Ratih": "0DE6C00N/00001 ISSUED review CONFIRMED",
+        "certificate_Citra": "VZ0HKZFY/00001 REVOKED review REVOKED"
+      },
+      "tab": 20,
+      "url": "/",
+      "ms": 7319
+    },
+    {
+      "id": "L5",
+      "judul": "«Cabut» completed: Citra's certificate page, her printed copy, the public check",
+      "hasil": "SAMPAI",
+      "layar": [
+        "26-citra-dicabut-hasil",
+        "27-citra-dicabut-sertifikat",
+        "28-citra-dicabut-sertifikat-cetak",
+        "29-publik-citra-dicabut"
+      ],
+      "amatan": [],
+      "data": {
+        "citra-dicabut-result_page": "← Perjalanan belajar Anda MATEMATIKA · PERKALIAN BILANGAN CACAH Hasil Belum lulus. Hasil Uji Penguasaan ini belum memenuhi kriteria kelulusan bab ini. Baca lagi: Perkalian · Menghitung hasil perkalian dua bilangan satu angka. Bagian ini disarankan untuk dibaca lagi. Saran ini bukan penilaian atas penguasaan Anda pada bagian ini. Anda dapat mengerjakan Uji Penguasaan lagi sesuai aturan sekolah. Tanyakan kepada guru Anda kapan dapat mengulang. 3 dari 6 soal dijawab tepat · Kesempatan ke-1 Dihitung ulang Hasil ini dihitung ulang karena penilaian satu soal diperbaiki. Hasil asli tetap tersimpan. Pada Uji Penguasaan, jawaban yang tepat dan hasil tiap soal tidak ditampilkan. Apa berikutnya → Dr. d",
+        "citra-dicabut-certificate_page": "← Semua sertifikat Sertifikat ini sudah dicabut oleh penerbitnya Sertifikat yang dicabut tidak bisa dipakai lagi sebagai bukti. Riwayatnya tetap tersimpan, dan halaman pemeriksaan akan menyatakan bahwa sertifikat ini dicabut. Ada pertanyaan? Hubungi bagian layanan sekolah Anda. PINTAR Bootstrap (OFFICIAL evidence — development and CI only) SERTIFIKAT Citra Lestari Telah dinyatakan memenuhi kriteria kelulusan yang ditetapkan berdasarkan hasil asesmen pada Materi Pembelajaran: Matematika · Perkalian Bilangan Cacah. TANGGAL TERBIT 24 November 2026 NOMOR SERTIFIKAT VZ0HKZFY/00001 PINTAR Bootstrap (OFFICIAL evidence — development and CI only) Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com",
+        "citra-dicabut-printed_copy": "PINTAR Bootstrap (OFFICIAL evidence — development and CI only) SERTIFIKAT Citra Lestari Telah dinyatakan memenuhi kriteria kelulusan yang ditetapkan berdasarkan hasil asesmen pada Materi Pembelajaran: Matematika · Perkalian Bilangan Cacah. TANGGAL TERBIT 24 November 2026 NOMOR SERTIFIKAT VZ0HKZFY/00001",
+        "public_citra-dicabut": "PEMERIKSAAN Verifikasi Sertifikat Hasil pemeriksaan untuk tautan yang Anda buka. STATUS Dicabut oleh penerbit Sertifikat ini pernah diterbitkan, lalu dicabut. Sertifikat ini tidak lagi berlaku. Seperti saat diterbitkan HASIL Lulus DITERBITKAN OLEH PINTAR Bootstrap (OFFICIAL evidence — development and CI only) TANGGAL TERBIT 24 Nov 2026 Halaman ini memastikan sertifikat yang Anda pegang benar diterbitkan. Nama pemegang tertera pada sertifikatnya. Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com"
+      },
+      "tab": 0,
+      "url": "/verifikasi/5xvlX5RbQGPE8ZXy9m37Z4vaK2-LaL6-JnNEsiZdsaE",
+      "ms": 6085
+    },
+    {
+      "id": "L6",
+      "judul": "the reissue: Admin PINTAR corrects Ratih's name; the school admin issues the replacement; what Ratih and the verifier see",
+      "hasil": "SAMPAI",
+      "layar": [
+        "30-platform-orang",
+        "31-platform-nama-dikoreksi",
+        "32-admin-daftar",
+        "33-admin-terbit-ulang",
+        "34-admin-terbit-ulang-selesai",
+        "35-ratih-pengganti-hasil",
+        "36-ratih-pengganti-sertifikat",
+        "37-ratih-pengganti-sertifikat-cetak",
+        "38-publik-ratih-lama",
+        "39-publik-ratih-pengganti"
+      ],
+      "amatan": [],
+      "data": {
+        "door": "(chosen)",
+        "name_now": "Ratih Kusumawati",
+        "reissue_panel": "Terbitkan ulang Sertifikat pengganti diterbitkan dengan nama, sekolah dan paket yang tercatat sekarang, dengan hasil yang sama dan nomor baru. Sertifikat ini tetap tersimpan, dan pemeriksaannya akan menyebut bahwa ia sudah digantikan. Data Tertulis di sertifikat Tercatat sekarang Perbandingan Pemegang Ratih Kusuma Ratih Kusumawati berbeda Sekolah PINTAR Bootstrap (OFFICIAL evidence — development and CI only) PINTAR Bootstrap (OFFICIAL evidence — development and CI only) Paket Perkalian Bilangan Cacah Perkalian Bilangan Cacah Hasil Tetap seperti di sertifikat ini; tidak pernah dihitung ulang. sama Alasan penerbitan ulang 10 sampai 300 karakter. Tercatat bersama sertifikat pengganti dan di jejak audit sekolah. Alasan ini tidak ditampilkan di halaman pemeriksaan. Terbitkan sertifikat pengganti",
+        "after_reissue": "← Konfigurasi KONFIGURASI Sertifikat sekolah Sertifikat yang sudah diterbitkan sekolah Anda. Sertifikat yang keliru diterbitkan dapat dicabut di sini; pemeriksaan keasliannya lalu menyatakannya dicabut. Sertifikat sekolah Pemegang Nomor sertifikat Materi Pembelajaran Diterbitkan Keadaan Tindakan Ratih Kusumawati 0DE6C00N/00002 Perkalian Bilangan Cacah 24 Nov 2026 Berlaku Cabut Citra Lestari VZ0HKZFY/00001 Perkalian Bilangan Cacah 24 Nov 2026 Dicabut — Ratih Kusumawati 0DE6C00N/00001 Perkalian Bi",
+        "certificate_Ratih": "0DE6C00N/00001 SUPERSEDED review CONFIRMED; 0DE6C00N/00002 ISSUED",
+        "ratih-pengganti-result_page": "← Perjalanan belajar Anda MATEMATIKA · PERKALIAN BILANGAN CACAH Hasil Lulus. Hasil Uji Penguasaan ini memenuhi kriteria kelulusan bab ini. Lihat sertifikat 5 dari 6 soal dijawab tepat · Kesempatan ke-1 Dihitung ulang Hasil ini dihitung ulang karena penilaian satu soal diperbaiki. Hasil asli tetap tersimpan. Pada Uji Penguasaan, jawaban yang tepat dan hasil tiap soal tidak ditampilkan. Apa berikutnya → Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com",
+        "ratih-pengganti-certificate_page": "← Semua sertifikat Sertifikat ini sudah digantikan dengan yang lebih baru Penerbit membuat sertifikat pengganti. Gunakan yang baru; yang ini tetap tercatat. Buka sertifikat yang baru 0DE6C00N/00002 PINTAR Bootstrap (OFFICIAL evidence — development and CI only) SERTIFIKAT Ratih Kusuma Telah dinyatakan memenuhi kriteria kelulusan yang ditetapkan berdasarkan hasil asesmen pada Materi Pembelajaran: Matematika · Perkalian Bilangan Cacah. TANGGAL TERBIT 24 November 2026 NOMOR SERTIFIKAT 0DE6C00N/00001 PINTAR Bootstrap (OFFICIAL evidence — development and CI only) Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com",
+        "ratih-pengganti-printed_copy": "PINTAR Bootstrap (OFFICIAL evidence — development and CI only) SERTIFIKAT Ratih Kusuma Telah dinyatakan memenuhi kriteria kelulusan yang ditetapkan berdasarkan hasil asesmen pada Materi Pembelajaran: Matematika · Perkalian Bilangan Cacah. TANGGAL TERBIT 24 November 2026 NOMOR SERTIFIKAT 0DE6C00N/00001",
+        "public_ratih-lama": "PEMERIKSAAN Verifikasi Sertifikat Hasil pemeriksaan untuk tautan yang Anda buka. STATUS Digantikan sertifikat yang lebih baru Penerbit telah menerbitkan sertifikat pengganti. Mintalah sertifikat yang baru kepada pemegangnya. HASIL Lulus DITERBITKAN OLEH PINTAR Bootstrap (OFFICIAL evidence — development and CI only) TANGGAL TERBIT 24 Nov 2026 Halaman ini memastikan sertifikat yang Anda pegang benar diterbitkan. Nama pemegang tertera pada sertifikatnya. Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com",
+        "public_ratih-pengganti": "PEMERIKSAAN Verifikasi Sertifikat Hasil pemeriksaan untuk tautan yang Anda buka. STATUS Berlaku Sertifikat ini benar diterbitkan dan masih berlaku. HASIL Lulus DITERBITKAN OLEH PINTAR Bootstrap (OFFICIAL evidence — development and CI only) TANGGAL TERBIT 24 Nov 2026 Halaman ini memastikan sertifikat yang Anda pegang benar diterbitkan. Nama pemegang tertera pada sertifikatnya. Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com"
+      },
+      "tab": 39,
+      "url": "/verifikasi/Merq102WakeKxBhgCMn4_WyO6eh0QBWRF5TF5uiENnE",
+      "ms": 49257
+    }
+  ],
+  "selesai": "2026-11-24T15:08:30.896Z",
+  "sampai_akhir": true
+}

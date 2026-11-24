@@ -1,0 +1,40 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - navigation "Belajar":
+    - link "Belajar":
+      - /url: /belajar
+    - link "Sertifikat":
+      - /url: /belajar/sertifikat
+  - button "Bantuan"
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - link "← Semua sertifikat":
+    - /url: /belajar/sertifikat
+  - status:
+    - heading "Sertifikat ini sudah dicabut oleh penerbitnya" [level=2]
+    - paragraph: Sertifikat yang dicabut tidak bisa dipakai lagi sebagai bukti. Riwayatnya tetap tersimpan, dan halaman pemeriksaan akan menyatakan bahwa sertifikat ini dicabut.
+    - paragraph: Ada pertanyaan? Hubungi bagian layanan sekolah Anda.
+  - article:
+    - paragraph: PINTAR Bootstrap (OFFICIAL evidence — development and CI only)
+    - paragraph: Sertifikat
+    - heading "Citra Lestari" [level=1]
+    - paragraph: "Telah dinyatakan memenuhi kriteria kelulusan yang ditetapkan berdasarkan hasil asesmen pada Materi Pembelajaran:"
+    - paragraph: Matematika · Perkalian Bilangan Cacah.
+    - separator
+    - term: Tanggal terbit
+    - definition: 24 November 2026
+    - term: Nomor sertifikat
+    - definition: 6TP79263/00001
+  - text: PINTAR Bootstrap (OFFICIAL evidence — development and CI only) Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- alert

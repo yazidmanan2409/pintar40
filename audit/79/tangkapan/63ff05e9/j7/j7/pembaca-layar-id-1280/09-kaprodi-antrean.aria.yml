@@ -1,0 +1,45 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - strong: PINTAR Bootstrap (OFFICIAL evidence — development and CI only)
+    - link "Mau ke mana hari ini?":
+      - /url: /
+    - link "Pimpinan":
+      - /url: /pimpinan
+    - link "Studio":
+      - /url: /studio
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fstudio%2Ftinjau
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Made Wirawan":
+      - strong: Made Wirawan
+    - button "Keluar"
+- main:
+  - heading "Studio" [level=1]
+  - navigation "Studio":
+    - link "Studio":
+      - /url: /studio
+    - link "Buat Paket":
+      - /url: /studio/unggah
+    - link "Antrean Tinjauan":
+      - /url: /studio/tinjau
+    - link "Pustaka PINTAR":
+      - /url: /studio/kanonik
+    - link "Bank Soal":
+      - /url: /studio/bank
+    - link "Tinjauan Integritas":
+      - /url: /studio/integritas
+  - heading "Antrean Tinjauan" [level=2]
+  - region "Perbaikan kunci menunggu konfirmasi":
+    - heading "Perbaikan kunci menunggu konfirmasi" [level=3]
+    - link "Perbaikan kunci jawaban Soal di Perkalian Bilangan Cacah · kunci A → B · diusulkan Yohana Simanjuntak, 24 Nov 2026, 22.03 WIB":
+      - /url: /studio/tinjau/kunci/42ce49f2-1dfd-42de-9b50-523697f8e325
+  - paragraph: Tidak ada yang menunggu tinjauan Anda.
+- alert

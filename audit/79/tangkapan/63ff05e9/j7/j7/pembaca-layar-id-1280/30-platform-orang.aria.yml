@@ -1,0 +1,95 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - strong: Seluruh platform
+    - link "Mau ke mana hari ini?":
+      - /url: /
+    - link "Konfigurasi":
+      - /url: /konfigurasi
+    - link "Aktivasi akun":
+      - /url: /aktivasi
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Faktivasi%2Forang
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Hendra Kusuma":
+      - strong: Hendra Kusuma
+    - button "Keluar"
+- main:
+  - link "← Aktifkan akun":
+    - /url: /aktivasi
+  - paragraph: Akun
+  - heading "Koreksi data orang" [level=1]
+  - paragraph: Semua orang yang punya akun email. Koreksi alamat email, nama, atau username dengan alasan; setiap koreksi dicatat.
+  - searchbox "Cari orang": Ratih Kusuma
+  - link "Hapus pencarian":
+    - /url: /aktivasi/orang#pin-orang
+  - paragraph: 1 orang cocok dengan «Ratih Kusuma»
+  - region "Koreksi data orang":
+    - table "Koreksi data orang":
+      - caption: Koreksi data orang
+      - rowgroup:
+        - row "Nama PINTAR ID Email Username Akun Tindakan":
+          - columnheader "Nama"
+          - columnheader "PINTAR ID"
+          - columnheader "Email"
+          - columnheader "Username"
+          - columnheader "Akun"
+          - columnheader "Tindakan"
+      - rowgroup:
+        - row "Ratih Kusuma EW9Q XW09 ratih.kusuma@dunia.pintar.test — ✓ Aktif Koreksi":
+          - rowheader "Ratih Kusuma"
+          - cell "EW9Q XW09"
+          - cell "ratih.kusuma@dunia.pintar.test"
+          - cell "—"
+          - cell "✓ Aktif"
+          - cell "Koreksi":
+            - link "Koreksi":
+              - /url: /aktivasi/orang?pilih=1b33d702-b6f9-4796-839f-275d32675500&cari=Ratih+Kusuma#koreksi
+  - navigation "Halaman daftar orang":
+    - text: Menampilkan 1–1 dari 1 orang
+    - link "Halaman sebelumnya" [disabled]: Sebelumnya
+    - text: Halaman 1 dari 1
+    - link "Halaman berikutnya" [disabled]: Berikutnya
+  - region "Koreksi · Ratih Kusuma":
+    - heading "Koreksi · Ratih Kusuma" [level=2]
+    - paragraph: PINTAR Bootstrap (OFFICIAL evidence — development and CI only) · Aktif
+    - heading "Alamat email" [level=3]
+    - paragraph: "Sekarang: ratih.kusuma@dunia.pintar.test"
+    - text: Alamat yang benar
+    - textbox "Alamat yang benar"
+    - text: Alasan
+    - paragraph: Mengapa dikoreksi. Dicatat bersama koreksinya.
+    - textbox "Alasan"
+    - button "Koreksi email"
+    - heading "Nama" [level=3]
+    - paragraph: Sertifikat yang sudah terbit tetap memakai nama saat diterbitkan.
+    - text: Nama yang benar
+    - textbox "Nama yang benar": Ratih Kusuma
+    - text: Alasan
+    - paragraph: Mengapa dikoreksi. Dicatat bersama koreksinya.
+    - textbox "Alasan"
+    - button "Koreksi nama"
+    - status
+    - heading "Username" [level=3]
+    - paragraph: Username dipakai untuk masuk. Beri tahu orangnya username yang baru.
+    - text: Username yang benar
+    - paragraph: "4–20 karakter: huruf kecil, angka, titik, garis bawah; diawali huruf."
+    - textbox "Username yang benar"
+    - text: Alasan
+    - paragraph: Mengapa dikoreksi. Dicatat bersama koreksinya.
+    - textbox "Alasan"
+    - button "Koreksi username"
+    - status
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- alert
