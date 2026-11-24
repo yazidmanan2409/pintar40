@@ -1,6 +1,11 @@
 # Request for legal advice, part 2: PINTAR's first use (a draft for the owner)
 
-**Status:** FINAL (24 Nov). FIT TO SEND (Sharon, `COUNSEL-BRIEF-P2-371e3b48.md`). **Scope and fees are subject to the owner's separate approval.** with the provider locations as stated. Supabase and the `pintarselalu.com` hosting server (Singapore) were confirmed by the owner on 24 Nov. Namecheap's possible additional relay or processing locations are stated as unverified. **Both email routes use this one host (owner-confirmed, 24 Nov):** Supabase Auth's SMTP, and the app's own activation and recovery emails (production `PINTAR_SMTP_HOST` = `pintarselalu.com`). The backup is a proposal and is stated as such. Prepared by Bob on 24 Nov 2026 (ruling 89; readiness register PR-1, PR-2 and PR-19). It is for Sharon's check, then the owner's confirmation of scope.
+**Status:** FINAL (24 Nov 2026). Prepared by Bob (ruling 89; readiness register PR-1, PR-2 and PR-19). Sharon: FIT TO SEND (`COUNSEL-BRIEF-P2-371e3b48.md`). **Scope and fees are subject to the owner's separate approval.**
+- **Provider locations, owner-confirmed on 24 Nov:**
+  - Supabase: Singapore.
+  - The `pintarselalu.com` mail hosting server: Singapore. **Both email routes use it:** Supabase Auth's SMTP, and the app's own activation and recovery emails (production `PINTAR_SMTP_HOST` = `pintarselalu.com`).
+- **Unverified, and stated as such:** any further relay or processing locations Namecheap may use.
+- **A proposal only:** the off-site backup.
 - **It follows part 1** (`COUNSEL-BRIEF-RULING85.md`, the AI questions), which stays unchanged and fit to send.
 - **Fees:** the estimate requested in part 1 must be **re-confirmed for both parts together** before any work begins. No fees are incurred until the owner confirms in writing.
 
