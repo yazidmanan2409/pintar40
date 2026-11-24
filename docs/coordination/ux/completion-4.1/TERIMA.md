@@ -97,3 +97,4 @@
 | 24 Nov, 00:45 | — (planned next, after Z) | D2-R words before the build | `claude/z` `a8d9ff27` | `D2R-KATA.md`: R-h result words, R-g line, R-a/R-b confirmed with one term decision («Materi» vs «Paket Pembelajaran»), §6.3a (`verifikasi.lulus` → «Lulus») |
 | 24 Nov, 00:58 | Bob (ruling 89) | Tasks: 1a D2-R pre-code; 3b audit scripts; 3a ledger mapping; 2b readiness register | `claude/next-base` `055738ba` | 1a done: `D2R-KATA.md` verdict added; 3b next |
 | 24 Nov, 01:05 | Bob (ruling 89, 3b) | Audit journey scripts, final | `claude/next-base` `055738ba` | `../roadmap/AUDIT-79-SKRIP-PERJALANAN.md`, with 19 world states for 3c |
+| 24 Nov, 01:06 | Bob (ruling 89, 2b) | Register draft 2: PR-12, PR-15, PR-19 | `7aae24e0` | `BACA-REGISTER-PR12-15-19.md`: one gap (`lapor.langkah.*` promise depends on PR-12/15), two small notes |
