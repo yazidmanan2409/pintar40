@@ -1,6 +1,6 @@
 -- Ruling 79's audit world (track 3c), fixture W8 (J3's «the gate unknown»): a per-journey fixture, applied to the world
 -- already loaded (muat.sh --fiksasi w8), never part of the shared world. Apply it on a fresh world (not after W7).
---   Sinta's W6 result (83 % against 60 %) with its gate UNREADABLE: the result row's safety_gate_passed is null, as a
+--   Sinta's result (J3's, in the dev/CI bootstrap tenant: 83 % against 60 %) with its gate UNREADABLE: the result row's safety_gate_passed is null, as a
 --   result recorded before the gate was stored reads, and as Z's captures met it (a read that is withheld or fails gives
 --   the screens the same null). Due on all three surfaces: «…tak_diketahui», and nobody pre-ticked.
 --   A FIXTURE-ONLY STATE, WRITTEN PAST TODAY'S GUARD: a result row is written only by scoring (assessment_results_write),
@@ -10,7 +10,7 @@
 --   penjaga hari ini)».
 do $$ begin perform set_config('app.seed_intent', 'synthetic', true); end $$;
 do $$
-declare s uuid := dunia.ambil('w6.sesi')::uuid; n int;
+declare s uuid := dunia.ambil('j3.sesi')::uuid; n int;
 begin
   perform dunia.jaga();
   alter table public.assessment_results disable trigger assessment_results_write;
