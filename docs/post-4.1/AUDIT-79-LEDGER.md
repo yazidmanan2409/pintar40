@@ -276,3 +276,21 @@ Nine findings: 5 Significant, 4 Improvement, none Critical. **The core cross-rol
 | L-80 (J5-2) | The home's «Layak dikerjakan lebih dulu» suggests the «(8B)» copy for 8A, which already runs that chapter, and doesn't mention 8C, which has nothing | A, H | J5 | Improvement | C-4 | Partly world data (same-name publications): **the builder confirms** |
 | L-81 (J5-3) | 8C's Langkah offers Uji Cepat, which dead-ends with no link onward | H | J5 | Improvement | C-7 | — |
 | L-82 (J5-4) | Siapkan's certificate step still says «bila murid memenuhi capaian» | B | J5 | Improvement | C-6 | **A D2-R §4 sibling missed by its sweep** (like L-44): it should say «lulus Uji Penguasaan» |
+
+**J10 confidentiality marking (Daisy, `c3dc8088`; ruling 96):** L-75 reveals the closed state, but only to the holder of the correct password; Sharon decides, and it's blocked on L-78. **The no-reveal fallback** is one line for everyone: «Bila akun Anda sudah ditutup, password yang benar pun tidak dapat dipakai untuk masuk. Minta dibuka kembali.» L-76 and L-77 reveal nothing.
+
+## J6 walked (Daisy, `AUDIT-79-TEMUAN-J6.md` `6b1c6d0f`; 24 Nov)
+
+**AI provenance holds:**
+- each draft reads «Draf dari AI · Disusun dengan AI (penyedia lokal (stand-in), …) … diminta oleh …»;
+- the head counts «5 dari 8 soal disusun dengan AI»;
+- the learner preview has no AI wording;
+- W13 has no AI button.
+
+**World question (builder):** W12's second AI request was ADMITTED (two DRAFTED) rather than refused AI_JATAH_HABIS, probably because the stand-in settles far below its reservation, so «allowance used up» wasn't reachable. **From the builder's run:** «Ajukan» → reviewer → approval, the ceilings, a learner-data source, and a stale form. The app must run with `PINTAR_AI_STUB_HARNESS=1` and the `PINTAR_SMTP_*` sink, as in CI.
+
+| L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
+|---|---|---|---|---|---|---|
+| L-83 (J6-1) | The package head says only «Perlu tindakan · Ada yang bisa Anda selesaikan sekarang»; the step itself is named only at the bottom | A, H | J6 | Improvement | C-4 | — |
+| L-84 (J6-2) | «Terima» gives no confirmation line | D | J6 | Improvement | — | — |
+| L-85 (J6-3) | The AI allowance is never shown before a request | A | J6 | Improvement | — | **Sharon decides** whether a figure may be shown to teachers |
