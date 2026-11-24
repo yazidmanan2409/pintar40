@@ -241,7 +241,7 @@ for (const lebar of LEBAR) {
     await pilihOpsi(rec, "select[name=course]", /Bilangan sampai 20/);
     rec.tab += await j.ketik(page.locator("input[name=judul]").first(), "Uji Penguasaan Bilangan", 30);
     rec.tab += await j.ketik(page.locator("#definisi-jumlah"), "5", 60);
-    rec.tab += await j.tekan(page.getByRole("button", { name: /^(Simpan aturan|Buat aturan|Save the rule|Create the rule|Simpan)/ }).first(), 100);
+    rec.tab += await j.tekan(page.getByRole("button", { name: /^(Buat aturan|Create rule)/ }).first(), 100);
     await tunggu();
     await foto("aturan-dibuat");
     data("made", await pesan());
