@@ -397,6 +397,37 @@ export const d2rTests: SelfTest[] = [
     },
   },
   {
+    id: "D2R-L01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const { t } = await import("../src/lib/hle");
+      // ruling 90, Daisy's D2R-KATA §10 (ccd42fa6): the support screen's next step says only what the product does today
+      const KATA: Array<[string, string, string]> = [
+        ["lapor.langkah.awal", "Laporan ini sudah tersimpan. Admin sekolah Anda dan tim PINTAR dapat membacanya.",
+          "This report is saved. Your school admin and the PINTAR team can read it."],
+        ["lapor.langkah.awal_kelas", "Laporan ini ditandai menghentikan kelas. Admin sekolah Anda dan tim PINTAR melihat tanda itu, dan laporan ini tampil lebih dulu di antara laporan yang belum ditangani.",
+          "This report is marked as stopping a class. Your school admin and the PINTAR team see that mark, and it is listed first among reports not yet handled."],
+      ];
+      const PERIODE = /\b(hari|jam|menit|minggu|day|days|hour|hours|minute|minutes|week)\b/i;
+      for (const [k, idT, en] of KATA) {
+        const a = t(k as never, "staff", { locale: "id" }), b = t(k as never, "staff", { locale: "en" });
+        c.expect(a === idT, `${k} (ID) reads «${a}», expected «${idT}»`);
+        c.expect(b === en, `${k} (EN) reads «${b}», expected «${en}»`);
+        c.expect(!PERIODE.test(a) && !PERIODE.test(b), `${k} names a time period (ruling 90): «${a}» / «${b}»`);
+      }
+      c.expect(PERIODE.test("dalam satu hari sekolah") && PERIODE.test("within one hour"), "the time-period guard does not catch a planted period");
+      // «tampil lebih dulu di antara laporan yang belum ditangani» is true because a new report is DITERIMA, the enum's
+      // first value, and the triage list orders by status, then stops_class first (lapor-masalah.ts)
+      const mig = baca(ctx.repoRoot, "supabase/migrations/20261119100000_a_staff_member_reports_a_problem.sql");
+      c.expect(/create type public\.support_report_status as enum \('DITERIMA', 'DITANGANI', 'SELESAI'\)/.test(mig) && /status\s+public\.support_report_status not null default 'DITERIMA'/.test(mig),
+        "a new report is not DITERIMA, the status enum's first value");
+      const lib = tanpaKomentar(baca(ctx.repoRoot, "src/lib/lapor-masalah.ts")).replace(/\s+/g, " ");
+      c.expect(/\.neq\("status", "SELESAI"\) \.order\("status"\)\.order\("stops_class", \{ ascending: false \}\)/.test(lib),
+        "the triage list does not order the reports not yet handled by status, then stops_class first");
+      return c.verdict("Daisy's §10 lines read word for word in ID and EN and name no time period (a planted period is caught); a new report is DITERIMA, the enum's first value, and the triage list orders open reports by status then stops_class first, so among reports not yet handled a class-stopping one is listed first");
+    },
+  },
+  {
     id: "D2R-F02",
     run: async (ctx) => {
       const c = new Checks();
