@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| Readiness register draft 2 (second pass) | accurate; 4 additions (dispatch rights, Z production carry-overs, pilot admin cover, PRQ-1) | 7aae24e0 | [READINESS-REGISTER-D2-7aae24e0.md](READINESS-REGISTER-D2-7aae24e0.md) |
 | Ruling 83 infra safety (siap/bersih/preflight) | PASS w/ conditions; (4) VOID rule FAIL until S-1 (RED precedence, corroboration); S-2 siap log keys | c1f04845 | [INFRA83-SAFETY-c1f04845.md](INFRA83-SAFETY-c1f04845.md) |
 | Z9 ruling 86: CI ≡ local pre-flight | CONFIRMED with 3 run-of-record conditions | 9a819a7c | [Z9-EQUIVALENCE-9a819a7c.md](Z9-EQUIVALENCE-9a819a7c.md) |
 | Counsel brief (ruling 85) | NOT YET fit to send: 5 corrections (excerpt check, retention, tools, Q6 locations, Q4 wording) | a744f91a | [COUNSEL-BRIEF-R85-a744f91a.md](COUNSEL-BRIEF-R85-a744f91a.md) |
