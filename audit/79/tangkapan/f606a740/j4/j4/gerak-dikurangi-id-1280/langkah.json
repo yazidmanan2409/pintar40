@@ -1,0 +1,106 @@
+{
+  "perjalanan": "j4",
+  "nama": "Galih · guru 8A",
+  "lebar": 1280,
+  "zona": "WIB",
+  "bahasa": "id",
+  "laluan": "gerak-dikurangi",
+  "label": [],
+  "mulai": "2026-11-24T13:17:13.986Z",
+  "langkah": [
+    {
+      "id": "L1",
+      "judul": "Galih returns: the open test needs his teacher's permission",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-galih-perlu-izin"
+      ],
+      "amatan": [],
+      "data": {
+        "words": "Matematika · Kelas 8 · Persamaan Linear Satu Variabel Asesmen ini perlu diizinkan guru Anda untuk dilanjutkan. Karena Anda masuk lagi atau berganti perangkat, Uji Penguasaan ini hanya dapat dilanjutkan bila guru Anda mengizinkannya. Permintaan Anda tampil di daftar kelas guru Anda. Beri tahu guru Anda juga: Uji Penguasaan · Persamaan Linear Satu Variabel. Setelah guru mengizinkan, pilih Coba lagi. Coba lagi Kembali ke Belajar",
+        "permission_needed": true,
+        "sittings": "IN_PROGRESS answered 2"
+      },
+      "tab": 0,
+      "url": "/",
+      "ms": 4416
+    },
+    {
+      "id": "L2",
+      "judul": "the teacher allows it",
+      "hasil": "SAMPAI",
+      "layar": [
+        "02-guru-siapa-permintaan",
+        "03-guru-diizinkan"
+      ],
+      "amatan": [],
+      "data": {
+        "teacher_allow_question": "Izinkan Galih Pratama melanjutkan Uji Penguasaan setelah masuk lagi? Sesi sebelumnya tidak menyimpan jawabannya lagi. Jawaban yang sudah tersimpan tetap ada. Tindakan ini dicatat.",
+        "teacher_allow_words": "✓Galih Pratama dapat melanjutkan sampai pukul 20.27 WIB."
+      },
+      "tab": 25,
+      "url": "/",
+      "ms": 6724
+    },
+    {
+      "id": "L3",
+      "judul": "Galih resumes; the network is lost while he answers one more, then returns",
+      "hasil": "SAMPAI",
+      "layar": [
+        "04-galih-dilanjutkan",
+        "05-luring-soal-1",
+        "06-galih-luring",
+        "07-galih-tersambung"
+      ],
+      "amatan": [
+        "before IN_PROGRESS answered 2 · offline IN_PROGRESS answered 2 · back online IN_PROGRESS answered 3"
+      ],
+      "data": {
+        "resumed_words": "Anda melanjutkan di sini. Jangan keluar dari akun sampai asesmen ini selesai: untuk melanjutkan lagi, guru perlu mengizinkan sekali lagi. Waktu berjalan 00:17 Simpan & Jeda Daftar soal Pilih SEMUA langkah yang benar untuk menyelesaikan 4x − 8 = 12. A Bagi kedua ruas dengan 4: x = 5 B Kurangi 8 dari ruas kanan saja: 4x = 4 C Bagi ruas kiri saja dengan 4: x − 8 = 12 D Tambahkan 8 pada kedua ruas: 4x",
+        "answered_offline": {
+          "soal": 1,
+          "bantuan_ditawarkan_di": [],
+          "berhenti": true
+        },
+        "offline_words": "Anda melanjutkan di sini. Jangan keluar dari akun sampai asesmen ini selesai: untuk melanjutkan lagi, guru perlu mengizinkan sekali lagi. | Waktu berjalan 00:20 | Sudah dijawab: 2 dari 6. |",
+        "sittings_while_offline": "IN_PROGRESS answered 2",
+        "online_words": "Anda melanjutkan di sini. Jangan keluar dari akun sampai asesmen ini selesai: untuk melanjutkan lagi, guru perlu mengizinkan sekali lagi. | Waktu berjalan 00:26 | Sudah dijawab: 3 dari 6. |",
+        "sittings_after_online": "IN_PROGRESS answered 3"
+      },
+      "tab": 26,
+      "url": "/",
+      "ms": 12432
+    },
+    {
+      "id": "L4",
+      "judul": "the teacher ends it, scored; then both views",
+      "hasil": "SAMPAI",
+      "layar": [
+        "08-guru-akhiri-pilih",
+        "09-guru-akhiri-tanya",
+        "10-guru-diakhiri",
+        "11-akhir-galih-belajar",
+        "12-akhir-galih-uji",
+        "13-akhir-galih-hasil",
+        "14-akhir-guru-mengajar",
+        "15-akhir-guru-siapa"
+      ],
+      "amatan": [],
+      "data": {
+        "end_question": "(no dialog)",
+        "end_words": "✓Sesi Galih Pratama diakhiri. Jawaban yang ada dinilai.",
+        "sittings_after_end": "FINALIZED answered 3 result 0.5000",
+        "akhir-learner_home": "BELAJAR Halo, Galih Ini yang sedang berjalan hari ini. LANGKAH BERIKUTNYA Matematika · Persamaan Linear Satu Variabel Selesai Pemetaan Awal Peta Bacaan Personal Pelajaran Uji Penguasaan Hasil Lihat hasil Lihat semua langkah PEMBELAJARAN ANDA MATEMATIKA · KELAS 8 Persamaan Linear Satu Variabel Pemetaan Awal Peta Bacaan Personal Pelajaran Uji Penguasaan Hasil Selesai · belum mencapai target Lihat ha",
+        "akhir-learner_test_page": "← Perjalanan belajar Anda MATEMATIKA · PERSAMAAN LINEAR SATU VARIABEL Hasil Belum lulus. Hasil Uji Penguasaan ini belum memenuhi kriteria kelulusan bab ini. Baca lagi: Kalimat Terbuka dan Persamaan · Mengenali persamaan linear satu variabel. Persamaan dalam Soal Cerita · Menyusun persamaan dari soal cerita. Bagian ini disarankan untuk dibaca lagi. Saran ini bukan penilaian atas penguasaan Anda pada bagian ini. Anda dapat mengerjakan Uji Penguasaan lagi sesuai aturan sekolah. Tanyakan kepada guru Anda kapan dapat mengulang. 3 dari 6 soal dijawab tepat · Kesempatan ke-1 Pada Uji Penguasaan, jawa",
+        "akhir-learner_result_page": "← Perjalanan belajar Anda MATEMATIKA · PERSAMAAN LINEAR SATU VARIABEL Hasil Belum lulus. Hasil Uji Penguasaan ini belum memenuhi kriteria kelulusan bab ini. Baca lagi: Kalimat Terbuka dan Persamaan · Mengenali persamaan linear satu variabel. Persamaan dalam Soal Cerita · Menyusun persamaan dari soal cerita. Bagian ini disarankan untuk dibaca lagi. Saran ini bukan penilaian atas penguasaan Anda pada bagian ini. Anda dapat mengerjakan Uji Penguasaan lagi sesuai aturan sekolah. Tanyakan kepada guru",
+        "akhir-teacher_home": "SMP Sintetis Cendekia / TA 2026/2027 SELASA, 24 NOV 2026 Selamat malam, Dimas Saputra Satu hal yang paling layak dikerjakan lebih dulu, lalu kelas dalam lingkup mengajar Anda. Layak dikerjakan lebih dulu Persamaan Linear Satu Variabel (8B) sudah diterbitkan sekolah, tetapi belum disediakan untuk 8A Sudah diterbitkan sekolah dan bisa disediakan kapan pun Anda siap. Siapkan Persamaan Linear Satu Variabel (8B) untuk 8A Lihat 8A KELAS DALAM LINGKUP MENGAJAR ANDA Berdasarkan penugasan dari sekolah. P",
+        "akhir-teacher_row": "Galih Pratama Diakhiri 20.18 WIB · jawaban yang ada dinilai Diakhiri guru · dinilai"
+      },
+      "tab": 59,
+      "url": "/",
+      "ms": 49049
+    }
+  ],
+  "selesai": "2026-11-24T13:18:26.663Z",
+  "sampai_akhir": true
+}

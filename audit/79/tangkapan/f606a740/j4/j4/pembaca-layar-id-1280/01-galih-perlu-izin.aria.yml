@@ -1,0 +1,18 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - paragraph: Matematika · Kelas 8 · Persamaan Linear Satu Variabel
+  - heading "Asesmen ini perlu diizinkan guru Anda untuk dilanjutkan." [level=2]
+  - status: "Karena Anda masuk lagi atau berganti perangkat, Uji Penguasaan ini hanya dapat dilanjutkan bila guru Anda mengizinkannya. Permintaan Anda tampil di daftar kelas guru Anda. Beri tahu guru Anda juga: Uji Penguasaan · Persamaan Linear Satu Variabel. Setelah guru mengizinkan, pilih Coba lagi."
+  - button "Coba lagi"
+  - link "Kembali ke Belajar":
+    - /url: /belajar
+- alert

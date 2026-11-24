@@ -1,0 +1,43 @@
+{
+  "perjalanan": "j4-cabang-tidak-dihitung",
+  "nama": "Galih · guru 8A",
+  "lebar": 1280,
+  "zona": "WIB",
+  "bahasa": "id",
+  "laluan": "standar",
+  "label": [],
+  "mulai": "2026-11-24T13:23:21.103Z",
+  "langkah": [
+    {
+      "id": "C1",
+      "judul": "the teacher ends it not counted; then both views",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-guru-akhiri-pilih",
+        "02-guru-akhiri-tanya",
+        "03-guru-diakhiri",
+        "04-galih-belajar",
+        "05-galih-uji",
+        "06-galih-hasil",
+        "07-guru-mengajar",
+        "08-guru-siapa"
+      ],
+      "amatan": [],
+      "data": {
+        "end_question": "(no dialog)",
+        "end_words": "✓Sesi Galih Pratama diakhiri tanpa dihitung. Tidak memakai kesempatan.",
+        "sittings_after_end": "TERMINATED answered 2",
+        "learner_home": "BELAJAR Halo, Galih Ini yang sedang berjalan hari ini. LANGKAH BERIKUTNYA Matematika · Persamaan Linear Satu Variabel Siap untuk Uji Penguasaan Pemetaan Awal Peta Bacaan Personal Pelajaran Uji Penguasaan Hasil Asesmen ini tidak dihitung dan tidak memakai kesempatan Anda. Jawaban yang sudah tersimpan tetap ada. Lanjutkan Uji Penguasaan Lihat semua langkah PEMBELAJARAN ANDA MATEMATIKA · KELAS 8 Pers",
+        "learner_test_page": "← Perjalanan belajar Anda MATEMATIKA · KELAS 8 · PERSAMAAN LINEAR SATU VARIABEL Uji Penguasaan Kerjakan dengan tenang. Anda bisa menandai soal dan kembali lagi. Selama Uji Penguasaan, petunjuk, contoh, dan arah berpikir tidak tersedia. JUMLAH SOAL 6 DITUTUP Minggu, 23 Mei 2027 YANG BISA DILAKUKAN Menandai soal dan kembali lagi Menyimpan dan menjeda, lalu melanjutkan nanti Tentang catatan sesi Selama asesmen, aktivitas sesi tertentu dapat dicatat untuk menjaga integritas proses. Catatan ini merupakan observasi dan tidak menentukan hasil Anda secara otomatis. Mulai Uji Penguasaan Nanti saja Dr. ",
+        "learner_result_page": "PINTAR Halaman ini tidak ada Alamatnya mungkin keliru, atau halaman ini sudah dipindahkan. Ke halaman awal",
+        "teacher_home": "SMP Sintetis Cendekia / TA 2026/2027 SELASA, 24 NOV 2026 Selamat malam, Dimas Saputra Satu hal yang paling layak dikerjakan lebih dulu, lalu kelas dalam lingkup mengajar Anda. Layak dikerjakan lebih dulu Persamaan Linear Satu Variabel (8B) sudah diterbitkan sekolah, tetapi belum disediakan untuk 8A Sudah diterbitkan sekolah dan bisa disediakan kapan pun Anda siap. Siapkan Persamaan Linear Satu Variabel (8B) untuk 8A Lihat 8A KELAS DALAM LINGKUP MENGAJAR ANDA Berdasarkan penugasan dari sekolah. P",
+        "teacher_row": "Galih Pratama Diakhiri 20.23 WIB · tidak dihitung, tidak memakai kesempatan Diakhiri guru · tidak dihitung"
+      },
+      "tab": 59,
+      "url": "/",
+      "ms": 49777
+    }
+  ],
+  "selesai": "2026-11-24T13:24:10.881Z",
+  "sampai_akhir": true
+}

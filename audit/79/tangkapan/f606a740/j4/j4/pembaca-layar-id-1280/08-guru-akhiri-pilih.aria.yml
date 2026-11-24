@@ -1,0 +1,139 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - text: Mengajar
+    - strong: SMP Sintetis Cendekia
+    - link "Mengajar":
+      - /url: /mengajar
+    - link "Studio":
+      - /url: /studio
+  - button "Bantuan"
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fmengajar%2F246a36da-e289-49c8-a74b-544eddd2e7f0%2Fsiapa
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Dimas Saputra":
+      - strong: Dimas Saputra
+    - button "Keluar"
+- main:
+  - link "← 8A":
+    - /url: /mengajar/246a36da-e289-49c8-a74b-544eddd2e7f0
+  - text: SMP Sintetis Cendekia 8A TA 2026/2027
+  - paragraph: Uji Penguasaan — Persamaan Linear Satu Variabel
+  - heading "Siapa yang sudah mengumpulkan" [level=1]
+  - paragraph: Tiga daftar nama, diurutkan abjad. Bukan peringkat, bukan penilaian, dan tidak menyebut sebabnya — PINTAR tidak tahu sebabnya.
+  - navigation "Instrumen":
+    - link "Pemetaan Awal":
+      - /url: /mengajar/246a36da-e289-49c8-a74b-544eddd2e7f0/siapa?penugasan=3962cea0-0441-4795-8a9e-f972c13a6494
+    - link "Uji Penguasaan":
+      - /url: /mengajar/246a36da-e289-49c8-a74b-544eddd2e7f0/siapa?penugasan=161494c6-225c-445f-b4bf-f4ca90508f48
+  - region "murid":
+    - heading "murid" [level=2]
+    - searchbox "Cari murid"
+    - radiogroup "Tampilkan":
+      - radio "Semua" [checked]
+      - text: Semua
+      - radio "Sudah mengumpulkan · 1"
+      - text: Sudah mengumpulkan · 1
+      - radio "Sudah mulai, belum mengumpulkan · 1"
+      - text: Sudah mulai, belum mengumpulkan · 1
+      - radio "Belum mengerjakan · 3"
+      - text: Belum mengerjakan · 3
+    - region "Siapa yang sudah mengumpulkan · 8A":
+      - table "Siapa yang sudah mengumpulkan · 8A":
+        - caption: Siapa yang sudah mengumpulkan · 8A
+        - rowgroup:
+          - row "Nama Keadaan":
+            - columnheader "Nama"
+            - columnheader "Keadaan"
+        - rowgroup:
+          - row "Galih Pratama Mulai 20.14 WIB · sisa 259199 menit Atur · Galih Pratama Sudah mulai, belum mengumpulkan":
+            - rowheader "Galih Pratama Mulai 20.14 WIB · sisa 259199 menit Atur · Galih Pratama":
+              - link "Galih Pratama":
+                - /url: /mengajar/246a36da-e289-49c8-a74b-544eddd2e7f0/murid/2e012518-0d98-4069-9560-a0c5653b907c
+              - text: Mulai 20.14 WIB · sisa 259199 menit
+              - link "Atur · Galih Pratama":
+                - /url: /mengajar/246a36da-e289-49c8-a74b-544eddd2e7f0/siapa?penugasan=161494c6-225c-445f-b4bf-f4ca90508f48&sesi=6dc0cc51-df52-4364-88fb-18e6f0f546f4#atur
+            - cell "Sudah mulai, belum mengumpulkan"
+          - row "Hana Wirawan Belum mengerjakan":
+            - rowheader "Hana Wirawan":
+              - link "Hana Wirawan":
+                - /url: /mengajar/246a36da-e289-49c8-a74b-544eddd2e7f0/murid/df11dac0-578c-4373-8cae-53c54f1c0906
+            - cell "Belum mengerjakan"
+          - row "Intan Permatasari Belum mengerjakan":
+            - rowheader "Intan Permatasari":
+              - link "Intan Permatasari":
+                - /url: /mengajar/246a36da-e289-49c8-a74b-544eddd2e7f0/murid/70f59aef-e75d-48a1-a14a-99add1afd968
+            - cell "Belum mengerjakan"
+          - row "Joko Susilo Belum mengerjakan":
+            - rowheader "Joko Susilo":
+              - link "Joko Susilo":
+                - /url: /mengajar/246a36da-e289-49c8-a74b-544eddd2e7f0/murid/dbc3865c-4509-4774-b396-3f63b66953d2
+            - cell "Belum mengerjakan"
+          - row "Rizky Ramadhan Dikumpulkan 20.14 WIB ✓ Sudah mengumpulkan":
+            - rowheader "Rizky Ramadhan Dikumpulkan 20.14 WIB":
+              - link "Rizky Ramadhan":
+                - /url: /mengajar/246a36da-e289-49c8-a74b-544eddd2e7f0/murid/9e7a5099-9e08-47a2-8501-45a987ffc2df
+              - text: Dikumpulkan 20.14 WIB
+            - cell "✓ Sudah mengumpulkan"
+    - navigation "Halaman daftar murid":
+      - text: Menampilkan 1–5 dari 5 murid
+      - link "Halaman sebelumnya" [disabled]: Sebelumnya
+      - text: Halaman 1 dari 1
+      - link "Halaman berikutnya" [disabled]: Berikutnya
+  - region "Atur · Galih Pratama":
+    - heading "Atur · Galih Pratama" [level=2]
+    - heading "Tambah waktu" [level=3]
+    - text: Tambahan waktu
+    - combobox "Tambahan waktu":
+      - option "5 menit" [selected]
+      - option "10 menit"
+      - option "15 menit"
+      - option "30 menit"
+    - text: Alasan
+    - textbox "Alasan"
+    - paragraph: 10 sampai 300 karakter. Tercatat di jejak audit sekolah dan terlihat oleh guru kelas ini.
+    - button "Tambah waktu"
+    - heading "Akhiri sesi" [level=3]
+    - group "Bagaimana sesi ini diakhiri?":
+      - text: Bagaimana sesi ini diakhiri?
+      - list:
+        - listitem:
+          - 'radio "Dinilai: murid sudah selesai, tetapi belum mengumpulkan" [checked]'
+          - strong: Dinilai
+          - text: ": murid sudah selesai, tetapi belum mengumpulkan"
+          - paragraph: Jawaban yang sudah tersimpan dinilai. Ini memakai satu kesempatan.
+        - listitem:
+          - 'radio "Tidak dihitung: murid yang keliru, atau gangguan teknis"'
+          - strong: Tidak dihitung
+          - text: ": murid yang keliru, atau gangguan teknis"
+          - paragraph: Tidak ada hasil, dan tidak memakai kesempatan. Jawaban tetap tersimpan. Murid dapat memulai lagi selama jadwalnya masih terbuka.
+    - text: Alasan
+    - textbox "Alasan": Waktu pelajaran habis; jawaban yang ada dinilai.
+    - paragraph: 10 sampai 300 karakter. Tercatat di jejak audit sekolah dan terlihat oleh guru kelas ini.
+    - button "Akhiri dan nilai"
+    - heading "Izinkan lanjut setelah masuk lagi" [level=3]
+    - paragraph: Izinkan Galih Pratama melanjutkan Uji Penguasaan setelah masuk lagi? Sesi sebelumnya tidak menyimpan jawabannya lagi. Jawaban yang sudah tersimpan tetap ada. Tindakan ini dicatat.
+    - text: Alasan
+    - textbox "Alasan"
+    - paragraph: 10 sampai 300 karakter. Dicatat di jejak audit sekolah.
+    - button "Izinkan"
+    - status
+    - link "Batal":
+      - /url: /mengajar/246a36da-e289-49c8-a74b-544eddd2e7f0/siapa?penugasan=161494c6-225c-445f-b4bf-f4ca90508f48#pin-siapa-daftar
+    - paragraph:
+      - link "Tutup tanpa mengubah":
+        - /url: /mengajar/246a36da-e289-49c8-a74b-544eddd2e7f0/siapa?penugasan=161494c6-225c-445f-b4bf-f4ca90508f48#pin-siapa-daftar
+  - paragraph: Angka di atas adalah hitungan, bukan penilaian. Yang belum mengumpulkan mungkin belum membuka PINTAR.
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- alert: Siapa yang sudah mengumpulkan

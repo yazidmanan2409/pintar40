@@ -1,0 +1,106 @@
+{
+  "perjalanan": "j4",
+  "nama": "Galih · guru 8A",
+  "lebar": 1280,
+  "zona": "WIB",
+  "bahasa": "en",
+  "laluan": "standar",
+  "label": [],
+  "mulai": "2026-11-24T13:11:54.405Z",
+  "langkah": [
+    {
+      "id": "L1",
+      "judul": "Galih returns: the open test needs his teacher's permission",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-galih-perlu-izin"
+      ],
+      "amatan": [],
+      "data": {
+        "words": "Matematika · Kelas 8 · Persamaan Linear Satu Variabel This assessment needs your teacher's permission to continue. Because you signed in again or changed device, this Mastery Check can only continue if your teacher allows it. Your request shows on your teacher's class list. Tell your teacher too: Mastery Check · Persamaan Linear Satu Variabel. Once your teacher allows it, choose Try again. Try again Back to Learning",
+        "permission_needed": true,
+        "sittings": "IN_PROGRESS answered 2"
+      },
+      "tab": 0,
+      "url": "/",
+      "ms": 4625
+    },
+    {
+      "id": "L2",
+      "judul": "the teacher allows it",
+      "hasil": "SAMPAI",
+      "layar": [
+        "02-guru-siapa-permintaan",
+        "03-guru-diizinkan"
+      ],
+      "amatan": [],
+      "data": {
+        "teacher_allow_question": "Allow Galih Pratama to continue Mastery Check after signing in again? The earlier session no longer saves their answers. Answers already saved are kept. This is recorded.",
+        "teacher_allow_words": "✓Galih Pratama can continue until 20.22 WIB."
+      },
+      "tab": 25,
+      "url": "/",
+      "ms": 6758
+    },
+    {
+      "id": "L3",
+      "judul": "Galih resumes; the network is lost while he answers one more, then returns",
+      "hasil": "SAMPAI",
+      "layar": [
+        "04-galih-dilanjutkan",
+        "05-luring-soal-1",
+        "06-galih-luring",
+        "07-galih-tersambung"
+      ],
+      "amatan": [
+        "before IN_PROGRESS answered 2 · offline IN_PROGRESS answered 2 · back online IN_PROGRESS answered 3"
+      ],
+      "data": {
+        "resumed_words": "You are continuing here. Do not sign out until this assessment is finished: to continue again, your teacher would need to allow it once more. Time elapsed 00:18 Save & pause Question list Berapakah x jika 2x + 3 = 11? A 7 B 14 C 8 D 4 Save this answer Flag this question Choose one answer first. Answered: 2 of 6. Back Next",
+        "answered_offline": {
+          "soal": 1,
+          "bantuan_ditawarkan_di": [],
+          "berhenti": true
+        },
+        "offline_words": "You are continuing here. Do not sign out until this assessment is finished: to continue again, your teacher would need to allow it once more. | Time elapsed 00:21 | Answered: 2 of 6. |",
+        "sittings_while_offline": "IN_PROGRESS answered 2",
+        "online_words": "You are continuing here. Do not sign out until this assessment is finished: to continue again, your teacher would need to allow it once more. | Time elapsed 00:27 | Answered: 3 of 6. |",
+        "sittings_after_online": "IN_PROGRESS answered 3"
+      },
+      "tab": 11,
+      "url": "/",
+      "ms": 12464
+    },
+    {
+      "id": "L4",
+      "judul": "the teacher ends it, scored; then both views",
+      "hasil": "SAMPAI",
+      "layar": [
+        "08-guru-akhiri-pilih",
+        "09-guru-akhiri-tanya",
+        "10-guru-diakhiri",
+        "11-akhir-galih-belajar",
+        "12-akhir-galih-uji",
+        "13-akhir-galih-hasil",
+        "14-akhir-guru-mengajar",
+        "15-akhir-guru-siapa"
+      ],
+      "amatan": [],
+      "data": {
+        "end_question": "(no dialog)",
+        "end_words": "✓Galih Pratama's sitting was ended. The saved answers were scored.",
+        "sittings_after_end": "FINALIZED answered 3 result 0.5000",
+        "akhir-learner_home": "HOME Hello, Galih Here is what is under way for you today. YOUR NEXT STEP Matematika · Persamaan Linear Satu Variabel Finished Initial Mapping Personal Reading Map Lesson Mastery Check Result See the result See all the steps YOUR LEARNING MATEMATIKA · KELAS 8 Persamaan Linear Satu Variabel Initial Mapping Personal Reading Map Lesson Mastery Check Result Finished · target not reached yet See the re",
+        "akhir-learner_test_page": "← Your learning journey MATEMATIKA · PERSAMAAN LINEAR SATU VARIABEL Result Not passed yet. This Mastery Check result does not meet this chapter's passing criteria yet. Read again: Kalimat Terbuka dan Persamaan · Mengenali persamaan linear satu variabel. These parts are suggested for reading again. This is advice, not a judgement of your mastery of them. You can take the Mastery Check again under your school's rules. Ask your teacher when you can retake it. 3 of 6 questions answered right · Attempt 1 In a Mastery Check, the right answers and the result of each question are not shown. What next ",
+        "akhir-learner_result_page": "← Your learning journey MATEMATIKA · PERSAMAAN LINEAR SATU VARIABEL Result Not passed yet. This Mastery Check result does not meet this chapter's passing criteria yet. Read again: Kalimat Terbuka dan Persamaan · Mengenali persamaan linear satu variabel. These parts are suggested for reading again. This is advice, not a judgement of your mastery of them. You can take the Mastery Check again under your school's rules. Ask your teacher when you can retake it. 3 of 6 questions answered right · Attem",
+        "akhir-teacher_home": "SMP Sintetis Cendekia / TA 2026/2027 TUESDAY, 24 NOV 2026 Good evening, Dimas Saputra The one thing most worth doing first, then the classes in your teaching scope. Worth doing first Persamaan Linear Satu Variabel (8B) is published by the school, but is not yet available to 8A Published by the school and can be made available whenever you are ready. Prepare Persamaan Linear Satu Variabel (8B) for 8A Look at 8A CLASSES IN YOUR TEACHING SCOPE Based on the school's assignments. PINTAR does not mark",
+        "akhir-teacher_row": "Galih Pratama Ended 20.12 WIB · the saved answers were scored Ended by teacher · scored"
+      },
+      "tab": 59,
+      "url": "/",
+      "ms": 49127
+    }
+  ],
+  "selesai": "2026-11-24T13:13:07.451Z",
+  "sampai_akhir": true
+}

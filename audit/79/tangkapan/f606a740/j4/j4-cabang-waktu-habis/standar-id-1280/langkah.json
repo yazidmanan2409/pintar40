@@ -1,0 +1,43 @@
+{
+  "perjalanan": "j4-cabang-waktu-habis",
+  "nama": "Galih · guru 8A",
+  "lebar": 1280,
+  "zona": "WIB",
+  "bahasa": "id",
+  "laluan": "standar",
+  "label": [
+    "keadaan fiksasi: tenggat satu pengerjaan dimajukan (dibuat melewati penjaga hari ini)"
+  ],
+  "mulai": "2026-11-24T13:25:23.445Z",
+  "langkah": [
+    {
+      "id": "C1",
+      "judul": "the time runs out while he is away; then both views",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-galih-belajar",
+        "02-galih-uji",
+        "03-galih-hasil",
+        "04-guru-mengajar",
+        "05-guru-siapa"
+      ],
+      "amatan": [
+        "waited 90 s for the deadline to pass"
+      ],
+      "data": {
+        "deadline": "2026-11-24 13:26:38.279208+00",
+        "learner_home": "BELAJAR Halo, Galih Ini yang sedang berjalan hari ini. LANGKAH BERIKUTNYA Matematika · Persamaan Linear Satu Variabel Siap untuk Uji Penguasaan Pemetaan Awal Peta Bacaan Personal Pelajaran Uji Penguasaan Hasil Lanjutkan Uji Penguasaan Lihat semua langkah PEMBELAJARAN ANDA MATEMATIKA · KELAS 8 Persamaan Linear Satu Variabel Pemetaan Awal Peta Bacaan Personal Pelajaran Uji Penguasaan Hasil Siap untu",
+        "learner_test_page": "Matematika · Kelas 8 · Persamaan Linear Satu Variabel Tidak ada yang perlu dilanjutkan: asesmen ini sudah selesai atau sudah ditutup. Kembali ke Belajar",
+        "learner_result_page": "PINTAR Halaman ini tidak ada Alamatnya mungkin keliru, atau halaman ini sudah dipindahkan. Ke halaman awal",
+        "sittings": "IN_PROGRESS answered 2",
+        "teacher_home": "SMP Sintetis Cendekia / TA 2026/2027 SELASA, 24 NOV 2026 Selamat malam, Dimas Saputra Satu hal yang paling layak dikerjakan lebih dulu, lalu kelas dalam lingkup mengajar Anda. Layak dikerjakan lebih dulu Persamaan Linear Satu Variabel (8B) sudah diterbitkan sekolah, tetapi belum disediakan untuk 8A Sudah diterbitkan sekolah dan bisa disediakan kapan pun Anda siap. Siapkan Persamaan Linear Satu Variabel (8B) untuk 8A Lihat 8A KELAS DALAM LINGKUP MENGAJAR ANDA Berdasarkan penugasan dari sekolah. P",
+        "teacher_row": "Galih Pratama Berakhir 20.26 WIB · jawaban yang ada dinilai Waktu habis"
+      },
+      "tab": 0,
+      "url": "/",
+      "ms": 133221
+    }
+  ],
+  "selesai": "2026-11-24T13:27:36.666Z",
+  "sampai_akhir": true
+}

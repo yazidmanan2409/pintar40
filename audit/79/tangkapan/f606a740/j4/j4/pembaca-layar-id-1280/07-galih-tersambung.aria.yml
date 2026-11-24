@@ -1,0 +1,33 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - status: "Anda melanjutkan di sini. Jangan keluar dari akun sampai asesmen ini selesai: untuk melanjutkan lagi, guru perlu mengizinkan sekali lagi."
+  - text: Waktu berjalan 00:26
+  - button "Simpan & Jeda"
+  - button "Daftar soal"
+  - article:
+    - heading "Harga 3 buku sama dengan Rp24.000. Jika harga satu buku b rupiah, persamaannya?" [level=2]
+    - list:
+      - listitem:
+        - button "A b + 3 = 24.000"
+      - listitem:
+        - button "B b = 3 × 24.000"
+      - listitem:
+        - button "C 3b = 24.000" [pressed]
+      - listitem:
+        - button "D b − 3 = 24.000"
+    - button "Tersimpan" [disabled]
+    - button "Tandai soal ini"
+    - status: "Sudah dijawab: 3 dari 6."
+  - navigation:
+    - button "Kembali"
+    - button "Berikutnya"
+- alert
