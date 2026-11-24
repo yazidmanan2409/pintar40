@@ -1,0 +1,112 @@
+{
+  "perjalanan": "j11",
+  "nama": "Retno Wulandari",
+  "lebar": 320,
+  "zona": "WIB",
+  "bahasa": "id",
+  "laluan": "standar",
+  "label": [
+    "bukti OFFICIAL di tenant bootstrap dev/CI (sintetis)"
+  ],
+  "mulai": "2026-11-24T23:50:18.968Z",
+  "langkah": [
+    {
+      "id": "L1",
+      "judul": "Pimpinan's page",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-pimpinan"
+      ],
+      "amatan": [],
+      "data": {
+        "signed_in": {
+          "mendarat": "/pimpinan",
+          "perangkat": "pribadi"
+        },
+        "domains_by_the_calculator": "CDK8-1=withheld:learners, CDK8-2=withheld:learners, CDK8-3=withheld:learners, IPA8-C1=0.9000, IPA8-C2=0.7000, IPA8-C3=0.4000, IPA8-G1=withheld:moved, IPA8-L1=withheld:learners, X9W-K1=withheld:learners"
+      },
+      "tab": 0,
+      "url": "/pimpinan",
+      "ms": 3343
+    },
+    {
+      "id": "L2",
+      "judul": "the readiness bands: a class with figures (8P), opened",
+      "hasil": "SAMPAI",
+      "layar": [
+        "02-kelas-8p"
+      ],
+      "amatan": [],
+      "data": {
+        "class_text": "8P (dunia) Ada angka Murid di kelas ini sekarang · 5 Sebaran hasil Uji Penguasaan Hasil 5 murid yang sudah mengerjakan Mantap 2 Berkembang 3 Pita tetap PINTAR: 80% ke atas, 60–79%, dan di bawah 60% atau soal wajib belum tepat. Bukan batas ketuntasan sekolah dan tidak menentukan sertifikat. 5 murid di kelas ini · 5 sudah mengerjakan Uji Penguasaan · 0 belum mengerjakan Banyaknya murid pada tiap pita hasil, menurut Uji Penguasaan terakhir mereka. dari 5 Pemahaman Angka gabungan ini tidak ditampilkan agar hasil bagian yang dikerjakan sedikit murid tidak dapat dihitung darinya. Sudah 5 murid menge"
+      },
+      "tab": 7,
+      "url": "/pimpinan",
+      "ms": 547
+    },
+    {
+      "id": "L3",
+      "judul": "«Belum cukup bukti»: 8R opened, and «Kesiapan bukti»",
+      "hasil": "SAMPAI",
+      "layar": [
+        "03-kelas-8r",
+        "04-kesiapan-bukti"
+      ],
+      "amatan": [],
+      "data": {
+        "class_text": "8R (dunia) Sudah ada yang mengerjakan; angkanya belum dapat ditampilkan Murid di kelas ini sekarang · 0 Pemahaman Belum cukup data untuk menampilkan angka ini. Sudah 1 murid mengerjakan Uji Penguasaan; ada bab yang baru dikerjakan kurang dari 5 murid. Kenaikan Belum cukup data untuk menampilkan angka ini. Sudah 1 murid punya Pemetaan Awal dan Uji Penguasaan bab yang sama; ada bab yang baru punya kurang dari 5 murid seperti itu. Sebaran hasil Uji Penguasaan Belum cukup data untuk menampilkan angka ini. Sekarang 1 murid; perlu 5. Angka ini muncul setelah cukup murid menyelesaikan Uji Penguasaan."
+      },
+      "tab": 3,
+      "url": "/pimpinan",
+      "ms": 691
+    },
+    {
+      "id": "L4",
+      "judul": "the school summary: the scope line, and the withheld domains named on the page",
+      "hasil": "SAMPAI",
+      "layar": [
+        "05-ringkasan-sekolah"
+      ],
+      "amatan": [],
+      "data": {
+        "sentences_with_all": [
+          "PINTAR Bootstrap (OFFICIAL evidence — development and CI only) RINGKASAN SEKOLAH PINTAR Bootstrap (OFFICIAL evidence — development and CI only) Angka dihitung 25 Nov 2026, 06.50 WIB dari semua bukti sekolah ini, di setiap tahun ajaran, sampai saat itu."
+        ],
+        "scope_line": "Angka dihitung 25 Nov 2026, 06.50 WIB dari semua bukti sekolah ini, di setiap tahun ajaran, sampai saat itu.",
+        "withheld_named_on_page": [
+          "5 tujuan pembelajaran lain belum ditampilkan karena masing-masing dikerjakan kurang dari 10 murid.",
+          "1 tujuan pembelajaran lain belum ditampilkan karena ada murid yang pindah kelas lalu mengerjakannya lagi, sehingga hasil murid itu dapat terbaca dari angka sekolah.",
+          "Matematika (dunia audit) · Kelas 8 (dunia J2/J3) · TA 2026/2027 (dunia audit): belum ditampilkan — kurang dari 5 murid.",
+          "IPA (dunia audit) · Kelas 8 (dunia W18) · TA 2026/2027 (dunia audit): belum ditampilkan — ada kelas di dalamnya yang mengerjakan suatu bab dengan terlalu sedikit murid, sehingga hasil kelas itu dapat terbaca dari angka ini.",
+          "Matematika (dunia audit) · Kelas 9 (dunia audit) · TA 2026/2027 (dunia audit): belum ditampilkan — kurang dari 5 murid."
+        ],
+        "url": "/dekan/ringkasan?simpul=d0bf9535-2062-46c1-9aa7-4b08c131d892&dari=pimpinan"
+      },
+      "tab": 4,
+      "url": "/dekan/ringkasan",
+      "ms": 516
+    },
+    {
+      "id": "L5",
+      "judul": "the printed summary",
+      "hasil": "SAMPAI",
+      "layar": [
+        "cetak-tampilan"
+      ],
+      "amatan": [
+        "last screen: the print view (/dekan/ringkasan)"
+      ],
+      "data": {
+        "print_url": "/dekan/ringkasan",
+        "print_sentences_with_all": [
+          "PINTAR Bootstrap (OFFICIAL evidence — development and CI only) RINGKASAN SEKOLAH PINTAR Bootstrap (OFFICIAL evidence — development and CI only) Angka dihitung 25 Nov 2026, 06.50 WIB dari semua bukti sekolah ini, di setiap tahun ajaran, sampai saat itu."
+        ]
+      },
+      "tab": 5,
+      "url": "/dekan/ringkasan",
+      "ms": 9585
+    }
+  ],
+  "selesai": "2026-11-24T23:50:33.651Z",
+  "sampai_akhir": true
+}

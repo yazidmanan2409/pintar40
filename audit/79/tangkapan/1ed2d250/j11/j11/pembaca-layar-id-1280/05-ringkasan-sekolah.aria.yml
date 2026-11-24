@@ -1,0 +1,75 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- alert: Ringkasan Sekolah · PINTAR
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - strong: PINTAR Bootstrap (OFFICIAL evidence — development and CI only)
+    - link "Pimpinan":
+      - /url: /pimpinan
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fdekan%2Fringkasan
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Retno Wulandari":
+      - strong: Retno Wulandari
+    - button "Keluar"
+- main:
+  - text: PINTAR Bootstrap (OFFICIAL evidence — development and CI only)
+  - paragraph: Ringkasan Sekolah
+  - heading "PINTAR Bootstrap (OFFICIAL evidence — development and CI only)" [level=1]
+  - paragraph: Angka dihitung 25 Nov 2026, 06.50 WIB dari semua bukti sekolah ini, di setiap tahun ajaran, sampai saat itu.
+  - link "← Pimpinan":
+    - /url: /pimpinan
+  - button "Cetak laporan"
+  - region "Bagian A Capaian kompetensi":
+    - heading "Bagian A Capaian kompetensi" [level=2]
+    - paragraph: Menjelaskan tempat penyerapan sari makanan masih di pita «Perlu penguatan».
+    - paragraph: 2 dari 3 tujuan pembelajaran berada di pita «Berkembang» atau «Mantap».
+    - paragraph: "Batas pita: di bawah 60% «Perlu penguatan» · 60–79% «Berkembang» · 80% ke atas «Mantap»."
+    - list:
+      - listitem: Menyebutkan organ pertama pencernaan. 90%
+      - listitem: Menjelaskan fungsi lambung. 70%
+      - listitem: Menjelaskan tempat penyerapan sari makanan. 40% Perlu penguatan
+    - paragraph: Titik berwarna jingga menunjukkan penguasaan pada pita Perlu penguatan.
+    - paragraph: 5 tujuan pembelajaran lain belum ditampilkan karena masing-masing dikerjakan kurang dari 10 murid.
+    - paragraph: 1 tujuan pembelajaran lain belum ditampilkan karena ada murid yang pindah kelas lalu mengerjakannya lagi, sehingga hasil murid itu dapat terbaca dari angka sekolah.
+  - heading "Bagian B Angka utama" [level=2]
+  - heading "Peserta" [level=3]
+  - paragraph: "14"
+  - heading "Kenaikan" [level=3]
+  - paragraph: Angka gabungan ini tidak ditampilkan agar hasil bagian yang dikerjakan sedikit murid tidak dapat dihitung darinya.
+  - paragraph: Sudah 14 murid punya Pemetaan Awal dan Uji Penguasaan; ada kelas yang baru punya kurang dari 5 murid seperti itu.
+  - heading "Soal wajib" [level=3]
+  - paragraph: Belum cukup data untuk menampilkan angka ini.
+  - paragraph: Dari hasil Uji Penguasaan yang memuat soal wajib, baru 1 murid; perlu 10. 27 hasil Uji Penguasaan lain berasal dari uji tanpa soal wajib, jadi tidak dihitung, baik sebagai lulus maupun tidak.
+  - paragraph: Angka ini muncul setelah cukup murid mengerjakan Uji Penguasaan yang memuat soal wajib.
+  - heading "Sertifikat terbit" [level=3]
+  - paragraph: Belum ada bukti yang memenuhi syarat untuk angka ini.
+  - paragraph: Angka ini muncul setelah sertifikat pertama sekolah ini terbit.
+  - heading "Bagian C Perbandingan angkatan" [level=2]
+  - paragraph: Penguasaan rata-rata tiap angkatan pada skala yang sama. Ini perbandingan keadaan, bukan peringkat.
+  - list
+  - paragraph: "Matematika (dunia audit) · Kelas 8 (dunia J2/J3) · TA 2026/2027 (dunia audit): belum ditampilkan — kurang dari 5 murid."
+  - paragraph: "IPA (dunia audit) · Kelas 8 (dunia W18) · TA 2026/2027 (dunia audit): belum ditampilkan — ada kelas di dalamnya yang mengerjakan suatu bab dengan terlalu sedikit murid, sehingga hasil kelas itu dapat terbaca dari angka ini."
+  - paragraph: "Matematika (dunia audit) · Kelas 9 (dunia audit) · TA 2026/2027 (dunia audit): belum ditampilkan — kurang dari 5 murid."
+  - region "Bagian D Kesiapan bukti":
+    - heading "Bagian D Kesiapan bukti" [level=2]
+    - list:
+      - listitem: "IPA: 2 dari 3 kelas cukup untuk ditafsirkan. 8R (dunia): sudah ada, belum cukup (1 dari 5 murid)"
+      - listitem: "Matematika: 0 dari 4 kelas cukup untuk ditafsirkan. 5B: belum ada; 8J (dunia): belum ada; 8K (dunia): sudah ada, belum cukup (1 dari 5 murid); 9A (dunia): sudah ada, belum cukup (3 dari 5 murid)"
+    - paragraph: Bukti yang belum cukup bukan hasil yang buruk. Artinya PINTAR belum boleh menyimpulkan apa pun, dan angkanya muncul sendiri ketika buktinya memenuhi syarat.
+  - heading "Bagian E Apa berikutnya" [level=2]
+  - paragraph: PINTAR menunjukkan; langkah berikutnya Anda yang memutuskan.
+  - list:
+    - listitem: Bagian D di atas, «Kesiapan bukti», menyebut kelas yang buktinya belum cukup.
+- contentinfo:
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com

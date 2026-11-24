@@ -1,0 +1,125 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - strong: PINTAR Bootstrap (OFFICIAL evidence — development and CI only)
+    - link "Pimpinan":
+      - /url: /pimpinan
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fpimpinan
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Retno Wulandari":
+      - strong: Retno Wulandari
+    - button "Keluar"
+- main:
+  - text: PINTAR Bootstrap (OFFICIAL evidence — development and CI only)
+  - paragraph: Pimpinan
+  - heading "Apa yang menunggu Anda" [level=1]
+  - paragraph: Yang muncul di sini memerlukan wewenang, koordinasi, atau penafsiran untuk sekolah secara keseluruhan. Selebihnya tidak muncul.
+  - region "Bagian A Keputusan":
+    - heading "Bagian A Keputusan" [level=2]
+    - paragraph: Tidak ada keputusan yang menunggu Anda.
+    - paragraph: PINTAR mengusulkan, manusia memutuskan.
+  - region "Bagian B Yang didukung bukti":
+    - heading "Bagian B Yang didukung bukti" [level=2]
+    - text: Peserta 14 Banyaknya murid yang mengerjakan asesmen di sekolah ini. dari 14 Capaian kompetensi
+    - list:
+      - listitem: Menyebutkan organ pertama pencernaan. 90% · 10 murid
+      - listitem: Menjelaskan fungsi lambung. 70% · 10 murid
+      - listitem: Menjelaskan tempat penyerapan sari makanan. 40% · 10 murid
+      - listitem: Mengenali persamaan linear satu variabel. — · 1 murid
+      - listitem: Menghitung hasil perkalian dua bilangan satu angka. — · 3 murid
+      - listitem: Menjelaskan pengertian dan satuan gaya. — · 10 murid
+      - listitem: Menjelaskan sifat cahaya merambat lurus. — · 3 murid
+      - listitem: Menyelesaikan persamaan linear satu variabel. — · 1 murid
+    - text: Rata-rata penguasaan pada tiap ranah yang diukur. dari 10 Kenaikan Angka gabungan ini tidak ditampilkan agar hasil bagian yang dikerjakan sedikit murid tidak dapat dihitung darinya. Sudah 14 murid punya Pemetaan Awal dan Uji Penguasaan; ada kelas yang baru punya kurang dari 5 murid seperti itu. Soal wajib Belum cukup data untuk menampilkan angka ini. Dari hasil Uji Penguasaan yang memuat soal wajib, baru 1 murid; perlu 10. 27 hasil Uji Penguasaan lain berasal dari uji tanpa soal wajib, jadi tidak dihitung, baik sebagai lulus maupun tidak. Angka ini muncul setelah cukup murid mengerjakan Uji Penguasaan yang memuat soal wajib.
+  - region "Bagian C Penguasaan per topik":
+    - heading "Bagian C Penguasaan per topik" [level=2]
+    - paragraph: Setiap sel adalah angka «Penguasaan per topik» kelas itu sendiri. Baca mendatar untuk melihat pola; baca menurun untuk melihat satu kelas.
+    - region "Bagian C Penguasaan per topik":
+      - table:
+        - rowgroup:
+          - row "Topik 5B Sekarang 0 murid; perlu 5. 8J (dunia) Sekarang 0 murid; perlu 5. 8K (dunia) Sekarang 1 murid; perlu 5. 8P (dunia) 5 dari 5 murid 8Q (dunia) 5 dari 5 murid 8R (dunia) Sekarang 1 murid; perlu 5. 9A (dunia) Sekarang 3 murid; perlu 5.":
+            - columnheader "Topik"
+            - columnheader "5B Sekarang 0 murid; perlu 5."
+            - columnheader "8J (dunia) Sekarang 0 murid; perlu 5."
+            - columnheader "8K (dunia) Sekarang 1 murid; perlu 5."
+            - columnheader "8P (dunia) 5 dari 5 murid"
+            - columnheader "8Q (dunia) 5 dari 5 murid"
+            - columnheader "8R (dunia) Sekarang 1 murid; perlu 5."
+            - columnheader "9A (dunia) Sekarang 3 murid; perlu 5."
+        - rowgroup:
+          - row "Menjelaskan fungsi lambung. — — — 60% 80% — —":
+            - rowheader "Menjelaskan fungsi lambung."
+            - cell "—"
+            - cell "—"
+            - cell "—"
+            - cell "60%"
+            - cell "80%"
+            - cell "—"
+            - cell "—"
+          - row "Menjelaskan tempat penyerapan sari makanan. — — — 60% 20% — —":
+            - rowheader "Menjelaskan tempat penyerapan sari makanan."
+            - cell "—"
+            - cell "—"
+            - cell "—"
+            - cell "60%"
+            - cell "20%"
+            - cell "—"
+            - cell "—"
+          - row "Menyebutkan organ pertama pencernaan. — — — 80% 100% — —":
+            - rowheader "Menyebutkan organ pertama pencernaan."
+            - cell "—"
+            - cell "—"
+            - cell "—"
+            - cell "80%"
+            - cell "100%"
+            - cell "—"
+            - cell "—"
+          - row "Gaya Menjelaskan pengertian dan satuan gaya. — — — 100% 100% — —":
+            - rowheader "Gaya Menjelaskan pengertian dan satuan gaya."
+            - cell "—"
+            - cell "—"
+            - cell "—"
+            - cell "100%"
+            - cell "100%"
+            - cell "—"
+            - cell "—"
+    - paragraph: Belum ada target kelas yang dapat dibaca di sini, jadi tabel ini tidak menandai angka di bawah target. Tanda — berarti data belum cukup.
+  - region "Bagian D Per kelas":
+    - heading "Bagian D Per kelas" [level=2]
+    - paragraph: Angka kelas dihitung untuk tiap kelas sendiri dan tidak dijumlahkan antarkelas. Buka satu kelas untuk melihat angkanya, atau apa yang membuatnya muncul.
+    - group: 5B Belum ada angka
+    - group: 8J (dunia) Belum ada angka
+    - group: 8K (dunia) Sudah ada yang mengerjakan; angkanya belum dapat ditampilkan
+    - group: 8P (dunia) Ada angka
+    - group: 8Q (dunia) Ada angka
+    - group: 8R (dunia) Sudah ada yang mengerjakan; angkanya belum dapat ditampilkan
+    - group: 9A (dunia) Sudah ada yang mengerjakan; angkanya belum dapat ditampilkan
+  - region "Bagian E Kesiapan bukti":
+    - heading "Bagian E Kesiapan bukti" [level=2]
+    - list:
+      - listitem: 2 Cukup untuk ditafsirkan
+      - listitem: 1 Sudah ada, belum cukup
+      - listitem: 1 Belum ada yang memenuhi syarat
+    - paragraph: Bukti yang belum cukup bukan hasil yang buruk. Artinya PINTAR belum boleh menyimpulkan apa pun, dan angkanya muncul sendiri ketika buktinya memenuhi syarat.
+  - region "Bagian F Perlu diketahui":
+    - heading "Bagian F Perlu diketahui" [level=2]
+    - paragraph: Hal berikut tidak menunggu keputusan siapa pun.
+    - link "Lihat lebih rinci":
+      - /url: /pimpinan/d0bf9535-2062-46c1-9aa7-4b08c131d892
+    - link "Buka ringkasan sekolah":
+      - /url: /dekan/ringkasan?simpul=d0bf9535-2062-46c1-9aa7-4b08c131d892&dari=pimpinan
+- contentinfo:
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- alert

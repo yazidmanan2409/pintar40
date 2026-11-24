@@ -1,0 +1,107 @@
+{
+  "perjalanan": "j11",
+  "nama": "Retno Wulandari",
+  "lebar": 1280,
+  "zona": "WIB",
+  "bahasa": "en",
+  "laluan": "standar",
+  "label": [
+    "bukti OFFICIAL di tenant bootstrap dev/CI (sintetis)"
+  ],
+  "mulai": "2026-11-24T23:50:33.974Z",
+  "langkah": [
+    {
+      "id": "L1",
+      "judul": "Pimpinan's page",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-pimpinan"
+      ],
+      "amatan": [],
+      "data": {
+        "signed_in": {
+          "mendarat": "/pimpinan",
+          "perangkat": "pribadi"
+        },
+        "domains_by_the_calculator": "CDK8-1=withheld:learners, CDK8-2=withheld:learners, CDK8-3=withheld:learners, IPA8-C1=0.9000, IPA8-C2=0.7000, IPA8-C3=0.4000, IPA8-G1=withheld:moved, IPA8-L1=withheld:learners, X9W-K1=withheld:learners"
+      },
+      "tab": 0,
+      "url": "/pimpinan",
+      "ms": 3539
+    },
+    {
+      "id": "L2",
+      "judul": "the readiness bands: a class with figures (8P), opened",
+      "hasil": "SAMPAI",
+      "layar": [
+        "02-kelas-8p"
+      ],
+      "amatan": [],
+      "data": {
+        "class_text": "8P (dunia) Has figures Students in this class now · 5 Spread of Mastery Check results Results of the 5 students who have taken it Strong 2 Developing 3 PINTAR's fixed bands: 80% and above, 60–79%, and below 60% or a required item not yet right. Not the school's mastery threshold, and they do not decide certificates. 5 students in this class · 5 have taken the Mastery Check · 0 have not taken it yet How many students sit in each result band, by their latest Mastery Check. from 5 Comprehension This combined figure is not shown, so that the result of a part taken by few students cannot be worked "
+      },
+      "tab": 13,
+      "url": "/pimpinan",
+      "ms": 628
+    },
+    {
+      "id": "L3",
+      "judul": "«Belum cukup bukti»: 8R opened, and «Kesiapan bukti»",
+      "hasil": "SAMPAI",
+      "layar": [
+        "03-kelas-8r",
+        "04-kesiapan-bukti"
+      ],
+      "amatan": [],
+      "data": {
+        "class_text": "8R (dunia) Students have sat; no figure can be shown yet Students in this class now · 0 Comprehension Not enough data to show this figure yet. 1 student have taken the Mastery Check; at least one chapter has been taken by fewer than 5. Gain Not enough data to show this figure yet. 1 student have both an Initial Mapping and a Mastery Check of the same chapter; at least one chapter has fewer than 5 such students. Spread of Mastery Check results Not enough data to show this figure yet. 1 student so far; 5 needed. This figure appears once enough students have finished the Mastery Check. Open this "
+      },
+      "tab": 3,
+      "url": "/pimpinan",
+      "ms": 874
+    },
+    {
+      "id": "L4",
+      "judul": "the school summary: the scope line, and the withheld domains named on the page",
+      "hasil": "SAMPAI",
+      "layar": [
+        "05-ringkasan-sekolah"
+      ],
+      "amatan": [],
+      "data": {
+        "sentences_with_all": [
+          "PINTAR Bootstrap (OFFICIAL evidence — development and CI only) SCHOOL SUMMARY PINTAR Bootstrap (OFFICIAL evidence — development and CI only) Figures calculated 25 Nov 2026, 06.50 WIB from all of this school's evidence, in every school year, up to then."
+        ],
+        "scope_line": "Figures calculated 25 Nov 2026, 06.50 WIB from all of this school's evidence, in every school year, up to then.",
+        "withheld_named_on_page": [],
+        "url": "/dekan/ringkasan?simpul=d0bf9535-2062-46c1-9aa7-4b08c131d892&dari=pimpinan"
+      },
+      "tab": 4,
+      "url": "/dekan/ringkasan",
+      "ms": 560
+    },
+    {
+      "id": "L5",
+      "judul": "the printed summary",
+      "hasil": "SAMPAI",
+      "layar": [
+        "cetak-tampilan",
+        "cetak.pdf"
+      ],
+      "amatan": [
+        "last screen: the print view (/dekan/ringkasan)"
+      ],
+      "data": {
+        "print_url": "/dekan/ringkasan",
+        "print_sentences_with_all": [
+          "PINTAR Bootstrap (OFFICIAL evidence — development and CI only) SCHOOL SUMMARY PINTAR Bootstrap (OFFICIAL evidence — development and CI only) Figures calculated 25 Nov 2026, 06.50 WIB from all of this school's evidence, in every school year, up to then."
+        ]
+      },
+      "tab": 10,
+      "url": "/dekan/ringkasan",
+      "ms": 9687
+    }
+  ],
+  "selesai": "2026-11-24T23:50:49.264Z",
+  "sampai_akhir": true
+}
