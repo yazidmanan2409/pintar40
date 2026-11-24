@@ -150,3 +150,41 @@ There are no further pushes or reruns unless a failure is root-caused (ruling 93
 - **PR:** [#31](https://github.com/yazidmanan2409/pintar40/pull/31), "not to be merged without the owner's authorisation". It's stacked on CI-1's head `94ce6727`, so until #30 merges, #31's diff against main also shows CI-1's 8 commits (the body says so).
 - **Runs:** ci 45488925842, and journeys 45488932426 dispatched once with the full sha.
 - **Next:** both results, then Sharon's independent verification, then the owner's request.
+
+## 10 · Sharon's independent verification (`AUDIT79-CI2-VERIFY.md`, 21:22Z): PASS WITH TWO CONDITIONS
+
+**Both runs are green in attempt 1:** ci 45488925842 and journeys 45488932426. Migration 311's sha256 is checked.
+
+**Confirmed from the source:**
+- **L-78's oracle is closed.** No ban remains (lifted and asserted, Z01, K01).
+- **Lock and unlock both rotate:** a fresh bcrypt, every one-time token cleared, sessions and refresh tokens ended.
+- **Uniformity is tested** against an ordinary wrong password, for email and card: status, code, body and median timing.
+- **The GUC meets §8** (a), (b), (d) and (e).
+- **`akun_auth_terkunci` is session-only**, with Q13 caught.
+
+**Ruling 98's five preservations hold:**
+
+| Preservation | What Sharon found |
+|---|---|
+| Suspension | The lock also deletes pending recovery and activation permits; `periksa` still refuses (R01) |
+| Reinstatement, with OD-1 | Unlock re-rotates; B01 shows that a password set during the lock never works and a fresh one does; the PIN reset writes the derived Auth password |
+| Recovery | Locked persons are excluded (Q10, T01) |
+| Records | Only Auth credential and token columns are written, with an audited count |
+| Authorisation | Unchanged |
+
+**Conditions (Bob adopts both; CI-2 is re-frozen after them):**
+- **V-1 (a product change):** `card_holders()` returns `kunci` = DITUTUP or DITANGGUHKAN to every CAN_PROVISION_PEOPLE holder, and KartuUlang shows it.
+  - A suspension can be a platform safeguarding act, so this discloses the category to staff who only need "no card can be made now".
+  - **Fix:** return a neutral `terkunci` boolean and one neutral line (Daisy's words), with a test that no category is returned.
+  - **Bob's decision:** take the neutral fix, which is principle 5 and the conservative choice. It isn't escalated, because the owner's ruling 98 already asks that confidentiality hold throughout the system. If the owner later rules that provisioning staff may know the category, V-1 lapses.
+- **V-2 (test-only):** CI2-G01 scans `p.prosrc`, which is empty for BEGIN ATOMIC functions (the Z-D1-02 lesson).
+  - **Fix:** use `pg_get_functiondef`, and plant a BEGIN ATOMIC function that sets the GUC.
+
+**Next:**
+1. Daisy writes the neutral line.
+2. Second Eye builds V-1 and V-2, red first, on top of `9c6aae62`.
+3. The focused tests, plants (including the new one) and redcase run on the new sha.
+4. Bob re-freezes.
+5. One push, and PR #31's ci plus the journeys, once each.
+6. Sharon checks the delta only.
+7. The owner's request.
