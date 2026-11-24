@@ -94,7 +94,21 @@ export class Peramban {
   }
 }
 
-export const ipUji = () => `198.51.100.${1 + (randomBytes(1)[0] % 250)}`;
+/**
+ * A test's client address: NEVER THE SAME TWICE IN A RUN, from 198.18.0.0/15 (RFC 2544's benchmarking range), which no
+ * test names. It was 198.51.100.1-250 at random, so two tests could draw one address, and a paced route keyed by the
+ * client's address then paced one test for another's request. Those routes are code_request_pace (the reopening request),
+ * the recovery PIN's identity_attempt (pulih-pin-alamat) and Auth's own per-address limits. Z-S12-01 was answered
+ * TUNGGU on 8678de21 because it drew one of AKUN-A02's two addresses inside the 60-second pace, about a 2-in-250
+ * chance per run; main carries the same draw. A random start each process keeps one run clear of the last one's rows.
+ * Z-S12-01 keeps 192.0.2.0/24 (TEST-NET-1) for itself (selftest/z-ux.test.ts).
+ */
+let ipBerikut = randomBytes(2).readUInt16BE(0) % 65_000;
+export const ipUji = () => {
+  const n = ipBerikut++ % (2 * 256 * 254);
+  const jaringan = Math.floor(n / 254);
+  return `198.${18 + (jaringan >> 8)}.${jaringan & 255}.${1 + (n % 254)}`;
+};
 
 async function authMasuk(url: string, anon: string, email: string, password: string): Promise<string | null> {
   const r = await fetch(`${url}/auth/v1/token?grant_type=password`, {
