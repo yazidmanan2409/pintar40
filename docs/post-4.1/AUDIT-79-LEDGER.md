@@ -349,3 +349,11 @@ Nine findings: 5 Significant, 4 Improvement, none Critical. **The core cross-rol
 | L-100 (J12-2) | «Batalkan» (red) sits beside a «Batal» link | B, E | J12 | Improvement | — | — |
 | L-101 (J12-3) | «Mulai sekarang» (starting maintenance early) has no confirmation naming its effect on people told «30 menit» | E | J12 | Improvement | C-7 | — |
 | — (J12-4) | The welcome tour covers the learner observer captures | — | J12 | **Harness, not product** | — | The builder fixes the capture |
+
+**The builder's captures, committed (`claude/audit-79-world`; 24 Nov):** J2 at `audit/79/tangkapan/da220028/j2/` (`d62f967e`; walks at 1280/390/320/EN, SR, reduced motion, throttled, four branches); J2 L3 with the worked example (`567cc4da`); J3 at `audit/79/tangkapan/6792ecb9/j3/` (`3c1af1ae`; walks, the three passes, W7a/b and W8 on all three surfaces). Every walk reached its last screen. CI run 20 on `d3f02681` (the merge plus J2): PASSED.
+- **RETRACTED: the «SR double drawing» was the builder's script artefact** (one snapshot printed twice), not the product. No question page repeats a heading. The only repeats are on the certificate page («Periksa keaslian» and the holder's name, the certificate plus its print preview); Daisy judges.
+- **L-54 extended:** after W7b (the retake ended, not counted), the learner's result page still answers «Halaman ini tidak ada». The same C-1 cause.
+- **L-43 confirmed in every J3 state:** the teacher's «Hasil resmi» never shows «Kesempatan ke-{n}».
+- **W8 (the gate unreadable):** the learner sees counts with no verdict («5 dari 6 soal dijawab tepat · Kesempatan ke-1»); the teacher sees «83% belum dapat disimpulkan apakah target tercapai…». Daisy judges whether the learner's page should say why there is no verdict.
+- **«Minta membaca lagi»'s pre-tick:** correct in every state (no pre-tick for W8, as scripted).
+- **World data (Bob, routine): L-80 and J3's same-name publications are world artefacts.** The world published per-class copies of one chapter; a real school publishes once and gives it to several classes. **Approved:** one chapter for both classes, with the attempt limit on its shared definition; W3–W6 and J2/J3 reloaded and re-checked. L-80 is then re-judged on the corrected world.
