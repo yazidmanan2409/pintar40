@@ -28,7 +28,7 @@ for (const lebar of LEBAR) {
   const admin = D["pintar.admin1"];
   const K8A = D["smp.kelas8a"], K8C = D["smp.kelas8c"], W3 = D["w3.bab"];
   const kunci = kunciBab(W3.kursus);
-  const j = await jalan({ perjalanan: "j5", lebar, zona: "WIB", nama: "Ayu · Rizky · Intan · Joko · Admin PINTAR", label: [] });
+  const j = await jalan({ perjalanan: "j5", lebar, zona: "WIB", nama: "Ayu · Rizky · Intan · Joko · Admin PINTAR · (L6) Bambang · Sinta", label: ["L6: bukti OFFICIAL di tenant bootstrap dev/CI (sintetis)"] });
   const { page } = j;
   const isi = async () => RAPI(await page.locator("main").first().innerText().catch(() => ""));
   const pesan = async () => RAPI((await page.locator('[role="alert"], [role="status"]').allInnerTexts().catch(() => [])).join(" | "));
@@ -202,36 +202,35 @@ for (const lebar of LEBAR) {
     await guruCepat(foto, data, "akhir-");
   });
 
-  await j.langkah("L6", "«Minta membaca lagi» sent to Rizky", async ({ rec, foto, data }) => {
-    await ayuMasuk();
-    await ke(`/mengajar/${K8A}/murid/${rizky.person}`);
-    await foto("rizky");
+  // L6 needs OFFICIAL evidence (Daisy, dde3c077): on a synthetic school's evidence the product offers no «Minta membaca
+  // lagi». So it is walked at the dev/CI bootstrap (OFFICIAL), by J3's 8K teacher Bambang for Sinta (her gate failed),
+  // entered from her own page as a teacher would.
+  await j.langkah("L6", "«Minta membaca lagi» sent (OFFICIAL evidence: the bootstrap's 8K, Bambang for Sinta)", async ({ rec, foto, data, amati }) => {
+    amati("bukti OFFICIAL di tenant bootstrap dev/CI (sintetis): Bambang Sutrisno · Sinta Maharani, 8K");
+    const guru8k = D["j3.guru"], sinta = D["j3.murid_resmi"], K8K = D["j3.kelas"];
+    await masukEmail(j, guru8k);
+    await lewatiTur(j);
+    await ke(`/mengajar/${K8K}/murid/${sinta.person}`);
+    await foto("sinta");
     const tautan = page.getByRole("link", { name: /Minta membaca lagi|Ask to read again/ }).first();
     data("student_page_offers_it", await tautan.count() > 0);
-    if (await tautan.count()) rec.tab += await j.tekan(tautan, 200);
-    else {
-      await ke(`/mengajar/${K8A}`);
-      const dariKelas = page.getByRole("link", { name: /Minta membaca lagi|Ask to read again/ }).first();
-      data("class_page_offers_it", await dariKelas.count() > 0);
-      if (await dariKelas.count()) rec.tab += await j.tekan(dariKelas, 300);
-      else await ke(`/mengajar/${K8A}/ulang?penugasan=${W3.up}`);
-    }
+    rec.tab += await j.tekan(tautan, 200);
     await page.waitForURL((u) => u.pathname.endsWith("/ulang"), { timeout: 30000 });
     await tunggu();
     await foto("minta-membaca");
     data("request_page", (await isi()).slice(0, 900));
-    const rizkyKotak = page.locator(`input[type=checkbox][name=murid][value="${rizky.person}"]`).first();
-    if (await rizkyKotak.count() && !(await rizkyKotak.isChecked())) { rec.tab += await j.tabKe(rizkyKotak, 200); await page.keyboard.press("Space"); }
-    data("rizky_ticked", await rizkyKotak.isChecked().catch(() => false));
+    const kotak = page.locator(`input[type=checkbox][name=murid][value="${sinta.person}"]`).first();
+    data("sinta_preticked", await kotak.isChecked().catch(() => false));
+    if (await kotak.count() && !(await kotak.isChecked())) { rec.tab += await j.tabKe(kotak, 200); await page.keyboard.press("Space"); }
     rec.tab += await j.tekan(page.locator("form.pin-ulang button[type=submit]").first(), 300);
     await tunggu();
     await foto("minta-membaca-terkirim");
     data("sent", await pesan());
     await keluar(j);
-    await masukEmail(j, rizky);
+    await masukEmail(j, sinta);
     await lewatiTur(j);
     await ke("/belajar");
-    await foto("rizky-belajar");
+    await foto("sinta-belajar");
     data("learner_sees", (await isi()).slice(0, 500));
     await keluar(j);
   });
@@ -242,12 +241,11 @@ for (const lebar of LEBAR) {
     rec.tab += await j.tekan(page.locator("a[data-jadwal-buka]").first(), 200);
     await tunggu();
     await foto("jadwal");
-    // «Sampai» (a date and time field): typed by keyboard, its segments in the page's order; the reason is required
+    // «Sampai» (a date-and-time field): its typed segments follow the browser's language (Daisy saw «03/11/22026»), so
+    // the value is set in its own ISO form, the same in every language; the field is still reached by Tab
     const sampai = page.locator("#jadwal-sampai");
     rec.tab += await j.tabKe(sampai, 100);
-    await page.keyboard.type("31122026");
-    await page.keyboard.type("1500");
-    if (!(await sampai.inputValue().catch(() => ""))) { await sampai.fill("2026-12-31T15:00"); data("end_date_typed", "the field took no typed date; filled"); }
+    await sampai.fill("2026-12-31T15:00");
     data("end_date_value", await sampai.inputValue().catch(() => ""));
     rec.tab += await j.ketik(page.locator("#jadwal-alasan"), "Diberi batas akhir sebelum libur semester (dunia audit J5).", 30);
     rec.tab += await j.tekan(page.getByRole("button", { name: /^(Simpan jadwal|Save schedule)$/ }).first(), 60);
