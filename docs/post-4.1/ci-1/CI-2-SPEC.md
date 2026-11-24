@@ -209,3 +209,37 @@ This is evidence for the pre-V-1 head only. V-1 and V-2 change the head, so the 
 - **The sweep:** every route paced by address, namely code_request_pace (AKUN-A02, Z-S12-01), RECOVERY_PIN (5 files) and Auth's per-address limits (19 files, plus bob50's fixed address, now its own).
 - **Quick check:** 39/0. Migration 311's sha256 is unchanged at `5c4b2306…1627`.
 - **Next on `25681b11`:** the full suite, plants, redcase, then the report and the re-freeze.
+
+## 11 · Re-freeze (Bob, 24 Nov 23:24Z): FROZEN at `25681b110173b87dd2996c752145e5e377b6baf5`
+
+**Four commits on `9c6aae62`** (9 files, +135/−76):
+- `1ef3ee34`: V-1 and V-2, red first;
+- `91937e98`: the fix;
+- `8678de21`: Daisy's §6 line, verbatim;
+- `25681b11`: the Z-S12-01 test isolation.
+
+Migration 311 is changed in place (unmerged, applied nowhere; staging is at 310 after CI-1). Its sha256 is `5c4b2306c4c1c418832762a481d2d4bc98df717c174215f113d93625199a1627`, and the preservation header carries it.
+
+**The evidence on the exact sha** (Second Eye):
+- lint and typecheck PASS;
+- the **full suite 1446/0** (one accepted local skip, forced reset, every heartbeat READY);
+- focused 39/0, with the A2A-L01 report regenerated unchanged;
+- **plants 192/192;**
+- **redcase 11/11 groups in ONE run** (2186 s) at the default heartbeat under H-1's harness: 18 READY, **1 RESET**, 0 INFRA. That RESET is the first real-run proof of H-1's reset path.
+- The new plants live inside their tests:
+  - V-2's Q14 (a BEGIN ATOMIC setter) is in CI2-G01, with Q11 and Q12;
+  - V-1's category check (`card_holders()` adds only `{"terkunci": bool}`, and the row is byte-identical for a suspension and a closure) is in CI2-P01;
+  - the Z-S12-01 collision plant is in Z-S12-01.
+
+**V-1's sweep of `card_holders()`'s readers:** `pemegang-kartu.ts` and KartuUlang changed; KartuJadiEmail reads the type only; b4 and bob28 don't read the column.
+
+**Go-first is no longer needed:** CI-1 is merged, so #31's diff against main is CI-2's alone.
+
+**Branch protection (learned on H-1):** a PR must be up to date with main to merge. When the owner authorises CI-2, #31 needs GitHub's update-branch, a merge commit, at that time. H-1, if merged first, carries the identical clock-fix lines, so the update is clean. The diff is re-checked to be byte-identical, and ci reruns on the updated head.
+
+**Next, once each:**
+1. Push at the sha.
+2. PR #31's ci runs, and the journeys are dispatched with the full sha.
+3. Bob reads both conclusions from the API.
+4. Sharon checks the delta only (`9c6aae62..25681b11`).
+5. The owner's request.
