@@ -304,3 +304,16 @@ Nine findings: 5 Significant, 4 Improvement, none Critical. **The core cross-rol
 |---|---|---|---|---|---|---|
 | L-86 | The certificate's verification address is shown on screen as text plus «Salin tautan verifikasi», not as a link | A, G | J2 | Improvement | — | On screen, a link («Buka halaman pemeriksaan»); on paper it stays text plus the QR |
 | L-87 | «Soal 1/3» is exposed to the screen reader as img | G | J2 | Improvement | — | Text or a status |
+
+## J8 walked in part (Daisy, `AUDIT-79-TEMUAN-J8.md` `8f20190a`, as W15's admin; 24 Nov)
+
+**Covered:** every Konfigurasi sub-page while empty, Pendataan, Aktivasi, the structure built through the screens, a wrong year, a wrong school code. **Holds:** the readiness list updates and points to each step, and the empty states guide well. **L-39 is confirmed at a second school** (the chevrons end at x 801–879). **Left for the builder:** roles with dates, the planted-error workbook, printed cards, a renamed rule, the last admin's refusals, and the SR, throttled and reduced-motion passes.
+
+| L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
+|---|---|---|---|---|---|---|
+| L-88 (J8-1) | Three fields (an empty Bagian name, the school code «A-1», a short reopening message) are refused only by the browser's bubble, never by PINTAR's own line. The Tingkat's year field does give PINTAR's refusal | G, A | J8, J10 | Improvement | **C-10 (new)** | **Absorbs L-77.** One rule: PINTAR's line by the field, announced, with the value kept |
+| L-89 (J8-2) | «2026/27» and «2026/2027» for the same year | B | J8 | Improvement | C-6 | One format |
+| L-90 (J8-3) | Old ✓ confirmations pile up | G | J8 | Improvement | — | — |
+| L-91 (J8-4) | Kelas are added one per submission (about 20 for a 600-learner school) | F | J8 | Improvement | — | Allow «1A, 1B, 1C» |
+| L-92 (J8-5) | A bare «Belum ada.» on Sistem & Konfigurasi | A | J8 | Improvement | — | — |
+| L-93 (J8-6) | «Struktur sekolah di atas», but it isn't above | B | J8 | Improvement | — | — |

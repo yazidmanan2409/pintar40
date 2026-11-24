@@ -24,6 +24,7 @@
 | **C-7** (J7; widened by J5, ruling 97) | **An action is offered without its prerequisites: the rule is held only by the RPC that refuses it, or nowhere.** Buttons are gated on status and permission, not on what the action needs, and the rows often don't even select the needed column. Rules added later as a trigger or in the executing RPC were never carried back into the earlier steps or the reads | `siapkan`'s «Sediakan» is always enabled (`siapkan/page.tsx:300`), while `ASSIGN_PASS_MARK_MISSING` is raised by an insert trigger (`20261102100000:310`), the pass mark being added after the page. `transfer_execute` refuses SOURCE_CLOSED, but `transfer_terima`, `transfer_authorize` and the `pindah_masuk` read never check the source, so a transfer can be accepted into an AUTHORIZED state that can never be executed. Uji Cepat is offered on every class (`langkah/page.tsx:66`), while its page needs an ACTIVE assignment. `putuskan_tinjauan_sertifikat` has no result check at all (CI-1) | L-67, L-79, L-35, L-81; the J5 sweep found 9 such buttons (§3b) |
 | **C-8** (J7, new) | **The person who notices isn't the person who may act** | The teacher and the head of department see a wrong key but only the admin can flag it | L-71 |
 | **C-9** (J10, new) | **A refusal worded to hide a state from strangers is also shown to the person who has proven they own the account** | A closed account with the correct password gets the same «belum cocok» as a wrong password | L-75, L-76. **Sharon's rule:** say more only after the requester has proven what a stranger can't know, and only where the proof is strong: a password qualifies, a PIN doesn't |
+| **C-10** (J8, new) | **Some forms leave validation to the browser** | Three fields refuse only through the browser's bubble (not announced the same way, and gone on scroll), while sibling forms give PINTAR's own line | L-88 (absorbs L-77) |
 
 ## 2 · Against the owner's five questions (ruling 95)
 
@@ -114,6 +115,8 @@ The 9 buttons found:
 | J7 | 8 | L-68, L-70 (C-3); L-69 (C-4); L-74 (C-6) | **C-7** (L-67), **C-8** (L-71) |
 | J10 | 3 | — | **C-9** (L-75, L-76); L-77 is layout |
 | J5 (part) | 4 | L-79 (C-3, C-7), L-80 (C-4), L-81 (C-7), L-82 (C-6) | — |
+| J6 | 3 | L-83 (C-4) | — |
+| J8 (part) | 6 | L-89 (C-6); L-39 confirmed | **C-10** (L-88) |
 
 ## 4a · Owner direction for the remaining analysis (ruling 96)
 
