@@ -47,16 +47,16 @@
   - one frozen candidate per PR;
   - no speculative reruns.
 
-## 3 · Status
+## 3 · Status (13:46Z)
 
 | Stream | State |
 |---|---|
-| W1 | **All twelve walked by Daisy (24 Nov 12:03Z)**; J2's capture run done (`da220028`). Open: the builder's capture runs for every journey's branches and passes, and Daisy's judgement of each |
-| W2 | L-1 to L-101 recorded |
+| W1 | All twelve walked. Captures committed and judged: **J2, J3, J4 closed for builder lines**. The builder next reloads the world (the L-80 world fix, the W12 allowance), runs J2's public check in EN, then J7, J10 and the rest |
+| W2 | L-1 to L-104 recorded |
 | W3 | INTERIM: C-1 to C-11 |
-| W4 | Second Eye: the full pre-flight on `fcc548d0` (from about 11:35Z) |
-| W5 | Approved; Sharon's pre-build review pending |
-| W6 | Not started (after W3) |
+| W4 | CI-1: the helper scope is ruled (§7, Sharon agrees). Second Eye on focused tests, then the ONE full pre-flight, then the freeze check |
+| W5 | CI-2: pre-build complete (Sharon §6); words cleared (§7). Waiting on CI-1's freeze |
+| W6 | Not started (after W3 FINAL) |
 | W7 | Not started |
 
 ## 4 · Pacing (owner, 24 Nov: usage isn't monitored overnight)
