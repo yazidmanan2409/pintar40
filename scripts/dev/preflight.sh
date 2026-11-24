@@ -162,6 +162,13 @@ cmd_for() {
     suite) printf 'npx --no-install tsx selftest/run.ts --accept-justified-skips'; printf ' %q' "${SUITE_ARGS[@]}" ;;
     plants) echo "node scripts/dev/plants.mjs run --db-url=$SUPABASE_DB_URL" ;;
     redcase) echo "node scripts/dev/redcase-local.mjs --db-url=$SUPABASE_DB_URL" ;;
+    # H-1's own proof, never in a real run (PREFLIGHT_UJI=1 only): uji-reset resets the database inside the step, as the
+    # red cases do, on a healthy machine; uji-mati stops the database with no reset running, so the heartbeat must
+    # still find it lost.
+    uji-reset) [ "${PREFLIGHT_UJI:-}" = 1 ] || return 1
+      echo "for i in 1 2 3; do npx --no-install supabase db reset --local || exit 1; done" ;;
+    uji-mati) [ "${PREFLIGHT_UJI:-}" = 1 ] || return 1
+      echo "docker stop supabase_db_pintar40 >/dev/null; sleep $((DENYUT * 3)); docker start supabase_db_pintar40 >/dev/null; sleep 30" ;;
     *) return 1 ;;
   esac
 }
