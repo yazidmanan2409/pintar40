@@ -61,3 +61,29 @@
 - **The runs:** PR #30 ci 45439475500 and journeys 45441914637 are green in one attempt.
 - **CI-1: PASS.** The merge and the staging promotion are the owner's. I give the promotion verdict on AFTER.
 - **Noted:** R1-K01 has a 16:00–24:00Z flake on main (UTC `current_date` passed to a school-clock function). The fix rides in CI-2, and I check it there.
+
+## Addendum · staging promotion (310), ruling 101 (24 Nov 2026, 22:45 UTC): PASS, conditional only on the V6 counter re-read
+
+**How I verified:**
+- I read the evidence at `4776ac51` (`docs/post-4.1/ci-1/promotion/`), `main`, and the GitHub API.
+- I did **not** query staging myself. My standing rule is no staging access in my own session unless the owner gives it to me directly. Bob's evidence is the read; my checks below are of that evidence and of the repository.
+
+**What I checked:**
+- **The run:** staging.yml 45500905721 read from the API at 22:44Z: `status=completed`, `conclusion=success`, head `93b93134`.
+- **The merge:**
+  - `main` `93b93134`'s tree equals `94ce6727`'s (`25a734bd…`), which I checked;
+  - the migration's sha256 begins `2b450700b48fe857…`, as recorded.
+- **My own diff of BEFORE against AFTER:** **only line 10 moves**, 309 → 310 (digest `ddcd294d…`). Line 76's trailing-space correction is disclosed and is not a data change.
+- **Nothing written to any certificate, review, result or audit row:**
+  - the migration has no write statement other than its one registry upsert;
+  - the preserved lines are identical, including the certificates and the audit log up to BEFORE's watermark (10705).
+- **Public and staff validity agree by construction:** `verify_certificate`, `sertifikat_saya_ditinjau` and the staff reads all call `sertifikat_dipersoalkan`.
+  - Step 0 predicted 60 ISSUED, none turning DITINJAU.
+  - The read after promotion shows 60 ISSUED, all BERLAKU, 6 REVOKED and 0 DITINJAU, which matches.
+- **Grants and the registry row:** as built.
+
+**One item missing from the evidence:** the V6 hosted check, as for Z and D2-R.
+- After one staging request, the `periksa` counter must read above its post-promotion baseline.
+- Its `pg_get_functiondef` md5 must still be `2b4a0444fbd36007341a536916fe14a0`, since CI-1 does not touch `periksa`.
+
+**Once that is recorded, CI-1's staging promotion is a PASS, and CI-1 may be declared closed** (L-105 stays open under CI-1b).
