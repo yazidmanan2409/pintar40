@@ -82,3 +82,25 @@ UNKNOWN (needs the owner or a read).
 - **PR-11: CONFIRMED.** `buktiPerKelasDari` (`pimpinan.ts:454–469`) makes 7 concurrent RPCs per class, unbounded: about
   210 for 30 classes, against the Micro pool. **The smallest fix is a concurrency limit.**
 - **PR-10:** the envelope must state whether a leader page is in scope.
+
+## Draft 2 (Bob, 24 Nov 2026; ruling 89): what changed since 18 Nov
+
+**This draft still authorises nothing.** Production was not read. Production is at 111. Staging is at 308 (Z, ruling 88).
+
+| # | Change since draft 1 | State now |
+|---|---|---|
+| PR-1 | **Counsel approved for the AI questions only** (ruling 85, both providers, fees first). The brief, `e-local/v4/COUNSEL-BRIEF-RULING85.md`, is FIT TO SEND (Sharon, `60691d59`), not yet sent. **The wider W9.11 list** (PSE registration, controller and processor roles, consent and content rights for the first use) **is not in that brief** | **GAP**, narrowed. *Bob recommends:* add the W9.11 first-use questions to the same engagement, as one fee estimate |
+| PR-3 | Ruling 73 (C′) decided how a pending transfer from a since-suspended administrator completes (re-confirmation, at 4.5). **OD-9 (consent itself) is still undecided** | **GAP** (unchanged). Needed before any real transfer; not needed for the 10-adult pilot, which is one school |
+| PR-4 to PR-6 | **Still off.** Read on 24 Nov: the watch's runs up to #203 (23 Nov) and the backup's up to #48 (23 Nov) are all *skipped*. **Sharon's 18 Nov points stand:** record who can dispatch each job against production, and prove that a missing secret fails closed | **EXISTS-OFF**. PRQ-1 is still open for the owner |
+| PR-13 | Unchanged | PARTIAL |
+| PR-17 | **The candidate changed.** Main is now `61a6ff9e` at 308, and D2-R follows. The after-promotion checks are proven on staging: `v6-pre-request.sql` and `c3w-r3-bahan.sql` both OK; the pre-request ran after the promotion (+148 calls); `periksa` is byte-identical to main's build (`batches/z/z-promotion/V6-HOSTED-OVERRIDE.md`) | **PARTIAL**. Re-run the production rehearsal on the 4.1 candidate **after D2-R** (the final 4.1 shape), with the V6 hosted check added to its list |
+| PR-18 | **Ruling 83** adds a readiness gate (`scripts/dev/siap.sh`) and run classes (PASS / FAIL / INFRA / VOID). GitHub CI is the authoritative full run (L-3) | **By design**, executors now named for verification runs. The runbook naming each executor is still to write |
+| PR-12, PR-15, PR-19 | Unchanged. **Daisy reads them** for what a person sees when they need help (ruling 89, 2b) | GAP |
+| Others | No change | As in draft 1 |
+
+**For the owner (unchanged, none blocks 4.1's gates):**
+- PRQ-1, the watch;
+- PRQ-3, counsel for PR-1 and PR-2, now best combined with the ruling 85 brief;
+- PR-15 and PR-16, the names.
+
+**Reviews of draft 2:** Sharon (second pass) and Daisy (PR-12, PR-15, PR-19). Recorded here when they land.
