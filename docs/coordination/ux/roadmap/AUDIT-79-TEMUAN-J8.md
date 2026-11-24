@@ -31,3 +31,44 @@
 | J8-4 | Kelas are added one per submission. A 600-learner school (about 20 Kelas) needs 20 submissions and 20 page loads before intake can start | — | — | F | Allow a list in one field: «1A, 1B, 1C» → «3 Kelas ditambahkan.» |
 | J8-5 | «Sistem & Konfigurasi» on an empty school ends with a bare «Belum ada.», without saying what doesn't exist yet | — | — | H | Name it: «Belum ada aturan sekolah yang disimpan.» (or what the list holds) |
 | J8-6 | «Laporan» on an empty school says «Buat Kelas di Struktur sekolah di atas»; «Struktur sekolah» is not above, it is another page | — | — | H | «Buat Kelas di Struktur sekolah.» with the link |
+
+## The rest of J8 walked locally (24 Nov 21:30): intake, cards, roles, the last admin, rules
+
+Walked at `6b248975` on the reloaded audit world (W15, SD Sintetis Anggrek), at 1280, as Wahyu Nugroho. There is no builder harness for J8, so I used my own scripts (scratch).
+- **The planted-error list:** built from the app's own example (pasted, semicolon-separated).
+- **Captures:** scratch only.
+
+### Holds
+- **Intake refuses the whole list until every row is clean:** «3 baris perlu diperbaiki … Tidak ada yang dicatat sampai seluruh baris bisa dibaca.»
+- **A clean list** shows exactly what will happen before anything is recorded:
+  - «Baris 3 · Orang baru 3 · No. registrasi sekolah yang akan dibuat 3 · Akun yang bisa masuk 0»;
+  - «Pendataan tidak membuat akun»;
+  - every name «persis seperti akan dicatat»;
+  - then «Ya, catat orang-orang ini».
+  - After it, the next steps are named: roles first, then activation.
+- **Cards for one class in one press,** a printable card sheet («Cetak kartu kelas»), and «PIN hanya ditampilkan sekali dan tidak bisa ditampilkan lagi setelah halaman ini ditutup».
+- **A role ending today is accepted,** and flagged at once under «Peran yang segera berakhir … Perpanjang sebelum tanggalnya».
+- **The last admin:**
+  - their own row offers no «Lepaskan»;
+  - «Tutup akun saya» is refused with an exact way out: «Anda satu-satunya Admin sekolah yang masih aktif … Tunjuk Admin sekolah lain lebih dulu di Peran & akses, lalu ajukan lagi. Bila tidak ada orang lain, hubungi Admin PINTAR.»
+- **The effort count for a 600-learner school** (about 20 classes): one paste, one mapping, one check and one approval per class, then one card press and one print per class. That is about 120 actions for the year's intake. It is reasonable, so no finding.
+
+### Not walkable on this world (for the builder)
+- **Pass marks:** they need a lesson. That is unchanged from my first walk.
+- **A renamed rule:** a rule needs a Paket Pembelajaran, and W15 has none (see J8-12).
+- **Email, NIS and date errors** in the list can't be planted: the intake maps only name, existing person, place, role and programme. **Not a finding:** the template asks for «nama» only.
+- **«Kirim kartu ke email saya»** failed («Kartu belum bisa dikirim sekarang. Coba lagi nanti.»). My SMTP sink is environmental, as in J10.
+
+### New findings
+
+| # | Finding | Siblings | Cause | Dim. | Fix |
+|---|---|---|---|---|---|
+| **J8-7 (Significant)** | **Two different children with the same name can't be entered.** A list with «Siti Aminah; 2001» and «Siti Aminah; 2002» is refused: «Baris 1 · Baris ini kembar dengan baris lain di berkas yang sama» (both rows). The NIS column is read but can't be mapped, so nothing tells the two apart. The advice («Perbaiki berkas …») can't be followed for two real children. Same-name learners are common in Indonesian classes. | — | C-7 (a rule that assumes names are unique) | F, C | When two rows share a name and nothing else separates them: a warning, not a refusal. «Baris 1 dan 2 bernama sama (Siti Aminah). Bila keduanya murid yang berbeda, pilih «Dua orang berbeda»; bila sama, hapus salah satunya dari daftar.» Or allow an identifying column (NIS) to separate them. |
+| J8-8 | **The check's errors are hard to act on.** It names «Baris 1», «Baris 2», «Baris 5» but not the person, and data-row numbers differ from the spreadsheet's (a header row makes them +1). «Nama kosong atau terlalu panjang» doesn't say which. After the refusal, «Periksa daftar ini» is still offered, and pressing it repeats the same result. There is no «Mulai pendataan baru» button, and the pasted list isn't kept. | — | C-7 | C, F | «Baris 2 (di spreadsheet: baris 3): nama kosong.»; «Baris 1 dan 5: Ani Lestari tertulis dua kali.» Replace «Periksa daftar ini» with «Mulai pendataan baru», which reopens the paste box with the list kept. |
+| J8-9 | **A learner is offered in «Berikan peran»,** and choosing her as Guru is refused as «Belum berhasil. Langkah ini bukan wewenang Anda.», said to the school's only admin. The real reason is that she holds a class card. | Aktivasi's own section: «Kartu kelas hanya untuk murid. Bila seorang murid menjadi staf, ubah kartunya menjadi akun email lebih dulu.» | C-9's neighbour (a refusal naming the wrong cause) | C, H | Mark learners in the person list («Ani Lestari · murid»). The refusal: «Ani Lestari memakai kartu kelas murid. Ubah kartunya menjadi akun email lebih dulu, di Aktivasi akun · Murid yang menjadi staf.» |
+| J8-10 | A role with no «Berlaku sampai» is held only by the browser's bubble («Please fill out this field.»), although the field's own line says «Belum ada tanggal.» | J5-8, J8-1, J10-3 | C-10 | G | As C-10 |
+| J8-11 | **After the cards are made,** the class picker still reads «(3 murid belum punya akun)» and the list «3 orang menunggu akun». Each PIN is also shown twice on the page: on the card sheet, and again in each row. | **Disagree:** the sheet says the cards are made | C-3 | B, F | The counts update («Semua murid di kelas ini sudah punya kartu»). PINs appear once, on the sheet; each row says «Kartu dibuat · lihat lembar kartu di atas». |
+| J8-12 | **Aturan Asesmen at a school with no package** shows the full form. Its required «Paket Pembelajaran» select has only «—», and «Buat aturan» is held by the browser's bubble («Please select an item in the list.»). Nothing says a package must exist first. | — | C-7; C-10 | F, C | With no package: «Aturan dibuat untuk satu Paket Pembelajaran. Sekolah ini belum punya paket: buat paket lebih dulu di Buat Paket.» + the link, and no form. |
+| J8-13 (optional) | The last admin's refusal begins «Permintaan ini tidak diajukan» on an action that is an immediate close, not a request | — | C-6 | H | «Akun Anda belum dapat ditutup: Anda satu-satunya Admin sekolah …» |
+
+**J8's «left for the builder» lines:** walked, except pass marks and the renamed rule (world: no lesson, no package) and the passes.
