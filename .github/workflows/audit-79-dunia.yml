@@ -34,6 +34,8 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
+      - name: The world loader refuses every database but the local stack's (Sharon's guard)
+        run: audit/dunia/uji-penjaga.sh
       - name: Keep the stack's host ports out of the ephemeral range
         run: sudo sysctl -q -w net.ipv4.ip_local_reserved_ports=54320-54329
       - uses: actions/setup-node@v4

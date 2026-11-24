@@ -9,11 +9,28 @@
 # 2. 00-pembantu.sql, then every other NN-*.sql here in order, as ONE transaction (psql -1, ON_ERROR_STOP): a part
 #    that fails leaves no half-built world.
 # 3. dunia.fakta exported to dunia.json, which the journey captures read (sign-in details, ids).
-# Local and CI only: the seed's own guards refuse a production environment or a database without local fixtures.
+# Local and CI only: the loader refuses any database but the local stack's (below), and the seed's own guards refuse
+# a production environment. Never run the selftests against a database where the world has loaded (Bob, 24 Nov).
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO="$(cd "$HERE/../.." && pwd)"
 DB="${SUPABASE_DB_URL:-postgresql://postgres:postgres@127.0.0.1:54322/postgres}"
+
+# SHARON'S GUARD (24 Nov): the world (and its legacy-state and fixture paths, which write past today's guards) loads into
+# the local stack only, which is CI's too: host 127.0.0.1 or localhost, port 54322, database postgres. Anything else
+# exits non-zero here, before any reset, connection or write. Proven by audit/dunia/uji-penjaga.sh.
+if ! python3 - "$DB" <<'PY_GUARD'
+import sys
+from urllib.parse import urlsplit
+u = urlsplit(sys.argv[1])
+ok = (u.scheme in ("postgresql", "postgres") and u.hostname in ("127.0.0.1", "localhost") and u.port == 54322
+      and u.path == "/postgres" and not u.query)
+sys.exit(0 if ok else 1)
+PY_GUARD
+then
+  echo "dunia: REFUSED: the world loads into the local stack only (127.0.0.1:54322/postgres), not this database" >&2
+  exit 3
+fi
 args=(-v ON_ERROR_STOP=1 -q -X -1)
 if [ "${1:-}" = "--fiksasi" ]; then
   fx="$HERE/fiksasi/${2:?which fixture}.sql"

@@ -147,8 +147,11 @@ begin
   end if;
   -- W4, A LEGACY STATE, WRITTEN PAST TODAY'S GUARD: a chapter given before the school had a pass mark (as real data from
   -- before D-088(b) holds). The product now refuses that (seal_assignment_pass_mark: ASSIGN_PASS_MARK_MISSING), so the
-  -- one sealing trigger is disabled for this chapter's own assignment rows only, and enabled again at once, as the
-  -- selftests do for their fixture-only states. Only a spec marked "warisan" reaches it.
+  -- one sealing trigger is disabled ON THE TABLE FOR THESE TWO INSERTS (DISABLE TRIGGER is table-wide; inside the one
+  -- load transaction its exclusive lock keeps every other writer out until it is enabled again, at once), as the
+  -- selftests do for their fixture-only states. 99-periksa.sql fails the load unless it is enabled again. Only a spec
+  -- marked "warisan" reaches it. Bob approved W4 as a legacy fixture state (24 Nov); its captures are labelled
+  -- «keadaan warisan (dibuat melewati penjaga hari ini)».
   if coalesce((spec ->> 'warisan')::boolean, false) then
     alter table public.assessment_assignments disable trigger assessment_assignments_the_pass_mark_is_sealed;
   end if;
