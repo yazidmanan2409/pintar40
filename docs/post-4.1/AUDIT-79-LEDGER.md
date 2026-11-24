@@ -243,3 +243,13 @@ Nine findings: 5 Significant, 4 Improvement, none Critical. **The core cross-rol
 | L-72 (J7-6) | Keys are shown as letters only («A → B») | A | J7 | Improvement | Wording / layout | — |
 | L-73 (J7-7) | Step 2 is wordy | A | J7 | Improvement | Wording | — |
 | L-74 (J7-8) | One verdict, different words | B | J7 | Improvement | C-6 (L-33) | — |
+
+## J10 walked: the signed-out paths (Daisy, `AUDIT-79-TEMUAN-J10.md` `4dd5afc3`; the local audit world; 24 Nov)
+
+**[S] holds: no existence oracle was seen.** A wrong PIN, an unknown ID and a reset account all read the same, and the reopening confirmation says «Jika akun itu memang sudah ditutup …». **Also holds:** the reveal button is named; the ways out are named; a double press made one REOPEN request; there is no time promise; Back doesn't resend. **Left for the builder's run:** the email path (no mail service locally), the session lock, PIN recovery expiring, and the SR, throttled and reduced-motion passes. **Ruling 96:** any account-specific disclosure is Sharon's decision.
+
+| L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
+|---|---|---|---|---|---|---|
+| L-75 (J10-1) | A closed account signing in with the **correct** password reads «Email, username, atau password belum cocok», so the owner is sent to retype or reset a right password | A, D | J10 | **Significant** | **C-9 (new)** | Daisy proposes that, once the password is proven, «Akun ini sudah ditutup. Anda dapat meminta dibuka kembali.» + the link is not an oracle. With a wrong password the refusal is unchanged. **Sharon decides** (ruling 96) |
+| L-76 (J10-2) | A learner whose PIN was reset gets «tidak cocok, periksa keduanya» on PIN recovery | A | J10 | Improvement | C-9 | One line for everyone, revealing nothing about the account: «Bila PIN Anda baru diatur ulang oleh sekolah, pulihkan lewat email atau tanyakan kepada admin sekolah.» |
+| L-77 (J10-3) | The reopening form's short-message check is only the browser's bubble | G | J10 | Improvement | Layout | The page's own line by the field |

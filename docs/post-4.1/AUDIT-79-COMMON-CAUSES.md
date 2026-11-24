@@ -1,6 +1,6 @@
 # Audit 79 · the common causes behind conflicting screens (Bob, 24 Nov 2026; ruling 95)
 
-**Status: INTERIM, after J1 to J4 and J7.** Sol's review (relayed by the owner, 24 Nov) supports the direction in principle, with two qualifications, adopted here: C-1 keeps the current attempt and the result in force as two facts, and every consumer of `my_cycle_state` is checked (§3a); C-5 keeps each recommendation's provenance. Sol's recommendation, as relayed: approve the direction in principle, and finalise the implementation plan only after all twelve journeys. It is updated as Daisy walks each remaining journey. **The correction plan is not final until all twelve are walked** (ruling 95). Nothing here is built.
+**Status: INTERIM, after J1 to J4, J7 and J10.** Sol's review (relayed by the owner, 24 Nov) supports the direction in principle, with two qualifications, adopted here: C-1 keeps the current attempt and the result in force as two facts, and every consumer of `my_cycle_state` is checked (§3a); C-5 keeps each recommendation's provenance. Sol's recommendation, as relayed: approve the direction in principle, and finalise the implementation plan only after all twelve journeys. It is updated as Daisy walks each remaining journey. **The correction plan is not final until all twelve are walked** (ruling 95). Nothing here is built.
 
 **Method:**
 - Every finding where screens disagree was traced, read-only, to the code on main `429b7dcc`. For each finding the trace names:
@@ -23,6 +23,7 @@
 | **C-6** | **One verdict, words chosen per screen** | Every surface uses the shared `ketuntasan` (`siklus.ts:300`). But the start card and the Hasil Belajar headline ignore `bersertifikasi` when choosing their words: «Lulus» / «target tercapai» / «sudah mencapai target» | L-33, L-48, L-61 |
 | **C-7** (J7, new) | **A consequential choice is offered the same, whatever the facts beside it** | «Konfirmasi berlaku» is offered on a certificate whose result was recalculated to a fail exactly as on a passing one, with no confirmation naming the effect. The public record then asserts a pass the current result contradicts | L-67 (**CRITICAL provisionally, ruling 96; Sharon judging**) |
 | **C-8** (J7, new) | **The person who notices isn't the person who may act** | The teacher and the head of department see a wrong key but only the admin can flag it | L-71 |
+| **C-9** (J10, new) | **A refusal worded to hide a state from strangers is also shown to the person who has proven they own the account** | A closed account with the correct password gets the same «belum cocok» as a wrong password | L-75, L-76 (**Sharon decides what may be disclosed**, ruling 96) |
 
 ## 2 · Against the owner's five questions (ruling 95)
 
@@ -80,6 +81,7 @@ Today `post_session` / `pre_session` is the latest *begun* sitting. **That meani
 | J3 | 9 | All five Significant (C-1, C-2, C-4) and L-59 to L-61 (C-5, C-6) | — |
 | J4 | 3 new, plus 2 confirmations | L-63, L-64 (C-2); L-45 confirmed (C-4) | — (L-65 is wording only) |
 | J7 | 8 | L-68, L-70 (C-3); L-69 (C-4); L-74 (C-6) | **C-7** (L-67), **C-8** (L-71) |
+| J10 | 3 | — | **C-9** (L-75, L-76); L-77 is layout |
 
 ## 4a · Owner direction for the remaining analysis (ruling 96)
 
