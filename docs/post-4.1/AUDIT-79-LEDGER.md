@@ -620,3 +620,16 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
 | L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
 |---|---|---|---|---|---|---|
 | L-143 | «Tandai sudah tersusun» and «Tandai lolos pemeriksaan» go through while an AI draft still awaits its accept-or-delete decision; only «Ajukan» is held. So a package can be «lolos» with an unaccepted draft in it (builder, J6 `11c269e2`) | E, B, [S] | J6 | **SIGNIFICANT (Sharon, 21:50Z)**: a pending draft is part of what the mark vouches for, and a draft nobody has accepted isn't checked content. Publication's re-check and the held «Ajukan» keep it from reaching learners. **HIGH if any publish or approve path ignores a pending draft** | C-7 | **AR-79, joining L-124's binding:** refuse BOTH marks while any draft awaits a decision, in the database (`langkah_konten`), not only the screen; the mark binds the revision and requires no pending draft; approval re-checks both. Red-first tests: the mark is refused with a pending draft; accepted after the decision; a draft added after the mark makes it stale. Daisy gives the words |
+
+**J6's capture judged (Daisy, `1c4977e6`):** every finding stands, and J6's builder lines are closed.
+- **Holds:** AI_TUJUAN_LAIN reads clearly; AI_PAKET_LOLOS_PERIKSA from a second tab is honest, and the button is gone on reload; the held «Ajukan» → accept → submit → the second person's count → approval; W13 shows nothing; EN is clean.
+- **L-143's UX side**, fitted to Sharon's ruling that **both** marks are refused while a draft waits:
+  - the cause is C-3: the «undecided drafts» fact is derived only at «Ajukan»;
+  - both marks are held like «Ajukan»; under each: «**{n} soal masih draf dari AI.** Terima atau hapus setiap draf sebelum paket ditandai tersusun.» + «Lihat draf pertama» (EN: «**{n} questions are still AI drafts.** Accept or delete each draft before the package is marked as composed.»; the lolos variant follows the same pattern);
+  - the SEKARANG block counts the waiting drafts.
+  - Daisy's fallback (marking allowed) lapses under Sharon's ruling.
+- EN judgement on J5 and J10 is held until the re-runs land.
+
+| L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
+|---|---|---|---|---|---|---|
+| L-144 (J6-7) | The held «Ajukan» is a disabled button, with its reason in a separate paragraph, so a keyboard or SR user never reaches it | G | J6 | Improvement | — | `aria-disabled` plus `aria-describedby`; the press goes to the first draft. **The same pattern applies to every held button in AR-79** (L-143's two marks included) |

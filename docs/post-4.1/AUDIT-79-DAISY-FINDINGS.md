@@ -1,4 +1,4 @@
-# Audit 79 · Daisy's findings, complete list (as of 24 Nov 2026, 21:35Z)
+# Audit 79 · Daisy's findings, complete list (as of 24 Nov 2026, 21:55Z)
 
 Compiled by Bob from Daisy's eleven journey files, `docs/coordination/ux/roadmap/AUDIT-79-TEMUAN-J2.md` to `…-J12.md`, on `ux-1/daisy-experience` at `b8b97097`. The ledger references are from `docs/post-4.1/AUDIT-79-LEDGER.md`.
 
@@ -16,11 +16,11 @@ Compiled by Bob from Daisy's eleven journey files, `docs/coordination/ux/roadmap
 | Critical | 1 (J7-1) |
 | High | 1 (J7-10) |
 | Significant | 24 |
-| Improvement | 65 |
-| **Open findings** | **91** |
+| Improvement | 66 |
+| **Open findings** | **92** |
 | Not counted: confirmations of an earlier row, a harness note, a world artefact, no change proposed | 6 (J4-2, J4-5, J5-2, J5-5, J12-4, J3-9) |
 
-**Captures still to come:** J2, J3, J4, J7 and J10 are fully judged against the builder's captures. J5 is captured (`9be73ecf`) and judged (`8d3f5d67`). J6, J8, J9, J11 and J12 are walked by Daisy, including the passes for J9, J11 and J12 (every journey's local walk is done), and the builder's captures are pending (J6 is next), so those journeys may still add findings.
+**Captures still to come:** J2, J3, J4, J7 and J10 are fully judged against the builder's captures. J5 is captured (`9be73ecf`) and judged (`8d3f5d67`); J6 is captured (`11c269e2`) and judged (`1c4977e6`). J6, J8, J9, J11 and J12 are walked by Daisy, including the passes for J9, J11 and J12 (every journey's local walk is done), and the builder's captures are pending (J6 is next), so those journeys may still add findings.
 
 **The dimensions** are A to H from Daisy's script. **V** means visual and **[S]** means Sharon decides the confidentiality side.
 
@@ -95,6 +95,7 @@ Fully walked by Daisy (the rest with the builder's harness, `dde3c077`); the bui
 | J6-4 | L-124 | **Significant** (Sharon, confirmed on the restated facts) | Restated after a code check: the button does run the check (the 4 findings were warnings), but the database doesn't enforce it and the mark isn't bound to the checked content; the step's words don't match what the button does | Offer it only after a check on the current content; bind the mark to the checked revision; the database refuses the mark and any stale approval |
 | J6-5 | L-125 | Improvement | The rights tick is cleared after a refusal, so the resend is refused again | Keep the tick, or say to re-tick it |
 | J6-6 | L-126 | **Significant** (Sharon) [S] | Allowance and ceiling refusals aren't recorded in the request log | A closed reason code in the same transaction, and a CHECK against an empty result; before AI is activated |
+| J6-7 | L-144 | Improvement | The held «Ajukan» is a disabled button whose reason a keyboard or screen-reader user never reaches | aria-disabled plus aria-describedby; the press goes to the first draft |
 
 ## J7 · A key correction after results exist
 
