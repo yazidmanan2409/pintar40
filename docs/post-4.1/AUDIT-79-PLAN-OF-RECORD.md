@@ -48,18 +48,18 @@
   - one frozen candidate per PR;
   - no speculative reruns.
 
-## 3 · Status (15:46Z)
+## 3 · Status (19:47Z)
 
 | Stream | State |
 |---|---|
-| W1 | All twelve walked. Captures judged with no open builder lines: **J2, J3, J4, J7**. The world is corrected (L-80 withdrawn), W12 is set, and the C-4 waiting states are evidenced. Next: the builder's J10, then J5, J6, J8, J9, J11 and J12 captures |
-| W2 | L-1 to L-111 recorded. One Critical (L-67), High: L-78 and L-105 |
+| W1 | Judged with no open builder lines: J2, J3, J4, J7. The builder restarted J10 at 17:50Z (idle 15:22–17:50), then J5, J6, J8, J9, J11, J12 |
+| W2 | L-1 to L-111. Critical: L-67. High: L-78, L-105 |
 | W3 | INTERIM: C-1 to C-11 |
-| W4 | **CI-1 FROZEN `dfab09b6`, PR #30**, ci 45424228769 and journeys 45424259782 running; **Sharon PASS** (conditional on the runs). Merge and staging 309→310 wait for the owner |
-| W4b | CI-1b (L-105) specified, words cleared (Daisy, Sharon); built after CI-2 |
-| W5 | CI-2 being built by Second Eye on `dfab09b6` (migration 311); OD-1 approved (ruling 100) |
-| W6 | After W3 FINAL; H-1 fixed before its pre-flight |
-| W7 | Not started |
+| W4 | **CI-1 READY for the owner:** `94ce6727`, PR #30, ci and journeys GREEN in one attempt, Sharon PASS unconditional (`CI-1-FOR-OWNER.md`) |
+| W4b | CI-1b specified, words cleared; after CI-2 |
+| W5 | **CI-2 candidate `9c6aae62`**: suite 1446/0; Sharon §8 met (G01, K01, plants Q11–Q13); Daisy's words; locked-PIN rule; go-first proven. Plants and redcase are running on the exact candidate, then «freeze» |
+| W6 | After W3 FINAL |
+| H-1 | `claude/h1`: red `dfa9844c`, fix `21f88ed3`, its proofs green; the real redcase at the default heartbeat is pending |
 
 ## 3a · Harness H-1, recurring (Bob, 14:07Z)
 
