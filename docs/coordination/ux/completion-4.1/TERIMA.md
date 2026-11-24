@@ -147,3 +147,4 @@
 - 24 Nov 15:32Z · Bob: Sharon rates L-105 HIGH; CI-1b print words wanted (DICABUT, DIGANTIKAN, DITINJAU; ID and EN). → CI1B-KATA.md. Chosen: a notice page, not a full-page mark. Raised for Bob: the QR and the link don't print on any state today, BERLAKU included.
 - 24 Nov 18:45Z · Bob (priority): confirm the CI-2 EN before the freeze. → Confirmed, with one required fix: «Forgot your password?» (auth.pw_lupa). Optional: «ask your school».
 - 24 Nov 18:48Z · Bob: one more CI-2 line, the PIN reset while a learner is locked. → CI2-KATA §5 (suspended and closed, ID and EN). Recommended: the line replaces the reset button.
+- 24 Nov 20:00Z · Bob: judge J10 (6b248975), classify L-113, and give the UX side of L-112. → J10 capture judgement. L-113 = J10-4, Significant; recommended: the learner gets «Komputer ini» (no new words), with a fallback promise text gated on the builder. L-112: the warning takes precedence over the tour; no new words. New: J10-5 to J10-8.
