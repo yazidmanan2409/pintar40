@@ -1,6 +1,6 @@
 # Ruling 79 audit · W2: a severity for every finding (Daisy, 24 Nov 2026)
 
-> **What holds now:**
+> **What holds now (reconciled 24 Nov 22:05 with Sharon's binding classifications; both observations adopted for W6's order):**
 > - Every finding in `AUDIT-79-TEMUAN-J2.md` to `-J12.md` has one severity here, as of 24 Nov 22:10, including the addenda and the ledger-only lines I raised (L-86, L-87, K-1 to K-4).
 > - **Where Sharon has ruled, her ruling stands** and is marked «Sharon». Where she has the call and hasn't ruled, the row says «Sharon decides» and gives my proposal.
 > - The details, siblings, causes and fixes stay in each journey's TEMUAN file. This table only ranks.
@@ -18,10 +18,10 @@
 
 ## Counts
 
-- **Critical (proposed):** 2. Both are certificate integrity, with Sharon.
-- **Significant:** 28 findings.
-  - 3 are Sharon's rulings (J6-4, J6-6, L-143).
-  - 2 are my proposals where Sharon decides (J10-1, L-112).
+- **Critical (proposed):** 1 (J7-1, with Sharon). L-105 is Sharon's HIGH, now under Significant.
+- **Significant:** 29 findings, reconciled with Sharon's binding classifications (ledger `aa9c2c22`).
+  - Sharon's rulings: J6-4, J6-6, L-143 Significant; L-105, L-112 HIGH; L-35 Significant.
+  - My proposal where Sharon decides: J10-1.
   - 2 more rows rank two **cause families** (C-10, and C-6 in EN) whose single rows stay where they are.
 - **Improvement:** 76, of which 2 are optional (J8-13, J10-8).
 - **Not findings:** 2 (a harness note, and a note recorded as acceptable).
@@ -32,7 +32,6 @@
 | # | One line | Note |
 |---|---|---|
 | J7-1 | One unwarned press («Konfirmasi berlaku») keeps a certificate valid whose recalculated result now fails | Provisionally Critical (ruling 96). **Sharon decides.** The CI-1 refusal words are delivered (`CI1-KATA.md`) |
-| J7-10 (revoked) / L-105 | A revoked certificate prints as a clean, valid certificate | **Sharon: HIGH, fixed before the first real certificate (CI-1b).** The words are delivered (`CI1B-KATA.md`) |
 
 ## Significant
 
@@ -57,14 +56,15 @@
 | J7-3 | The second person is told nothing waits while a key correction waits for them | C-4 | |
 | J7-4 | The reissue panel says the result was «tidak pernah dihitung ulang» right after a recalculation | C-3 | |
 | J7-9 | After a reissue, the holder's «Lihat sertifikat» opens the replaced certificate | C-3 | |
+| J7-10 (revoked) / L-105 | A revoked certificate prints as a clean, valid certificate | C-3 | **Sharon: HIGH (not Critical)**, fixed before the first real certificate (CI-1b). The words are in `CI1B-KATA.md` |
 | J7-10 (replaced) | A replaced certificate prints as a clean certificate | C-3 | With CI-1b |
 | J8-7 (L-127) | Two different children with the same name can't be entered | C-7 | Words fitted to Sharon's identity rule (`a73874d6`) |
 | J9-1 | The promotion doesn't say it will strand an open transfer (upstream of L-35) | C-4 | |
-| L-35 | The receiving school can «Terima» a transfer whose origin enrolment already ended | C-7 | Bob's line; J9 confirms it in every pass |
+| L-35 | The receiving school can «Terima» a transfer whose origin enrolment already ended | C-7 | **Sharon: Significant**, placed in 4.5. J9 confirms it in every pass |
 | J9-4 | In EN, the transfers section of /konfigurasi is wholly Indonesian, its refusal included | C-6 | Same cause as J12-5 |
 | J10-1 | A closed account with the right password is told the password is wrong | C-9 | **Sharon decides** the confidentiality; CI-2's general line is the fallback |
 | J10-4 (L-113) | «Komputer siapa ini?» promises a setting learners never get | C-3 | Recommendation adopted |
-| L-112 | An open welcome tour stops a shared computer from locking | — | **Sharon decides.** UX side given; I propose Significant ([S]: a lock that doesn't lock) |
+| L-112 | An open welcome tour stops a shared computer from locking | — | **Sharon: HIGH** (20:02Z). The UX side is given |
 | J12-1 | The maintenance banner tells learners to sign out, which then blocks their test (A3 lock) | C-11 | |
 | **C-10 family** (J5-8, J8-1, J8-10, J8-12, J10-3) | Required fields held only by the browser's bubble, in the browser's language | C-10 | **Each row stays an Improvement.** The family is Significant **as a cause**: five screens, screen readers may miss it, and English bubbles appear on Indonesian pages. One fix: PINTAR's own line on submit |
 | **C-6 EN family** (J9-4, J9-5, J12-5) | Konfigurasi renders results and sections outside the word lookup in EN | C-6 | J9-4 is Significant on its own; the family is one fix |
@@ -159,5 +159,5 @@
 
 ## Two observations across the table
 
-1. **Eighteen of the 28 Significant findings come from C-3 and C-4:** a page re-derives a shared fact, or «waiting for you» counts one kind only. Fixing those two causes in the shared layer, not page by page, closes most of the Significant column.
-2. **Certificates hold both Critical rows and four Significant ones** (J7-2, J7-4, J7-9, J7-10 replaced). The certificate is the one output that leaves PINTAR, so these come first in AR-79's order whatever the count.
+1. **Nineteen of the 29 Significant findings come from C-3 and C-4:** a page re-derives a shared fact, or «waiting for you» counts one kind only. Fixing those two causes in the shared layer, not page by page, closes most of the Significant column.
+2. **Certificates hold the Critical row and five Significant ones** (J7-2, J7-4, J7-9, J7-10 replaced). The certificate is the one output that leaves PINTAR, so these come first in AR-79's order whatever the count.

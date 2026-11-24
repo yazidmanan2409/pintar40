@@ -165,3 +165,4 @@
 - 24 Nov 22:00Z · J6 capture judged (11c269e2). Holds: AI_TUJUAN_LAIN, AI_PAKET_LOLOS_PERIKSA. L-143 UX side and words (hold at «Tandai sudah tersusun»; fallback words). New: J6-7 (the disabled «Ajukan» reason is not reachable by keyboard or SR).
 - 24 Nov 22:10Z · W2: severities for every finding → roadmap/AUDIT-79-KEPARAHAN.md (2 Critical proposed, 28 Significant, 76 Improvement).
 - 24 Nov 21:56Z · Bob: Sharon holds both marks for L-143 (Significant). → The lolos-mark variant of the line (ID and EN), with L-144's aria pattern for every held button; KEPARAHAN updated.
+- 24 Nov 22:00Z · Bob: W2 reconciled (aa9c2c22): L-105 and L-112 HIGH, L-143 Significant, L-35 Significant (4.5); both observations adopted. → KEPARAHAN updated. The lolos-mark line was already added (98657ab2).
