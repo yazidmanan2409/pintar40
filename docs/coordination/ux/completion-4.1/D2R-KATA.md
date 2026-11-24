@@ -1,0 +1,91 @@
+# D2-R · Words for the certificate refinement, written before the build (Daisy, 24 Nov 2026)
+
+> **What holds now:**
+> - **Purpose:** my pre-code input to D2-R (`D2-CERTIFICATE-CONDITIONS-SPEC.md` §6, rulings 59, 74, 74a and 74b). It holds the R-h result words, which «Daisy writes», R-g's advisory line, the §6.3 step 2 check of R-a and R-b, and §6.3a's consistency check.
+> - **Design only.** Read against the Z tree (`claude/z` `a8d9ff27`), which is accepted on staging under ruling 88.
+> - **For Bob:**
+>   - **one decision:** §1, «Materi» or «Paket» Pembelajaran on the certificate;
+>   - **two build-time confirmations:** §3's evidence threshold (with Sharon), and §5's pre-start conditions screen.
+> - **DAISY-25 checked:** no promise of notice. **Vocabulary:** «Belum dapat disimpulkan» is not used here, because ruling 74b words thin evidence as advice, not as a state.
+
+## 1 · R-a and R-b against the A4 grid, and one term to settle
+
+- **R-a:** `sertifikat.jenis` «Sertifikat» / «Certificate»; `sertifikat.berkas` «Sertifikat · {kursus}» / «Certificate · {kursus}». **Confirmed.**
+- **R-b:** `sertifikat.diberikan` «Telah dinyatakan memenuhi kriteria kelulusan yang ditetapkan berdasarkan hasil asesmen pada Materi Pembelajaran: {kursus}.» **Confirmed as my final wording, with one point to settle.**
+  - **The term:** since Z7 (C-3, `6e8c4f36`), school admins read the same thing in the certificate table as «Paket Pembelajaran» / «Learning Package». That is Studio's name for it (`studio.paket.judul`).
+  - **One concept should have one name** (Q4 of the sweep).
+  - **My recommendation:** use «Paket Pembelajaran» on the certificate too. «…berdasarkan hasil asesmen pada Paket Pembelajaran: {kursus}.» It is one character shorter than «Materi», so the A4 grid only gains room.
+  - **The case for keeping «Materi»:** an outside reader may find «materi» more natural than «paket». If the owner prefers that, then the admin column should follow it instead. Either way, one word in both places.
+  - **EN:** «Has been declared to meet the passing criteria set on the basis of assessment results in the Learning Package: {kursus}.» (or «Learning Material», to match the choice).
+- **R-c (Predikat removed):** no words.
+  - **Note:** `verifikasi.predikat` and `sertifikat.predikat` become unused on learner and public surfaces. Leave the keys if staff reports still read them.
+
+## 2 · R-g · Uji Penguasaan offered once Pemetaan Awal is done
+
+On the chapter page, beside «Lanjut membaca», when Pemetaan Awal is done and some lessons are still unread:
+- **The action:** the existing «Mulai Uji Penguasaan».
+- **The advisory line,** new key `siklus.siap.saran`:
+  - ID: «Uji Penguasaan sudah dapat dikerjakan. Sebaiknya baca semua pelajaran lebih dulu.»
+  - EN: «You can take the Mastery Check now. It is best to read every lesson first.»
+- **Once every lesson is read:** the existing «Siap untuk Uji Penguasaan» / «Semua pelajaran sudah dibaca.» stands.
+- **Neutral tone:** it is advice, not a warning. «Lanjut membaca» stays the first action while lessons remain.
+
+## 3 · R-h · The certifying result (Uji Penguasaan and certifying STANDALONE)
+
+**Order on the result page** (ruling 74a: qualitative first, counts secondary):
+1. the decision («Lulus» or «Belum lulus»), with its one-line reason;
+2. what to do next: sections to study, or the certificate;
+3. the retake line, when «Belum lulus»;
+4. the counts, secondary;
+5. the one line saying what is not shown.
+
+| Element | New key | ID | EN |
+|---|---|---|---|
+| Decision, passed | `hasil.lulus` | «Lulus.» | «Passed.» |
+| Its line | `hasil.lulus_arti` | «Hasil Uji Penguasaan ini memenuhi kriteria kelulusan bab ini.» | «This Mastery Check result meets this chapter's passing criteria.» |
+| Decision, not passed | `hasil.belum_lulus` | «Belum lulus.» | «Not passed yet.» |
+| Its line, mastery below the mark | `hasil.belum_lulus_arti` | «Hasil Uji Penguasaan ini belum memenuhi kriteria kelulusan bab ini.» | «This Mastery Check result does not meet this chapter's passing criteria yet.» |
+| Its line, the gate (K-01) | keep `hasil.target.belum_gerbang`, reworded: | «Persentase penguasaan bab ini sudah memenuhi target, tetapi ada soal penting yang belum dijawab dengan tepat. Karena itu Uji Penguasaan ini belum lulus. Tanyakan kepada guru Anda langkah berikutnya.» | «Your mastery percentage for this chapter meets the target, but an important question was not answered correctly. So this Mastery Check is not passed yet. Ask your teacher about the next step.» |
+| Sections to study, sufficient evidence (74b) | keep `hasil.target.ulang`, reworded | «Bagian yang masih perlu dipelajari:» | «Sections still to learn:» |
+| Sections to revisit, thin evidence (74b) | `hasil.baca_lagi` | «Baca lagi juga:» | «Also read again:» |
+| Its note, once, under that list | `hasil.baca_lagi_arti` | «Soal untuk bagian ini sedikit, jadi hasilnya belum menunjukkan apa pun tentang bagian ini. Membacanya lagi tetap membantu.» | «There were few questions on these parts, so the result does not show anything about them yet. Reading them again still helps.» |
+| Retake, when «Belum lulus» | `hasil.ulang_boleh` | «Anda dapat mengerjakan Uji Penguasaan lagi sesuai aturan sekolah. Tanyakan kepada guru Anda kapan dapat mengulang.» | «You can take the Mastery Check again under your school's rules. Ask your teacher when you can retake it.» |
+| Certificate, when «Lulus» | the existing `sertifikat.disiapkan.*`, or the certificate link when issued | — | — |
+| Counts (secondary, `pin-meta`) | reuse `hasilbelajar.nilai` | «{b} dari {t} soal» + new `hasil.dijawab_tepat` «dijawab tepat» → «5 dari 6 soal dijawab tepat» | «5 of 6 questions answered right» |
+| What is not shown | `hasil.tidak_ditampilkan` | «Pada Uji Penguasaan, kunci jawaban dan benar atau salahnya tiap soal tidak ditampilkan.» | «In a Mastery Check, the answer key and whether each question was right are not shown.» |
+
+**Rules for the words:**
+- **«Lulus» and «Belum lulus» replace «Target tercapai» and «Belum mencapai target»** on certifying results only. Pemetaan Awal, Uji Cepat and practice keep their own words and their explanations (§6.2).
+- **The K-01 verdict is unchanged.** «Lulus» is the session's `lulus`, gate included, so the gate line keeps its reason and now ends «belum lulus».
+- **«Belum lulus», never «tidak lulus».** A retake is always possible under the school's rules (ruling 74 point 1).
+- **No mastery claim per objective** (74b and 4.5). A section that is not listed is not called «dikuasai» anywhere.
+- **The evidence threshold** decides which list an objective goes in: an approved one, confirmed with Sharon at the build.
+  - **If none is approved,** every objective below the mark goes under «Baca lagi juga:» with its note, and «Bagian yang masih perlu dipelajari:» is not drawn.
+  - **Both lists may appear together.** An objective appears in one list only.
+- **`hasil.review.*` («Buka pembahasan», «Sudah tepat», «Belum tepat», `kunci_terkini`) are not drawn** on certifying results, on any route. Staff views are unchanged.
+- **«Hasil Belajar» row (learner summary):** the verdict word follows the same rule there. `hasilbelajar.gerbang` becomes «Ada soal penting yang belum tepat, jadi Uji Penguasaan bab ini belum lulus.» The counts line is unchanged.
+- **Print and export:** the same order and words. «Cetak laporan» carries no key or per-question mark.
+- **Teacher and approver views are unchanged by R-h** (staff views). Their K-01 words («belum mencapai target …») stay, because a teacher reads the target, not the certificate decision.
+  - The consistency of «Lulus» against «tercapai» across roles is for the ruling 79 audit (J3), not D2-R. The verdict is the same either way.
+
+## 4 · §6.3a · Conditions against the certificate and public verification
+
+| Surface | Words | Agree? |
+|---|---|---|
+| Certificate (R-b) | «…memenuhi kriteria kelulusan…» | — |
+| Learner result (R-h) | «Lulus.» / «…memenuhi kriteria kelulusan bab ini.» | **Yes.** The same phrase, «kriteria kelulusan» |
+| Public verification | `verifikasi.lulus` «Memenuhi capaian» / «Achieved» | **No.** «capaian» is a different concept, achievement. **Proposed:** «Lulus» / «Passed», matching the result and the certificate. `verifikasi.belum_lulus` is unused: only passed sittings are certified, which the sweep's K-05 found to be dead code |
+| Under review (K-05) | «Seperti saat diterbitkan» above the facts | Unchanged; it now heads «Hasil: Lulus» |
+
+**Sharon's part** of §6.3a (no timed test, duration or accommodation implied on the certificate or public page) is hers.
+
+## 5 · To confirm at the build
+
+1. **The pre-start conditions screen** for Uji Penguasaan (window close, attempts, what counts):
+   - I did not find its strings by key in this read.
+   - **At the build:** add, from D2-R, one line saying help isn't available, new key `pengerjaan.syarat.tanpa_bantuan`:
+     - ID: «Selama Uji Penguasaan, petunjuk, contoh, dan arah berpikir tidak tersedia.»
+     - EN: «During the Mastery Check, hints, examples and thinking prompts are not available.»
+   - Then I check the screen's other lines against §4.
+2. **The evidence threshold** (§3), with Sharon.
+3. **The A4 sheet's rendered check** (R-13) on the new R-b line, with whichever term §1 settles.

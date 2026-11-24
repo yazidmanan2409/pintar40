@@ -94,3 +94,4 @@
 | 23 Nov, 14:52 | Bob | Z3-A conditions recheck | `claude/z` `f970bace` | **PASS**; all UX items before Z9 done |
 | 23 Nov, 15:10 | Bob | REOPEN fix check | `claude/z` `944520b0` | **PASS**; Z UX complete |
 | 24 Nov, 00:38 | Bob (ruling 88) | Z accepted on staging; D-1 multi-answer containment lifted | — | Noted for fixture planning: walkthrough F-1–F-5 and audit journeys may include multi-answer items; AI drafts stay single-answer (ruling 81) |
+| 24 Nov, 00:45 | — (planned next, after Z) | D2-R words before the build | `claude/z` `a8d9ff27` | `D2R-KATA.md`: R-h result words, R-g line, R-a/R-b confirmed with one term decision («Materi» vs «Paket Pembelajaran»), §6.3a (`verifikasi.lulus` → «Lulus») |
