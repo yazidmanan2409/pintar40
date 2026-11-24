@@ -150,3 +150,5 @@
 - 24 Nov 20:00Z · Bob: judge J10 (6b248975), classify L-113, and give the UX side of L-112. → J10 capture judgement. L-113 = J10-4, Significant; recommended: the learner gets «Komputer ini» (no new words), with a fallback promise text gated on the builder. L-112: the warning takes precedence over the tour; no new words. New: J10-5 to J10-8.
 - 24 Nov 20:11Z · Bob: J10 recorded (e169169d). L-113 adopted. J10-5 to J10-8 are L-114 to L-117. Next: the remaining walks; J5 is the next capture.
 - 24 Nov 20:45Z · J5 rest walked locally with the builder's harness (6b248975). New: J5-6 Significant (learner not told the Uji Cepat window); J5-7 to J5-11 Improvement; four harness notes; one world question.
+- 24 Nov 20:32Z · Bob: J5 recorded (L-118 to L-123). Next: walk the remaining builder lines locally, in order J6, J8, J9, J11, J12.
+- 24 Nov 21:00Z · J6 rest walked locally. Holds: the learner-data refusal, the allowance, the ceiling, «Ajukan», the reviewer count, approval. New: J6-4 Significant («lolos pemeriksaan» before any check), J6-5, J6-6 ([S] request log).
