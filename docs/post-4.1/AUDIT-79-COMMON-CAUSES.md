@@ -23,7 +23,7 @@
 | **C-6** | **One verdict, words chosen per screen** | Every surface uses the shared `ketuntasan` (`siklus.ts:300`). But the start card and the Hasil Belajar headline ignore `bersertifikasi` when choosing their words: «Lulus» / «target tercapai» / «sudah mencapai target» | L-33, L-48, L-61 |
 | **C-7** (J7, new) | **A consequential choice is offered the same, whatever the facts beside it** | «Konfirmasi berlaku» is offered on a certificate whose result was recalculated to a fail exactly as on a passing one, with no confirmation naming the effect. The public record then asserts a pass the current result contradicts | L-67 (**CRITICAL provisionally, ruling 96; Sharon judging**) |
 | **C-8** (J7, new) | **The person who notices isn't the person who may act** | The teacher and the head of department see a wrong key but only the admin can flag it | L-71 |
-| **C-9** (J10, new) | **A refusal worded to hide a state from strangers is also shown to the person who has proven they own the account** | A closed account with the correct password gets the same «belum cocok» as a wrong password | L-75, L-76 (**Sharon decides what may be disclosed**, ruling 96) |
+| **C-9** (J10, new) | **A refusal worded to hide a state from strangers is also shown to the person who has proven they own the account** | A closed account with the correct password gets the same «belum cocok» as a wrong password | L-75, L-76. **Sharon's rule:** say more only after the requester has proven what a stranger can't know, and only where the proof is strong: a password qualifies, a PIN doesn't |
 
 ## 2 · Against the owner's five questions (ruling 95)
 
