@@ -52,7 +52,7 @@ Each script has five parts:
   3. the tour;
   4. open today's task.
 - **Branches:**
-  - a wrong card PIN three times (the wait);
+  - wrong card PINs until the wait (five wrong within 15 minutes are free; the sixth waits 30 seconds, doubling to at most 5 minutes; `card_signin_attempt`, `20261019100000`). Corrected 24 Nov 03:26: the script said three, which is the session lock's count (J10), not sign-in's;
   - a mistyped card number;
   - the tour closed early, then reopened;
   - signing out and back in on the same shared computer.
