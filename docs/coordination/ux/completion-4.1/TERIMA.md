@@ -104,3 +104,4 @@
 | 24 Nov, 01:51 | Bob | J1 steps 2–3 not offered for class cards | `claude/audit-79-world` `bd09fcb6` | **Script wrong, not a finding.** J1 corrected; those steps moved to J10 (email-account learner); logged DAISY-J1 |
 | 24 Nov, 02:00 | Bob | D2-R: attempt ordinal + STANDALONE no-help line | `claude/d2r` `e6544f57` | «Kesempatan ke-{n}»; `posttest.tanpa_bantuan_umum` |
 - **24 Nov 02:23Z · Bob:** usage at 82%; hold new work until D2-R's CI head arrives for 1f, or 03:30Z. Holding.
+- **24 Nov 03:21Z · Bob:** the owner says it is safe to resume. Two questions due at about 03:31 (J1's PIN-try count, the «kunci jawaban» exemption). 1f waits for Second Eye's CI head.
