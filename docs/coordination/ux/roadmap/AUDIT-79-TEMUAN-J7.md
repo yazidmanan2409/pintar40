@@ -43,3 +43,10 @@
 - the EN pass, and the screen reader, throttled and reduced-motion passes.
 
 These come from the builder's run. Citra's certificate is now «Berlaku» in my local world because of J7-1's test press. That is local only, and the world resets.
+
+## The builder's note on reissuing (24 Nov 13:40): the product is right; my script was wrong
+
+- **«Terbitkan ulang»** exists to correct what is printed (the name, the school, the package) after the record changes. Its panel compares «Tertulis di sertifikat» with «Tercatat sekarang», and with nothing changed there is nothing to reissue. So «only once the data has changed» is correct.
+- **After a recalculation, the decision is «Konfirmasi berlaku» or «Cabut»,** made on the review card. Ratih, who still passes at 83 %, is the «Konfirmasi berlaku» case, not a reissue.
+- **J7's script step 7 is corrected** to «the review is settled: Ratih confirmed valid, Citra revoked».
+- **J7-4 stands:** the reissue panel's «tidak pernah dihitung ulang» is still false beside a recalculated result.

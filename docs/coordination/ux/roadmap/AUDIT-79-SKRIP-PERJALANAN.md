@@ -165,7 +165,7 @@ Each script has five parts:
   4. the certificate is «Sedang ditinjau»;
   5. an outside verifier opens the public link («Seperti saat diterbitkan»);
   6. a printed copy is compared (no status word, QR present);
-  7. the review is settled: reissued, then a second case revoked.
+  7. the review is settled: Ratih confirmed valid («Konfirmasi berlaku»; she still passes), Citra revoked («Cabut»). Corrected 24 Nov: «Terbitkan ulang» is for changed printed data, not for a recalculation.
 - **Check:**
   - the learner's, the teacher's and the verifier's views agree at each moment (B);
   - the words before each irreversible step name its effect (E).

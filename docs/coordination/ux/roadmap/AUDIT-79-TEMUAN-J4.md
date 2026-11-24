@@ -53,3 +53,14 @@
 | J4-3 | C-2: the start card's step derivation says «Siap» while the sitting is begun. That is the same step derivation that misses the approved retake |
 | J4-4 | None: wording only |
 | J4-5 | None: formatting (L-47) |
+
+## Capture judgement · the builder's committed J4 (`f606a740/j4`, `1a4b8b76`), 24 Nov 13:40
+
+| Run or branch | Verdict |
+|---|---|
+| **1280 / 390 / 320, EN, screen reader, reduced motion, throttled** | Every walk reached its end. **«Work kept» holds on every pass:** offline, the answer was held, then sent on reconnect (answered 2 → 3, read back from the database each time) |
+| **Ended, not counted** | The teacher: «✓ Sesi Galih Pratama diakhiri tanpa dihitung. Tidak memakai kesempatan.» The learner's start card: «Asesmen ini tidak dihitung dan tidak memakai kesempatan Anda. Jawaban yang sudah tersimpan tetap ada.» **That half of J4-1 is already met.** Two problems remain: the card is still headed «Siap untuk Uji Penguasaan» with «**Lanjutkan** Uji Penguasaan», though the learner starts again from the intro (J4-3: «Mulai lagi Uji Penguasaan»); and the result page is a 404 (L-54). **New, J4-6 (Improvement, E):** «Akhiri dan nilai» asks first, but «Akhiri tanpa menghitung» ends at once («(no dialog)»). Both end a learner's sitting, so both should ask, each naming its own effect (C-7) |
+| **Time ran out while away** | **Widens J4-1 (L-63), Significant.** The teacher's row: «Berakhir 20.26 WIB · jawaban yang ada dinilai · Waktu habis». The learner's test page: «Tidak ada yang perlu dilanjutkan: asesmen ini sudah selesai atau sudah ditutup.» That is a vague «atau» when PINTAR knows which, and nothing says time ran out or that saved answers were scored. The start card offers «Lanjutkan Uji Penguasaan» (C-2, L-64, as Bob tagged); the result is a 404 (L-54). **Fix:** «Waktu Uji Penguasaan ini habis pukul {waktu}. Jawaban yang sudah tersimpan dinilai.» + «Lihat hasil». The same sentence family as J4-1's teacher-ended line, one per circumstance (ruling 96: show how it ended) |
+| **Maintenance, T−15 and stage 0** | The staff banner holds: «Pemeliharaan dalam 10 menit … Murid tidak dapat memulai asesmen baru sampai pemeliharaan selesai.» «sisa 259199 menit» is L-47. At stage 0 the learner, who signed in again, meets the A3 permission screen, which is the J12-1 interaction seen from the learner's side. The welcome tour covers the teacher capture (as J12-4, harness) |
+
+**J4's «left for the builder» lines are closed.**
