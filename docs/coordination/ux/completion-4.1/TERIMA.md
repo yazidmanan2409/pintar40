@@ -168,3 +168,5 @@
 - 24 Nov 22:00Z · Bob: W2 reconciled (aa9c2c22): L-105 and L-112 HIGH, L-143 Significant, L-35 Significant (4.5); both observations adopted. → KEPARAHAN updated. The lolos-mark line was already added (98657ab2).
 - 24 Nov 22:05Z · Bob: the J5 and J10 EN re-captures landed (7b3c7891, 541bab59). → Judging.
 - 24 Nov 22:10Z · J5 and J10 EN re-captures judged. EN holds. New: J5-13 (submitted / handed in), J5-14 optional, J10-9 (the recovery email in the default language).
+- 24 Nov 23:39Z · Bob: J8 captured (9874ea1b); L-148 (the staff-list promise), L-149 (roles reach only active enrolments), L-150 (pass mark browser-only). → Judging.
+- 24 Nov 23:55Z · J8 capture judged. L-148 and L-149 restated from a local reproduction: staff intake works with Tempat and Peran empty, and staff are offered for roles; the defect is the staff units offered as Tempat, refused with the learner line. New: J8-14 Significant (the last admin releasing their own role is told «diubah oleh admin lain»), J8-15 (role card overlap).

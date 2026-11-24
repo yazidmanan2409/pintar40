@@ -105,3 +105,58 @@ Walked at `6b248975` on the reloaded audit world (W15, SD Sintetis Anggrek), at 
 - «Ya, catat orang-orang ini» stays unavailable until every warned pair has a choice. Above it: «{n} pasangan nama sama belum dipilih.» / «{n} same-name pairs still need a choice.»
 - In the approval list, a pair confirmed as different carries «· dikonfirmasi berbeda» / «· confirmed different». The NIS column is shown on this page only (intake staff).
 - **No NIS anywhere else:** not on the learner's pages, the teacher's class list, the certificate or the public check.
+
+## Capture judgement · the builder's committed J8 (`434e2c7f/j8`, `9874ea1b`), 24 Nov 23:55
+
+Seven walks, every one reaching its last screen.
+
+### Holds (new in the capture)
+- **A pass mark of 70** is set with its scope: «✓ Selesai. Batas ketuntasan ditetapkan. Berlaku untuk pelajaran yang disediakan mulai sekarang.»
+- **A renamed rule keeps its settings, and says so:** «✓ Nama diperbarui. Cara hasil dibaca tidak berubah.»
+- **The card sheet prints** (`kartu-cetak.pdf`).
+- **A wrong school code** keeps what was typed («A-1»). Its refusal is still the browser's (J8-1).
+
+**Every earlier J8 finding stands in the capture:**
+- J8-1 / L-150: a pass mark of 150 is held only by «Value must be less than or equal to 100.»;
+- J8-8: «Baris 4 · Nama kosong atau terlalu panjang»;
+- J8-10: no date, browser only;
+- J8-13: «Permintaan ini tidak diajukan» on the close.
+
+**One capture to re-take:** `03-tingkat-tahun-salah` caught the form mid-submit («Menyimpan…»), so `year_wrong` reads «(no refusal line)». My walk got PINTAR's refusal («Tulis tahun ajaran seperti 2026/2027.»). It is timing, not product.
+
+### L-148 and L-149: narrower than stated, from a local reproduction
+
+I reproduced intake locally at `6b248975` (the app code is unchanged to `50ba47f7`), on the reloaded W15 world:
+- a list «nama / Sari Wulandari / Tono Prasetyo»;
+- **Tempat and Peran left «Tidak dipakai»**, with «Ini daftar guru atau staf: catat tanpa kelas» ticked;
+- the result: **«✓ 2 orang tercatat»**, with no enrolment row.
+- In «Peran & akses», both are offered.
+- **«Guru · 1A · berlaku sampai hari ini» was granted to Sari** (`role_assignments`: EDUCATOR, until 25 Nov 16:59:59Z).
+
+So the intake's promise works as worded. The builder's run chose **Tempat = «Guru dan Staf»** (the staff Bagian built in L1) and **Program = «Guru dan Staf»** (`18-staf-kolom`), and that is what is refused.
+
+**L-148, restated (Significant, my proposal):** intake offers the school's own staff Bagian and Program as a «Tempat» and «Program». Choosing them, which is the natural reading for a staff list, is refused row by row with the **learner** line «Murid hanya bisa ditempatkan di Kelas atau Tingkat yang aktif». The app already has the right words for it (`pendataan.masalah.staf`).
+
+**Fix and words:**
+1. **Don't offer staff units** («Guru dan staf» Bagian, its Tingkat and Program) in intake's Tempat and Program lists. Under Tempat:
+   - ID: «Bagian guru dan staf tidak dipilih di sini. Untuk daftar guru atau staf, biarkan Tempat dan Peran «Tidak dipakai», lalu centang «Ini daftar guru atau staf».»
+   - EN: «Staff sections aren't chosen here. For a list of teachers or staff, leave Place and Role as «Not used», then tick «This is a list of teachers or staff».»
+2. **If a staff unit still reaches the check** (an old link, a file with a «tempat» column): use the existing `pendataan.masalah.staf` for that row, not the learner line.
+3. **The tick's label stays.** It is true.
+
+**L-149, restated:**
+- People recorded without a class **are** offered in «Berikan peran» (Sari and Tono were).
+- What isn't found is the school's **seeded** admin (Wahyu has no intake record).
+- A real school's first admin is created by Admin PINTAR and already holds the role, so **on this evidence L-149 isn't a defect for a real school**.
+- **Not a finding until your check of the real path says otherwise.**
+- If it does, the empty-search line should name the cause: «Orang ini belum tercatat di sekolah ini. Catat lewat Pendataan lebih dulu (tanpa kelas untuk guru dan staf), lalu berikan perannya di sini.» / «This person isn't recorded at this school yet. Record them through Intake first (without a class for teachers and staff), then give the role here.»
+
+### New findings from the capture
+
+| # | Finding | Siblings | Cause | Dim. | Fix |
+|---|---|---|---|---|---|
+| **J8-14 (Significant)** | **The last admin releasing their own role is told something false:** «Peran Anda sendiri diubah atau diakhiri oleh admin lain.» (`31`). It reads as if another admin had changed their role, said to the school's only admin. The staff page also offers «Lepaskan · Admin sekolah» on that sole role, while the roles list doesn't (my J8 walk: no «Lepaskan» on their own row). | **Disagree:** the close-account refusal names the real cause exactly; the roles list doesn't offer it | C-9's neighbour; C-7 | C, H | Show the checkbox disabled, with the same cause as the close refusal. ID: «Peran Admin sekolah ini belum dapat dilepas: Anda satu-satunya Admin sekolah yang masih aktif di sekolah ini. Tunjuk Admin sekolah lain lebih dulu di Peran & akses. Bila tidak ada orang lain, hubungi Admin PINTAR.» EN: «This School admin role can't be released yet: you're the only active School admin at this school. Appoint another School admin first in Roles & access. If there's no one else, contact Admin PINTAR.» A server refusal uses the same sentence. |
+| J8-15 | **The role card on the staff page collapses at 1280** (`31`): «Tempat: SD Sintetis Anggrek · Berlaku sampai Selasa, 25 Nov 2036» is squeezed to one word per line and runs into the «Tanggung jawab» paragraph. The text overlaps. | — | — | V | Stack the card: role, then place and end date on one line, then the responsibilities below. Add to the visual consistency pass. |
+| L-150 | A pass mark of 150 is held only by the browser | J8-1 family | C-10 | G | As C-10 |
+
+**J8's «left for the builder» lines are closed**, except re-taking `03` (timing).
