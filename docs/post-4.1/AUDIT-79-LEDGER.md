@@ -567,3 +567,21 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
 | L-138 (J11-3) | The section letters differ between /pimpinan and the summary (E vs D for Kesiapan bukti) | B | J11 | Improvement | C-6 | One lettering |
 | L-139 (J11-4) | An empty list, and inconsistent regions, in the accessibility tree | G | J11 | Improvement | — | — |
 | L-140 (J12-5) | In EN, Konfigurasi's action results and the section heading stay Indonesian although the EN keys exist | D | J12 | Improvement | C-6, likely the same cause as L-135 | One page-wide fix with L-135 |
+
+**J5's capture judged (Daisy, `8d3f5d67`):**
+- **Every finding stands.** J5-6 and J5-7 are confirmed in the capture's own words («Tambah 10 menit … Batas baru 24 Mei 2027»).
+- **Holds:** the stop's learner path completes; «Minta membaca lagi» on OFFICIAL evidence reads honestly and reaches Sinta; «Ubah jadwal» saves.
+- **L-134 is widened:** the Uji Cepat result page reads «Belum ada nilai … setelah ada yang mengumpulkan» beside 3 submitted.
+- **Harness notes, for the builder:**
+  - (e) the EN walk is EN only at L1, because `pilihBahasa` runs once and every later sign-in returns ID. **The builder determines whether that's the harness or the product** (the language not being kept across sign-in would be a finding). EN is re-run.
+  - (f) the tour covers Sinta's request card.
+
+**J8-7's words fitted to Sharon's identity rule (Daisy, `951f2bc5`):**
+- NIS and birth date become optional mappable columns, with the visibility line.
+- The same NIS is refused, naming both rows.
+- With no NIS but the same name and date, each pair gets a choice («Dua orang berbeda» / «Orang yang sama: hapus baris {b}»), which is recorded, and «Catat» is held until every pair is chosen.
+- **For Sharon:** the same name with neither NIS nor birth date is treated as a possible duplicate (warn), since nothing separates them.
+
+| L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
+|---|---|---|---|---|---|---|
+| L-141 (J5-12) | «Minta membaca lagi» pre-ticks the whole chapter, not the lessons of the unmet objective; «target 60%» floats | F, B | J5 | Improvement | C-5 (recommendations not from the result in force) | Pre-tick the unmet objective's lessons |
