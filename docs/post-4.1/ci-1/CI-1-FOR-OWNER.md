@@ -31,3 +31,9 @@
 **One known exposure, test-only:** `selftest/db/r1.sql` on main fails R1-K01 in any CI run that reaches it between 16:00 and 24:00 UTC, a test-clock bug that predates CI-1. If main's CI runs after the merge in that window, R1-K01 can go red. The fix rides in CI-2's own commit. It isn't a product defect, and staging's promotion workflow doesn't run the selftests.
 
 **Order with CI-2 and CI-1b:** each merges and promotes separately, with its own preservation evidence (ruling 98). CI-2 (the production blocker) is stacked on CI-1, and can be rebased to go first if the owner prefers.
+
+**Run conclusions re-read by Bob from the GitHub API (24 Nov 21:38Z), under the new rule (plan of record §3d):**
+- ci 45439475500: `completed`, conclusion `success`, attempt 1, head `94ce6727f9325426c328c3340365870593298192`, finished 17:15:49Z.
+- journeys 45441914637: `completed`, conclusion `success`, attempt 1, the same head, finished 17:25:56Z.
+
+CI-1's evidence stands as stated.
