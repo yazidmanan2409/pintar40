@@ -9,6 +9,7 @@
 // The local-only guard: the facts are written only into the local stack's database (as muat.sh refuses any other).
 import { createRequire } from "node:module";
 import { execFileSync } from "node:child_process";
+import { createHmac } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -57,5 +58,26 @@ for (const [kMurid, kSesi, kSimpan] of pemegang) {
   await ctx.close();
 }
 await browser.close();
+
+// SHARON (24 Nov): no certificate in the bootstrap tenant carries a signature from any other key. Every one is
+// recomputed here exactly as src/lib/certificates/sign.ts signs (HMAC-SHA256 over the payload with its keys sorted at
+// every level) with CI's synthetic key, CERT_SECRET_KEY_V1, and must match it, at key version 1.
+{
+  const kunci = process.env.CERT_SECRET_KEY_V1;
+  if (!kunci) { console.error("terbitkan: CERT_SECRET_KEY_V1 (CI's synthetic key) is needed to check the signatures"); process.exit(4); }
+  const kanon = (v) => Array.isArray(v) ? v.map(kanon)
+    : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, kanon(v[k])])) : v;
+  const baris = psql(`select coalesce(json_agg(json_build_object('id', c.id, 'v', c.key_version, 'sig', c.signature, 'p', c.canonical_payload)), '[]')
+                        from public.certificates c where c.institution_id = '${D["boot.sekolah"]}'`);
+  const semua = JSON.parse(baris);
+  const lain = semua.filter((c) => c.v !== 1 || !c.sig
+    || createHmac("sha256", kunci).update(JSON.stringify(kanon(c.p))).digest("hex") !== c.sig);
+  if (lain.length) {
+    console.error(`terbitkan: ${lain.length} certificate(s) in the bootstrap tenant NOT signed with CI's synthetic key: ${lain.map((c) => c.id).join(", ")}`);
+    gagal = 1;
+  } else {
+    console.log(`terbitkan: all ${semua.length} certificate(s) in the bootstrap tenant are signed with CI's synthetic key (version 1)`);
+  }
+}
 execFileSync(join(HERE, "muat.sh"), ["--ekspor"], { stdio: "inherit" });
 process.exit(gagal);

@@ -109,6 +109,7 @@ jobs:
         if: success() || failure()
         env:
           APP_URL: http://127.0.0.1:3999
+          CERT_SECRET_KEY_V1: synthetic-certificate-key-fable04-32plus   # CI's synthetic key (as the app's): the signatures are checked against it
         run: node audit/dunia/terbitkan.mjs
       - name: Keep the captures
         if: ${{ !cancelled() }}
