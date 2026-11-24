@@ -1,0 +1,45 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - strong: SMP Sintetis Flamboyan
+    - link "Konfigurasi":
+      - /url: /konfigurasi
+    - link "Pendataan":
+      - /url: /pendataan
+    - link "Aktivasi akun":
+      - /url: /aktivasi
+    - link "Studio":
+      - /url: /studio
+    - link "Keamanan akun":
+      - /url: /konfigurasi/keamanan
+    - link "Sertifikat sekolah":
+      - /url: /konfigurasi/sertifikat
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fkonfigurasi%2Frollover
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Teguh Wibowo":
+      - strong: Teguh Wibowo
+    - button "Keluar"
+- main:
+  - link "← Konfigurasi":
+    - /url: /konfigurasi
+  - heading "Kenaikan kelas dan kelulusan" [level=1]
+  - paragraph:
+    - text: "Sekolah:"
+    - strong: SMP Sintetis Flamboyan
+  - status: "Selesai. 4 murid diproses pada 25 Nov 2026, 06.42 WIB. Inilah hasil untuk setiap murid. Diperiksa dari data PINTAR: semua sesuai."
+  - group: 4 naik ke 8A · 2027/28
+  - paragraph:
+    - text: "1 Kelas tahun 2027/28 belum punya guru: 8A. Beri perannya di Peran & akses."
+    - link "Buka Peran & akses":
+      - /url: /konfigurasi/roles#roles
+  - link "Pilih kelas lain":
+    - /url: /konfigurasi/rollover?#rollover
+- alert: Kenaikan kelas dan kelulusan

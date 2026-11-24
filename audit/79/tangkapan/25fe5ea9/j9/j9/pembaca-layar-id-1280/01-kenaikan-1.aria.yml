@@ -1,0 +1,43 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - strong: SMP Sintetis Flamboyan
+    - link "Konfigurasi":
+      - /url: /konfigurasi
+    - link "Pendataan":
+      - /url: /pendataan
+    - link "Aktivasi akun":
+      - /url: /aktivasi
+    - link "Studio":
+      - /url: /studio
+    - link "Keamanan akun":
+      - /url: /konfigurasi/keamanan
+    - link "Sertifikat sekolah":
+      - /url: /konfigurasi/sertifikat
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fkonfigurasi%2Frollover
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Teguh Wibowo":
+      - strong: Teguh Wibowo
+    - button "Keluar"
+- main:
+  - link "← Konfigurasi":
+    - /url: /konfigurasi
+  - heading "Kenaikan kelas dan kelulusan" [level=1]
+  - paragraph:
+    - text: "Sekolah:"
+    - strong: SMP Sintetis Flamboyan
+  - paragraph: Langkah 1 dari 3 · Pilih kelas
+  - paragraph: Pilih satu kelas. Setiap muridnya, juga murid di Tingkat yang sama yang belum punya kelas, mendapat satu keputusan. Anda meninjau hasilnya lalu mengonfirmasi sekali; semuanya diterapkan bersama atau tidak sama sekali.
+  - text: Kelas
+  - combobox "Kelas":
+    - option "— Pilih —" [disabled] [selected]
+  - button "Lanjut"
+- alert

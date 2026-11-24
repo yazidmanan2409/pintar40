@@ -1,0 +1,113 @@
+{
+  "perjalanan": "j9",
+  "nama": "Teguh Wibowo → Andi Mappanyompa",
+  "lebar": 1280,
+  "zona": "WIB",
+  "bahasa": "en",
+  "laluan": "standar",
+  "label": [],
+  "mulai": "2026-11-24T23:48:47.359Z",
+  "langkah": [
+    {
+      "id": "L1",
+      "judul": "A: the year-end promotion of 7A (Qori included), reviewed and confirmed",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-kenaikan-1",
+        "02-kenaikan-2-diterapkan",
+        "03-kenaikan-3-qori",
+        "04-kenaikan-4-tinjau",
+        "05-kenaikan-5-hasil"
+      ],
+      "amatan": [],
+      "data": {
+        "signed_in": {
+          "mendarat": "/konfigurasi",
+          "perangkat": "pribadi"
+        },
+        "before_transfers": "REQUESTED SMP Sintetis Flamboyan→SMP Sintetis Kenari",
+        "after_apply": "Applied to 3 students; 1 left as they were because already chosen, in the Tingkat, or transferring. | 3 up to 8A · 2027/28, 1 not yet chosen. Not yet chosen: Qori Ananda.",
+        "result_words": "✓Done. 4 students processed at 25 Nov 2026, 06.48 WIB. This is the outcome for each student. Checked against PINTAR's data: everything matches. | Kenaikan kelas dan kelulusan",
+        "after_enrollments": "SMP Sintetis Flamboyan ENDED TA 2026/2027; SMP Sintetis Flamboyan ACTIVE TA 2027/2028",
+        "after_transfers": "REQUESTED SMP Sintetis Flamboyan→SMP Sintetis Kenari"
+      },
+      "tab": 28,
+      "url": "/konfigurasi/rollover",
+      "ms": 10984
+    },
+    {
+      "id": "L2",
+      "judul": "B: «Terima perpindahan», then «Laksanakan», on the old request after the promotion (where it is refused; what changed)",
+      "hasil": "SAMPAI",
+      "layar": [
+        "06-b-masuk",
+        "07-b-terima-ditolak",
+        "08-b-laksanakan"
+      ],
+      "amatan": [
+        "«Terima» was ACCEPTED (the transfer is AUTHORIZED); the script expected the refusal here",
+        "«Laksanakan» was refused; nothing changed (words in data)"
+      ],
+      "data": {
+        "signed_in": {
+          "mendarat": "/konfigurasi",
+          "perangkat": "pribadi"
+        },
+        "words": "✓Selesai. Perpindahan diterima ke tahun ajaran yang dipilih. Sekarang bisa dijalankan.",
+        "transfers_before_after": "REQUESTED SMP Sintetis Flamboyan→SMP Sintetis Kenari  ⟶  AUTHORIZED SMP Sintetis Flamboyan→SMP Sintetis Kenari",
+        "enrollments_before_after": "SMP Sintetis Flamboyan ENDED TA 2026/2027; SMP Sintetis Flamboyan ACTIVE TA 2027/2028  ⟶  SMP Sintetis Flamboyan ENDED TA 2026/2027; SMP Sintetis Flamboyan ACTIVE TA 2027/2028",
+        "terima_refused": false,
+        "laksanakan_words": "Perpindahan murid | Belum berhasil. Pendaftaran murid ini di sekolah asalnya sudah ditutup setelah permintaan pindah ini dibuat, misalnya karena kenaikan kelas. Perpindahan tidak dijalankan, dan tidak ada yang berubah. Sekolah asal perlu mengajukan perpindahan baru dari pendaftaran murid yang berlaku sekarang.",
+        "laksanakan_transfers_before_after": "AUTHORIZED SMP Sintetis Flamboyan→SMP Sintetis Kenari  ⟶  AUTHORIZED SMP Sintetis Flamboyan→SMP Sintetis Kenari",
+        "laksanakan_enrollments_before_after": "SMP Sintetis Flamboyan ENDED TA 2026/2027; SMP Sintetis Flamboyan ACTIVE TA 2027/2028  ⟶  SMP Sintetis Flamboyan ENDED TA 2026/2027; SMP Sintetis Flamboyan ACTIVE TA 2027/2028",
+        "laksanakan_nothing_changed": true,
+        "old_request_after": "AUTHORIZED SMP Sintetis Flamboyan→SMP Sintetis Kenari",
+        "laksanakan_offered_again": 1
+      },
+      "tab": 37,
+      "url": "/konfigurasi/transfers",
+      "ms": 8506
+    },
+    {
+      "id": "L3",
+      "judul": "A: a new request for Qori, to Kenari (by its code)",
+      "hasil": "SAMPAI",
+      "layar": [
+        "09-a-ajukan",
+        "10-a-diajukan"
+      ],
+      "amatan": [],
+      "data": {
+        "words": "✓Selesai. Perpindahan diajukan dan kini menunggu persetujuan dari pihak lain.",
+        "transfers": "AUTHORIZED SMP Sintetis Flamboyan→SMP Sintetis Kenari; REQUESTED SMP Sintetis Flamboyan→SMP Sintetis Kenari"
+      },
+      "tab": 28,
+      "url": "/konfigurasi/transfers",
+      "ms": 7166
+    },
+    {
+      "id": "L4",
+      "judul": "B: «Terima perpindahan», then «Laksanakan», on the new request",
+      "hasil": "SAMPAI",
+      "layar": [
+        "11-b-masuk-baru",
+        "12-b-diterima",
+        "13-b-dilaksanakan"
+      ],
+      "amatan": [
+        "last screen: /konfigurasi/transfers"
+      ],
+      "data": {
+        "words": "✓Selesai. Perpindahan diterima ke tahun ajaran yang dipilih. Sekarang bisa dijalankan. | Perpindahan murid",
+        "laksanakan_words": "✓Selesai. Perpindahan dijalankan. | Perpindahan murid",
+        "transfers": "AUTHORIZED SMP Sintetis Flamboyan→SMP Sintetis Kenari; EXECUTED SMP Sintetis Flamboyan→SMP Sintetis Kenari",
+        "enrollments": "SMP Sintetis Flamboyan ENDED TA 2026/2027; SMP Sintetis Flamboyan ENDED TA 2027/2028; SMP Sintetis Kenari ACTIVE TA 2026/2027"
+      },
+      "tab": 39,
+      "url": "/konfigurasi/transfers",
+      "ms": 7405
+    }
+  ],
+  "selesai": "2026-11-24T23:49:21.421Z",
+  "sampai_akhir": true
+}

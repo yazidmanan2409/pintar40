@@ -1,0 +1,57 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - strong: SMP Sintetis Flamboyan
+    - link "Konfigurasi":
+      - /url: /konfigurasi
+    - link "Pendataan":
+      - /url: /pendataan
+    - link "Aktivasi akun":
+      - /url: /aktivasi
+    - link "Studio":
+      - /url: /studio
+    - link "Keamanan akun":
+      - /url: /konfigurasi/keamanan
+    - link "Sertifikat sekolah":
+      - /url: /konfigurasi/sertifikat
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fkonfigurasi%2Frollover
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Teguh Wibowo":
+      - strong: Teguh Wibowo
+    - button "Keluar"
+- main:
+  - link "← Konfigurasi":
+    - /url: /konfigurasi
+  - heading "Kenaikan kelas dan kelulusan" [level=1]
+  - paragraph:
+    - text: "Sekolah:"
+    - strong: SMP Sintetis Flamboyan
+  - paragraph: Langkah 3 dari 3 · Tinjau lalu konfirmasi
+  - heading "7A · Tingkat 7 · 2026/27" [level=3]
+  - paragraph: Belum ada yang berubah. Inilah hasil untuk setiap murid ke tahun ajaran 2027/28.
+  - paragraph: 4 naik ke 8A · 2027/28
+  - group: 4 naik ke 8A · 2027/28
+  - region "Penugasan guru":
+    - heading "Penugasan guru" [level=3]
+    - paragraph: Penugasan guru tidak ikut pindah ke tahun ajaran baru. Tinjau siapa yang akan mengajar kelas tujuan, lalu ubah di Peran & akses bila perlu.
+    - list:
+      - listitem: "8A · 2027/28: belum ada guru"
+    - paragraph:
+      - link "Buka Peran & akses di tab baru":
+        - /url: /konfigurasi/roles#roles
+  - checkbox "Saya tahu 8A · 2027/28 belum punya guru, dan akan memberikan perannya di Peran & akses."
+  - text: Saya tahu 8A · 2027/28 belum punya guru, dan akan memberikan perannya di Peran & akses.
+  - paragraph: "4 murid akan diproses: 4 naik ke 8A · 2027/28. Semuanya diterapkan bersama atau tidak sama sekali."
+  - button "Konfirmasi kenaikan kelas"
+  - status
+  - link "Ubah keputusan":
+    - /url: /konfigurasi/rollover?kn_kelas=9be8d807-f457-4c0e-975d-b14ee174b746&kn_tahun=ba395ac9-372b-4ae4-a25a-9b0be5ec34db&kn_d=W1siOTFkNWFjYmMtOTM0MS00OWNlLThjZDQtNzY5NjM0YTA0YTg4IiwiTkFJSzowNjg3MzEzYi0yNmI0LTRmNWMtODZjZC1kZDZjOTE0MTQ1YTYiXSxbIjliOTkyYmUxLTVhN2ItNDQ5Mi1iOWZjLWVhMDQxNWQyMGFiZiIsIk5BSUs6MDY4NzMxM2ItMjZiNC00ZjVjLTg2Y2QtZGQ2YzkxNDE0NWE2Il0sWyIyYTJhYzk5My00ZDljLTQ5NDAtYTFiMy03YzgwZTZhN2E4NjIiLCJOQUlLOjA2ODczMTNiLTI2YjQtNGY1Yy04NmNkLWRkNmM5MTQxNDVhNiJdLFsiNGZkNzZhMjYtZTcwYi00NWU5LWE0MDAtNjc2OTI5YjUzMTQ1IiwiTkFJSzowNjg3MzEzYi0yNmI0LTRmNWMtODZjZC1kZDZjOTE0MTQ1YTYiXV0#rollover
+- alert

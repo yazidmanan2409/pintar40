@@ -1,0 +1,69 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - strong: SMP Sintetis Flamboyan
+    - link "Konfigurasi":
+      - /url: /konfigurasi
+    - link "Pendataan":
+      - /url: /pendataan
+    - link "Aktivasi akun":
+      - /url: /aktivasi
+    - link "Studio":
+      - /url: /studio
+    - link "Keamanan akun":
+      - /url: /konfigurasi/keamanan
+    - link "Sertifikat sekolah":
+      - /url: /konfigurasi/sertifikat
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fkonfigurasi%2Frollover
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Teguh Wibowo":
+      - strong: Teguh Wibowo
+    - button "Keluar"
+- main:
+  - link "← Konfigurasi":
+    - /url: /konfigurasi
+  - heading "Kenaikan kelas dan kelulusan" [level=1]
+  - paragraph:
+    - text: "Sekolah:"
+    - strong: SMP Sintetis Flamboyan
+  - paragraph: Langkah 2 dari 3 · Keputusan untuk setiap murid
+  - heading "7A · Tingkat 7 · 2026/27" [level=3]
+  - text: Tahun ajaran baru
+  - combobox "Tahun ajaran baru":
+    - option "2027/28" [selected]
+  - text: Naikkan semua ke
+  - combobox "Naikkan semua ke":
+    - option "— Pilih satu per satu —"
+    - option "8A · 2027/28" [selected]
+  - button "Terapkan"
+  - status: Diterapkan ke 3 murid; 1 tidak diubah karena sudah dipilih, ada di Tingkat, atau sedang pindah.
+  - paragraph: 4 murid. Setiap murid perlu satu keputusan sebelum hasilnya dapat ditinjau.
+  - status: "3 naik ke 8A · 2027/28, 1 belum dipilih. Belum dipilih: Qori Ananda."
+  - list:
+    - listitem:
+      - text: Qori Ananda · FLB000001L6 Perpindahan sedang berjalan
+      - combobox "Keputusan untuk Qori Ananda":
+        - option "— Pilih —" [selected]
+    - listitem:
+      - text: Rangga Saputra · FLB000002PT
+      - combobox "Keputusan untuk Rangga Saputra":
+        - option "— Pilih —"
+    - listitem:
+      - text: Sekar Ayu · FLB000003FR
+      - combobox "Keputusan untuk Sekar Ayu":
+        - option "— Pilih —"
+    - listitem:
+      - text: Taufik Hidayat · FLB0000045P
+      - combobox "Keputusan untuk Taufik Hidayat":
+        - option "— Pilih —"
+  - button "Tinjau hasil" [disabled]
+  - status
+- alert

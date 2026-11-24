@@ -1,0 +1,56 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - strong: SMP Sintetis Kenari
+    - link "Konfigurasi":
+      - /url: /konfigurasi
+    - link "Pendataan":
+      - /url: /pendataan
+    - link "Aktivasi akun":
+      - /url: /aktivasi
+    - link "Studio":
+      - /url: /studio
+    - link "Keamanan akun":
+      - /url: /konfigurasi/keamanan
+    - link "Sertifikat sekolah":
+      - /url: /konfigurasi/sertifikat
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fkonfigurasi%2Ftransfers
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Andi Mappanyompa":
+      - strong: Andi Mappanyompa
+    - button "Keluar"
+- main:
+  - link "← Konfigurasi":
+    - /url: /konfigurasi
+  - heading "Perpindahan murid" [level=1]
+  - paragraph:
+    - text: "Sekolah:"
+    - strong: SMP Sintetis Kenari
+  - list:
+    - listitem:
+      - text: Qori Ananda · — → SMP Sintetis Kenari Disetujui
+      - paragraph: Keluarga pindah ke Makassar (dunia audit W16)
+      - button "Laksanakan · Qori Ananda"
+      - status
+      - link "Tolak · Qori Ananda":
+        - /url: /konfigurasi/transfers?ubah=33d04f0d-e5c5-4507-af4d-d126e6753d86#pindah-33d04f0d-e5c5-4507-af4d-d126e6753d86
+  - navigation "Halaman daftar perpindahan":
+    - text: Menampilkan 1–1 perpindahan
+    - link "Halaman sebelumnya" [disabled]: Sebelumnya
+    - text: Halaman 1
+    - link "Halaman berikutnya" [disabled]: Berikutnya
+  - status: Selesai. Perpindahan diterima ke tahun ajaran yang dipilih. Sekarang bisa dijalankan.
+  - heading "Ajukan perpindahan ke sekolah lain" [level=2]
+  - paragraph: Cari sekolah tujuan dengan nama lengkapnya atau kodenya. Sekolah tujuan yang menerima perpindahan dan memilih tahun ajarannya.
+  - text: Nama lengkap atau kode sekolah tujuan
+  - textbox "Nama lengkap atau kode sekolah tujuan"
+  - button "Cari sekolah"
+- alert: Perpindahan murid

@@ -1,0 +1,62 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - strong: SMP Sintetis Flamboyan
+    - link "Konfigurasi":
+      - /url: /konfigurasi
+    - link "Pendataan":
+      - /url: /pendataan
+    - link "Aktivasi akun":
+      - /url: /aktivasi
+    - link "Studio":
+      - /url: /studio
+    - link "Keamanan akun":
+      - /url: /konfigurasi/keamanan
+    - link "Sertifikat sekolah":
+      - /url: /konfigurasi/sertifikat
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fkonfigurasi%2Ftransfers
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Teguh Wibowo":
+      - strong: Teguh Wibowo
+    - button "Keluar"
+- main:
+  - link "← Konfigurasi":
+    - /url: /konfigurasi
+  - heading "Perpindahan murid" [level=1]
+  - paragraph:
+    - text: "Sekolah:"
+    - strong: SMP Sintetis Flamboyan
+  - list:
+    - listitem:
+      - text: Qori Ananda · SMP Sintetis Flamboyan → — Diajukan
+      - paragraph: Keluarga pindah ke Makassar (permintaan baru setelah kenaikan kelas)
+      - paragraph: Belum diterima sekolah tujuan. Sekolah itu yang memilih tahun ajarannya.
+      - link "Tolak · Qori Ananda":
+        - /url: /konfigurasi/transfers?ubah=d0522f05-e548-4c60-ae57-675ca43005f4#pindah-d0522f05-e548-4c60-ae57-675ca43005f4
+    - listitem:
+      - text: Qori Ananda · SMP Sintetis Flamboyan → — Disetujui
+      - paragraph: Keluarga pindah ke Makassar (dunia audit W16)
+      - button "Laksanakan · Qori Ananda"
+      - status
+      - link "Tolak · Qori Ananda":
+        - /url: /konfigurasi/transfers?ubah=33d04f0d-e5c5-4507-af4d-d126e6753d86#pindah-33d04f0d-e5c5-4507-af4d-d126e6753d86
+  - navigation "Halaman daftar perpindahan":
+    - text: Menampilkan 1–2 perpindahan
+    - link "Halaman sebelumnya" [disabled]: Sebelumnya
+    - text: Halaman 1
+    - link "Halaman berikutnya" [disabled]: Berikutnya
+  - heading "Ajukan perpindahan ke sekolah lain" [level=2]
+  - paragraph: Cari sekolah tujuan dengan nama lengkapnya atau kodenya. Sekolah tujuan yang menerima perpindahan dan memilih tahun ajarannya.
+  - text: Nama lengkap atau kode sekolah tujuan
+  - textbox "Nama lengkap atau kode sekolah tujuan"
+  - button "Cari sekolah"
+  - status: Selesai. Perpindahan diajukan dan kini menunggu persetujuan dari pihak lain.
+- alert: Perpindahan murid
