@@ -35,3 +35,31 @@
 
 - The EN pass, the screen reader, throttled and reduced-motion passes;
 - the [S] suspended-requester case.
+
+## The passes walked locally (24 Nov 21:40): EN, screen reader, throttled, reduced motion
+
+I ran the builder's harness `audit/perjalanan/j9.mjs` at `6b248975`, at 1280, once per pass (`AUDIT_BAHASA=en`; `AUDIT_LALUAN=pembaca-layar`, `jaringan-lambat`, `gerak-dikurangi`). **Every pass reached its last screen.**
+
+### Holds
+- **The outcome is the same in every pass:**
+  - the promotion ends the 2026/27 enrolment and opens 2027/28;
+  - «Terima» on the stale request is accepted (L-35);
+  - «Laksanakan» is refused and nothing changes;
+  - the new request then goes through.
+- **Throttled:** each step takes about 3 times as long (L1 31 s against 9.6 s). There are no duplicate submissions, and the data matches.
+- **Screen reader:**
+  - the refusal is a live `alert` with its full sentence;
+  - the action buttons carry the learner's name («Laksanakan · Qori Ananda»);
+  - the page has one h1, with h2 for the request form.
+- **Reduced motion:** nothing in J9 animates. No difference.
+- **EN, the promotion steps:** the steps, the review and the teacher-assignment check are in English («Nothing has changed yet …», «Everything is applied together or not at all.»).
+
+### New findings
+
+| # | Finding | Siblings | Cause | Dim. | Fix |
+|---|---|---|---|---|---|
+| **J9-4 (Significant)** | **In EN, the transfers page stays Indonesian** (`08-b-laksanakan`, EN run): the title «Perpindahan murid», the status «Disetujui», the buttons «Laksanakan» and «Tolak», the full refusal «Belum berhasil. Pendaftaran murid ini …», and the request form («Ajukan perpindahan ke sekolah lain», «Cari sekolah»). The sidebar and paging around it are English. An EN-reading admin can't read the one sentence that tells them what to do next. The section's words are written in `src/app/konfigurasi/page.tsx` (around line 1899) rather than drawn from `hle.ts`, which already holds `pindah.*` EN keys for the incoming list. | **Disagree:** the incoming-transfer words exist in EN (`pindah.masuk.judul` «Incoming transfer requests») | C-6 (words chosen per screen, here outside the word file) | B, H | Move the section's words into `hle.ts` with EN. Add a sweep for other hard-coded words in `konfigurasi/page.tsx` to the visual and wording consistency pass. |
+| J9-5 | In EN, the promotion page's h1 is still «Kenaikan kelas dan kelulusan» (`04`), under English steps | — | C-6 | H | «Promotion and graduation» |
+| J9-6 | In EN: «I know 8A · 2027/28 **have** no teacher yet» (one class: «has»). The review repeats «4 up to 8A · 2027/28» twice: the summary line, and the collapsed row's label. | — | — | H | «I know 8A · 2027/28 has no teacher yet …». The collapsed row reads «Details: 4 students» |
+
+**Still for the builder:** the [S] suspended-requester case (it needs a requester suspended between request and acceptance, which J9's harness doesn't stage).
