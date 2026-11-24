@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| J8 L-151 / L-149 access | L-151 data quality (rule given); L-149 boundary given | main | [J8-L151-L149-ACCESS.md](J8-L151-L149-ACCESS.md) |
 | CI-2 independent verification (PR #31) | PASS with 2 conditions: V-1 card_holders exposes suspension category (make neutral); V-2 G01 uses prosrc (use pg_get_functiondef + BEGIN ATOMIC plant); 5 preservations confirmed; oracle closed | 9c6aae62 | [AUDIT79-CI2-VERIFY.md](AUDIT79-CI2-VERIFY.md) |
 | Audit 79 L-112 (tour keeps shared computer unlocked) | HIGH; cause: idle lock counts scroll (programmatic/layout) as activity; class-wide; AR-79 with conditions | 6b248975 | [AUDIT79-L112.md](AUDIT79-L112.md) |
 | Audit 79 L-105 (revoked cert prints clean) | HIGH; print must carry state (CI-1 principle); small follow-up CI-1b, before first real certificate | 5e0d0392 | [AUDIT79-L105.md](AUDIT79-L105.md) |
