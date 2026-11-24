@@ -31,7 +31,7 @@ jobs:
     name: the world, then each journey from a reset to its last screen
     # Playwright has no browser build for ubuntu 26.04 (audit-journeys.yml, B0-A); pinned as there.
     runs-on: ubuntu-24.04
-    timeout-minutes: 150
+    timeout-minutes: 300
     steps:
       - uses: actions/checkout@v4
       - name: The world loader refuses every database but the local stack's (Sharon's guard)
@@ -160,6 +160,19 @@ jobs:
           node audit/perjalanan/j7.mjs
           AUDIT_BAHASA=en AUDIT_LEBAR=1280 node audit/perjalanan/j7.mjs
           for L in pembaca-layar gerak-dikurangi jaringan-lambat; do AUDIT_LALUAN=$L AUDIT_LEBAR=1280 node audit/perjalanan/j7.mjs; done
+      # J10 changes the world (set-up done, passwords recovered, sessions locked): it loads the world afresh per walk;
+      # the email path reads its code from the Mailpit sink started above; L5 waits the real 5-minute lock
+      - name: J10 · locked out (1280, 390, 320; EN; the three passes; the tour-open branch)
+        if: success() || failure()
+        env:
+          APP_URL: http://127.0.0.1:3999
+          AUDIT_OUT: ${{ github.workspace }}/audit-out/perjalanan
+        run: |
+          set -euo pipefail
+          node audit/perjalanan/j10.mjs
+          AUDIT_BAHASA=en AUDIT_LEBAR=1280 node audit/perjalanan/j10.mjs
+          for L in pembaca-layar gerak-dikurangi jaringan-lambat; do AUDIT_LALUAN=$L AUDIT_LEBAR=1280 node audit/perjalanan/j10.mjs; done
+          AUDIT_CABANG=1 node audit/perjalanan/j10.mjs
       # J11 reads the school (W18): read-only, so on a world loaded once
       - name: J11 · reading the school (1280, 390, 320; then EN at 1280)
         if: success() || failure()

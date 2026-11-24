@@ -389,7 +389,7 @@ for (const lebar of LEBAR) {
     await page.waitForLoadState("networkidle").catch(() => {}); await page.waitForTimeout(1200);
     await foto("buka-kembali-terkirim");
     data("sent", await isi());
-    data("requests", j.baca(`select count(*)::text from public.account_requests r where r.person_id = '${puspa.person}'`));
+    data("requests", j.baca(`select count(*)::text || ' reopening request(s) after the double press' from public.account_requests r where r.person_id = '${puspa.person}' and r.kind = 'REOPEN'`));
     await page.goBack().catch(() => {});
     await tunggu();
     await foto("buka-kembali-kembali");
