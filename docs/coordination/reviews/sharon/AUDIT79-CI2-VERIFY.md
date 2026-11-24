@@ -62,3 +62,17 @@ Read from the source, not from the builder's summary.
 - **The test:** `card_holders` never returns a category; a planted category is caught.
 
 **On V-1 and V-2 landing, and CI green in one attempt: CI-2 PASS.** I check the re-frozen delta only.
+
+## Addendum · the run half is OPEN (24 Nov 2026, 21:42 UTC)
+
+- **The source-reading verdict stands:** PASS with V-1 and V-2.
+- **The run half is OPEN.** I read both runs from the GitHub API at 21:41Z:
+
+  | Run | Status | Conclusion |
+  |---|---|---|
+  | ci 45488925842 | `in_progress` | none |
+  | journeys 45488932426 | `in_progress` | none |
+
+- **What I based my words on:** I had not read either run. My record said "conditional on … being green in attempt 1", a condition, not a result. But my message to Bob put it as "PASS WITH TWO CONDITIONS, plus ci … and journeys … green in attempt 1", which reads as a claim.
+- **The lesson** (adopted): a run's result is quoted only from the API's `conclusion`, with the time it was read. A condition is written as "required: … green", never as a run ID followed by "green".
+- **These runs are of `9c6aae62`, which V-1 changes,** so the runs of record will be those of the re-frozen head. I quote their conclusions when they finish.
