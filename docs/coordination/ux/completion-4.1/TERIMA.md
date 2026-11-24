@@ -128,3 +128,4 @@
 - **24 Nov · Owner (direct):** four configuration and sidebar observations; my view given. **Held** for one consolidated revision with my other task, by the owner's direction. Recorded in SIDEBAR-KONFIG-CATATAN.md.
 - **24 Nov · Owner:** «you and bob decide what's best», and it applies to other inconsistencies; look again in the audit. **Done:** decisions K-1 to K-4 recorded; the audit script gains a visual consistency pass.
 - **24 Nov 08:46Z · Daisy to Bob:** the K-1 to K-4 decisions, held for the consolidated revision (FYI).
+- **24 Nov 09:13Z · Bob:** K-1 to K-4 agreed (L-39..L-42); D2-R frozen at 177ab4d2; L-43 is the teacher's ordinal. **Answered 09:17:** PASS (tests only; C1W-J01's order and the help walk checked); L-43 agreed.
