@@ -162,7 +162,7 @@ export type HleEvent =
   | "laporan.komposisi.pita_ket" | "laporan.komposisi.saran" | "laporan.komposisi.penguatan_soal" | "laporan.komposisi.soal_wajib_belum"
   | "config.menunggu.alasan.kartu" | "config.menunggu.alasan.email" | "config.menunggu.alasan.pendataan"
   | "hasilbelajar.judul" | "hasilbelajar.cakupan" | "hasilbelajar.a" | "hasilbelajar.b" | "hasilbelajar.b_arti"
-  | "hasilbelajar.belum_ada" | "hasilbelajar.semua_capai" | "hasilbelajar.capai" | "hasilbelajar.selesai" | "hasilbelajar.ulang" | "hasilbelajar.ulang_banyak" | "hasilbelajar.baca_lagi" | "hasilbelajar.baca_lagi_banyak" | "hasilbelajar.baca_lagi_tanda"
+  | "hasilbelajar.belum_ada" | "hasilbelajar.semua_capai" | "hasilbelajar.capai" | "hasilbelajar.selesai" | "hasilbelajar.ulang" | "hasilbelajar.ulang_banyak" | "hasilbelajar.baca_lagi" | "hasilbelajar.baca_lagi_banyak" | "hasilbelajar.baca_lagi_tanda" | "hasilbelajar.berikutnya_baca_lagi"
   | "hasilbelajar.awal" | "hasilbelajar.akhir" | "hasilbelajar.target" | "hasilbelajar.berjalan"
   | "hasilbelajar.nilai" | "hasilbelajar.tercapai" | "hasilbelajar.belum_capai" | "hasilbelajar.pelajari_lagi"
   | "hasilbelajar.lanjutkan" | "hasilbelajar.berikutnya_ulang" | "hasilbelajar.buka_bab" | "hasilbelajar.sertifikat"
@@ -5321,6 +5321,8 @@ const table: Table = {
   "hasilbelajar.baca_lagi": { default: "Disarankan dibaca lagi: {daftar}.", en: "Suggested for reading again: {daftar}." },
   "hasilbelajar.baca_lagi_banyak": { default: "Ada {n} bagian yang disarankan untuk dibaca lagi; semuanya ditandai «baca lagi» di bagian B.", en: "{n} parts are suggested for reading again; each is marked «read again» in section B." },
   "hasilbelajar.baca_lagi_tanda": { default: "baca lagi", en: "read again" },
+  // Daisy's §12: the C line on a certifying «Belum lulus» row quotes the mark its section B shows
+  "hasilbelajar.berikutnya_baca_lagi": { default: "Baca lagi bagian yang ditandai «baca lagi» ({daftar}), lalu tanyakan kepada guru langkah berikutnya.", en: "Read again the parts marked «read again» ({daftar}), then ask your teacher for the next step." },
   "hasilbelajar.awal": { default: "Pemetaan Awal", en: "Initial Mapping" },
   "hasilbelajar.akhir": { default: "Uji Penguasaan", en: "Mastery Check" },
   "hasilbelajar.target": { default: "Target bab ini", en: "This chapter's target" },

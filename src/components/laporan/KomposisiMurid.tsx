@@ -28,7 +28,9 @@ export default function KomposisiMurid({ bab, locale, persona = "learner" }: { b
   const ulangBiasa = ulang.filter((b) => !b.bersertifikasi);
   const bacaLagi = ulang.filter((b) => b.bersertifikasi);
   // the teacher line (C) stays where it was: on a result below the target
-  const ulangBelum = ulang.filter((b) => b.tercapai === "BELUM");
+  const ulangBelum = ulangBiasa.filter((b) => b.tercapai === "BELUM");
+  // Daisy's §12: a certifying «Belum lulus» row's C line quotes the «baca lagi» its section B shows
+  const bacaBelum = bacaLagi.filter((b) => b.tercapai === "BELUM");
   const adaB = selesai.some((b) => b.bagian.length > 0) || bacaLagi.length > 0;
 
   let kalimat: string;
@@ -167,6 +169,7 @@ export default function KomposisiMurid({ bab, locale, persona = "learner" }: { b
             <li key={b.tugas}><Link href={`/belajar/${b.tugas}`}>{s("hasilbelajar.lanjutkan").replace("{judul}", b.judul)}</Link></li>
           ))}
           {ulangBelum.length > 0 ? <li>{s("hasilbelajar.berikutnya_ulang").replace("{daftar}", ulangBelum.map((b) => b.judul).join(", "))}</li> : null}
+          {bacaBelum.length > 0 ? <li>{s("hasilbelajar.berikutnya_baca_lagi").replace("{daftar}", bacaBelum.map((b) => b.judul).join(", "))}</li> : null}
           {selesai.map((b) => (
             <li key={b.tugas}><Link href={`/belajar/${b.tugas}/hasil`}>{s("hasilbelajar.buka_bab").replace("{judul}", b.judul)}</Link></li>
           ))}
