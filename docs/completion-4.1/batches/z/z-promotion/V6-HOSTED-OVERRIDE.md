@@ -53,3 +53,19 @@ V6's hosted condition is met by **observed behaviour**:
 The support confirmation is optional corroboration. **Z's staging acceptance stays pending until Sharon reviews this.**
 
 No configuration was changed. Every read was in `set transaction read only`.
+
+## 5 · §2 closed, and Sharon's verdict (24 Nov 2026)
+
+**The owner's request (§2):**
+- About 00:23Z, the owner signed in to staging (gladystubarad), opened the school selection, selected SD Golden School GS-001, and loaded Konfigurasi.
+- No configuration was changed.
+
+**The re-read** (read-only, 00:24:21Z): `select "pintar_permintaan"."periksa"()` totals **177,809** across the request roles. That is **+148 over the 177,661 baseline** taken at 00:20:16Z.
+
+**So the pre-request ran on requests made after the promotion: there is no disabling override.**
+
+**Sharon's verdict** (addendum in Z2-8614bd26.md):
+- The evidence meets V6's hosted condition once this re-read shows the count above 177,661. Support's confirmation is not required.
+- She asked for one more check: the md5 of `pg_get_functiondef('pintar_permintaan.periksa()')` on staging against a local 308 build.
+  - **Staging:** `2b4a0444fbd36007341a536916fe14a0`.
+  - **Local 308:** requested from Second Eye; recorded below.
