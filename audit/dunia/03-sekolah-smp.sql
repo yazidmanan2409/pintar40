@@ -23,6 +23,9 @@ begin
   insert into public.institutions (name, slug, is_synthetic, namespace)
   values ('SMP Sintetis Cendekia', 'dunia-smp-cendekia', true, 'CDK') returning id into sekolah;
   perform dunia.simpan('smp.sekolah', sekolah::text);
+  perform dunia.sebagai('pintar.admin1');
+  perform public.atur_zona_waktu_sekolah(sekolah, 'Asia/Jakarta');   -- WIB
+  perform dunia.sebagai(null);
   insert into public.academic_periods (institution_id, name, starts_on, ends_on)
   values (sekolah, 'TA 2026/2027', '2026-07-13', '2027-06-26') returning id into ta;
   perform dunia.simpan('smp.ta', ta::text);

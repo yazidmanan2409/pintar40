@@ -20,8 +20,8 @@ artifact.
 
 - Invented names only. Synthetic passwords and card PINs, the same after every reset.
 - One school year (TA 2026/2027). ID first; each journey walked once in EN.
-- The time zone fixed per school: SD Sintetis Melati is WIB (Asia/Jakarta); the WITA school joins with J12's state.
-  The browser runs in the school's zone. The server's clock is the machine's: the product has no clock override, and
+- The time zone fixed per school, set by an Admin PINTAR through `atur_zona_waktu_sekolah`: SD Sintetis Melati and SMP
+  Sintetis Cendekia are WIB (Asia/Jakarta); the WITA school joins with J12's state. The browser runs in the school's zone. The server's clock is the machine's: the product has no clock override, and
   this track changes no product code.
 - A reset returns every state: `muat.sh` always starts from `supabase db reset --local`, and loads the world as one
   transaction.
@@ -36,4 +36,6 @@ artifact.
 | W1 · an SD class of six with printed class cards, none activated | `01-sekolah-sd.sql` (SD Sintetis Melati, 4A) | built; J1 runs on it |
 | 4A's chapter, J1's «today's task» | `02-bab.sql` (`dunia.bab`, the chapter builder) | built |
 | W3 · SMP Sintetis Cendekia, 8A: the core chapter «Persamaan Linear Satu Variabel», sealed at 60; a Pemetaan Awal of 3; an Uji Penguasaan of 6 (2 multi-answer, 1 must-be-right, objectives of 2, 3 and 1 item: CDK8-3 is the thin one) | `03-sekolah-smp.sql` | built (checked at load); J2's learners join with W4–W5 |
-| W2, W4–W19 | | next |
+| W2 · activated learners by email at Cendekia 8A: one with a personal PIN, one whose PIN the school admin reset (`admin_reset_recovery`); the 8A teacher's PIN | `04-w2.sql` | built (checked at load) |
+| The platform: two Admin PINTAR (W19's pair) | `01-sekolah-sd.sql` | built |
+| W4–W19 | | next |

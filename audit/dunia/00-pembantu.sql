@@ -98,3 +98,35 @@ begin
   perform set_config('request.jwt.claims', json_build_object('sub', u, 'role', 'authenticated')::text, true);
   perform set_config('request.jwt.claim.sub', u, true);
 end $$;
+
+-- A learner by email, made the product's way: recorded at the school (the person and the school's number for them),
+-- enrolled and placed, the activation granted by the school admin, then the Auth account the grant links.
+-- `p_aktif`: the learner has already finished first sign-in (setup COMPLETE), as an activated learner has.
+create function dunia.murid_email(p_k text, p_email text, p_password text, p_nama text, p_sekolah text, p_ta text,
+                                  p_prog text, p_nodes text[], p_admin text, p_aktif boolean)
+returns uuid language plpgsql as $$
+declare sekolah uuid := dunia.ambil(p_sekolah)::uuid; ta uuid := dunia.ambil(p_ta)::uuid; p uuid; e uuid; u uuid; a uuid; n text;
+begin
+  insert into public.persons (display_name) values (p_nama) returning id into p;
+  perform dunia.sebagai(p_admin);
+  perform public.issue_institutional_id(p, sekolah);
+  perform dunia.sebagai(null);
+  insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status)
+  values (p, sekolah, ta, dunia.ambil(p_prog)::uuid, 'ACTIVE') returning id into e;
+  foreach n in array p_nodes loop
+    insert into public.memberships (enrollment_id, node_id, academic_period_id) values (e, dunia.ambil(n)::uuid, ta);
+  end loop;
+  perform dunia.sebagai(p_admin);
+  perform public.authorize_account_activation(p, 'EMAIL', p_email, null);
+  perform dunia.sebagai(null);
+  u := dunia.auth_user(p_email, p_password, p_nama, null);
+  select id into a from public.accounts where auth_user_id = u and person_id = p;
+  if a is null then raise exception 'dunia.murid_email: % was not linked to the recorded learner', p_email; end if;
+  if p_aktif then
+    update public.account_setup set state = 'COMPLETE', completed_at = now(), password_set_at = now(), name_confirmed_at = now()
+     where account_id = a;
+  end if;
+  perform dunia.simpan(p_k, jsonb_build_object('email', p_email, 'password', p_password, 'nama', p_nama, 'person', p,
+                                               'auth', u, 'pintar_id', (select pintar_id from public.persons where id = p))::text);
+  return p;
+end $$;

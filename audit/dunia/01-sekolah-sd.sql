@@ -26,9 +26,16 @@ declare
 begin
   perform dunia.jaga();
 
+  -- the platform's two Admin PINTAR (W19 needs two, for the last-admin case); the first sets each school's clock
+  perform dunia.staf('pintar.admin1', 'admin1.pintar@dunia.pintar.test', 'Sintetis-AdminPintar1-31!', 'Hendra Kusuma', 'SYSTEM_ADMIN', null);
+  perform dunia.staf('pintar.admin2', 'admin2.pintar@dunia.pintar.test', 'Sintetis-AdminPintar2-32!', 'Ratna Sari Dewi', 'SYSTEM_ADMIN', null);
+
   insert into public.institutions (name, slug, is_synthetic, namespace) values ('SD Sintetis Melati', 'dunia-sd-melati', true, 'MLT')
   returning id into sekolah;
   perform dunia.simpan('sd.sekolah', sekolah::text);
+  perform dunia.sebagai('pintar.admin1');
+  perform public.atur_zona_waktu_sekolah(sekolah, 'Asia/Jakarta');   -- WIB
+  perform dunia.sebagai(null);
   insert into public.academic_periods (institution_id, name, starts_on, ends_on)
   values (sekolah, 'TA 2026/2027', '2026-07-13', '2027-06-26') returning id into ta;
   perform dunia.simpan('sd.ta', ta::text);
