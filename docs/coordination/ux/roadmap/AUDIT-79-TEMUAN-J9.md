@@ -63,3 +63,12 @@ I ran the builder's harness `audit/perjalanan/j9.mjs` at `6b248975`, at 1280, on
 | J9-6 | In EN: «I know 8A · 2027/28 **have** no teacher yet» (one class: «has»). The review repeats «4 up to 8A · 2027/28» twice: the summary line, and the collapsed row's label. | — | — | H | «I know 8A · 2027/28 has no teacher yet …». The collapsed row reads «Details: 4 students» |
 
 **Still for the builder:** the [S] suspended-requester case (it needs a requester suspended between request and acceptance, which J9's harness doesn't stage).
+
+## Capture judgement · the builder's committed J9 (`25fe5ea9/j9`, `1ed2d250`), 25 Nov 00:05
+
+Seven walks, every one reaching its last screen. They match my local passes:
+- the same outcome in every walk (L-35 «Terima» accepted, «Laksanakan» refused with nothing changed, the new request goes through);
+- the EN walk confirms J9-4 (L-135).
+- **390 and 320 hold:** the refusal wraps in full at 320 (`08-b-laksanakan`), «Laksanakan» and «Tolak» stay side by side, and the request form fits.
+  - The mobile header appearing mid-page in `08` at 320 is the full-page screenshot catching the sticky header, not a layout fault.
+- **The [S] suspended-requester line:** not walkable; it is ruling 73, placed in 4.5 (PR-3). **J9's «left for the builder» lines are closed.**

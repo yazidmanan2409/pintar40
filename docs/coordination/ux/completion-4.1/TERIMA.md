@@ -170,3 +170,5 @@
 - 24 Nov 22:10Z · J5 and J10 EN re-captures judged. EN holds. New: J5-13 (submitted / handed in), J5-14 optional, J10-9 (the recovery email in the default language).
 - 24 Nov 23:39Z · Bob: J8 captured (9874ea1b); L-148 (the staff-list promise), L-149 (roles reach only active enrolments), L-150 (pass mark browser-only). → Judging.
 - 24 Nov 23:55Z · J8 capture judged. L-148 and L-149 restated from a local reproduction: staff intake works with Tempat and Peran empty, and staff are offered for roles; the defect is the staff units offered as Tempat, refused with the learner line. New: J8-14 Significant (the last admin releasing their own role is told «diubah oleh admin lain»), J8-15 (role card overlap).
+- 24 Nov 23:57Z · Bob: J8 recorded (L-148 restated, L-149 withdrawn, L-152 and L-153 new). J9 captured (1ed2d250); J11 captured (eccb71ad). → Judging J9, then J11.
+- 25 Nov 00:05Z · J9 and J11 captures judged. Both match my local passes; 390 and 320 hold; all builder lines closed (J9 [S] → ruling 73, 4.5).

@@ -51,3 +51,9 @@ I ran the builder's harness `audit/perjalanan/j11.mjs` at `6b248975`, at 1280, o
 | J11-4 | Screen reader: Bagian C on the summary exposes an **empty list** before its three «belum ditampilkan» lines. And Bagian A and D are `region`s while B, C and E are not. | — | — | G | Render the withheld cohorts as the list's items (or drop the empty list). Make every Bagian a region, or none. |
 
 **J11's «left for the builder» lines are closed**, except the PDF-to-screen visual comparison, which is the builder's artifact (`cetak.pdf`). Mine matched the screen content in EN.
+
+## Capture judgement · the builder's committed J11 (`1ed2d250/j11`, `eccb71ad`), 25 Nov 00:05
+
+Seven walks, every one reaching its last screen. They match my local passes, and J11-1 to J11-4 stand.
+- **390 and 320 hold:** /pimpinan stacks every Bagian at 320 without sideways scroll. The topic table becomes per-topic lists (one class per line, with its count and need). The summary and its print view keep every withheld reason.
+- **J11's «left for the builder» lines are closed**, including the PDF against the screen (`cetak.pdf`, matching).
