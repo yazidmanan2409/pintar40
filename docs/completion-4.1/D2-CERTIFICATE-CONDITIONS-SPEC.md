@@ -356,3 +356,9 @@ Sharon's part waits until after A3's freeze (ruling 58).
 | No disclosure | No key, no per-question marks, no explanations, no per-objective figure, on every learner route (database-enforced); stated once with `hasil.tidak_ditampilkan` | Built |
 
 **Both corrections are red first on `claude/d2r`.** Daisy confirms the words, and her rendered review checks both.
+
+**Sharon: the D2-R batch PASSES at `42f6f432`** (`D2R-BATCH-42f6f432.md`), conditional on ci 45322159725 and journeys 45322163898 being green. R-1 closes on the same condition.
+- **The four restated tests are restatements, not weakenings,** and DAISY-26 is whole again.
+- **The staging pair:** the `mode_policy` changes and the `mode_policy.changed` audit rows are written above the watermark. The preservation header names both as expected.
+- **`learning_delta` is unchanged.** The overall figure is the counts' ratio, which `session_outcome` already returns. Not showing any percentage on certifying results at all would be a separate product decision, covering both reads.
+- **§7.4's delta** (app and strings only) gets a delta review on the new head.
