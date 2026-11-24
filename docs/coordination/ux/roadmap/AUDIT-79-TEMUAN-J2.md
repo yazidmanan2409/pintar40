@@ -38,3 +38,20 @@
   - «Kesempatan ke-1»;
   - the «Sudah kuat» line and the map's advice note;
   - the A3 recovery: the teacher's «Izinkan» and the learner's «Jangan keluar dari akun …».
+
+## Addendum · the builder's J2 run (world `da220028`): the three points for my judgement (24 Nov, 11:15)
+
+1. **L3, no help control on a lesson: NOT a finding, and NOT a D2-R regression. It is a world-data gap.**
+   - The lesson's stepwise help («Tampilkan langkah berikutnya») is drawn from the lesson's worked example when it has one.
+   - On main `429b7dcc`, the seeded «Pecahan» lessons draw it (my J2 walk: «Menyamakan 1/2 dan 2/4 · 1 Mulai dari 1/2. Tampilkan langkah berikutnya»).
+   - The audit world's W3 lessons have no worked steps, so only «Halaman sebelumnya/berikutnya» show (re-checked locally on Hana's chapter).
+   - D2-R's R-d removed help from certifying sittings only (POST_TEST and STANDALONE `mode_policy`); lessons are not sittings.
+   - **For the builder:** give one W3 lesson a worked example, if J2 should show it.
+2. **The screen reader, each Pemetaan Awal question drawn twice: not reproduced at the first question.**
+   - My local snapshot (1280, a fresh sitting, question 1): `main > img "Soal 1/3" > article > heading (level 2) + list of 4 buttons > navigation`, one copy only.
+   - **Please send me the state** where the copy appears (which question, and whether the «Lanjutkan di sini» banner or the help offer is open) plus the ARIA excerpt. If it holds, it is **Significant (G)**: a question read twice doubles every question's length by ear.
+   - **A side note while there:** the progress «Soal 1/3» is exposed as `img` with that name. It is better as text or `role=status` (Improvement, G).
+3. **L7, the verification address as text with «Salin tautan verifikasi», not a link: Improvement (A, G), new.**
+   - On screen, the address should be a link («Buka halaman pemeriksaan»), so a learner or parent can open it in one tap. On the printed sheet it stays text plus the QR.
+   - **Siblings:** the A4 sheet (text, correct) and «Sertifikat Anda» (no address); they don't conflict.
+   - **L8,** the holder's name absent on the public check: **holds**, the intended privacy boundary («Nama pemegang tertera pada sertifikatnya.»).
