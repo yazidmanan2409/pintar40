@@ -137,3 +137,21 @@ There is no retake line on a pass. The certificate comes before the advice, beca
 - **Not yet issued:** the same link, preceded by `sertifikat.disiapkan.judul` as one line: «Sertifikat Anda sedang disiapkan.» / «Your certificate is being prepared.»
 - **Not `sertifikat.disiapkan.arti`:** its «akan muncul di sini» means the certificate page, and it would be false on the result page.
 - **The Hasil Belajar row:** the same link, without the line.
+
+## 10 · The support screen's next step, under ruling 90 (24 Nov, 04:15)
+
+**Ruling 90:** PINTAR promises no response within a set period unless an operational process can fulfil it. Option (b) of `BACA-REGISTER-PR12-15-19.md` §1 is improved here: each line now says only what the product does today.
+
+| Key | ID | EN |
+|---|---|---|
+| `lapor.langkah.awal` | «Laporan ini sudah tersimpan. Admin sekolah Anda dan tim PINTAR dapat membacanya.» | «This report is saved. Your school admin and the PINTAR team can read it.» |
+| `lapor.langkah.awal_kelas` | «Laporan ini ditandai menghentikan kelas. Admin sekolah Anda dan tim PINTAR melihat tanda itu, dan laporan ini tampil lebih dulu di antara laporan yang belum ditangani.» | «This report is marked as stopping a class. Your school admin and the PINTAR team see that mark, and it is listed first among reports not yet handled.» |
+
+**Why these words are true today:**
+- **«dapat membacanya»** matches `lapor.privasi` («… dibaca oleh Anda, Admin sekolah Anda dan tim PINTAR»). It names who can read the report, not when.
+- **«tampil lebih dulu di antara laporan yang belum ditangani»:** a new report is `DITERIMA`. The triage list orders by status (`DITERIMA` first, in enum order), then `stops_class` first (`lapor-masalah.ts:85`). Among reports not yet handled, a class-stopping report is first.
+  - It does not claim to stay first once handled.
+  - It does not claim faster reading. Option (b)'s «dibaca lebih dulu» claimed that, and was dropped.
+- **Dropped from option (b):** «di sini». The reporter is not looking at the triage list, so «here» pointed at nothing.
+- **No time period anywhere.** The time-bound wording waits for 4.5-OF-SUP, or for PR-12 and PR-15 to name a monitored process.
+- **The key «Langkah berikutnya:»** heads both lines, and still reads correctly.
