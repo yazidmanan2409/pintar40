@@ -5393,8 +5393,9 @@ const table: Table = {
   "lapor.saya.kosong": { default: "Anda belum pernah mengirim laporan.", en: "You have not sent a report yet." },
   "lapor.saya.buka": { default: "Laporan saya", en: "My reports" },
   "lapor.langkah": { default: "Langkah berikutnya:", en: "Next step:" },
-  "lapor.langkah.awal": { default: "Admin sekolah atau tim PINTAR akan melihatnya dalam satu hari sekolah.", en: "Your school admin or the PINTAR team will look at it within one school day." },
-  "lapor.langkah.awal_kelas": { default: "Karena menghentikan kelas, laporan ini dijawab pada hari sekolah yang sama.", en: "Because it is stopping a class, this report is answered the same school day." },
+  // ruling 90 (Daisy D2R-KATA §10): no response within a set period is promised until a monitored process can keep it
+  "lapor.langkah.awal": { default: "Laporan ini sudah tersimpan. Admin sekolah Anda dan tim PINTAR dapat membacanya.", en: "This report is saved. Your school admin and the PINTAR team can read it." },
+  "lapor.langkah.awal_kelas": { default: "Laporan ini ditandai menghentikan kelas. Admin sekolah Anda dan tim PINTAR melihat tanda itu, dan laporan ini tampil lebih dulu di antara laporan yang belum ditangani.", en: "This report is marked as stopping a class. Your school admin and the PINTAR team see that mark, and it is listed first among reports not yet handled." },
   "lapor.status.DITERIMA": { default: "Diterima", en: "Received" },
   "lapor.status.DITANGANI": { default: "Ditangani", en: "Being handled" },
   "lapor.status.SELESAI": { default: "Selesai", en: "Resolved" },
