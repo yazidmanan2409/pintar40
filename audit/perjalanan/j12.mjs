@@ -1,4 +1,4 @@
-// J12 · Operating PINTAR (Daisy's script, 53c1af77, J12). World: W19, an Admin PINTAR (Hendra Kusuma, pintar.admin1) on
+// J12 · Operating PINTAR (Daisy's script, f19d202c, J12). World: W19, an Admin PINTAR (Hendra Kusuma, pintar.admin1) on
 // a quiet day, with W3 running at SMP Sintetis Cendekia. A harness: it records, it does not judge.
 //
 //   node audit/perjalanan/j12.mjs      (the app on APP_URL; it LOADS THE WORLD ITSELF before each walk: it changes it)
@@ -236,7 +236,7 @@ for (const lebar of LEBAR) {
     harus(Array.isArray(c.rec.data.sink_latest) && c.rec.data.sink_latest.length > 0, "no test email reached the sink");
   });
 
-  await j.langkah("L6", "a platform role renewed, then the last-admin refusal", async (c) => {
+  await j.langkah("L6", "a platform role renewed; then the last Admin PINTAR's row", async (c) => {
     const sampaiRatna = () => j.baca(`select max(ra.valid_until)::date from public.role_assignments ra where ra.person_id = '${D["pintar.admin2"].person}' and ra.role = 'SYSTEM_ADMIN' and ra.revoked_at is null`);
     await halaman("/konfigurasi/roles");
     c.data("usable_admins_before", j.baca(sql.admin));
@@ -281,9 +281,13 @@ for (const lebar of LEBAR) {
     await c.foto("satu-admin-tersisa");
     const tawaran = (await page.getByRole("link").allInnerTexts()).map((x) => x.replace(/\s+/g, " ").trim()).filter((x) => x.includes(admin.nama));
     c.data("own_row_offers", tawaran);
+    // f19d202c (L-36): WATCH whether the row says why no end action is offered (peran.berakhir.terakhir)
+    const baris = (await page.locator("li, tr, div").filter({ hasText: admin.nama }).filter({ hasText: /Admin PINTAR/ }).last().innerText().catch(() => "")).replace(/\s+/g, " ").trim();
+    c.data("own_row_text", baris.slice(0, 300));
+    c.data("own_row_says_why", /satu-satunya admin yang aktif|the only active administrator/i.test(baris));
     c.amati(tawaran.some((x) => /^(Lepaskan|Release)/i.test(x))
-      ? "his own role offers «Lepaskan» (walk it for the refusal)"
-      : "the last-admin refusal is NOT REACHABLE by the screens: his own row offers no «Lepaskan» (ROLE_LAST_PLATFORM_ADMIN guards a path the screen does not offer); recorded");
+      ? "his own role offers «Lepaskan»"
+      : `the last Admin PINTAR's row offers no «Lepaskan» (as f19d202c expects); the row ${c.rec.data.own_row_says_why ? "SAYS why («satu-satunya admin yang aktif»)" : "does NOT say why"}`);
   });
 
   hasil.push(await j.selesai());

@@ -1,5 +1,5 @@
 // J1 · First day (SD): sign in by class card, land on /belajar, the tour, today's task. Daisy's corrected script
-// (AUDIT-79-SKRIP-PERJALANAN.md at 53c1af77, 24 Nov): a class-card learner has no personal PIN and is never asked about
+// (AUDIT-79-SKRIP-PERJALANAN.md at 53c1af77, and f19d202c for the wrong-PIN branch, 24 Nov): a class-card learner has no personal PIN and is never asked about
 // the computer (D-086(c)); those steps moved to J10, for a W2 email learner. A harness: it records, it does not judge.
 //
 //   audit/dunia/muat.sh && node audit/perjalanan/j1.mjs                    the walk (AUDIT_LEBAR, AUDIT_BAHASA, AUDIT_LALUAN)
@@ -9,8 +9,8 @@
 // Keyboard only. Every walk is a first sign-in, by its own W1 learner:
 //   the walk     1280 → learner 1, 390 → 2, 320 → 3; the EN walk → 4; a pass (AUDIT_LALUAN) → 5
 //   the branches (AUDIT_CABANG=1, 1280, ID):
-//     «pin-salah»     learner 6: a wrong card PIN three times (the script's), on to the sixth (the product's first wait
-//                     comes after five), then the right one during the wait; and a mistyped card number
+//     «pin-salah»     learner 6: wrong card PINs until the wait (five are free in 15 minutes; the sixth waits), then
+//                     the right one during the wait; and a mistyped card number
 //     «tur-keluar»    learner 5: the tour closed early, then reopened from «Bantuan»; then signing out and back in on
 //                     the same shared computer (the same browser)
 // So the branches and a pass each need a world loaded afresh after the walks that used learner 5 (muat.sh).
@@ -125,11 +125,10 @@ if (!CABANG) {
   const salah = m.pin === "000000" ? "111111" : "000000";
   const pesan = [];
 
-  // The script says three wrong PINs, then the wait. The product's pacing (card_signin_attempt) gives 5 free tries in
-  // 15 minutes, then a wait of 30 s doubling to 300 s: tries 1–3 are the script's, 4–6 go on to the first wait, and
-  // are labelled as beyond the script. Recorded, not judged.
+  // Daisy's script (f19d202c, corrected 24 Nov): wrong card PINs until the wait. card_signin_attempt gives 5 free
+  // tries in 15 minutes; the sixth waits 30 s (doubling to 5 minutes).
   for (let n = 1; n <= 6; n++) {
-    await j.langkah(`C1.${n}`, `a wrong card PIN, try ${n}${n > 3 ? " (beyond the script's three: to the product's first wait)" : ""}`, async ({ rec, foto, data }) => {
+    await j.langkah(`C1.${n}`, `a wrong card PIN, try ${n}${n === 6 ? " (the wait)" : ""}`, async ({ rec, foto, data }) => {
       if (n === 1) await page.goto(`${APP}/masuk`);
       rec.tab += await masukKartu(j, m.kartu, salah, n === 1 ? foto : null);
       await page.waitForLoadState("networkidle").catch(() => {});

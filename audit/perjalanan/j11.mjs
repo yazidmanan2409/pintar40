@@ -1,4 +1,4 @@
-// J11 · Reading the school (Daisy's script, 53c1af77, J11). World: W18 in the dev/CI bootstrap tenant
+// J11 · Reading the school (Daisy's script, f19d202c, J11). World: W18 in the dev/CI bootstrap tenant
 // (audit/dunia/12-w18.sql, 12b-w18-pindah.sql). The leader: Kepala sekolah Retno Wulandari (w18.dekan, DEAN at the
 // school's root). A harness: it records, it does not judge. Read-only, so one world serves every walk.
 //
@@ -7,7 +7,8 @@
 // Captures labelled «bukti OFFICIAL di tenant bootstrap dev/CI (sintetis)». The same report also shows W14's 9A, the
 // J2/J3 classes and the seed's own class (one school); W18's own figures are IPA.
 //   L1 Pimpinan's page · L2 the readiness bands (a class with figures, opened) · L3 «Belum cukup bukti» (8R, opened;
-//   «Kesiapan bukti») · L4 the school summary, every sentence with «semua»/«all» recorded beside what it judged ·
+//   «Kesiapan bukti») · L4 the school summary: the scope line laporan.cakupan.sekolah, and whether the withheld domains are named on the
+//   same page (f19d202c, L-37); every «semua»/«all» sentence recorded ·
 //   L5 the printed summary (the print view, and a PDF of it)
 import { join } from "node:path";
 import { APP, dunia, jalan, pilihBahasa, ringkas, masukEmail, BAHASA, LEBAR } from "./lib.mjs";
@@ -55,12 +56,15 @@ for (const lebar of LEBAR) {
     await foto("kesiapan-bukti");
   });
 
-  await j.langkah("L4", "the school summary; every «semua»/«all» sentence recorded", async ({ rec, foto, data }) => {
+  await j.langkah("L4", "the school summary: the scope line, and the withheld domains named on the page", async ({ rec, foto, data }) => {
     rec.tab += await j.tekan(page.getByRole("link", { name: /Buka ringkasan sekolah|Open the school summary/i }).first(), 200);
     await page.waitForURL((u) => u.pathname.startsWith("/dekan/ringkasan"), { timeout: 30000 });
     await foto("ringkasan-sekolah");
     const t = (await page.locator("main").innerText()).replace(/\s+/g, " ");
     data("sentences_with_all", kalimatSemua(t));
+    // f19d202c step 4 (L-37): the scope line laporan.cakupan.sekolah; WATCH: the withheld domains named on the same page
+    data("scope_line", (t.match(/Angka dihitung .{0,40}? dari semua bukti sekolah ini, di setiap tahun ajaran, sampai saat itu\.|Figures calculated .{0,40}? from all of this school's evidence, in every school year, up to then\./) ?? ["(not found)"])[0]);
+    data("withheld_named_on_page", t.split(/(?<=[.!?])\s+/).filter((k) => /belum ditampilkan|not shown yet|withheld|ditahan/i.test(k)).slice(0, 8));
     data("url", new URL(page.url()).pathname + new URL(page.url()).search);
   });
 

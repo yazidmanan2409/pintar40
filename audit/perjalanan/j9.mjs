@@ -1,4 +1,4 @@
-// J9 · A promotion, then a transfer across it (Daisy's script, 53c1af77, J9). World: W16 (audit/dunia/08-w16.sql):
+// J9 · A promotion, then a transfer across it (Daisy's script, f19d202c, J9). World: W16 (audit/dunia/08-w16.sql):
 // SMP Sintetis Flamboyan (A, WIB) with this year and next (next year's 8A), 7A of four, and Qori Ananda's open
 // transfer to SMP Sintetis Kenari (B, WITA). A harness: it records, it does not judge.
 //
@@ -8,10 +8,9 @@
 // One browser per walk, two people in turn on it (each signs out before the other signs in; keyboard only):
 //   L1 A's admin (Teguh Wibowo): the year-end promotion of 7A, every learner to next year's 8A, Qori included;
 //      reviewed, confirmed
-//   L2 B's admin (Andi Mappanyompa): «Terima perpindahan» on Qori's old request, then «Laksanakan». The script expects
-//      TRANSFER_SOURCE_CLOSED at «Terima»; on next-base «Terima» authorizes and the refusal is transfer_execute's, at
-//      «Laksanakan» (20270123150000: «the transfer stays AUTHORIZED and nothing is written»). Both are walked and
-//      recorded, with the data before and after each (nothing changed by the refused step)
+//   L2 B's admin (Andi Mappanyompa): «Terima perpindahan» on Qori's old request, then «Laksanakan» → TRANSFER_SOURCE_CLOSED
+//      at «Laksanakan» (Daisy's script f19d202c, L-35). Recorded with the data before and after each, and the script's
+//      WATCH: what the old request shows afterwards, and whether «Laksanakan» is offered again on it
 //   L3 A's admin: a new request for Qori, to Kenari (by its code)
 //   L4 B's admin: «Terima perpindahan» on the new request, then «Laksanakan»: Qori at Kenari
 import { APP, dunia, jalan, pilihBahasa, ringkas, masukEmail, muatUlang, pilih, keluar, BAHASA, LEBAR } from "./lib.mjs";
@@ -104,6 +103,9 @@ for (const lebar of LEBAR) {
     data("laksanakan_enrollments_before_after", s2[1] + "  ⟶  " + s3[1]);
     data("laksanakan_nothing_changed", s2[0] === s3[0] && s2[1] === s3[1]);
     amati(s2[0] === s3[0] && s2[1] === s3[1] ? "«Laksanakan» was refused; nothing changed (words in data)" : "«Laksanakan» changed the data (see data)");
+    // f19d202c's WATCH (L-35): what the old request shows afterwards, and whether «Laksanakan» is offered again on it
+    data("old_request_after", j.baca(sql.pindah()));
+    data("laksanakan_offered_again", await page.getByRole("button", { name: new RegExp(`^(Laksanakan|Execute)\\s*·\\s*${qori.nama}`) }).count());
   });
 
   await j.langkah("L3", "A: a new request for Qori, to Kenari (by its code)", async ({ rec, foto, data }) => {
