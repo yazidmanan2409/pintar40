@@ -1,0 +1,15 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- alert
+- main:
+  - text: PINTAR
+  - heading "Halaman ini tidak ada" [level=1]
+  - paragraph: Alamatnya mungkin keliru, atau halaman ini sudah dipindahkan.
+  - link "Ke halaman awal":
+    - /url: /
+- contentinfo:
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com

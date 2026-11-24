@@ -1,0 +1,77 @@
+{
+  "perjalanan": "j3-cabang-w7",
+  "nama": "Sinta · Bambang · Made",
+  "lebar": 1280,
+  "zona": "WIB",
+  "bahasa": "id",
+  "laluan": "standar",
+  "label": [
+    "bukti OFFICIAL di tenant bootstrap dev/CI (sintetis)",
+    "keadaan fiksasi W7 (ulang dimulai lalu diakhiri tanpa dihitung)"
+  ],
+  "mulai": "2026-11-24T14:01:57.554Z",
+  "langkah": [
+    {
+      "id": "C1",
+      "judul": "W7a: the retake begun (open): the three surfaces",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-w7a-murid-hasil",
+        "02-w7a-murid-belajar",
+        "03-w7a-guru-murid",
+        "04-w7a-guru-minta-membaca",
+        "05-w7a-guru-minta-membaca-daftar",
+        "06-w7a-kaprodi"
+      ],
+      "amatan": [],
+      "data": {
+        "w7a-learner_verdict": "(none)",
+        "w7a-learner_text": "PINTAR Halaman ini tidak ada Alamatnya mungkin keliru, atau halaman ini sudah dipindahkan. Ke halaman awal",
+        "w7a-learner_home_line": "BELAJAR Halo, Sinta Ini yang sedang berjalan hari ini. LANGKAH BERIKUTNYA Matematika · Persamaan Linear Satu Variabel Siap untuk Uji Penguasaan Pemetaan Awal Peta Bacaan Personal Pelajaran Uji Penguasaan Hasil Lanjutkan Uji Penguasaan Lihat semua langkah PEMBELAJARAN ANDA MATEMATIKA · KELAS 8 Persamaan Linear Satu Variabel Pemetaan Awal Peta Bacaan Personal Pelajaran Uji Penguasaan Hasil Siap untu",
+        "w7a-teacher_text": "← 8K (dunia) PINTAR Bootstrap (OFFICIAL evidence — development and CI only) / 8K (dunia) / TA 2026/2027 (dunia audit) CATATAN BELAJAR Sinta Maharani Catatan belajar satu murid di kelas Anda, untuk mendukung belajarnya. Tidak dibandingkan dengan murid lain dan bukan peringkat. PENILAIAN DI KELAS INI PEMETAAN AWAL · PERSAMAAN LINEAR SATU VARIABEL Sudah mengumpulkan UJI PENGUASAAN · PERSAMAAN LINEAR SATU VARIABEL Sudah mengumpulkan HASIL RESMI Penguasaan yang tercatat pada tiap asesmen yang sudah dinilai. UJI PENGUASAAN · PERSAMAAN LINEAR SATU VARIABEL 83% belum mencapai target: soal penting belum tepat · target 60% Uji Penguasaan ulang sedang berlangsung. Hasil yang tampil adalah hasil uji sebelumnya. Minta membaca lagi PEMETAAN AWAL · PERSAMAAN LINEAR SATU VARIABEL 100% TUJUAN PEMBELAJARAN YANG BELUM TERCAPAI Dari Uji Penguasaan terakhir murid ini di kelas ini: tujuan yang belum tercapai,",
+        "w7a-teacher_shows_kesempatan_ke": false,
+        "w7a-teacher_official_results": "HASIL RESMI Penguasaan yang tercatat pada tiap asesmen yang sudah dinilai. UJI PENGUASAAN · PERSAMAAN LINEAR SATU VARIABEL 83% belum mencapai target: soal penting belum tepat · target 60% Uji Penguasaan ulang sedang berlangsung. Hasil yang tampil adalah hasil uji sebelumnya. Minta membaca lagi PEMETAAN AWAL · PERSAMAAN LINEAR SATU VARIABEL 100% TUJUAN PEMBELAJARAN YANG BELUM TERCAPAI Dari Uji Penguasaan terakhir muri",
+        "w7a-read_again_sinta_preticked": true,
+        "w7a-read_again_checked": 4,
+        "w7a-read_again_text": "← Lihat bukti PINTAR Bootstrap (OFFICIAL evidence — development and CI only) / 8K (dunia) / TA 2026/2027 (dunia audit) PERSAMAAN LINEAR SATU VARIABEL Minta membaca lagi Pilih murid yang perlu bantuan dan pelajaran yang perlu mereka baca lagi. Mereka akan menemukan permintaan ini di beranda mereka. target 60% Murid Sinta Maharani 83% · Persentase sudah memenuhi target, tetapi ada soal penting yang belum tepat. Pelajaran untuk dibaca lagi Kalimat Terbuka dan Persamaan Menyelesaikan Persamaan Persamaan dalam Soal Cerita Hasil murid tidak berubah, dan tidak ada tes baru. Minta membaca lagi PERMINT",
+        "w7a-read_again_list_preticks_sinta": true,
+        "w7a-approver_text": "(no request section)"
+      },
+      "tab": 17,
+      "url": "/",
+      "ms": 45458
+    },
+    {
+      "id": "C2",
+      "judul": "W7b: the retake ended not counted: the line goes, the earlier result stays",
+      "hasil": "SAMPAI",
+      "layar": [
+        "07-w7b-murid-hasil",
+        "08-w7b-murid-belajar",
+        "09-w7b-guru-murid",
+        "10-w7b-guru-minta-membaca",
+        "11-w7b-guru-minta-membaca-daftar",
+        "12-w7b-kaprodi"
+      ],
+      "amatan": [],
+      "data": {
+        "w7b-learner_verdict": "(none)",
+        "w7b-learner_text": "PINTAR Halaman ini tidak ada Alamatnya mungkin keliru, atau halaman ini sudah dipindahkan. Ke halaman awal",
+        "w7b-learner_home_line": "BELAJAR Halo, Sinta Ini yang sedang berjalan hari ini. LANGKAH BERIKUTNYA Matematika · Persamaan Linear Satu Variabel Siap untuk Uji Penguasaan Pemetaan Awal Peta Bacaan Personal Pelajaran Uji Penguasaan Hasil Asesmen ini tidak dihitung dan tidak memakai kesempatan Anda. Jawaban yang sudah tersimpan tetap ada. Lanjutkan Uji Penguasaan Lihat semua langkah PEMBELAJARAN ANDA MATEMATIKA · KELAS 8 Pers",
+        "w7b-teacher_text": "← 8K (dunia) PINTAR Bootstrap (OFFICIAL evidence — development and CI only) / 8K (dunia) / TA 2026/2027 (dunia audit) CATATAN BELAJAR Sinta Maharani Catatan belajar satu murid di kelas Anda, untuk mendukung belajarnya. Tidak dibandingkan dengan murid lain dan bukan peringkat. PENILAIAN DI KELAS INI PEMETAAN AWAL · PERSAMAAN LINEAR SATU VARIABEL Sudah mengumpulkan UJI PENGUASAAN · PERSAMAAN LINEAR SATU VARIABEL Sudah mengumpulkan HASIL RESMI Penguasaan yang tercatat pada tiap asesmen yang sudah dinilai. UJI PENGUASAAN · PERSAMAAN LINEAR SATU VARIABEL 83% belum mencapai target: soal penting belum tepat · target 60% Minta membaca lagi PEMETAAN AWAL · PERSAMAAN LINEAR SATU VARIABEL 100% TUJUAN PEMBELAJARAN YANG BELUM TERCAPAI Dari Uji Penguasaan terakhir murid ini di kelas ini: tujuan yang belum tercapai, termasuk tujuan dari soal penting yang belum tepat. Ini yang perlu dipelajari lagi, buk",
+        "w7b-teacher_shows_kesempatan_ke": false,
+        "w7b-teacher_official_results": "HASIL RESMI Penguasaan yang tercatat pada tiap asesmen yang sudah dinilai. UJI PENGUASAAN · PERSAMAAN LINEAR SATU VARIABEL 83% belum mencapai target: soal penting belum tepat · target 60% Minta membaca lagi PEMETAAN AWAL · PERSAMAAN LINEAR SATU VARIABEL 100% TUJUAN PEMBELAJARAN YANG BELUM TERCAPAI Dari Uji Penguasaan terakhir murid ini di kelas ini: tujuan yang belum tercapai, termasuk tujuan dari soal penting yang b",
+        "w7b-read_again_sinta_preticked": true,
+        "w7b-read_again_checked": 4,
+        "w7b-read_again_text": "← Lihat bukti PINTAR Bootstrap (OFFICIAL evidence — development and CI only) / 8K (dunia) / TA 2026/2027 (dunia audit) PERSAMAAN LINEAR SATU VARIABEL Minta membaca lagi Pilih murid yang perlu bantuan dan pelajaran yang perlu mereka baca lagi. Mereka akan menemukan permintaan ini di beranda mereka. target 60% Murid Sinta Maharani 83% · Persentase sudah memenuhi target, tetapi ada soal penting yang belum tepat. Pelajaran untuk dibaca lagi Kalimat Terbuka dan Persamaan Menyelesaikan Persamaan Persamaan dalam Soal Cerita Hasil murid tidak berubah, dan tidak ada tes baru. Minta membaca lagi PERMINT",
+        "w7b-read_again_list_preticks_sinta": true,
+        "w7b-approver_text": "(no request section)"
+      },
+      "tab": 17,
+      "url": "/",
+      "ms": 44768
+    }
+  ],
+  "selesai": "2026-11-24T14:03:27.782Z",
+  "sampai_akhir": true
+}

@@ -1,0 +1,43 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - navigation "Belajar":
+    - link "Belajar":
+      - /url: /belajar
+    - link "Sertifikat":
+      - /url: /belajar/sertifikat
+  - button "Bantuan"
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - link "← Perjalanan belajar Anda":
+    - /url: /belajar/1b04f2bd-dc16-4721-8737-584d11b6a0a5
+  - paragraph: Matematika · Kelas 8 · Persamaan Linear Satu Variabel
+  - heading "Uji Penguasaan" [level=1]
+  - paragraph: Kerjakan dengan tenang. Anda bisa menandai soal dan kembali lagi.
+  - paragraph: Selama Uji Penguasaan, petunjuk, contoh, dan arah berpikir tidak tersedia.
+  - term: Jumlah soal
+  - definition: "6"
+  - term: Ditutup
+  - definition: Minggu, 23 Mei 2027
+  - paragraph: Yang bisa dilakukan
+  - list:
+    - listitem: Menandai soal dan kembali lagi
+    - listitem: Menyimpan dan menjeda, lalu melanjutkan nanti
+  - strong: Tentang catatan sesi
+  - text: Selama asesmen, aktivitas sesi tertentu dapat dicatat untuk menjaga integritas proses. Catatan ini merupakan observasi dan tidak menentukan hasil Anda secara otomatis.
+  - button "Mulai Uji Penguasaan"
+  - status
+  - link "Nanti saja":
+    - /url: /belajar/1b04f2bd-dc16-4721-8737-584d11b6a0a5
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- alert

@@ -1,0 +1,33 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - text: Waktu berjalan 00:00
+  - button "Simpan & Jeda"
+  - button "Daftar soal"
+  - article:
+    - heading "Berapakah y jika 5y − 4 = 21?" [level=2]
+    - list:
+      - listitem:
+        - button "A 17"
+      - listitem:
+        - button "B 3,4"
+      - listitem:
+        - button "C 25"
+      - listitem:
+        - button "D 5"
+    - button "Simpan jawaban ini" [disabled]
+    - button "Tandai soal ini"
+    - paragraph: Pilih satu jawaban dulu.
+    - status
+  - navigation:
+    - button "Kembali" [disabled]
+    - button "Berikutnya"
+- alert

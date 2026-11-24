@@ -1,0 +1,61 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - navigation "Belajar":
+    - link "Belajar":
+      - /url: /belajar
+    - link "Sertifikat":
+      - /url: /belajar/sertifikat
+  - button "Bantuan"
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - link "← Semua sertifikat":
+    - /url: /belajar/sertifikat
+  - article:
+    - paragraph: PINTAR Bootstrap (OFFICIAL evidence — development and CI only)
+    - paragraph: Sertifikat
+    - heading "Sinta Maharani" [level=1]
+    - paragraph: "Telah dinyatakan memenuhi kriteria kelulusan yang ditetapkan berdasarkan hasil asesmen pada Materi Pembelajaran:"
+    - paragraph: Matematika · Persamaan Linear Satu Variabel.
+    - separator
+    - term: Tanggal terbit
+    - definition: 24 November 2026
+    - term: Nomor sertifikat
+    - definition: ZD9GNZMY/00001
+    - separator
+    - img "Periksa keaslian"
+    - heading "Periksa keaslian" [level=3]
+    - paragraph: Pindai kode ini atau buka tautannya. Halaman itu memastikan sertifikat ini benar diterbitkan dan masih berlaku.
+    - code: http://127.0.0.1:3999/verifikasi/Q9FAcm6ulbKjkSvJQAjmerf6xZ6mxubkikdo9dcp-tY
+  - button "Cetak atau simpan PDF"
+  - button "Salin tautan verifikasi"
+  - paragraph: Pratinjau cetak
+  - heading "Sertifikat · A4" [level=2]
+  - paragraph: Satu lembar A4 tegak. Komposisinya tetap pada setiap lebar layar; yang berubah hanya skalanya.
+  - paragraph: Sertifikat
+  - text: PINTAR
+  - heading "Sinta Maharani" [level=1]
+  - paragraph: "Telah dinyatakan memenuhi kriteria kelulusan yang ditetapkan berdasarkan hasil asesmen pada Materi Pembelajaran:"
+  - paragraph: Matematika · Persamaan Linear Satu Variabel.
+  - term: Tanggal terbit
+  - definition: 24 November 2026
+  - term: Nomor sertifikat
+  - definition: ZD9GNZMY/00001
+  - paragraph: Diterbitkan oleh
+  - paragraph: PINTAR Bootstrap (OFFICIAL evidence — development and CI only)
+  - heading "Periksa keaslian" [level=3]
+  - paragraph: Pindai kode ini atau buka tautannya. Halaman itu memastikan sertifikat ini benar diterbitkan dan masih berlaku.
+  - paragraph: http://127.0.0.1:3999/verifikasi/Q9FAcm6ulbKjkSvJQAjmerf6xZ6mxubkikdo9dcp-tY
+  - img "Periksa keaslian"
+  - text: PINTAR Bootstrap (OFFICIAL evidence — development and CI only) Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- alert

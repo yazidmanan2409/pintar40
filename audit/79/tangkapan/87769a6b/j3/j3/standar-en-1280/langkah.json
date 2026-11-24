@@ -1,0 +1,177 @@
+{
+  "perjalanan": "j3",
+  "nama": "Sinta · Bambang · Made",
+  "lebar": 1280,
+  "zona": "WIB",
+  "bahasa": "en",
+  "laluan": "standar",
+  "label": [
+    "bukti OFFICIAL di tenant bootstrap dev/CI (sintetis)"
+  ],
+  "mulai": "2026-11-24T13:48:13.239Z",
+  "langkah": [
+    {
+      "id": "L1",
+      "judul": "the learner: «Belum lulus.», the gate's reason, «Pelajari lagi»",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-murid-hasil",
+        "02-murid-belajar"
+      ],
+      "amatan": [],
+      "data": {
+        "learner_verdict": "Not passed yet.",
+        "learner_text": "← Your learning journey MATEMATIKA · PERSAMAAN LINEAR SATU VARIABEL Result Not passed yet. Your mastery percentage for this chapter meets the target, but an important question was not answered correctly. So this Mastery Check is not passed yet. Ask your teacher about the next step. Read again: Menyelesaikan Persamaan · Menyelesaikan persamaan linear satu variabel. These parts are suggested for reading again. This is advice, not a judgement of your mastery of them. You can take the Mastery Check again under your school's rules. Ask your teacher when you can retake it. 5 of 6 questions answered right · Attempt 1 In a Mastery Check, the right answers and the result of each question are not show",
+        "learner_home_line": "HOME Hello, Sinta NOTHING ELSE IS WAITING Everything assigned to you is finished. Anything new will appear on your Learning page. YOUR LEARNING MATEMATIKA · KELAS 8 Persamaan Linear Satu Variabel Initial Mapping Personal Reading Map Lesson Mastery Check Result Finished · target not reached yet See the result LEARNING RESULTS Every chapter you have worked on, on one page, with the parts to study ag",
+        "sittings": "FINALIZED 0.8333 gate false"
+      },
+      "tab": 0,
+      "url": "/",
+      "ms": 5820
+    },
+    {
+      "id": "L2",
+      "judul": "the teacher: the gate on Sinta's page, and «Minta membaca lagi»",
+      "hasil": "SAMPAI",
+      "layar": [
+        "03-guru-murid",
+        "04-guru-minta-membaca",
+        "05-guru-minta-membaca-daftar"
+      ],
+      "amatan": [],
+      "data": {
+        "teacher_text": "← 8K (dunia) PINTAR Bootstrap (OFFICIAL evidence — development and CI only) / 8K (dunia) / TA 2026/2027 (dunia audit) LEARNING RECORD Sinta Maharani One student's learning record in your class, to support their learning. It is not compared with other students and is not a ranking. ASSESSMENTS IN THIS CLASS INITIAL MAPPING · PERSAMAAN LINEAR SATU VARIABEL Have submitted MASTERY CHECK · PERSAMAAN LINEAR SATU VARIABEL Have submitted OFFICIAL RESULTS The mastery recorded on each assessment that has been scored. MASTERY CHECK · PERSAMAAN LINEAR SATU VARIABEL 83% target not reached: an important question is not right yet · target 60% Ask to read again INITIAL MAPPING · PERSAMAAN LINEAR SATU VARIABEL 100% LEARNING OBJECTIVES NOT YET REACHED From this student's latest Mastery Check in this class: the objectives not yet reached, including those of an important question not yet right. This is what",
+        "teacher_shows_kesempatan_ke": false,
+        "teacher_official_results": "(no «Hasil resmi»)",
+        "read_again_sinta_preticked": true,
+        "read_again_checked": 4,
+        "read_again_text": "← Evidence PINTAR Bootstrap (OFFICIAL evidence — development and CI only) / 8K (dunia) / TA 2026/2027 (dunia audit) PERSAMAAN LINEAR SATU VARIABEL Ask to read again Choose the students who need support and the lessons they should read again. They will find the request on their home page. target 60% Students Sinta Maharani 83% · The percentage meets the target, but an important question is not right yet. Lessons to read again Kalimat Terbuka dan Persamaan Menyelesaikan Persamaan Persamaan dalam Soal Cerita The students' results do not change, and there is no new test. Ask to read again REQUESTS",
+        "read_again_list_preticks_sinta": true
+      },
+      "tab": 12,
+      "url": "/",
+      "ms": 6265
+    },
+    {
+      "id": "L3",
+      "judul": "the teacher requests a retake",
+      "hasil": "SAMPAI",
+      "layar": [
+        "06-guru-atur",
+        "07-guru-diminta"
+      ],
+      "amatan": [],
+      "data": {
+        "words": "✓Request sent. Waiting for approval.",
+        "request": "PENDING"
+      },
+      "tab": 20,
+      "url": "/",
+      "ms": 5576
+    },
+    {
+      "id": "L4",
+      "judul": "the approver: the request's row, then «Setujui»",
+      "hasil": "SAMPAI",
+      "layar": [
+        "08-kaprodi",
+        "09-kaprodi-setuju"
+      ],
+      "amatan": [],
+      "data": {
+        "approver_text": "REQUESTS FOR AN EXTRA ATTEMPT A teacher asks for one more attempt for a student whose attempts are used up. Your decision is recorded in the school's audit trail. Sinta Maharani · 8K (dunia) · Mastery Check Persamaan Linear Satu Variabel 1 attempts used · last result 83%, target 60% not reached: an important question is not right yet Requested by Bambang Sutrisno, 24 Nov 2026 · Reason: Sinta sudah membaca lagi soal yang wajib benar. REASON (REQUIRED TO DECLINE) · SINTA MAHARANI 10 to 300 characters. The requesting teacher can read it; the student cannot. Approve · Sinta Maharani Decline · Sint",
+        "approve_words": "✓Request approved. The student can take it once more.",
+        "request": "APPROVED"
+      },
+      "tab": 18,
+      "url": "/",
+      "ms": 6284
+    },
+    {
+      "id": "L5",
+      "judul": "while the retake is open: the learner's and the teacher's lines",
+      "hasil": "SAMPAI",
+      "layar": [
+        "10-ulang-ditawarkan",
+        "11-ulang-soal-1",
+        "12-berjalan-murid-hasil",
+        "13-berjalan-murid-belajar",
+        "14-berjalan-guru-murid",
+        "15-berjalan-guru-minta-membaca",
+        "16-berjalan-guru-minta-membaca-daftar"
+      ],
+      "amatan": [],
+      "data": {
+        "answered_then_left": {
+          "soal": 2,
+          "bantuan_ditawarkan_di": [],
+          "berhenti": true
+        },
+        "sittings": "FINALIZED 0.8333 gate false; IN_PROGRESS",
+        "berjalan-learner_verdict": "(none)",
+        "berjalan-learner_text": "PINTAR This page does not exist The address may be mistyped, or the page may have moved. Go to the start page",
+        "berjalan-learner_home_line": "HOME Hello, Sinta Here is what is under way for you today. YOUR NEXT STEP Matematika · Persamaan Linear Satu Variabel Ready for the Mastery Check Initial Mapping Personal Reading Map Lesson Mastery Check Result Continue the Mastery Check See all the steps YOUR LEARNING MATEMATIKA · KELAS 8 Persamaan Linear Satu Variabel Initial Mapping Personal Reading Map Lesson Mastery Check Result Ready for the",
+        "berjalan-teacher_text": "← 8K (dunia) PINTAR Bootstrap (OFFICIAL evidence — development and CI only) / 8K (dunia) / TA 2026/2027 (dunia audit) LEARNING RECORD Sinta Maharani One student's learning record in your class, to support their learning. It is not compared with other students and is not a ranking. ASSESSMENTS IN THIS CLASS INITIAL MAPPING · PERSAMAAN LINEAR SATU VARIABEL Have submitted MASTERY CHECK · PERSAMAAN LINEAR SATU VARIABEL Have submitted OFFICIAL RESULTS The mastery recorded on each assessment that has been scored. MASTERY CHECK · PERSAMAAN LINEAR SATU VARIABEL 83% target not reached: an important question is not right yet · target 60% A Mastery Check retake is in progress. The result shown is from the earlier check. Ask to read again INITIAL MAPPING · PERSAMAAN LINEAR SATU VARIABEL 100% LEARNING OBJECTIVES NOT YET REACHED From this student's latest Mastery Check in this class: the objectives no",
+        "berjalan-teacher_shows_kesempatan_ke": false,
+        "berjalan-teacher_official_results": "(no «Hasil resmi»)",
+        "berjalan-read_again_sinta_preticked": true,
+        "berjalan-read_again_checked": 4,
+        "berjalan-read_again_text": "← Evidence PINTAR Bootstrap (OFFICIAL evidence — development and CI only) / 8K (dunia) / TA 2026/2027 (dunia audit) PERSAMAAN LINEAR SATU VARIABEL Ask to read again Choose the students who need support and the lessons they should read again. They will find the request on their home page. target 60% Students Sinta Maharani 83% · The percentage meets the target, but an important question is not right yet. Lessons to read again Kalimat Terbuka dan Persamaan Menyelesaikan Persamaan Persamaan dalam Soal Cerita The students' results do not change, and there is no new test. Ask to read again REQUESTS",
+        "berjalan-read_again_list_preticks_sinta": true
+      },
+      "tab": 42,
+      "url": "/",
+      "ms": 15678
+    },
+    {
+      "id": "L6",
+      "judul": "the retake resumed: the teacher's permission (signed in again), then finished: «Lulus.», and the certificate",
+      "hasil": "SAMPAI",
+      "layar": [
+        "17-ulang-perlu-izin",
+        "18-guru-izinkan",
+        "19-guru-diizinkan",
+        "20-ulang-dilanjutkan",
+        "21-ulang-akhir-soal-1",
+        "22-ulang-akhir-soal-terakhir",
+        "23-ulang-akhir-konfirmasi",
+        "24-hasil-baru",
+        "25-sertifikat",
+        "26-akhir-guru-murid",
+        "27-akhir-guru-minta-membaca",
+        "28-akhir-guru-minta-membaca-daftar"
+      ],
+      "amatan": [
+        "learner: Passed.; certificate: ISSUED"
+      ],
+      "data": {
+        "permission_needed": true,
+        "permission_words": "Matematika · Kelas 8 · Persamaan Linear Satu Variabel This assessment needs your teacher's permission to continue. Because you signed in again or changed device, this Mastery Check can only continue if your teacher allows it. Your request shows on your teacher's class list. Tell your teacher too: Mastery Check · Persamaan Linear Satu Variabel. Once your teacher allows it, choose Try again. Try again Back to Learning",
+        "teacher_allow_question": "Allow Sinta Maharani to continue Mastery Check after signing in again? The earlier session no longer saves their answers. Answers already saved are kept. This is recorded.",
+        "teacher_allow_words": "✓Sinta Maharani can continue until 20.59 WIB.",
+        "resumed_words": "You are continuing here. Do not sign out until this assessment is finished: to continue again, your teacher would need to allow it once more. Time elapsed 00:25 Save & pause Question list Pilih SEMUA langkah yang benar u",
+        "ulang-akhir_confirm_words": "Submit now? Once submitted, answers cannot be changed. Submit Check again",
+        "answered": {
+          "soal": 4,
+          "bantuan_ditawarkan_di": []
+        },
+        "verdict": "Passed.",
+        "text": "← Your learning journey MATEMATIKA · PERSAMAAN LINEAR SATU VARIABEL Result Passed. This Mastery Check result meets this chapter's passing criteria. See the certificate 6 of 6 questions answered right · Attempt 2 In a Mastery Check, the right answers and the result of each question are not shown. What next → Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com",
+        "sittings": "FINALIZED 0.8333 gate false; FINALIZED 1.0000 gate true",
+        "certificate": "ISSUED",
+        "akhir-teacher_text": "← 8K (dunia) PINTAR Bootstrap (OFFICIAL evidence — development and CI only) / 8K (dunia) / TA 2026/2027 (dunia audit) LEARNING RECORD Sinta Maharani One student's learning record in your class, to support their learning. It is not compared with other students and is not a ranking. ASSESSMENTS IN THIS CLASS INITIAL MAPPING · PERSAMAAN LINEAR SATU VARIABEL Have submitted MASTERY CHECK · PERSAMAAN LINEAR SATU VARIABEL Have submitted OFFICIAL RESULTS The mastery recorded on each assessment that has been scored. MASTERY CHECK · PERSAMAAN LINEAR SATU VARIABEL 83% target not reached: an important question is not right yet · target 60% Ask to read again INITIAL MAPPING · PERSAMAAN LINEAR SATU VARIABEL 100% MASTERY CHECK · PERSAMAAN LINEAR SATU VARIABEL 100% target 60% LEARNING OBJECTIVES NOT YET REACHED From this student's latest Mastery Check in this class: the objectives not yet reached, inclu",
+        "akhir-teacher_shows_kesempatan_ke": false,
+        "akhir-teacher_official_results": "(no «Hasil resmi»)",
+        "akhir-read_again_sinta_preticked": true,
+        "akhir-read_again_checked": 4,
+        "akhir-read_again_text": "← Evidence PINTAR Bootstrap (OFFICIAL evidence — development and CI only) / 8K (dunia) / TA 2026/2027 (dunia audit) PERSAMAAN LINEAR SATU VARIABEL Ask to read again Choose the students who need support and the lessons they should read again. They will find the request on their home page. target 60% Students Sinta Maharani 100% Lessons to read again Kalimat Terbuka dan Persamaan Menyelesaikan Persamaan Persamaan dalam Soal Cerita The students' results do not change, and there is no new test. Ask to read again REQUESTS ALREADY SENT No requests for this chapter yet. Dr. dr. Gladys DT Tubarad, M.P",
+        "akhir-read_again_list_preticks_sinta": false
+      },
+      "tab": 140,
+      "url": "/",
+      "ms": 59590
+    }
+  ],
+  "selesai": "2026-11-24T13:49:52.504Z",
+  "sampai_akhir": true
+}

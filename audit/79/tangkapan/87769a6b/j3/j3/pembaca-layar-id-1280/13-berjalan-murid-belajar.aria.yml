@@ -1,0 +1,51 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - navigation "Belajar":
+    - link "Belajar":
+      - /url: /belajar
+    - link "Sertifikat":
+      - /url: /belajar/sertifikat
+  - button "Bantuan"
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - paragraph: Belajar
+  - heading "Halo, Sinta" [level=1]
+  - paragraph: Ini yang sedang berjalan hari ini.
+  - paragraph: Langkah berikutnya
+  - paragraph: Matematika · Persamaan Linear Satu Variabel
+  - heading "Siap untuk Uji Penguasaan" [level=2]
+  - list:
+    - listitem: Pemetaan Awal
+    - listitem: Peta Bacaan Personal
+    - listitem: Pelajaran
+    - listitem: Uji Penguasaan
+    - listitem: Hasil
+  - link "Lanjutkan Uji Penguasaan":
+    - /url: /belajar/1b04f2bd-dc16-4721-8737-584d11b6a0a5/penguasaan
+  - link "Lihat semua langkah":
+    - /url: /belajar/1b04f2bd-dc16-4721-8737-584d11b6a0a5
+  - heading "Pembelajaran Anda" [level=2]
+  - article:
+    - text: Matematika · Kelas 8 Persamaan Linear Satu Variabel
+    - list:
+      - listitem: Pemetaan Awal
+      - listitem: Peta Bacaan Personal
+      - listitem: Pelajaran
+      - listitem: Uji Penguasaan
+      - listitem: Hasil
+    - text: Siap untuk Uji Penguasaan
+    - link "Lanjutkan Uji Penguasaan":
+      - /url: /belajar/1b04f2bd-dc16-4721-8737-584d11b6a0a5/penguasaan
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- alert
