@@ -68,3 +68,5 @@
 | **Branches** (a lesson resumed, a multi-answer item partly chosen, W4, W5) | Reached; I'll read them with W2's severity pass |
 
 **J2's «left for the builder» lines are now closed,** except the EN public-check re-run.
+
+**Closed 24 Nov 14:15 (`f370213f`):** the public check in EN, signed out, reads «STATUS Valid · RESULT Passed · ISSUED BY … · The holder's name is on the certificate itself, not on this page.» It holds. **J2 has no open builder line.** (The J3 re-capture on the L-80 world, `87769a6b`, reached every step; it doesn't capture the teacher's home, so L-80 is re-judged with J5's re-capture.)
