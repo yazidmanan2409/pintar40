@@ -1,4 +1,4 @@
-# Request for legal advice, part 2: PINTAR's first use (a draft for the owner)
+# Request for legal advice, part 2: PINTAR's first use
 
 **Status:** FINAL (24 Nov 2026). Prepared by Bob (ruling 89; readiness register PR-1, PR-2 and PR-19). Sharon: FIT TO SEND (`COUNSEL-BRIEF-P2-371e3b48.md`). **Scope and fees are subject to the owner's separate approval.**
 - **Provider locations, owner-confirmed on 24 Nov:**
