@@ -275,3 +275,22 @@ Sharon's part waits until after A3's freeze (ruling 58).
 **Revision 4 is final (24 Nov, 01:05Z).** The scope stays frozen as §6.1, with these corrections and two string alignments (the admin column; `verifikasi.lulus`). Nothing else is added. **The build may start** on `claude/d2r`.
 
 **The strings of record are Daisy's `D2R-KATA.md` at `e64f94c2`**, with «Materi Pembelajaran» / «Learning Material» in R-b. With no threshold in 4.1, every section below the mark goes under «Baca lagi juga:». `hasil.target.ulang` stays defined, but no 4.1 route draws it.
+
+### 7.1 · Bob's decisions on Second Eye's build map (`D2R-BUILD-MAP.md`, `claude/d2r` `cefb60eb`), for Sharon to confirm
+
+- **F-1:** `assistance_state` is mode-blind. **R-d closes it too.** It reads the same captured policy as `open_assistance`, with one plant each.
+- **F-2:** the policy is read live and never captured. **A capture column on `assessment_sessions`, written once at start**, following the `pass_mark` / `pass_mark_source` precedent.
+  - **The proposed shape:** `assistance_policy jsonb not null`, holding the three assistance levels plus `reveals_rationale_on_review`, taken from `mode_policy` at start.
+  - **The rules:** it is immutable after insert (a guard trigger), and an open sitting from before the migration is backfilled from its mode's policy at migration time (spec §6.2, open sittings).
+  - **Sharon confirms the shape.**
+- **F-3:** `reveals_rationale_on_review` is read by nothing. **It is read from the capture** in `session_review`. The hard-coded PRE_TEST refusal stays as a second check.
+- **`session_review` on a certifying mode: refuse**, as PRE_TEST already does. This closes direct calls; the counts come from `session_outcome`.
+- **STANDALONE has no learner result page:** R-h is enforced **in the database**, on every learner RPC. The page checks are additional.
+- **No learner export exists:** H10 asserts that it is absent, and the list guard (H18) catches any added later.
+- **`session_outcome.per_domain`, and `reading_map`'s KUAT and misconception reasons, on certifying modes:** the learner gets **no per-objective verdict**.
+  - `per_domain` is returned to learners without a mastery label: sections only, as revisit-advice (74a and 74b, and «no "mastered" claim per objective in 4.1»).
+  - KUAT is not shown on a certifying route.
+  - Staff views are unchanged.
+- **Result payloads are not key-sanitised:** every certifying learner RPC is covered by a forbidden-key test, the engine's existing list applied to result payloads (H-series).
+
+**The build may start now on R-a, R-b, R-c, R-e, R-f, R-g and R-1.** R-d and R-h start once Sharon confirms F-2's shape and the per_domain line.
