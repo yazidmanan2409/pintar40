@@ -25,9 +25,9 @@
    mastery comparison not drawn on a certifying result. D2R-W01, D2R-H08 and DAISY-26-BELAJAR-01 red first.
 8. **Ruling 74a in full** (the owner, Bob 04:02Z), red first (D2R-H21, D2R-C05, both rendering the component):
    item 2, «Baca lagi:» on a certifying pass too; item 4 as Daisy's D2R-KATA §9 (d79a3c8b): on a pass, «Lulus.», then
-   the certificate (the link `siklus.lihat_sertifikat`; «Sertifikat Anda sedang disiapkan.» before it, one line, only when
-   a certificate is really being prepared, a row in ELIGIBLE (`sedangDisiapkan`, Sharon's delta note): issued, none or a
-   failed read give the link alone; never `sertifikat.disiapkan.arti`), then «Baca lagi:» when a section is below the mark, the
+   the certificate (`keadaanSertifikat`, Sharon's delta note and Daisy's ruling on the null case: a row in ELIGIBLE,
+   «Sertifikat Anda sedang disiapkan.» and the link `siklus.lihat_sertifikat`, one line; ISSUED, REVOKED, SUPERSEDED, the
+   link alone; no row or a failed read, nothing, on the result and the Hasil Belajar row; never `sertifikat.disiapkan.arti`), then «Baca lagi:» when a section is below the mark, the
    counts and «Kesempatan ke-{n}», `hasil.tidak_ditampilkan`; no retake line. The Hasil Belajar row: the link only.
    D2R-H21, D2R-C05, D2R-C06. The full stop after `sertifikat.disiapkan.judul` is drawn in the component (§9's
    one-line form), so the key's text is unchanged for the certificate page's heading.

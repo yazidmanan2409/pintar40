@@ -14,7 +14,7 @@ import { TeksBaris } from "@/components/teks/Teks";
 import { alasanBelum, bagianUlang, ketuntasan, hitunganSegel } from "@/lib/siklus";
 import { judulHalaman } from "@/lib/judul-halaman";
 import HasilBersertifikasi from "@/components/siklus/HasilBersertifikasi";
-import { sedangDisiapkan } from "@/lib/sertifikat-kontrak";
+import { keadaanSertifikat } from "@/lib/sertifikat-kontrak";
 
 export const generateMetadata = judulHalaman("/belajar/[tugas]/hasil");
 
@@ -69,10 +69,10 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
     // D14: a sitting recalculated after it was sealed is said, neutrally; what this page shows is the sealed result
     engine.sesiDihitungUlang(db, state.post_session).catch(() => false),
   ]);
-  // Daisy's §9, Sharon's note: «sedang disiapkan» only on a certificate really being prepared (a row in ELIGIBLE);
-  // issued, none (a pass never to be certified) or a failed read: the link alone
-  const sertifikatDisiapkan = bersertifikasi && outcome.lulus === true
-    && sedangDisiapkan(await engine.myCertificate(db, state.post_session).catch(() => null));
+  // Daisy's §9 and her ruling on the null case: being prepared, the line and the link; a certificate that exists, the
+  // link alone; none (a pass never to be certified) or a failed read, nothing
+  const sertifikat = bersertifikasi && outcome.lulus === true
+    ? keadaanSertifikat(await engine.myCertificate(db, state.post_session).catch(() => null)) : null;
   // UX-40: this result has now been seen, so Belajar's home stops offering it as the next step. Not evidence; a
   // failed note changes nothing on this page.
   await engine.noteResultSeen(db, state.post_session).catch(() => false);
@@ -115,7 +115,7 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
         </div>
 
         {outcome.bersertifikasi ? (
-          <HasilBersertifikasi outcome={outcome} peta={peta} pelajaran={pelajaran} tugas={tugas} locale={locale} dihitungUlang={dihitungUlang} sertifikatDisiapkan={sertifikatDisiapkan} />
+          <HasilBersertifikasi outcome={outcome} peta={peta} pelajaran={pelajaran} tugas={tugas} locale={locale} dihitungUlang={dihitungUlang} sertifikat={sertifikat} />
         ) : (
           <>
         {/* The result, and what it is out of. */}

@@ -69,12 +69,14 @@ export function rendersCredential(status: CertificateStatus): boolean {
 }
 
 /**
- * D2-R (Daisy §9, Sharon's delta note, ruling 90's principle): «Sertifikat Anda sedang disiapkan» only when a
- * certificate is really being prepared, a row in ELIGIBLE. No row (a pass that will never be certified, INV-20, or a
- * failed read) promises nothing.
+ * D2-R (Daisy §9, Sharon's delta note, Daisy's ruling on the null case): what a certifying pass says of its certificate.
+ * DISIAPKAN, a row in ELIGIBLE: «Sertifikat Anda sedang disiapkan.» and the link. ADA, a certificate that exists
+ * (ISSUED, REVOKED, SUPERSEDED; the certificate page explains each): the link alone. null, no row (a pass that will never
+ * be certified, INV-20) or a failed read: nothing, since a link to a certificate that can never exist is a broken promise.
  */
-export function sedangDisiapkan(row: { status: CertificateStatus | string } | null | undefined): boolean {
-  return row?.status === "ELIGIBLE";
+export function keadaanSertifikat(row: { status: CertificateStatus | string } | null | undefined): "DISIAPKAN" | "ADA" | null {
+  if (!row) return null;
+  return row.status === "ELIGIBLE" ? "DISIAPKAN" : "ADA";
 }
 
 /** Only an ISSUED certificate is a credential to present. */

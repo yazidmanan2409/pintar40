@@ -20,12 +20,12 @@ import { alasanBelum, bagianUlang, hitunganSegel, ketuntasan } from "@/lib/siklu
  * Never «tidak lulus». No per-question row, no key, no explanation, no mastery figure per objective: the database
  * withholds them (20270124100000) and the engine refuses a result that carries one (jagaHasil). Staff views are unchanged.
  */
-export default function HasilBersertifikasi({ outcome, peta, pelajaran, tugas, locale, dihitungUlang, sertifikatDisiapkan = false }: {
+export default function HasilBersertifikasi({ outcome, peta, pelajaran, tugas, locale, dihitungUlang, sertifikat = null }: {
   outcome: Outcome; peta: readonly ReadingMapCard[]; pelajaran: readonly LessonEntry[]; tugas: string; locale: Locale;
   dihitungUlang: boolean;
-  /** Daisy's §9, Sharon's note: whether this pass's certificate is really being prepared (sedangDisiapkan); otherwise
-   *  the link alone */
-  sertifikatDisiapkan?: boolean;
+  /** Daisy's §9 and her ruling on the null case (keadaanSertifikat): DISIAPKAN, the line and the link; ADA, the link
+   *  alone; null, nothing */
+  sertifikat?: "DISIAPKAN" | "ADA" | null;
 }) {
   const s = (k: HleEvent) => t(k, "learner", { locale });
   const keputusan = ketuntasan(outcome);
@@ -47,9 +47,9 @@ export default function HasilBersertifikasi({ outcome, peta, pelajaran, tugas, l
       {/* Ruling 74a item 4, Daisy's D2R-KATA §9: directly after the «Lulus» banner, the certificate. Issued: the link.
           Not yet: «Sertifikat Anda sedang disiapkan.» and the same link, one line (never sertifikat.disiapkan.arti, whose
           «akan muncul di sini» means the certificate page) */}
-      {keputusan === "TERCAPAI" ? (
+      {keputusan === "TERCAPAI" && sertifikat ? (
         <p data-sertifikat="">
-          {sertifikatDisiapkan ? <>{s("sertifikat.disiapkan.judul")}. </> : null}
+          {sertifikat === "DISIAPKAN" ? <>{s("sertifikat.disiapkan.judul")}. </> : null}
           {/* N-22: a link is screen-only; in print it would read as bare words */}
           <Link className="pin-noprint" href={`/belajar/${tugas}/sertifikat`}>{s("siklus.lihat_sertifikat")}</Link>
         </p>

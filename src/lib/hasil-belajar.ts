@@ -1,5 +1,6 @@
 import "server-only";
 import { namaBab } from "@/lib/nama-bab";
+import { keadaanSertifikat } from "@/lib/sertifikat-kontrak";
 import * as engine from "@/lib/assessment-engine";
 import { alasanBelum, bagianUlang, hitunganSegel, ketuntasan, type Ketuntasan } from "@/lib/siklus";
 import { namaTujuan } from "@/components/siklus/PerTujuan";
@@ -42,6 +43,8 @@ export type BabHasil = {
   gerbang?: boolean;
   /** D2-R (R-h): a certifying result (the sitting's captured purpose): «Lulus» / «Belum lulus», counts only, no parts */
   bersertifikasi?: boolean;
+  /** Daisy's ruling on the null case: a certifying pass's certificate (keadaanSertifikat); the row links to it unless null */
+  sertifikat?: "DISIAPKAN" | "ADA" | null;
 };
 
 /**
@@ -102,6 +105,9 @@ export async function hasilBelajar(db: engine.EngineClient): Promise<BabHasil[]>
     const ulang = bersertifikasi ? bagianUlang(null, null, peta, pelajaran, outcome.tujuan_gerbang_kode ?? [], outcome.tujuan_ulang ?? [])
       : tercapai !== "BELUM" ? []
       : bagianUlang(outcome.per_domain, outcome.ambang, peta, pelajaran, outcome.tujuan_gerbang_kode ?? []);
+    // Daisy's ruling on the null case: a certifying pass links to its certificate only if one exists or is being prepared
+    const sertifikat = bersertifikasi && tercapai === "TERCAPAI"
+      ? keadaanSertifikat(await engine.myCertificate(db, t.post_session).catch(() => null)) : null;
     const kodeUlang = new Set(ulang.map((u) => u.kode));
     const nama = namaTujuan(peta);
     return {
@@ -126,7 +132,7 @@ export async function hasilBelajar(db: engine.EngineClient): Promise<BabHasil[]>
       ...(alasanBelum(outcome) === "GERBANG" ? { gerbang: true } : {}),
       // a governed correction is marked as such on the chapter page (dikoreksi), not as a recalculation
       ...(dihitungUlang === true && !outcome.dikoreksi ? { dihitungUlang: true } : {}),
-      ...(bersertifikasi ? { bersertifikasi: true } : {}),
+      ...(bersertifikasi ? { bersertifikasi: true, sertifikat } : {}),
     };
   }));
   // the learner's history's order, as before
