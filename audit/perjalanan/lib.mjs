@@ -190,13 +190,46 @@ export async function masukEmail(j, orang, perangkat = "pribadi") {
   await page.waitForURL((u) => !u.pathname.startsWith("/masuk"), { timeout: 30000 });
   let dipilih = null;
   if (perangkat && new URL(page.url()).pathname === "/perangkat") {
-    const nama = perangkat === "bersama" ? /^Komputer bersama|^Shared computer/i : /^Komputer pribadi saya|^My own computer/i;
-    await j.tabKe(page.getByRole("radio", { name: nama }).first());
-    await page.keyboard.press("Space");
-    await j.tekan(page.getByRole("button", { name: /^(Simpan pilihan|Save)/i }).first());
+    const nama = perangkat === "bersama" ? /^Komputer bersama|^A shared computer/i : /^Komputer pribadi saya|^My personal computer/i;
+    // a radio group takes ONE Tab stop (the checked radio); the arrows move the choice within it, as a keyboard user does
+    const target = page.getByRole("radio", { name: nama }).first();
+    await j.tabKe(page.getByRole("radio", { checked: true }).first());
+    for (let i = 0; i < 4 && !(await target.isChecked()); i++) await page.keyboard.press("ArrowDown");
+    if (!(await target.isChecked())) throw new Error(`«Komputer siapa ini?»: could not choose ${perangkat} by the arrow keys`);
+    await j.tekan(page.getByRole("button", { name: /^(Simpan pilihan|Save my choice)/i }).first());
     await page.waitForURL((u) => u.pathname !== "/perangkat", { timeout: 30000 });
     dipilih = perangkat;
   }
   await page.waitForLoadState("networkidle").catch(() => {});
   return { mendarat: new URL(page.url()).pathname, perangkat: dipilih };
+}
+
+/**
+ * A journey that CHANGES the world (J9's promotion, J7's correction, …) walks each width on a world loaded afresh:
+ * audit/dunia/muat.sh (a reset and the whole world, through the loader's local-only guard), then the fixtures named.
+ */
+export function muatUlang(...fiksasi) {
+  const muat = join(AKAR, "audit", "dunia", "muat.sh");
+  const jalankan = (args) => {
+    try { execFileSync(muat, args, { stdio: "pipe", encoding: "utf8" }); }
+    catch (e) { throw new Error(`muat.sh ${args.join(" ")} failed: ${String(e.stderr ?? e.message).split("\n").filter((l) => /ERROR|REFUSED/.test(l)).join(" | ").slice(0, 600)}`); }
+  };
+  jalankan([]);
+  for (const f of fiksasi) jalankan(["--fiksasi", f]);
+}
+
+/** Choose an option of a select by keyboard focus (Tab) and its visible label (exact, or the first that includes it). */
+export async function pilih(j, loc, label, maks) {
+  const t = await j.tabKe(loc, maks);
+  const semua = await loc.locator("option").allInnerTexts();
+  const tepat = semua.find((x) => x.trim() === label) ?? semua.find((x) => x.includes(label));
+  if (!tepat) throw new Error(`no option «${label}» (offered: ${semua.join(" | ")})`);
+  await loc.selectOption({ label: tepat });
+  return t;
+}
+
+/** Sign out by the session strip's «Keluar» (keyboard). */
+export async function keluar(j) {
+  await j.tekan(j.page.locator("button.pin-sesi-keluar").first());
+  await j.page.waitForURL((u) => !/^\/(konfigurasi|belajar|mengajar|dekan|pimpinan|studio)/.test(u.pathname), { timeout: 30000 });
 }
