@@ -122,3 +122,4 @@
 - **24 Nov 04:58Z · Bob:** L-35 capture facts. **Answered:** Significant confirmed, with a three-part human fix; L-38 requested for the missing source school (Improvement if on the stale row only, Significant if on new requests too).
 - **24 Nov 05:01Z · Bob:** candidate 5550e508. **Done:** TINJAUAN-D2R-5550e508.md, PASS conditional on CI.
 - **24 Nov 05:10Z · Bob:** L-38's scope: new requests show «—» in every state, and the source school appears only on the incoming card, which goes once the request is accepted. Ledgered Significant, with the fix going with L-35. Agreed; no reply sent.
+- **24 Nov 05:52Z · Bob:** the D2-R journeys on 5550e508 were red from six stale pins (S21, C12d, S23l), with no product defect. They are being restated to my words. A string look at the new head is to follow; waiting.
