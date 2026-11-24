@@ -57,3 +57,52 @@ rollback;
 ```
 
 `confirmed_now_failing > 0` would be a public record already asserting a contradicted pass. On staging every school is synthetic, but name them, and revoke them under the owner's authorisation.
+
+## Addendum · ruling 96: judgement against the approved policy, and the public check (24 Nov 2026, 11:05 UTC)
+
+### The judgement: a CONFIRMED integrity defect. Critical by nature; exposure today is staging only, on synthetic data
+
+**What the approved policy says** (D-2 spec §1.2, class A; C1w O41-21 and 22):
+- a certificate asserts that the passing criteria set before the assessment were met by the result in force;
+- a governed key correction opens a review;
+- the review ends in confirmation, or in revocation (DICABUT, shown publicly);
+- a reissue supersedes (DIGANTIKAN).
+
+**Nothing in the approved policy sanctions confirming a certificate whose result in force no longer meets the criteria.**
+- Confirmation exists for a correction that leaves the outcome passing: the certificate's claim is still true.
+- **So, under the approved policy, once the result is recalculated to a fail, the certificate is not valid.** Its validity is «DITINJAU» until the review decides, and the only consistent decision is revocation (DICABUT).
+- `CONFIRMED` on a failing result produces a state the policy does not define, and a public «Berlaku · Lulus» that is false. That is why I class it **Critical by nature**, agreeing with the provisional class, not High.
+- **Mitigation, not a downgrade:**
+  - the flow does not exist on production (111 < 229);
+  - no real certificate exists anywhere;
+  - staging's schools are all synthetic.
+
+### The three facts, every surface: what each may truthfully show
+
+**The public check** shows pass, institution, date and validity (predikat is now null). Under K-05, its facts are headed «Seperti saat diterbitkan» under DITINJAU and DICABUT. **The rule: the «Lulus» line may appear without «Seperti saat diterbitkan» only when the result in force still passes.**
+
+| Original | Recalculated | Review | Public validity | Public facts |
+|---|---|---|---|---|
+| pass | none | — | BERLAKU | «Lulus», current and true |
+| pass | still passes | open | DITINJAU | «Seperti saat diterbitkan · Lulus» + `verifikasi.fakta.ditinjau` |
+| pass | still passes | confirmed | BERLAKU | «Lulus», true again |
+| pass | **fails** | open | DITINJAU | «Seperti saat diterbitkan · Lulus» + `fakta.ditinjau` |
+| pass | **fails** | decided | **DICABUT only** | «Seperti saat diterbitkan · Lulus» + the revocation |
+| pass | — | reissued | DIGANTIKAN | «Seperti saat diterbitkan» |
+| any | — | signature mismatch | TIDAK SAH | as today |
+
+**The public check never states the recalculated result itself.** That would publish a learner's current result to anyone holding the token, beyond what the page already discloses. The validity says what a verifier needs.
+
+**The learner's own pages** (R-h, counts only):
+- the original, as «hasil asli» inside `hasil.dikoreksi`;
+- the recalculated count, as current and marked corrected;
+- the certificate's state (`keadaanSertifikat`: under review, revoked, or the link).
+
+**The staff review row:** before, after and target, as today. The decision offers only what the policy allows for that row.
+
+### The fixes, for the owner's decision (none built speculatively)
+
+1. **The refusal in the database,** as in (2) above: `putuskan_tinjauan_sertifikat` refuses CONFIRMED when the result in force fails.
+2. **A defensive invariant in `verify_certificate`:** validity is BERLAKU only when the result in force still meets the criteria. Otherwise it reads DITINJAU (or DICABUT once revoked). Then any row already confirmed wrongly, on staging today, can never read «Berlaku · Lulus».
+   - It is a read-side guard with no new field. The contract is unchanged.
+3. **Staging:** run the read-only count in (3). Any `confirmed_now_failing` row is named, then revoked under the owner's authorisation.
