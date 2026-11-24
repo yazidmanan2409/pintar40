@@ -109,3 +109,4 @@
 - **24 Nov 03:32Z · Bob:** keep the «kunci jawaban» exemption for hasil.tidak_ditampilkan, or reword? **Answered:** reword (D2R-KATA §8); the exemption can go.
 - **24 Nov 03:39Z · Bob:** auth.card_failed already names both causes and a next step; not a finding. **My call:** leave card_failed unchanged. One [S] Improvement for the audit instead: the cooldown («Tunggu …») is where a child who keeps failing needs «tanyakan kepada gurumu», because only a teacher can help with a forgotten card PIN. No reply sent.
 - **24 Nov 03:57Z · Bob:** D2-R 1f at 42f6f432. **Done:** TINJAUAN-D2R-42f6f432.md, PASS once C-1 lands and CI is green; C-1 is that a «Lulus» result does not lead to the certificate.
+- **24 Nov 04:02Z and 04:06Z · Bob (owner's direction):** 74a items 2 and 4, and the support words; the support words are then HELD for a read-only look at existing support. **Answered** items 1–2 in D2R-KATA §9; item 3 held.

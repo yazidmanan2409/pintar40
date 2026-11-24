@@ -118,3 +118,22 @@ DAISY-26 bans «kunci jawaban» from every learner line, because it can be read 
 - EN: «In a Mastery Check, the right answers and the result of each question are not shown.» (unchanged in meaning)
 - **«tepat»** matches the counts line («5 dari 6 soal dijawab tepat»). It also avoids «benar … benar atau salahnya» in one sentence.
 - **Second Eye's exemption** (`claude/d2r` `c37e6884`, D2R-HANDOFF.md) can be removed once the key carries these words.
+
+## 9 · A passed result with sections below the mark, and the certificate on the result (ruling 74a items 2 and 4; 24 Nov, 04:10)
+
+**«Baca lagi:» after «Lulus.» works as written.** The note («Bagian ini disarankan untuk dibaca lagi. Saran ini bukan penilaian atas penguasaan Anda pada bagian ini.») is advice in either outcome, and it does not contradict a pass. No variant is needed.
+
+**The order on a pass:**
+1. «Lulus.» with `hasil.lulus_arti`;
+2. the certificate (below);
+3. «Baca lagi:» with its note, only when some section is below the mark;
+4. the counts and «Kesempatan ke-{n}»;
+5. `hasil.tidak_ditampilkan`.
+
+There is no retake line on a pass. The certificate comes before the advice, because it is what the learner came for.
+
+**The certificate on the result (this closes 1f's C-1):**
+- **Issued** (the certificate renders as a credential): a link to `/belajar/{tugas}/sertifikat` with `siklus.lihat_sertifikat`, «Lihat sertifikat» / «See the certificate».
+- **Not yet issued:** the same link, preceded by `sertifikat.disiapkan.judul` as one line: «Sertifikat Anda sedang disiapkan.» / «Your certificate is being prepared.»
+- **Not `sertifikat.disiapkan.arti`:** its «akan muncul di sini» means the certificate page, and it would be false on the result page.
+- **The Hasil Belajar row:** the same link, without the line.
