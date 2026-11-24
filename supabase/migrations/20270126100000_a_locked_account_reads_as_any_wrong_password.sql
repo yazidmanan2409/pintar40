@@ -352,19 +352,17 @@ create or replace function public.akun_auth_terkunci(p_auth_user uuid)
   select exists (select 1 from public.accounts a where a.auth_user_id = p_auth_user and public.orang_ditangguhkan(a.person_id))
 $$;
 
--- 7d. The class-card list says whether each learner is locked (Daisy CI2-KATA §5; Bob, principle 3, C-7): for a locked
---     learner the re-issue page draws her line in place of the button, so no PIN that cannot work is shown or printed.
---     DITUTUP for a closure at the person's request, DITANGGUHKAN for any other open suspension, null when not locked.
---     The database still decides at the press (Q10 stores a random secret whatever the screen drew). Same rows, same
---     readers and the same grants as before; one column more, so the function is dropped and made again.
+-- 7d. The class-card list says whether each learner is locked, and never why (Daisy CI2-KATA §5; Bob, principle 3,
+--     C-7; Sharon's V-1, AUDIT79-CI2-VERIFY.md): terkunci is a neutral boolean, true for any open suspension, a closure at
+--     the person's request included, so a CAN_PROVISION_PEOPLE holder learns no category. For a locked learner the
+--     re-issue page draws one neutral line in place of the button, so no PIN that cannot work is shown or printed. The
+--     database still decides at the press (Q10 stores a random secret whatever the screen drew). Same rows, same readers
+--     and the same grants as before; one column more, so the function is dropped and made again.
 drop function public.card_holders();
 create function public.card_holders()
-returns table (person_id uuid, display_name text, institutional_id text, institution_id uuid, card_last4 text, kunci text)
+returns table (person_id uuid, display_name text, institutional_id text, institution_id uuid, card_last4 text, terkunci boolean)
 language sql stable security definer set search_path = public, pg_temp as $$
-  select p.id, p.display_name, ii.institutional_id, ii.institution_id, right(a.card_number, 4),
-         case when exists (select 1 from public.person_suspensions s where s.person_id = p.id and s.ended_at is null
-                             and s.category = 'CLOSED_AT_REQUEST') then 'DITUTUP'
-              when public.orang_ditangguhkan(p.id) then 'DITANGGUHKAN' end
+  select p.id, p.display_name, ii.institutional_id, ii.institution_id, right(a.card_number, 4), public.orang_ditangguhkan(p.id)
     from public.institutional_identities ii
     join public.persons p on p.id = ii.person_id
     join public.accounts a on a.person_id = p.id and a.kind = 'CLASSROOM_CARD'

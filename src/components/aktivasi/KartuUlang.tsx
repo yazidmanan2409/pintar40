@@ -9,7 +9,7 @@ import LembarKartu, { type KartuCetak } from "./LembarKartu";
 import { useCariDiAlamat } from "./cari-pemegang";
 import { kataAman } from "@/lib/pemegang-kartu";
 
-export type PemegangKartu = { person_id: string; display_name: string; institutional_id: string; card_last4: string; kunci?: "DITANGGUHKAN" | "DITUTUP" | null };
+export type PemegangKartu = { person_id: string; display_name: string; institutional_id: string; card_last4: string; terkunci?: boolean };
 
 /**
  * «KARTU HILANG ATAU RUSAK» (BOB-28 with DAISY-22; D-088(e), J2.21).
@@ -103,11 +103,12 @@ export default function KartuUlang({ locale, pemegang, ada, dicari }: { locale: 
                     <strong>{p.display_name}</strong> · <span className="pin-num">{p.institutional_id}</span>
                     {" · "}{s("aktivasi.ulang.akhiran")} <span className="pin-num">{akhiran[p.person_id] ?? p.card_last4}</span>
                   </span>
-                  {p.kunci ? (
-                    // CI-2 (Daisy CI2-KATA §5; Bob, principle 3, C-7): a locked learner gets the line in place of the button, so
-                    // no card is drawn and no PIN that cannot work is shown or printed. The database decides at the press regardless
-                    <span className="pin-meta" data-kartu-terkunci={p.kunci}>
-                      {s(`aktivasi.ulang.terkunci.${p.kunci}` as HleEvent).split("{nama}").join(p.display_name)}
+                  {p.terkunci ? (
+                    // CI-2 (Daisy CI2-KATA §5; Bob, principle 3, C-7; Sharon V-1): a locked learner gets one neutral line in place of
+                    // the button, naming no reason, so no card is drawn and no PIN that cannot work is shown or printed. The
+                    // database decides at the press regardless
+                    <span className="pin-meta" data-kartu-terkunci="ya">
+                      {s("aktivasi.ulang.terkunci").split("{nama}").join(p.display_name)}
                     </span>
                   ) : dipilih ? (
                     <span>

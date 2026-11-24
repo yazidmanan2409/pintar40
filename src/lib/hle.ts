@@ -3049,8 +3049,7 @@ export type HleEvent =
   | "aktivasi.ulang.tidak_ketemu"
   | "aktivasi.ulang.akhiran"
   | "aktivasi.ulang.pilih"
-  | "aktivasi.ulang.terkunci.DITANGGUHKAN"
-  | "aktivasi.ulang.terkunci.DITUTUP"
+  | "aktivasi.ulang.terkunci"
   | "aktivasi.ulang.alasan"
   | "aktivasi.ulang.hilang"
   | "aktivasi.ulang.rusak"
@@ -6904,10 +6903,9 @@ const table: Table = {
   "aktivasi.ulang.tidak_ketemu": { default: "Tidak ada nama yang cocok.", en: "No name matches." },
   "aktivasi.ulang.akhiran": { default: "Kartu berakhiran", en: "Card ending in" },
   "aktivasi.ulang.pilih": { default: "Terbitkan kartu baru", en: "Issue a new card" },
-  // CI-2 (Daisy CI2-KATA §5, 6697120b; Bob, principle 3, C-7): for a locked learner this line takes the place of the button
-  // and the card, so no PIN that cannot work is shown or printed
-  "aktivasi.ulang.terkunci.DITANGGUHKAN": { default: "Akun {nama} sedang ditangguhkan, jadi PIN tidak dapat dibuat sekarang. PIN baru dibuat saat penangguhannya dicabut.", en: "{nama}'s account is suspended, so a PIN can't be made now. A new PIN is made when the suspension is lifted." },
-  "aktivasi.ulang.terkunci.DITUTUP": { default: "Akun {nama} sudah ditutup, jadi PIN tidak dapat dibuat sekarang. PIN baru dibuat saat akunnya dibuka kembali.", en: "{nama}'s account is closed, so a PIN can't be made now. A new PIN is made when the account is reopened." },
+  // CI-2 (Daisy CI2-KATA §5; Bob, principle 3, C-7; Sharon V-1): for a locked learner this ONE NEUTRAL line, naming no
+  // reason, takes the place of the button and the card. PLACEHOLDER words until Daisy's arrive: not to be frozen with them
+  "aktivasi.ulang.terkunci": { default: "Kartu baru untuk {nama} tidak dapat dibuat sekarang.", en: "A new card for {nama} can't be made right now." },
   "aktivasi.ulang.alasan": { default: "Mengapa?", en: "Why?" },
   "aktivasi.ulang.hilang": { default: "Kartunya hilang", en: "The card is lost" },
   "aktivasi.ulang.rusak": { default: "Kartunya rusak", en: "The card is damaged" },

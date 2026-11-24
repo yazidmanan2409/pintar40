@@ -3292,7 +3292,7 @@
     {
       "id": "CI2-G01",
       "runner": "app",
-      "proves": "CI-2, Sharon CI-2-SPEC §8 1(a)-(c), selftest/ci2.test.ts; executes against pg_proc in the local database: the only function bodies naming pintar.kunci_rotasi are public.akun_rotasi and public.auth_password_write_guard; no SECURITY DEFINER function calls set_config with a setting name that is not a literal; akun_rotasi sets the GUC transaction-locally to its one user, writes that one auth.users row and clears it; the guard tests it once, for equality with new.id, after its unchanged-password return. Plants, each in a transaction rolled back: Q11 a second setter of pintar.kunci_rotasi, Q12 a SECURITY DEFINER function setting a caller-named setting; each caught, none left behind."
+      "proves": "CI-2, Sharon CI-2-SPEC §8 1(a)-(c), selftest/ci2.test.ts; executes against pg_proc in the local database (functions and procedures): the only function definitions naming pintar.kunci_rotasi are public.akun_rotasi and public.auth_password_write_guard; no SECURITY DEFINER function calls set_config with a setting name that is not a literal; akun_rotasi sets the GUC transaction-locally to its one user, writes that one auth.users row and clears it; the guard tests it once, for equality with new.id, after its unchanged-password return. Every body is read through pg_get_functiondef, never prosrc, which is empty for BEGIN ATOMIC (Sharon V-2). Plants, each in a transaction rolled back: Q11 a second setter of pintar.kunci_rotasi, Q12 a SECURITY DEFINER function setting a caller-named setting, Q14 a BEGIN ATOMIC setter; each caught, none left behind."
     },
     {
       "id": "CI2-U01",
@@ -3321,7 +3321,7 @@
     {
       "id": "CI2-P01",
       "runner": "app",
-      "proves": "CI-2 with Sharon's (b), red first, selftest/ci2.test.ts; executes the running app's /api/akun/kartu-kelas and /masuk/kartu with Auth: a card re-issued during the suspension answers as for anyone and signs in neither during it nor after reinstatement; reinstated, a learner's old card secret reads invalid_credentials; the school's re-issue writes the derived Auth password, so the new card and PIN sign in; plant Q6 (the re-issue's Auth password left random) is caught. Before the suspension the learner's row on /aktivasi?cari_kartu offers «Terbitkan kartu baru»; during it the row is Daisy's CI2-KATA §5 line (data-kartu-terkunci=DITANGGUHKAN) with no button and no card drawn, and card_holders lists a closed learner DITUTUP (Bob, principle 3, C-7).",
+      "proves": "CI-2 with Sharon's (b), red first, selftest/ci2.test.ts; executes the running app's /api/akun/kartu-kelas and /masuk/kartu with Auth: a card re-issued during the suspension answers as for anyone and signs in neither during it nor after reinstatement; reinstated, a learner's old card secret reads invalid_credentials; the school's re-issue writes the derived Auth password, so the new card and PIN sign in; plant Q6 (the re-issue's Auth password left random) is caught. Before the suspension the learner's row on /aktivasi?cari_kartu offers «Terbitkan kartu baru»; during it the row is one neutral line (data-kartu-terkunci=ya, aktivasi.ulang.terkunci) naming no reason, with no button and no card drawn (Bob, principle 3, C-7); card_holders() adds only {\"terkunci\": bool} to its columns, true for a suspension and a closure at the person's request alike, never a category (Sharon V-1).",
       "skip_justification": "needs the running app and the local stack (Auth, PostgREST)"
     },
     {

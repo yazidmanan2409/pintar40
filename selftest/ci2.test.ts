@@ -386,12 +386,12 @@ export const ci2AppTests: SelfTest[] = [
       const katalog = "n.nspname not in ('pg_catalog', 'information_schema') and p.prokind in ('f', 'p')";
       // each call is its own session: a plant written after an open «begin» is rolled back when the session ends
       const gucDi = (tanaman = "") => psql(`${tanaman} select coalesce(string_agg(n.nspname || '.' || p.proname, ',' order by n.nspname, p.proname), '')
-          from pg_proc p join pg_namespace n on n.oid = p.pronamespace where ${katalog} and p.prosrc like '%pintar.kunci_rotasi%'`)
+          from pg_proc p join pg_namespace n on n.oid = p.pronamespace where ${katalog} and pg_get_functiondef(p.oid) like '%pintar.kunci_rotasi%'`)
         .split("\n").pop()!.split(",").filter(Boolean);
       // set_config whose first argument is not a string literal: the setting's NAME supplied by whoever calls
       const NAMA_BEBAS = "set_config[[:space:]]*\\([[:space:]]*[^'[:space:]]";
       const namaBebas = (tanaman = "") => psql(`${tanaman} select coalesce(string_agg(distinct n.nspname || '.' || p.proname, ','), '')
-          from pg_proc p join pg_namespace n on n.oid = p.pronamespace where ${katalog} and p.prosecdef and p.prosrc ~* ${lit(NAMA_BEBAS)}`)
+          from pg_proc p join pg_namespace n on n.oid = p.pronamespace where ${katalog} and p.prosecdef and pg_get_functiondef(p.oid) ~* ${lit(NAMA_BEBAS)}`)
         .split("\n").pop()!.split(",").filter(Boolean);
       const di = gucDi();
       c.expect(di.join(",") === "public.akun_rotasi,public.auth_password_write_guard",
