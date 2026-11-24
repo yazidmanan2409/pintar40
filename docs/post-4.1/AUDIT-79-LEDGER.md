@@ -492,3 +492,24 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
   - A direct `langkah_konten` call to VALIDATED sets the mark; it doesn't approve or publish, so it isn't the HIGH path. The HIGH test stays the approve and publish paths: each re-runs the check on the current content and refuses with an open ERROR, whatever the mark says.
   - **Addition:** the reviewer's approval screen and RPC must not treat VALIDATED as "checked". Approval runs, or reads, a check of the current revision itself, so an unchecked direct mark changes nothing downstream.
   - (a), (b) and the red-first tests stand as the database half.
+
+**J6-4's UX half re-worded (Daisy, `ccbd7d70`):** the step's words now match the button. After marking: «✓ Diperiksa: tidak ada yang wajib diperbaiki · {n} saran.» + «Lihat temuan». When refused: «Belum lolos: {n} temuan wajib diperbaiki.» Her misreading is logged as ANTISIPASI DAISY-J6, for the closure report's lessons.
+
+**J8's remaining parts walked (Daisy, `92eb2040`, her own scripts at `6b248975`, W15, 1280):**
+- **Holds:**
+  - intake is all-or-nothing, with an exact approval summary;
+  - one-press class cards with a printable sheet;
+  - a role ending today is accepted and flagged at once;
+  - the last admin has no «Lepaskan» on their own row, and «Tutup akun saya» is refused with a way out;
+  - 600 learners take about 120 actions.
+- **Left for the builder** (not walkable on W15): pass marks, which need a lesson; a renamed rule, which needs a package; the passes.
+
+| L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
+|---|---|---|---|---|---|---|
+| L-127 (J8-7) | **Two different children with the same name can't be entered.** «Siti Aminah; 2001» and «Siti Aminah; 2002» are both refused as «kembar»; NIS is read but can't be mapped, and «Perbaiki berkas» is impossible advice for two real children | F, C, [S] | J8 | **Significant** | C-7 (a rule assuming names are unique) | A warning, not a refusal, with «Dua orang berbeda» / remove one; or an identifying column. **Sharon** confirms the identity rule (no silent merge of two children; no wrong split of one) and whether NIS may be stored and shown |
+| L-128 (J8-8) | The intake check's errors name row numbers (off by the header row), not people; no restart; the list isn't kept | C, F | J8 | Improvement | C-7 | Names and spreadsheet row numbers; «Mulai pendataan baru» with the list kept |
+| L-129 (J8-9) | A learner is offered in «Berikan peran», and the refusal says «bukan wewenang Anda» to the only admin; the real cause is her class card | C, H | J8 | Improvement | Next to C-9 (a refusal naming the wrong cause) | Mark learners in the list; the refusal names the card and the way to convert it |
+| L-130 (J8-10) | A role with no «Berlaku sampai» is held only by the browser's bubble | G | J8 | Improvement | C-10 | — |
+| L-131 (J8-11) | After the cards are made, the counts still say learners are waiting, and each PIN is shown twice on the page | B, F, [S] | J8 | Improvement | C-3 | Counts update; PINs once, on the sheet. **Sharon** confirms the PIN display rule |
+| L-132 (J8-12) | Aturan Asesmen shows its full form at a school with no package; the empty select is held by the browser's bubble | F, C | J8 | Improvement | C-7; C-10 | Say a package must exist first, with the link, and no form |
+| L-133 (J8-13) | The last admin's refusal begins «Permintaan ini tidak diajukan» on an immediate close | H | J8 | Improvement (optional) | C-6 | «Akun Anda belum dapat ditutup: …» |
