@@ -104,3 +104,25 @@ UNKNOWN (needs the owner or a read).
 - PR-15 and PR-16, the names.
 
 **Reviews of draft 2:** Sharon (second pass) and Daisy (PR-12, PR-15, PR-19). Recorded here when they land.
+
+### Sharon's second pass on draft 2 (24 Nov, `READINESS-REGISTER-D2-7aae24e0.md`): accurate, with four additions
+
+1. **PR-4 to PR-6, dispatch rights: now recorded (Bob, read-only, 24 Nov).**
+   - GitHub lists **one collaborator: the owner's account, with the admin role.** No other person has write access.
+   - **The team's sessions also act through the GitHub App installation, and that can dispatch workflows.** It dispatched the ruling 84 diagnostic runs. So a session could start `backup-offsite`, `restore-drill` or `production-watch` against production today.
+   - Standing rule: no session dispatches a production-facing workflow without the owner's separate authorisation, as for every production action.
+   - **For the owner:** confirm this list before production holds data, and decide whether those three workflows should also require a GitHub environment approval (a protected `production` environment with the owner as required reviewer). That is the smallest technical guard.
+2. **New row, PR-21: Z's production carry-overs (ruling 88).**
+   - Until Z reaches production, no `MCQ_MULTI` package is published or imported there.
+   - **Before the promotion:** `d1-multi-answer.sql` and `step0-Z.sql` run read-only on production, both expecting 0.
+   - **After it, the same proofs as staging:**
+     - `v6-pre-request` and `c3w-r3-bahan` OK;
+     - line 84 convalidated;
+     - the `periksa` counter rising;
+     - its md5 equal to main's build.
+   - **State:** PLANNED. **Owner:** Bob + Sharon. **Exit:** all recorded on the production promotion.
+3. **PR-15 and PR-16, for the pilot.**
+   - An `INSTITUTION_ADMIN` appointment reaching `valid_until` still leaves the school with no administrator, and nothing refuses it.
+   - **Remedy:** give the pilot school two administrator appointments, or one that ends after the pilot, and name the platform administrator who can appoint a replacement.
+   - (The expiry warning itself is 4.5, as Sharon recorded.)
+4. **PRQ-1.** The skipped runs prove that the schedule gate holds. They don't prove that a missing secret fails closed. **That test still runs at switch-on.**
