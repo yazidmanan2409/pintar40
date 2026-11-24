@@ -98,8 +98,9 @@ export async function hasilBelajar(db: engine.EngineClient): Promise<BabHasil[]>
     const tercapai = ketuntasan(outcome);
     // Z K-01: the missed must-be-right question's objectives are what to study again too (as the chapter page lists them)
     // D2-R (R-h, 74b): a certifying result names what to read again from its own list, with no figure
-    const ulang = tercapai !== "BELUM" ? []
-      : bersertifikasi ? bagianUlang(null, null, peta, pelajaran, outcome.tujuan_gerbang_kode ?? [], outcome.tujuan_ulang ?? [])
+    // Daisy's §11 (ruling 74a item 2): a certifying result lists what to read again whatever its decision, from its own list
+    const ulang = bersertifikasi ? bagianUlang(null, null, peta, pelajaran, outcome.tujuan_gerbang_kode ?? [], outcome.tujuan_ulang ?? [])
+      : tercapai !== "BELUM" ? []
       : bagianUlang(outcome.per_domain, outcome.ambang, peta, pelajaran, outcome.tujuan_gerbang_kode ?? []);
     const kodeUlang = new Set(ulang.map((u) => u.kode));
     const nama = namaTujuan(peta);

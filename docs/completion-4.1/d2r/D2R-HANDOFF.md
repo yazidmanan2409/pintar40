@@ -30,8 +30,12 @@
    counts and «Kesempatan ke-{n}», `hasil.tidak_ditampilkan`; no retake line. The Hasil Belajar row: the link only.
    D2R-H21, D2R-C05, D2R-C06. The full stop after `sertifikat.disiapkan.judul` is drawn in the component (§9's
    one-line form), so the key's text is unchanged for the certificate page's heading.
-   Hasil Belajar still lists sections only on «Belum lulus»: its words («…lalu tanyakan kepada guru langkah berikutnya»)
-   are for a result not yet passed, so a pass there waits for Daisy.
+   Hasil Belajar and its print as Daisy's §11 (deacb184): every certifying row, Lulus or Belum lulus, gives its sections in
+   «Disarankan dibaca lagi: {daftar}.» (more than two: `hasilbelajar.baca_lagi_banyak`) and section B lists them by name,
+   marked «baca lagi», with no figure; non-certifying rows keep «Pelajari lagi». The C line (`berikutnya_ulang`, «… tanyakan
+   kepada guru …») stays on «Belum lulus» rows only, unchanged, as §11 says (D2R-C07).
+9. **Ruling 90** (Daisy §10, ccd42fa6): `lapor.langkah.awal` and `.awal_kelas` say only what the product does today; no
+   time period (guarded), and «listed first» pinned to the triage order (D2R-L01); BOB15-K01 green.
 
 ## What changed
 

@@ -162,7 +162,7 @@ export type HleEvent =
   | "laporan.komposisi.pita_ket" | "laporan.komposisi.saran" | "laporan.komposisi.penguatan_soal" | "laporan.komposisi.soal_wajib_belum"
   | "config.menunggu.alasan.kartu" | "config.menunggu.alasan.email" | "config.menunggu.alasan.pendataan"
   | "hasilbelajar.judul" | "hasilbelajar.cakupan" | "hasilbelajar.a" | "hasilbelajar.b" | "hasilbelajar.b_arti"
-  | "hasilbelajar.belum_ada" | "hasilbelajar.semua_capai" | "hasilbelajar.capai" | "hasilbelajar.selesai" | "hasilbelajar.ulang" | "hasilbelajar.ulang_banyak"
+  | "hasilbelajar.belum_ada" | "hasilbelajar.semua_capai" | "hasilbelajar.capai" | "hasilbelajar.selesai" | "hasilbelajar.ulang" | "hasilbelajar.ulang_banyak" | "hasilbelajar.baca_lagi" | "hasilbelajar.baca_lagi_banyak" | "hasilbelajar.baca_lagi_tanda"
   | "hasilbelajar.awal" | "hasilbelajar.akhir" | "hasilbelajar.target" | "hasilbelajar.berjalan"
   | "hasilbelajar.nilai" | "hasilbelajar.tercapai" | "hasilbelajar.belum_capai" | "hasilbelajar.pelajari_lagi"
   | "hasilbelajar.lanjutkan" | "hasilbelajar.berikutnya_ulang" | "hasilbelajar.buka_bab" | "hasilbelajar.sertifikat"
@@ -5317,6 +5317,10 @@ const table: Table = {
   "hasilbelajar.selesai": { default: "{n} bab sudah selesai.", en: "{n} chapters are finished." },
   "hasilbelajar.ulang": { default: "Pelajari lagi: {daftar}.", en: "Study again: {daftar}." },
   "hasilbelajar.ulang_banyak": { default: "Ada {n} bagian untuk dipelajari lagi; semuanya ditandai «pelajari lagi» di bagian B.", en: "There are {n} parts to study again; each is marked «study again» in section B." },
+  // Daisy's D2R-KATA §11: a certifying row, passed or not, advises reading again in «baca lagi»'s own words
+  "hasilbelajar.baca_lagi": { default: "Disarankan dibaca lagi: {daftar}.", en: "Suggested for reading again: {daftar}." },
+  "hasilbelajar.baca_lagi_banyak": { default: "Ada {n} bagian yang disarankan untuk dibaca lagi; semuanya ditandai «baca lagi» di bagian B.", en: "{n} parts are suggested for reading again; each is marked «read again» in section B." },
+  "hasilbelajar.baca_lagi_tanda": { default: "baca lagi", en: "read again" },
   "hasilbelajar.awal": { default: "Pemetaan Awal", en: "Initial Mapping" },
   "hasilbelajar.akhir": { default: "Uji Penguasaan", en: "Mastery Check" },
   "hasilbelajar.target": { default: "Target bab ini", en: "This chapter's target" },
