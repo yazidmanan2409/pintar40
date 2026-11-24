@@ -1,0 +1,170 @@
+{
+  "perjalanan": "j2",
+  "nama": "Hana Wirawan",
+  "lebar": 1280,
+  "zona": "WIB",
+  "bahasa": "en",
+  "laluan": "standar",
+  "label": [
+    "bukti OFFICIAL di tenant bootstrap dev/CI (sintetis)"
+  ],
+  "mulai": "2026-11-24T10:55:04.494Z",
+  "langkah": [
+    {
+      "id": "L1",
+      "judul": "the Pemetaan Awal",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-belajar",
+        "02-pemetaan-awal",
+        "03-pa-soal-1",
+        "04-pa-soal-terakhir",
+        "05-pa-selesai"
+      ],
+      "amatan": [],
+      "data": {
+        "signed_in": {
+          "mendarat": "/belajar",
+          "perangkat": "pribadi"
+        },
+        "answered": {
+          "soal": 3,
+          "bantuan_ditawarkan_di": []
+        },
+        "sitting": "FINALIZED",
+        "landed": "/belajar/45aff49f-cdc8-4ea7-9977-d5a1807af96f/peta"
+      },
+      "tab": 47,
+      "url": "/belajar/45aff49f-cdc8-4ea7-9977-d5a1807af96f/peta",
+      "ms": 39237
+    },
+    {
+      "id": "L2",
+      "judul": "the Peta Bacaan",
+      "hasil": "SAMPAI",
+      "layar": [
+        "06-peta-bacaan"
+      ],
+      "amatan": [],
+      "data": {
+        "has_sudah_kuat": true,
+        "text": "← Your learning journey MAPPING FINISHED. YOUR READING MAP IS READY. Personal Reading Map Start from the card at the top. The order has already been arranged for you. ALREADY STRONG Mengenali persamaan linear satu variabel. Your Initial Mapping answers for this part were right. You may skim it. ALREADY STRONG Menyelesaikan persamaan linear satu variabel. Your Initial Mapping answers for this part were right. You may skim it. ALREADY STRONG Menyusun persamaan dari soal cerita. Your Initial Mapping answers for this part were right. You may skim it. These marks suggest an order of reading, from the Initial Mapping. They are not a score, and not a statement of mastery. Open the lesson Dr. dr. Gl"
+      },
+      "tab": 0,
+      "url": "/belajar/45aff49f-cdc8-4ea7-9977-d5a1807af96f/peta",
+      "ms": 1207
+    },
+    {
+      "id": "L3",
+      "judul": "a lesson, with its stepwise help",
+      "hasil": "SAMPAI",
+      "layar": [
+        "07-pelajaran"
+      ],
+      "amatan": [],
+      "data": {
+        "lesson_url": "/belajar/<id>/pelajaran/<id>",
+        "lesson_buttons": [
+          "Previous page",
+          "Next page"
+        ],
+        "help_opened": "(no help control on the lesson page)"
+      },
+      "tab": 9,
+      "url": "/belajar/45aff49f-cdc8-4ea7-9977-d5a1807af96f/pelajaran/b465d520-d75c-40c5-87db-3395383b5538",
+      "ms": 251
+    },
+    {
+      "id": "L4",
+      "judul": "the Uji Penguasaan offered (D2-R's advisory line)",
+      "hasil": "SAMPAI",
+      "layar": [
+        "08-uji-penguasaan"
+      ],
+      "amatan": [],
+      "data": {
+        "text": "← Your learning journey MATEMATIKA · KELAS 8 · PERSAMAAN LINEAR SATU VARIABEL Mastery Check Work through it calmly. You can flag a question and come back to it. During the Mastery Check, hints, examples and thinking prompts are not available. QUESTIONS 6 CLOSES Sunday, 23 May 2027 WHAT YOU CAN DO Flag a question and come back to it Save and pause, then carry on later About session records During the assessment, certain session activity may be recorded to support process integrity. These records are observations and do not automatically determine your result. Start Mastery Check Not now Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com"
+      },
+      "tab": 0,
+      "url": "/belajar/45aff49f-cdc8-4ea7-9977-d5a1807af96f/penguasaan",
+      "ms": 1207
+    },
+    {
+      "id": "L5",
+      "judul": "the test (no help)",
+      "hasil": "SAMPAI",
+      "layar": [
+        "09-up-soal-1",
+        "10-up-soal-terakhir",
+        "11-up-konfirmasi"
+      ],
+      "amatan": [],
+      "data": {
+        "up_confirm_words": "Submit now? Once submitted, answers cannot be changed. Submit Check again",
+        "answered": {
+          "soal": 6,
+          "bantuan_ditawarkan_di": []
+        },
+        "help_offered_on": [],
+        "sitting": "FINALIZED"
+      },
+      "tab": 137,
+      "url": "/belajar/45aff49f-cdc8-4ea7-9977-d5a1807af96f/hasil",
+      "ms": 37882
+    },
+    {
+      "id": "L6",
+      "judul": "the result",
+      "hasil": "SAMPAI",
+      "layar": [
+        "12-hasil"
+      ],
+      "amatan": [],
+      "data": {
+        "verdict": "Passed.",
+        "text": "← Your learning journey MATEMATIKA · PERSAMAAN LINEAR SATU VARIABEL Result Passed. This Mastery Check result meets this chapter's passing criteria. See the certificate 6 of 6 questions answered right · Attempt 1 In a Mastery Check, the right answers and the result of each question are not shown. What next → Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com",
+        "result_row": "1.0000 gate true"
+      },
+      "tab": 0,
+      "url": "/belajar/45aff49f-cdc8-4ea7-9977-d5a1807af96f/hasil",
+      "ms": 97
+    },
+    {
+      "id": "L7",
+      "judul": "the certificate",
+      "hasil": "SAMPAI",
+      "layar": [
+        "13-sertifikat"
+      ],
+      "amatan": [],
+      "data": {
+        "text": "← All certificates PINTAR Bootstrap (OFFICIAL evidence — development and CI only) SERTIFIKAT Hana Wirawan Telah dinyatakan memenuhi kriteria kelulusan yang ditetapkan berdasarkan hasil asesmen pada Materi Pembelajaran: Matematika · Persamaan Linear Satu Variabel. TANGGAL TERBIT 24 November 2026 NOMOR SERTIFIKAT TQDD40BB/00001 Periksa keaslian Pindai kode ini atau buka tautannya. Halaman itu memastikan sertifikat ini benar diterbitkan dan masih berlaku. http://127.0.0.1:3999/verifikasi/wdEIkCqnmtlLU3pkp7VIVT3Xphj-YP4PP0pJd_Qc89k Print or save as PDF Copy verification link PRINT PREVIEW Certificate · A4 One portrait A4 sheet. The composition is fixed at every screen width; only the scale changes. SERTIFIKAT PINTAR Hana Wirawan Telah dinyatakan memenuhi kriteria kelulusan yang ditetapkan berdasarkan hasil asesmen pada Materi Pembelajaran: Matematika · Persamaan Linear Satu Variabel. TANGGAL",
+        "certificate": "ISSUED",
+        "public_link": null
+      },
+      "tab": 0,
+      "url": "/belajar/45aff49f-cdc8-4ea7-9977-d5a1807af96f/sertifikat",
+      "ms": 2836
+    },
+    {
+      "id": "L8",
+      "judul": "the public check (signed out)",
+      "hasil": "SAMPAI",
+      "layar": [],
+      "amatan": [
+        "the certificate page offered no public link; the check is opened by the certificate's own token",
+        "last screen: the public check (/verifikasi/<token>)"
+      ],
+      "data": {
+        "public_text": "Langsung ke isi PINTAR Pemeriksaan sertifikat ID EN PEMERIKSAAN Verifikasi Sertifikat Hasil pemeriksaan untuk tautan yang Anda buka. STATUS Berlaku Sertifikat ini benar diterbitkan dan masih berlaku. HASIL Lulus DITERBITKAN OLEH PINTAR Bootstrap (OFFICIAL evidence — development and CI only) TANGGAL TERBIT 24 Nov 2026 Halaman ini memastikan sertifikat yang Anda pegang benar diterbitkan. Nama pemegang tertera pada sertifikatnya. Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com",
+        "public_says_lulus": true,
+        "public_shows_name": false
+      },
+      "tab": 0,
+      "url": "/belajar/45aff49f-cdc8-4ea7-9977-d5a1807af96f/sertifikat",
+      "ms": 816
+    }
+  ],
+  "selesai": "2026-11-24T10:56:28.030Z",
+  "sampai_akhir": true
+}

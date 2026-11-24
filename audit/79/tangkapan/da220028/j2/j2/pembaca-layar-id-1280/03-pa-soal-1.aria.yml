@@ -1,0 +1,27 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- alert
+- banner:
+  - text: PINTAR
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - img "Soal 1/3"
+  - article:
+    - heading "Berapakah x jika x + 5 = 12?" [level=2]
+    - list:
+      - listitem:
+        - button "A 12"
+      - listitem:
+        - button "B 17"
+      - listitem:
+        - button "C 5"
+      - listitem:
+        - button "D 7"
+  - navigation:
+    - button "Kembali" [disabled]
+    - button "Berikutnya"

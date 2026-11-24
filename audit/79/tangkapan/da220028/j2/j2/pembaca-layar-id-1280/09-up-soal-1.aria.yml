@@ -1,0 +1,33 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - text: Waktu berjalan 00:00
+  - button "Simpan & Jeda"
+  - button "Daftar soal"
+  - article:
+    - heading "Pilih SEMUA yang merupakan persamaan linear satu variabel." [level=2]
+    - list:
+      - listitem:
+        - button "A y − 4 = 0"
+      - listitem:
+        - button "B a² + 1 = 5"
+      - listitem:
+        - button "C 2p + 1 = 9"
+      - listitem:
+        - button "D m + n = 8"
+    - button "Simpan jawaban ini" [disabled]
+    - button "Tandai soal ini"
+    - paragraph: Pilih satu jawaban dulu.
+    - status
+  - navigation:
+    - button "Kembali" [disabled]
+    - button "Berikutnya"
+- alert

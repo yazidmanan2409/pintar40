@@ -1,0 +1,87 @@
+{
+  "perjalanan": "j2-cabang-pelajaran-dan-pilihan",
+  "nama": "Hana Wirawan",
+  "lebar": 1280,
+  "zona": "WIB",
+  "bahasa": "id",
+  "laluan": "standar",
+  "label": [
+    "bukti OFFICIAL di tenant bootstrap dev/CI (sintetis)"
+  ],
+  "mulai": "2026-11-24T11:12:47.804Z",
+  "langkah": [
+    {
+      "id": "C1.1",
+      "judul": "the Pemetaan Awal, then a lesson left halfway (its second page), signed out",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-pa-soal-1",
+        "02-pa-soal-terakhir",
+        "03-pelajaran-separuh"
+      ],
+      "amatan": [],
+      "data": {
+        "left_at": "← Perjalanan belajar Anda PELAJARAN 1 DARI 3 · PERSAMAAN LINEAR SATU VARIABEL Kalimat Terbuka dan Persamaan Persamaan adalah kalimat terbuka yang memakai tanda sama dengan. Bagian bacaan Bagian 1 Pers"
+      },
+      "tab": 54,
+      "url": "/",
+      "ms": 40848
+    },
+    {
+      "id": "C1.2",
+      "judul": "signed in again: where /belajar resumes it",
+      "hasil": "SAMPAI",
+      "layar": [
+        "04-belajar-lagi",
+        "05-dilanjutkan"
+      ],
+      "amatan": [],
+      "data": {
+        "resume_link": "Lanjutkan pelajaran → /belajar/<id>/pelajaran/<id>",
+        "loading_seconds": 0.3,
+        "resumed_at": "/belajar/<id>/pelajaran/<id>",
+        "resumed_text": "← Perjalanan belajar Anda PELAJARAN 2 DARI 3 · PERSAMAAN LINEAR SATU VARIABEL Menyelesaikan Persamaan Kedua ruas diberi operasi yang sama sampai variabelnya sendirian. Bagian bacaan Bagian 2 Operasi y"
+      },
+      "tab": 11,
+      "url": "/belajar/9738b694-95aa-4782-aa14-73bcd3c7bdb2/pelajaran/c922bf41-9d5f-4c84-9911-f75feb61de84",
+      "ms": 2176
+    },
+    {
+      "id": "C2",
+      "judul": "the Uji Penguasaan with one multi-answer question partly chosen",
+      "hasil": "SAMPAI",
+      "layar": [
+        "06-up-soal-1",
+        "07-up-soal-terakhir",
+        "08-up-konfirmasi",
+        "09-hasil-sebagian"
+      ],
+      "amatan": [],
+      "data": {
+        "partly_chosen": {
+          "question": "Pilih SEMUA yang merupakan persamaan linear satu variabel.",
+          "chosen": [
+            "2p + 1 = 9"
+          ],
+          "correct": [
+            "2p + 1 = 9",
+            "y − 4 = 0"
+          ]
+        },
+        "up_confirm_words": "Kumpulkan sekarang? Setelah dikumpulkan, jawaban tidak bisa diubah. Kumpulkan Periksa lagi",
+        "answered": {
+          "soal": 6,
+          "bantuan_ditawarkan_di": []
+        },
+        "verdict": "Lulus.",
+        "text": "← Perjalanan belajar Anda MATEMATIKA · PERSAMAAN LINEAR SATU VARIABEL Hasil Lulus. Hasil Uji Penguasaan ini memenuhi kriteria kelulusan bab ini. Lihat sertifikat Baca lagi: Kalimat Terbuka dan Persamaan · Mengenali persamaan linear satu variabel. Bagian ini disarankan untuk dibaca lagi. Saran ini bukan penilaian atas penguasaan Anda pada bagian ini. 5 dari 6 soal dijawab tepat · Kesempatan ke-1 Pada Uji Penguasaan, jawaban yang tepat dan hasil tiap soal tidak ditampilkan. Apa berikutnya → Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com",
+        "result_row": "0.8333 gate true"
+      },
+      "tab": 122,
+      "url": "/belajar/9738b694-95aa-4782-aa14-73bcd3c7bdb2/hasil",
+      "ms": 39324
+    }
+  ],
+  "selesai": "2026-11-24T11:14:10.153Z",
+  "sampai_akhir": true
+}

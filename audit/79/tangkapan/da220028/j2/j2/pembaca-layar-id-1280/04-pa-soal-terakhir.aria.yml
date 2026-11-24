@@ -1,0 +1,27 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- alert
+- banner:
+  - text: PINTAR
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - img "Soal 3/3"
+  - article:
+    - heading "Umur Rani 3 tahun lebih tua dari Sita yang berumur s tahun. Umur Rani 15 tahun. Persamaannya?" [level=2]
+    - list:
+      - listitem:
+        - button "A s = 15"
+      - listitem:
+        - button "B s + 3 = 15" [pressed]
+      - listitem:
+        - button "C s − 3 = 15"
+      - listitem:
+        - button "D 3s = 15"
+  - navigation:
+    - button "Kembali"
+    - button "Selesaikan pemetaan"

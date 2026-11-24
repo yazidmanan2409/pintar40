@@ -1,0 +1,32 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - navigation "Belajar":
+    - link "Belajar":
+      - /url: /belajar
+    - link "Sertifikat":
+      - /url: /belajar/sertifikat
+  - button "Bantuan"
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - link "← Perjalanan belajar Anda":
+    - /url: /belajar/e8f1ecda-6ca1-4771-9850-07d3295c8ec7
+  - paragraph: Pemetaan selesai. Peta bacaan Anda sudah siap.
+  - heading "Peta Bacaan Personal" [level=1]
+  - paragraph: Mulailah dari kartu paling atas. Urutannya sudah disusun untuk Anda.
+  - text: Sudah kuat Mengenali persamaan linear satu variabel. Jawaban Anda di Pemetaan Awal untuk bagian ini sudah tepat. Anda boleh membacanya sekilas. Sudah kuat Menyelesaikan persamaan linear satu variabel. Jawaban Anda di Pemetaan Awal untuk bagian ini sudah tepat. Anda boleh membacanya sekilas. Sudah kuat Menyusun persamaan dari soal cerita. Jawaban Anda di Pemetaan Awal untuk bagian ini sudah tepat. Anda boleh membacanya sekilas.
+  - paragraph: Tanda ini adalah saran urutan membaca dari hasil Pemetaan Awal. Tanda ini bukan nilai dan bukan pernyataan penguasaan.
+  - link "Buka pelajarannya":
+    - /url: /belajar/e8f1ecda-6ca1-4771-9850-07d3295c8ec7/pelajaran/fdcfd1c3-1561-4830-9c88-ec427be22bb2
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- alert

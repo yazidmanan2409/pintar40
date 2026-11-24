@@ -1,0 +1,38 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- alert: Belajar · PINTAR
+- banner:
+  - text: PINTAR
+  - navigation "Belajar":
+    - link "Belajar":
+      - /url: /belajar
+    - link "Sertifikat":
+      - /url: /belajar/sertifikat
+  - button "Bantuan"
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - link "← Perjalanan belajar Anda":
+    - /url: /belajar/e8f1ecda-6ca1-4771-9850-07d3295c8ec7
+  - paragraph: Pelajaran 1 dari 3 · Persamaan Linear Satu Variabel
+  - heading "Kalimat Terbuka dan Persamaan" [level=1]
+  - paragraph: Persamaan adalah kalimat terbuka yang memakai tanda sama dengan.
+  - paragraph: Bagian bacaan Bagian 1
+  - article:
+    - heading "Kalimat terbuka" [level=3]
+    - paragraph: Kalimat terbuka memuat variabel, sehingga benar atau salahnya belum diketahui.
+  - paragraph: Halaman 1/2
+  - navigation:
+    - button "Halaman sebelumnya" [disabled]
+    - button "Halaman berikutnya"
+  - link "Pelajaran berikutnya":
+    - /url: /belajar/e8f1ecda-6ca1-4771-9850-07d3295c8ec7/pelajaran/39ea767a-dc9e-445d-9d3e-f4dd20b0ca56
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com

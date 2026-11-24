@@ -1,0 +1,38 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- alert: Hasil
+- banner:
+  - text: PINTAR
+  - navigation "Belajar":
+    - link "Belajar":
+      - /url: /belajar
+    - link "Sertifikat":
+      - /url: /belajar/sertifikat
+  - button "Bantuan"
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - link "← Perjalanan belajar Anda":
+    - /url: /belajar/e8f1ecda-6ca1-4771-9850-07d3295c8ec7
+  - paragraph: Matematika · Persamaan Linear Satu Variabel
+  - heading "Hasil" [level=1]
+  - status:
+    - paragraph:
+      - strong: Lulus.
+      - text: Hasil Uji Penguasaan ini memenuhi kriteria kelulusan bab ini.
+  - paragraph:
+    - link "Lihat sertifikat":
+      - /url: /belajar/e8f1ecda-6ca1-4771-9850-07d3295c8ec7/sertifikat
+  - paragraph: 6 dari 6 soal dijawab tepat · Kesempatan ke-1
+  - paragraph: Pada Uji Penguasaan, jawaban yang tepat dan hasil tiap soal tidak ditampilkan.
+  - link "Apa berikutnya →":
+    - /url: /belajar/e8f1ecda-6ca1-4771-9850-07d3295c8ec7/lanjut
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com

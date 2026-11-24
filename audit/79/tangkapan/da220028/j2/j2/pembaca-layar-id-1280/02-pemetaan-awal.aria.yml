@@ -1,0 +1,42 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- alert
+- banner:
+  - text: PINTAR
+  - navigation "Belajar":
+    - link "Belajar":
+      - /url: /belajar
+    - link "Sertifikat":
+      - /url: /belajar/sertifikat
+  - button "Bantuan"
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - link "← Perjalanan belajar Anda":
+    - /url: /belajar/e8f1ecda-6ca1-4771-9850-07d3295c8ec7
+  - paragraph: Matematika · Kelas 8 · Persamaan Linear Satu Variabel
+  - heading "Pemetaan Awal" [level=1]
+  - paragraph: Ini bukan ujian. Jawaban Anda dipakai untuk menyusun peta bacaan yang pas.
+  - term: Jumlah soal
+  - definition: "3"
+  - term: Ditutup
+  - definition: Minggu, 23 Mei 2027
+  - paragraph: Yang bisa dilakukan
+  - list:
+    - listitem: Menandai soal dan kembali lagi
+    - listitem: Meminta arah berpikir bila sebuah soal terasa buntu
+  - strong: Tentang catatan sesi
+  - text: Selama asesmen, aktivitas sesi tertentu dapat dicatat untuk menjaga integritas proses. Catatan ini merupakan observasi dan tidak menentukan hasil Anda secara otomatis.
+  - button "Mulai Pemetaan Awal"
+  - status
+  - link "Nanti saja":
+    - /url: /belajar/e8f1ecda-6ca1-4771-9850-07d3295c8ec7
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com

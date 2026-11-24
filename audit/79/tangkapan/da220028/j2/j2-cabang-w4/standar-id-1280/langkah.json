@@ -1,0 +1,35 @@
+{
+  "perjalanan": "j2-cabang-w4",
+  "nama": "Hana Wirawan",
+  "lebar": 1280,
+  "zona": "WIB",
+  "bahasa": "id",
+  "laluan": "standar",
+  "label": [
+    "keadaan warisan (dibuat melewati penjaga hari ini)"
+  ],
+  "mulai": "2026-11-24T11:15:21.700Z",
+  "langkah": [
+    {
+      "id": "C1",
+      "judul": "the result before a pass mark exists (no verdict)",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-hasil"
+      ],
+      "amatan": [
+        "last screen: /belajar/<id>/hasil"
+      ],
+      "data": {
+        "verdict": "(none)",
+        "baca_lagi": "(not shown)",
+        "text": "← Perjalanan belajar Anda MATEMATIKA · STATISTIKA DASAR Hasil 2 dari 2 soal dijawab tepat · Kesempatan ke-1 Pada Uji Penguasaan, jawaban yang tepat dan hasil tiap soal tidak ditampilkan. Apa berikutnya → Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com"
+      },
+      "tab": 0,
+      "url": "/belajar/d203df0a-fb8b-4c49-bfdf-19f2ff37cd47/hasil",
+      "ms": 3633
+    }
+  ],
+  "selesai": "2026-11-24T11:15:25.333Z",
+  "sampai_akhir": true
+}
