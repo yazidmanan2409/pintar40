@@ -73,6 +73,10 @@ H-1 (the pre-flight heartbeat reads the red-case step's own `supabase db reset` 
 
 **Lesson:** a passing run is evidence only for the order, time and data it ran with. Tests must be independent of order, position and wall-clock time, or must pin them.
 
+## 3c · Coordination lesson (24 Nov 17:50Z)
+
+The audit builder sat idle from 15:22Z to 17:50Z after a report, waiting without a question pending; the machine had also restarted. **Fix: the standing rule that each stream goes straight on to its next item after a report**, and the 2-hourly driver checks every stream's last push. That cost 2.5 hours of capture time, and no quality.
+
 ## 4 · Pacing (owner, 24 Nov: usage isn't monitored overnight)
 
 Bob paces the work. The usage allowance is shared by every session.
