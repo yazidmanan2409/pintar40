@@ -1,0 +1,13 @@
+CI-1 step 0 on staging (pintar-staging, keijhmdtsgrfvnvocfvk; verified with get_project: ACTIVE_HEALTHY), read only, 2026-11-24 ~22:24Z, BEFORE the merge of PR #30.
+Script: claude/ci-1 94ce6727 docs/post-4.1/ci-1/evidence/step0-CI1.sql (both selects, in one read-only transaction, rolled back)
+
+schema_migrations = 309, latest 20270124100000
+
+issued certificates by what the helper will say:
+review_open  result_in_force_fails  issued_certificates
+false        false                  60
+
+will_turn_ditinjau (no open review, result in force fails): none (0 rows)
+
+Reading: all 60 issued certificates have no open review and a result in force that passes the certifying rule, so after
+20270125100000 every one still reads BERLAKU. No certificate changes state. Nothing was written.
