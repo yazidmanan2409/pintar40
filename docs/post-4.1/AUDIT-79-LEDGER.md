@@ -373,3 +373,13 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
 - **Maintenance:** the banner, the page and the learner's «tetap dapat diselesaikan» show as designed. The teacher's row reads «sisa 259199 menit» (L-47 again).
 - **The learner's result page is «Halaman ini tidak ada» in all three branch states** (L-54, C-1).
 - **For Daisy (J7):** a reissue is possible only once the certificate's data has changed.
+
+**J4 judged from the captures (Daisy, `3a1ba2f1`): J4 is CLOSED for builder lines.**
+- **L-63 widened:** for time running out, the learner reads «… sudah selesai atau sudah ditutup» (a vague «atau») while the teacher reads «Waktu habis · jawaban yang ada dinilai». Fix: one sentence per way the sitting ended (ruling 96): «Waktu Uji Penguasaan ini habis pukul {waktu}. Jawaban yang sudah tersimpan dinilai.» + «Lihat hasil».
+- **L-63's not-counted half is already met** on the learner's card, though it's labelled «Lanjutkan» where it means start again (L-64).
+- **L-47 and L-54 are confirmed.** The tour covered the capture again (the builder's `lewatiTur` fixes it).
+- **J7 (the script, not the product):** «Terbitkan ulang» is for changed printed data. After a recalculation the choice is «Konfirmasi berlaku» or «Cabut». Daisy's script is corrected; L-70 stands.
+
+| L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
+|---|---|---|---|---|---|---|
+| L-104 (J4-6) | «Akhiri dan nilai» asks first; «Akhiri tanpa menghitung» ends without asking | E | J4 | Improvement | C-7 | Both ask, each naming its effect |
