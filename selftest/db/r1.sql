@@ -46,7 +46,7 @@ begin
       -- ═══════════════════════════════════════ the departure
       if v_jalur = 'R1-K01' then
         perform selftest.as_user('boot-admin@bootstrap.pintar.test');
-        perform public.akhiri_pendaftaran(v_en, 'WITHDRAWN', 'R-1: keluar', current_date);
+        perform public.akhiri_pendaftaran(v_en, 'WITHDRAWN', 'R-1: keluar', null);   -- the school's today (its own clock), never UTC's current_date
       elsif v_jalur = 'R1-K02' then
         select i.id into v_beta from public.institutions i where i.slug like 'synth-beta-%' limit 1;
         select ap.id into v_bper from public.academic_periods ap where ap.institution_id = v_beta order by ap.starts_on desc nulls last limit 1;

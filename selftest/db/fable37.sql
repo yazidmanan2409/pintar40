@@ -127,6 +127,7 @@ declare
   v_murid uuid; v_e uuid; v_eb uuid; v_sess uuid; v_cohs uuid; v_lo uuid; v_hi uuid; v_got text; v_turun public.evidence_class;
   v_n int; v_total bigint; v_kartu boolean; v_mark numeric; v_bawah numeric; v_atas numeric; v_audit int; v_audit2 int;
   v_x uuid; v_y uuid; v_rooty uuid; u_adminx uuid; v_p uuid; e record; r record;
+  v_hari date;   -- the school's today on its own clock (zona_sekolah), never current_date: from 16.00 or 17.00 UTC they differ
   u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int; s02 text[] := '{}'; d08 text[] := '{}'; l01 text[] := '{}'; l02 text[] := '{}'; l03 text[] := '{}'; s03 text[] := '{}'; l04 text[] := '{}'; t01 text[] := '{}'; l05 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; n01 text[] := '{}'; v_p2 uuid; v_kosong uuid; v_baru uuid; v_isi uuid; v_baru2 uuid; v_cnt int; v_coh2 uuid; e01 text[] := '{}'; e02 text[] := '{}'; e03 text[] := '{}'; e04 text[] := '{}'; e05 text[] := '{}'; v_g uuid; v_eg uuid; v_h uuid; v_eh uuid; v_baru_e uuid; v_aud int; v_terbit timestamptz; v_tie timestamptz := now() - interval '3 days'; v_q uuid; v_ey uuid; v_tf uuid; v_mem uuid; v_staf uuid; v_pdc uuid; v_pdd uuid; v_pdsesi uuid; v_fn text; v_sql text; v_boleh boolean; v_lulus boolean; e06 text[] := '{}'; e07 text[] := '{}'; k01 text[] := '{}'; k02 text[] := '{}'; k03 text[] := '{}'; k04 text[] := '{}'; k05 text[] := '{}'; v_knext uuid; v_kt5 uuid; c_k5 uuid; v_kt6 uuid; c_k6 uuid; v_kt5b uuid; c_k5b uuid; v_kguru uuid; v_kp jsonb; v_kdec jsonb; v_kaud int; v_kplan jsonb; v_kres jsonb; v_ksesi uuid; k06 text[] := '{}'; v_krun text; k07 text[] := '{}'; k08 text[] := '{}'; v_klain uuid; w26 text[] := '{}'; v_kdec0 jsonb; v_k7 text;
 begin
   perform selftest.as_owner();
@@ -718,8 +719,9 @@ begin
       insert into public.memberships (enrollment_id, node_id, academic_period_id) values (v_ex, c_a, v_period);
       if r.k = 'G' then v_g := v_pp; v_eg := v_ex; else v_h := v_pp; v_eh := v_ex; end if;
     end loop;
+    v_hari := (now() at time zone public.zona_sekolah(v_x))::date;
     -- E01: the school ends G's enrolment as graduated: ENDED/COMPLETED, memberships closed, one audit row with the reason
-    v_got := selftest.f37_sebagai(u_admin, format('select public.akhiri_pendaftaran(%L, %L, %L, %L)', v_eg, 'GRADUATED', null, current_date));
+    v_got := selftest.f37_sebagai(u_admin, format('select public.akhiri_pendaftaran(%L, %L, %L, %L)', v_eg, 'GRADUATED', null, v_hari));
     if v_got <> 'OK' then e01 := e01 || ('ending G as graduated was refused: ' || v_got);
     else
       if (select en.status::text || '/' || coalesce(en.end_reason::text, '') from public.enrollments en where en.id = v_eg) <> 'ENDED/COMPLETED' then
@@ -727,19 +729,19 @@ begin
       if exists (select 1 from public.memberships m where m.enrollment_id = v_eg and m.valid_to is null) then
         e01 := e01 || 'G''s Kelas placement is still open'::text; end if;
       if not exists (select 1 from public.audit_log a where a.target_id = v_eg::text and a.action = 'enrollment.ended_with_reason'
-                       and a.summary ->> 'reason_code' = 'GRADUATED' and a.summary ->> 'effective_date' = current_date::text) then
+                       and a.summary ->> 'reason_code' = 'GRADUATED' and a.summary ->> 'effective_date' = v_hari::text) then
         e01 := e01 || 'no audit row records the reason and the date'::text; end if;
     end if;
     -- E02: refusals write nothing; H stays live
     select count(*) into v_aud from public.audit_log a where a.target_id = v_eh::text;
     for r in select * from (values
-        ('school Y''s admin', u_adminy, 'WITHDRAWN', null::text, current_date, 'INSTITUTION_ADMIN'),
-        ('X''s Guru',          u_guru_a, 'WITHDRAWN', null::text, current_date, 'INSTITUTION_ADMIN'),
-        ('an unknown reason',  u_admin,  'BOLOS',     null::text, current_date, 'ENROL_REASON_INVALID'),
-        ('Other with no explanation', u_admin, 'OTHER', null::text, current_date, 'ENROL_EXPLANATION_REQUIRED'),
-        -- two days ahead: a future date on any clock (the bound is the school's WIB date, up to 7 h ahead of UTC)
-        ('a future date',      u_admin,  'WITHDRAWN', null::text, current_date + 2, 'ENROL_DATE_INVALID'),
-        ('a date before the enrolment began', u_admin, 'WITHDRAWN', null::text, current_date - 60, 'ENROL_DATE_INVALID')
+        ('school Y''s admin', u_adminy, 'WITHDRAWN', null::text, v_hari, 'INSTITUTION_ADMIN'),
+        ('X''s Guru',          u_guru_a, 'WITHDRAWN', null::text, v_hari, 'INSTITUTION_ADMIN'),
+        ('an unknown reason',  u_admin,  'BOLOS',     null::text, v_hari, 'ENROL_REASON_INVALID'),
+        ('Other with no explanation', u_admin, 'OTHER', null::text, v_hari, 'ENROL_EXPLANATION_REQUIRED'),
+        -- two days ahead: a future date on any clock (the bound is the school's WIB date, up to 7 h ahead of UTC; v_hari is that date, never UTC's)
+        ('a future date',      u_admin,  'WITHDRAWN', null::text, v_hari + 2, 'ENROL_DATE_INVALID'),
+        ('a date before the enrolment began', u_admin, 'WITHDRAWN', null::text, v_hari - 60, 'ENROL_DATE_INVALID')
       ) t(siapa, uid, alasan, ket, tgl, mau) loop
       v_got := selftest.f37_sebagai(r.uid, format('select public.akhiri_pendaftaran(%L, %L, %L, %L)', v_eh, r.alasan, r.ket, r.tgl));
       if v_got = 'OK' or v_got !~ r.mau then e02 := e02 || format('%s: %s, expected %s', r.siapa, v_got, r.mau); end if;
@@ -773,7 +775,7 @@ begin
     set local session_replication_role = replica;   -- a deadline already past, as an abandoned sitting's is
     update public.assessment_sessions set authoritative_deadline = now() - interval '1 day' where assessment_sessions.id = v_q;
     set local session_replication_role = origin;
-    v_got := selftest.f37_sebagai(u_admin, format('select public.akhiri_pendaftaran(%L, %L, %L, %L)', v_ex, 'WITHDRAWN', null, current_date));
+    v_got := selftest.f37_sebagai(u_admin, format('select public.akhiri_pendaftaran(%L, %L, %L, %L)', v_ex, 'WITHDRAWN', null, v_hari));
     if v_got <> 'OK' then e03 := e03 || ('an enrolment with open sittings was not ended: ' || v_got);
     else
       if (select s.status::text || '/' || coalesce(s.termination_cause::text, '') from public.assessment_sessions s where s.id = v_ksesi) <> 'TERMINATED/INSTITUTIONAL_REVOCATION' then
@@ -795,7 +797,7 @@ begin
     insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status, valid_from)
     values (v_pp, v_x, v_period, v_proga, 'PENDING', now() - interval '30 days') returning enrollments.id into v_ex;
     insert into public.memberships (enrollment_id, node_id, academic_period_id) values (v_ex, c_a, v_period);
-    v_got := selftest.f37_sebagai(u_admin, format('select public.akhiri_pendaftaran(%L, %L, %L, %L)', v_ex, 'WITHDRAWN', null, current_date));
+    v_got := selftest.f37_sebagai(u_admin, format('select public.akhiri_pendaftaran(%L, %L, %L, %L)', v_ex, 'WITHDRAWN', null, v_hari));
     if v_got <> 'OK' then e07 := e07 || ('a PENDING learner''s enrolment was not ended: ' || v_got);
     elsif (select en.status::text || '/' || coalesce(en.end_reason::text, '') from public.enrollments en where en.id = v_ex) <> 'ENDED/WITHDRAWN'
           or not public.murid_sudah_keluar(v_pp, v_x) then
