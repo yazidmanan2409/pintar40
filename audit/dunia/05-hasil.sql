@@ -8,7 +8,7 @@
 --                 (ASSIGN_PASS_MARK_MISSING), so it is written past that one guard (dunia.bab "warisan"; see 02-bab.sql)
 --   W5            Rizky Ramadhan, 8A: W3's Uji Penguasaan finished, only the thin-evidence objective's question wrong
 --                 (5 of 6; CDK8-3 is the one objective below the mark)
---   W6            Sinta Maharani, class 8B: the same chapter with an attempt limit of 1; 5 of 6 (83 %) against 60 %,
+--   W6            Sinta Maharani, class 8B: W3's own chapter (attempt limit 1, shared); 5 of 6 (83 %) against 60 %,
 --                 with the must-be-right question missed. The teacher of 8B is not the approver: a retake is decided by
 --                 the head of department (CAN_REVIEW_INTEGRITY), Lestari Handayani.
 
@@ -19,16 +19,15 @@ declare k8b uuid; w3 jsonb := dunia.ambil('w3.bab')::jsonb; w6 jsonb; w4 jsonb; 
 begin
   perform dunia.jaga();
 
-  -- 8B, its own teacher, and W3's chapter with an attempt limit of 1
+  -- 8B, its own teacher, and W3's chapter
   insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
   values (dunia.ambil('smp.sekolah')::uuid, dunia.ambil('smp.ang8')::uuid, 'CLASS', '8B', dunia.ambil('smp.ta')::uuid)
   returning id into k8b;
   insert into public.classes (node_id, subject, status) values (k8b, 'Matematika', 'ACTIVE');
   perform dunia.simpan('smp.kelas8b', k8b::text);
   perform dunia.staf('smp.guru8b', 'guru8b.cendekia@dunia.pintar.test', 'Sintetis-CendekiaGuru8B-55!', 'Wulan Puspitasari', 'EDUCATOR', k8b);
-  spec := (dunia.ambil('w3.spec'))::jsonb || jsonb_build_object('kelas', 'smp.kelas8b', 'penulis', 'smp.guru8b',
-            'judul', 'Persamaan Linear Satu Variabel (8B)', 'batas_percobaan', 1, 'simpan', 'w6.bab');
-  w6 := dunia.bab(spec);
+  -- W3's own chapter (one publication for 8A and 8B; its attempt limit, 1, is on the shared definition)
+  w6 := dunia.berikan(w3, 'smp.kelas8b', 'smp.admin', 'w6.bab');
 
   -- the learners
   perform dunia.murid_email('j2.murid', 'hana.wirawan@dunia.pintar.test', 'Sintetis-HanaW-71!', 'Hana Wirawan',

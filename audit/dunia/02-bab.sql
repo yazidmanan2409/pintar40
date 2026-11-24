@@ -183,6 +183,45 @@ begin
   return t;
 end $$;
 
+-- A chapter already published by dunia.bab, given to ONE MORE CLASS of the same school and year (Bob, 24 Nov, L-80):
+-- the same release and the same two assessment definitions (so one attempt limit, on the shared definition), a new
+-- learning assignment and two assessment assignments for the class, given by the school admin as the product does.
+-- Returns the same shape as dunia.bab, with this class's tugas, pa and up; kept under `simpan`.
+create or replace function dunia.berikan(t jsonb, p_kelas text, p_admin_kunci text, p_simpan text)
+returns jsonb language plpgsql as $$
+declare
+  kelas uuid := dunia.ambil(p_kelas)::uuid;
+  p_admin uuid := (dunia.ambil(p_admin_kunci)::jsonb ->> 'person')::uuid;
+  la0 public.learning_assignments%rowtype;
+  la uuid; aa_pre uuid; aa_post uuid; k text; u jsonb;
+begin
+  perform dunia.jaga();
+  select * into la0 from public.learning_assignments where id = (t ->> 'tugas')::uuid;
+  if la0.id is null then raise exception 'dunia.berikan: % is not a given chapter', t ->> 'tugas'; end if;
+  perform dunia.sebagai(p_admin_kunci);
+  insert into public.learning_assignments (institution_id, plp_release_id, course_id, node_id, academic_period_id,
+    is_required, learning_cycle, assigned_by_person_id, assigned_at)
+  values (la0.institution_id, la0.plp_release_id, la0.course_id, kelas, la0.academic_period_id, true, la0.learning_cycle,
+          p_admin, now())
+  returning id into la;
+  update public.learning_assignments set status = 'ACTIVE' where id = la;
+  insert into public.assessment_assignments (institution_id, assessment_definition_id, learning_assignment_id, node_id,
+    academic_period_id, opens_at, closes_at, assigned_by_person_id, assigned_at)
+  values (la0.institution_id, (t ->> 'def_pa')::uuid, la, kelas, la0.academic_period_id, now() - interval '1 day', now() + interval '180 days', p_admin, now())
+  returning id into aa_pre;
+  insert into public.assessment_assignments (institution_id, assessment_definition_id, learning_assignment_id, node_id,
+    academic_period_id, opens_at, closes_at, assigned_by_person_id, assigned_at)
+  values (la0.institution_id, (t ->> 'def_up')::uuid, la, kelas, la0.academic_period_id, now() - interval '1 day', now() + interval '180 days', p_admin, now())
+  returning id into aa_post;
+  foreach k in array array['SCHEDULED','OPEN'] loop
+    update public.assessment_assignments set status = k::public.assessment_assignment_status where id in (aa_pre, aa_post);
+  end loop;
+  perform dunia.sebagai(null);
+  u := t || jsonb_build_object('tugas', la, 'pa', aa_pre, 'up', aa_post);
+  perform dunia.simpan(p_simpan, u::text);
+  return u;
+end $$;
+
 -- SD Melati's chapter for 4A: J1's «today's task». Small, single-answer, for a 9-year-old.
 do $$
 begin

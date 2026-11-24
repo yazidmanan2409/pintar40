@@ -47,8 +47,9 @@ begin
   perform dunia.staf('smp.guru8a',  'guru8a.cendekia@dunia.pintar.test',  'Sintetis-CendekiaGuru-54!',   'Dimas Saputra',     'EDUCATOR',           k8a);
 end $$;
 
--- W3: the core chapter, given to 8A. Its spec is kept (w3.spec), so a state that needs the same chapter elsewhere
--- (W6's class with an attempt limit of 1) builds it from the same words.
+-- W3: the core chapter, given to 8A, attempt limit 1 on its (shared) definition. 8B is given THIS SAME chapter
+-- (05-hasil.sql, dunia.berikan; Bob, 24 Nov, L-80: one publication, not two of the same name). Its spec is kept
+-- (w3.spec), so the bootstrap's copy for J2/J3 is built from the same words.
 do $$
 declare spec jsonb := $j${
     "sekolah": "smp.sekolah", "kelas": "smp.kelas8a", "ta": "smp.ta",
@@ -143,7 +144,7 @@ declare spec jsonb := $j${
        "op": [["A", "n + 7 = 20", true, "Bilangan ditambah 7 sama dengan 20.", null], ["B", "7n = 20", false, "Bukan perkalian.", "CDK-CERITA"],
               ["C", "n = 7 + 20", false, "Hubungannya tertukar.", "CDK-CERITA"], ["D", "n − 7 = 20", false, "Ditambah, bukan dikurang.", "CDK-TANDA"]]}
     ],
-    "batas_percobaan": 2, "simpan": "w3.bab"
+    "batas_percobaan": 1, "simpan": "w3.bab"
   }$j$::jsonb;
 begin
   perform dunia.simpan('w3.spec', spec::text);

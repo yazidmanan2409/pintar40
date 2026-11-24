@@ -6,9 +6,9 @@
 --        bukan penyedia AI nyata». It answers only under PINTAR_AI_STUB_HARNESS=1 (src/lib/ai/pilih-penyedia.ts), which
 --        the capture's app sets; it is not stubbed by the harness. No real provider is called, ever.
 --        THE ALLOWANCE IS NEAR ITS END: a request reserves its worst case first (ai_cadangkan: 4000 out + 8000 prompt +
---        one per excerpt character, at a price of 1), and the school's allowance is 14,500. So one request with a short
---        excerpt (up to about 2,000 characters) is admitted, and a long excerpt, or a second request once the first
---        has settled, is refused AI_JATAH_HABIS: J6's «the allowance used up» branch, reached through the screens.
+--        one per excerpt character, at a price of 1). The allowance is set from the first lesson's exact excerpt (below):
+--        one «Teks pelajaran tujuan» request of 2 questions is admitted, and an identical second, once the first has
+--        settled, is refused AI_JATAH_HABIS: J6's «the allowance used up» branch, reached through the screens.
 --        The platform ceiling and the option's ceiling stand well above it (J6's ceiling branch is staged by the
 --        operator at capture time, and recorded there).
 --   W13  SD Sintetis Melati has NO entitlement row (D7: unset is never unlimited), and its 4A teacher holds a draft
@@ -18,7 +18,7 @@
 do $$ begin perform set_config('app.seed_intent', 'synthetic', true); end $$;
 
 do $$
-declare o uuid; w12 jsonb; w13 jsonb;
+declare o uuid; w12 jsonb; w13 jsonb; v_l int;
 begin
   perform dunia.jaga();
   insert into public.ai_opsi (kunci, nama_tampilan, model_ident, harga_dasar, status, plafon_biaya, henti_keras_terverifikasi)
@@ -90,5 +90,16 @@ begin
   if (select status::text from public.courses where id = (w12 ->> 'kursus')::uuid) <> 'INGESTED' then
     raise exception 'W12: the package is not a draft';
   end if;
-  raise notice 'dunia: W12 (Cendekia entitled, allowance 14,500 near its end, a draft package), W13 (Melati, no entitlement, a draft package)';
+  -- THE ALLOWANCE, SET FROM THE EXCERPT (Bob, 24 Nov 12:36; Daisy walks «Teks pelajaran tujuan», 2 questions, on the
+  -- package's first lesson). The excerpt is exactly what c3w_bahan gives the app and ai_minta_draf measures:
+  -- length(concat_ws(E'\n\n', summary, body_markdown)) =: L. A request reserves 4,000 + 8,000 + L (price 1); the stand-in
+  -- settles 200 + 40 × 2 = 280. So remaining = 280 + (12,000 + L) − 1: the FIRST request is admitted (12,000 + L ≤
+  -- remaining), and an IDENTICAL second, after the first has settled at 280, is refused AI_JATAH_HABIS by one.
+  select length(concat_ws(chr(10) || chr(10), nullif(l.summary, ''), nullif(l.body_markdown, ''))) into v_l
+    from public.lessons l join public.modules m on m.id = l.module_id
+   where m.course_id = (w12 ->> 'kursus')::uuid order by m.ordinal, l.ordinal limit 1;
+  update public.ai_hak_sekolah set jatah = 280 + 12000 + v_l - 1 where sekolah = dunia.ambil('smp.sekolah')::uuid;
+  perform dunia.simpan('w12.panjang_kutipan', v_l::text);
+  perform dunia.simpan('w12.jatah', (280 + 12000 + v_l - 1)::text);
+  raise notice 'dunia: W12 (Cendekia entitled, allowance % = 280 + 12,000 + % − 1: one lesson-text request of 2 questions, then refused), W13 (Melati, no entitlement, a draft package)', 280 + 12000 + v_l - 1, v_l;
 end $$;

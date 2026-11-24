@@ -8,7 +8,8 @@
 --   (w14.kaprodi) reviews the chapters and decides retakes; the school admin is w14.admin.
 --   J2  class «8J (dunia)», teacher Rina Kartika; W3's chapter (w3.spec, sealed at 60); Hana Wirawan (j2.murid_resmi),
 --       by email, activated, NOTHING SAT: J2 walks it from the Pemetaan Awal to the certificate.
---   J3  class «8K (dunia)», teacher Bambang Sutrisno; the same chapter with an attempt limit of 1; Sinta Maharani
+--   J3  class «8K (dunia)», teacher Bambang Sutrisno; THE SAME chapter as 8J (one publication, attempt limit 1 on its
+--       shared definition; Bob, 24 Nov, L-80); Sinta Maharani
 --       (j3.murid_resmi): 5 of 6 (83 %) against 60 % with the must-be-right question missed: «Belum lulus.» by the gate.
 --       J3's fixtures W7 and W8 follow her here (fiksasi/w7a.sql, w7b.sql, w8.sql).
 
@@ -33,11 +34,10 @@ begin
   perform dunia.murid_email('j3.murid_resmi', 'sinta.maharani.resmi@dunia.pintar.test', 'Sintetis-SintaR-98!', 'Sinta Maharani',
                             'boot.sekolah', 'boot.ta', 'boot.prog', array['j23.ang', 'j3.kelas'], 'w14.admin', true);
 
-  perform dunia.bab(spec || jsonb_build_object('sekolah', 'boot.sekolah', 'kelas', 'j2.kelas', 'ta', 'boot.ta', 'penulis', 'j2.guru',
-                                               'peninjau', 'w14.kaprodi', 'admin', 'w14.admin', 'simpan', 'j2.bab'));
-  j3 := dunia.bab(spec || jsonb_build_object('sekolah', 'boot.sekolah', 'kelas', 'j3.kelas', 'ta', 'boot.ta', 'penulis', 'j3.guru',
-                                             'peninjau', 'w14.kaprodi', 'admin', 'w14.admin', 'batas_percobaan', 1,
-                                             'judul', (spec ->> 'judul') || ' (8K)', 'simpan', 'j3.bab'));
+  -- ONE chapter for 8J and 8K (Bob, 24 Nov, L-80), attempt limit 1 on its shared definition
+  j3 := dunia.berikan(dunia.bab(spec || jsonb_build_object('sekolah', 'boot.sekolah', 'kelas', 'j2.kelas', 'ta', 'boot.ta',
+                        'penulis', 'j2.guru', 'peninjau', 'w14.kaprodi', 'admin', 'w14.admin', 'batas_percobaan', 1,
+                        'simpan', 'j2.bab')), 'j3.kelas', 'w14.admin', 'j3.bab');
   perform dunia.duduk('j3.murid_resmi', (j3 ->> 'pa')::uuid);
   perform dunia.simpan('j3.sesi', dunia.duduk('j3.murid_resmi', (j3 ->> 'up')::uuid, array['Berapakah x jika 2x + 3 = 11?'])::text);
   raise notice 'dunia: J2/J3 at the bootstrap (Hana untouched in 8J; Sinta 83 %% with the must-be-right missed in 8K, limit 1)';
