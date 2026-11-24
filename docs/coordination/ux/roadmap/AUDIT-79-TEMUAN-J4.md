@@ -64,3 +64,8 @@
 | **Maintenance, T−15 and stage 0** | The staff banner holds: «Pemeliharaan dalam 10 menit … Murid tidak dapat memulai asesmen baru sampai pemeliharaan selesai.» «sisa 259199 menit» is L-47. At stage 0 the learner, who signed in again, meets the A3 permission screen, which is the J12-1 interaction seen from the learner's side. The welcome tour covers the teacher capture (as J12-4, harness) |
 
 **J4's «left for the builder» lines are closed.**
+
+**Re-capture on the corrected world (`f308d1ad/j4`, `7bc68907`), 24 Nov 14:45: J4's findings stand.**
+- **On Bob's question,** the teacher's home «Tidak ada yang menunggu keputusan Anda hari ini.»: in the builder's run it is captured only **after** the sitting ended (L4's end, and C1's time-out), when nothing was waiting. **There it is true.**
+- **L-45 rests on my local walks**, where the home was read **while** the «minta lanjut» request waited (J2: `j2-22-guru-beranda`; J4: `j4-03-guru-beranda`) and said nothing of it.
+- **For the builder:** capture /mengajar at L1, between Galih's request and the teacher's «Izinkan», so the record shows L-45 in its own run.

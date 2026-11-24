@@ -48,3 +48,12 @@
 | **W7b (retake ended, not counted)** | The learner's result is still a 404 (added to L-54 by Bob, C-1). **New, partly good:** the learner's start card now says «Asesmen ini tidak dihitung dan tidak memakai kesempatan Anda. Jawaban yang sudah tersimpan tetap ada.», which is exactly what J4-1 asks for in the not-counted case. But it sits under «Siap untuk Uji Penguasaan» + «Lanjutkan Uji Penguasaan» (**J4-3**) |
 | **W8 (gate unreadable)** | **New, J3-10 (Significant): the learner gets counts and no decision, with no reason.** The learner's result reads only «5 dari 6 soal dijawab tepat · Kesempatan ke-1 …», with no «Lulus» or «Belum lulus» and no word why. The teacher reads «belum dapat disimpulkan apakah target tercapai · target 60%» + «Data soal penting untuk hasil ini tidak dapat dibaca sekarang. Muat ulang halaman ini nanti.» **Siblings disagree** (C-3). **Fix:** the learner's result: «Keputusan lulus untuk Uji Penguasaan ini belum dapat ditentukan sekarang. Hasil Anda tetap tersimpan. Buka halaman ini lagi nanti.» (vocabulary: «belum dapat …»; no blame) |
 | **L-43** | Confirmed in every state: no «Kesempatan ke-{n}» on the teacher's record |
+
+**Re-capture on the corrected world (`87769a6b`, `f308d1ad`), 24 Nov 14:45:**
+- **Every finding stands.**
+  - J3-1: the 404 in 7 states.
+  - J3-3: «Tidak ada lagi yang menunggu» on the learner's start page.
+  - J3-4: «Tanyakan kepada guru … kapan dapat mengulang» after approval.
+  - J3-10: W8 still shows counts with no decision.
+  - L-43: no ordinal on the teacher's side.
+- **J3-5** (/pimpinan's «Tidak ada keputusan yang menunggu Anda» beside the waiting request) rests on my local walk, because the harness records only the request panel's text. **For the builder:** capture /pimpinan's Bagian A while the request waits.
