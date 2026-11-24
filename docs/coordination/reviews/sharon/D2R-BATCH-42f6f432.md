@@ -116,3 +116,19 @@ Every gate reads `bersertifikasi` (condition 2):
 - **N-22** (the link hidden in print) and **§12** (the «Belum lulus» C line) are wording and presentation only.
 
 **D2-R: my side is complete once that CI is green. R-1 closes at the same moment.**
+
+## Addendum · candidate `4d382ec2` (tests only): PASS carried over, conditional on ci 45338584625 and journeys 45338592896 (24 Nov 2026, 06:25 UTC)
+
+- **The product diff from `5550e508` is empty.** Only `audit/*.mjs`, `audit/staging/*.mjs` and the hand-off changed.
+- **The restatements keep a positive check of the approved behaviour, and none is weakened:**
+  - **S21h** fails unless the certifying result shows **0** reviewed questions and **0** answers, the learner's own counts equal to her sitting's, the «tidak ditampilkan» line, and nobody else's name or an internal word. It proves R-h, where it used to prove the review.
+  - **bantuan-browser:**
+    - the help offer is proved where it still exists, on the Pemetaan Awal (PRE_TEST allows help): B2 to B4, the offer's timing, «Tutup», and its going;
+    - **B6** proves the Uji Penguasaan says it offers no help, with no offer and no help check past the window;
+    - **B10**'s read-back requires help granted only on the Pemetaan Awal's questions 1 and 3, none on the Uji Penguasaan, and exactly three checks, all on the Pemetaan Awal.
+
+    The proof of R-d is stronger than before, not weaker.
+  - **J6.4** asserts no help on the Uji Penguasaan, and **J6.4b** is new.
+  - **S21 and C12d** use the owner's 74a words («Lulus.» / «Belum lulus.»).
+  - **S23l** uses ruling 90's line.
+- **The PASS stands on `4d382ec2`** once both runs are green, all jobs in one attempt. **R-1 closes at the same moment.**
