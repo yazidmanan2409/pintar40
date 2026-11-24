@@ -81,3 +81,15 @@ A row wrongly CONFIRMED has no revocation, so DICABUT would be a different false
 - `assert_public_surface` and F04-S01 pass;
 - no rows are written;
 - the S-1 refusal shows on screen as a named refusal.
+
+## 7 · The helper's scope (Second Eye's three cases; Bob's ruling; Sharon agrees, 24 Nov)
+
+| Case | Reads | Ruling |
+|---|---|---|
+| (1) A key correction drops the result in force | The result in force (`hasil_murid_id`) | DITINJAU, the intended case |
+| (2) `mode_policy.certifies` switched off after issue | **The sitting's captured `assessment_sessions.bersertifikasi`** (D2-R), never today's policy | **No change:** a policy toggle never alters a certificate already issued. **Plant:** certifies switched off after issue still reads BERLAKU |
+| (3) An `evidence_class` override makes the sitting non-OFFICIAL | Live evidence class | DITINJAU, accepted. **Sharon's condition:** a certificate never sits in DITINJAU with nothing for the school to act on. The staff list surfaces it as needing a decision, through the existing review/revoke path (opening a `certificate_review` in the override path if revoking needs one). S-1 applies: it can't be CONFIRMED while the evidence isn't official |
+
+**Captured, as planned:** the sealed pass mark, `bersertifikasi` (now), and the result in force and gate from `hasil_murid_id`. Evidence class stays live.
+
+**Structural (Sharon):** **don't modify `sertifikat_layak_dengan`**: `certificate_eligibility` and the correction preview call it, and at issue time captured equals live. CI-1's validity helper is a **new function** composing the captured `bersertifikasi`, official evidence, the sealed mark and the result in force. The fixture restatements for f38 and SERTIFIKAT-A01 (they bypassed `certificate_eligibility`) are accepted.
