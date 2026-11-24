@@ -2289,7 +2289,9 @@ export const experienceTests: SelfTest[] = [
       // institution mark
       // MOVED TO 309, D2-R: a certifying sitting offers no help and discloses counts only (20270124100000): the
       // certificate's title and achievement line change (R-a, R-b), not the institution mark
-      c.expect(migrations.length === 309, `${migrations.length} migrations; the frozen baseline has 309`);
+      // MOVED TO 310, CI-1: a now-failing result is never confirmed or read valid (20270125100000): no brand or copy change in
+      // the institution mark
+      c.expect(migrations.length === 310, `${migrations.length} migrations; the frozen baseline has 310`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4227,7 +4229,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED TO 307, Z: R-27(b)'s 20270123160000 is not a tour RPC.
       // MOVED TO 308, Z8 item 8's 20270123170000 is not a tour RPC.
       // MOVED TO 309, D2-R's 20270124100000 is not a tour RPC.
-      c.expect(migs.length === 309, `${migs.length} migrations; the baseline has 309`);
+      // MOVED TO 310, CI-1's 20270125100000 is not a tour RPC.
+      c.expect(migs.length === 310, `${migs.length} migrations; the baseline has 310`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
