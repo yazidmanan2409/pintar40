@@ -119,3 +119,4 @@
 - **24 Nov 04:45Z · Bob:** §12 and Sharon's disiapkan fix ride the final push; the rest on 5dace1ad is done (19471eaa). Waiting for the final head, to read the C line and the three certificate states, including §13's no-row case.
 - **24 Nov 04:50Z · Bob:** ruling 91 approves H-1. The final candidate carries H-1, §12, N-22 and Sharon's disiapkan fix (afa59994, «otherwise the link alone»). **Asked at 04:54:** does it carry §13's no-row state (nothing shown)?
 - **24 Nov 04:57Z · Bob:** §13 adopted with all three states (no row or a failed read: no line, no link). afa59994 and 055a3292 are not candidates. The next push carries §12, §13, H-1 and N-22; fail it if the third state is missing. Waiting.
+- **24 Nov 04:58Z · Bob:** L-35 capture facts. **Answered:** Significant confirmed, with a three-part human fix; L-38 requested for the missing source school (Improvement if on the stale row only, Significant if on new requests too).
