@@ -462,3 +462,20 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
 | L-121 (J5-9) | One Uji Cepat shows two times in two formats (03:16 raw against 03.20 WIB) | H, B | J5 | Improvement | C-6; C-3 | One label from one timestamp |
 | L-122 (J5-10) | A result link missing its parameter gets a permission refusal | H | J5 | Improvement | Next to C-9 (a refusal naming the wrong cause) | «Uji Cepat ini tidak ditemukan. Buka dari halaman Uji Cepat kelas.» + the link |
 | L-123 (J5-11) | During an emergency stop, the teacher gets the learner's page («buka lagi asesmen tersebut») | H | J5 | Improvement | C-6 | Daisy's staff variant |
+
+**J6's remaining parts walked (Daisy, `6a50d36f`, her own scripts at `6b248975`, 1280; there is no builder harness for J6):**
+- **Holds:**
+  - learner data is refused before anything is sent, and the text is kept;
+  - the allowance is used up on the second request (W12, so Daisy's world question closes);
+  - the provider ceiling's words are honest;
+  - «Ajukan» says honestly that no notification is sent;
+  - the reviewer's Studio home counts the package;
+  - provenance survives to approval.
+- J6-2 (L-84) is confirmed.
+- **Left for the builder:** the stale form (`AI_TUJUAN_LAIN`), the «already passed» refusal, and the SR, throttled and reduced-motion passes.
+
+| L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
+|---|---|---|---|---|---|---|
+| L-124 (J6-4) | **«Tandai lolos pemeriksaan» is offered, and accepted, before any content check has run.** The check, run after submission, found 4 findings, and the reviewer approves a package already marked «lolos». Lock-step re-checks at publication | E, B | J6 | **Significant** (Daisy); Sharon is asked whether it touches the integrity of the approval record | C-7 | Draw it only after a check on the current content, and refuse it while a mandatory finding is open. Before then: «Jalankan pemeriksaan isi lebih dulu.» + «Periksa isi sekarang». **Both checks:** the database refuses as well (principle 3) |
+| L-125 (J6-5) | After any refusal, the rights statement comes back unticked while the source is kept, so the resend is refused again | F | J6 | Improvement | — | Keep the tick, or say to tick it again |
+| L-126 (J6-6) | Allowance and ceiling refusals leave `ai_permintaan.hasil` empty, while the learner-data refusal is recorded | [S] | J6 | **Pending Sharon** | — | Record `REFUSED_ALLOWANCE` / `REFUSED_CEILING`, or the equivalent |

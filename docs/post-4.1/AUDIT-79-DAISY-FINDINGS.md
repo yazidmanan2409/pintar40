@@ -1,6 +1,6 @@
-# Audit 79 · Daisy's findings, complete list (as of 24 Nov 2026, 20:30Z)
+# Audit 79 · Daisy's findings, complete list (as of 24 Nov 2026, 20:45Z)
 
-Compiled by Bob from Daisy's eleven journey files, `docs/coordination/ux/roadmap/AUDIT-79-TEMUAN-J2.md` to `…-J12.md`, on `ux-1/daisy-experience` at `dde3c077`. The ledger references are from `docs/post-4.1/AUDIT-79-LEDGER.md`.
+Compiled by Bob from Daisy's eleven journey files, `docs/coordination/ux/roadmap/AUDIT-79-TEMUAN-J2.md` to `…-J12.md`, on `ux-1/daisy-experience` at `6a50d36f`. The ledger references are from `docs/post-4.1/AUDIT-79-LEDGER.md`.
 
 **Severity** is the final one in the ledger. Where Sharon classified a finding, her classification is binding.
 
@@ -15,9 +15,9 @@ Compiled by Bob from Daisy's eleven journey files, `docs/coordination/ux/roadmap
 |---|---|
 | Critical | 1 (J7-1) |
 | High | 1 (J7-10) |
-| Significant | 20 |
-| Improvement | 51 |
-| **Open findings** | **72** |
+| Significant | 21 |
+| Improvement | 52 |
+| **Open findings** | **74** (plus J6-6, pending Sharon) |
 | Not counted: confirmations of an earlier row, a harness note, a world artefact, no change proposed | 6 (J4-2, J4-5, J5-2, J5-5, J12-4, J3-9) |
 
 **Captures still to come:** J2, J3, J4, J7 and J10 are fully judged against the builder's captures. J5, J6, J8, J9, J11 and J12 are walked by Daisy (J5 fully, with the builder's harness, at 20:28Z), and the builder's captures are pending (J5 is in progress), so those journeys may still add findings.
@@ -90,6 +90,9 @@ Fully walked by Daisy (the rest with the builder's harness, `dde3c077`); the bui
 | J6-1 | L-83 | Improvement | The package head says only «Perlu tindakan», and the actual step sits at the bottom | «Sekarang: Periksa isi», plus the count of drafts waiting |
 | J6-2 | L-84 | Improvement | «Terima» on a draft gives no confirmation | «✓ Soal {n} diterima.», announced |
 | J6-3 | L-85 | Improvement | The AI allowance is never shown before a request | «Sisa jatah AI sekolah…» (Sharon decides whether to show it) |
+| J6-4 | L-124 | **Significant** | «Tandai lolos pemeriksaan» is offered and accepted before any content check has run; the later check found 4 findings | Offer it only after a check on the current content, with no open mandatory finding; the database refuses as well |
+| J6-5 | L-125 | Improvement | The rights tick is cleared after a refusal, so the resend is refused again | Keep the tick, or say to re-tick it |
+| J6-6 | L-126 | Pending Sharon [S] | Allowance and ceiling refusals aren't recorded in the request log | Record the refusal reason |
 
 ## J7 · A key correction after results exist
 
