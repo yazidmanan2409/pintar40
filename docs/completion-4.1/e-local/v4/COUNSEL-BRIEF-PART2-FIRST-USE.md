@@ -8,24 +8,37 @@
 
 - **Who:** a pilot of **10 adults** in professional learning: one school, one class, at most 10 people active at once. **No children.**
 - **What:** existing features only (lessons, practice, assessments and results). **No certificates are issued in the pilot.**
-- **Where the data is held:** a managed database and application host (Supabase and Vercel) outside Indonesia. The provider regions are stated in the attachments on request.
+- **The AI drafting feature is not active in the pilot.** No pilot data goes to any AI provider. Part 1's questions concern a later, optional feature and are separate from this request.
+- **Every provider that holds or carries pilot personal data:**
+
+  | Provider | What it holds or carries | Region |
+  |---|---|---|
+  | Supabase | The database (accounts, learning activity, results, audit records), stored files, and its own daily backups | Singapore (`ap-southeast-1`) |
+  | Vercel | Hosts the application; personal data passes through it in requests and is not stored by PINTAR there | Singapore (`sin1`) |
+  | Resend | Delivers sign-in and notice emails (an email address and the message) | *To be confirmed by the owner from the account settings* |
+  | AWS (S3), **once the off-site backup is switched on** | Encrypted off-site backup copies | *To be confirmed by the owner when the bucket is chosen* |
+
 - **Who runs it:** PINTAR's owner operates the platform. The school appoints its own administrator, who enrols learners.
-- **Any larger use,** including any use with children, needs a new owner decision, and is not part of this request except where question 7 asks.
+- **Any larger use,** including any use with children, needs a new owner decision, and is not part of this request except where question 8 asks.
 
 ## 2 · The questions
 
 1. **Status under UU PDP (Law 27/2022).** For the pilot, is PINTAR the controller, a processor for the school, or a joint controller? What written agreement with the school is needed?
 2. **PSE registration.** Does operating PINTAR for this pilot require registration as a private electronic system operator (PSE Lingkup Privat)? If so, before the pilot or before wider use?
-3. **Retention and deletion (roadmap decision R-2).** For each kind of record we keep, is our proposed retention lawful and proportionate? The records are: account data, learning activity and answers, results, audit records, and backups. The proposal is attached on request. In particular: may a backup keep data after a person's deletion request, until the backup expires (privacy line O11)?
+3. **Retention and deletion (roadmap decision R-2).** For each kind of record we keep, is our proposed retention lawful and proportionate? The records are: account data, learning activity and answers, results, audit records, and backups. The proposal is attached on request. Off-site backups are encrypted to two recovery keys held by separate custodians. In particular: may a backup keep data after a person's deletion request, until the backup expires (privacy line O11)?
 4. **Data location (E-K6-1).** Is holding the pilot's personal data with providers outside Indonesia acceptable? What safeguards or notices does UU PDP require for that transfer?
 5. **Content rights (Q5).** Educators upload or import their own teaching material and questions. What licence or terms should PINTAR obtain from the school and the educators to store, display and reuse that content within the school?
 6. **Notices and consent for adults.** What must the pilot's privacy notice say? Is consent the right basis for an adult learner's data, or another basis such as a contract with the school?
-7. **Looking ahead: learners under 18.** At a high level only, which of the answers above change when the platform later serves children (parental consent, and the minors' provisions)? This is for planning; it does not ask for full advice now.
+7. **Breaches and people's requests.**
+   - Under UU PDP, what must be in place before the pilot to handle a personal-data breach? Who notifies whom (the authority, the school, the people affected), how fast, and is that PINTAR's duty or the school's?
+   - What response times apply to an adult's request to access, correct or delete their data?
+   - Is PINTAR's existing account-closure and deletion process (a request, then closure, then anonymisation) sufficient, or what must be added?
+8. **Looking ahead: learners under 18.** At a high level only, which of the answers above change when the platform later serves children (parental consent, and the minors' provisions)? This is for planning; it does not ask for full advice now.
 
 ## 3 · What we ask for
 
-- A written view on questions 1–6 for the pilot, with any condition stated so that we can verify it.
-- A short note on question 7.
+- A written view on questions 1–7 for the pilot, with any condition stated so that we can verify it.
+- A short note on question 8.
 - Anything in the pilot's design you would change before it starts.
 
 **Attached on request:**
