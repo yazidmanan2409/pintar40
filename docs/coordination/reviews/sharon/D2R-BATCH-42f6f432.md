@@ -86,3 +86,17 @@ Every gate reads `bersertifikasi` (condition 2):
 - R1-K01 to K03 are database refusals of start, resume, `record_answer` and submit, after leaving, transfer and rollover. The sitting ends with the enrolment.
 - Plant `zr1-1` turns K01 red.
 - **Closed on CI green.**
+
+## Addendum · the delta `42f6f432` → final `5dace1ad`: PASS, conditional on ci 45326703706 and journeys 45326707108 (24 Nov 2026, 04:45 UTC)
+
+- **No migration change.** The delta is app and strings, the evidence header and tests only.
+- **The certificate on the result page: no new disclosure.**
+  - `engine.myCertificate(db, post_session)` is the learner's own certificate read, the same one `/lanjut` and the certificate page use, under the learner's session.
+  - It is read only on a certifying pass, and only its status is used (`rendersCredential`).
+- **Section B and the print** (`KomposisiMurid`, `hasil-belajar.ts`): certifying rows name their sections from the server's `tujuan_ulang` (`bagianUlang` with no figures), marked «baca lagi», with **no number**. The non-certifying rows are unchanged. This matches R-h.
+- **«Baca lagi:» on a pass** (74a item 2) uses the same server list. The retake line stays on «Belum lulus».
+- **Nit, not a condition (for Daisy and Bob):** a certifying pass whose certificate will never be issued shows «Sertifikat Anda sedang disiapkan.», which would be untrue. That happens when the sitting is not official evidence (INV-20), so `certificate_eligibility` is false. **The fix:**
+  - show the line only when the certificate read returns a row in a preparing state;
+  - on a null read, show the link alone, and let the certificate page say why.
+- **Ruling 90's strings** (`lapor.langkah`) are wording only. BOB15-K01 is green, as Bob reports.
+- **The header note:** closed at `2d3986ff` (my check above).
