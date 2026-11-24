@@ -1,6 +1,6 @@
-# Audit 79 · Daisy's findings, complete list (as of 24 Nov 2026, 20:15Z)
+# Audit 79 · Daisy's findings, complete list (as of 24 Nov 2026, 20:30Z)
 
-Compiled by Bob from Daisy's eleven journey files, `docs/coordination/ux/roadmap/AUDIT-79-TEMUAN-J2.md` to `…-J12.md`, on `ux-1/daisy-experience` at `5d0096b7`. The ledger references are from `docs/post-4.1/AUDIT-79-LEDGER.md`.
+Compiled by Bob from Daisy's eleven journey files, `docs/coordination/ux/roadmap/AUDIT-79-TEMUAN-J2.md` to `…-J12.md`, on `ux-1/daisy-experience` at `dde3c077`. The ledger references are from `docs/post-4.1/AUDIT-79-LEDGER.md`.
 
 **Severity** is the final one in the ledger. Where Sharon classified a finding, her classification is binding.
 
@@ -15,12 +15,12 @@ Compiled by Bob from Daisy's eleven journey files, `docs/coordination/ux/roadmap
 |---|---|
 | Critical | 1 (J7-1) |
 | High | 1 (J7-10) |
-| Significant | 19 |
-| Improvement | 46 |
-| **Open findings** | **67** |
+| Significant | 20 |
+| Improvement | 51 |
+| **Open findings** | **72** |
 | Not counted: confirmations of an earlier row, a harness note, a world artefact, no change proposed | 6 (J4-2, J4-5, J5-2, J5-5, J12-4, J3-9) |
 
-**Captures still to come:** J2, J3, J4, J7 and J10 are fully judged against the builder's captures. J5, J6, J8, J9, J11 and J12 are walked by Daisy, and the builder's captures are pending (J5 is in progress), so those journeys may still add findings.
+**Captures still to come:** J2, J3, J4, J7 and J10 are fully judged against the builder's captures. J5, J6, J8, J9, J11 and J12 are walked by Daisy (J5 fully, with the builder's harness, at 20:28Z), and the builder's captures are pending (J5 is in progress), so those journeys may still add findings.
 
 **The dimensions** are A to H from Daisy's script. **V** means visual and **[S]** means Sharon decides the confidentiality side.
 
@@ -69,13 +69,19 @@ Compiled by Bob from Daisy's eleven journey files, `docs/coordination/ux/roadmap
 
 ## J5 · A teacher's week
 
-Partly walked; the builder's capture is in progress.
+Fully walked by Daisy (the rest with the builder's harness, `dde3c077`); the builder's capture is in progress.
 
 | Daisy # | Ledger | Severity | Finding | Proposed fix |
 |---|---|---|---|---|
 | J5-1 | L-79 | **Significant** | «Siap disediakan» for a chapter with no pass mark; «Sediakan» is offered and then refused | «Menunggu batas ketuntasan dari admin sekolah»; no button until the mark exists |
 | J5-3 | L-81 | Improvement | «Langkah berikutnya» offers an Uji Cepat that can't run | Not offered until a chapter is given; the empty state links «Siapkan materi» |
 | J5-4 | L-82 | Improvement | «Siapkan» still says «capaian» where D2-R changed it to «lulus» | «…bila murid lulus Uji Penguasaan…» |
+| J5-6 | L-118 | **Significant** | The learner isn't told how long an Uji Cepat stays open: a date with no time, and a clock that counts up, while the teacher sees «Sisa waktu 28 menit» | «Ditutup pukul {jam} WIB (sisa {n} menit)»; remaining time in the sitting; a notice at 5 minutes |
+| J5-7 | L-119 | Improvement | «Tambah waktu» is offered on an untimed sitting, in the danger style | «Tanpa batas waktu…» and no button; a normal style where offered |
+| J5-8 | L-120 | Improvement | «Ubah jadwal»'s required reason is held only by the browser's bubble | PINTAR's own line (C-10) |
+| J5-9 | L-121 | Improvement | One Uji Cepat shows two times in two formats | One label from one timestamp |
+| J5-10 | L-122 | Improvement | A result link missing its parameter gets a permission refusal | «Uji Cepat ini tidak ditemukan…» + the link |
+| J5-11 | L-123 | Improvement | During an emergency stop, the teacher gets the learner's page | A staff variant of the words |
 
 ## J6 · Authoring with AI drafts
 

@@ -443,3 +443,22 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
 | L-115 (J10-6) | Two sign-in layouts: /terkunci and /perangkat have no panel and cramped spacing; «Minta akun dibuka kembali» isn't an h1 | G, F | J10 | Improvement | — | The visual pass; the h1 is an accessibility fix in AR-79 |
 | L-116 (J10-7) | /perangkat, opened from Akun saya, still says «ubah nanti di Akun saya» | A | J10 | Improvement | Principle 4 | With L-113 |
 | L-117 (J10-8) | Three wrong PINs end with the same line as the 60-minute end | A | J10 | Improvement (optional, Daisy) | C-6 | AR-79 if within scope; Sharon confirms the distinct line reveals nothing to a stranger |
+
+**J5's remaining parts walked (Daisy, `dde3c077`, with the builder's `j5.mjs` at `6b248975`, 1280):**
+- L1 to L5 reached their end; L7 and L8 were judged from the screens they reached; L6 needs OFFICIAL evidence.
+- **Holds:** «Siapkan» an Uji Cepat; the teacher's running view (a count, not a judgement); the emergency stop's learner side; the late joiner's window counted from when it was given; «Ubah jadwal»'s own date words.
+- **Harness notes, sent to the builder:**
+  - L2 must tab to the checked radio;
+  - L6 needs OFFICIAL evidence;
+  - L7 must fill «Alasan» and type the date independent of locale;
+  - the result page needs `?penugasan=`.
+- **World question for the builder:** can a real school show «Sudah mengumpulkan» beside «Belum ada Uji Penguasaan dari murid ini»? If yes, it becomes «…yang dapat dihitung…».
+
+| L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
+|---|---|---|---|---|---|---|
+| L-118 (J5-6) | **The learner isn't told how long an Uji Cepat stays open.** The start page shows «DITUTUP · Rabu, 25 Nov 2026», with no time, and the sitting's clock counts up. A late joiner has 28 minutes, which the teacher sees («Sisa waktu 28 menit») and he doesn't | F, B, C | J5 | **Significant** | C-3 | «Ditutup pukul {jam} WIB (sisa {n} menit)»; remaining time in the sitting for a windowed assessment; one quiet notice at 5 minutes |
+| L-119 (J5-7) | «Tambah waktu» is offered on a sitting with no time limit, and drawn in the danger style | F, V | J5 | Improvement | C-7; widens L-47 | «Tanpa batas waktu · jadwal ditutup {tanggal}» with no «Tambah waktu»; a normal button where it's offered |
+| L-120 (J5-8) | «Ubah jadwal»'s required «Alasan» is held only by the browser's bubble | G | J5 | Improvement | C-10 | With L-88 and L-77 |
+| L-121 (J5-9) | One Uji Cepat shows two times in two formats (03:16 raw against 03.20 WIB) | H, B | J5 | Improvement | C-6; C-3 | One label from one timestamp |
+| L-122 (J5-10) | A result link missing its parameter gets a permission refusal | H | J5 | Improvement | Next to C-9 (a refusal naming the wrong cause) | «Uji Cepat ini tidak ditemukan. Buka dari halaman Uji Cepat kelas.» + the link |
+| L-123 (J5-11) | During an emergency stop, the teacher gets the learner's page («buka lagi asesmen tersebut») | H | J5 | Improvement | C-6 | Daisy's staff variant |
