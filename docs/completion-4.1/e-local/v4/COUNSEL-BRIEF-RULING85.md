@@ -1,6 +1,7 @@
 # Request for legal advice: AI-assisted question drafting in PINTAR
 
 **From:** the owner of PINTAR. Prepared by the PINTAR team for the owner to send (ruling 85, 23 Nov 2026).
+**Status:** FINAL (24 Nov); Sharon: FIT TO SEND (`60691d59`). Sent together with part 2 (`COUNSEL-BRIEF-PART2-FIRST-USE.md`). **Scope and fees are subject to the owner's separate approval.**
 **Providers in scope:** OpenAI (API platform) and Anthropic (API platform). Each is a separate candidate, assessed on the same questions.
 
 **Before any work begins, please confirm your fee estimate for this request.** No fees are to be incurred until the owner has confirmed the estimate in writing.
