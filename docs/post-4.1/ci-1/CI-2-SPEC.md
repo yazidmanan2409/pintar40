@@ -188,3 +188,10 @@ There are no further pushes or reruns unless a failure is root-caused (ruling 93
 5. One push, and PR #31's ci plus the journeys, once each.
 6. Sharon checks the delta only.
 7. The owner's request.
+
+**V-1's words (Daisy, CI2-KATA §6, `d87ef205`), key `aktivasi.kartu_ulang.tidak_dapat_dipakai`, in place of the category and the reset button:**
+- **ID:** «Kartu dan PIN baru untuk {nama} belum dapat dibuat sekarang, karena akunnya sedang tidak dapat dipakai. Tanyakan kepada admin sekolah Anda; admin sekolah dapat menanyakannya kepada Admin PINTAR.»
+- **EN:** «A new card and PIN can't be made for {nama} right now, because the account can't be used at the moment. Ask your school admin; a school admin can ask Admin PINTAR.»
+- **Two words are avoided:** «terkunci» (it clashes with the session lock) and «tidak aktif» (it reads as not yet activated).
+- **§5's category-naming variants are superseded** wherever V-1 applies.
+- **The test:** the line is identical for DITUTUP and DITANGGUHKAN, with no category in the RPC result or the DOM.
