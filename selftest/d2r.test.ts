@@ -342,32 +342,38 @@ export const d2rTests: SelfTest[] = [
       const c = new Checks();
       const { t } = await import("../src/lib/hle");
       const id = (k: string) => t(k as never, "learner", { locale: "id" });
-      // ruling 74a item 4, Daisy's D2R-KATA §9 (d79a3c8b): directly after the «Lulus» banner, the certificate. Issued: the
-      // link «siklus.lihat_sertifikat». Not yet issued: «Sertifikat Anda sedang disiapkan.» then the same link, one line;
-      // never sertifikat.disiapkan.arti («akan muncul di sini» is false here)
-      const terbit = renderHasil(ctx.repoRoot, hasilLulus({ sertifikatTerbit: true }));
-      const siap = renderHasil(ctx.repoRoot, hasilLulus({ sertifikatTerbit: false }));
-      const belum = renderHasil(ctx.repoRoot, hasilLulus({ sertifikatTerbit: false, outcome: { ...hasilLulus().outcome, lulus: false } }));
-      if (!c.expect(terbit.ok && siap.ok && belum.ok, `HasilBersertifikasi could not be rendered: ${terbit.err || siap.err || belum.err}`)) return c.verdict("");
+      // ruling 74a item 4, Daisy's §9, Sharon's delta note (ruling 90's principle): «Sertifikat Anda sedang disiapkan.» only
+      // when a certificate is really being prepared (my_certificate returns a row in ELIGIBLE). Issued, no row (a pass that
+      // will never be certified, INV-20) or a failed read: the link alone. Never sertifikat.disiapkan.arti.
+      const kontrak = await import("../src/lib/sertifikat-kontrak") as { sedangDisiapkan?: (r: { status: string } | null | undefined) => boolean };
+      const f = kontrak.sedangDisiapkan;
+      if (c.expect(typeof f === "function", "src/lib/sertifikat-kontrak.ts has no sedangDisiapkan")) {
+        c.expect(f!({ status: "ELIGIBLE" }) === true, "a certificate being prepared (ELIGIBLE) is not said to be prepared");
+        for (const st of ["ISSUED", "REVOKED", "SUPERSEDED"]) c.expect(f!({ status: st }) === false, `a ${st} certificate is said to be prepared`);
+        c.expect(f!(null) === false && f!(undefined) === false, "a pass with no certificate row (never certified, or a failed read) is said to be prepared");
+      }
+      const siap = renderHasil(ctx.repoRoot, hasilLulus({ sertifikatDisiapkan: true }));
+      const tanpa = renderHasil(ctx.repoRoot, hasilLulus({ sertifikatDisiapkan: false }));
+      const belum = renderHasil(ctx.repoRoot, hasilLulus({ sertifikatDisiapkan: true, outcome: { ...hasilLulus().outcome, lulus: false } }));
+      if (!c.expect(siap.ok && tanpa.ok && belum.ok, `HasilBersertifikasi could not be rendered: ${siap.err || tanpa.err || belum.err}`)) return c.verdict("");
       const baris = (h: string) => {
         const akhir = h.indexOf("</div>", h.indexOf('data-keputusan="lulus"'));
         const i = h.indexOf('<p data-sertifikat=""');
         return { tepat: akhir >= 0 && i === akhir + "</div>".length, isi: i >= 0 ? h.slice(i, h.indexOf("</p>", i) + 4) : "" };
       };
       const lihat = id("siklus.lihat_sertifikat");
-      const T = baris(terbit.out), S = baris(siap.out);
-      c.expect(T.tepat && S.tepat, "the certificate is not directly after the «Lulus» banner");
-      c.expect(/href="\/belajar\/t1\/sertifikat"/.test(T.isi) && teksHtml(T.isi) === lihat, `an issued certificate is not exactly the link «${lihat}»: «${teksHtml(T.isi)}»`);
+      const S = baris(siap.out), T = baris(tanpa.out);
+      c.expect(S.tepat && T.tepat, "the certificate is not directly after the «Lulus» banner");
+      c.expect(/href="\/belajar\/t1\/sertifikat"/.test(T.isi) && teksHtml(T.isi) === lihat, `issued, none or unread: not exactly the link «${lihat}»: «${teksHtml(T.isi)}»`);
       const harapSiap = `${id("sertifikat.disiapkan.judul")}. ${lihat}`;
-      c.expect(/href="\/belajar\/t1\/sertifikat"/.test(S.isi) && teksHtml(S.isi) === harapSiap, `a certificate not yet issued does not read «${harapSiap}», as one line: «${teksHtml(S.isi)}»`);
-      c.expect(!teksHtml(siap.out).includes(id("sertifikat.disiapkan.arti")) && !teksHtml(terbit.out).includes(id("sertifikat.disiapkan.arti")), "the result draws sertifikat.disiapkan.arti");
-      // §9's order on a pass: the certificate before «Baca lagi:», no retake line
+      c.expect(/href="\/belajar\/t1\/sertifikat"/.test(S.isi) && teksHtml(S.isi) === harapSiap, `being prepared: not «${harapSiap}», as one line: «${teksHtml(S.isi)}»`);
+      c.expect(!teksHtml(siap.out).includes(id("sertifikat.disiapkan.arti")) && !teksHtml(tanpa.out).includes(id("sertifikat.disiapkan.arti")), "the result draws sertifikat.disiapkan.arti");
       c.expect(siap.out.indexOf("data-sertifikat") < siap.out.indexOf("data-baca-lagi") && !/data-ulang-boleh/.test(siap.out), "on a pass the certificate is not before «Baca lagi:», or a retake line is drawn");
       c.expect(!/\/sertifikat"/.test(belum.out), "a «Belum lulus.» result links to a certificate");
       const hasil = tanpaKomentar(baca(ctx.repoRoot, "src/app/belajar/[tugas]/hasil/page.tsx")).replace(/\s+/g, " ");
-      c.expect(/engine\.myCertificate\(/.test(hasil) && /rendersCredential\(/.test(hasil) && /<HasilBersertifikasi\b[^>]*\bsertifikatTerbit=\{/.test(hasil),
-        "the chapter result page does not hand HasilBersertifikasi whether the certificate is issued (myCertificate, rendersCredential)");
-      return c.verdict("rendered: directly after a certifying «Lulus» banner, an issued certificate is the link «Lihat sertifikat»; one not yet issued is «Sertifikat Anda sedang disiapkan.» and the same link, one line, never sertifikat.disiapkan.arti; both before «Baca lagi:», no retake line; «Belum lulus.» links to none; the page reads myCertificate");
+      c.expect(/engine\.myCertificate\([^)]*\)\.catch\(\(\) => null\)/.test(hasil) && /sedangDisiapkan\(/.test(hasil) && /<HasilBersertifikasi\b[^>]*\bsertifikatDisiapkan=\{/.test(hasil),
+        "the chapter result page does not decide «sedang disiapkan» by sedangDisiapkan over myCertificate (a failed read as none)");
+      return c.verdict("sedangDisiapkan: ELIGIBLE only; ISSUED, REVOKED, SUPERSEDED, no row and a failed read are not; rendered: directly after a certifying «Lulus» banner, a certificate being prepared reads «Sertifikat Anda sedang disiapkan.» and the link as one line, otherwise the link alone; never .arti; before «Baca lagi:», no retake line; «Belum lulus.» links to none; the page decides by sedangDisiapkan over myCertificate");
     },
   },
   {

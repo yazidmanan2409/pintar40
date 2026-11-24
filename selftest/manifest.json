@@ -7537,7 +7537,7 @@
     {
       "id": "D2R-C05",
       "runner": "static",
-      "proves": "D2-R ruling 74a item 4, Daisy's D2R-KATA §9 (d79a3c8b), red first, d2r.test.ts, renders src/components/siklus/HasilBersertifikasi.tsx and reads src/app/belajar/[tugas]/hasil/page.tsx: directly after a certifying «Lulus» banner an issued certificate is the link siklus.lihat_sertifikat; one not yet issued is «sertifikat.disiapkan.judul.» and the same link as one line, never sertifikat.disiapkan.arti; both before «Baca lagi:», no retake line; «Belum lulus.» links to none; the page reads myCertificate."
+      "proves": "D2-R ruling 74a item 4, Daisy's §9 and Sharon's delta note, red first, d2r.test.ts, executes sedangDisiapkan in src/lib/sertifikat-kontrak.ts, renders src/components/siklus/HasilBersertifikasi.tsx and reads src/app/belajar/[tugas]/hasil/page.tsx: «sedang disiapkan» only for a certificate in ELIGIBLE; issued (ISSUED, REVOKED, SUPERSEDED), no row or a failed read gives the link siklus.lihat_sertifikat alone; directly after the «Lulus» banner, never .arti, before «Baca lagi:»; «Belum lulus.» links to none."
     },
     {
       "id": "D2R-C06",
