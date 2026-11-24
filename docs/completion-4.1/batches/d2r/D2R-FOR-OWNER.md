@@ -73,7 +73,7 @@
   - R-2;
   - the backup.
 
-## 6 · Outcome (24 Nov 2026): G-3 CLOSED
+## 6 · Outcome (24 Nov 2026): ready for the owner's acceptance; G-3 closes on it
 
 1. **Frozen** at `177ab4d2` by the freeze check:
    - all approved changes are in;
@@ -90,7 +90,7 @@
    - every certifying mode has assistance and reveal off;
    - 0 sittings are uncaptured, and 0 open certifying sittings offer help;
    - the periksa counter rose from 177,828 to 177,981 after the owner's staging page load.
-7. **Sharon: PASS on the promotion; R-1 is CLOSED.**
+7. **Sharon: FINAL, an unconditional PASS on the promotion; R-1 is CLOSED.** Staging acceptance is the owner's.
 
 **Disclosed, not blocking:** L-43 in the audit-79 ledger. The teacher's sittings screen does not yet draw «Kesempatan ke-{n}», although the read carries it. It goes into the audit's consolidated revision.
 
