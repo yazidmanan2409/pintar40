@@ -585,3 +585,6 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
 | L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
 |---|---|---|---|---|---|---|
 | L-141 (J5-12) | «Minta membaca lagi» pre-ticks the whole chapter, not the lessons of the unmet objective; «target 60%» floats | F, B | J5 | Improvement | C-5 (recommendations not from the result in force) | Pre-tick the unmet objective's lessons |
+- **Sharon on L-127 (21:35Z): CONFIRMED.** The same name with neither NIS nor birth date is a possible duplicate, with a per-pair admin choice, recorded, and «Catat» held until every pair is chosen.
+  - **Amendment:** «Orang yang sama: hapus baris {b}» removes only that import row. It never merges or deletes an existing person record, which stays a separate, audited admin act.
+  - It becomes an AR-79 test.
