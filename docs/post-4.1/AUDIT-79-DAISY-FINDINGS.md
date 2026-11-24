@@ -90,7 +90,7 @@ Fully walked by Daisy (the rest with the builder's harness, `dde3c077`); the bui
 | J6-1 | L-83 | Improvement | The package head says only «Perlu tindakan», and the actual step sits at the bottom | «Sekarang: Periksa isi», plus the count of drafts waiting |
 | J6-2 | L-84 | Improvement | «Terima» on a draft gives no confirmation | «✓ Soal {n} diterima.», announced |
 | J6-3 | L-85 | Improvement | The AI allowance is never shown before a request | «Sisa jatah AI sekolah…» (Sharon decides whether to show it) |
-| J6-4 | L-124 | **Significant** (Sharon; HIGH if any path skips the publication re-check) | «Tandai lolos pemeriksaan» is offered and accepted before any content check has run; the later check found 4 findings | Offer it only after a check on the current content; bind the mark to the checked revision; the database refuses the mark and any stale approval |
+| J6-4 | L-124 | **Significant** (Sharon; HIGH if any path skips the publication re-check) | Restated after a code check: the button does run the check (the 4 findings were warnings), but the database doesn't enforce it and the mark isn't bound to the checked content; the step's words don't match what the button does | Offer it only after a check on the current content; bind the mark to the checked revision; the database refuses the mark and any stale approval |
 | J6-5 | L-125 | Improvement | The rights tick is cleared after a refusal, so the resend is refused again | Keep the tick, or say to re-tick it |
 | J6-6 | L-126 | **Significant** (Sharon) [S] | Allowance and ceiling refusals aren't recorded in the request log | A closed reason code in the same transaction, and a CHECK against an empty result; before AI is activated |
 
