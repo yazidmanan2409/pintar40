@@ -1,0 +1,21 @@
+CI-1 after-promotion checks on staging (pintar-staging, keijhmdtsgrfvnvocfvk), read only, 2026-11-24 ~22:34Z, after staging.yml run 45500905721 (success).
+
+v6-pre-request.sql (main 93b93134, verbatim)          : OK
+c3w-r3-bahan.sql (main 93b93134, verbatim)            : OK
+CI-1's new functions present                          : sertifikat_dipersoalkan(p_certificate uuid), sertifikat_dipersoalkan_sekolah(p_sekolah uuid), sertifikat_hasil_lulus(p_session uuid)
+S-1 refusal in putuskan_tinjauan_sertifikat           : CERT_REVIEW_RESULT_NO_LONGER_PASSES present (true)
+client_rpc_registry 'sertifikat_dipersoalkan_sekolah' : 1 row (the one metadata row the migration inserts)
+EXECUTE grants                                        : anon on sertifikat_hasil_lulus false, authenticated on it false,
+                                                        anon on sertifikat_dipersoalkan false, anon on sertifikat_dipersoalkan_sekolah false,
+                                                        anon on putuskan_tinjauan_sertifikat false, anon on verify_certificate false
+                                                        (verify_certificate is service_role only, unchanged since 20270115110000; the
+                                                        public check calls it server-side from src/app/api/verifikasi/[token]/route.ts)
+Certificate states now (through the one helper)       : ISSUED and BERLAKU 60, REVOKED 6; none DITINJAU.
+                                                        That matches step 0's prediction (60 issued, none turning DITINJAU).
+
+PRESERVATION: BEFORE (22:25:24Z) and AFTER compared mechanically (diff of the 66 numbered lines): ONLY line 10 moves,
+309 / 20270124100000 -> 310 / 20270125100000. The other 65 lines are identical.
+
+A transcription note, disclosed: the first write of the AFTER file lost a trailing space on line 76 (the query returns "76|0 "
+on both reads: a count followed by an empty list). The diff showed it; the file was corrected to the verbatim output, and the
+diff then showed line 10 alone. It was not a data change.

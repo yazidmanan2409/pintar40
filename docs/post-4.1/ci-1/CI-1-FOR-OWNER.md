@@ -50,3 +50,12 @@ CI-1's evidence stands as stated.
    - both runs read `success` from the API.
 5. **Merged** as a merge commit, pinned to the expected head: main **`93b93134`** (parents `429b7dcc`, `94ce6727`). **Its tree is identical to `94ce6727`'s.**
 6. **Staging promotion:** `staging.yml` run **45500905721**, triggered by the push to main, which adds a migration.
+7. **The staging run concluded `success`** (API, 22:27:06Z). Staging reads **310 / `20270125100000`**.
+8. **AFTER** (`promotion/preservation-CI1-staging-AFTER.txt`), read-only, with BEFORE's cutoff and watermark: compared mechanically, **only line 10 moves**; the other 65 lines are identical. (One transcription slip, a lost trailing space on line 76, was caught by the diff and corrected to the verbatim output. Disclosed in the checks file.)
+9. **After-promotion checks** (`promotion/after-promotion-CI1-staging.txt`):
+   - v6-pre-request OK, c3w-r3-bahan OK;
+   - the three new functions are present, and the S-1 refusal is in place;
+   - the one registry row is there;
+   - no anon grant on any certificate function (verify_certificate is service-role only, as before);
+   - **60 issued certificates read BERLAKU, 6 revoked, none DITINJAU**, as step 0 predicted.
+10. **Next:** Sharon's independent promotion verification. CI-1 isn't declared closed until she returns it.
