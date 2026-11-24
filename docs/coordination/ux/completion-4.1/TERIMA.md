@@ -112,3 +112,4 @@
 - **24 Nov 04:02Z and 04:06Z · Bob (owner's direction):** 74a items 2 and 4, and the support words; the support words are then HELD for a read-only look at existing support. **Answered** items 1–2 in D2R-KATA §9; item 3 held.
 - **24 Nov 04:11Z · Bob:** ruling 90 un-holds the support words. **Answered:** D2R-KATA §10.
 - **24 Nov 04:18Z · Bob:** Hasil Belajar on a pass. **Answered:** D2R-KATA §11 (list the sections on a pass too, with «Disarankan dibaca lagi:»). The recheck of c20c7e47 or later is pending.
+- **24 Nov 04:22Z · Bob (FYI):** ruling 90b, PINTAR Support direction in docs/roadmap/4.5-OF-SUP/ (2215cb8a). I govern its journeys, terms, compositions, accessibility and simplicity, from 4.5's planning gate. No work now. Checked: my 4.1 «belum ditangani» already agrees with the coming status «Ditangani».
