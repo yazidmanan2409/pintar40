@@ -8,7 +8,7 @@
 
 On the decider's confirmation, `akun.dibuka.kredensial_staf`:
 - ID: «✓ Akun {nama} dapat dipakai lagi. Password lamanya tidak berlaku lagi. Beri tahu {nama}: buat password baru lewat «Lupa password?» di halaman masuk, dengan email akun ini.»
-- EN: «✓ {nama}'s account can be used again. The old password no longer works. Tell {nama}: make a new password with «Forgot password?» on the sign-in page, using this account's email.»
+- EN: «✓ {nama}'s account can be used again. The old password no longer works. Tell {nama}: make a new password with «Forgot your password?» on the sign-in page, using this account's email.»
 
 **This is the "before the first attempt" channel.** The decider has just confirmed the person's identity (the reopening path already requires it), so telling the person is part of the same contact.
 
@@ -22,7 +22,7 @@ On the decider's confirmation, `akun.dibuka.kredensial_staf`:
 
 Under the existing refusal, never instead of it, `masuk.dibuka_kembali_baru`:
 - ID: «Akun yang baru dibuka kembali memakai password atau PIN baru. Staf: buat password baru lewat «Lupa password?». Murid: minta PIN baru kepada sekolah.»
-- EN: «An account that was just reopened uses a new password or PIN. Staff: make a new password with «Forgot password?». Learners: ask the school for a new PIN.»
+- EN: «An account that was just reopened uses a new password or PIN. Staff: make a new password with «Forgot your password?». Learners: ask the school for a new PIN.»
 
 **Confidentiality:** shown to everyone, whatever was typed. It names no account, state or holder (ruling 98; J10's marking). It also covers J10-2 (the school-reset PIN), so one line serves both.
 
@@ -37,3 +37,13 @@ Under the existing refusal, never instead of it, `masuk.dibuka_kembali_baru`:
 | PIN recovery and the card sign-in (learners) | **No, as worded** | A learner's account is closed or suspended by the school, not reopened by an Admin PINTAR request (`ACCOUNT_LEARNER_VIA_SCHOOL`). On learner pages, «meminta dibuka kembali» sends a child to a form that isn't theirs. **Learner variant:** «Bila akun Anda ditutup atau ditangguhkan, tanyakan kepada admin sekolah Anda.» (EN: «If your account was closed or suspended, ask your school admin.») |
 
 **Order on each page:** the refusal, then §3's line, then F-6 (or its learner variant). That is three short lines, from the most common cause to the least.
+
+## EN confirmation before CI-2 freezes (24 Nov 18:50Z, asked by Bob)
+
+The six EN lines are **confirmed with one required correction**:
+- **Required:** the app's EN label is «Forgot your password?» (`auth.pw_lupa`), not «Forgot password?». A quoted button must match the button. The correction applies in `akun.dibuka.kredensial_staf` and `masuk.dibuka_kembali_baru`, and is made above.
+- **Optional:** in `masuk.dibuka_kembali_baru`, «ask your school for a new PIN» reads more naturally than «ask the school». It is not required.
+- **Checked:**
+  - «Account activation» matches `nav.aktivasi`.
+  - «sign-in page» is already used in the app.
+  - `masuk.f6`, `masuk.f6_murid` and `akun.dibuka.kredensial_murid_tautan` («Make a new PIN for {nama}») are confirmed as written.

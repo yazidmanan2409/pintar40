@@ -145,3 +145,4 @@
 - **24 Nov 14:10Z · Bob:** ruling 100, OD-1 approved; the CI2-KATA words go in as written. No overnight pressure. Next: judge the captures as they land.
 - 24 Nov 15:28Z · Bob: J7 captures (5e0d0392), C-4 waiting captures (e0aa6294), questions (a)–(c). → Judged and pushed at 0749d8ca. (a) is J7-9, Significant. (b) holds. (c) is J7-10: proposed Critical when revoked, Significant when replaced; Sharon decides. New: J7-11 to J7-13, J4-7, J3-11. L-45 and L-58 are evidenced. The J3, J4 and J7 builder lines are closed.
 - 24 Nov 15:32Z · Bob: Sharon rates L-105 HIGH; CI-1b print words wanted (DICABUT, DIGANTIKAN, DITINJAU; ID and EN). → CI1B-KATA.md. Chosen: a notice page, not a full-page mark. Raised for Bob: the QR and the link don't print on any state today, BERLAKU included.
+- 24 Nov 18:45Z · Bob (priority): confirm the CI-2 EN before the freeze. → Confirmed, with one required fix: «Forgot your password?» (auth.pw_lupa). Optional: «ask your school».
