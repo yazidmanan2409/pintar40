@@ -294,3 +294,13 @@ Nine findings: 5 Significant, 4 Improvement, none Critical. **The core cross-rol
 | L-83 (J6-1) | The package head says only «Perlu tindakan · Ada yang bisa Anda selesaikan sekarang»; the step itself is named only at the bottom | A, H | J6 | Improvement | C-4 | — |
 | L-84 (J6-2) | «Terima» gives no confirmation line | D | J6 | Improvement | — | — |
 | L-85 (J6-3) | The AI allowance is never shown before a request | A | J6 | Improvement | — | **Sharon decides** whether a figure may be shown to teachers |
+
+**J2, the builder's capture run (`da220028`), judged by Daisy (addendum to AUDIT-79-TEMUAN-J2.md, `61829330`):**
+- **No help on a lesson (L3): not a finding, and not a D2-R regression.** Lesson help comes from the lesson's worked example: the seeded Pecahan lessons show it, and W3's lessons have none. R-d removed help only from certifying sittings. The builder adds a worked example to one W3 lesson.
+- **The SR double drawing is not reproduced** at Pemetaan Awal q1. The builder sends the state and the ARIA excerpt; if confirmed, it's Significant (G).
+- **The name absent from the public page (L8):** holds, the intended privacy boundary.
+
+| L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
+|---|---|---|---|---|---|---|
+| L-86 | The certificate's verification address is shown on screen as text plus «Salin tautan verifikasi», not as a link | A, G | J2 | Improvement | — | On screen, a link («Buka halaman pemeriksaan»); on paper it stays text plus the QR |
+| L-87 | «Soal 1/3» is exposed to the screen reader as img | G | J2 | Improvement | — | Text or a status |
