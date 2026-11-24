@@ -745,3 +745,9 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
 - **The builder says:** `issue_institutional_id` is service_role only, called by the import pipeline. The fourth source, «persons awaiting a first role», «can only be learners».
 - **Daisy says:** a staff list with Peran and Tempat «Tidak dipakai» IS recorded, through that same import pipeline, as persons with no role and no class, who then appear in «Berikan peran» and were granted Guru.
 - **Bob:** the two fit if a row with no role passes `import_row_problems` (it refuses STAFF roles, not role-less rows). A reproduction outranks a reading, so L-149 stays withdrawn **pending the builder's own walk of Daisy's exact steps** (requested at 23:52Z). If that walk fails, L-149 returns and goes to the owner as material.
+- **L-152's access angle (Sharon asked whether a server-side last-admin guard exists).** Bob, from the code: **it does.**
+  - `role_assignments_guard` (`20270113170000`, B0, reinforced in `20270123170000`) sits on the UPDATE that writes `revoked_at`, so **every revoking path passes it** (`revoke_role`, `akhiri_tugas_staf`, `ubah_peran`, `buka_kembali_akun`, and any later one).
+  - It locks the school's `institutions` row FOR UPDATE before counting usable holders, so two admins revoking each other can't both pass.
+  - It refuses **`ROLE_LAST_SCHOOL_ADMIN`** (true cause, naming no one) unless the actor is an active platform admin. The words exist (`peran.galat.role_last_school_admin`).
+  - (Sharon's read of `revoke_role` in `20261111100000` is the function's last definition, but the guard is the trigger, not the function.)
+  - **So L-152 is UX:** the database refuses correctly, but the screen shows «…diakhiri oleh admin lain» and offers «Lepaskan». **AR-79** traces why the staff-page path maps the refusal to the wrong line (C-12), and draws the button disabled with the true cause.
