@@ -1,6 +1,6 @@
-# Audit 79 · Daisy's findings, complete list (as of 24 Nov 2026, 21:20Z)
+# Audit 79 · Daisy's findings, complete list (as of 24 Nov 2026, 21:30Z)
 
-Compiled by Bob from Daisy's eleven journey files, `docs/coordination/ux/roadmap/AUDIT-79-TEMUAN-J2.md` to `…-J12.md`, on `ux-1/daisy-experience` at `92eb2040`. The ledger references are from `docs/post-4.1/AUDIT-79-LEDGER.md`.
+Compiled by Bob from Daisy's eleven journey files, `docs/coordination/ux/roadmap/AUDIT-79-TEMUAN-J2.md` to `…-J12.md`, on `ux-1/daisy-experience` at `b8b97097`. The ledger references are from `docs/post-4.1/AUDIT-79-LEDGER.md`.
 
 **Severity** is the final one in the ledger. Where Sharon classified a finding, her classification is binding.
 
@@ -15,12 +15,12 @@ Compiled by Bob from Daisy's eleven journey files, `docs/coordination/ux/roadmap
 |---|---|
 | Critical | 1 (J7-1) |
 | High | 1 (J7-10) |
-| Significant | 23 |
-| Improvement | 59 |
-| **Open findings** | **84** |
+| Significant | 24 |
+| Improvement | 64 |
+| **Open findings** | **90** |
 | Not counted: confirmations of an earlier row, a harness note, a world artefact, no change proposed | 6 (J4-2, J4-5, J5-2, J5-5, J12-4, J3-9) |
 
-**Captures still to come:** J2, J3, J4, J7 and J10 are fully judged against the builder's captures. J5 is captured (`9be73ecf`), with Daisy to judge it. J6, J8, J9, J11 and J12 are walked by Daisy, and the builder's captures are pending (J6 is next), so those journeys may still add findings.
+**Captures still to come:** J2, J3, J4, J7 and J10 are fully judged against the builder's captures. J5 is captured (`9be73ecf`), with Daisy to judge it. J6, J8, J9, J11 and J12 are walked by Daisy, including the passes for J9, J11 and J12 (every journey's local walk is done), and the builder's captures are pending (J6 is next), so those journeys may still add findings.
 
 **The dimensions** are A to H from Daisy's script. **V** means visual and **[S]** means Sharon decides the confidentiality side.
 
@@ -138,6 +138,9 @@ Fully walked by Daisy (the rest with the builder's harness, `dde3c077`); the bui
 | J9-1 | L-94 | **Significant** | The promotion doesn't warn that it will strand a learner's open transfer (the upstream cause of L-35) | Name each learner with an open transfer; leave them out or proceed |
 | J9-2 | L-95 | Improvement | «4 naik ke 8A» is stated twice in a row | Keep one |
 | J9-3 | L-96 | Improvement | «menunggu persetujuan dari pihak lain», when PINTAR knows the school | Name the school |
+| J9-4 | L-135 | **Significant** | In EN, the whole transfers section of /konfigurasi stays Indonesian (its words are hard-coded) | Every string through the translation keys; one page-wide fix with J12-5 |
+| J9-5 | L-136 | Improvement | The promotion's heading is untranslated | With J9-4 |
+| J9-6 | L-137 | Improvement | EN grammar, and a duplicated «4 up to 8A» | With J9-2 |
 
 ## J10 · Locked out
 
@@ -163,6 +166,8 @@ Fully walked by Daisy (the rest with the builder's harness, `dde3c077`); the bui
 |---|---|---|---|---|
 | J11-1 | L-97 | Improvement | A «—» withheld for privacy is explained as «data belum cukup» | Give each «—» its own short reason |
 | J11-2 | L-98 | Improvement | «dari 10» doesn't say what it counts | «dari 10 ranah» |
+| J11-3 | L-138 | Improvement | Section letters differ between /pimpinan and the summary | One lettering |
+| J11-4 | L-139 | Improvement | An empty list, and inconsistent regions, for screen readers | — |
 
 ## J12 · Operating PINTAR
 
@@ -171,6 +176,7 @@ Fully walked by Daisy (the rest with the builder's harness, `dde3c077`); the bui
 | J12-1 | L-99 | **Significant** | The maintenance warning tells learners to sign out, and signing out then blocks their test (C-11) | The learner's banner: «Simpan jawaban Anda… Jangan keluar dari akun saat sedang mengerjakan asesmen.» |
 | J12-2 | L-100 | Improvement | A red «Batalkan» sits beside a plain «Batal», with different effects | «Tutup tanpa mengubah» |
 | J12-3 | L-101 | Improvement | «Mulai sekarang» cuts off people who were told 30 minutes, without saying so first | A confirmation that names the effect |
+| J12-5 | L-140 | Improvement | In EN, Konfigurasi's action results and a heading stay Indonesian | One page-wide fix with J9-4 |
 
 ---
 

@@ -553,3 +553,17 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
   - **Who may know why:** the integrity reviewer and those the existing referral process names. The learner is told by that process.
   - **Test (AR-79):** the teacher's reads, screen and RPC, for an overridden sitting carry no reason, reviewer or override record; only the counts and the "not countable" state.
   - This is principle 5 (confidentiality throughout the system) applied to an integrity outcome.
+
+**J9, J11 and J12's passes walked (Daisy, `73708759`, `b98f480f`, `b8b97097`, with the builder's harnesses at `6b248975`, 1280: EN, SR, throttled, reduced motion).** Every journey's local walk is now done.
+- **J9:** every pass reached the end with the same outcome, and the SR tree is good. The [S] suspended-requester case is still the builder's.
+- **J11:** every pass reached the end; EN and the print view are good; the SR tree exposes the chart as a list.
+- **J12:** L1 to L4 hold in every pass, and the SR tree is good. L5 and L6 need Mailpit, so they stay with CI's run.
+
+| L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
+|---|---|---|---|---|---|---|
+| L-135 (J9-4) | **In EN, /konfigurasi's transfers section stays wholly Indonesian** (title, status, Laksanakan/Tolak, the refusal, the request form). Its words are hard-coded in `konfigurasi/page.tsx` (around l.1899), although `pindah.*` EN keys exist | D, H | J9 | **Significant** | C-6 (words chosen per screen, bypassing the keys) | One page-wide fix with L-140: every string through `t()`; a sweep for hard-coded strings in `konfigurasi/page.tsx` and its siblings |
+| L-136 (J9-5) | The promotion's h1 is untranslated | D | J9 | Improvement | C-6 | With L-135 |
+| L-137 (J9-6) | EN grammar, and a duplicated «4 up to 8A» | H | J9 | Improvement | — | With L-95 |
+| L-138 (J11-3) | The section letters differ between /pimpinan and the summary (E vs D for Kesiapan bukti) | B | J11 | Improvement | C-6 | One lettering |
+| L-139 (J11-4) | An empty list, and inconsistent regions, in the accessibility tree | G | J11 | Improvement | — | — |
+| L-140 (J12-5) | In EN, Konfigurasi's action results and the section heading stay Indonesian although the EN keys exist | D | J12 | Improvement | C-6, likely the same cause as L-135 | One page-wide fix with L-135 |
