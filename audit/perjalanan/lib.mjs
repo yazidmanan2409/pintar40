@@ -233,3 +233,53 @@ export async function keluar(j) {
   await j.tekan(j.page.locator("button.pin-sesi-keluar").first());
   await j.page.waitForURL((u) => !/^\/(konfigurasi|belajar|mengajar|dekan|pimpinan|studio)/.test(u.pathname), { timeout: 30000 });
 }
+
+/** A chapter's key: question text → the correct options' text (read from the database; the order is shuffled per sitting). */
+export function kunciBab(kursus) {
+  return JSON.parse(baca(`select coalesce(json_object_agg(i.stem, (select json_agg(o.body) from public.item_options o where o.item_id = i.id and o.is_correct)), '{}')
+    from public.items i join public.lessons l on l.id = i.lesson_id join public.modules m on m.id = l.module_id where m.course_id = '${kursus}'`));
+}
+
+/** Answer every question of the sitting on screen by the key (or `ganti`, stem → the options chosen instead), by keyboard;
+ *  then finish it (or stop after `berhenti` questions, unfinished). Returns the counts. */
+export async function kerjakan(j, kunci, rec, foto, awalan, selesai, ganti = {}, berhenti = null) {
+  const { page } = j;
+  const artikel = page.locator("main article").first();
+  let n = 0, bantuan = [];
+  for (; n < 20; n++) {
+    await artikel.getByRole("heading").first().waitFor({ timeout: 30000 });
+    const stem = (await artikel.getByRole("heading").first().innerText()).trim();
+    const benar = ganti[stem] ?? kunci[stem];
+    if (!benar) throw new Error(`no key for the question «${stem.slice(0, 60)}»`);
+    if (n === 0) await foto(`${awalan}-soal-1`);
+    if (await page.getByRole("button", { name: /Perlu petunjuk|Need a hint/i }).count()) bantuan.push(n + 1);
+    for (const body of benar) {
+      const opsi = artikel.getByRole("button", { name: new RegExp(`^[A-F]\\s+${body.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`) }).first();
+      if ((await opsi.getAttribute("aria-pressed")) === "true") continue;   // already chosen (a resumed sitting): pressing it again would undo it
+      rec.tab += await j.tekan(opsi, 60);
+      await page.waitForFunction((el) => el.getAttribute("aria-pressed") === "true", await opsi.elementHandle(), { timeout: 15000 });
+    }
+    // the Uji Penguasaan keeps an answer only by «Simpan jawaban ini» (the Pemetaan Awal saves on choosing)
+    const simpan = page.getByRole("button", { name: /^(Simpan jawaban ini|Save this answer)$/i }).first();
+    if (await simpan.isVisible().catch(() => false)) { rec.tab += await j.tekan(simpan, 60); await page.waitForLoadState("networkidle").catch(() => {}); }
+    await page.waitForTimeout(600);   // the answer's save (the page says when one is not yet saved)
+    if (berhenti !== null && n + 1 >= berhenti) return { soal: n + 1, bantuan_ditawarkan_di: bantuan, berhenti: true };
+    const lanjut = page.getByRole("button", { name: /^(Berikutnya|Next)$/i }).first();
+    if (await lanjut.isEnabled().catch(() => false)) { rec.tab += await j.tekan(lanjut, 60); continue; }
+    break;
+  }
+  await foto(`${awalan}-soal-terakhir`);
+  rec.tab += await j.tekan(page.getByRole("button", { name: selesai }).first(), 60);
+  await page.waitForTimeout(1500);
+  // a confirmation asked inline («Kumpulkan sekarang? …») or in a dialog: its words recorded, then confirmed
+  const tanya = page.locator("main div, [role=dialog], [role=alertdialog]").filter({ hasText: /sekarang\?|now\?/i })
+    .filter({ has: page.getByRole("button", { name: selesai }) }).last();
+  if (await tanya.isVisible().catch(() => false)) {
+    await foto(`${awalan}-konfirmasi`);
+    rec.data[`${awalan}_confirm_words`] = (await tanya.innerText()).replace(/\s+/g, " ").slice(0, 300);
+    rec.tab += await j.tekan(tanya.getByRole("button", { name: selesai }).first(), 60);
+  }
+  await page.waitForLoadState("networkidle").catch(() => {});
+  await page.waitForTimeout(1500);
+  return { soal: n + 1, bantuan_ditawarkan_di: bantuan };
+}
