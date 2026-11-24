@@ -181,9 +181,36 @@ export function ringkas(perjalanan, hasil) {
  * a staff walk: a walk is longer than the shared computer's 5-minute lock) or "bersama". Returns where it landed and
  * the choice made, for the step's record. A journey that walks «Komputer siapa ini?» itself (J10) passes null.
  */
+/** the welcome tour opens over a home page at each sign-in; after the page is captured with it, a person skips it by keyboard so later captures are not covered */
+export async function lewatiTur(j) {
+  const b = j.page.getByRole("button", { name: /^Lewati tur$|^Skip tour$/ }).first();
+  if (!(await b.isVisible().catch(() => false))) return false;
+  await j.tekan(b);
+  await b.waitFor({ state: "hidden", timeout: 5000 }).catch(() => {});
+  return true;
+}
+
+/** /masuk with a live session shows «Anda sudah masuk» and «Keluar dari sesi ini»: a person presses it to sign in as someone else */
+async function keluarDiMasuk(j) {
+  const b = j.page.getByRole("button", { name: /^Keluar dari sesi ini$|^Sign out of this session$/ }).first();
+  if (!(await b.isVisible().catch(() => false))) return;
+  await j.tekan(b);
+  await j.page.locator("#identitas").waitFor({ timeout: 15000 }).catch(() => {});
+  if (!(await j.page.locator("#identitas").isVisible().catch(() => false))) { await j.page.goto(`${APP}/masuk`).catch(() => {}); await j.page.waitForLoadState("networkidle").catch(() => {}); }
+}
+
 export async function masukEmail(j, orang, perangkat = "pribadi") {
   const { page } = j;
-  if (!new URL(page.url()).pathname.startsWith("/masuk")) await page.goto(`${APP}/masuk`);
+  if (!new URL(page.url()).pathname.startsWith("/masuk")) await page.goto(`${APP}/masuk`).catch(() => {});
+  await page.waitForLoadState("networkidle").catch(() => {});
+  await keluarDiMasuk(j);
+  if (!(await page.locator("#identitas").isVisible().catch(() => false))) {
+    // /masuk sent a signed-in browser on (a redirect from the server can land on «localhost», whose cookies the 127.0.0.1 sign-out left alone)
+    await page.context().clearCookies();
+    await page.goto(`${APP}/masuk`).catch(() => {});
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await keluarDiMasuk(j);
+  }
   await j.ketik(page.locator("#identitas"), orang.email);
   await j.ketik(page.locator("#password"), orang.password);
   await page.keyboard.press("Enter");
@@ -230,6 +257,18 @@ export async function pilih(j, loc, label, maks) {
 
 /** Sign out by the session strip's «Keluar» (keyboard). */
 export async function keluar(j) {
+  // a page without the session strip (a 404, a maintenance page) has no «Keluar»: sign out from the home page instead
+  if (!(await j.page.locator("button.pin-sesi-keluar").first().isVisible().catch(() => false))) {
+    await j.page.goto(`${APP}/`).catch(() => {});
+    await j.page.waitForLoadState("networkidle").catch(() => {});
+  }
+  if (!(await j.page.locator("button.pin-sesi-keluar").first().isVisible().catch(() => false))) {
+    await j.page.context().clearCookies();   // no page offers it (e.g. during a maintenance): the browser forgets the session
+    await j.page.goto(`${APP}/masuk`).catch(() => {});   // a redirect in flight may abort this navigation
+    await j.page.waitForLoadState("networkidle").catch(() => {});
+    if (!new URL(j.page.url()).pathname.startsWith("/masuk")) await j.page.goto(`${APP}/masuk`).catch(() => {});
+    return;
+  }
   await j.tekan(j.page.locator("button.pin-sesi-keluar").first());
   await j.page.waitForURL((u) => !/^\/(konfigurasi|belajar|mengajar|dekan|pimpinan|studio)/.test(u.pathname), { timeout: 30000 });
 }
