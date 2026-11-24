@@ -36,6 +36,10 @@
    marked «baca lagi», with no figure; non-certifying rows keep «Pelajari lagi». The C line stays on «Belum lulus» rows
    only: a certifying one reads `hasilbelajar.berikutnya_baca_lagi` (Daisy §12, 1aff74f8), a non-certifying one keeps
    `berikutnya_ulang` (D2R-C07).
+   N-22: «Lihat sertifikat» is not printed (pin-noprint), on the result and the row. H-1 (the owner's ruling, relayed by
+   Bob): a certifying row on Hasil Belajar and its print shows no mastery figure (no Uji Penguasaan, Pemetaan Awal or
+   target percentage, bar or marks); the comparison line and legend only with a non-certifying row; the verdict and
+   «{b} dari {t} soal» stay; the database and staff views unchanged (D2R-C08).
 9. **Ruling 90** (Daisy §10, ccd42fa6): `lapor.langkah.awal` and `.awal_kelas` say only what the product does today; no
    time period (guarded), and «listed first» pinned to the triage order (D2R-L01); BOB15-K01 green.
 

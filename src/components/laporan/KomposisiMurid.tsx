@@ -32,6 +32,8 @@ export default function KomposisiMurid({ bab, locale, persona = "learner" }: { b
   // Daisy's §12: a certifying «Belum lulus» row's C line quotes the «baca lagi» its section B shows
   const bacaBelum = bacaLagi.filter((b) => b.tercapai === "BELUM");
   const adaB = selesai.some((b) => b.bagian.length > 0) || bacaLagi.length > 0;
+  // H-1: the bar's legend and the Pemetaan Awal comparison line only where a row draws figures (a non-certifying one)
+  const berAngka = selesai.some((b) => !b.bersertifikasi);
 
   let kalimat: string;
   if (selesai.length === 0) kalimat = s("hasilbelajar.belum_ada");
@@ -56,7 +58,7 @@ export default function KomposisiMurid({ bab, locale, persona = "learner" }: { b
         {nUlang > 2 ? <p className="pin-lk-kalimat-sub" data-ulang-banyak="">{s("hasilbelajar.ulang_banyak").replace("{n}", format.number(nUlang, locale))}</p> : null}
         {daftarBaca ? <p className="pin-lk-kalimat-sub" data-baca-lagi="">{s("hasilbelajar.baca_lagi").replace("{daftar}", daftarBaca)}</p> : null}
         {nBaca > 2 ? <p className="pin-lk-kalimat-sub" data-baca-lagi-banyak="">{s("hasilbelajar.baca_lagi_banyak").replace("{n}", format.number(nBaca, locale))}</p> : null}
-        {selesai.length > 0 ? (
+        {berAngka ? (
           <ul className="pin-lk-pita-ket" aria-hidden="true">
             <li><i className="pin-lk-titik-ket" data-awal="" />{s("hasilbelajar.awal")}</li>
             <li><i className="pin-lk-titik-ket" />{s("hasilbelajar.akhir")}</li>
@@ -85,15 +87,17 @@ export default function KomposisiMurid({ bab, locale, persona = "learner" }: { b
                 </li>
               );
             }
-            const v = b.akhir;
+            // H-1: a certifying row shows no mastery figure (no bar, marks or percentages), as its result page withholds it
+            const angka = !b.bersertifikasi;
+            const v = angka ? b.akhir : null;
             const kurang = b.tercapai === "BELUM";
             return (
               <li key={b.tugas} data-bawah={kurang ? "" : undefined}>
                 <span className="pin-lk-nama">{b.judul}</span>
                 <span className="pin-lk-jalur" aria-hidden="true">
                   {v !== null ? <span className="pin-lk-isi" style={{ width: `${Math.max(0, Math.min(1, v)) * 100}%` }} /> : null}
-                  {b.awal !== null ? <span className="pin-lk-titik" data-awal="" style={{ left: `${Math.max(0, Math.min(1, b.awal)) * 100}%` }} /> : null}
-                  {b.ambang !== null ? <span className="pin-lk-target" style={{ left: `${b.ambang * 100}%` }} /> : null}
+                  {angka && b.awal !== null ? <span className="pin-lk-titik" data-awal="" style={{ left: `${Math.max(0, Math.min(1, b.awal)) * 100}%` }} /> : null}
+                  {angka && b.ambang !== null ? <span className="pin-lk-target" style={{ left: `${b.ambang * 100}%` }} /> : null}
                 </span>
                 <span className="pin-lk-nilai">
                   {s("hasilbelajar.nilai").replace("{b}", format.number(b.benar, locale)).replace("{t}", format.number(b.total, locale))}
@@ -109,16 +113,18 @@ export default function KomposisiMurid({ bab, locale, persona = "learner" }: { b
                 {b.ulangBerjalan ? <small className="pin-meta" data-ulang-berjalan="">{s("hasil.ulang_berjalan")}</small> : null}
                 {b.dihitungUlang ? <small className="pin-meta" data-dihitung-ulang="">{s("hasil.dihitung_ulang")}</small> : null}
                 {/* the text equivalent of the row's picture */}
-                <span className="pin-sr">
-                  {v !== null ? `${s("hasilbelajar.akhir")}: ${persenJujur(v, locale, [b.ambang])}. ` : ""}
-                  {b.awal !== null ? `${s("hasilbelajar.awal")}: ${persenJujur(b.awal, locale, [b.ambang])}. ` : ""}
-                  {b.ambang !== null ? `${s("hasilbelajar.target")}: ${format.percent(b.ambang, locale)}.` : ""}
-                </span>
+                {angka ? (
+                  <span className="pin-sr">
+                    {v !== null ? `${s("hasilbelajar.akhir")}: ${persenJujur(v, locale, [b.ambang])}. ` : ""}
+                    {b.awal !== null ? `${s("hasilbelajar.awal")}: ${persenJujur(b.awal, locale, [b.ambang])}. ` : ""}
+                    {b.ambang !== null ? `${s("hasilbelajar.target")}: ${format.percent(b.ambang, locale)}.` : ""}
+                  </span>
+                ) : null}
               </li>
             );
           })}
         </ul>
-        <p className="pin-lk-arti">{s("siklus.delta_arti")}</p>
+        {berAngka ? <p className="pin-lk-arti">{s("siklus.delta_arti")}</p> : null}
         </div>
       </section>
 
