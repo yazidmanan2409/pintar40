@@ -31,7 +31,8 @@
 --   D2R-H07  both: hasil_koreksi_saya carries no correction reason
 --   D2R-H12  PINS: Pemetaan Awal's reading map keeps its levels and reasons; the Uji Cepat's review keeps its explanations
 --   D2R-H14  the disclosure follows the sitting's captured policy, not a later edit of the policy row
---   D2R-H16  session_answers returns no correctness, key or explanation (by its result type, so a new column is caught)
+--   D2R-H16  session_answers returns no correctness, key or explanation (by its result type), and none of a finished certifying sitting
+--   D2R-H20  every learner gate reads bersertifikasi, never a mode name: an Uji Cepat marked certifying is gated
 --   D2R-C01  verify_certificate returns no band for a banded certificate, its OUT columns unchanged
 --   D2R-C04  the band stays in certificate_eligibility and the sealed payload; assert_public_surface() still passes
 --   D2R-E01  extra time is recorded on the sitting and its audit, shown to staff, and on no public surface or payload
@@ -274,8 +275,63 @@ begin
     -- ═════════════════════════════════════════════════ H16: session_answers' result carries nothing it must not
     v_detail := selftest.f39_terlarang(pg_get_function_result('public.session_answers(uuid)'::regprocedure));
     if v_detail is not null then v_probs := selftest.f39_note(v_probs, 'D2R-H16', 'session_answers returns ' || v_detail); end if;
-    select count(*) into n from public.session_answers(v_post);
-    if n = 0 then v_probs := selftest.f39_note(v_probs, 'D2R-H16', 'session_answers returned none of the learner''s own answers'); end if;
+    -- a finished certifying sitting's answers are not read back (Sharon's condition 2); an Uji Cepat's are
+    begin
+      select count(*) into n from public.session_answers(v_post);
+      v_probs := selftest.f39_note(v_probs, 'D2R-H16', format('session_answers gave %s answer(s) of a finished certifying sitting', n));
+    exception when others then null;
+    end;
+    select count(*) into n from public.session_answers(v_q);
+    if n = 0 then v_probs := selftest.f39_note(v_probs, 'D2R-H16', 'session_answers returned none of the learner''s own Uji Cepat answers'); end if;
+
+    -- ═════════════════════════════════════════════════ H20: the gate is bersertifikasi, never a mode name (Sharon)
+    -- the finished Uji Cepat (QUICK, its review revealing rationale) is marked certifying past the seal, as only the
+    -- harness can: every learner read of it must then be gated as a certifying result
+    perform selftest.as_owner();
+    set local session_replication_role = replica;
+    update public.assessment_sessions set bersertifikasi = true where assessment_sessions.id = v_q;
+    set local session_replication_role = origin;
+    perform selftest.as_user(SISWA);
+    begin
+      select count(*) into n from public.session_review(v_q);
+      v_probs := selftest.f39_note(v_probs, 'D2R-H20', format('session_review answered a certifying Uji Cepat with %s row(s): the gate read the mode', n));
+    exception when others then null;
+    end;
+    begin
+      select count(*) into n from public.session_answers(v_q);
+      v_probs := selftest.f39_note(v_probs, 'D2R-H20', 'session_answers answered a finished certifying Uji Cepat');
+    exception when others then null;
+    end;
+    if exists (select 1 from public.reading_map(v_q) r where r.alasan is not null or r.tingkat is distinct from 'BACA_LAGI') then
+      v_probs := selftest.f39_note(v_probs, 'D2R-H20', 'reading_map gave a certifying Uji Cepat reasons or levels');
+    end if;
+    v_j := public.session_outcome(v_q);
+    if exists (select 1 from jsonb_each(coalesce(v_j -> 'per_domain', '{}'::jsonb)) e where e.value <> '{}'::jsonb) then
+      v_probs := selftest.f39_note(v_probs, 'D2R-H20', 'session_outcome gave a certifying Uji Cepat per-objective numbers');
+    end if;
+    if public.hasil_koreksi_saya(v_q) ? 'alasan' then v_probs := selftest.f39_note(v_probs, 'D2R-H20', 'hasil_koreksi_saya gave a certifying Uji Cepat a reason'); end if;
+    perform selftest.as_owner();
+    set local session_replication_role = replica;
+    update public.assessment_sessions set bersertifikasi = false where assessment_sessions.id = v_q;
+    set local session_replication_role = origin;
+
+    -- condition 3: a certifying sitting is never started with help (insert only)
+    begin
+      update public.mode_policy set allows_assistance = true where mode = 'STANDALONE';
+      v_o_aa := selftest.f39_luncur('STANDALONE');
+      perform selftest.as_user(SISWA);
+      begin
+        v_o := public.start_learning_session(v_o_aa);
+        v_probs := selftest.f39_note(v_probs, 'D2R-D10', 'a certifying sitting was started with help');
+      exception when others then
+        if sqlerrm !~ 'not started with assistance' then v_probs := selftest.f39_note(v_probs, 'D2R-D10', 'refused, but not by the seal: ' || left(sqlerrm, 120)); end if;
+      end;
+      perform selftest.as_owner();
+      raise exception 'F39_SEAL_UNDO';
+    exception when others then
+      perform selftest.as_owner();
+      if sqlerrm <> 'F39_SEAL_UNDO' then v_probs := selftest.f39_note(v_probs, 'D2R-D10', 'the probe failed: ' || left(sqlerrm, 160)); end if;
+    end;
 
     -- ═════════════════════════════════════════════════ H14 and D07: the captured policy decides, not the row
     perform selftest.as_owner();
@@ -295,12 +351,14 @@ begin
     end;
     begin
       -- a sitting started while its mode still allowed help, the policy then changed: it keeps what it started with
-      update public.mode_policy set allows_assistance = true where mode = 'STANDALONE';
+      -- (as one opened before D2-R was: the seal now refuses a certifying start with help, so the backfill's case is made
+      -- by a mode that does not certify at that start)
+      update public.mode_policy set allows_assistance = true, certifies = false where mode = 'STANDALONE';
       v_o_aa := selftest.f39_luncur('STANDALONE');
       perform selftest.as_user(SISWA);
       v_o := public.start_learning_session(v_o_aa);
       perform selftest.as_owner();
-      update public.mode_policy set allows_assistance = false where mode = 'STANDALONE';
+      update public.mode_policy set allows_assistance = false, certifies = true where mode = 'STANDALONE';
       perform selftest.as_user(SISWA);
       n := selftest.f39_layan(selftest.f39_pertama(v_o));
       if n <> 3 then v_probs := selftest.f39_note(v_probs, 'D2R-D07', format('an open sitting started while help was allowed served %s of 3 levels after the policy changed', n)); end if;
@@ -418,6 +476,7 @@ begin
     ('D2R-H12', 'D2-R R-h -- Pemetaan Awal and Uji Cepat keep their explanations'),
     ('D2R-H14', 'D2-R R-h -- disclosure follows the sitting''s captured policy'),
     ('D2R-H16', 'D2-R R-h -- the learner''s own answers carry no correctness or key'),
+    ('D2R-H20', 'D2-R R-h -- every learner gate reads the captured purpose, never a mode name'),
     ('D2R-C01', 'D2-R R-c -- the public read gives no band, its contract unchanged'),
     ('D2R-C04', 'D2-R R-c -- the band stays in eligibility and the sealed payload'),
     ('D2R-E01', 'D2-R R-e -- extra time recorded, shown to staff, on no public surface'),
@@ -438,7 +497,7 @@ begin
         when 'D2R-D07' then 'an Asesmen Mandiri started while its mode allowed help still served all three levels after the policy row stopped allowing it: the sitting reads what it captured'
         when 'D2R-D08' then 'assert_mode_policy_complete passes, and with POST_TEST allowing help it names POST_TEST'
         when 'D2R-D09' then 'TEST, EXAM and PAPER allow no help'
-        when 'D2R-D10' then 'every sitting captures exactly arah, petunjuk, contoh and reveals_rationale_on_review, its mode''s at the start (a Pemetaan Awal: help, no rationale); a started sitting''s capture cannot be changed, and with the seal bypassed the CHECK still refuses a fifth key'
+        when 'D2R-D10' then 'every sitting captures exactly arah, petunjuk, contoh and reveals_rationale_on_review, its mode''s at the start (a Pemetaan Awal: help, no rationale); a started sitting''s capture cannot be changed, a certifying sitting cannot be started with help, and with the seal bypassed the CHECK still refuses a fifth key'
         when 'D2R-H01' then 'session_review refuses the learner''s own finished Uji Penguasaan, by a direct call, as a certifying result (counts only)'
         when 'D2R-H02' then 'session_review refuses the learner''s own finished Asesmen Mandiri, by a direct call, as a certifying result'
         when 'D2R-H03' then 'reading_map on the all-right Uji Penguasaan gives no reason and no level other than revisit-advice (no KUAT)'
@@ -447,7 +506,8 @@ begin
         when 'D2R-H07' then 'hasil_koreksi_saya on both says only whether the result changed, when, and the new count (benar, total): no reason, no question, no key'
         when 'D2R-H12' then 'Pemetaan Awal''s reading map keeps its levels and the misconception reasons; the Uji Cepat''s review keeps its rows and explanations'
         when 'D2R-H14' then 'with POST_TEST''s policy row edited after the sitting to not certify and to reveal rationale, session_review still refuses it'
-        when 'D2R-H16' then 'session_answers returns the learner''s own answer positions and no correctness, key or explanation column'
+        when 'D2R-H16' then 'session_answers has no correctness, key or explanation column; it refuses a finished certifying sitting and returns the learner''s own Uji Cepat answers'
+        when 'D2R-H20' then 'an Uji Cepat marked certifying is gated as one: session_review and session_answers refuse it, reading_map gives revisit-advice only, session_outcome no per-objective number and hasil_koreksi_saya no reason'
         when 'D2R-C01' then 'the issued all-right Uji Penguasaan verifies BERLAKU with no band; verify_certificate''s OUT columns are unchanged'
         when 'D2R-C04' then 'the band is in certificate_eligibility and the sealed payload; assert_public_surface passes'
         when 'D2R-E01' then 'the admin''s extension is on the sitting (deadline_extended_count 1) and its audit row, the teacher''s sittings read shows it, and neither the sealed payload, verify_certificate nor the identity snapshot carries it'

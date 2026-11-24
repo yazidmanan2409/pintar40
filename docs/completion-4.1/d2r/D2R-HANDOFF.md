@@ -11,27 +11,34 @@
 
 1. **Red first** (`354c1bcd`): the cases only. 31 cases (`selftest/db/fable39.sql` D2R-D*, H01..H16, C01, C04, E01, F01;
    `selftest/d2r.test.ts` the list guard, the engine check, the pages, the band, the strings, R-g, the player).
-2. **The database** (`d4fae0bc`): migration `20270124100000` (309) and plants `d2r-1`..`d2r-14`.
-3. **The app**, the restated tests, CI's gate (this hand-off's head).
-4. **R-1**, its own commit: `selftest/db/r1.sql` (R1-K01..K03) and plant `zr1-1`.
+2. **The database** (`d4fae0bc`): migration `20270124100000` (309) and plants `d2r-1`..`d2r-14` (now `d2r-16`).
+3. **The app and Sharon's §7.2** (`1233a6b0`): the capture reshaped to `assistance_policy`, `tujuan_ulang`, the strings,
+   the restated tests, CI's gate.
+4. **R-1**, its own commit (`e6544f57`): `selftest/db/r1.sql` (R1-K01..K03) and plant `zr1-1`.
+5. **Sharon's four conditions on `bersertifikasi`** (Bob 02:04Z): every R-h gate reads it (session_answers included), the
+   insert-only seal «certifying ⇒ no help», case D2R-H20 and plant d2r-16, step 0 by mode and purpose.
 
 ## What changed
 
-**The capture.** `assessment_sessions` gains `bantuan_diizinkan`, `bersertifikasi` and `percobaan_ke`, written once at
-the start by a seal trigger (the pass mark's precedent) and immutable after. Every existing sitting was given what its
-mode said before (so an open Uji Penguasaan keeps the help it started with, D2R-D07), and its ordinal by the lineage rule
-in creation order. Fail-safe defaults (no help, counts only) for a row written past the seal by the harness.
+**The capture** (spec §7.1 F-2, Sharon §7.2 and her conditions). `assessment_sessions` gains `assistance_policy` (jsonb,
+exactly `arah`, `petunjuk`, `contoh`, `reveals_rationale_on_review`, a CHECK), `bersertifikasi` (the result's purpose,
+from `mode_policy.certifies`; accepted by Sharon) and `percobaan_ke`, written once at the start by one seal trigger and
+immutable after. Every sitting, open and closed, is filled from the OLD policy, asserted, before the policy changes; a
+second assertion proves no capture moved. At insert only, a certifying sitting is never started with help. Fail-safe
+defaults (no help, no rationale, counts only) for a row written past the seal by the harness.
 
 **R-d.** POST_TEST and STANDALONE allow no help (audited `mode_policy.changed`, D2-R R-d). The lint names a certifying
 mode that allows help. `open_assistance`, `assistance_state` and `session_state` read the capture; the orientation
 promises no help on a mode that offers none and says `posttest.tanpa_bantuan` on an Uji Penguasaan.
 
-**R-h.** A certifying sitting (`bersertifikasi`): `session_review` refuses (PR081 RESULT_COUNTS_ONLY); `reading_map` gives
-only the sections to read again (BACA_LAGI, no reason, no KUAT); `session_outcome` drops `per_domain` and carries
-`baca_lagi`, `percobaan_ke` and `bersertifikasi`; `hasil_koreksi_saya` drops the correction reason. The engine's
+**R-h.** Every learner gate reads `bersertifikasi`, never a mode name (D2R-H20, plant d2r-16): `session_review` refuses
+(PR081 RESULT_COUNTS_ONLY; then the F-3 review key and the PRE_TEST check); `session_answers` refuses a finished certifying
+sitting; `reading_map` gives only the sections to read again (BACA_LAGI, no reason, no KUAT); `session_outcome` gives
+`per_domain` with no numbers, the server's `tujuan_ulang`, `percobaan_ke` and `bersertifikasi`; `hasil_koreksi_saya` says
+only that the result changed and the new count. The engine's
 `jagaHasil` refuses a certifying result that carries any of them. The chapter result page, Hasil Belajar and its print
-draw it through `HasilBersertifikasi` in Daisy's order and never ask for the review. The list guard (D2R-H18) classifies
-all 23 learner-reachable readers of answer-bearing data. Pemetaan Awal, Uji Cepat and practice are unchanged (pinned).
+draw it through `HasilBersertifikasi` in Daisy's order and never ask for the review; `bagianUlang` reads `tujuan_ulang`.
+The list guard (D2R-H18) classifies all 25 learner-reachable readers of answer-bearing data. Pemetaan Awal, Uji Cepat and practice are unchanged (pinned).
 
 **R-c.** `verify_certificate` returns `predikat` null (OUT columns, `assert_public_surface()`, eligibility, the sealed
 payload and the snapshot unchanged). No band on the card, its printable record (C1-R4), the A4 sheet or `/verifikasi`.
@@ -54,7 +61,7 @@ sittings read shows it; D2R-E01 proves it on no public surface, payload or snaps
 | F03-T08 | INV-11 proven on an Uji Penguasaan, which no longer offers help | on a sitting that captured help at its start (POST_TEST's row allows it for that one start, restored at once) |
 | F03-T09 | the doctrine sweep served help and read a review on an Uji Penguasaan | on a sitting that captured help and a non-certifying purpose at its start |
 | F13-K13..K15 | F-1's rule read in a learner's review of an Uji Penguasaan | on sittings started while POST_TEST did not certify (captured), the row restored |
-| F36-D14 | the learner's sealed objectives read from `per_domain` | from `baca_lagi` on a certifying result |
+| F36-D14 | the learner's sealed objectives read from `per_domain` | from `tujuan_ulang` on a certifying result, `per_domain` bare |
 | C1W-S05 | the learner's review of an unaffected sitting | its sealed counts from `session_outcome`, and the review refused by name |
 | Z-D1-01 | D-1's learner readers on the seeded Uji Penguasaan | the seeded sitting marked non-certifying inside the rolled-back world |
 | Z-K01-02 | the gate lines of record | Daisy's «belum lulus» for `hasil.target.belum_gerbang` and `hasilbelajar.gerbang` |
@@ -65,8 +72,8 @@ sittings read shows it; D2R-E01 proves it on no public surface, payload or snaps
 
 ## For Sharon, Daisy and Bob
 
-1. **Sharon:** the capture's shape (two booleans and a smallint, sealed by trigger) and `session_review` refusing rather
-   than nulling (D2R-H01/H02, plant d2r-5). The defaults on the two booleans. The list guard's three classes (D2R-H18).
+1. **Sharon:** the batch on the pushed head and CI (Bob 02:04Z). The fail-safe defaults; the list guard's three classes
+   (D2R-H18); `session_answers` refusing only a FINISHED certifying sitting (an open one resumes from it).
 2. **Daisy:** `hasil.percobaan_ke` («Percobaan ke-{n}» / «Attempt {n}») is **provisional**, mine, with no string of record.
    The R-b sentence is split on the card and sheet at `{kursus}`: the words before it on `pin-done`, the course and the
    full stop on `pin-course` (R-13 on the new sheet is yours). The Asesmen Mandiri has no «no help» line yet (your words

@@ -58,7 +58,7 @@ export const PEMBACA_STAF = [
 /** The learner's own reading material: lessons and their worked examples, which no sitting is graded on. */
 export const PEMBACA_PELAJARAN = ["fn:learner_lessons"] as const;
 /** A learner's read of a sitting: each must read the sitting's captured policy (the guard checks the body for it). */
-export const PEMBACA_TERBATAS = ["fn:hasil_koreksi_saya", "fn:open_assistance", "fn:reading_map", "fn:session_outcome", "fn:session_review"] as const;
+export const PEMBACA_TERBATAS = ["fn:assistance_state", "fn:hasil_koreksi_saya", "fn:open_assistance", "fn:reading_map", "fn:session_outcome", "fn:session_review", "fn:session_state"] as const;
 
 const BAHAN = String.raw`is_correct|rationale|remediation|key_corrections|nilai_jawaban_berlaku|grade_response|per_domain|arah_berpikir|petunjuk|worked_examples|kunci_berlaku_sesi`;
 const TANGKAP = String.raw`bersertifikasi|assistance_policy`;

@@ -7396,7 +7396,7 @@
     {
       "id": "D2R-D10",
       "runner": "db",
-      "proves": "D2-R R-d, Sharon's §7.2 (c), selftest/db/fable39.sql: every sitting captures exactly arah, petunjuk, contoh and reveals_rationale_on_review from its mode at the start; a started sitting's capture cannot be changed (the seal), and with the seal bypassed the CHECK refuses a fifth key.",
+      "proves": "D2-R R-d, Sharon's §7.2 (c) and condition 3, selftest/db/fable39.sql: every sitting captures exactly arah, petunjuk, contoh and reveals_rationale_on_review from its mode at the start; a started sitting's capture cannot be changed; a certifying sitting cannot be started with help; with the seal bypassed the CHECK refuses a fifth key.",
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {
@@ -7450,7 +7450,13 @@
     {
       "id": "D2R-H16",
       "runner": "db",
-      "proves": "D2-R R-h, fable39: session_answers returns the learner's own answer positions and no correctness, key or explanation column (by its result type).",
+      "proves": "D2-R R-h, fable39: session_answers' result type carries no correctness, key or explanation column; it refuses a finished certifying sitting (Sharon's condition 2) and returns the learner's own Uji Cepat answers.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "D2R-H20",
+      "runner": "db",
+      "proves": "D2-R R-h, Sharon's condition 2, selftest/db/fable39.sql: every learner gate reads the captured bersertifikasi, never a mode name: an Uji Cepat marked certifying is refused by session_review and session_answers, given revisit-advice only by reading_map, no per-objective number by session_outcome and no reason by hasil_koreksi_saya.",
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {

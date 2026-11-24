@@ -152,6 +152,13 @@ begin
   if new.assistance_policy is null or new.bersertifikasi is null then
     raise exception 'mode % has no policy row; a sitting is not started on an assumed policy', new.mode;
   end if;
+  -- Sharon (§7.2 addendum, condition 3): at the start, a certifying sitting offers no help at any level. Insert only:
+  -- a certifying sitting backfilled from before D2-R legitimately holds the help it started with.
+  if new.bersertifikasi and ((new.assistance_policy ->> 'arah')::boolean or (new.assistance_policy ->> 'petunjuk')::boolean
+                             or (new.assistance_policy ->> 'contoh')::boolean) then
+    raise exception using errcode = 'PR080', detail = 'CERTIFYING_SITTING_HAS_HELP',
+      message = 'a certifying sitting is not started with assistance (D2-R)';
+  end if;
   new.percobaan_ke := case when new.assessment_assignment_id is not null and new.person_id is not null
                            then public.percobaan_terpakai(new.person_id, new.assessment_assignment_id) + 1 end;
   return new;
@@ -494,9 +501,13 @@ begin
   if v_s.status <> 'FINALIZED' then
     raise exception 'the review opens once the attempt is scored';
   end if;
-  -- D2-R (R-h, F-3): the review reveals what the sitting captured; a certifying result captured none, so it discloses
-  -- counts only and no per-question mark, key or explanation reaches its learner by any route. The PRE_TEST refusal
-  -- above stays as the second check.
+  -- D2-R (R-h; Sharon's condition 2): the gate is the purpose the sitting captured, never a mode name or the review key.
+  -- A certifying result discloses counts only: no per-question mark, key or explanation reaches its learner by any route.
+  if v_s.bersertifikasi then
+    raise exception using errcode = 'PR081', detail = 'RESULT_COUNTS_ONLY',
+      message = 'a certifying result discloses counts only: the answer key and each question''s mark are not shown';
+  end if;
+  -- F-3: and the review reveals only what the sitting captured (the PRE_TEST refusal above stays too)
   if not coalesce((v_s.assistance_policy ->> 'reveals_rationale_on_review')::boolean, false) then
     raise exception using errcode = 'PR081', detail = 'RESULT_COUNTS_ONLY',
       message = 'a certifying result discloses counts only: the answer key and each question''s mark are not shown';
@@ -681,6 +692,40 @@ begin
     'sertifikat_ditinjau', coalesce(public.sertifikat_ditinjau(public.sertifikat_sesi_kini(p_session)), false));
 end $function$;
 
+CREATE OR REPLACE FUNCTION public.session_answers(p_session uuid)
+ RETURNS TABLE(presented_item_id uuid, client_seq integer, posisi jsonb, received_at timestamp with time zone)
+ LANGUAGE plpgsql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public', 'pg_temp'
+AS $function$
+begin
+  if not public.session_is_mine(p_session) then
+    raise exception 'this session belongs to someone else';
+  end if;
+  -- D2-R (R-h; Sharon's condition 2): on a certifying sitting, its learner's own answers are read only while it is open
+  -- (to resume it); once it is finished, its result is counts only, by every route
+  if exists (select 1 from public.assessment_sessions s where s.id = p_session and s.bersertifikasi
+              and s.status not in ('CREATED', 'IN_PROGRESS', 'PAUSED')) then
+    raise exception using errcode = 'PR081', detail = 'RESULT_COUNTS_ONLY',
+      message = 'a certifying result discloses counts only: the answers of a finished sitting are not shown';
+  end if;
+  return query
+    select r.presented_item_id, r.client_seq,
+           case when jsonb_typeof(r.value -> 'pilihan') = 'array'
+                then (select coalesce(jsonb_agg(d.display_position order by d.display_position), '[]'::jsonb)
+                        from public.option_display_order(p_session, p.item_id) d
+                       where d.label in (select x from jsonb_array_elements_text(r.value -> 'pilihan') x))
+                else (select to_jsonb(d.display_position)
+                        from public.option_display_order(p_session, p.item_id) d
+                       where d.label = (r.value ->> 'pilihan'))
+           end,
+           r.received_at
+      from public.responses r
+      join public.presented_items p on p.id = r.presented_item_id
+     where r.session_id = p_session
+     order by p.position, r.client_seq;
+end $function$;
+
 -- ═══════════════════════════════════════════════════════════════════════════════════ (5) the public read
 CREATE OR REPLACE FUNCTION public.verify_certificate(p_token text)
  RETURNS TABLE(pass boolean, predikat text, institution text, date text, validity text)
@@ -813,6 +858,7 @@ revoke all on function public.session_review(uuid) from public, anon;
 revoke all on function public.reading_map(uuid) from public, anon;
 revoke all on function public.session_outcome(uuid) from public, anon;
 revoke all on function public.hasil_koreksi_saya(uuid) from public, anon;
+revoke all on function public.session_answers(uuid) from public, anon;
 grant execute on function public.open_assistance(uuid, smallint) to authenticated, service_role;
 grant execute on function public.assistance_state(uuid) to authenticated, service_role;
 grant execute on function public.session_state(uuid) to authenticated, service_role;
@@ -821,6 +867,7 @@ grant execute on function public.session_review(uuid) to authenticated, service_
 grant execute on function public.reading_map(uuid) to authenticated, service_role;
 grant execute on function public.session_outcome(uuid) to authenticated, service_role;
 grant execute on function public.hasil_koreksi_saya(uuid) to authenticated, service_role;
+grant execute on function public.session_answers(uuid) to authenticated, service_role;
 
 -- ═══════════════════════════════════════════════════════════════════════════════════ verification
 do $$

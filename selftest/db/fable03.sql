@@ -593,11 +593,12 @@ begin
   -- governs every sitting that offers help, so it is proven on one that captured help when it started, as a sitting
   -- opened before D2-R did: POST_TEST's policy row allows help for this one start, and is put back at once.
   perform selftest.as_owner();
-  update public.mode_policy set allows_assistance = true where mode = 'POST_TEST';
+  -- (and does not certify for it: a certifying sitting is never started with help, Sharon's condition 3)
+  update public.mode_policy set allows_assistance = true, certifies = false where mode = 'POST_TEST';
   perform selftest.as_user('siklus-email@synthetic.pintar.test');
   s2_post := public.start_learning_session(f.aa_post);
   perform selftest.as_owner();
-  update public.mode_policy set allows_assistance = false where mode = 'POST_TEST';
+  update public.mode_policy set allows_assistance = false, certifies = true where mode = 'POST_TEST';
   perform selftest.as_user('siklus-email@synthetic.pintar.test');
   v_pi := selftest.first_presented_of_type(s2_post, 'MCQ_SINGLE');
   select * into v_state from public.assistance_state(v_pi);

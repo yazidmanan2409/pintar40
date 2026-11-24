@@ -107,7 +107,7 @@
     },
     "db-d2r-gates": {
       "suite": "selftest.run_fable39()",
-      "control_green": 22,
+      "control_green": 23,
       "what": "D2-R (ruling 89): a certifying sitting offers no help and discloses counts only, by the sitting's captured policy; the public read drops the band; the attempt ordinal is fixed at the start; Pemetaan Awal and Uji Cepat keep their help and explanations"
     },
     "db-zr1-gates": {
@@ -1262,6 +1262,12 @@
       "gate": "db-d2r-gates",
       "expect_red": "D2R-D10",
       "expect_detail": "a fifth key was accepted"
+    },
+    {
+      "name": "d2r-16",
+      "gate": "db-d2r-gates",
+      "expect_red": "D2R-H20",
+      "expect_detail": "the gate read the mode"
     }
   ]
 }
