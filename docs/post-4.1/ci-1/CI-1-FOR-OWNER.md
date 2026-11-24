@@ -7,7 +7,7 @@
 | **PR** | #30, `claude/ci-1` → `main`, frozen head **`94ce6727`** (parent `dfab09b6`: a test-only delta) |
 | **Migration** | One: `20270125100000` (309 → 310), sha256 `2b450700…29e6` |
 | **Acceptance runs** | ci **45439475500** GREEN; journeys **45441914637** GREEN, each in one attempt, on `94ce6727` |
-| **Sharon** | **PASS** (`CI-1-VERIFY-dfab09b6.md`); it carries over to `94ce6727` (the product diff is empty) |
+| **Sharon** | **PASS, unconditional, on `94ce6727`** (`CI-1-VERIFY-dfab09b6.md`; the delta is a test-fixture fix, not a weakening, and both runs are green in one attempt) |
 | **Daisy** | The refusal's words (`CI1-KATA.md`) are in the build |
 | **Writes** | One metadata row (`client_rpc_registry`); no records written |
 
