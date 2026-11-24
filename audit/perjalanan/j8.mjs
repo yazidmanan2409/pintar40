@@ -29,7 +29,7 @@ function fiksasi(nama) {
 }
 const RAPI = (t) => (t ?? "").replace(/\s+/g, " ").trim();
 const LABEL = ["keadaan fiksasi: satu paket draf di Anggrek (batas ketuntasan ditetapkan per paket)",
-  "keadaan fiksasi di L5: dua staf didata (jalur staf pendataan belum ada)"];
+  "jalur staf di L5: Tempat «Tidak dipakai» dan «Ini daftar guru atau staf» dicentang (ledger 1effb02d)"];
 const hasil = [];
 
 for (const lebar of LEBAR) {
@@ -51,7 +51,7 @@ for (const lebar of LEBAR) {
     return v;
   };
   /** a list pasted on Pendataan, mapped, and taken to its check; returns the check's words */
-  async function daftar(rec, foto, awalan, baris, tempat, peran, program) {
+  async function daftar(rec, foto, awalan, baris, tempat, peran, program, staf = false) {
     await ke("/pendataan");
     rec.tab += await j.ketik(page.locator("main textarea").first(), baris, 300);
     await page.waitForTimeout(1200);
@@ -60,6 +60,13 @@ for (const lebar of LEBAR) {
     await pilihOpsi(rec, "#pin-medan-node_id", tempat ?? /^(Tidak dipakai|Not used)$/);
     await pilihOpsi(rec, "#pin-medan-role", peran ?? /^(Tidak dipakai|Not used)$/);
     if (program) await pilihOpsi(rec, "#pin-medan-programme_id", program);
+    if (staf) {   // «Ini daftar guru atau staf: catat tanpa kelas», ticked by keyboard
+      const kotak = page.locator("[data-tanpa-kelas] input[type=checkbox]").first();
+      await kotak.waitFor({ timeout: 10000 });
+      rec.tab += await j.tabKe(kotak, 200);
+      if (!(await kotak.isChecked())) await page.keyboard.press("Space");
+      if (!(await kotak.isChecked())) throw new Error("the staff box did not tick");
+    }
     await foto(`${awalan}kolom`);
     rec.tab += await j.tekan(page.getByRole("button", { name: /^(Lanjut ke pemeriksaan|Continue to the check)/ }).first(), 100);
     await page.waitForURL((u) => /^\/pendataan\/[0-9a-f-]{36}/.test(u.pathname), { timeout: 30000 });
@@ -98,6 +105,8 @@ for (const lebar of LEBAR) {
     rec.tab += await j.ketik(page.locator("input[id^=str-nama-TINGKAT]").first(), "Kelas 1", 200);
     rec.tab += await j.ketik(page.locator("input[name=tahun_ajaran]").first(), "2026-27", 20);
     rec.tab += await j.tekan(page.getByRole("button", { name: /^(Tambah Tingkat|Add Tingkat)/ }).first(), 20);
+    // the refusal waited for, so the capture is not caught mid-submit (Bob 23:52Z)
+    await page.waitForFunction(() => /Tulis tahun ajaran|Write the school year/.test(document.body.innerText), null, { timeout: 20000 }).catch(() => {});
     await tunggu();
     await foto("tingkat-tahun-salah");
     data("year_wrong", { words: ((await isi()).match(/Tulis tahun ajaran[^.]*\.|Write the school year[^.]*\./) ?? ["(no refusal line)"])[0], kept: await page.locator("input[name=tahun_ajaran]").first().inputValue().catch(() => "") });
@@ -172,13 +181,19 @@ for (const lebar of LEBAR) {
     data("learners_in_1a", j.baca(`select count(*)::text from public.memberships m join public.org_nodes n on n.id = m.node_id where n.institution_id = '${D["w15.sekolah"]}' and n.name = '1A'`));
   });
 
-  await j.langkah("L5", "the staff list (refused: intake records learners only); roles: Guru 1A until today, Guru 1B without a date (staff by fixture)", async ({ rec, foto, data }) => {
-    data("staff_check", await daftar(rec, foto, "staf-", ["nama", "Siti Rahma", "Dodi Firmansyah"].join("\n"), /Guru dan Staf/, null, /Guru dan Staf/));
-    await setuju(rec);
+  await j.langkah("L5", "the staff list: mapped to «Guru dan Staf» (refused, L-148); then Tempat «Tidak dipakai» with the staff box ticked (recorded); roles: Guru 1A until today, Guru 1B without a date", async ({ rec, foto, data }) => {
+    const BARIS = ["nama", "Siti Rahma", "Dodi Firmansyah"].join("\n");
+    data("staff_check_mapped", await daftar(rec, foto, "staf-", BARIS, /Guru dan Staf/, null, /Guru dan Staf/));
+    data("staff_mapped_approve_offered", await page.getByRole("button", { name: /^(Ya, catat orang-orang ini|Yes, record these people)/ }).count() > 0);
+    // the working path (Daisy, ledger 1effb02d): no place, no role, «Ini daftar guru atau staf» ticked
+    data("staff_check", await daftar(rec, foto, "staf-tanpa-kelas-", BARIS, null, null, null, true));
+    data("staff_approved", await setuju(rec));
+    await foto("staf-tanpa-kelas-dicatat");
     data("staff_recorded", (await isi()).slice(0, 300));
+    data("staff_persons", j.baca(`select coalesce(string_agg(display_name, ', ' order by display_name), 'none') from public.persons
+      where display_name in ('Siti Rahma', 'Dodi Firmansyah')`));
     data("people_before", "(searched below)");
-    // the roles page finds only ACTIVE enrolments; the admin has none at the school and staff cannot be recorded by
-    // intake yet: first what a search for the admin finds, then two staff recorded by fixture (w15-staf, labelled)
+    // what a search for the admin (no enrolment at the school) finds; then the two staff just recorded
     await ke("/konfigurasi/roles");
     await foto("peran");
     {
@@ -189,7 +204,6 @@ for (const lebar of LEBAR) {
       await foto("peran-cari-admin");
       data("search_admin_finds", RAPI((await page.locator("select[name=person] option").allInnerTexts()).join(" / ")).slice(0, 200));
     }
-    fiksasi("w15-staf");
     await ke("/konfigurasi/roles");
     data("people_offered", RAPI((await page.locator("select[name=person] option").allInnerTexts()).join(" / ")).slice(0, 400));
     data("scopes_offered", RAPI((await page.locator("select[name=scope] option").allInnerTexts()).join(" / ")).slice(0, 300));
