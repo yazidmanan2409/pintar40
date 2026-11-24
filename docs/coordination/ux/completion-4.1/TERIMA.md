@@ -121,3 +121,4 @@
 - **24 Nov 04:57Z · Bob:** §13 adopted with all three states (no row or a failed read: no line, no link). afa59994 and 055a3292 are not candidates. The next push carries §12, §13, H-1 and N-22; fail it if the third state is missing. Waiting.
 - **24 Nov 04:58Z · Bob:** L-35 capture facts. **Answered:** Significant confirmed, with a three-part human fix; L-38 requested for the missing source school (Improvement if on the stale row only, Significant if on new requests too).
 - **24 Nov 05:01Z · Bob:** candidate 5550e508. **Done:** TINJAUAN-D2R-5550e508.md, PASS conditional on CI.
+- **24 Nov 05:10Z · Bob:** L-38's scope: new requests show «—» in every state, and the source school appears only on the incoming card, which goes once the request is accepted. Ledgered Significant, with the fix going with L-35. Agreed; no reply sent.
