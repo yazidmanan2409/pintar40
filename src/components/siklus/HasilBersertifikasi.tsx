@@ -19,9 +19,12 @@ import { alasanBelum, bagianUlang, hitunganSegel, ketuntasan } from "@/lib/siklu
  * Never «tidak lulus». No per-question row, no key, no explanation, no mastery figure per objective: the database
  * withholds them (20270124100000) and the engine refuses a result that carries one (jagaHasil). Staff views are unchanged.
  */
-export default function HasilBersertifikasi({ outcome, peta, pelajaran, tugas, locale, dihitungUlang }: {
+export default function HasilBersertifikasi({ outcome, peta, pelajaran, tugas, locale, dihitungUlang, sertifikat = null }: {
   outcome: Outcome; peta: readonly ReadingMapCard[]; pelajaran: readonly LessonEntry[]; tugas: string; locale: Locale;
   dihitungUlang: boolean;
+  /** ruling 74a item 4: the certificate this pass earned, as the certificate page reads it: TERBIT (it renders), DISIAPKAN
+   *  (not yet), or null (none to speak of) */
+  sertifikat?: "TERBIT" | "DISIAPKAN" | null;
 }) {
   const s = (k: HleEvent) => t(k, "learner", { locale });
   const keputusan = ketuntasan(outcome);
@@ -44,6 +47,18 @@ export default function HasilBersertifikasi({ outcome, peta, pelajaran, tugas, l
           <Ikon nama="triangle-alert" />
           <p data-alasan={gerbang ? "gerbang" : "di-bawah"}><strong>{s("hasil.belum_lulus")}</strong> {s(gerbang ? "hasil.target.belum_gerbang" : "hasil.belum_lulus_arti")}</p>
         </div>
+      ) : null}
+
+      {/* 2a. Ruling 74a item 4: after «Lulus.», the certificate, in the words the certificate pages already use (no new
+          words: the link of /lanjut, or «sedang disiapkan» as the certificate page says it before issuance). */}
+      {keputusan === "TERCAPAI" && sertifikat === "TERBIT" ? (
+        <p data-sertifikat="terbit"><Link className="pin-btn" href={`/belajar/${tugas}/sertifikat`}>{s("siklus.lihat_sertifikat")}</Link></p>
+      ) : keputusan === "TERCAPAI" && sertifikat === "DISIAPKAN" ? (
+        <section className="pin-sec" data-sertifikat="disiapkan">
+          <p><strong>{s("sertifikat.disiapkan.judul")}</strong></p>
+          <p className="pin-meta">{s("sertifikat.disiapkan.arti")}</p>
+          <p><Link href={`/belajar/${tugas}/sertifikat`}>{s("siklus.lihat_sertifikat")}</Link></p>
+        </section>
       ) : null}
 
       {/* 2. What to read again: advice, never a verdict on mastery (74b). */}
