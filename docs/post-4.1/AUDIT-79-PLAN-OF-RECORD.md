@@ -51,10 +51,10 @@
 
 | Stream | State |
 |---|---|
-| W1 | J1–J8 and J10 walked by Daisy (J5 and J8 in part); J2's capture run done (`da220028`); J9, J11 and J12 to walk; branches and passes from the builder |
-| W2 | L-1 to L-93 recorded |
-| W3 | INTERIM: C-1 to C-10 |
-| W4 | Second Eye building |
+| W1 | **All twelve walked by Daisy (24 Nov 12:03Z)**; J2's capture run done (`da220028`). Open: the builder's capture runs for every journey's branches and passes, and Daisy's judgement of each |
+| W2 | L-1 to L-101 recorded |
+| W3 | INTERIM: C-1 to C-11 |
+| W4 | Second Eye: the full pre-flight on `fcc548d0` (from about 11:35Z) |
 | W5 | Approved; Sharon's pre-build review pending |
 | W6 | Not started (after W3) |
 | W7 | Not started |

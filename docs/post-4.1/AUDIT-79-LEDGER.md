@@ -333,3 +333,19 @@ Nine findings: 5 Significant, 4 Improvement, none Critical. **The core cross-rol
 - Suspension and closure both set the same `banned_until` (2999-12-31) through `akun_kunci`, so Auth tells «locked» apart, but not which kind.
 
 **Exposure, by migration order (no production read):** `banned_until` is first used by migration 221 (`20270113130000`). **Production (111) does not have the mechanism, so nobody is banned there and nothing leaks.** **Staging (309) has it, and its accounts are synthetic.** **L-75 stays unbuilt, and the existing protections stay (ruling 96).** **Sharon withdraws L-75 as designed:** after CI-2 there is no proven-password path, so everyone sees one line instead: «Bila akun Anda ditutup atau ditangguhkan, Anda dapat meminta dibuka kembali.», with the link.
+
+## J9, J11 and J12 walked (Daisy, with the builder's harnesses run locally at 1280, 390 and 320; 24 Nov). **All twelve journeys now have a TEMUAN file.**
+
+**J9** (`AUDIT-79-TEMUAN-J9.md` `5a9b299b`): L-35 and L-38 confirmed. The refused step changed nothing (the data is identical). **J11** (`c30b115a`): L-37 holds; the withheld domains are named with reasons on the summary. **J12** (`1d4cfad0`): for the builder's CI run, L5 (the test email; no mail sink) and L6.
+
+| L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
+|---|---|---|---|---|---|---|
+| L-94 (J9-1) | The year-end promotion review doesn't mention a learner's open transfer, and promoting her strands it | E, H | J9 | **Significant** | C-7 | **The upstream cause of L-35.** Name each learner with an open transfer in the review, with its consequence |
+| L-95 (J9-2) | A duplicate line, «4 naik ke 8A» | B | J9 | Improvement | — | — |
+| L-96 (J9-3) | «menunggu persetujuan dari pihak lain» doesn't name the other school | A | J9 | Improvement | — | Name it (Kenari). Within the transfer's own parties, so no disclosure issue |
+| L-97 (J11-1) | /pimpinan's «— · 10 murid» gives no reason, and its legend «— berarti data belum cukup» is false for a row withheld for privacy | B, C | J11 | Improvement | C-6 | Two reasons share one mark |
+| L-98 (J11-2) | «dari 10» is unexplained | A | J11 | Improvement | — | — |
+| L-99 (J12-1) | The maintenance warning tells learners «… dan keluar sebelum pemeliharaan dimulai», but signing out mid-test triggers A3's teacher-permission lock. **Following PINTAR's own instruction blocks them** | E, H | J12 | **Significant** | **C-11 (new)** | — |
+| L-100 (J12-2) | «Batalkan» (red) sits beside a «Batal» link | B, E | J12 | Improvement | — | — |
+| L-101 (J12-3) | «Mulai sekarang» (starting maintenance early) has no confirmation naming its effect on people told «30 menit» | E | J12 | Improvement | C-7 | — |
+| — (J12-4) | The welcome tour covers the learner observer captures | — | J12 | **Harness, not product** | — | The builder fixes the capture |

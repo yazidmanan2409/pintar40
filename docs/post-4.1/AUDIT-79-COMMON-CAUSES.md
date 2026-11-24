@@ -1,6 +1,6 @@
 # Audit 79 · the common causes behind conflicting screens (Bob, 24 Nov 2026; ruling 95)
 
-**Status: INTERIM, after J1 to J4, J7, J10 and part of J5.** Sol's review (relayed by the owner, 24 Nov) supports the direction in principle, with two qualifications, adopted here: C-1 keeps the current attempt and the result in force as two facts, and every consumer of `my_cycle_state` is checked (§3a); C-5 keeps each recommendation's provenance. Sol's recommendation, as relayed: approve the direction in principle, and finalise the implementation plan only after all twelve journeys. It is updated as Daisy walks each remaining journey. **The correction plan is not final until all twelve are walked** (ruling 95). Nothing here is built.
+**Status: INTERIM. All twelve journeys have a TEMUAN file (24 Nov 12:03Z).** The builder's capture judgements are still open. FINAL comes after them. Sol's review (relayed by the owner, 24 Nov) supports the direction in principle, with two qualifications, adopted here: C-1 keeps the current attempt and the result in force as two facts, and every consumer of `my_cycle_state` is checked (§3a); C-5 keeps each recommendation's provenance. Sol's recommendation, as relayed: approve the direction in principle, and finalise the implementation plan only after all twelve journeys. It is updated as Daisy walks each remaining journey. **The correction plan is not final until all twelve are walked** (ruling 95). Nothing here is built.
 
 **Method:**
 - Every finding where screens disagree was traced, read-only, to the code on main `429b7dcc`. For each finding the trace names:
@@ -25,6 +25,7 @@
 | **C-8** (J7, new) | **The person who notices isn't the person who may act** | The teacher and the head of department see a wrong key but only the admin can flag it | L-71 |
 | **C-9** (J10, new) | **A refusal worded to hide a state from strangers is also shown to the person who has proven they own the account** | A closed account with the correct password gets the same «belum cocok» as a wrong password | L-75, L-76. **Sharon's rule:** say more only after the requester has proven what a stranger can't know, and only where the proof is strong: a password qualifies, a PIN doesn't |
 | **C-10** (J8, new) | **Some forms leave validation to the browser** | Three fields refuse only through the browser's bubble (not announced the same way, and gone on scroll), while sibling forms give PINTAR's own line | L-88 (absorbs L-77) |
+| **C-11** (J12, new) | **Two features' rules about the same session were written without each other** | Maintenance tells learners to sign out before it starts; A3's one-device rule makes signing out mid-test require the teacher's permission | L-99 |
 
 ## 2 · Against the owner's five questions (ruling 95)
 
