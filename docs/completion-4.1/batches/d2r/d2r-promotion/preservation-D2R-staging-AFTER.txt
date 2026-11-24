@@ -84,3 +84,6 @@ AFTER-PROMOTION CHECKS (read only, 09:55-09:58Z):
 - certifying modes (mode_policy where certifies): EXAM, PAPER, POST_TEST, STANDALONE, TEST, all with allows_assistance=false and
   reveals_rationale_on_review=false.
 - sittings without assistance_policy, bersertifikasi or percobaan_ke: 0. Open certifying sittings offering any help: 0.
+- periksa RE-READ after the owner's staging sign-in and page load (read only, 10:00:22Z): 177,981
+  (anon 2,084, authenticated 172,044, service_role 3,853). That is +153 over the 177,828 post-promotion baseline, so the
+  pre-request ran on requests made after the promotion: there is no disabling override. V6's hosted condition is met.
