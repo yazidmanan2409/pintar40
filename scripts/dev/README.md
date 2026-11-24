@@ -84,3 +84,28 @@ source is WP7D happening again.
 
 It is a development-time cross-check. Nothing reads
 `selftest/reachability.json` at runtime and it grants nothing.
+
+## The machine before the code (ruling 83)
+
+An expensive run starts with the readiness gate and runs under a heartbeat, so a machine failure is reported as the
+machine's and never as a red row. The proofs are in `docs/completion-4.1/infra-83/BUKTI.md`.
+
+```bash
+scripts/dev/siap.sh                 # READY, or one named cause: INFRA disk|runtime|image|registry|stack|port
+scripts/dev/siap.sh --tanpa-pulih   # the same checks, changing nothing
+scripts/dev/bersih.sh               # dry run: what the harness left in $TMPDIR, and what it keeps and why
+scripts/dev/bersih.sh --hapus       # remove it (never docs/, z-evidence/, the checkout, or a name no harness file creates)
+scripts/dev/preflight.sh            # lint, typecheck, build-identity, suite, plants, red-case: GREEN, RED or VOID
+```
+
+- `siap.sh` recovers what it can: it restarts containerd and dockerd, pulls a missing image **by the digest in
+  `images.lock`** with backoff, starts the stack and the Mailpit sink, and stops a leaked app server on :3999.
+- `preflight.sh` forces `supabase db reset --local` before the suite and the plants. Every `PREFLIGHT_DENYUT` seconds
+  (default 120) it runs `siap.sh --denyut` (disk, runtime, database). The first lost heartbeat stops the run.
+- Every step and every suite row is classed PASS, FAIL (the code) or INFRA (the machine, with its signal), by
+  `kelas.sh`. Any FAIL makes the run RED, with INFRA rows listed beside it. VOID (not evidence either way) only when an
+  INFRA row exists and nothing failed. A signal code can produce counts as INFRA only on an unhealthy machine. Every
+  run is kept under `$HOME/pintar-preflight/`, with the machine trace `jejak-mesin.log`.
+- `tapis.sh` strips keys from anything the gate writes. `preflight.sh --ukur` estimates a run against the machine's
+  measured uptime, and warns when it won't fit.
+- A CLI upgrade that changes an image tag updates `images.lock` in the same commit.

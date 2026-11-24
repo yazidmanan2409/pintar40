@@ -1,0 +1,33 @@
+# bukti-reboot-nyata · 2026-11-23T23:51:05Z: a REAL reboot of this builder's container, as it happened (nothing planted)
+
+## the machine trace across the boot change (jejak-mesin.log): the old boot's last line, then the new boot's first
+2026-11-23T23:23:37Z boot=0a78ca62-1e5d-4e9e-a2bb-a62aab48502d uptime=4521 oom_kill=0 cg_oom_kill=0 mem_peak=6329696256 mem_failcnt=0 disk_free=57986707456 mode=heartbeat run=/root/pintar-preflight/bukti-s1-start result="READY"
+2026-11-23T23:37:28Z boot=8b8ec0ed-7987-454a-b1d4-05ab6e7a1eac uptime=68 oom_kill=0 cg_oom_kill=0 mem_peak=1413660672 mem_failcnt=0 disk_free=57987469312 mode=full run=/root/pintar-preflight/bukti-tanpa-reset-catatan result="READY"
+
+## now: boot 8b8ec0ed-7987-454a-b1d4-05ab6e7a1eac, uptime 885.45 s; the kernel booted at 2026-11-23T23:36:20Z
+
+## the first gate in the new boot (23:37Z, inside the pre-flight for Sharon's item 1; siap.sh as at 7696819e plus the L-1 trace)
+siap: the machine restarted since the last check: a REBOOT at 2026-11-23T23:36:20Z, after uptime 4521s (the previous boot's last beat: 2026-11-23T23:23:37Z, oom_kill=0) (no run was in progress)
+siap: disk ok (54.0G free, minimum 10G)
+siap: runtime dead: restarting containerd and dockerd
+siap: runtime pulih (restarted; containerd and dockerd answer)
+siap: images ok (6 present, all pinned by digest)
+siap: Mailpit not answering: (re)starting the sink as CI does
+siap: stack pulih (database, Auth, Mailpit healthy)
+siap: port 3999 ok (free)
+READY
+
+## dockerd's log for that restart: on THIS machine dockerd runs its own managed containerd, so no stale /run/containerd socket stood in the way
+time="2026-11-23T23:36:58.735538093Z" level=info msg="Starting up"
+time="2026-11-23T23:36:59.105971696Z" level=info msg="containerd not running, starting managed containerd"
+time="2026-11-23T23:36:59.147842971Z" level=info msg="started new containerd process" address=/var/run/docker/containerd/containerd.sock binary=/usr/bin/containerd module=supervisor pid=908
+
+## /run is not a tmpfs here: at 23:44Z, before bukti-soket touched it, /run/containerd/ still carried the previous boots' date (09:42), with no containerd.sock in it. Now:
+total 12
+drwx------  3 root root 4096 2026-11-23T23:48:30 .
+drwxr-xr-x 15 root root 4096 2026-11-23T23:48:30 ..
+drwx------  2 root root 4096 2026-11-23T23:48:57 s
+
+## so: on this machine the real reboot was recovered by the gate as it stood (green), and did NOT reproduce the blocker.
+## The blocker needs a standalone containerd whose socket the previous boot leaves at /run/containerd/containerd.sock:
+## that is reproduced exactly in bukti-soket.txt (red at 7696819e, «dockerd did not come back within 60 s»; green now).

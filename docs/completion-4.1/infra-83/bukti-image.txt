@@ -1,0 +1,32 @@
+# bukti-image · 2026-11-23T19:20:18Z · commit f5700bd1
+
+## plant: remove one pinned image (postgrest/postgrest:v16.2; its container keeps running)
+
+$ docker rmi -f postgrest/postgrest:v16.2 postgrest/postgrest@sha256:85258123312dc496ad4c2ed832154a65e9746f84df0d6d09b44229ff9230c08e
+Untagged: postgrest/postgrest:v16.2
+Untagged: postgrest/postgrest@sha256:85258123312dc496ad4c2ed832154a65e9746f84df0d6d09b44229ff9230c08e
+[rc=0]
+
+## RED: the check-only gate names the missing image and stops, before anything starts
+
+$ scripts/dev/siap.sh --tanpa-pulih
+siap: disk ok (55G free, minimum 10G)
+siap: runtime ok
+INFRA image: postgrest/postgrest:v16.2 is not present with sha256:85258123312dc496ad4c2ed832154a65e9746f84df0d6d09b44229ff9230c08e
+[rc=3]
+
+## GREEN: the full gate pulls it by digest, verifies the digest, and prints READY
+
+$ scripts/dev/siap.sh
+siap: disk ok (55G free, minimum 10G)
+siap: runtime ok
+siap: image postgrest/postgrest:v16.2 missing (or another digest): pulling by digest
+siap: images pulih (1 pulled, 5 already present, all pinned)
+siap: stack ok (database, Auth, Mailpit)
+siap: port 3999 ok (free)
+READY
+[rc=0]
+
+$ docker image inspect postgrest/postgrest:v16.2 --format {{join .RepoDigests " "}}
+postgrest/postgrest@sha256:85258123312dc496ad4c2ed832154a65e9746f84df0d6d09b44229ff9230c08e
+[rc=0]

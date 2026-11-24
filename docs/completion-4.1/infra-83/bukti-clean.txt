@@ -1,0 +1,82 @@
+# bukti-clean · 2026-11-23T19:21:34Z · commit f5700bd1
+
+## plant: abandoned harness scratch (aged 3 h), a large build folder, an abandoned red-case clone, and evidence
+
+$ df -h --output=avail /tmp
+Avail
+  54G
+[rc=0]
+
+## DRY RUN (the default): lists, removes nothing
+
+$ scripts/dev/bersih.sh
+  keep    /tmp/dr-s09-Pl4nt3  (holds z-evidence)
+  would remove /tmp/dr150-Pl4nt1  (256M)
+  keep    /tmp/dr150-Pl4nt5  (modified within the last 30 min)
+  keep    /tmp/kandidat-6fLyCl  (modified within the last 30 min)
+  keep    /tmp/kandidat-DqtGHd  (modified within the last 30 min)
+  keep    /tmp/kandidat-I73WFe  (modified within the last 30 min)
+  keep    /tmp/kandidat-OqwHOq  (modified within the last 30 min)
+  keep    /tmp/kandidat-e6C1XV  (modified within the last 30 min)
+  keep    /tmp/kandidat-g9fxuQ  (modified within the last 30 min)
+  keep    /tmp/kandidat-gvF6RW  (modified within the last 30 min)
+  keep    /tmp/kandidat-mG6GUn  (modified within the last 30 min)
+  keep    /tmp/kandidat-mahPf7  (modified within the last 30 min)
+  keep    /tmp/kandidat-pOg1CN  (modified within the last 30 min)
+  keep    /tmp/kandidat-qxsaTY  (modified within the last 30 min)
+  keep    /tmp/kandidat-zaPFbM  (modified within the last 30 min)
+  would remove /tmp/pintar-plants-Pl4nt2  (2)
+  would remove /tmp/pintar-redcase-990001  (708M)
+  keep    /tmp/pintar-redcase-990002  (a clone with changed or untracked evidence: docs/completion-4.1/batches/z/z-evidence/preflight-planted/SUMMARY.txt)
+bersih: 3 would be removed, 964M; 15 kept
+[rc=0]
+
+$ ls -d /tmp/pintar-redcase-990001 /tmp/dr150-Pl4nt1
+/tmp/dr150-Pl4nt1
+/tmp/pintar-redcase-990001
+[rc=0]
+
+## ACT: --hapus
+
+$ scripts/dev/bersih.sh --hapus
+  keep    /tmp/dr-s09-Pl4nt3  (holds z-evidence)
+  removed /tmp/dr150-Pl4nt1  (256M)
+  keep    /tmp/dr150-Pl4nt5  (modified within the last 30 min)
+  keep    /tmp/kandidat-6fLyCl  (modified within the last 30 min)
+  keep    /tmp/kandidat-DqtGHd  (modified within the last 30 min)
+  keep    /tmp/kandidat-I73WFe  (modified within the last 30 min)
+  keep    /tmp/kandidat-OqwHOq  (modified within the last 30 min)
+  keep    /tmp/kandidat-e6C1XV  (modified within the last 30 min)
+  keep    /tmp/kandidat-g9fxuQ  (modified within the last 30 min)
+  keep    /tmp/kandidat-gvF6RW  (modified within the last 30 min)
+  keep    /tmp/kandidat-mG6GUn  (modified within the last 30 min)
+  keep    /tmp/kandidat-mahPf7  (modified within the last 30 min)
+  keep    /tmp/kandidat-pOg1CN  (modified within the last 30 min)
+  keep    /tmp/kandidat-qxsaTY  (modified within the last 30 min)
+  keep    /tmp/kandidat-zaPFbM  (modified within the last 30 min)
+  removed /tmp/pintar-plants-Pl4nt2  (2)
+  removed /tmp/pintar-redcase-990001  (708M)
+  keep    /tmp/pintar-redcase-990002  (a clone with changed or untracked evidence: docs/completion-4.1/batches/z/z-evidence/preflight-planted/SUMMARY.txt)
+bersih: 3 removed, 964M; 15 kept
+[rc=0]
+
+$ df -h --output=avail /tmp
+Avail
+  55G
+[rc=0]
+
+## CHECKS
+ok removed: /tmp/pintar-redcase-990001
+ok removed: /tmp/dr150-Pl4nt1
+ok removed: /tmp/pintar-plants-Pl4nt2
+ok survived: /tmp/pintar-redcase-990002/docs/completion-4.1/batches/z/z-evidence/preflight-planted/SUMMARY.txt
+ok survived: /tmp/dr-s09-Pl4nt3/z-evidence/run.txt
+ok survived: /tmp/not-harness-Pl4nt4/keep.txt
+ok survived: /tmp/dr150-Pl4nt5/new.txt
+ok survived: /home/user/pintar40/docs/completion-4.1/batches/z/z-evidence/preflight-planted/SUMMARY.txt
+ok the index (every committed path) is unchanged
+ok git status is unchanged
+/home/user/pintar40         f5700bd1 [claude/infra-83]
+/tmp/pintar-redcase-990002  f5700bd1 (detached HEAD)
+
+## tidy the planted files the cleanup rightly kept

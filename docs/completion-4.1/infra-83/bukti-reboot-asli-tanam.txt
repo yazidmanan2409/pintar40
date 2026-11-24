@@ -1,0 +1,9 @@
+# bukti-reboot-asli · 2026-11-23T23:53:58Z · commit 15f88465
+
+$ cat /root/pintar-preflight/reboot-asli.tanam
+2026-11-23T23:53:58Z boot=8b8ec0ed-7987-454a-b1d4-05ab6e7a1eac uptime=1058.87
+[rc=0]
+
+$ ls -la --time-style=+%FT%T /run/containerd/containerd.sock
+srwxr-xr-x 1 root root 0 2026-11-23T23:53:58 /run/containerd/containerd.sock
+[rc=0]

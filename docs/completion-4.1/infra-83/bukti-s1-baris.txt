@@ -1,0 +1,58 @@
+# bukti-s1-baris · 2026-11-23T22:51:49Z · commit 61bb1e3e
+
+## plant: a suite log with one real defect row, one INFRA row (a signal code cannot produce), one ambiguous row, and passes
+
+$ cat /root/pintar-preflight/bukti-s1-baris/suite.log
+id          status  detail
+Z-T03-01    FAIL    email.aman.diatur_ulang.isi (en): «An Admin PINTAT reset recovery …» (a planted defect)
+A2A-C705    FAIL    the scenario could not run: Cannot connect to the Docker daemon at unix:///var/run/docker.sock (simulated INFRA)
+F01-R01     SKIP    facility missing: app
+F01-T01     PASS    passes
+F01-R04     SKIP*   justified
+3 passed, 1 failed, 1 skipped, 0 contract problem(s) → RED
+[rc=0]
+
+## RED: the classifier as it was at 61bb1e3e (before S-1): an INFRA row collapses the suite into one INFRA row, and VOID is checked before RED
+
+$ bash /root/pintar-preflight/bukti-s1-baris/lama-kelas.sh /root/pintar-preflight/bukti-s1-baris
+Z-T03-01    FAIL   FAIL
+A2A-C705    FAIL   INFRA (runtime: the scenario could not run: Cannot connect to the Docker daemon at unix:///var/run/docker.sock (simulated INFRA))
+F01-R01     SKIP   INFRA (facility: facility missing: app)
+F01-T01     PASS   PASS
+F01-R04     SKIP*  PASS
+rows: 5 classed; 1 FAIL, 2 INFRA (ROWS.txt)
+suite row: INFRA  suite  rc=1: A2A-C705 is INFRA (runtime: the scenario could not run: Cannot connect to the Docker daemon at unix:///var/run/docker.sock (simulated INFRA)), and 2 row(s) in all
+RUN VOID   (61bb1e3e: VOID is checked before RED)
+[rc=0]
+
+## GREEN: scripts/dev/kelas.sh, on a healthy machine (1) and on an unhealthy one (0)
+
+$ bash -c source scripts/dev/kelas.sh; kelas_baris '/root/pintar-preflight/bukti-s1-baris/suite.log' 1 '/root/pintar-preflight/bukti-s1-baris'; cat '/root/pintar-preflight/bukti-s1-baris/ROWS.txt' '/root/pintar-preflight/bukti-s1-baris/rows.sum'; echo "N_FAIL=$N_FAIL N_INFRA=$N_INFRA → RUN $(putusan $([ $N_FAIL -gt 0 ] && echo 1 || echo 0) $([ $N_INFRA -gt 0 ] && echo 1 || echo 0))"
+Z-T03-01    FAIL   FAIL
+A2A-C705    FAIL   INFRA runtime: the scenario could not run: Cannot connect to the Docker daemon at unix:///var/run/docker.sock (simulated INFRA)
+F01-R01     SKIP   FAIL (a facility: facility missing: app signal, on a healthy machine)
+F01-T01     PASS   PASS
+F01-R04     SKIP*  PASS
+rows: 5 classed; 2 FAIL, 1 INFRA (ROWS.txt; the machine healthy through the step)
+N_FAIL=2 N_INFRA=1 → RUN RED
+[rc=0]
+
+$ bash -c source scripts/dev/kelas.sh; kelas_baris '/root/pintar-preflight/bukti-s1-baris/suite.log' 0 '/root/pintar-preflight/bukti-s1-baris'; cat '/root/pintar-preflight/bukti-s1-baris/ROWS.txt' '/root/pintar-preflight/bukti-s1-baris/rows.sum'; echo "N_FAIL=$N_FAIL N_INFRA=$N_INFRA → RUN $(putusan $([ $N_FAIL -gt 0 ] && echo 1 || echo 0) $([ $N_INFRA -gt 0 ] && echo 1 || echo 0))"
+Z-T03-01    FAIL   FAIL
+A2A-C705    FAIL   INFRA runtime: the scenario could not run: Cannot connect to the Docker daemon at unix:///var/run/docker.sock (simulated INFRA)
+F01-R01     SKIP   INFRA facility: facility missing: app
+F01-T01     PASS   PASS
+F01-R04     SKIP*  PASS
+rows: 5 classed; 1 FAIL, 2 INFRA (ROWS.txt; the machine NOT healthy through the step)
+N_FAIL=1 N_INFRA=2 → RUN RED
+[rc=0]
+
+## and VOID only when no row failed: the same log without the defect row, on an unhealthy machine
+
+$ bash -c source scripts/dev/kelas.sh; kelas_baris '/root/pintar-preflight/bukti-s1-baris/s2.log' 0 '/root/pintar-preflight/bukti-s1-baris/tanpa'; cat '/root/pintar-preflight/bukti-s1-baris/tanpa/ROWS.txt'; echo "→ RUN $(putusan $([ $N_FAIL -gt 0 ] && echo 1 || echo 0) $([ $N_INFRA -gt 0 ] && echo 1 || echo 0))"
+A2A-C705    FAIL   INFRA runtime: the scenario could not run: Cannot connect to the Docker daemon at unix:///var/run/docker.sock (simulated INFRA)
+F01-R01     SKIP   INFRA facility: facility missing: app
+F01-T01     PASS   PASS
+F01-R04     SKIP*  PASS
+→ RUN VOID
+[rc=0]

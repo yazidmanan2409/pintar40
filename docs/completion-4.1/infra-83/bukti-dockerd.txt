@@ -1,0 +1,32 @@
+# bukti-dockerd · 2026-11-23T19:20:53Z · commit f5700bd1
+
+## plant: kill the runtime (dockerd and containerd), as a container restart leaves it
+
+$ pkill -9 -x dockerd
+[rc=0]
+
+$ bash -c timeout 5 docker info >/dev/null 2>&1 && echo alive || echo "docker: dead"
+docker: dead
+[rc=0]
+
+## RED: the check-only gate names it
+
+$ scripts/dev/siap.sh --tanpa-pulih
+siap: disk ok (55G free, minimum 10G)
+INFRA runtime: docker does not answer (dockerd or containerd is dead)
+[rc=3]
+
+## GREEN: the full gate restarts containerd and dockerd, waits for the stack's health, READY, with no person
+
+$ scripts/dev/siap.sh
+siap: disk ok (55G free, minimum 10G)
+siap: runtime dead: restarting containerd and dockerd
+siap: runtime pulih (restarted; containerd and dockerd answer)
+siap: images ok (6 present, all pinned by digest)
+siap: stack not running: supabase start
+siap: Mailpit not answering: (re)starting the sink as CI does
+siap: stack pulih (database, Auth, Mailpit healthy)
+siap: port 3999 ok (free)
+READY
+[rc=0]
+elapsed 27s
