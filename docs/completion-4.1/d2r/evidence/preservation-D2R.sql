@@ -1,5 +1,27 @@
 -- D2-R · the preservation read, from preservation-Z.sql (claude/z, Z9), with one change: `baru` gains the capture's three
--- columns (Sharon §7.2 (d)). The lines that may move for D2-R are to be confirmed with Bob and Sharon before the pair is taken.
+-- columns (Sharon §7.2 (d)).
+--
+-- D2-R's PAIR IS 308 -> 309: one migration, 20270124100000, sha256 at c20c7e47:
+--   4a6f88ec0193446ec8b3beebc399d25df78cf53c07cb24b1a9dfc300dec5cb60  (corrected in place until the freeze; restated then)
+-- Line 10 reads "308 / 20270123170000" BEFORE and "309 / 20270124100000" AFTER.
+--
+-- STEP 0 FIRST: step0-D2R.sql (read only), by mode and by the purpose each sitting will capture.
+--
+-- WHAT D2-R WRITES AT MIGRATION TIME, AND WHY NO OTHER LINE MOVES (Sharon, D2R-BATCH-42f6f432.md, note 1):
+--   * assessment_sessions: every sitting's assistance_policy, bersertifikasi and percobaan_ke are backfilled from the OLD
+--     policy, with the three column-writing triggers (provenance, status, a1_state) disabled around the update so no
+--     other column is touched. The three columns are in `baru`, kept out of line 58; the table has no updated_at.
+--   * mode_policy: each certifying mode that allowed help or revealed rationale gets allows_assistance = false,
+--     reveals_rationale_on_review = false and its note extended. No line reads mode_policy.
+--   * audit_log: one 'mode_policy.changed' row per mode so changed (target_table 'mode_policy'), written by the migration,
+--     so above the BEFORE watermark. Lines 26 and 62 read only up to the watermark; lines 68 and 76 read above it only for
+--     target_table 'release_distributions' and 'maintenance_windows'. So no line reads these rows. Expected moves, named:
+--     the mode_policy rows and these audit rows; neither is a preserved line.
+--   Every other change is a function (restated or new), a column (the three), a CHECK, a trigger or a grant.
+--   So every line except line 10 must read identically BEFORE and AFTER.
+--
+-- The Z header that follows is kept for its method; its pair (300 -> 308) and its "only line 10 and lines 84 to 86 move"
+-- are Z's, not D2-R's (on 308 -> 309 lines 84 to 86 read the same on both reads).
 -- Z's staging promotion: the preservation query (Second Eye, 23 Nov, for Sharon's check; Bob's delta
 -- PRESERVATION-Z-DELTA.md on claude/bob-41-master-plan). C3w-1's query (c3w-1-evidence/preservation-C3w-1.sql, ed4a90cc on
 -- main) restated for Z, with the same method, lines and rules. Read A2b's header for the method, C2w's for lines 63 to 68,
