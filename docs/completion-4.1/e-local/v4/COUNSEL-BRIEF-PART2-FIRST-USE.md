@@ -1,6 +1,6 @@
 # Request for legal advice, part 2: PINTAR's first use (a draft for the owner)
 
-**Status:** FIT TO SEND once the owner fills in three provider regions (Sharon, `COUNSEL-BRIEF-P2-371e3b48.md`): Supabase, Resend and S3. Prepared by Bob on 24 Nov 2026 (ruling 89; readiness register PR-1, PR-2 and PR-19). It is for Sharon's check, then the owner's confirmation of scope.
+**Status:** FIT TO SEND (Sharon, `COUNSEL-BRIEF-P2-371e3b48.md`) once the mail host's processing region is confirmed. Supabase was confirmed on 24 Nov. The backup is a proposal and is stated as such. Prepared by Bob on 24 Nov 2026 (ruling 89; readiness register PR-1, PR-2 and PR-19). It is for Sharon's check, then the owner's confirmation of scope.
 - **It follows part 1** (`COUNSEL-BRIEF-RULING85.md`, the AI questions), which stays unchanged and fit to send.
 - **Fees:** the estimate requested in part 1 must be **re-confirmed for both parts together** before any work begins. No fees are incurred until the owner confirms in writing.
 
@@ -13,10 +13,10 @@
 
   | Provider | What it holds or carries | Region |
   |---|---|---|
-  | Supabase | The database (accounts, learning activity, results, audit records), stored files, and its own daily backups | Singapore (`ap-southeast-1`), *to be confirmed by the owner from the production project's settings* |
+  | Supabase | The database (accounts, learning activity, results, audit records), stored files, and its own daily backups | Singapore (`ap-southeast-1`), confirmed by the owner from the dashboard (24 Nov) |
   | Vercel | Hosts the application; personal data passes through it in requests and is not stored by PINTAR there | Singapore (`sin1`, from `vercel.json`) |
-  | Resend | Delivers sign-in and notice emails (an email address and the message) | *To be confirmed by the owner from the account settings* |
-  | AWS (S3), **once the off-site backup is switched on** | Encrypted off-site backup copies | *To be confirmed by the owner when the bucket is chosen* |
+  | Namecheap (the `pintarselalu.com` mail host) | Sends sign-in and notice emails over SMTPS (`pintarselalu.com:465`, from `noreply@pintarselalu.com`), configured in Supabase Auth by `configure-supabase-smtp.yml` | *Unverified: the owner confirms where Namecheap processes this mail* |
+  | Google Cloud Storage, **if the off-site backup is authorised and switched on** (the owner's preferred option) | Encrypted off-site backup copies | Jakarta (`asia-southeast2`), proposed; not yet created |
 
 - **Who runs it:** PINTAR's owner operates the platform. The school appoints its own administrator, who enrols learners.
 - **Any larger use,** including any use with children, needs a new owner decision, and is not part of this request except where question 8 asks.
