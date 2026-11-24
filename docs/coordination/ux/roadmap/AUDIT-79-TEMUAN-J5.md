@@ -79,3 +79,35 @@ The Uji Cepat result page shows «Belum ada nilai» for both learners who submit
 - **If no real school can produce non-counting evidence,** this is world-only and not a finding.
 - **If one can,** the third sentence is false beside the first. It should read «Belum ada Uji Penguasaan yang dapat dihitung dari murid ini di kelas ini.»
 - **For the builder:** confirm, and run J5's L6 on OFFICIAL evidence.
+
+## Capture judgement · the builder's committed J5 (`d41ed05c/j5`, `9be73ecf`), 24 Nov 21:45
+
+Seven walks, every one reaching its last screen. My harness notes are applied, and L6 runs on OFFICIAL evidence (the bootstrap's 8K: Bambang for Sinta). **Every finding J5-1 to J5-11 stands where the capture reaches it.**
+- **J5-6:** every learner's start page reads «DITUTUP · Rabu, 25 Nov 2026», and the sitting clock counts up («Waktu berjalan 00:01»), while the teacher reads «Sisa waktu 27 menit».
+- **J5-7 is confirmed in the capture's own words:**
+  - «Tambah 10 menit untuk Galih Pratama? Batas baru 24 Mei 2027, 03.48 WIB.»
+  - then «✓ Waktu Galih Pratama ditambah 10 menit. Batas baru 24 Mei 2027 …»
+  - Ten minutes were added to a deadline six months away.
+- **J5-11:** the teacher's running and result views during the stop are the learner's page.
+
+### Holds (new in the capture)
+- **The stop's learner path completes:** Intan, held mid-sitting, comes back («Lanjutkan di sini? … Jawaban yang sudah tersimpan tetap ada.»), finishes and submits (`28`–`31`).
+- **«Minta membaca lagi» on OFFICIAL evidence:**
+  - the page explains the case exactly («Sinta Maharani 83% · Persentase sudah memenuhi target, tetapi ada soal penting yang belum tepat.»);
+  - it says what it won't do («Hasil murid tidak berubah, dan tidak ada tes baru.»);
+  - then «✓ Permintaan dikirim kepada 1 murid.»;
+  - the learner's page carries «DIMINTA GURU ANDA · Bambang Sutrisno meminta Anda membaca lagi: …».
+- **«Ubah jadwal»:** «✓ Jadwal diubah. Murid yang sedang mengerjakan tetap memakai batas waktunya sendiri.», with the end date stored as typed (31 Dec 2026, 15.00).
+
+### New and widened
+
+| # | Finding | Siblings | Cause | Dim. | Fix |
+|---|---|---|---|---|---|
+| J5-12 | **«Minta membaca lagi» pre-ticks every lesson in the chapter** («Kalimat Terbuka dan Persamaan», «Menyelesaikan Persamaan», «Persamaan dalam Soal Cerita»). Sinta's gap is one important question. The teacher's default request is therefore «re-read the whole chapter». Also, «target 60%» floats alone above «Murid», away from the 83% it qualifies. | The learner's own Hasil names only the sections to re-read («baca lagi») | C-3 | F, V | Pre-tick only the lessons tied to the learner's unmet objectives (the same set the learner's «Baca lagi:» names). Put «target 60%» beside the figure: «83% (target 60%)». |
+| L-134, widened | The conditional wording also applies to the **Uji Cepat result page**. With submitted sittings that don't count, it reads «Belum ada nilai. Rata-rata nilai kelas muncul di sini setelah ada yang mengumpulkan.», beside three learners marked «Sudah mengumpulkan». | J5 world question; L-134 | C-3 | B | «Belum ada nilai yang dapat dihitung. Rata-rata kelas muncul setelah ada hasil yang dihitung.» |
+
+### For the builder (harness, not product)
+- **(e) The EN walk is EN only for L1.** `pilihBahasa` runs once (line 77). Every later sign-in, teacher, learners and Admin PINTAR alike, comes back in Indonesian. So `standar-en-1280` is mostly ID, and **I don't judge EN from it.** Re-run with `pilihBahasa` after every `masukEmail`.
+- **(f) The tour covers the learner's «Diminta guru Anda» card** in `43-sinta-belajar`, as J12-4: dismiss it before capturing. The words were recorded.
+
+**J5's «left for the builder» lines are closed, except the EN pass (e).**

@@ -159,3 +159,4 @@
 - 24 Nov 22:00Z · J12 passes walked locally. L1 to L4 reached the end in every run; L5 and L6 are environmental (no Mailpit), so the builder's. New: J12-5 (EN results on /konfigurasi untranslated; likely the same cause as J9-4).
 - 24 Nov 21:14Z · Bob: J8 recorded (L-127 to L-133); Sharon's identity rule (a73874d6). → J8-7 words fitted per case, ID and EN. One reading flagged for Sharon (no NIS and no date).
 - 24 Nov 21:19Z · Bob: J5 captured (9be73ecf); code answers (per-browser device question; L-134 conditional wording adopted). → J5 capture judged next.
+- 24 Nov 21:45Z · J5 capture judged (9be73ecf). All findings stand. New: J5-12; L-134 widened to the Uji Cepat result page. Harness: EN is applied only at L1; the tour covers the request card.
