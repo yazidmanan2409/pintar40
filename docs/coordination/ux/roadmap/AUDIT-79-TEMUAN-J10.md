@@ -38,3 +38,11 @@
   - the double press made **one** request (DB: one REOPEN, RECEIVED);
   - the confirmation promises no time (ruling 90);
   - Back returns to the form without resending.
+
+## Confidentiality marking (ruling 96: «better guidance without weakening account confidentiality»; Sharon decides each one marked)
+
+| # | Would the proposed guidance reveal something about a specific account? |
+|---|---|
+| **J10-1** | **[S] YES: the account's state (closed).** It is revealed only to someone who has just typed that account's **correct password**. Whether that is acceptable (shared, leaked or old passwords) is Sharon's call. **The fallback reveals nothing:** keep the refusal as it is, and add one line under it for everyone: «Bila akun Anda sudah ditutup, password yang benar pun tidak dapat dipakai untuk masuk. Minta dibuka kembali.» + the link |
+| J10-2 | **No.** The proposed line is shown to everyone, whatever was typed, and names no account |
+| J10-3 | **No.** It is form validation of the person's own message |
