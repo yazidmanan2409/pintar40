@@ -212,3 +212,13 @@ Nine findings: 5 Significant, 4 Improvement, none Critical. **The core cross-rol
 | L-60 (J3-7) | The retake request is offered only in the sittings list's «Atur» panel, not on the learner's record beside the result | F, A | J3 | Improvement | — |
 | L-61 (J3-8) | One verdict, three wordings on the learner's own pages | B | J3 | Improvement | With L-33 and L-48 |
 | L-62 (J3-9) | Approving a retake is one press, while refusing needs a reason | E | J3 | No change proposed | Noted for the E pass |
+
+## J4 walked (Daisy, `AUDIT-79-TEMUAN-J4.md` `f7130620`; the local audit world; 24 Nov)
+
+**«Work kept» holds on every branch walked:** permission → resume at 2 of 6; offline, an answer held and sent on reconnect (the DB agrees); the teacher's scored end used exactly the saved answers. J4-2 confirms L-45 at a second school, and J4-5 confirms L-47; neither is a new row. Not walked: time running out, maintenance (J12), not-counted, and the SR, throttled and reduced-motion passes.
+
+| L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
+|---|---|---|---|---|---|---|
+| L-63 (J4-1) | A learner whose sitting the teacher ended isn't told so: the result reads «Belum lulus … 2 dari 6», as if handed in. The teacher's row says «Diakhiri 17.41 WIB · jawaban yang ada dinilai» | B, D | J4 | **Significant** | **C-2** (the teacher's end reached the teacher's screen only) | «Uji Penguasaan ini diakhiri oleh guru Anda pada {waktu}. Jawaban yang sudah tersimpan dinilai.», plus a not-counted variant on the start page |
+| L-64 (J4-3) | An open sitting's card reads «Siap untuk Uji Penguasaan» + «Lanjutkan» | B | J4 | Improvement | **C-2** (the step derivation has no «in progress» step for the Uji Penguasaan) | «Uji Penguasaan sedang berjalan» |
+| L-65 (J4-4) | «Sedang luring» is a hard word for children | A | J4 | Improvement | Wording only | «Tidak tersambung ke internet. …» |

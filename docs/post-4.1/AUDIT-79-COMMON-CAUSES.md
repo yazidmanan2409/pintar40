@@ -1,6 +1,6 @@
 # Audit 79 · the common causes behind conflicting screens (Bob, 24 Nov 2026; ruling 95)
 
-**Status: INTERIM, after J1, J2 and J3.** It is updated as Daisy walks each remaining journey. **The correction plan is not final until all twelve are walked** (ruling 95). Nothing here is built.
+**Status: INTERIM, after J1 to J4.** It is updated as Daisy walks each remaining journey. **The correction plan is not final until all twelve are walked** (ruling 95). Nothing here is built.
 
 **Method:**
 - Every finding where screens disagree was traced, read-only, to the code on main `429b7dcc`. For each finding the trace names:
@@ -16,9 +16,9 @@
 | # | Cause | What it looks like in the code | Findings it explains |
 |---|---|---|---|
 | **C-1** | **Two definitions of «the sitting in force»** | `my_cycle_state` returns the latest *begun* sitting per mode (`order by s.created_at desc`, `20261010100000…sql:554-565`). Z's V2 made `hasil_belajar_sesi_orang` take the latest *finalized* one (`20270123110000…sql:54-83`). Pages built on `my_cycle_state` lose the result while a retake is open, or read a different sitting from Hasil Belajar | L-54 (the learner's result is a 404 during a retake), L-55, the sitting mismatch in L-48 and L-61 |
-| **C-2** | **A new state reached one screen, not its siblings** | The approved retake (`percobaan_saya`) was wired into the chapter card's note and the test page only. It is missing from: the step derivation (`posisi` / `peringkat`, `siklus.ts:145`); the home's «nothing waiting» check; the result's retake line; the chapter page; and `lanjut`. Likewise `ulang_berjalan` and `percobaan_ke` each reached one reader. | L-56, L-57, L-54, L-43, L-55 |
+| **C-2** | **A new state reached one screen, not its siblings** | The approved retake (`percobaan_saya`) was wired into the chapter card's note and the test page only. It is missing from: the step derivation (`posisi` / `peringkat`, `siklus.ts:145`); the home's «nothing waiting» check; the result's retake line; the chapter page; and `lanjut`. Likewise `ulang_berjalan` and `percobaan_ke` each reached one reader. | L-56, L-57, L-54, L-43, L-55; **J4:** L-63 (the teacher's end reaches only the teacher's screen), L-64 (no «in progress» step) |
 | **C-3** | **A page re-derives a shared fact from raw fields** | The certificate page tests `outcome.lulus` (`sertifikat/page.tsx:101`) instead of `keadaanSertifikat`, so a non-certifying pass lands in «sedang disiapkan». The teacher's record works out «retake open» and «latest» in TypeScript, more loosely than the SQL (`pengajar.ts:1019-1047`). A transfer row's buttons read `status` only, while the closed-source rule lives inside `transfer_execute` | L-44, L-43 / L-55, L-35, L-38 |
-| **C-4** | **Each «waiting for you» covers only one kind of decision** | The teacher's home falls back to «Tidak ada yang menunggu keputusan Anda» whenever there is no release to assign (`mengajar/page.tsx:140-176`). It never reads continue requests (`lanjut_diminta_pada`) or retake requests. The approver's Bagian A counts `management_decisions` only, while the line above it counts `percobaan_antrean` (`pimpinan/page.tsx:97-154`) | L-45, L-58 |
+| **C-4** | **Each «waiting for you» covers only one kind of decision** | The teacher's home falls back to «Tidak ada yang menunggu keputusan Anda» whenever there is no release to assign (`mengajar/page.tsx:140-176`). It never reads continue requests (`lanjut_diminta_pada`) or retake requests. The approver's Bagian A counts `management_decisions` only, while the line above it counts `percobaan_antrean` (`pimpinan/page.tsx:97-154`) | L-45, L-58; J4 confirms L-45 at a second school |
 | **C-5** | **Recommendations read an old result** | The chapter page and the map always read `readingMap(pre_session)`, the Pemetaan Awal, even after a newer Uji Penguasaan. `map.intro` shows whatever the step (`[tugas]/page.tsx:45-48,106`). The result page and Hasil Belajar read the post-test's map | L-46, L-59 |
 | **C-6** | **One verdict, words chosen per screen** | Every surface uses the shared `ketuntasan` (`siklus.ts:300`). But the start card and the Hasil Belajar headline ignore `bersertifikasi` when choosing their words: «Lulus» / «target tercapai» / «sudah mencapai target» | L-33, L-48, L-61 |
 
@@ -51,7 +51,15 @@ No new layer or framework (ruling 95). **Each cause gets one existing authority,
 - **L-8 extended to screens:** a change to a state also sweeps every screen that shows that state, in the same batch. The hand-off names them («dependent screens: N found, N updated»). This applies the existing principle; it is not a new procedure.
 - **Cross-surface checks become journey assertions.** J3's three-surface verdict check is the model: for each cause, one journey step asserts that the sibling screens agree. For example, after a retake is approved, the home, result, chapter and `lanjut` all offer it; after a retake opens, the learner and the teacher both show the result in force.
 
-## 4 · Open (filled as the journeys are walked)
+## 4 · By journey
+
+| Journey | Findings | Fit the causes | New cause |
+|---|---|---|---|
+| J2 | 10 | L-44 (C-3), L-45 (C-4), L-46 (C-5), L-48 (C-6) | — (the rest are wording or layout) |
+| J3 | 9 | All five Significant (C-1, C-2, C-4) and L-59 to L-61 (C-5, C-6) | — |
+| J4 | 3 new, plus 2 confirmations | L-63, L-64 (C-2); L-45 confirmed (C-4) | — (L-65 is wording only) |
+
+## 5 · Open (filled as the journeys are walked)
 
 - J4 to J12: does each new finding fit C-1 to C-6, or show a new cause? Daisy adds a «sibling screens» line per finding.
 - To verify before the plan:
