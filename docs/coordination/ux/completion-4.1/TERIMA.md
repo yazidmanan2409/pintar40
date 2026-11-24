@@ -139,3 +139,4 @@
 - **24 Nov 10:49Z · Bob:** J4 → L-63..L-65; Sol's qualifications on C-1 and C-5 noted, words at plan time. **J10 walked:** AUDIT-79-TEMUAN-J10.md; 1 Significant (for Sharon), 2 Improvement; proposed C-10.
 - **24 Nov 10:54Z · Bob:** J7 → L-67..L-74; my causes become C-7 and C-8; L-67 is with Sharon. Files renumbered (204b3c5e). **J5 walked in part:** AUDIT-79-TEMUAN-J5.md; 1 Significant, 4 Improvement.
 - **24 Nov 10:56Z · Bob:** ruling 96 (thanks; L-67 provisionally Critical; three certificate facts; J4 circumstances; J10 confidentiality marking). **Done:** J10 marking (c3dc8088). **J6 walked:** AUDIT-79-TEMUAN-J6.md; 3 Improvement; the allowance world question goes to the builder.
+- **24 Nov 11:09Z and 11:19Z · Bob:** J2 run judgements answered (61829330); recorded as L-86, L-87; C-7 widened. **J8 walked in part:** AUDIT-79-TEMUAN-J8.md; 6 Improvement; L-39 confirmed on a second school; proposed C-10 (browser-only validation).
