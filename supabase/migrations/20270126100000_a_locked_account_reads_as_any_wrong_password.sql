@@ -298,6 +298,49 @@ begin
 end $$;
 
 
+-- 7b. F-5 (PINTAR's /masuk/lupa and /aktifkan routes): with no ban, Auth would accept a code for a locked person, so
+--     PINTAR's own code targets leave a locked person out. A code request then sends nothing, and a code typed reads
+--     exactly as for an address nobody has: the ordinary answer, as Auth's «user_banned» gave before
+create or replace function public.recovery_code_target(p_identitas text)
+ returns table(auth_user_id uuid, nama text)
+ language plpgsql
+ stable security definer
+ set search_path = public, pg_temp as $$
+declare v text := lower(btrim(coalesce(p_identitas, '')));
+begin
+  if v = '' or length(v) > 320 then return; end if;
+  return query
+    select a.auth_user_id, p.display_name
+      from public.accounts a
+      join public.account_setup s on s.account_id = a.id and s.state = 'COMPLETE'
+      join public.persons p on p.id = a.person_id
+      join auth.users u on u.id = a.auth_user_id
+     where a.kind = 'EMAIL' and not public.adalah_persona(a.person_id)
+       -- CI-2 F-5: a locked person is nobody to send a code to or check one for (Auth no longer refuses them itself)
+       and not public.orang_ditangguhkan(a.person_id)
+       and (lower(u.email) = v
+            or (position('@' in v) = 0
+                and exists (select 1 from public.person_usernames pu where pu.person_id = a.person_id and pu.username = v)))
+     limit 1;
+end $$;
+
+create or replace function public.activation_code_target(p_email text)
+ returns table(auth_user_id uuid, nama text)
+ language sql
+ stable security definer
+ set search_path = public, pg_temp as $$
+  select a.auth_user_id, p.display_name
+    from auth.users u
+    join public.accounts a on a.auth_user_id = u.id and a.kind = 'EMAIL'
+    join public.account_setup s on s.account_id = a.id and s.state = 'REQUIRED'
+    join public.persons p on p.id = a.person_id
+   where lower(u.email) = lower(btrim(coalesce(p_email, ''))) and btrim(coalesce(p_email, '')) <> ''
+     and not public.adalah_persona(a.person_id)
+     -- CI-2 F-5: as recovery_code_target
+     and not public.orang_ditangguhkan(a.person_id)
+   limit 1
+$$;
+
 -- ADR-0021: every function this file creates revokes PUBLIC's EXECUTE here; each keeps exactly the grants it had
 revoke all on function public.auth_password_write_guard() from public, anon, authenticated, service_role;
 revoke all on function public.akun_kunci(uuid, boolean) from public, anon, authenticated, service_role;
@@ -305,6 +348,8 @@ revoke all on function public.akun_baru_terkunci() from public, anon, authentica
 revoke all on function public.admin_akun_dapat_masuk(uuid) from public, anon, authenticated;
 revoke all on function public.hapus_data_pribadi(uuid, text) from public, anon;
 revoke all on function public.akun_keadaan(uuid) from public, anon;
+revoke all on function public.recovery_code_target(text) from public, anon, authenticated;
+revoke all on function public.activation_code_target(text) from public, anon, authenticated;
 
 -- 8. F-4: today's bans lifted, and every account of a locked person rotated and revoked; bounded to the count read first.
 --    Staging only today (synthetic accounts); production has no ban (verified under PR-22, not here)

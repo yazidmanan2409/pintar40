@@ -56,6 +56,17 @@ export async function POST(request: NextRequest) {
       },
       tujuan: tujuanMasuk,
       catatGalat: (ref, apa) => console.error(`[aktifkan/periksa] ref=${ref} ${apa}`),
+      // CI-2 F-5: a locked person's accepted code is the ordinary wrong code, and the session it made ends here
+      terkunci: async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return false;
+        const { data: akun } = await layanan.from("accounts").select("person_id").eq("auth_user_id", user.id).maybeSingle();
+        if (!akun?.person_id) return false;
+        const { data: dikunci, error } = await layanan.rpc("orang_ditangguhkan", { p_person: akun.person_id });
+        if (error) throw new Error(error.code ?? "no answer");
+        if (dikunci === true) await supabase.auth.signOut().catch(() => undefined);
+        return dikunci === true;
+      },
     },
   );
   return jawab(hasil);

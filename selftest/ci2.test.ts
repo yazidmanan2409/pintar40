@@ -276,7 +276,7 @@ export const ci2StaticTests: SelfTest[] = [
       if (!c.expect(mig !== "", `${MIGRASI_CI2} is not in the tree`)) return c.verdict("");
       // every function the migration defines, body by body: none names banned_until (Sharon addition 4, Q8's static half)
       const fungsi = [...mig.matchAll(/create or replace function ([a-z_]+\.[a-z_]+)\([^)]*\)[\s\S]*?\$\$([\s\S]*?)\$\$/g)];
-      c.expect(fungsi.length >= 6, `the migration defines ${fungsi.length} functions; the rotation, the lock, the new-account rotation, the guard, the reader and the anonymisation are expected`);
+      c.expect(fungsi.length >= 8, `the migration defines ${fungsi.length} functions; the rotation, the lock, the new-account rotation, the guard, the reader and the anonymisation are expected`);
       for (const [, nama, isi] of fungsi) c.expect(!/banned_until/.test(isi), `${nama} names banned_until`);
       const def = (nama: string) => fungsi.find((f) => f[1] === nama)?.[2] ?? "";
       const rot = def("public.akun_rotasi");
@@ -295,6 +295,13 @@ export const ci2StaticTests: SelfTest[] = [
       const hapus = def("public.hapus_data_pribadi");
       c.expect(/akun_rotasi\(/.test(hapus) && !/akun_kunci\([^)]*false/.test(hapus), "the anonymisation does not rotate, or reaches the unlock (Sharon (d))");
       c.expect(/pintar\.kunci_rotasi/.test(def("public.auth_password_write_guard")), "the password guard does not know the rotation's own write");
+      // F-5: PINTAR's own code doors leave a locked person out (Auth no longer refuses them)
+      for (const f of ["public.recovery_code_target", "public.activation_code_target"]) {
+        c.expect(/not public\.orang_ditangguhkan\(a\.person_id\)/.test(def(f)), `${f} still answers for a locked person (F-5)`);
+      }
+      const aktivasi = baca("src/lib/aktivasi.ts"), rutePeriksa = baca("src/app/api/aktifkan/periksa/route.ts");
+      c.expect(/if \(alat\.terkunci && \(await alat\.terkunci\(\)/.test(aktivasi) && /orang_ditangguhkan/.test(rutePeriksa) && /signOut\(\)/.test(rutePeriksa),
+        "the activation door does not answer a locked person's accepted code as the ordinary wrong code (F-5)");
       // F-4 bounded, and the end state asserted
       c.expect(/banned_until is not null/.test(mig) && /raise exception/.test(mig), "the migration does not assert that no account is left banned");
       // Daisy's words, ID and EN, exactly
@@ -325,7 +332,7 @@ export const ci2StaticTests: SelfTest[] = [
       const hitung = baca(HITUNG_STAGING);
       c.expect(/^begin transaction read only;/m.test(hitung) && /^rollback;/m.test(hitung) && !/\b(update|insert|delete)\b/i.test(hitung.replace(/--.*$/gm, "")),
         `${HITUNG_STAGING} is not Sharon's read-only count`);
-      return c.verdict("the migration's functions never name banned_until; the rotation writes a bcrypt hash, clears the five one-time token "
+      return c.verdict("the migration's functions never name banned_until; PINTAR's code doors leave a locked person out (F-5); the rotation writes a bcrypt hash, clears the five one-time token "
         + "columns, the one-time tokens, the refresh tokens and the sessions; the lock and the unlock both rotate; a new account of a locked "
         + "person is rotated and pintar_kunci_tetap_jaga is dropped; admin_akun_dapat_masuk reads PINTAR's lock; the anonymisation rotates "
         + "and never unlocks; the end state is asserted; Daisy's words in ID and EN; §3 and F-6 (or the learner variant) are static lines of "
