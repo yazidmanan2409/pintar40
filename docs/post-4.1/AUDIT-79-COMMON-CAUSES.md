@@ -21,7 +21,7 @@
 | **C-4** | **Each «waiting for you» covers only one kind of decision** | The teacher's home falls back to «Tidak ada yang menunggu keputusan Anda» whenever there is no release to assign (`mengajar/page.tsx:140-176`). It never reads continue requests (`lanjut_diminta_pada`) or retake requests. The approver's Bagian A counts `management_decisions` only, while the line above it counts `percobaan_antrean` (`pimpinan/page.tsx:97-154`) | L-45, L-58; J4 confirms L-45 at a second school; **J7:** L-69 (a correction waits for the second person, who is told nothing waits) |
 | **C-5** | **Recommendations read an old result** | The chapter page and the map always read `readingMap(pre_session)`, the Pemetaan Awal, even after a newer Uji Penguasaan. `map.intro` shows whatever the step (`[tugas]/page.tsx:45-48,106`). The result page and Hasil Belajar read the post-test's map | L-46, L-59 |
 | **C-6** | **One verdict, words chosen per screen** | Every surface uses the shared `ketuntasan` (`siklus.ts:300`). But the start card and the Hasil Belajar headline ignore `bersertifikasi` when choosing their words: «Lulus» / «target tercapai» / «sudah mencapai target» | L-33, L-48, L-61 |
-| **C-7** (J7, new) | **A consequential choice is offered the same, whatever the facts beside it** | «Konfirmasi berlaku» is offered on a certificate whose result was recalculated to a fail exactly as on a passing one, with no confirmation naming the effect. The public record then asserts a pass the current result contradicts | L-67 (**possibly Critical; Sharon judging**) |
+| **C-7** (J7, new) | **A consequential choice is offered the same, whatever the facts beside it** | «Konfirmasi berlaku» is offered on a certificate whose result was recalculated to a fail exactly as on a passing one, with no confirmation naming the effect. The public record then asserts a pass the current result contradicts | L-67 (**CRITICAL provisionally, ruling 96; Sharon judging**) |
 | **C-8** (J7, new) | **The person who notices isn't the person who may act** | The teacher and the head of department see a wrong key but only the admin can flag it | L-71 |
 
 ## 2 · Against the owner's five questions (ruling 95)
@@ -80,6 +80,13 @@ Today `post_session` / `pre_session` is the latest *begun* sitting. **That meani
 | J3 | 9 | All five Significant (C-1, C-2, C-4) and L-59 to L-61 (C-5, C-6) | — |
 | J4 | 3 new, plus 2 confirmations | L-63, L-64 (C-2); L-45 confirmed (C-4) | — (L-65 is wording only) |
 | J7 | 8 | L-68, L-70 (C-3); L-69 (C-4); L-74 (C-6) | **C-7** (L-67), **C-8** (L-71) |
+
+## 4a · Owner direction for the remaining analysis (ruling 96)
+
+- **Certificates, three facts:** the original passing result, the recalculated result, and the certificate's current validity. Each is communicated truthfully and distinctly, on every surface that shows the certificate, the public check included. This is C-1's «two facts, both kept» applied to certificates.
+- **How an assessment ended** is preserved and shown to the learner (L-63; C-2).
+- **Recovery (J10):** better guidance, with no weakening of account confidentiality. Sharon confirms whether any account-specific disclosure is appropriate.
+- **No speculative fixes; don't reopen 4.1 unnecessarily.** A confirmed critical integrity issue goes to the owner promptly.
 
 ## 5 · Open (filled as the journeys are walked)
 
