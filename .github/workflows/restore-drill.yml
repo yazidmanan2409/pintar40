@@ -54,6 +54,12 @@ jobs:
       - name: Fetch, decrypt and restore the newest complete staging bundle, then verify it
         env:
           DRILL_S3_BUCKET: ${{ vars.PINTAR_BACKUP_BUCKET }}
+          # D-189: Google Drive in place of S3 while PINTAR_BACKUP_DESTINATION is gdrive (the same drive.file token, read only here)
+          DRILL_DESTINATION: ${{ vars.PINTAR_BACKUP_DESTINATION || 's3' }}
+          GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
+          GDRIVE_CLIENT_SECRET: ${{ secrets.GDRIVE_CLIENT_SECRET }}
+          GDRIVE_REFRESH_TOKEN: ${{ secrets.GDRIVE_REFRESH_TOKEN }}
+          GDRIVE_STORE: pintar-staging
           DRILL_S3_KEY_ID: ${{ secrets.AWS_BACKUP_READER_KEY_ID }}
           DRILL_S3_SECRET: ${{ secrets.AWS_BACKUP_READER_SECRET }}
           DRILL_KEY: ${{ secrets.STAGING_DRILL_PRIVATE_KEY }}
