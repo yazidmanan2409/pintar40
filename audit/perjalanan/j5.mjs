@@ -45,6 +45,7 @@ for (const lebar of LEBAR) {
     await masukEmail(j, o);
     await lewatiTur(j);
     await ke("/belajar");
+    await lewatiTur(j);   // the tour opens on /belajar itself: dismissed before the capture (as J12's observers)
     await foto(`${awalan}belajar`);
     data(`${awalan}learner_home`, (await isi()).slice(0, 500));
     const t = page.getByRole("link", { name: /Uji Cepat|Quick Assessment/ }).first();
@@ -230,6 +231,7 @@ for (const lebar of LEBAR) {
     await masukEmail(j, sinta);
     await lewatiTur(j);
     await ke("/belajar");
+    await lewatiTur(j);   // the tour opens on /belajar itself: dismissed before the capture (as J12's observers)
     await foto("sinta-belajar");
     data("learner_sees", (await isi()).slice(0, 500));
     await keluar(j);

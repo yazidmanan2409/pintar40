@@ -185,6 +185,16 @@ export function ringkas(perjalanan, hasil) {
  * a staff walk: a walk is longer than the shared computer's 5-minute lock) or "bersama". Returns where it landed and
  * the choice made, for the step's record. A journey that walks «Komputer siapa ini?» itself (J10) passes null.
  */
+/** The browser forgets the session but keeps the reader's language choice (the `pintar-lang` cookie, which the
+ *  product itself never clears on sign-out: src/app/keluar/route.ts, src/app/masuk/actions.ts): a harness fallback
+ *  must not undo a choice the person made. */
+export async function lupakanSesi(page) {
+  const ctx = page.context();
+  const bahasa = (await ctx.cookies()).filter((c) => c.name === "pintar-lang");
+  await ctx.clearCookies();
+  if (bahasa.length) await ctx.addCookies(bahasa);
+}
+
 /** the welcome tour opens over a home page at each sign-in; after the page is captured with it, a person skips it by keyboard so later captures are not covered */
 export async function lewatiTur(j) {
   const b = j.page.getByRole("button", { name: /^Lewati tur$|^Skip tour$/ }).first();
@@ -210,7 +220,7 @@ export async function masukEmail(j, orang, perangkat = "pribadi") {
   await keluarDiMasuk(j);
   if (!(await page.locator("#identitas").isVisible().catch(() => false))) {
     // /masuk sent a signed-in browser on (a redirect from the server can land on «localhost», whose cookies the 127.0.0.1 sign-out left alone)
-    await page.context().clearCookies();
+    await lupakanSesi(page);
     await page.goto(`${APP}/masuk`).catch(() => {});
     await page.waitForLoadState("networkidle").catch(() => {});
     await keluarDiMasuk(j);
@@ -267,7 +277,7 @@ export async function keluar(j) {
     await j.page.waitForLoadState("networkidle").catch(() => {});
   }
   if (!(await j.page.locator("button.pin-sesi-keluar").first().isVisible().catch(() => false))) {
-    await j.page.context().clearCookies();   // no page offers it (e.g. during a maintenance): the browser forgets the session
+    await lupakanSesi(j.page);   // no page offers it (e.g. during a maintenance): the browser forgets the session
     await j.page.goto(`${APP}/masuk`).catch(() => {});   // a redirect in flight may abort this navigation
     await j.page.waitForLoadState("networkidle").catch(() => {});
     if (!new URL(j.page.url()).pathname.startsWith("/masuk")) await j.page.goto(`${APP}/masuk`).catch(() => {});

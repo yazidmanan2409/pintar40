@@ -24,7 +24,7 @@
 import { execFileSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { APP, dunia, jalan, lewatiTur, pilihBahasa, masukEmail, muatUlang, keluar, ringkas, LEBAR } from "./lib.mjs";
+import { APP, dunia, jalan, lewatiTur, lupakanSesi, pilihBahasa, masukEmail, muatUlang, keluar, ringkas, LEBAR } from "./lib.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const SINK = process.env.MAILPIT_URL ?? "http://127.0.0.1:54324";
@@ -82,7 +82,7 @@ for (const lebar of LEBAR) {
   const sesi = (o) => j.baca(`select coalesce(string_agg(mode || ' ' || public.sesi_keadaan(ds, now()) || coalesce(' ended ' || ended_reason, ''), '; ' order by created_at), 'none')
     from public.device_sessions ds where auth_user_id = '${o.auth}'`);
   const keMasuk = async () => {
-    await page.context().clearCookies();
+    await lupakanSesi(page);   // the session forgotten, the language choice kept
     await page.goto(`${APP}/masuk`).catch(() => {});   // a redirect in flight may abort this navigation
     await tunggu();
     if (!new URL(page.url()).pathname.startsWith("/masuk")) { await page.goto(`${APP}/masuk`).catch(() => {}); await tunggu(); }
