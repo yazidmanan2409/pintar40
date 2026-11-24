@@ -147,6 +147,19 @@ jobs:
           AUDIT_BAHASA=en AUDIT_LEBAR=1280 node audit/perjalanan/j4.mjs
           for L in pembaca-layar gerak-dikurangi jaringan-lambat; do AUDIT_LALUAN=$L AUDIT_LEBAR=1280 node audit/perjalanan/j4.mjs; done
           AUDIT_CABANG=1 node audit/perjalanan/j4.mjs
+      # J7 changes the world (a key corrected, certificates reviewed, revoked and reissued): it loads the world afresh
+      # per walk and issues W14's certificates through the product each time (terbitkan.mjs, CI's synthetic key)
+      - name: J7 · a key correction after results exist (1280, 390, 320; EN; the three passes)
+        if: success() || failure()
+        env:
+          APP_URL: http://127.0.0.1:3999
+          AUDIT_OUT: ${{ github.workspace }}/audit-out/perjalanan
+          CERT_SECRET_KEY_V1: synthetic-certificate-key-fable04-32plus   # CI's synthetic key (as the app's)
+        run: |
+          set -euo pipefail
+          node audit/perjalanan/j7.mjs
+          AUDIT_BAHASA=en AUDIT_LEBAR=1280 node audit/perjalanan/j7.mjs
+          for L in pembaca-layar gerak-dikurangi jaringan-lambat; do AUDIT_LALUAN=$L AUDIT_LEBAR=1280 node audit/perjalanan/j7.mjs; done
       # J11 reads the school (W18): read-only, so on a world loaded once
       - name: J11 · reading the school (1280, 390, 320; then EN at 1280)
         if: success() || failure()

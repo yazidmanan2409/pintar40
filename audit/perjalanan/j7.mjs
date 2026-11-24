@@ -48,10 +48,10 @@ for (const lebar of LEBAR) {
   const koreksi = () => j.baca(`select coalesce(string_agg(status || ' ' || array_to_string(key_before, ',') || '→' || array_to_string(key_after, ','), '; '), 'none')
     from public.key_corrections where asked_item_id = '${soal}' or item_id = '${soal}'`);
   const sertifikat = (orang) => j.baca(`select coalesce(string_agg(c.certificate_number || ' ' || c.status::text
-      || coalesce(' review ' || coalesce(r.decision, 'OPEN'), ''), '; ' order by c.created_at), 'none')
+      || case when r.id is null then '' else ' review ' || coalesce(r.decision, 'OPEN') end, '; ' order by c.created_at), 'none')
     from public.certificates c left join public.certificate_reviews r on r.certificate_id = c.id
     where c.person_id = '${orang.person}'`);
-  const hasilnya = (orang) => j.baca(`select coalesce(string_agg(round(r.mastery * 100)::text || '%' || case when r.supersedes_result_id is null then ' (asli)' else ' (dihitung ulang)' end, ' → ' order by r.created_at), 'none')
+  const hasilnya = (orang) => j.baca(`select coalesce(string_agg(round(r.mastery * 100)::text || '%' || case when r.supersedes_result_id is null then ' (asli)' else ' (dihitung ulang)' end, ' → ' order by r.computed_at), 'none')
     from public.assessment_results r join public.assessment_sessions s on s.id = r.session_id
     join public.assessment_definitions d on d.id = s.assessment_definition_id
     where s.person_id = '${orang.person}' and d.mode = 'POST_TEST'`);
@@ -79,6 +79,15 @@ for (const lebar of LEBAR) {
       await page.emulateMedia({ media: "screen" });
     }
     await keluar(j);
+  }
+  /** Shift+Tab until `loc` holds the focus, then Enter (a control placed before the focus); returns the presses */
+  async function mundurTekan(loc, maks = 10) {
+    const h = await loc.elementHandle({ timeout: 15000 });
+    for (let i = 0; i <= maks; i++) {
+      if (await h.evaluate((el) => el === document.activeElement)) { await page.keyboard.press("Enter"); return i; }
+      await page.keyboard.press("Shift+Tab");
+    }
+    throw new Error(`could not reach it by Shift+Tab in ${maks} presses`);
   }
   /** the outside verifier: the public check, signed out */
   async function periksa(tok, foto, data, nm) {
@@ -139,6 +148,14 @@ for (const lebar of LEBAR) {
     for (const [nm, url] of [["studio", "/studio"], ["pimpinan", "/pimpinan"], ["antrean", "/studio/tinjau"]]) {
       await page.goto(`${APP}${url}`);
       await page.waitForLoadState("networkidle").catch(() => {});
+      // a person with two roles is asked where to go first; the walk chooses the role that page belongs to
+      const peran = nm === "pimpinan" ? /Saya memimpin bagian sekolah|I lead part of the school/ : /Saya mengajar|I teach/;
+      const pilihPeran = page.locator("button, a", { hasText: peran }).first();
+      if (/Mau ke mana hari ini|Where to today/i.test(await isi()) && await pilihPeran.count()) {
+        rec.tab += await j.tekan(pilihPeran, 100);
+        await page.waitForLoadState("networkidle").catch(() => {});
+        if (!new URL(page.url()).pathname.startsWith(url)) { await page.goto(`${APP}${url}`); await page.waitForLoadState("networkidle").catch(() => {}); }
+      }
       await lewatiTur(j);
       await foto(`kaprodi-${nm}`);
       data(`approver_${nm}`, (await isi()).slice(0, 700));
@@ -201,7 +218,8 @@ for (const lebar of LEBAR) {
     await tanya.waitFor({ timeout: 10000 });
     await foto("admin-citra-cabut-tanya");
     data("revoke_question", RAPI(await tanya.innerText()));
-    rec.tab += await j.tekan(tanya.getByRole("button", { name: /^(Cabut|Revoke)$/ }).first(), 20);
+    // the confirmation opens with the focus on «Batal», the safe choice; the red button is before it: Shift+Tab
+    rec.tab += await mundurTekan(tanya.getByRole("button", { name: /^(Cabut|Revoke)$/ }).first());
     await page.waitForLoadState("networkidle").catch(() => {}); await page.waitForTimeout(800);
     await foto("admin-citra-dicabut");
     data("after_revoke", status((await page.locator('[role="status"]').allInnerTexts().catch(() => [])).join(" | ")));
@@ -219,6 +237,14 @@ for (const lebar of LEBAR) {
   await j.langkah("L6", "the reissue: Admin PINTAR corrects Ratih's name; the school admin issues the replacement; what Ratih and the verifier see", async ({ rec, foto, data }) => {
     const lama = token(ratih);
     await masukEmail(j, platform);
+    // Admin PINTAR is asked where to go first (a door per school, and «Seluruh platform»); a name is corrected
+    // platform-wide, so the walk takes «Seluruh platform»
+    const pintu = page.locator("button", { hasText: /Seluruh platform|The whole platform|Whole platform/ }).first();
+    if (await pintu.count()) {
+      rec.tab += await j.tekan(pintu, 100);
+      await page.waitForLoadState("networkidle").catch(() => {});
+      data("door", RAPI(await pintu.innerText().catch(() => "(chosen)")));
+    } else data("door", "(no door asked)");
     await lewatiTur(j);
     await page.goto(`${APP}/aktivasi/orang?cari=${encodeURIComponent(ratih.nama)}&pilih=${ratih.person}`);
     await page.waitForLoadState("networkidle").catch(() => {});
