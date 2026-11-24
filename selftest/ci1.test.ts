@@ -16,6 +16,8 @@
  *            confirmed row reads BERLAKU everywhere, and stays so when its mode stops certifying afterwards (the sitting's
  *            captured bersertifikasi is read, never today's mode_policy; P8). The OUT signatures are unchanged and
  *            assert_public_surface passes.
+ *   CI1-V02  Sharon §7 (2): an evidence downgrade reads DITINJAU, is surfaced in the staff list and revoked through the
+ *            existing path, never orphaned; with a review open CONFIRMED is refused. Plant P9 is caught.
  *   CI1-K01  reads the source: the migration writes no rows; the new code is the contract's, mapped to its own words in
  *            ID and EN, so the refusal shows on Konfigurasi as a named refusal; the page's pill, the selected
  *            certificate's state and the «dikonfirmasi» note read the helper.
@@ -275,6 +277,60 @@ export const ci1Tests: SelfTest[] = [
     },
   },
   {
+    id: "CI1-V02",
+    requires: ["db"],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      // Sharon §7 (2): an evidence downgrade (an integrity decision made the sitting non-OFFICIAL) reads DITINJAU, and the
+      // certificate is never left there with nothing to act on: the staff list surfaces it and the school revokes it
+      // through the existing path (revoke_certificate needs no review row). The override is the harness's hand (an
+      // integrity reviewer's insert), OFFICIAL -> SYNTHETIC.
+      const turun = paksa(`insert into public.evidence_class_overrides (session_id, institution_id, from_class, to_class, reason, decided_by_person_id)
+        select s.id, s.institution_id, 'OFFICIAL', 'SYNTHETIC', 'uji CI-1: bukti tidak lagi resmi',
+               (select a.person_id from public.accounts a where a.auth_user_id = current_setting('c1.u_badmin')::uuid)
+          from public.assessment_sessions s where s.id = current_setting('c1.bs')::uuid`);
+      const terbit = [
+        `if ${S("boot")} = '' then raise exception 'the bootstrap school is absent'; end if;`,
+        `perform selftest.purge_certificates();`,
+        `perform set_config('c1.bs', selftest.boot_attempt(true)::text, true);`,
+        `perform selftest.as_owner(); perform public.certificate_prepare(${G("bs")}, 1::smallint);`,
+        `perform set_config('c1.cert', ${sertifikat}::text, true); perform public.certificate_seal(${G("cert")}, 1::smallint, repeat('a', 64));`,
+      ];
+      const tanpaTinjauan = (tanaman: string[] = []): string[] => [
+        ...terbit,
+        langkah("sebelum", null, verifikasi),
+        turun, ...tanaman,
+        langkah("resmi", null, `select (exists (select 1 from public.official_sessions o where o.id = ${G("bs")}))::text || '|'
+          || (select count(*) from public.certificate_reviews v where v.certificate_id = ${G("cert")})`),
+        langkah("publik", null, verifikasi),
+        langkah("dipersoalkan", "badmin", `select (${G("cert")} in (select x from public.sertifikat_dipersoalkan_sekolah(${G("boot")}) x))::text`),
+        langkah("cabut", "badmin", `select public.revoke_certificate(${G("cert")}, 'Bukti sesi ini tidak lagi resmi setelah keputusan integritas.')::text`),
+        langkah("dicabut", null, verifikasi),
+      ];
+      const m = jalankan(c, repoRoot, tanpaTinjauan());
+      if (!m) return c.verdict("");
+      const harap = (k: string, h: string, apa: string) => c.expect(m[k] === h, `${apa}: answered ${m[k]}; expected ${h}`);
+      harap("sebelum", "ok:BERLAKU|true", "the issued certificate before the downgrade");
+      harap("resmi", "ok:false|0", "the fixture: the sitting no longer OFFICIAL, no review on the certificate");
+      harap("publik", "ok:DITINJAU|true", "the public check after the evidence downgrade");
+      harap("dipersoalkan", "ok:true", "the staff list surfaces it as needing a decision");
+      harap("cabut", "ok:REVOKED", "the school revoking it through the existing path (no review row needed)");
+      harap("dicabut", "ok:DICABUT|true", "the public check once revoked");
+      // with a review open (a correction that still passes), the downgrade refuses CONFIRMED (S-1); REVOKED stays available
+      const n = jalankan(c, repoRoot, [...dunia(), turun, putus("konfirmasi", "CONFIRMED"), putus("cabut", "REVOKED"), langkah("dicabut", null, verifikasi)]);
+      if (!n) return c.verdict("");
+      c.expect(n.konfirmasi === `PR190:${KODE}` && n.cabut === "ok:REVOKED" && n.dicabut === "ok:DICABUT|true",
+        `a review open on a downgraded sitting: confirm ${n.konfirmasi}, revoke ${n.cabut}, then ${n.dicabut}; expected the refusal, REVOKED, DICABUT`);
+      // P9: the staff read only what an open review questions — the downgraded certificate orphaned (DITINJAU, not surfaced)
+      const p9 = jalankan(new Checks(), repoRoot, tanpaTinjauan([tanam("public.sertifikat_dipersoalkan_sekolah(uuid)",
+        "and public.sertifikat_dipersoalkan(c.id)", "and public.sertifikat_ditinjau(c.id)")]));
+      c.expect(p9 !== null && p9.dipersoalkan !== "ok:true", `P9 (an orphaned downgraded certificate) must be caught: the staff list answered ${p9?.dipersoalkan}`);
+      return c.verdict("an evidence downgrade (the sitting no longer OFFICIAL, no review on the certificate) reads DITINJAU publicly, is "
+        + "surfaced in the staff list's questioned set and is revoked by the school through the existing path (DICABUT); with a review "
+        + "open, CONFIRMED is refused and REVOKED stays available; the plant P9 (the staff read limited to open reviews) is caught");
+    },
+  },
+  {
     id: "CI1-K01",
     requires: [],
     run: async ({ repoRoot }) => {
@@ -301,6 +357,9 @@ export const ci1Tests: SelfTest[] = [
       c.expect(/s\(kunciKodeKoreksi\(kodeTinjau\)\)/.test(halaman) && /KODE_KOREKSI\.includes\(sp\.kode/.test(halaman), "Konfigurasi shows a refused decision by its code's words");
       c.expect(/rpc\("sertifikat_dipersoalkan_sekolah"/.test(halaman), "Konfigurasi reads the staff list's validity from sertifikat_dipersoalkan_sekolah");
       c.expect((halaman.match(/dipersoalkan\.has\(/g) ?? []).length >= 2, "both the list's pill and the selected certificate's state read the helper's set");
+      // Sharon §7 (2): a questioned certificate is never orphaned on screen: every ISSUED row offers «Cabut» (the existing path)
+      c.expect(/c\.status === "ISSUED"\s*\?\s*<Link key="a" className="pin-tautan" href=\{tautanPilih\(c\.id\)\} data-cabut-sertifikat/.test(halaman),
+        "every ISSUED row, questioned or not, offers «Cabut»");
       return c.verdict(`the migration writes no record (its one row: the staff read's registry entry); S-1's refusal is ${KODE}, the contract's, with its own words in ID («${id}») and EN, `
         + "so Konfigurasi shows it by name; the list's pill and the selected certificate's state read sertifikat_dipersoalkan_sekolah");
     },
