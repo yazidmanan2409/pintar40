@@ -19,3 +19,11 @@ PRESERVATION: BEFORE (22:25:24Z) and AFTER compared mechanically (diff of the 66
 A transcription note, disclosed: the first write of the AFTER file lost a trailing space on line 76 (the query returns "76|0 "
 on both reads: a count followed by an empty list). The diff showed it; the file was corrected to the verbatim output, and the
 diff then showed line 10 alone. It was not a data change.
+
+V6 HOSTED CHECK (Sharon's condition on the promotion, 22:38Z), read only, 2026-11-24 22:42:25Z:
+- md5(pg_get_functiondef('pintar_permintaan.periksa()')): 2b4a0444fbd36007341a536916fe14a0, identical to main's build
+  (recorded since Z's local 308 build; CI-1's migration doesn't touch periksa).
+- periksa calls (pg_stat_statements, select "pintar_permintaan"."periksa"()): 178,026 (anon 2,126, authenticated 172,046,
+  service_role 3,854). There's no reading between the promotion (22:27:06Z) and this one, so THIS is the post-promotion
+  baseline. Showing it rising needs one staging request after 22:42:25Z (as for Z §2 and D2-R: the owner loads a staging
+  page). PENDING.

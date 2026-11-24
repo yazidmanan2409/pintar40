@@ -58,4 +58,8 @@ CI-1's evidence stands as stated.
    - the one registry row is there;
    - no anon grant on any certificate function (verify_certificate is service-role only, as before);
    - **60 issued certificates read BERLAKU, 6 revoked, none DITINJAU**, as step 0 predicted.
-10. **Next:** Sharon's independent promotion verification. CI-1 isn't declared closed until she returns it.
+10. **Sharon (22:38Z): PASS, conditional ONLY on the V6 hosted re-read** (her CI-1-VERIFY addendum).
+    - She read the staging run from the API (success), checked that main's tree equals 94ce6727's, and did her own diff: only line 10 moves.
+    - She found that the migration writes only its registry row, that public and staff validity agree, and that step 0's prediction matches.
+    - She verified from the evidence, the repo and the API. She did not query staging herself: her standing rule is no staging access unless the owner authorises her in her own session.
+11. **The V6 re-read** (22:42:25Z): periksa md5 `2b4a0444…` is unchanged, and the counter baseline is 178,026. **It needs one staging request after 22:42:25Z** (the owner's page load, as for Z and D2-R), then Bob re-reads. **CI-1 isn't closed until that's shown.**
