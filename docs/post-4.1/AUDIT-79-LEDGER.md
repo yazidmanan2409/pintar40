@@ -389,3 +389,19 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
 - **J3 and J4 re-captured** (`87769a6b/j3/` `f308d1ad`; `f308d1ad/j4/` `7bc68907`). The earlier `6792ecb9/j3/` and `f606a740/j4/` are **superseded**; J2's captures aren't affected. On the corrected world, J4's teacher home reads «Tidak ada yang menunggu keputusan Anda hari ini.» (L-45's territory: Daisy checks it against a waiting request).
 - **W12:** L = 306, so the remaining allowance is 12,585. Verified locally: the first request is admitted, and the identical second is refused AI_JATAH_HABIS.
 - **J2's public check in EN** (`f370213f/j2/…/standar-en-1280/`): «STATUS Valid · RESULT Passed». The holder's name is not on the page in EN either.
+
+**The C-4 waiting-state captures** (builder, `e0aa6294`; partial walks, `AUDIT_SAMPAI`):
+- **L-45 is evidenced:** the teacher's /mengajar home reads «Tidak ada yang menunggu keputusan Anda hari ini.» WHILE Galih's request to continue waits (`f308d1ad/j4/sebagian-menunggu-…/02-guru-mengajar-menunggu.png`).
+- **L-58 is evidenced:** /pimpinan shows «1 permintaan kesempatan tambahan menunggu persetujuan» directly above «BAGIAN A KEPUTUSAN · Tidak ada keputusan yang menunggu Anda.» (`87769a6b/j3/sebagian-menunggu-…/08-…png`).
+- **L-69 is evidenced** while the correction waits (`63ff05e9/j7/sebagian-L2-…`): Studio's home, /pimpinan Bagian A and the queue's own empty line all say nothing waits.
+
+**J7 captured** (`5e0d0392`, `audit/79/tangkapan/63ff05e9/j7/`): 7 walks, plus Daisy's «not walked» items.
+- «Cabut» completed: the public check reads «Dicabut … tidak lagi berlaku · Seperti saat diterbitkan HASIL Lulus».
+- The reissue completed: the old certificate reads «Digantikan», the new one «Berlaku».
+- L-68 and L-70 hold.
+- Ratih's own page opens the replaced certificate first after the reissue, with «Buka sertifikat yang baru»; Daisy judges.
+- «Cabut» is reached by Shift+Tab, because focus opens on «Batal»; Daisy judges.
+
+| L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
+|---|---|---|---|---|---|---|
+| L-105 | **A revoked or replaced certificate prints as a clean, valid-looking certificate through the browser's own print.** The page stops offering «Cetak» once revoked or replaced, but print media drops the «dicabut»/«digantikan» banner: Citra's revoked 7QD8E0DJ/00001 prints as hers, and Ratih's replaced one prints with her old name and number. Under review, the print doesn't mention the review either (deliberate per a code comment: the QR resolves to the live status) | C, D | J7 | **To be classified by Sharon** (integrity of a printed credential; mitigated by the QR resolving to the live status) | C-3 (the print stylesheet derives the state apart from the page) | **CI-1 is frozen and isn't changed.** Sharon decides the severity and where it goes: a CI-1 follow-up, CI-2's sibling, or AR-79 |
