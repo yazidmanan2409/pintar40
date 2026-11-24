@@ -101,7 +101,10 @@ scripts/dev/preflight.sh            # lint, typecheck, build-identity, suite, pl
 - `siap.sh` recovers what it can: it restarts containerd and dockerd, pulls a missing image **by the digest in
   `images.lock`** with backoff, starts the stack and the Mailpit sink, and stops a leaked app server on :3999.
 - `preflight.sh` forces `supabase db reset --local` before the suite and the plants. Every `PREFLIGHT_DENYUT` seconds
-  (default 120) it runs `siap.sh --denyut` (disk, runtime, database). The first lost heartbeat stops the run.
+  (default 120) it runs `siap.sh --denyut` (disk, runtime, database). The first lost heartbeat stops the run. H-1: a
+  database that does not answer while the step's own `supabase db reset` runs (in the step's process group) is that
+  reset, not a lost machine, for at most `PREFLIGHT_RESET_GRACE` seconds (default 900); such beats are written `RESET`
+  in `HEARTBEAT.txt`. Any other cause, a database down with no reset running, or one down past the grace is still lost.
 - Every step and every suite row is classed PASS, FAIL (the code) or INFRA (the machine, with its signal), by
   `kelas.sh`. Any FAIL makes the run RED, with INFRA rows listed beside it. VOID (not evidence either way) only when an
   INFRA row exists and nothing failed. A signal code can produce counts as INFRA only on an unhealthy machine. Every
