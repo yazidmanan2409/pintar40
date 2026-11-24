@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| CI-1 independent verification (PR #30) | PASS, conditional on ci 45424228769 + journeys 45424259782 green attempt 1 | dfab09b6 | [CI-1-VERIFY-dfab09b6.md](CI-1-VERIFY-dfab09b6.md) |
 | CI-2 pre-build (L-78 fix) | correct direction; 4 additions (guard trigger, admin_akun_dapat_masuk, all lock paths, banned_until null); (a)–(d) answered; 5 confirmations conditional; plants Q1–Q9 | 918ed195 | [CI-2-PREBUILD-918ed195.md](CI-2-PREBUILD-918ed195.md) |
 | Audit 79 L-78 (Auth reveals locked account) | HIGH now, Critical by nature with real minors; production BLOCKER for mig 221+; fix (iii) rotate+revoke not ban; own correction CI-2; L-75 withdrawn for a generic line | e59276ce | [AUDIT79-L78.md](AUDIT79-L78.md) |
 | CI-1 pre-build (L-67 fix) | correct; (a) DICABUT only with a revocation, else DITINJAU; (b) one helper for public+learner+staff readers; (c) lock; plants P1–P7 | d99fa8d3 | [CI-1-PREBUILD-d99fa8d3.md](CI-1-PREBUILD-d99fa8d3.md) |
