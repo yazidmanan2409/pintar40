@@ -252,3 +252,20 @@ Sharon's part waits until after A3's freeze (ruling 58).
   against D2-R, not as 4.1 defects.
 - **The handbook and the teacher guidance:** "hints are available in the test" becomes false after D2-R.
 - **The pilot:** none, because it issues no certificates.
+
+## 7 · Revision 4 (Bob, 24 Nov 2026; ruling 89, track 1d): the pre-code reviews folded in
+
+**Sharon's review** (`D2R-PRECODE-R-c-f.md`, `dfb5167f`): R-d, R-e and R-f are ready as written. Two corrections, both adopted.
+
+| # | Revision 4 |
+|---|---|
+| R-c | **Corrected: the band goes from the public data, not just from the page.** `verify_certificate` and `/api/verifikasi` today return `predikat` as a public field. **The RPC returns `predikat` as null for every certificate.** The OUT columns and `assert_public_surface()` are unchanged (null is already allowed below 70%). The band stays in `certificate_eligibility`, the snapshot and internal reports. **Also covered:** C1-R4's printed report line (Z-READINESS §6). **Proof:** the RPC and the API both return null for a banded certificate; the card, the A4 sheet, the page and the print show no Predikat |
+| R-d | As written. `open_assistance` reads the **policy captured on the sitting**, never the live `mode_policy` |
+| R-e | As written. **Proof:** extra time is absent from every public surface and from the public snapshot |
+| R-f | As written |
+| R-h | **The red cases are made concrete.** Every learner route is named, each with a plant: `session_review`, `session_answers`, `reading_map`'s reasons, `hasil_koreksi_saya`, and the print and export. **A list guard in the style of Z-D1-02** fails on any new learner-facing reader that is not classified. **There is no approved evidence threshold in 4.1,** so every section line is revisit-advice. `tujuan_gerbang_kode` counts as section-level advice and is allowed, worded as «revisit this section» |
+| §6.3a (Sharon) | **PASS:** nothing on the certificate, the sheet or the public page implies a timed test, a duration or an accommodation |
+| R-a, R-b, R-g, R-h's words, §6.3a (Daisy) | **Pending** her review (track 1a) |
+| R-1 (Z-READINESS) | Second Eye verifies on `claude/next-base`, and adds a red-first test on `claude/d2r` if one is missing. Not D2-R scope; it rides the branch as its own commit |
+
+**The scope stays frozen as §6.1, with these corrections.** Nothing else is added.
