@@ -181,3 +181,9 @@ There is no retake line on a pass. The certificate comes before the advice, beca
   - ID: «Baca lagi bagian yang ditandai «baca lagi» ({daftar}), lalu tanyakan kepada guru langkah berikutnya.»
   - EN: «Read again the parts marked «read again» ({daftar}), then ask your teacher for the next step.»
 - **Non-certifying rows** keep `hasilbelajar.berikutnya_ulang` unchanged.
+
+## 13 · The certificate line when no certificate can exist (24 Nov, 04:43, on Sharon's note)
+
+- **Being prepared:** «Sertifikat Anda sedang disiapkan.» + «Lihat sertifikat».
+- **Issued:** «Lihat sertifikat» alone.
+- **No row, and none can ever exist** (INV-20, for example a pass on non-official evidence): **no certificate line and no link**, on the result page and on the Hasil Belajar row. A link to a certificate that does not exist breaks a promise at the moment of passing. «Lulus.» and its line stand alone.
