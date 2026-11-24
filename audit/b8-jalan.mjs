@@ -35,7 +35,7 @@ const HOD = { email: "alpha-hod@synthetic.pintar.test", password: "Sintetis-Alph
 const ADMIN = { email: "alpha-admin@synthetic.pintar.test", password: "Sintetis-AlphaAdmin-27!" };
 const PENILAI = { email: "penilai@evaluasi.pintar.test", password: "Penilai-Evaluasi-4417!" };
 // the learning-cycle school's learner, whose class holds an open Uji Penguasaan that allows a pause (allows_pause) and
-// offers help after its hesitation window; b5-ujung reads only this learner's lessons, and this walk runs last
+// (RESTATED, D2-R R-d) offers no help, before or after its hesitation window; b5-ujung reads only this learner's lessons, and this walk runs last
 const MURID = { email: "siklus-email@synthetic.pintar.test", password: "Sintetis-SiklusEmail-84!" };
 // J1.6, restated under R-1 (A2b): the learning-cycle school's admin and teacher, and another school's learner
 const ADMIN_SIKLUS = { email: "siklus-admin@synthetic.pintar.test", password: "Sintetis-SiklusAdmin-33!" };
@@ -199,7 +199,9 @@ await step("J2.20", "a shared computer left idle: warned at four minutes, locked
   await s.context.close();
 });
 
-await step("J6.4", "the learner finishes the Pemetaan Awal by the screens, starts the Uji Penguasaan, and is offered help after the question's hesitation window, and opens it", async (rec) => {
+// RESTATED (D2-R, R-d, ruling 89): a certifying sitting offers no help, so the Uji Penguasaan's orientation says so and no
+// help appears at any time, the question's window included; the sitting is left open for J6.7 as before
+await step("J6.4", "the learner finishes the Pemetaan Awal by the screens, starts the Uji Penguasaan, is told before it starts that it offers no help, and is offered none, before or after the question's hesitation window", async (rec) => {
   const s = await masuk(browser, MURID);
   const tugas = sql(`select la.id from public.learning_assignments la join public.assessment_assignments aa on aa.learning_assignment_id = la.id
     join public.assessment_definitions d on d.id = aa.assessment_definition_id join public.institutions i on i.id = la.institution_id
@@ -231,19 +233,22 @@ await step("J6.4", "the learner finishes the Pemetaan Awal by the screens, start
   // the Uji Penguasaan
   await s.page.goto(`${APP}/belajar/${tugas}/penguasaan`, { waitUntil: "networkidle" });
   const mulaiUp = s.page.getByRole("button", { name: /^Mulai Uji Penguasaan$/ });
-  if (await mulaiUp.count()) await mulaiUp.click();
+  const TANPA = "Selama Uji Penguasaan, petunjuk, contoh, dan arah berpikir tidak tersedia."; // posttest.tanpa_bantuan
+  if (await mulaiUp.count()) {
+    harus(rec, (await s.page.locator("[data-tanpa-bantuan]").innerText().catch(() => "")).includes(TANPA), `before it starts the Uji Penguasaan says «${TANPA}»`);
+    await mulaiUp.click();
+  }
   await s.page.locator("h2.pin-stem").first().waitFor({ state: "visible", timeout: SLOW });
   harus(rec, jalan(s.page).endsWith("/penguasaan"), `the Uji Penguasaan is open (${jalan(s.page)})`);
-  // help: offered once the question has been on screen for the window (the server's clock), never before
+  // no help: not before the question's window, and not after it either (the database withholds the window on a certifying
+  // sitting, D2R-D03); the definition's own window is still read, so the wait covers it whatever it is set to
   const bantuan = s.page.locator(".pin-bantuan-soal");
-  await s.page.waitForTimeout(Math.max(0, (jendela - 8) * 1000));
-  harus(rec, !(await bantuan.isVisible().catch(() => false)), `no help is offered before ${jendela} s`);
-  await bantuan.waitFor({ state: "visible", timeout: (jendela + 30) * 1000 }).catch(() => {});
-  if (!harus(rec, await bantuan.isVisible().catch(() => false), `help is offered after the ${jendela}-second window («${(await bantuan.innerText().catch(() => "")).replace(/\s+/g, " ").slice(0, 100)}»)`)) return;
-  await bantuan.locator("button").first().click();
-  await s.page.locator(".pin-bantuan-soal .pin-lvl").first().waitFor({ timeout: SLOW }).catch(() => {});
-  harus(rec, (await s.page.locator(".pin-bantuan-soal .pin-lvl").count()) > 0, `opening it shows a level of help («${(await s.page.locator(".pin-bantuan-soal .pin-lvl").first().innerText().catch(() => "")).trim()}»)`);
-  await shot(s.page, rec, "bantuan");
+  const tunggu = Number.isFinite(jendela) && jendela > 0 ? jendela : 25;
+  await s.page.waitForTimeout(Math.max(0, (tunggu - 8) * 1000));
+  harus(rec, !(await bantuan.isVisible().catch(() => false)), `no help is offered before ${tunggu} s`);
+  await s.page.waitForTimeout(18 * 1000);
+  harus(rec, !(await bantuan.isVisible().catch(() => false)), `no help is offered after the ${tunggu}-second window either`);
+  await shot(s.page, rec, "tanpa-bantuan");
   sesiMurid = { ...s, tugas };
 });
 
