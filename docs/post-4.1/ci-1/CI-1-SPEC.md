@@ -116,3 +116,6 @@ A row wrongly CONFIRMED has no revocation, so DICABUT would be a different false
   - then a delta freeze check, one push, and **both** PR ci and journeys on the new head, in one attempt (the same head for every check; the product diff is empty);
   - Sharon's PASS carries over if the product diff from `dfab09b6` is empty.
 - **Lesson (L-8, extended):** a test that picks data by position must be checked against every order the product can produce. A local pass on one random order is not proof.
+
+**Delta freeze, 16:24Z: CI-1 re-FROZEN at `94ce6727`** (parent `dfab09b6`). The diff is `selftest/c1w.test.ts` only, so the product diff is empty. C1W-S06 was proven under both paper orders (forced seeds 0.11 and 0.22, plus four more). The sweep found S06 the only test with two position picks that can coincide. Focused CI1/C1W/C2W: 30 pass. Sharon's PASS carries over. Both PR #30's ci and the journeys run on `94ce6727`, one attempt each.
+**Recorded, not blocking:** SERTIFIKAT-A01 fails when run alone (identically on the untouched `dfab09b6`) because its fixture depends on earlier suites. It passes in the whole suite, which CI runs. It's the same class of lesson as S06 (a test must not depend on order). It goes to harness H-1's follow-up and the closure report's lessons.
