@@ -181,3 +181,5 @@ The App's dispatch then waits for the owner's approval. **This is a configuratio
 - **For the 10-adult pilot:** the volume is far below the limit, and no change is indicated.
 
 **Owner's decision (24 Nov): option (b).** The response-time promise in `lapor.langkah.awal` and `lapor.langkah.awal_kelas` is **softened** until a monitored support arrangement exists (PR-12, PR-15). Daisy settles the words, and the change rides D2-R as its own commit.
+
+**Ruling 90 (24 Nov):** the wording is softened in 4.1 (no time-bound promise without an operational process). The full support capability, with notifications, escalation and threads, is a 4.5 item: **4.5-OF-SUP**. PR-12 and PR-15 remain the owner's for the first use's operational arrangement.

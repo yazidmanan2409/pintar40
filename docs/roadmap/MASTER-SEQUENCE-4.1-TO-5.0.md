@@ -102,6 +102,32 @@ Independent 4.5 work runs in parallel: Guest Mode, 4.5-04 classification, Daisy'
 **Batches, integration contracts and regression tests** are drawn up at 4.5's planning gate (during Z, by Bob), from
 the audit's existing rows. There is no fresh replanning.
 
+### 2a-1 · New operational-foundation capability: 4.5-OF-SUP, «PINTAR Support: Conversations and Escalation» (ruling 90, 24 Nov 2026)
+
+**It builds on D-037's existing problem report** (`20261119100000`; `src/lib/lapor-masalah.ts`; BOB15-K01, S01, D01). It is not a separate system. The current state is in `docs/completion-4.1/SUPPORT-FUNCTIONALITY-INVESTIGATION.md`.
+
+**Scope:**
+- in-app problem reporting;
+- two-way conversation threads;
+- preserved conversation and status history;
+- school administrator handling and resolution;
+- escalation to PINTAR administrators;
+- direct reporting from a school administrator to PINTAR;
+- in-app notifications, plus email where appropriate (email notifies; it is not the system);
+- reopening unresolved problems;
+- a clear owner for each report;
+- relevant diagnostic context, with privacy safeguards;
+- another support route for people who can't sign in.
+
+**Learners (ruling 90 C):** D-037's staff-only rule is reversed **for this capability**. Learners may ask for help directly, subject to privacy, safeguarding and routing rules. **4.1's restriction stays** until the replacement is built and verified.
+
+**Roles:**
+- **Daisy:** a simple, consistent human experience.
+- **Sharon:** permissions, institutional boundaries, learner safeguarding, privacy and escalation.
+- **Bob:** the specification, asking at each step «And then what?» and «What else did that change?».
+
+**Proportionate:** this is not a commercial helpdesk platform. **No implementation is authorised now.** It is planned at 4.5's planning gate like the other operational-foundation items.
+
 ## 3 · Decisions for the owner (each blocks a named stage, not today's work)
 
 | # | Decision | Why it matters | Bob recommends | Needed by |
