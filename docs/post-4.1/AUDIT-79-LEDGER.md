@@ -222,3 +222,9 @@ Nine findings: 5 Significant, 4 Improvement, none Critical. **The core cross-rol
 | L-63 (J4-1) | A learner whose sitting the teacher ended isn't told so: the result reads «Belum lulus … 2 dari 6», as if handed in. The teacher's row says «Diakhiri 17.41 WIB · jawaban yang ada dinilai» | B, D | J4 | **Significant** | **C-2** (the teacher's end reached the teacher's screen only) | «Uji Penguasaan ini diakhiri oleh guru Anda pada {waktu}. Jawaban yang sudah tersimpan dinilai.», plus a not-counted variant on the start page |
 | L-64 (J4-3) | An open sitting's card reads «Siap untuk Uji Penguasaan» + «Lanjutkan» | B | J4 | Improvement | **C-2** (the step derivation has no «in progress» step for the Uji Penguasaan) | «Uji Penguasaan sedang berjalan» |
 | L-65 (J4-4) | «Sedang luring» is a hard word for children | A | J4 | Improvement | Wording only | «Tidak tersambung ke internet. …» |
+
+## Found by the consumer check of `my_cycle_state` (Bob, 24 Nov; Sol's qualification 1)
+
+| L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
+|---|---|---|---|---|---|---|
+| L-66 | While a retake is open, a certificate earned on an earlier attempt loses its chapter title in the certificate list: the list maps certificates through `my_cycle_state.post_session`, the latest *begun* sitting (`belajar/sertifikat/page.tsx:71`). Also, `adaHasilTertutup` falls back to the pre-test while a retake is open (`hasil-belajar.ts:59`) | B, C | J3 (retake open) | Improvement (it degrades gracefully: the date and status stay) | **C-1** | To be confirmed by the builder's J3 capture with a retake open |

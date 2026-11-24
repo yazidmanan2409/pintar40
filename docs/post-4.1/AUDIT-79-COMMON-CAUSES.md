@@ -1,6 +1,6 @@
 # Audit 79 · the common causes behind conflicting screens (Bob, 24 Nov 2026; ruling 95)
 
-**Status: INTERIM, after J1 to J4.** It is updated as Daisy walks each remaining journey. **The correction plan is not final until all twelve are walked** (ruling 95). Nothing here is built.
+**Status: INTERIM, after J1 to J4.** Sol's review (relayed by the owner, 24 Nov) supports the direction in principle, with two qualifications, adopted here: C-1 keeps the current attempt and the result in force as two facts, and every consumer of `my_cycle_state` is checked (§3a); C-5 keeps each recommendation's provenance. Sol's recommendation, as relayed: approve the direction in principle, and finalise the implementation plan only after all twelve journeys. It is updated as Daisy walks each remaining journey. **The correction plan is not final until all twelve are walked** (ruling 95). Nothing here is built.
 
 **Method:**
 - Every finding where screens disagree was traced, read-only, to the code on main `429b7dcc`. For each finding the trace names:
@@ -40,12 +40,31 @@ No new layer or framework (ruling 95). **Each cause gets one existing authority,
 
 | Cause | One authority | Who reviews |
 |---|---|---|
-| C-1 | **«The result in force» = the latest FINALIZED sitting**, as Z's V2 already decided. `my_cycle_state` returns it, plus whether a retake is open, instead of «latest begun». Then the learner's result shows the previous result with `hasil.ulang_berjalan`, as the teacher's side already does | **Sharon** (an RPC's contract, and R-h/D2-R disclosure); Second Eye |
+| C-1 | **Two facts, both kept (Sol, qualification 1):** (a) **the result in force** = the latest FINALIZED sitting, as Z's V2 decided; (b) **the current attempt**, if one is underway. `my_cycle_state` keeps returning (b) exactly as today, and **gains (a) as an added field**, so no existing reader changes meaning (§3a). Each screen reads the one it means: the learner's result shows (a), with `hasil.ulang_berjalan` while (b) is open, as the teacher's side already does | **Sharon** (an RPC's contract; R-h/D2-R disclosure); Second Eye |
 | C-2 | **The step derivation (`posisi`) takes `percobaan_saya`**, so «may retake» becomes a step that the home, the result, the chapter and `lanjut` all read from one place | Daisy (words); Second Eye |
 | C-3 | **Every certificate surface uses `keadaanSertifikat`.** The transfer row offers only the actions its RPC would accept (the RPC's own rule, exposed on the read). The teacher's record uses the SQL's «in force» and draws `percobaan_ke` | Sharon (transfer); Daisy |
 | C-4 | **«Waiting for you» means every kind of decision that person owns:** for the teacher, release, continue and retake requests; for the approver, management decisions and retake requests. The empty line appears only when all of them are empty | Daisy |
-| C-5 | **Reading advice comes from the latest finalized result**, the Uji Penguasaan once there is one. The map line says which result it comes from | Daisy |
+| C-5 | **Keep each recommendation's provenance (Sol, qualification 2).** The Pemetaan Awal's reading map and the Uji Penguasaan's «Baca lagi» serve different purposes, and neither replaces the other. Each is labelled with where it comes from. The screen makes clear which guidance is current: after an Uji Penguasaan, its «Baca lagi» is the current guidance, and the initial map stays readable as the starting point. The map's intro follows the step. **No new competency analytics** | **Daisy and Sharon** settle the distinction |
 | C-6 | **One choice of words per verdict**, keyed on `bersertifikasi` (L-33's terms), on every surface | Daisy |
+
+### 3a · Every consumer of `my_cycle_state` (Sol, qualification 1; Bob's check on main `429b7dcc`)
+
+Today `post_session` / `pre_session` is the latest *begun* sitting. **That meaning is unchanged; the result in force is added beside it.**
+
+| Consumer | What it needs | Today | After |
+|---|---|---|---|
+| `belajar/[tugas]/penguasaan/page.tsx:37` (the Uji Penguasaan) | the current attempt, to resume the open sitting | right | unchanged |
+| `belajar/[tugas]/pemetaan/page.tsx:37` (the Pemetaan Awal) | the current attempt | right | unchanged |
+| `belajar/[tugas]/hasil/page.tsx:48` (the result) | the result in force, and whether a retake is open | **404 during a retake (L-54)** | reads the result in force; shows `hasil.ulang_berjalan` while an attempt is open |
+| `belajar/[tugas]/sertifikat/page.tsx:91` (the certificate) | the result in force | follows the open attempt | reads the result in force; uses `keadaanSertifikat` (C-3) |
+| `belajar/sertifikat/page.tsx:71` + `components/sertifikat/asalSertifikat.ts` (the certificate list) | the session the certificate is for | **while a retake is open, a certificate from attempt 1 loses its title** (it degrades gracefully) | reads the result in force. **A new observation, recorded as L-66** |
+| `belajar/[tugas]/page.tsx:38` (the chapter) | both: the step, and the result link | step only | both (C-2) |
+| `belajar/[tugas]/lanjut/page.tsx:45,60` (what next) | both | step only | both (C-2) |
+| `belajar/page.tsx:131` (the learner's home) | both | the current attempt only, so «Selesai» and the start card disagree (L-56, L-64) | both (C-2) |
+| `belajar/[tugas]/peta/page.tsx:35` (the map) | the Pemetaan Awal's map, plus the latest «Baca lagi», each with its provenance | the Pemetaan Awal only | per C-5 |
+| `lib/hasil-belajar.ts:59` (`adaHasilTertutup`) | whether any finished result exists | `post_status = FINALIZED` on the latest begun sitting: while a retake is open, it falls back to the pre-test | reads the result in force |
+
+**Rule for the build:** every consumer above is in the batch's «dependent screens» list, and each has a journey assertion, both during an open retake and after it.
 
 **How it stays consistent (lasting, not per row):**
 - **L-8 extended to screens:** a change to a state also sweeps every screen that shows that state, in the same batch. The hand-off names them («dependent screens: N found, N updated»). This applies the existing principle; it is not a new procedure.
