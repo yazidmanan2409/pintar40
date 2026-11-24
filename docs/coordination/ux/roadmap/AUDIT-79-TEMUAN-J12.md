@@ -36,3 +36,30 @@
 - L5 (the test email to Mailpit);
 - L6 (renewing a platform role; the last admin);
 - the EN pass, the screen reader, throttled and reduced-motion passes.
+
+## The passes walked locally (24 Nov 22:00): EN, screen reader, throttled, reduced motion; L5 and L6
+
+I ran the builder's harness `audit/perjalanan/j12.mjs` at `6b248975`, at 1280: standard ID, EN, and the three passes. **L1 to L4 reached their end in every run.**
+- **L5 (the test email) stopped in every run:** «Belum terkirim: PINTAR tidak dapat tersambung ke server email. Rujukan: …».
+- **That is environmental.** CI starts its own Mailpit (SMTP 54325/54335, `audit-journeys.yml`), which my stack doesn't have.
+- **L6 wasn't reached** as a consequence. L5's refusal words are good: they say what failed and give a reference.
+- **L5 and L6 stay with the builder's CI run.**
+
+### Holds
+- **Screen reader:**
+  - the banner's «Pemeliharaan dalam 30 menit.» is a `status`;
+  - each result is announced («Selesai. Pemeliharaan dijadwalkan.»);
+  - every time field is named with its zone («Mulai (WIB; kosongkan untuk sekarang)»);
+  - the emergency stop's typed confirmation is a named field («Ketik HENTIKAN SEKARANG untuk mengonfirmasi»).
+- **Throttled:** about 2–3 times slower (L1 30 s), with the same states and words.
+- **Reduced motion:** no animated element in J12.
+
+### New finding
+
+| # | Finding | Siblings | Cause | Dim. | Fix |
+|---|---|---|---|---|---|
+| J12-5 | **In EN, the admin's action results stay Indonesian:** «✓ Selesai. Pemeliharaan dijadwalkan.», «… diperpanjang sampai pukul 06.17 WIB …», «PINTAR dihentikan untuk cakupan itu …», and the section heading «Pemeliharaan dan pengumuman». The banner beside them is English («Maintenance in 30 minutes.»). The EN words exist in `hle.ts` (`galat.maintenance_scheduled` «Maintenance scheduled.», `config.section.pemeliharaan` «Maintenance and notices»), so the Konfigurasi page appears to render its results and this heading in the default language. **This is probably the same cause as J9-4 (the transfers section, same page).** | **Disagree:** the banner (EN) and the result (ID) sit side by side | C-6 (rendering outside the word lookup) | B, H | One fix for the page: every result and heading on `/konfigurasi` goes through the locale-aware lookup. Add a check in the visual and wording consistency pass: switch to EN and read every Konfigurasi section. |
+
+**Harness note for the builder:** the 127.0.0.1 vs localhost cross-origin retry is handled by the harness and noted. No action needed.
+
+**J12's «left for the builder» lines:** the passes are walked. **L5 and L6 remain CI's** (mail sink).
