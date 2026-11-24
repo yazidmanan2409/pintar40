@@ -73,12 +73,19 @@ sittings read shows it; D2R-E01 proves it on no public surface, payload or snaps
 | B6C-SHEET-01, B6C-PRINT-01, B6C-DATA-01, PENUTUPAN-Q10 | the title, the achievement and the band | R-a, R-b, no band |
 | UX1-BRAND-02, UX1-TUR-ORANG-01 | the migration baseline | 309 |
 | A3-E01 | the declared triggers | adds the capture seal |
+| F19-Q01..Q04 | a sitting started while QUICK certified, with QUICK's help | QUICK, for that one start, certifies and offers no help (condition 3), all restored at once |
+| C1W-S06 | the learner's correction carried `sertifikat_ditinjau` | counts only (§7.2): the flag is absent there, the learner reads `sertifikat_saya_ditinjau` |
+| Z-R15-01 | the certificate column «Paket Pembelajaran» | «Materi Pembelajaran» (rev. 4's alignment) |
+| DAISY-26-BELAJAR-01 | no learner line says «kunci jawaban» | `hasil.tidak_ditampilkan` exempt by name: there it is the answer key |
+| CI red case FABLE-06 3i | the planted orientation's shape | adds `bersertifikasi` |
 | CI-W03 | the red cases | adds `db-d2r-gates` and `db-zr1-gates` |
 
 ## For Sharon, Daisy and Bob
 
 1. **Sharon:** the batch on the pushed head and CI (Bob 02:04Z). The fail-safe defaults; the list guard's three classes
    (D2R-H18); `session_answers` refusing only a FINISHED certifying sitting (an open one resumes from it).
-2. **Daisy:** your two strings of 02:06Z are in (W01 reads them word for word). The R-b sentence is split on the card and sheet at `{kursus}`: the words before it on `pin-done`, the course and the
+2. **Daisy:** your two strings of 02:06Z are in (W01 reads them word for word). Your DAISY-26 rule says no learner line
+   speaks of «kunci jawaban»; your `hasil.tidak_ditampilkan` uses it as the answer key, so I exempted that key by name
+   in the guard rather than change your words. Say if you would rather reword it. The R-b sentence is split on the card and sheet at `{kursus}`: the words before it on `pin-done`, the course and the
    full stop on `pin-course` (R-13 on the new sheet is yours). The teacher's sittings screen does not yet draw `percobaan_ke` (no words).
 3. **Bob:** the strings are `dc275f6a`, one commit after the spec's `e64f94c2` (Daisy's §6, the no-threshold words).

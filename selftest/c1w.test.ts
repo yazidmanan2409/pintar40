@@ -1117,7 +1117,7 @@ export const c1wTests: SelfTest[] = [
         langkah("ditinjau", null, `select (${verifikasi}) || '|' || (select c.status::text from public.certificates c where c.id = ${G("cert")}) || '|' || (${sidikSert} = ${S("sidik")})`),
         langkah("ditinjau_anon", null, `select v.validity || '|' || (v::text !~ 'KOREKSI|kunci|0\\.8') from public.verify_certificate((select x.verification_token from public.certificates x where x.id = ${G("cert")})) v`),
         `perform selftest.as_user('boot-siswa@bootstrap.pintar.test');
-         v := v || jsonb_build_object('murid', (select concat_ws('|', x ->> 'dikoreksi', x ->> 'sertifikat_ditinjau', public.sertifikat_saya_ditinjau(${G("bs")})::text) from public.hasil_koreksi_saya(${G("bs")}) x));
+         v := v || jsonb_build_object('murid', (select concat_ws('|', x ->> 'dikoreksi', coalesce(x ->> 'sertifikat_ditinjau', 'tanpa'), public.sertifikat_saya_ditinjau(${G("bs")})::text) from public.hasil_koreksi_saya(${G("bs")}) x));
          perform selftest.as_owner();`,
         langkah("antrean", "badmin", `select jsonb_array_length(x) || '|' || (x -> 0 ->> 'sertifikat' = ${S("cert")}) || '|' || (x -> 0 ->> 'boleh_putuskan') from public.tinjauan_sertifikat_antrean(${G("boot")}) x`),
         langkah("pemberitahuan", "badmin", `select jsonb_array_length(x) || '|' || (x -> 0 ->> 'jumlah_sesi') || '|' || (x -> 0 ->> 'tinjauan_menunggu') || '|' || (x -> 0 ->> 'selesai') from public.pemberitahuan_koreksi_kunci(${G("boot")}) x`),
@@ -1173,7 +1173,9 @@ export const c1wTests: SelfTest[] = [
       harap("cabut", "ok:REVOKED", "the school closing that review as revoked");
       harap("cabut_cek", "ok:DICABUT|true|Dicabut langsung oleh sekolah penerbit.|REVOKED|1", "the revoked certificate (its first revocation stands; the review closed; one revocation audited)");
       c.expect(!(m.riwayat ?? "ok").startsWith("ok"), `rewriting a decided review: ${m.riwayat}`);
-      harap("murid", "true|true|true", "the learner's own reading (corrected; certificate under review)");
+      // RESTATED (D2-R, Sharon §7.2): on a certifying sitting hasil_koreksi_saya says only that the result changed and the new
+      // count, so the review flag is not in it; the learner reads it from sertifikat_saya_ditinjau, as the certificate pages do
+      harap("murid", "true|tanpa|true", "the learner's own reading (corrected; no review flag in the counts-only correction; certificate under review by its own read)");
       return c.verdict("an issued certificate whose sitting a correction does not reach verifies as before; once its supporting result changes it verifies "
         + "DITINJAU from that moment (no reason, no score), its status, payload, signature, number and token unchanged, in the issuing school's queue and "
         + "notice; a head of department and a platform admin cannot decide; the school confirms (BERLAKU again) or revokes through revoke_certificate "

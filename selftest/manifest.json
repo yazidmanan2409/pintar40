@@ -6913,7 +6913,7 @@
     {
       "id": "Z-R15-01",
       "runner": "static",
-      "proves": "selftest/z-ux.test.ts, R-15's one-string items: reads the source file DaftarKeputusan.tsx (status joined by «, »), executes urutRingkas in src/lib/kenaikan.ts (main group first) and reads KenaikanKelas.tsx using it; the copy table's certificate column «Paket» / «Package» (X12)."
+      "proves": "selftest/z-ux.test.ts, R-15's one-string items: reads the source file DaftarKeputusan.tsx (status joined by «, »), executes urutRingkas in src/lib/kenaikan.ts (main group first) and reads KenaikanKelas.tsx using it; the copy table's certificate column «Materi Pembelajaran» / «Learning Material» (X12, restated by D2-R)."
     },
     {
       "id": "Z-Z5R-01",
