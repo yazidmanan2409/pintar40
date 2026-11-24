@@ -102,7 +102,7 @@ Independent 4.5 work runs in parallel: Guest Mode, 4.5-04 classification, Daisy'
 **Batches, integration contracts and regression tests** are drawn up at 4.5's planning gate (during Z, by Bob), from
 the audit's existing rows. There is no fresh replanning.
 
-### 2a-1 · New operational-foundation capability: 4.5-OF-SUP, «PINTAR Support: Conversations and Escalation» (ruling 90, 24 Nov 2026)
+### 2a-1 · New operational-foundation capability (**the governing record is now `docs/roadmap/4.5-OF-SUP/`**: the owner's direction (ruling 90b), Sol's review and Bob's reconciliation; the summary below is superseded where it differs): 4.5-OF-SUP, «PINTAR Support: Conversations and Escalation» (ruling 90, 24 Nov 2026)
 
 **It builds on D-037's existing problem report** (`20261119100000`; `src/lib/lapor-masalah.ts`; BOB15-K01, S01, D01). It is not a separate system. The current state is in `docs/completion-4.1/SUPPORT-FUNCTIONALITY-INVESTIGATION.md`.
 
