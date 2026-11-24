@@ -60,3 +60,16 @@ Since my first review (`ed8ad32b`), my four points are in the spec:
 - **«Memenuhi capaian»** agrees with "met the passing criteria set for the assessment". The words are Daisy's.
 
 **Could reasonably have been anticipated:** R-c's API path was there to see in my first review, which noted that the page never shows the name. I did not check what the API returns beside it.
+
+## Addendum · R-c's render sites, with C1-R4's printed «Predikat» (24 Nov 2026, 01:10 UTC)
+
+**R-c removes the band at every site where `main` 61a6ff9e renders it, and the plant list names each one:**
+- `KartuSertifikat.tsx:80`, the card;
+- `KartuSertifikat.tsx:153`, the printable record (C1-R4's printed line);
+- `sertifikat-lembar.ts`, the A4 sheet's RECORD block;
+- `verifikasi/[token]/page.tsx:138`;
+- `/api/verifikasi/[token]` and `verify_certificate`, which return null, as above.
+
+**The learner's own certificate page** (`belajar/[tugas]/sertifikat/page.tsx:166`) reads `detail.predikat`. Either drop it there too, or leave it as the learner's own view, which is Daisy's call. It is not public.
+
+**The proof:** a static list test, like Z-D1-02, in which every `predikat` render site outside the internal reports fails. Plant one on the card.
