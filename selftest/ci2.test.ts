@@ -71,13 +71,10 @@ export const KATA_CI2 = {
     default: "Bila akun Anda ditutup atau ditangguhkan, tanyakan kepada admin sekolah Anda.",
     en: "If your account was closed or suspended, ask your school admin.",
   },
-  "aktivasi.ulang.terkunci.DITANGGUHKAN": {
-    default: "Akun {nama} sedang ditangguhkan, jadi PIN tidak dapat dibuat sekarang. PIN baru dibuat saat penangguhannya dicabut.",
-    en: "{nama}'s account is suspended, so a PIN can't be made now. A new PIN is made when the suspension is lifted.",
-  },
-  "aktivasi.ulang.terkunci.DITUTUP": {
-    default: "Akun {nama} sudah ditutup, jadi PIN tidak dapat dibuat sekarang. PIN baru dibuat saat akunnya dibuka kembali.",
-    en: "{nama}'s account is closed, so a PIN can't be made now. A new PIN is made when the account is reopened.",
+  // Sharon V-1: one neutral line, no category. PLACEHOLDER until Daisy's words arrive (not to be frozen with it)
+  "aktivasi.ulang.terkunci": {
+    default: "Kartu baru untuk {nama} tidak dapat dibuat sekarang.",
+    en: "A new card for {nama} can't be made right now.",
   },
 } as const;
 
@@ -384,7 +381,9 @@ export const ci2AppTests: SelfTest[] = [
     requires: ["db"],
     run: async () => {
       const c = new Checks();
-      const katalog = "n.nspname not in ('pg_catalog', 'information_schema')";
+      // Sharon's V-2: the definition as Postgres prints it (pg_get_functiondef), never p.prosrc, which is EMPTY for a
+      // BEGIN ATOMIC body (its parsed body is in prosqlbody); functions and procedures only (aggregates have no definition)
+      const katalog = "n.nspname not in ('pg_catalog', 'information_schema') and p.prokind in ('f', 'p')";
       // each call is its own session: a plant written after an open «begin» is rolled back when the session ends
       const gucDi = (tanaman = "") => psql(`${tanaman} select coalesce(string_agg(n.nspname || '.' || p.proname, ',' order by n.nspname, p.proname), '')
           from pg_proc p join pg_namespace n on n.oid = p.pronamespace where ${katalog} and p.prosrc like '%pintar.kunci_rotasi%'`)
@@ -419,11 +418,15 @@ export const ci2AppTests: SelfTest[] = [
       const q12 = namaBebas(`begin; create function public.ci2_q12_penyetel(p_nama text, p_nilai text) returns void language plpgsql
           security definer set search_path = public, pg_temp as $q$ begin perform set_config(p_nama, p_nilai, true); end $q$;`);
       c.expect(q12.includes("public.ci2_q12_penyetel"), "Q12 (a SECURITY DEFINER function setting a caller-named setting) was not caught");
-      c.expect(psql(`select count(*) from pg_proc where proname in ('ci2_q11_penyetel', 'ci2_q12_penyetel')`) === "0", "a plant was left in the database");
+      // Q14 (Sharon's V-2): the second setter written as BEGIN ATOMIC, whose p.prosrc is empty
+      const q14 = gucDi(`begin; create function public.ci2_q14_atomik(p uuid) returns text language sql security definer
+          set search_path = public, pg_temp begin atomic select set_config('pintar.kunci_rotasi', p::text, true); end;`);
+      c.expect(q14.includes("public.ci2_q14_atomik"), "Q14 (a BEGIN ATOMIC setter of pintar.kunci_rotasi, empty prosrc) was not caught");
+      c.expect(psql(`select count(*) from pg_proc where proname in ('ci2_q11_penyetel', 'ci2_q12_penyetel', 'ci2_q14_atomik')`) === "0", "a plant was left in the database");
       return c.verdict("only akun_rotasi and auth_password_write_guard name pintar.kunci_rotasi; no SECURITY DEFINER function sets a "
         + "caller-named setting; the rotation sets the GUC to its one user, writes that row and clears it, and the guard tests it for "
-        + "equality only after an unchanged password returned (Sharon §8 1(a)-(c)); Q11 (a second setter) and Q12 (a caller-named "
-        + "setting) are each caught, and rolled back");
+        + "equality only after an unchanged password returned (Sharon §8 1(a)-(c)); Q11 (a second setter), Q12 (a caller-named "
+        + "setting) and Q14 (a BEGIN ATOMIC setter, read through pg_get_functiondef: V-2) are each caught, and rolled back");
     },
   },
   {
@@ -647,33 +650,49 @@ export const ci2AppTests: SelfTest[] = [
         const kartuMasuk = (kartu: string, pin: string) => new Peramban(asal, ipUji()).jsonDari("/masuk/kartu", { form: { kartu, pin } });
         const k = await buatKartu(a, "p01");
         orang.push(k.orang);
-        // Bob (principle 3, C-7; Daisy CI2-KATA §5): the re-issue list shows a locked learner Daisy's line IN PLACE of the
-        // button, and draws no card. The learner needs a school identity to be listed (card_holders)
-        psql(`select public.issue_institutional_id(${lit(k.orang)}, (select id from public.institutions where namespace is not null order by created_at, id limit 1))`);
+        // Bob (principle 3, C-7) and Sharon's V-1 (AUDIT79-CI2-VERIFY.md; CI-2-SPEC §10): the re-issue list shows a locked
+        // learner ONE NEUTRAL LINE in place of the button and draws no card, and neither the list nor the page says WHY the
+        // learner is locked (a closure at their request or a suspension is not the provisioner's to read). The learner
+        // needs a school identity to be listed (card_holders)
+        // the harness's hand: a school identity written directly (a fresh database's schools have reserved no namespace, and
+        // reserving one would change the world for later tests), a number of its own shape that nothing else issues
+        const urut = randomInt(900_000, 999_999);
+        psql(`begin; set local session_replication_role = replica;
+          insert into public.institutional_identities (person_id, institution_id, institutional_id, sequence_number)
+          values (${lit(k.orang)}, (select id from public.institutions order by created_at, id limit 1), ${lit(`ZC2${String(urut)}UJ`)}, ${urut}); commit;`);
         const nama = psql(`select display_name from public.persons where id = ${lit(k.orang)}`);
         const barisDaftar = async () => {
           const h = await (await admin.kirim(`/aktivasi?cari_kartu=${encodeURIComponent(nama)}`)).text();
           const i = h.indexOf(`<strong>${nama}</strong>`);
           return { baris: i < 0 ? "" : h.slice(i, h.indexOf("</li>", i)), kartu: h.includes("pin-akt-lembar") };
         };
-        const sebelumKunci = await barisDaftar();
-        c.expect(sebelumKunci.baris.includes(t("aktivasi.ulang.pilih", "staff")) && !sebelumKunci.baris.includes("data-kartu-terkunci"),
-          `before the lock, the learner's row does not offer «${t("aktivasi.ulang.pilih", "staff")}» (the control): ${sebelumKunci.baris.slice(0, 200)}`);
-        tangguhkan(k.orang);
-        const saatKunci = await barisDaftar();
-        const kalimat = KATA_CI2["aktivasi.ulang.terkunci.DITANGGUHKAN"].default.split("{nama}").join(nama);
-        c.expect(saatKunci.baris.includes('data-kartu-terkunci="DITANGGUHKAN"') && saatKunci.baris.includes(kalimat)
-          && !saatKunci.baris.includes(t("aktivasi.ulang.pilih", "staff")) && !saatKunci.baris.includes("<button") && !saatKunci.kartu,
-          `suspended, the learner's row is not Daisy's line in place of the button with no card drawn: ${saatKunci.baris.slice(0, 300)}`);
-        // the closed variant, from the same list: the open suspension read as a closure at the person's request
-        const ditutup = psql(`begin; set local session_replication_role = replica;
-          update public.person_suspensions set category = 'CLOSED_AT_REQUEST' where person_id = ${lit(k.orang)} and ended_at is null;
-          set local session_replication_role = origin;
+        // what card_holders() says of this learner, as the platform admin reads it, beyond the columns it always had
+        const daftarLebih = (kategori: string | null) => psql(`begin;
+          ${kategori ? `set local session_replication_role = replica;
+          update public.person_suspensions set category = ${lit(kategori)} where person_id = ${lit(k.orang)} and ended_at is null;
+          set local session_replication_role = origin;` : ""}
           select set_config('request.jwt.claims', json_build_object('sub', ${lit(uidDari(SYS_EMAIL))}, 'role', 'authenticated')::text, true);
           select set_config('request.jwt.claim.sub', ${lit(uidDari(SYS_EMAIL))}, true);
           set local role authenticated;
-          select coalesce((select kunci from public.card_holders() where person_id = ${lit(k.orang)}), '-'); rollback;`).split("\n").filter((l) => /^(DITUTUP|DITANGGUHKAN|-)$/.test(l)).pop();
-        c.expect(ditutup === "DITUTUP", `a closed learner is listed with kunci ${ditutup}, not DITUTUP`);
+          select 'LEBIH:' || coalesce((select (to_jsonb(c) - 'person_id' - 'display_name' - 'institutional_id' - 'institution_id' - 'card_last4')::text
+            from public.card_holders() c where c.person_id = ${lit(k.orang)}), '-'); rollback;`).split("\n").filter((l) => l.startsWith("LEBIH:")).pop()?.slice(6) ?? "";
+        const sebelumKunci = await barisDaftar();
+        c.expect(sebelumKunci.baris.includes(t("aktivasi.ulang.pilih", "staff")) && !sebelumKunci.baris.includes("data-kartu-terkunci"),
+          `before the lock, the learner's row does not offer «${t("aktivasi.ulang.pilih", "staff")}» (the control): ${sebelumKunci.baris.slice(0, 200)}`);
+        c.expect(daftarLebih(null) === '{"terkunci": false}', `before the lock, card_holders() adds ${daftarLebih(null)} for the learner; only {"terkunci": false} (V-1)`);
+        tangguhkan(k.orang);
+        const saatKunci = await barisDaftar();
+        const kalimat = KATA_CI2["aktivasi.ulang.terkunci"].default.split("{nama}").join(nama);
+        c.expect(saatKunci.baris.includes('data-kartu-terkunci="ya"') && saatKunci.baris.includes(kalimat)
+          && !saatKunci.baris.includes(t("aktivasi.ulang.pilih", "staff")) && !saatKunci.baris.includes("<button") && !saatKunci.kartu,
+          `suspended, the learner's row is not the one neutral line in place of the button with no card drawn: ${saatKunci.baris.slice(0, 300)}`);
+        c.expect(!/ditangguhkan|ditutup|DITANGGUHKAN|DITUTUP|suspend|closed/i.test(saatKunci.baris),
+          `suspended, the learner's row names why they are locked: ${saatKunci.baris.slice(0, 300)} (V-1)`);
+        // the list itself carries no category, for a suspension or for a closure at the person's request alike
+        for (const kategori of ["SECURITY", "CLOSED_AT_REQUEST"]) {
+          const lebih = daftarLebih(kategori);
+          c.expect(lebih === '{"terkunci": true}', `a learner locked ${kategori} is listed by card_holders() with ${lebih}; only {"terkunci": true}, no category (V-1)`);
+        }
         // a re-issue DURING the suspension: whatever it gives is re-keyed away by the reinstatement
         const selama = await terbit(k.orang);
         c.expect(selama.status === 200 && Boolean(selama.body.card), `the school's re-issue during the suspension answered ${selama.status} (it answers as for anyone)`);
@@ -706,8 +725,8 @@ export const ci2AppTests: SelfTest[] = [
             const r = await kartuMasuk(b.body.card, b.body.pin!);
             return r.status === 401;
           });
-        return c.verdict("the re-issue list offers the button before the lock and, for the suspended learner, Daisy's line in its place with no "
-          + "button and no card drawn (a closed learner is listed DITUTUP); a card re-issued during the suspension answers as for anyone and signs in neither during it nor after it; reinstated, "
+        return c.verdict("the re-issue list offers the button before the lock and, for the suspended learner, one neutral line in its place with no "
+          + "button and no card drawn, naming no reason; card_holders() adds only terkunci, for a suspension and a closure alike (V-1); a card re-issued during the suspension answers as for anyone and signs in neither during it nor after it; reinstated, "
           + "the learner's old card secret reads invalid_credentials; the school's re-issue through /api/akun/kartu-kelas writes the derived Auth password, so the new card and PIN sign "
           + "in at /masuk/kartu; Q6 (the re-issue's Auth password left random) is caught");
       } finally {
