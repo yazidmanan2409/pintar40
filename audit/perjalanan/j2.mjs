@@ -134,6 +134,17 @@ for (const lebar of LEBAR) {
     const p = await ctx.newPage();
     await p.goto(new URL(tautanPublik, APP).toString());
     await p.waitForLoadState("networkidle").catch(() => {});
+    if (BAHASA === "en") {
+      // a signed-out visitor carries no language choice: in the EN walk, they choose EN on the page itself, by keyboard
+      const en = p.getByRole("button", { name: "EN", exact: true }).first();
+      if (await en.count()) {
+        const h = await en.elementHandle();
+        for (let i = 0; i < 40 && !(await h.evaluate((el) => el === document.activeElement)); i++) await p.keyboard.press("Tab");
+        await p.keyboard.press("Enter");
+        await p.waitForLoadState("networkidle").catch(() => {}); await p.waitForTimeout(800);
+        data("public_language", await p.evaluate(() => document.documentElement.lang));
+      } else amati("the public check offers no language choice");
+    }
     await p.screenshot({ path: `${j.out}/periksa-publik.png`, fullPage: true });
     const t = ((await p.locator("body").innerText()) ?? "").replace(/\s+/g, " ");
     data("public_text", t.slice(0, 700));
