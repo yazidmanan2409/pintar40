@@ -513,3 +513,22 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
 | L-131 (J8-11) | After the cards are made, the counts still say learners are waiting, and each PIN is shown twice on the page | B, F, [S] | J8 | Improvement | C-3 | Counts update; PINs once, on the sheet. **Sharon** confirms the PIN display rule |
 | L-132 (J8-12) | Aturan Asesmen shows its full form at a school with no package; the empty select is held by the browser's bubble | F, C | J8 | Improvement | C-7; C-10 | Say a package must exist first, with the link, and no form |
 | L-133 (J8-13) | The last admin's refusal begins «Permintaan ini tidak diajukan» on an immediate close | H | J8 | Improvement (optional) | C-6 | «Akun Anda belum dapat ditutup: …» |
+
+**Sharon on J8 (21:12Z):**
+- **L-127, the identity rule.** A name is never identity, and name plus birth date isn't proof either.
+  - (1) **With a school identifier (NIS) on both rows:** the same NIS in the same school is the same person, refused as a duplicate. A different NIS means different people, never «kembar».
+  - (2) **With no NIS:** the same name and same birth date is a *possible* duplicate. Warn, require the admin's explicit «Dua orang berbeda», and audit that choice. Never auto-merge, never auto-split. The same name with a different birth date means different people.
+  - **NIS may be stored** as a per-school attribute of the person:
+    - unique within the institution;
+    - shown only to that school's staff with intake or admin rights;
+    - never on the certificate, the public check, other learners' views, or exports outside the school;
+    - never a sign-in;
+    - never matched across schools.
+  - **Kept:** no merge without an admin's decision; the decision audited; no new cross-school identifier.
+  - **L-127 stays Significant, in AR-79** under these rules.
+- **L-131, the PIN rule.** A PIN is a secret shown **once**:
+  - at creation, to the authorised staff member, for printing;
+  - never in a URL, never stored in plaintext, never re-shown on reload. After leaving the page, the only route is a reset.
+  - Once, on the sheet only, as Daisy proposes.
+  - **The real check is whether a reload or Back re-shows PINs.** Assert `Cache-Control: no-store`, PINs kept out of history state, and that the server can't return them a second time. **If a reload does re-show them, that's a separate, higher finding.**
+  - (PenjagaSesi's comment says every page is sent no-store; that is to be proven, not assumed.) **This is assigned to the builder's J8 capture:** make the cards, then Reload and Back, recording the response headers and the screen.
