@@ -126,3 +126,11 @@ UNKNOWN (needs the owner or a read).
    - **Remedy:** give the pilot school two administrator appointments, or one that ends after the pilot, and name the platform administrator who can appoint a replacement.
    - (The expiry warning itself is 4.5, as Sharon recorded.)
 4. **PRQ-1.** The skipped runs prove that the schedule gate holds. They don't prove that a missing secret fails closed. **That test still runs at switch-on.**
+
+**PRQ-4 (new; Sharon, 24 Nov): the protected «production» environment is the right guard, if four things hold.**
+1. Each job that uses `PRODUCTION_*` or `AWS_BACKUP_*` secrets declares `environment: production`.
+2. Those secrets move from the repository level to **environment secrets**. Otherwise a job without the environment still reads them.
+3. The environment's deployment branches are restricted to `main`.
+4. The owner is the required reviewer. «Prevent self-review» is off only because the owner is the sole administrator, and that is recorded here.
+
+The App's dispatch then waits for the owner's approval. **This is a configuration change on GitHub, so it is the owner's to authorise and make.** The workflow edits for point 1 can be prepared on a branch and reviewed by Sharon.

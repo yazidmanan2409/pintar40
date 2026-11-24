@@ -255,7 +255,7 @@ Sharon's part waits until after A3's freeze (ruling 58).
 
 ## 7 · Revision 4 (Bob, 24 Nov 2026; ruling 89, track 1d): the pre-code reviews folded in
 
-**Sharon's review** (`D2R-PRECODE-R-c-f.md`, `dfb5167f`): R-d, R-e and R-f are ready as written. Two corrections, both adopted.
+**Sharon's review** (`D2R-PRECODE-R-c-f.md`, `dfb5167f`, plus her C1-R4 addendum): R-d, R-e and R-f are ready as written. **R-c's render sites:** the card (`KartuSertifikat:80`), the printable record (`:153`, C1-R4), the A4 sheet (`sertifikat-lembar`), `/verifikasi:138`, and the API and RPC (null). A list test fails on any Predikat render site outside the internal reports, with one plant. The learner's own certificate page (`:166`) is not public, so it is Daisy's call. Two corrections, both adopted.
 
 | # | Revision 4 |
 |---|---|
