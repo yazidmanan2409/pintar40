@@ -79,3 +79,9 @@ They also hit a full disk (16 GB of stale /tmp) and registry refusals after a re
   - The missing-dependency message names `npm ci`.
   - Scope since his last check: two scripts and six documents under the ruling 83 folders, nothing else.
 - **Next:** `claude/infra-83` at `8a1293be` merges into the next round's base (not main) when that round opens.
+
+**L-7 (24 Nov, the builder, during the audit-79 harness): the app can start before the stack is ready.**
+- After a reboot, `siap.sh` reported READY, but the app started before the stack had printed its keys.
+- It came up without the service-role key, so every sign-in failed with «PINTAR sedang tidak dapat memproses ini».
+- The builder caught it from the log, restarted the app, and kept no capture from that window.
+- **Follow-up for the next base:** the app's start waits for the stack's keys, or `siap.sh` checks that the app's environment has them. Red first.
