@@ -45,6 +45,9 @@
 10. **The journeys, swept** (Bob's L-8 and ruling (b), 24 Nov 06:06Z): every journey that read the old result, help or
    band restated to prove the new behaviour (below); the staging help walk moved to the Pemetaan Awal; J6.4b added.
    **Count: 13 restated + 2 moved or added; 14 checked, not dependent.**
+11. **From 4d382ec2's runs** (ci 45338584625, journeys 45338592896; ruling 93), test-only: F06-S04's artefact words in
+   D2R-H21, C06, C07 and C08's `proves`; C1W-J01 restated to the final order (its first restatement forbade
+   hasil.dikoreksi's own «Hasil asli tetap tersimpan»); J6.4b hands J6.4 its signed-in page (one device session).
 
 ## What changed
 
@@ -103,6 +106,7 @@ sittings read shows it; D2R-E01 proves it on no public surface, payload or snaps
 | C1W-J01 | the learner's corrected Uji Penguasaan page shows 100% and «Hasil asli: 50%» | counts only: «2 dari 2 soal dijawab tepat», marked corrected, no percentage |
 | CI red case FABLE-06 3i | the planted orientation's shape | adds `bersertifikasi` |
 | CI-W03 | the red cases | adds `db-d2r-gates` and `db-zr1-gates` |
+| C1W-J01 (again) | the first D2-R restatement forbade any «Hasil asli», which hasil.dikoreksi says | the final order: «Lulus.», the certificate's state, no «Baca lagi:» when all right, the counts and attempt, the correction's mark, hasil.tidak_ditampilkan; no percentage, no «Hasil asli: N», no comparison |
 
 ### The journeys (L-8 sweep: 13 restated + 2 moved or added; 14 checked, not dependent)
 
@@ -116,7 +120,7 @@ sittings read shows it; D2R-E01 proves it on no public surface, payload or snaps
 | staging `golden-school-laporan` C2, V1, V2 | «Sertifikat» and the R-b sentence; «Lulus», no Predikat |
 | staging `bantuan-browser` B9 (was B8) | counts only, no percentage |
 | **moved:** staging `bantuan-browser` B2–B5, B10 | the help walk on the Pemetaan Awal (offer at the due point, «Tutup», answered quickly, offer then answer; grants on 1 and 3); B6 proves the Uji Penguasaan's orientation and no offer past the window; B7–B9 (offline, unreachable, Kumpulkan) stay on the Uji Penguasaan, the one sitting with «Simpan jawaban ini» / «Tersimpan»; B10 reads both sittings, the Uji Penguasaan with no grant and no help check |
-| **added:** CI `b8-jalan` J6.4b | on the Pemetaan Awal, nothing before the window, the offer after it, and it opens to its first level |
+| **added:** CI `b8-jalan` J6.4b | on the Pemetaan Awal, nothing before the window, the offer after it, and it opens to its first level; it hands J6.4 its signed-in page, so the open sitting stays on one device session |
 
 Checked, not dependent (14 selftest hits: `b5a`, `z-k01-layar`, `d78`, `m3`, `d168`, the experience comment).
 

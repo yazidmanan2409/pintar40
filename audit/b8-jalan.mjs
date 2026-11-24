@@ -105,6 +105,7 @@ const sesiId = (sesi) => JSON.parse(Buffer.from(sesi.access_token.split(".")[1],
 
 const browser = await chromium.launch();
 let sesiMurid = null;   // J6.4 leaves the Uji Penguasaan open for J6.7
+let pemetaanMurid = null;   // J6.4b hands J6.4 its signed-in page: the open Pemetaan Awal belongs to that device session
 
 await step("J2.1", "an address PINTAR does not know, on «Masuk»: the same answer as a wrong password, and nothing is made", async (rec) => {
   const context = await browser.newContext({ viewport: { width: 1280, height: 860 }, locale: "id-ID" });
@@ -201,7 +202,8 @@ await step("J2.20", "a shared computer left idle: warned at four minutes, locked
 
 // J6.4b (D2-R, R-d, ruling 89; Bob, 24 Nov 06:06Z): a new case beside J6.4's restatement. The Pemetaan Awal is not a
 // certifying sitting, so it still offers help: on its first question, nothing before the window, the offer after it, and
-// the offer opens to its first level. The question is then answered and the page left; J6.4 resumes the same sitting.
+// the offer opens to its first level. The question is then answered and the signed-in page handed to J6.4, which goes
+// on with the same sitting on the same device session (reached from another, the page asks «Lanjutkan di sini» first).
 await step("J6.4b", "on the Pemetaan Awal, help is offered after the question's hesitation window, not before, and opens to its first level", async (rec) => {
   const s = await masuk(browser, MURID);
   const tugas = sql(`select la.id from public.learning_assignments la join public.assessment_assignments aa on aa.learning_assignment_id = la.id
@@ -231,13 +233,14 @@ await step("J6.4b", "on the Pemetaan Awal, help is offered after the question's 
   await s.page.locator("ul.pin-opsi button.pin-op").first().click();
   await s.page.waitForFunction(() => document.querySelector("ul.pin-opsi button.pin-op")?.getAttribute("aria-pressed") === "true", null, { timeout: SLOW });
   await s.page.waitForLoadState("networkidle");
-  await s.context.close();
+  pemetaanMurid = s;
 });
 
 // RESTATED (D2-R, R-d, ruling 89): a certifying sitting offers no help, so the Uji Penguasaan's orientation says so and no
 // help appears at any time, the question's window included; the sitting is left open for J6.7 as before
 await step("J6.4", "the learner finishes the Pemetaan Awal by the screens, starts the Uji Penguasaan, is told before it starts that it offers no help, and is offered none, before or after the question's hesitation window", async (rec) => {
-  const s = await masuk(browser, MURID);
+  // the same signed-in page as J6.4b when it ran, so the Pemetaan Awal it opened is this device session's
+  const s = pemetaanMurid ?? await masuk(browser, MURID);
   const tugas = sql(`select la.id from public.learning_assignments la join public.assessment_assignments aa on aa.learning_assignment_id = la.id
     join public.assessment_definitions d on d.id = aa.assessment_definition_id join public.institutions i on i.id = la.institution_id
     where i.slug like 'synth-siklus-%' and d.mode = 'POST_TEST' and d.allows_pause and aa.status = 'OPEN' limit 1`);
