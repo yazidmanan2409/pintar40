@@ -103,3 +103,5 @@ The write is bounded to exactly the BEFORE count of locked accounts.
 2. **A learner reinstated:** the admin's confirmation reads «PIN dan kartu lamanya tidak berlaku lagi. Buat PIN baru di Aktivasi akun, lalu berikan kepada {nama} sendiri.», with a link.
 3. **At any failed attempt, for everyone** (sign-in and both recoveries), under the refusal: «Akun yang baru dibuka kembali memakai password atau PIN baru. Staf: …Lupa password. Murid: minta PIN baru kepada sekolah.» It names no account, and it also covers L-76. **Sharon confirms it reveals nothing.**
 4. **F-6** reads right on sign-in and password recovery. **On the learner (PIN and card) pages a variant is needed**, because a learner's account goes through the school: «Bila akun Anda ditutup atau ditangguhkan, tanyakan kepada admin sekolah Anda.»
+
+**Sharon (24 Nov): §3 and §4 CONFIRMED, they reveal nothing.** Binding: both lines are **static, rendered in the page, never returned by the refusal**, so their presence can't vary by account. The response and timing are unchanged. The admin-only lines are fine, because the decider already knows the state.
