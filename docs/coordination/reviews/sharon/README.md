@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| Audit 79 L-105 (revoked cert prints clean) | HIGH; print must carry state (CI-1 principle); small follow-up CI-1b, before first real certificate | 5e0d0392 | [AUDIT79-L105.md](AUDIT79-L105.md) |
 | CI-1 independent verification (PR #30) | PASS, conditional on ci 45424228769 + journeys 45424259782 green attempt 1 | dfab09b6 | [CI-1-VERIFY-dfab09b6.md](CI-1-VERIFY-dfab09b6.md) |
 | CI-2 pre-build (L-78 fix) | correct direction; 4 additions (guard trigger, admin_akun_dapat_masuk, all lock paths, banned_until null); (a)–(d) answered; 5 confirmations conditional; plants Q1–Q9 | 918ed195 | [CI-2-PREBUILD-918ed195.md](CI-2-PREBUILD-918ed195.md) |
 | Audit 79 L-78 (Auth reveals locked account) | HIGH now, Critical by nature with real minors; production BLOCKER for mig 221+; fix (iii) rotate+revoke not ban; own correction CI-2; L-75 withdrawn for a generic line | e59276ce | [AUDIT79-L78.md](AUDIT79-L78.md) |
