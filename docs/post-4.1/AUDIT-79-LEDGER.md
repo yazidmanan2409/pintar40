@@ -143,4 +143,4 @@ L-08, L-11 and L-12 need the world to hold empty, untitled and integrity states.
   - A2b-D8's N-1 and N-2 were fixed in Z7; its N-5 is L-27.
   - B1-R1 to R5 were closed at the B2 visit, and B2 left nothing open.
   - C2w-Kanonik's N-6 and N-7 were fixed before C3w-1.
-- **Journey ids** refer to her final scripts (`AUDIT-79-SKRIP-PERJALANAN.md`, `a06e13e9`). The ids are unchanged from the draft.
+- **Journey ids** refer to her final scripts (`AUDIT-79-SKRIP-PERJALANAN.md`, `a06e13e9`). The ids are unchanged from the draft.| L-34 | «Matematika · Matematika Kelas 5 …»: the subject is repeated before a course title that already names it | Daisy, `TINJAUAN-D2R-42f6f432.md` (`6a96917c`), N-21; predates D2-R | B | J2 | Improvement | — |

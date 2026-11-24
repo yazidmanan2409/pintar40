@@ -362,3 +362,13 @@ Sharon's part waits until after A3's freeze (ruling 58).
 - **The staging pair:** the `mode_policy` changes and the `mode_policy.changed` audit rows are written above the watermark. The preservation header names both as expected.
 - **`learning_delta` is unchanged.** The overall figure is the counts' ratio, which `session_outcome` already returns. Not showing any percentage on certifying results at all would be a separate product decision, covering both reads.
 - **§7.4's delta** (app and strings only) gets a delta review on the new head.
+
+**Daisy's rendered review (1f) at `42f6f432`** (`TINJAUAN-D2R-42f6f432.md`, `6a96917c`): **PASS once C-1 lands and CI is green.**
+- **C-1, the required change:** a «Lulus» result has no route to the certificate. A link to `/belajar/{tugas}/sertifikat`, using the existing label `siklus.lihat_sertifikat`, goes directly after the banner, on the chapter result page and on the Hasil Belajar row. This is the same item as §7.4's eligibility correction.
+- **Everything else holds as written:**
+  - the A4 sheet: one page, «Materi Pembelajaran», and the night date reading 25 Nov everywhere;
+  - no Predikat on any surface;
+  - verifikasi reads «Lulus»;
+  - 0 px overflow at 1280, 390 and 320;
+  - the keyboard order;
+  - the omission of the comparison is confirmed.
