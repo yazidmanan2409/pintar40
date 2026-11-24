@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| G-2 Z-READINESS rows (R-1..R-4, R-6, R-15) | all confirmed; R-1 stays 4.1 until its test (cases named) | Z-READINESS §6 | [G2-ROWS-SHARON.md](G2-ROWS-SHARON.md) |
 | D2-R pre-code review (R-c..R-f, R-h, §6.3a) | R-d/e/f ready; R-c fix (predikat null in RPC/API); R-h name every learner route + list guard | 0623517d (spec) | [D2R-PRECODE-R-c-f.md](D2R-PRECODE-R-c-f.md) |
 | Readiness register draft 2 (second pass) | accurate; 4 additions (dispatch rights, Z production carry-overs, pilot admin cover, PRQ-1) | 7aae24e0 | [READINESS-REGISTER-D2-7aae24e0.md](READINESS-REGISTER-D2-7aae24e0.md) |
 | Ruling 83 infra safety (siap/bersih/preflight) | PASS w/ conditions; (4) VOID rule FAIL until S-1 (RED precedence, corroboration); S-2 siap log keys | c1f04845 | [INFRA83-SAFETY-c1f04845.md](INFRA83-SAFETY-c1f04845.md) |
