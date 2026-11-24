@@ -85,7 +85,8 @@ export default function KomposisiMurid({ bab, locale, persona = "learner" }: { b
                 </span>
                 <span className="pin-lk-nilai">
                   {s("hasilbelajar.nilai").replace("{b}", format.number(b.benar, locale)).replace("{t}", format.number(b.total, locale))}
-                  {b.tercapai ? <small className={kurang ? "pin-lk-bawah" : undefined}>{s(kurang ? "hasilbelajar.belum_capai" : "hasilbelajar.tercapai")}</small> : null}
+                  {/* D2-R (R-h, Daisy §3): a certifying result's verdict word is «Lulus» / «Belum lulus»; the counts line is unchanged */}
+                  {b.tercapai ? <small className={kurang ? "pin-lk-bawah" : undefined}>{s(b.bersertifikasi ? (kurang ? "hasil.belum_lulus" : "hasil.lulus") : kurang ? "hasilbelajar.belum_capai" : "hasilbelajar.tercapai")}</small> : null}
                 </span>
                 {/* Z (Daisy's Z3-A C-1): the gate case says why, directly after the figures; neutral, no icon */}
                 {b.gerbang ? <small className="pin-meta" data-gerbang="">{s("hasilbelajar.gerbang")}</small> : null}

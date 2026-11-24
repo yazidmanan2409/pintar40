@@ -4,7 +4,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { currentLocale } from "@/lib/locale";
 import * as engine from "@/lib/assessment-engine";
 import { tugasSaya } from "@/lib/tugas-saya";
-import { posisi, statusKey, lessonRead, tanpaPemetaan } from "@/lib/siklus";
+import { posisi, statusKey, lessonRead, tanpaPemetaan, penguasaanTerbuka } from "@/lib/siklus";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import JejakSiklus from "@/components/siklus/JejakSiklus";
@@ -108,6 +108,15 @@ export default async function Tugas({ params }: { params: Promise<{ tugas: strin
             <div className="pin-actions">
               <Link className="pin-btn pin-primary" href={aksi.href}>
                 {s(aksi.labelKey)}
+              </Link>
+            </div>
+          ) : null}
+          {/* D2-R R-g (O-6, Daisy §2): after Pemetaan Awal, Uji Penguasaan is offered beside reading, which stays first */}
+          {penguasaanTerbuka(state, lessons) ? (
+            <div className="pin-actions" data-penguasaan-terbuka="">
+              <p className="pin-sub">{s("siklus.siap.saran")}</p>
+              <Link className="pin-btn" href={`/belajar/${tugas}/penguasaan`}>
+                {s(labelTujuan("PENGUASAAN", { berjalan: false }))}
               </Link>
             </div>
           ) : null}

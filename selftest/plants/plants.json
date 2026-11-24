@@ -107,7 +107,7 @@
     },
     "db-d2r-gates": {
       "suite": "selftest.run_fable39()",
-      "control_green": 21,
+      "control_green": 22,
       "what": "D2-R (ruling 89): a certifying sitting offers no help and discloses counts only, by the sitting's captured policy; the public read drops the band; the attempt ordinal is fixed at the start; Pemetaan Awal and Uji Cepat keep their help and explanations"
     }
   },
@@ -1202,7 +1202,7 @@
       "name": "d2r-7",
       "gate": "db-d2r-gates",
       "expect_red": "D2R-H05",
-      "expect_detail": "carries per_domain"
+      "expect_detail": "carries numbers per objective"
     },
     {
       "name": "d2r-8",
@@ -1245,6 +1245,12 @@
       "gate": "db-d2r-gates",
       "expect_red": "D2R-H12",
       "expect_detail": "Pemetaan Awal's reading map lost"
+    },
+    {
+      "name": "d2r-15",
+      "gate": "db-d2r-gates",
+      "expect_red": "D2R-D10",
+      "expect_detail": "a fifth key was accepted"
     }
   ]
 }

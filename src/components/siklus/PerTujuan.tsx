@@ -27,7 +27,9 @@ export default function PerTujuan({
   peta: readonly Pick<ReadingMapCard, "kode" | "pernyataan" | "pelajaran">[];
   locale: Locale;
 }) {
-  const baris = Object.entries(perDomain ?? {});
+  // D2-R: a section with no figure (a certifying result's) is never drawn as a count
+  const baris = Object.entries(perDomain ?? {}).filter((e): e is [string, { benar: number; total: number }] =>
+    typeof e[1]?.benar === "number" && typeof e[1]?.total === "number");
   if (baris.length === 0) return null;
   const nama = namaTujuan(peta);
   return (

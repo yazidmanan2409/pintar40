@@ -22,6 +22,7 @@
 --   D2R-D07  an open sitting keeps the policy captured at its start, whatever the policy row says later
 --   D2R-D08  the lint: certifies ⇒ not allows_assistance, and it names the mode that breaks it
 --   D2R-D09  TEST, EXAM and PAPER still refuse (pin)
+--   D2R-D10  the capture is exactly four boolean keys (arah, petunjuk, contoh, reveals_rationale_on_review), and sealed
 --   D2R-H01  POST_TEST: session_review refuses a direct call
 --   D2R-H02  STANDALONE, the same
 --   D2R-H03  POST_TEST: reading_map gives no reasons and no strength verdict; every line is revisit-advice
@@ -236,7 +237,10 @@ begin
     end if;
     for v_t, k, v_ok in values ('post', v_post::text, true), ('sa', v_sa::text, false) loop
       v_j := public.session_outcome(k::uuid);
-      if v_j ? 'per_domain' then v_probs := selftest.f39_note(v_probs, 'D2R-H05', v_t || ': session_outcome carries per_domain (a mastery figure per objective)'); end if;
+      -- Sharon §7.2: per_domain keeps its sections and carries no number for any of them
+      if exists (select 1 from jsonb_each(coalesce(v_j -> 'per_domain', '{}'::jsonb)) e where e.value <> '{}'::jsonb) then
+        v_probs := selftest.f39_note(v_probs, 'D2R-H05', v_t || ': session_outcome''s per_domain carries numbers per objective (a mastery figure)');
+      end if;
       if (v_j ->> 'lulus') is distinct from v_ok::text then v_probs := selftest.f39_note(v_probs, 'D2R-H05', format('%s: lulus is %s, expected %s', v_t, v_j ->> 'lulus', v_ok)); end if;
       select count(*) into n from public.presented_items p where p.session_id = k::uuid;
       if (v_j -> 'ringkasan' ->> 'item_total')::integer is distinct from n
@@ -244,11 +248,15 @@ begin
         v_probs := selftest.f39_note(v_probs, 'D2R-H05', format('%s: the counts read %s of %s, expected %s of %s', v_t,
           v_j -> 'ringkasan' ->> 'correct', v_j -> 'ringkasan' ->> 'item_total', case when v_ok then n else 0 end, n));
       end if;
-      if v_ok = false and jsonb_typeof(v_j -> 'baca_lagi') is distinct from 'array' then
-        v_probs := selftest.f39_note(v_probs, 'D2R-H05', v_t || ': no revisit list (baca_lagi) on a result below the mark');
+      if v_ok = false and (jsonb_typeof(v_j -> 'tujuan_ulang') is distinct from 'array' or jsonb_array_length(v_j -> 'tujuan_ulang') = 0) then
+        v_probs := selftest.f39_note(v_probs, 'D2R-H05', v_t || ': no server-computed revisit list (tujuan_ulang) on a result below the mark');
       end if;
+      -- Sharon §7.2: only that the result changed, and the new count; never which question, or the key
       v_j := public.hasil_koreksi_saya(k::uuid);
       if v_j ? 'alasan' then v_probs := selftest.f39_note(v_probs, 'D2R-H07', v_t || ': hasil_koreksi_saya carries a correction reason (alasan)'); end if;
+      if (select array_agg(x order by x) from jsonb_object_keys(v_j) x) is distinct from array['benar', 'dikoreksi', 'pada', 'total'] then
+        v_probs := selftest.f39_note(v_probs, 'D2R-H07', v_t || ': hasil_koreksi_saya carries more than that it changed and the new count: ' || v_j::text);
+      end if;
     end loop;
 
     -- ═════════════════════════════════════════════════ the pins (H12)
@@ -272,7 +280,7 @@ begin
     -- ═════════════════════════════════════════════════ H14 and D07: the captured policy decides, not the row
     perform selftest.as_owner();
     begin
-      update public.mode_policy set certifies = false where mode = 'POST_TEST';
+      update public.mode_policy set certifies = false, reveals_rationale_on_review = true where mode = 'POST_TEST';
       perform selftest.as_user(SISWA);
       begin
         select count(*) into n from public.session_review(v_post);
@@ -301,6 +309,31 @@ begin
     exception when others then
       perform selftest.as_owner();
       if sqlerrm <> 'F39_D07_UNDO' then v_probs := selftest.f39_note(v_probs, 'D2R-D07', 'the probe failed: ' || left(sqlerrm, 160)); end if;
+    end;
+
+    -- ═════════════════════════════════════════════════ D10: the capture is exactly four boolean keys, and sealed
+    perform selftest.as_owner();
+    if (select array_agg(x order by x) from jsonb_object_keys((select s.assistance_policy from public.assessment_sessions s where s.id = v_post)) x)
+       is distinct from array['arah', 'contoh', 'petunjuk', 'reveals_rationale_on_review'] then
+      v_probs := selftest.f39_note(v_probs, 'D2R-D10', 'the Uji Penguasaan''s capture is not the four keys: ' || coalesce((select s.assistance_policy::text from public.assessment_sessions s where s.id = v_post), 'none'));
+    end if;
+    if (select s.assistance_policy from public.assessment_sessions s where s.id = v_pre)
+       is distinct from '{"arah": true, "petunjuk": true, "contoh": true, "reveals_rationale_on_review": false}'::jsonb then
+      v_probs := selftest.f39_note(v_probs, 'D2R-D10', 'the Pemetaan Awal did not capture its mode''s policy');
+    end if;
+    begin
+      execute format('update public.assessment_sessions set assistance_policy = %L::jsonb where id = %L',
+        '{"arah": true, "petunjuk": true, "contoh": true, "reveals_rationale_on_review": true}', v_post);
+      v_probs := selftest.f39_note(v_probs, 'D2R-D10', 'a started sitting''s capture was changed');
+    exception when others then null;
+    end;
+    begin
+      set local session_replication_role = replica;
+      execute format('update public.assessment_sessions set assistance_policy = %L::jsonb where id = %L',
+        '{"arah": true, "petunjuk": true, "contoh": true, "reveals_rationale_on_review": true, "kunci": true}', v_post);
+      set local session_replication_role = origin;
+      v_probs := selftest.f39_note(v_probs, 'D2R-D10', 'a capture with a fifth key was accepted (the CHECK)');
+    exception when others then set local session_replication_role = origin;
     end;
 
     -- ═════════════════════════════════════════════════ R-c: the certificate (C01, C04)
@@ -375,6 +408,7 @@ begin
     ('D2R-D07', 'D2-R R-d -- an open sitting keeps the policy captured at its start'),
     ('D2R-D08', 'D2-R R-d -- the lint: a certifying mode allows no help'),
     ('D2R-D09', 'D2-R R-d -- TEST, EXAM and PAPER still refuse help'),
+    ('D2R-D10', 'D2-R R-d -- the capture is exactly four boolean keys, and sealed'),
     ('D2R-H01', 'D2-R R-h -- an Uji Penguasaan''s review is refused to the learner'),
     ('D2R-H02', 'D2-R R-h -- an Asesmen Mandiri''s review is refused to the learner'),
     ('D2R-H03', 'D2-R R-h -- an Uji Penguasaan''s reading map gives no reasons and no verdict'),
@@ -404,14 +438,15 @@ begin
         when 'D2R-D07' then 'an Asesmen Mandiri started while its mode allowed help still served all three levels after the policy row stopped allowing it: the sitting reads what it captured'
         when 'D2R-D08' then 'assert_mode_policy_complete passes, and with POST_TEST allowing help it names POST_TEST'
         when 'D2R-D09' then 'TEST, EXAM and PAPER allow no help'
+        when 'D2R-D10' then 'every sitting captures exactly arah, petunjuk, contoh and reveals_rationale_on_review, its mode''s at the start (a Pemetaan Awal: help, no rationale); a started sitting''s capture cannot be changed, and with the seal bypassed the CHECK still refuses a fifth key'
         when 'D2R-H01' then 'session_review refuses the learner''s own finished Uji Penguasaan, by a direct call, as a certifying result (counts only)'
         when 'D2R-H02' then 'session_review refuses the learner''s own finished Asesmen Mandiri, by a direct call, as a certifying result'
         when 'D2R-H03' then 'reading_map on the all-right Uji Penguasaan gives no reason and no level other than revisit-advice (no KUAT)'
         when 'D2R-H04' then 'reading_map on the all-wrong Asesmen Mandiri gives its sections as revisit-advice (BACA_LAGI) only, with no reason drawn from the wrong options'
-        when 'D2R-H05' then 'session_outcome on both carries lulus and the counts (all right; none of n) and no per_domain; the result below the mark carries its revisit list'
-        when 'D2R-H07' then 'hasil_koreksi_saya on both carries no correction reason'
+        when 'D2R-H05' then 'session_outcome on both carries lulus and the counts (all right; none of n), and per_domain with no number for any section; the result below the mark carries the server''s revisit list (tujuan_ulang)'
+        when 'D2R-H07' then 'hasil_koreksi_saya on both says only whether the result changed, when, and the new count (benar, total): no reason, no question, no key'
         when 'D2R-H12' then 'Pemetaan Awal''s reading map keeps its levels and the misconception reasons; the Uji Cepat''s review keeps its rows and explanations'
-        when 'D2R-H14' then 'with POST_TEST''s policy row edited to not certify after the sitting, session_review still refuses it'
+        when 'D2R-H14' then 'with POST_TEST''s policy row edited after the sitting to not certify and to reveal rationale, session_review still refuses it'
         when 'D2R-H16' then 'session_answers returns the learner''s own answer positions and no correctness, key or explanation column'
         when 'D2R-C01' then 'the issued all-right Uji Penguasaan verifies BERLAKU with no band; verify_certificate''s OUT columns are unchanged'
         when 'D2R-C04' then 'the band is in certificate_eligibility and the sealed payload; assert_public_surface passes'

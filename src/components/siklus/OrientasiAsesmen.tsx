@@ -74,6 +74,10 @@ export default function OrientasiAsesmen({
         <p className="pin-eyebrow">{eyebrow}</p>
         <h1 className="pin-h1">{judul}</h1>
         <p className="pin-intro">{s(mode === "PEMETAAN" ? "pretest.intro" : "posttest.intro")}</p>
+        {/* D2-R R-d (Daisy §5.1): an Uji Penguasaan says, before it starts, that it offers no help. The database decides
+            (the window is withheld on a mode that offers none); this line is drawn on an Uji Penguasaan given no window (Daisy's
+            words name it; an Asesmen Mandiri's line waits for hers) */}
+        {orientasi.mode === "POST_TEST" && orientasi.hesitation_window_seconds == null ? <p className="pin-sub" data-tanpa-bantuan="">{s("posttest.tanpa_bantuan")}</p> : null}
       </div>
 
       <div className="pin-orient">

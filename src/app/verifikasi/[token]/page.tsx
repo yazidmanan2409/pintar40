@@ -134,13 +134,7 @@ export default async function VerifikasiPage({
               <dt>{s("verifikasi.hasil")}</dt>
               <dd>{row!.pass ? s("verifikasi.lulus") : s("verifikasi.belum_lulus")}</dd>
             </div>
-            {/* D-121(a): no descriptor below 70%; a certificate without one shows no descriptor line */}
-            {row!.predikat ? (
-              <div>
-                <dt>{s("verifikasi.predikat")}</dt>
-                <dd>{row!.predikat}</dd>
-              </div>
-            ) : null}
+            {/* D2-R R-c (rev. 4): the band is not public; the read returns it null and the page renders none */}
             <div>
               <dt>{s("verifikasi.institusi")}</dt>
               <dd>{row!.institution ?? "—"}</dd>

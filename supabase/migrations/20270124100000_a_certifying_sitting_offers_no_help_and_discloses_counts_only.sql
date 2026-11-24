@@ -4,31 +4,35 @@
 -- Build map: docs/completion-4.1/d2r/D2R-BUILD-MAP.md. Red first: selftest/db/fable39.sql and selftest/d2r.test.ts
 -- (docs/completion-4.1/d2r/RED-055738ba.txt).
 --
---   (1) THE CAPTURE. Three columns on assessment_sessions, written once, when the sitting starts, by a trigger (the
---       pass mark's precedent, seal_session_pass_mark, 20261102100000) and never changed after:
---         bantuan_diizinkan  the mode's allows_assistance at the start (R-d);
+--   (1) THE CAPTURE (spec §7.1 F-2, Sharon's §7.2 (a)-(c)). Three columns on assessment_sessions, written once, when the
+--       sitting starts, by a trigger (the pass mark's precedent, seal_session_pass_mark, 20261102100000), never changed:
+--         assistance_policy  jsonb, EXACTLY four boolean keys (a CHECK): the three assistance levels (arah, petunjuk,
+--                            contoh, assistance_levels' codes) and reveals_rationale_on_review, from mode_policy (R-d, F-3);
 --         bersertifikasi     the mode's certifies at the start: the result's governed purpose (R-h: «the mode's certifies
---                            policy, not its display name»);
+--                            policy, not its display name»). Kept apart from the jsonb, because a Pemetaan Awal reveals no
+--                            rationale on review and still keeps its reading map's reasons: that is purpose, not review;
 --         percobaan_ke       the attempt ordinal: the lineage count at the start, plus one (R-f; percobaan_terpakai,
 --                            20270114100000, across versions, ruling 46). The start path holds ruling 46's lock
 --                            (start_learning_session:garis) when it inserts, so the count is taken under it.
---       Every existing sitting is given what its mode said before this migration, so a sitting open now keeps the help
---       it started with (§6.2 «open sittings keep their captured policy»), and its ordinal by the same lineage rule, in
---       creation order.
---   (2) THE POLICY. POST_TEST and STANDALONE allow no help (R-d), audited as BOB-50's change was. The lint gains
---       «certifies ⇒ not allows_assistance».
+--       Every existing sitting, open and closed, is given what its mode said BEFORE this migration changes the policy
+--       (§7.2 (a); the order is asserted), so a sitting open now keeps the help it started with; and its ordinal by the
+--       same lineage rule, in creation order. The columns are filled first, then the seal is added (§7.2 (b)).
+--   (2) THE POLICY. POST_TEST and STANDALONE allow no help (R-d), and no certifying mode reveals rationale on review
+--       (R-h, F-3), audited as BOB-50's change was. The lint gains «certifies ⇒ not allows_assistance» and «certifies ⇒
+--       not reveals_rationale_on_review».
 --   (3) HELP. open_assistance, assistance_state and session_state read the sitting's capture, never the live row: a
 --       sitting that may not have help is refused at every level by a direct call, is never «due», and gives the player
 --       no window. assessment_orientation, read before any sitting exists, promises no help on a mode that offers none.
 --   (4) THE LEARNER'S RESULT (R-h). A certifying sitting (bersertifikasi):
---         session_review       refuses (counts only);
+--         session_review       refuses: it reads reveals_rationale_on_review from the capture (F-3), the PRE_TEST
+--                              refusal kept as a second check;
 --         reading_map          gives only the sections to read again, as revisit-advice (BACA_LAGI), with no reason
 --                              drawn from the wrong options and no strength verdict (no KUAT). There is no approved
 --                              evidence threshold in 4.1 (Sharon, rev. 4), so every section line is revisit-advice;
---         session_outcome      carries the decision, the sealed counts, the revisit list (baca_lagi, by objective code:
---                              those below the sealed mark and the gate's, tujuan_gerbang_kode allowed by rev. 4) and the
---                              ordinal; never per_domain (no mastery verdict per objective, 74a);
---         hasil_koreksi_saya   carries no correction reason.
+--         session_outcome      carries the decision, the sealed counts, per_domain WITHOUT per-objective numbers (its
+--                              sections only), the server-computed tujuan_ulang (the codes below the sealed mark, plus
+--                              tujuan_gerbang_kode; §7.2) and the ordinal (no mastery verdict per objective, 74a);
+--         hasil_koreksi_saya   says only that the result changed, and the new count: never which question, or the key.
 --       Pemetaan Awal, Uji Cepat and practice are unchanged (each pinned). Staff reads are unchanged.
 --   (5) THE PUBLIC READ (R-c, rev. 4). verify_certificate returns predikat null for every certificate. Its OUT columns,
 --       assert_public_surface(), certificate_eligibility, the sealed payload and the snapshot are unchanged.
@@ -42,14 +46,32 @@
 -- (pg_get_functiondef at 308) with the change marked «D2-R».
 
 -- ═══════════════════════════════════════════════════════════════════════════════════ (1) the capture
+-- The policy as a sitting captures it, from one policy row: the three levels and whether the review reveals rationale.
+create or replace function public.kebijakan_bantuan_dari(m public.mode_policy) returns jsonb
+language sql immutable set search_path = public, pg_temp as $$
+  select jsonb_build_object('arah', m.allows_assistance, 'petunjuk', m.allows_assistance, 'contoh', m.allows_assistance,
+                            'reveals_rationale_on_review', m.reveals_rationale_on_review)
+$$;
+revoke all on function public.kebijakan_bantuan_dari(public.mode_policy) from public, anon, authenticated, service_role;
+
+-- §7.2 (c): exactly the four keys, each a boolean
+create or replace function public.kebijakan_bantuan_sah(p jsonb) returns boolean
+language sql immutable set search_path = public, pg_temp as $$
+  select jsonb_typeof(p) = 'object'
+     and (select array_agg(k order by k) from jsonb_object_keys(p) k) = array['arah', 'contoh', 'petunjuk', 'reveals_rationale_on_review']
+     and (select bool_and(jsonb_typeof(v) = 'boolean') from jsonb_each(p) e(k, v))
+$$;
+revoke all on function public.kebijakan_bantuan_sah(jsonb) from public, anon, authenticated, service_role;
+
 alter table public.assessment_sessions
-  add column bantuan_diizinkan boolean,
+  add column assistance_policy jsonb,
   add column bersertifikasi boolean,
   add column percobaan_ke smallint;
 
-comment on column public.assessment_sessions.bantuan_diizinkan is
-  'D2-R (R-d): whether this sitting may offer help, copied from mode_policy.allows_assistance when it started. Immutable; '
-  'open_assistance, assistance_state and session_state read it and never the live policy row.';
+comment on column public.assessment_sessions.assistance_policy is
+  'D2-R (R-d, F-3): the help each level may give and whether the review reveals rationale, copied from mode_policy when the '
+  'sitting started. Exactly four boolean keys; immutable. open_assistance, assistance_state, session_state and session_review '
+  'read it and never the live policy row.';
 comment on column public.assessment_sessions.bersertifikasi is
   'D2-R (R-h): whether this sitting''s result certifies, copied from mode_policy.certifies when it started. Immutable; '
   'a certifying result discloses counts only to its learner (session_review, reading_map, session_outcome, hasil_koreksi_saya).';
@@ -63,7 +85,7 @@ alter table public.assessment_sessions disable trigger assessment_sessions_prove
 alter table public.assessment_sessions disable trigger assessment_sessions_status;
 alter table public.assessment_sessions disable trigger assessment_sessions_a1_state;
 update public.assessment_sessions s
-   set bantuan_diizinkan = m.allows_assistance, bersertifikasi = m.certifies
+   set assistance_policy = public.kebijakan_bantuan_dari(m), bersertifikasi = m.certifies
   from public.mode_policy m where m.mode = s.mode;
 update public.assessment_sessions s
    set percobaan_ke = (
@@ -86,14 +108,31 @@ alter table public.assessment_sessions enable trigger assessment_sessions_a1_sta
 alter table public.assessment_sessions enable trigger assessment_sessions_status;
 alter table public.assessment_sessions enable trigger assessment_sessions_provenance;
 
+-- §7.2 (a): every sitting holds its mode's OLD policy, asserted here, before the policy changes below
 do $d2r$
 begin
-  if exists (select 1 from public.assessment_sessions where bantuan_diizinkan is null or bersertifikasi is null) then
+  if exists (select 1 from public.assessment_sessions where assistance_policy is null or bersertifikasi is null) then
     raise exception 'D2-R: a sitting whose mode has no policy row was left without its capture; this migration refuses to apply';
   end if;
+  if exists (select 1 from public.assessment_sessions s join public.mode_policy m on m.mode = s.mode
+              where s.assistance_policy is distinct from public.kebijakan_bantuan_dari(m) or s.bersertifikasi is distinct from m.certifies) then
+    raise exception 'D2-R: a sitting was not given its mode''s policy as it stood before this migration';
+  end if;
+  if (select m.allows_assistance from public.mode_policy m where m.mode = 'POST_TEST') is not true then
+    raise exception 'D2-R: the backfill ran after POST_TEST stopped allowing help (the order of §7.2 (a))';
+  end if;
 end $d2r$;
-alter table public.assessment_sessions alter column bantuan_diizinkan set not null;
+create temporary table d2r_sebelum on commit drop as
+  select s.id, s.assistance_policy, s.bersertifikasi from public.assessment_sessions s;
+alter table public.assessment_sessions alter column assistance_policy set not null;
 alter table public.assessment_sessions alter column bersertifikasi set not null;
+alter table public.assessment_sessions add constraint assessment_sessions_assistance_policy_four_keys
+  check (public.kebijakan_bantuan_sah(assistance_policy));
+-- Fail-safe defaults, for a row written past the seal (possible only with triggers off, never by a client): no help,
+-- no rationale, counts only. Every ordinary insert is given the policy by the seal below, whatever these say.
+alter table public.assessment_sessions alter column assistance_policy
+  set default '{"arah": false, "petunjuk": false, "contoh": false, "reveals_rationale_on_review": false}'::jsonb;
+alter table public.assessment_sessions alter column bersertifikasi set default true;
 
 -- The seal. On insert it writes the capture from the policy row and the lineage count (whatever the writer passed);
 -- on update it refuses any change to it.
@@ -101,16 +140,16 @@ create or replace function public.tangkap_kebijakan_sesi() returns trigger
 language plpgsql security definer set search_path = public, pg_temp as $$
 begin
   if tg_op = 'UPDATE' then
-    if new.bantuan_diizinkan is distinct from old.bantuan_diizinkan or new.bersertifikasi is distinct from old.bersertifikasi
+    if new.assistance_policy is distinct from old.assistance_policy or new.bersertifikasi is distinct from old.bersertifikasi
        or new.percobaan_ke is distinct from old.percobaan_ke then
       raise exception using errcode = 'PR080', detail = 'SITTING_POLICY_SEALED',
         message = 'a sitting''s help, its result''s purpose and its attempt number are fixed when it starts and never change';
     end if;
     return new;
   end if;
-  select m.allows_assistance, m.certifies into new.bantuan_diizinkan, new.bersertifikasi
+  select public.kebijakan_bantuan_dari(m), m.certifies into new.assistance_policy, new.bersertifikasi
     from public.mode_policy m where m.mode = new.mode;
-  if new.bantuan_diizinkan is null or new.bersertifikasi is null then
+  if new.assistance_policy is null or new.bersertifikasi is null then
     raise exception 'mode % has no policy row; a sitting is not started on an assumed policy', new.mode;
   end if;
   new.percobaan_ke := case when new.assessment_assignment_id is not null and new.person_id is not null
@@ -124,15 +163,25 @@ create trigger assessment_sessions_the_policy_is_captured
   for each row execute function public.tangkap_kebijakan_sesi();
 
 -- ═══════════════════════════════════════════════════════════════════════════════════ (2) the policy and its lint
-update public.mode_policy
-   set allows_assistance = false,
-       note = coalesce(note, '') || case when coalesce(note, '') = '' then '' else '; ' end
-              || 'a certifying sitting offers no help (D2-R, ruling 89)'
- where mode in ('POST_TEST', 'STANDALONE');
-
 select public.audit_write('mode_policy.changed', 'mode_policy', m.mode::text, null,
-  jsonb_build_object('allows_assistance', jsonb_build_object('from', true, 'to', false), 'decision', 'D2-R R-d', 'ruling', 89))
-  from unnest(array['POST_TEST', 'STANDALONE']) m(mode);
+  jsonb_build_object('allows_assistance', jsonb_build_object('from', m.allows_assistance, 'to', false),
+                     'reveals_rationale_on_review', jsonb_build_object('from', m.reveals_rationale_on_review, 'to', false),
+                     'decision', 'D2-R R-d, R-h (F-3)', 'ruling', 89))
+  from public.mode_policy m where m.certifies and (m.allows_assistance or m.reveals_rationale_on_review);
+update public.mode_policy
+   set allows_assistance = false, reveals_rationale_on_review = false,
+       note = coalesce(note, '') || case when coalesce(note, '') = '' then '' else '; ' end
+              || 'a certifying sitting offers no help and its review reveals nothing (D2-R, ruling 89)'
+ where certifies and (allows_assistance or reveals_rationale_on_review);
+
+-- §7.2 (a), after the change: no sitting's capture moved (an open Uji Penguasaan keeps the help it started with)
+do $d2r$
+begin
+  if exists (select 1 from public.assessment_sessions s join d2r_sebelum b on b.id = s.id
+              where s.assistance_policy is distinct from b.assistance_policy or s.bersertifikasi is distinct from b.bersertifikasi) then
+    raise exception 'D2-R: changing the policy moved a sitting''s capture';
+  end if;
+end $d2r$;
 
 CREATE OR REPLACE FUNCTION public.assert_mode_policy_complete()
  RETURNS TABLE(ok boolean, detail text)
@@ -169,10 +218,14 @@ begin
   select string_agg(m.mode::text, ', ' order by m.mode::text) into bad from public.mode_policy m
    where m.certifies and m.allows_assistance;
   if bad is not null then problems := problems || ('certifying mode(s) allowing assistance: ' || bad); end if;
+  -- D2-R (R-h, F-3): a certifying result's review reveals no rationale
+  select string_agg(m.mode::text, ', ' order by m.mode::text) into bad from public.mode_policy m
+   where m.certifies and m.reveals_rationale_on_review;
+  if bad is not null then problems := problems || ('certifying mode(s) revealing rationale on review: ' || bad); end if;
 
   select count(*) into n from public.mode_policy;
   ok := array_length(problems, 1) is null;
-  detail := case when ok then format('%s mode(s), every enum label carries a policy; no non-formal mode certifies (a single Uji Cepat included); the EXAM tier is reachable only from EXAM and PAPER; no certifying mode allows assistance', n)
+  detail := case when ok then format('%s mode(s), every enum label carries a policy; no non-formal mode certifies (a single Uji Cepat included); the EXAM tier is reachable only from EXAM and PAPER; no certifying mode allows assistance or reveals rationale on review', n)
                  else array_to_string(problems, '; ') end;
   return next;
 end $function$;
@@ -197,7 +250,9 @@ begin
 
   -- ADDED IN 0040: the mode decides whether assistance exists at all.
   -- D2-R (R-d): as the sitting captured it when it started, never the live policy row
-  select s.mode, s.bantuan_diizinkan into v_mode, v_allows from public.assessment_sessions s where s.id = v_session;
+  select s.mode, (s.assistance_policy ->> 'arah')::boolean or (s.assistance_policy ->> 'petunjuk')::boolean
+                 or (s.assistance_policy ->> 'contoh')::boolean
+    into v_mode, v_allows from public.assessment_sessions s where s.id = v_session;
   if v_allows is null then
     raise exception 'mode % has no policy row; assistance is refused rather than assumed', v_mode;
   end if;
@@ -217,6 +272,10 @@ begin
   end if;
 
   select a.kode into v_kode from public.assistance_levels a where a.level = p_level;
+  -- D2-R (R-d): each level as the sitting captured it
+  if not coalesce((select (s.assistance_policy ->> lower(v_kode))::boolean from public.assessment_sessions s where s.id = v_session), false) then
+    raise exception 'this assessment offers no assistance';
+  end if;
   v_stage := v_state.stage;
 
   if p_level = 1 then
@@ -271,7 +330,8 @@ begin
   if not v_ok then raise exception 'this session is not open for assistance: %', v_reason; end if;
 
   -- D2-R (R-d): a sitting that may not have help (its capture) has no window, so it is never due
-  select case when s.bantuan_diizinkan then d.hesitation_window_seconds end into v_window
+  select case when (s.assistance_policy ->> 'arah')::boolean or (s.assistance_policy ->> 'petunjuk')::boolean
+                   or (s.assistance_policy ->> 'contoh')::boolean then d.hesitation_window_seconds end into v_window
     from public.assessment_sessions s
     join public.assessment_definitions d on d.id = s.assessment_definition_id
    where s.id = v_session;
@@ -343,7 +403,8 @@ begin
            (select count(distinct r.presented_item_id)::integer from public.responses r
              where r.session_id = s.id),
            -- D2-R (R-d): the player schedules help only from this, so a sitting that may not have help gives none
-           case when s.bantuan_diizinkan then d.hesitation_window_seconds end,
+           case when (s.assistance_policy ->> 'arah')::boolean or (s.assistance_policy ->> 'petunjuk')::boolean
+                  or (s.assistance_policy ->> 'contoh')::boolean then d.hesitation_window_seconds end,
            (select c.stage from public.presented_items p
               join public.items i on i.id = p.item_id
               join public.lessons l on l.id = i.lesson_id
@@ -396,7 +457,7 @@ $function$;
 -- The sections a certifying result advises reading again, by objective code: those whose mastery in the result is below
 -- the mark sealed on the sitting, and the objectives of the must-be-right questions it missed (K-01, rev. 4). Read from
 -- the learner's own result row; no per-objective figure leaves it. Internal: session_outcome and reading_map call it.
-create or replace function public.bagian_baca_lagi(p_session uuid) returns text[]
+create or replace function public.tujuan_ulang_sesi(p_session uuid) returns text[]
 language sql stable security definer set search_path = public, pg_temp as $$
   select coalesce(array_agg(distinct k order by k), '{}')
     from (
@@ -413,7 +474,7 @@ language sql stable security definer set search_path = public, pg_temp as $$
        where r.id = public.hasil_murid_id(p_session)
     ) x
 $$;
-revoke all on function public.bagian_baca_lagi(uuid) from public, anon, authenticated, service_role;
+revoke all on function public.tujuan_ulang_sesi(uuid) from public, anon, authenticated, service_role;
 
 CREATE OR REPLACE FUNCTION public.session_review(p_session uuid)
  RETURNS TABLE(posisi smallint, stem text, is_safety_critical boolean, jawaban_teks text, benar boolean, alasan text, arah text)
@@ -433,9 +494,10 @@ begin
   if v_s.status <> 'FINALIZED' then
     raise exception 'the review opens once the attempt is scored';
   end if;
-  -- D2-R (R-h): a certifying result, as the sitting captured it, discloses counts only: no per-question mark, key or
-  -- explanation reaches its learner by any route
-  if v_s.bersertifikasi then
+  -- D2-R (R-h, F-3): the review reveals what the sitting captured; a certifying result captured none, so it discloses
+  -- counts only and no per-question mark, key or explanation reaches its learner by any route. The PRE_TEST refusal
+  -- above stays as the second check.
+  if not coalesce((v_s.assistance_policy ->> 'reveals_rationale_on_review')::boolean, false) then
     raise exception using errcode = 'PR081', detail = 'RESULT_COUNTS_ONLY',
       message = 'a certifying result discloses counts only: the answer key and each question''s mark are not shown';
   end if;
@@ -472,7 +534,7 @@ begin
     raise exception 'this session belongs to someone else';
   end if;
   -- D2-R (R-h, 74a, 74b; rev. 4): a certifying result advises what to read again and nothing more: the sections of
-  -- bagian_baca_lagi only, each as revisit-advice, in the chapter's order, with no reason drawn from the wrong options
+  -- tujuan_ulang_sesi only, each as revisit-advice, in the chapter's order, with no reason drawn from the wrong options
   -- and no strength verdict. No evidence threshold is approved in 4.1, so every section line is revisit-advice.
   if (select s.bersertifikasi from public.assessment_sessions s where s.id = p_session) then
     return query
@@ -481,7 +543,7 @@ begin
         from public.learning_objectives lo
         join public.lessons l on l.id = lo.lesson_id
         join public.modules m on m.id = l.module_id
-       where lo.code = any (public.bagian_baca_lagi(p_session))
+       where lo.code = any (public.tujuan_ulang_sesi(p_session))
          and lo.id in (select o from public.session_final_responses(p_session) f
                          join public.items i on i.id = f.item_id cross join unnest(i.objective_ids) o)
        order by 1;
@@ -559,9 +621,12 @@ begin
     'ringkasan',   v_r.delta_inputs) || public.hasil_koreksi_ringkas(p_session)
     -- D2-R (R-f, R-h): the attempt ordinal fixed at the start, and the result's governed purpose as captured
     || jsonb_build_object('percobaan_ke', v_s.percobaan_ke, 'bersertifikasi', v_s.bersertifikasi);
-  -- D2-R (R-h, 74a): a certifying result carries no mastery figure per objective; what to read again comes as codes
+  -- D2-R (R-h, 74a; Sharon §7.2): a certifying result's per_domain carries its sections without a number, and what to
+  -- read again comes from the server as codes (tujuan_ulang), never computed by a page from a per-objective score
   if v_s.bersertifikasi then
-    v_out := (v_out - 'per_domain') || jsonb_build_object('baca_lagi', to_jsonb(public.bagian_baca_lagi(p_session)));
+    v_out := v_out || jsonb_build_object(
+      'per_domain', coalesce((select jsonb_object_agg(e.key, '{}'::jsonb) from jsonb_each(coalesce(v_r.per_domain, '{}'::jsonb)) e), '{}'::jsonb),
+      'tujuan_ulang', to_jsonb(public.tujuan_ulang_sesi(p_session)));
   end if;
 
   if v_s.mode = 'PRE_TEST' then
@@ -601,10 +666,14 @@ begin
   select * into v_asli from public.assessment_results where session_id = p_session and supersedes_result_id is null;
   select * into v_kini from public.assessment_results where id = public.hasil_murid_id(p_session);
   select k.* into v_k from public.assessment_result_bases b join public.key_corrections k on k.id = b.key_correction_id where b.result_id = v_kini.id;
-  -- D2-R (R-h): a correction's reason can name a question and its key, so a certifying result carries none (staff read it)
-  return case when s.bersertifikasi then jsonb_build_object('dikoreksi', v_k.id is not null, 'pada', v_kini.computed_at)
-              else jsonb_build_object('dikoreksi', v_k.id is not null, 'alasan', v_k.reason, 'pada', v_kini.computed_at) end
-    || jsonb_build_object(
+  -- D2-R (R-h, Sharon §7.2): on a certifying result, only that the result changed and the new count; never which question
+  -- changed, or the key (the correction's reason can name both; staff read it)
+  if s.bersertifikasi then
+    return jsonb_build_object('dikoreksi', v_k.id is not null, 'pada', v_kini.computed_at,
+      'benar', (v_kini.delta_inputs ->> 'correct')::integer, 'total', (v_kini.delta_inputs ->> 'item_total')::integer);
+  end if;
+  return jsonb_build_object(
+    'dikoreksi', v_k.id is not null, 'alasan', v_k.reason, 'pada', v_kini.computed_at,
     'asli', case when v_asli.id is not null then jsonb_build_object('penguasaan', v_asli.mastery,
               'lulus', case when s.mode = 'POST_TEST' and s.pass_mark is not null then v_asli.safety_gate_passed and v_asli.mastery >= s.pass_mark end) end,
     'terkini', case when v_kini.id is not null then jsonb_build_object('penguasaan', v_kini.mastery,
@@ -729,3 +798,51 @@ $function$;
 
 revoke all on function public.daftar_pengerjaan(uuid, uuid) from public, anon, authenticated;
 grant execute on function public.daftar_pengerjaan(uuid, uuid) to authenticated;
+
+-- ═══════════════════════════════════════════════════════════════════════════════════ grants (ADR-0021)
+-- Every function redefined above keeps exactly the grants it had at 308: restated here, PUBLIC and anon revoked.
+revoke all on function public.assert_mode_policy_complete() from public, anon, authenticated;
+grant execute on function public.assert_mode_policy_complete() to service_role;
+revoke all on function public.verify_certificate(text) from public, anon, authenticated;
+grant execute on function public.verify_certificate(text) to service_role;
+revoke all on function public.open_assistance(uuid, smallint) from public, anon;
+revoke all on function public.assistance_state(uuid) from public, anon;
+revoke all on function public.session_state(uuid) from public, anon;
+revoke all on function public.assessment_orientation(uuid) from public, anon;
+revoke all on function public.session_review(uuid) from public, anon;
+revoke all on function public.reading_map(uuid) from public, anon;
+revoke all on function public.session_outcome(uuid) from public, anon;
+revoke all on function public.hasil_koreksi_saya(uuid) from public, anon;
+grant execute on function public.open_assistance(uuid, smallint) to authenticated, service_role;
+grant execute on function public.assistance_state(uuid) to authenticated, service_role;
+grant execute on function public.session_state(uuid) to authenticated, service_role;
+grant execute on function public.assessment_orientation(uuid) to authenticated, service_role;
+grant execute on function public.session_review(uuid) to authenticated, service_role;
+grant execute on function public.reading_map(uuid) to authenticated, service_role;
+grant execute on function public.session_outcome(uuid) to authenticated, service_role;
+grant execute on function public.hasil_koreksi_saya(uuid) to authenticated, service_role;
+
+-- ═══════════════════════════════════════════════════════════════════════════════════ verification
+do $$
+declare v_ok boolean; v_detail text;
+begin
+  if exists (select 1 from public.mode_policy m where m.certifies and m.allows_assistance) then
+    raise exception 'D2-R: a certifying mode still allows assistance';
+  end if;
+  select a.ok, a.detail into v_ok, v_detail from public.assert_mode_policy_complete() a;
+  if not v_ok then raise exception 'D2-R: the mode policy lint fails: %', v_detail; end if;
+  if exists (select 1 from public.assessment_sessions where assistance_policy is null or bersertifikasi is null or not public.kebijakan_bantuan_sah(assistance_policy)) then
+    raise exception 'D2-R: a sitting has no captured policy, or not exactly its four keys';
+  end if;
+  if not exists (select 1 from pg_trigger where tgname = 'assessment_sessions_the_policy_is_captured' and tgrelid = 'public.assessment_sessions'::regclass) then
+    raise exception 'D2-R: the capture seal is missing';
+  end if;
+  if pg_get_function_result('public.verify_certificate(text)'::regprocedure) <> 'TABLE(pass boolean, predikat text, institution text, date text, validity text)' then
+    raise exception 'D2-R: the public read''s contract changed';
+  end if;
+  if has_function_privilege('anon', 'public.verify_certificate(text)'::regprocedure, 'EXECUTE')
+     or has_function_privilege('authenticated', 'public.tujuan_ulang_sesi(uuid)'::regprocedure, 'EXECUTE')
+     or has_function_privilege('authenticated', 'public.tangkap_kebijakan_sesi()'::regprocedure, 'EXECUTE') then
+    raise exception 'D2-R: a grant is wider than declared';
+  end if;
+end $$;

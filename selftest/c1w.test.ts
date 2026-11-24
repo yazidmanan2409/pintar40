@@ -894,7 +894,10 @@ export const c1wTests: SelfTest[] = [
         langkah("murid", "m1", `select (x ->> 'penguasaan') || '|' || (x ->> 'dikoreksi') || '|' || (x -> 'koreksi' ->> 'penguasaan_asli') || '|' || (x -> 'koreksi' ->> 'alasan')
              from public.session_outcome(${G("s1")}) x`),
         langkah("murid_saya", "m1", `select (x ->> 'dikoreksi') || '|' || (x -> 'asli' ->> 'penguasaan') || '|' || (x -> 'terkini' ->> 'penguasaan') from public.hasil_koreksi_saya(${G("s1")}) x`),
-        langkah("murid_ulasan", "m1", `select count(*) filter (where y.benar) || '/' || count(*) from public.session_review(${G("s1_post")}) y`),
+        // RESTATED (D2-R, ruling 74): a certifying sitting's learner reads counts only, so the unaffected sitting is read by
+        // its sealed counts, and its review is refused by name
+        langkah("murid_ulasan", "m1", `select (o -> 'ringkasan' ->> 'correct') || '/' || (o -> 'ringkasan' ->> 'item_total') from public.session_outcome(${G("s1_post")}) o`),
+        langkah("murid_ulasan_tolak", "m1", `select count(*) from public.session_review(${G("s1_post")}) y`),
         // Z V2 (Sharon's condition: the key-correction path end to end): Hasil Belajar's summary names the corrected
         // sitting as the result in force, SELESAI, with no retake line
         langkah("murid_ringkasan", "m1", `select h.keadaan || '|' || coalesce((h.pre_session = ${G("s1")})::text, 'null') || '|' || coalesce((h.post_session = ${G("s1_post")})::text, 'null') || '|' || h.ulang_berjalan
@@ -1026,7 +1029,8 @@ export const c1wTests: SelfTest[] = [
       harap("jadwal_cek", "ok:2|1|0.6667|FINALIZED,DEADLINE|true", "the abandoned sitting open at confirmation (ended by its deadline, scored, recalculated under the correction)");
       harap("murid", `ok:0.6667|true|1.0000|${ALASAN}`, "the learner's result page (the corrected result as current, marked corrected, why, the original)");
       harap("murid_saya", "ok:true|1.0000|0.6667", "the learner's own reading of the correction");
-      harap("murid_ulasan", "ok:2/2", "the learner's review of an unaffected sitting");
+      harap("murid_ulasan", "ok:2/2", "the learner's own counts of an unaffected sitting");
+      harap("murid_ulasan_tolak", "PR081:RESULT_COUNTS_ONLY", "the learner's review of a certifying sitting (D2-R: counts only)");
       harap("murid_ringkasan", "ok:SELESAI|true|true|false", "the learner's Hasil Belajar summary after the correction (Z V2: the corrected pre-test and the Uji Penguasaan in force, SELESAI, no retake line)");
       harap("biasa2", "ok:true", "an ordinary recalculation of another sitting");
       harap("murid_biasa", "ok:true|1.0000", "a learner whose sitting was recalculated ordinarily (D14: no correction said, the sealed result read)");

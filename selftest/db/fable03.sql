@@ -589,7 +589,16 @@ begin
   perform public.finish_my_session(s_post);
   v_scoreA := (public.session_outcome(s_post) ->> 'penguasaan')::numeric;
 
+  -- RESTATED (D2-R, ruling 89): an Uji Penguasaan no longer offers help (D2R-D01..D04 prove the refusal). INV-11 still
+  -- governs every sitting that offers help, so it is proven on one that captured help when it started, as a sitting
+  -- opened before D2-R did: POST_TEST's policy row allows help for this one start, and is put back at once.
+  perform selftest.as_owner();
+  update public.mode_policy set allows_assistance = true where mode = 'POST_TEST';
+  perform selftest.as_user('siklus-email@synthetic.pintar.test');
   s2_post := public.start_learning_session(f.aa_post);
+  perform selftest.as_owner();
+  update public.mode_policy set allows_assistance = false where mode = 'POST_TEST';
+  perform selftest.as_user('siklus-email@synthetic.pintar.test');
   v_pi := selftest.first_presented_of_type(s2_post, 'MCQ_SINGLE');
   select * into v_state from public.assistance_state(v_pi);
   if v_state.due then
@@ -620,7 +629,7 @@ begin
   select count(*) into n from telemetry.assistance_events where session_id = s2_post;
   if n = 0 then ok := false; detail := detail || 'the assistance that was opened was not recorded at all; '; end if;
   test_id := 'F03-T08'; invariant := 'INV-11';
-  if ok then detail := format('the window holds to the second; three levels opened and %s telemetry event(s) written; both attempts score %s',
+  if ok then detail := format('on a sitting that captured help at its start (D2-R: an Uji Penguasaan started today offers none), the window holds to the second; three levels opened and %s telemetry event(s) written; both attempts score %s',
     n, v_scoreA); end if;
   return next;
 
@@ -641,7 +650,16 @@ begin
   ok := true; detail := ''; n2 := 0;
   perform selftest.as_user('siklus-email@synthetic.pintar.test');
   perform selftest.pre_finished(f.aa_pre);   -- W6.10: the Uji Penguasaan waits for the Pemetaan Awal
+  -- RESTATED (D2-R, ruling 89): an Uji Penguasaan started today serves no help and its learner reads no review. The
+  -- doctrine covers every help level served and every review line shown wherever they still are, so this sitting is
+  -- started while POST_TEST's policy row allows help and does not certify (it captures both), then the row is restored.
+  perform selftest.as_owner();
+  update public.mode_policy set allows_assistance = true, certifies = false, reveals_rationale_on_review = true where mode = 'POST_TEST';
+  perform selftest.as_user('siklus-email@synthetic.pintar.test');
   s := public.start_learning_session(f.aa_post);
+  perform selftest.as_owner();
+  update public.mode_policy set allows_assistance = false, certifies = true, reveals_rationale_on_review = false where mode = 'POST_TEST';
+  perform selftest.as_user('siklus-email@synthetic.pintar.test');
   for r in select p.id as pid from public.presented_items p where p.session_id = s loop
     perform public.note_item_view(r.pid);          -- the view must exist before it can be aged
     perform selftest.age_item_view(r.pid, 120);

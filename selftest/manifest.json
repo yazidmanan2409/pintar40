@@ -7394,6 +7394,12 @@
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {
+      "id": "D2R-D10",
+      "runner": "db",
+      "proves": "D2-R R-d, Sharon's §7.2 (c), selftest/db/fable39.sql: every sitting captures exactly arah, petunjuk, contoh and reveals_rationale_on_review from its mode at the start; a started sitting's capture cannot be changed (the seal), and with the seal bypassed the CHECK refuses a fifth key.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
       "id": "D2R-H01",
       "runner": "db",
       "proves": "D2-R R-h, red first, fable39: session_review refuses the learner's own finished Uji Penguasaan by a direct call, as a certifying result (counts only).",
@@ -7420,13 +7426,13 @@
     {
       "id": "D2R-H05",
       "runner": "db",
-      "proves": "D2-R R-h, red first, fable39: session_outcome on both certifying sittings carries lulus and the sealed counts, and no per_domain; one below the mark carries its revisit list (baca_lagi).",
+      "proves": "D2-R R-h, red first, fable39 (Sharon §7.2): session_outcome on both certifying sittings carries lulus and the sealed counts, and per_domain with no number for any section; one below the mark carries the server-computed revisit list (tujuan_ulang).",
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {
       "id": "D2R-H07",
       "runner": "db",
-      "proves": "D2-R R-h, red first, fable39: hasil_koreksi_saya on both certifying sittings carries no correction reason.",
+      "proves": "D2-R R-h, red first, fable39 (Sharon §7.2): hasil_koreksi_saya on both certifying sittings says only whether the result changed, when, and the new count; no reason, question or key.",
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {
@@ -7474,53 +7480,53 @@
     {
       "id": "D2R-H18",
       "runner": "static",
-      "proves": "D2-R R-h (rev. 4), selftest/d2r.test.ts: the list guard in Z-D1-02's form over every function a client may execute and view it may read that reaches answer-bearing data: each is staff, lesson or restricted (and a restricted one reads the sitting's captured policy); a planted plpgsql reader, BEGIN ATOMIC reader and view are each named.",
+      "proves": "D2-R R-h (rev. 4), selftest/d2r.test.ts, read from the schema (pg_get_functiondef of every function a client may execute, and pg_get_viewdef of every view it may read): the list guard in Z-D1-02's form over those that reach answer-bearing data; each is staff, lesson or restricted (a restricted one reads the sitting's captured policy); a planted plpgsql reader, BEGIN ATOMIC reader and view are each named.",
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {
       "id": "D2R-H11",
       "runner": "static",
-      "proves": "D2-R R-h, red first, d2r.test.ts: the engine's result-side check (jagaHasil) throws on a certifying result carrying a key, a mark, an explanation or per-objective mastery, and leaves a non-certifying one untouched."
+      "proves": "D2-R R-h, red first, d2r.test.ts, executes the source of src/lib/assessment-engine/jaga-hasil.ts: the engine's result-side check throws on a certifying result carrying a key, a mark, an explanation or per-objective mastery, and leaves a non-certifying one untouched."
     },
     {
       "id": "D2R-H08",
       "runner": "static",
-      "proves": "D2-R R-h, red first, d2r.test.ts: the chapter result page, Hasil Belajar and its print draw a certifying result in Daisy's order through HasilBersertifikasi, never ask for its review, and draw none of the review's words or figures."
+      "proves": "D2-R R-h, red first, d2r.test.ts, reads the source of src/app/belajar/[tugas]/hasil/page.tsx, src/lib/hasil-belajar.ts, src/components/siklus/HasilBersertifikasi.tsx and src/components/laporan/KomposisiMurid.tsx: a certifying result is drawn in Daisy's order through HasilBersertifikasi, its review is never asked for, and none of the review's words or figures is drawn."
     },
     {
       "id": "D2R-H15",
       "runner": "static",
-      "proves": "D2-R R-h, d2r.test.ts: no learner route under src/app sets Content-Disposition (no learner export exists)."
+      "proves": "D2-R R-h, d2r.test.ts, reads the source of every route file under src/app: no learner route sets Content-Disposition (no learner export exists)."
     },
     {
       "id": "D2R-C02",
       "runner": "static",
-      "proves": "D2-R R-c, red first, d2r.test.ts: the card and its printable record, the learner's certificate page and /verifikasi render no band."
+      "proves": "D2-R R-c, red first, d2r.test.ts, reads the source of src/components/sertifikat/KartuSertifikat.tsx, src/app/verifikasi/[token]/page.tsx and src/app/belajar/[tugas]/sertifikat/page.tsx: none renders a band."
     },
     {
       "id": "D2R-C03",
       "runner": "static",
-      "proves": "D2-R R-c (rev. 4), red first, d2r.test.ts: no .tsx under src/app or src/components renders a band outside the internal reports; a planted render site is named."
+      "proves": "D2-R R-c (rev. 4), red first, d2r.test.ts, reads the source of every .tsx file under src/app and src/components: none renders a band outside the internal reports; a planted render site is named."
     },
     {
       "id": "D2R-W01",
       "runner": "static",
-      "proves": "D2-R strings of record (Daisy's D2R-KATA.md dc275f6a; spec R-a, R-b; rev. 4's alignments), red first, d2r.test.ts: each reads word for word in ID and EN."
+      "proves": "D2-R strings of record (Daisy's D2R-KATA.md dc275f6a; spec R-a, R-b; rev. 4's alignments), red first, d2r.test.ts, read from the copy table (src/lib/hle.ts): each reads word for word in ID and EN."
     },
     {
       "id": "D2R-G01",
       "runner": "static",
-      "proves": "D2-R R-g, red first, d2r.test.ts: after Pemetaan Awal with lessons unread the chapter page offers Uji Penguasaan after «Lanjut membaca», with siklus.siap.saran."
+      "proves": "D2-R R-g, red first, d2r.test.ts, executes src/lib/siklus.ts (penguasaanTerbuka) and reads the source of src/app/belajar/[tugas]/page.tsx: after Pemetaan Awal with lessons unread the chapter page offers Uji Penguasaan after «Lanjut membaca», with siklus.siap.saran."
     },
     {
       "id": "D2R-D05",
       "runner": "static",
-      "proves": "D2-R R-d at the player, red first, d2r.test.ts: the player's help window is session_state's (withheld by the database on a certifying sitting); the orientation promises help only with the window and says posttest.tanpa_bantuan."
+      "proves": "D2-R R-d at the player, red first, d2r.test.ts, reads the source of src/app/belajar/_components/PermukaanAsesmen.tsx and src/components/siklus/OrientasiAsesmen.tsx: the player's help window is session_state's (withheld by the database on a certifying sitting); the orientation promises help only with the window and says posttest.tanpa_bantuan."
     },
     {
       "id": "D2R-F02",
       "runner": "static",
-      "proves": "D2-R R-f, red first, d2r.test.ts: the certifying result shows the attempt ordinal from session_outcome."
+      "proves": "D2-R R-f, red first, d2r.test.ts, reads the source of src/components/siklus/HasilBersertifikasi.tsx: the certifying result shows the attempt ordinal from session_outcome."
     }
   ]
 }

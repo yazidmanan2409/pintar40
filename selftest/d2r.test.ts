@@ -9,7 +9,7 @@
  *              STAFF       refused unless the caller holds a staff capability over the learner or the content;
  *              LESSON      the learner's own reading material (lessons and their worked examples), not an assessment;
  *              RESTRICTED  a learner read of a sitting, which must read the sitting's captured policy (bersertifikasi or
- *                          bantuan_diizinkan) so a certifying sitting discloses counts only.
+ *                          assistance_policy) so a certifying sitting discloses counts only.
  *            A reader on none of them fails, so a new learner-facing reader cannot land unclassified. Plants: a planted
  *            plpgsql reader, a BEGIN ATOMIC one and a view over item_options, each must be named.
  *   D2R-H11  the engine's result-side forbidden-key check: a certifying result that carries a key, a mark or an explanation
@@ -61,7 +61,7 @@ export const PEMBACA_PELAJARAN = ["fn:learner_lessons"] as const;
 export const PEMBACA_TERBATAS = ["fn:hasil_koreksi_saya", "fn:open_assistance", "fn:reading_map", "fn:session_outcome", "fn:session_review"] as const;
 
 const BAHAN = String.raw`is_correct|rationale|remediation|key_corrections|nilai_jawaban_berlaku|grade_response|per_domain|arah_berpikir|petunjuk|worked_examples|kunci_berlaku_sesi`;
-const TANGKAP = String.raw`bersertifikasi|bantuan_diizinkan`;
+const TANGKAP = String.raw`bersertifikasi|assistance_policy`;
 
 export const PEMBACA_TANAMAN: Array<[string, string]> = [
   ["fn:z_tanam_kunci", "create function public.z_tanam_kunci(p uuid) returns boolean language plpgsql security definer as $$ begin return (select o.is_correct from public.item_options o where o.item_id = p limit 1); end $$; grant execute on function public.z_tanam_kunci(uuid) to authenticated;"],
@@ -159,14 +159,19 @@ export const d2rTests: SelfTest[] = [
       const c = new Checks();
       const { jagaHasil } = await import("../src/lib/assessment-engine/jaga-hasil");
       const lolos = (x: unknown, b: boolean) => { try { jagaHasil(x, b); return true; } catch { return false; } };
-      c.expect(lolos({ lulus: true, ringkasan: { correct: 5, item_total: 6 }, baca_lagi: ["K1"] }, true), "a counts-only certifying result was refused");
-      for (const k of ["benar", "alasan", "arah", "kunci", "is_correct", "rationale", "per_domain"]) {
-        c.expect(!lolos({ lulus: true, [k]: k === "per_domain" ? { K1: { penguasaan: 0.5 } } : "x" }, true), `a certifying result carrying ${k} passed`);
+      c.expect(lolos({ lulus: true, ringkasan: { correct: 5, item_total: 6 }, tujuan_ulang: ["K1"] }, true), "a counts-only certifying result was refused");
+      for (const k of ["benar", "alasan", "arah", "kunci", "is_correct", "rationale"]) {
+        c.expect(!lolos({ lulus: true, [k]: "x" }, true), `a certifying result carrying ${k} passed`);
         c.expect(!lolos([{ kode: "K1", [k]: "x" }], true), `a certifying row carrying ${k} passed`);
+      }
+      // Sharon §7.2: per_domain keeps its sections without a number; a number inside it (penguasaan above all) is refused
+      c.expect(lolos({ lulus: false, per_domain: { K1: {}, K2: {} }, tujuan_ulang: ["K1"] }, true), "a certifying per_domain with its sections and no number was refused");
+      for (const k of ["penguasaan", "benar", "total"]) {
+        c.expect(!lolos({ lulus: true, per_domain: { K1: { [k]: 0.5 } } }, true), `a certifying per_domain carrying ${k} passed`);
       }
       c.expect(lolos([{ posisi: 1, benar: true, alasan: "x" }], false), "a non-certifying review (Pemetaan Awal, Uji Cepat) was refused");
       c.expect(lolos({ alasan: null, arah: null }, true), "a certifying row with the fields present but empty was refused");
-      return c.verdict("jagaHasil passes a certifying result of counts, decision and revisit list; throws on each of benar, alasan, arah, kunci, is_correct, rationale and per_domain carrying a value, in an object or a row; leaves a non-certifying result untouched");
+      return c.verdict("jagaHasil passes a certifying result of counts, decision, per_domain's bare sections and tujuan_ulang; throws on each of benar, alasan, arah, kunci, is_correct and rationale carrying a value, in an object or a row, and on penguasaan, benar or total inside per_domain; leaves a non-certifying result untouched");
     },
   },
   {
@@ -178,7 +183,7 @@ export const d2rTests: SelfTest[] = [
       const kom = tanpaKomentar(baca(ctx.repoRoot, "src/components/siklus/HasilBersertifikasi.tsx"));
       // the chapter page: a certifying result is drawn by HasilBersertifikasi, and the review is asked only otherwise
       c.expect(/outcome\.bersertifikasi/.test(hasil) && /<HasilBersertifikasi\b/.test(hasil), "the chapter result page does not branch on the certifying result to HasilBersertifikasi");
-      c.expect(/bersertifikasi\s*\?\s*Promise\.resolve\(\[\]\)\s*:\s*engine\.review\(/.test(hasil.replace(/\s+/g, " ")), "the chapter result page asks for the review of a certifying result");
+      c.expect(/bersertifikasi\s*\?\s*Promise\.resolve\([^)]*\)\s*:\s*engine\.review\(/.test(hasil.replace(/\s+/g, " ")), "the chapter result page asks for the review of a certifying result");
       // the component draws Daisy's order and none of the review's words
       const urutan = ["hasil.lulus", "hasil.baca_lagi", "hasil.ulang_boleh", "hasil.dijawab_tepat", "hasil.tidak_ditampilkan"].map((k) => kom.indexOf(`"${k}`));
       c.expect(urutan.every((i) => i >= 0) && urutan.every((i, n) => n === 0 || i > urutan[n - 1]), `HasilBersertifikasi does not draw Daisy's order (decision, revisit, retake, counts, not shown): ${urutan.join(",")}`);
@@ -188,7 +193,7 @@ export const d2rTests: SelfTest[] = [
       c.expect(/hasil\.baca_lagi_arti/.test(kom), "the revisit list carries no no-blame note (74b)");
       c.expect(!/tidak[ _]lulus/i.test(kom), "«tidak lulus» is drawn");
       // the summary and its print: the review is not asked for a certifying result, its words follow
-      c.expect(/bersertifikasi\s*\?\s*Promise\.resolve\(\[\]\)\s*:\s*engine\.review\(/.test(lib.replace(/\s+/g, " ")), "Hasil Belajar asks for the review of a certifying result");
+      c.expect(/bersertifikasi\s*\?\s*Promise\.resolve\([^)]*\)\s*:\s*engine\.review\(/.test(lib.replace(/\s+/g, " ")), "Hasil Belajar asks for the review of a certifying result");
       const kmp = tanpaKomentar(baca(ctx.repoRoot, "src/components/laporan/KomposisiMurid.tsx"));
       c.expect(/b\.bersertifikasi/.test(kmp) && /"hasil\.lulus"|hasil\.belum_lulus/.test(kmp), "Hasil Belajar's row does not say «Lulus» / «Belum lulus» for a certifying result");
       return c.verdict("the chapter result page draws a certifying result through HasilBersertifikasi and never asks for its review; the component draws Daisy's order and none of the review's words, marks or per-objective figures; Hasil Belajar and its print ask no review for it and say Lulus / Belum lulus");
