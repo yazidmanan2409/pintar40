@@ -16,7 +16,7 @@
 //      every question right: «Lulus.», and the certificate
 // Branches (AUDIT_CABANG=1, 1280): W7 (the retake begun, then ended not counted: fiksasi w7a, w7b) and W8 (the gate
 // unreadable: fiksasi w8), each seen by the learner, the teacher and the approver.
-import { APP, dunia, jalan, kerjakan, kunciBab, pilihBahasa, ringkas, masukEmail, muatUlang, keluar, BAHASA, LEBAR } from "./lib.mjs";
+import { APP, dunia, jalan, lewatiTur, kerjakan, kunciBab, pilihBahasa, ringkas, masukEmail, muatUlang, keluar, BAHASA, LEBAR } from "./lib.mjs";
 
 const LABEL = ["bukti OFFICIAL di tenant bootstrap dev/CI (sintetis)"];
 const CABANG = process.env.AUDIT_CABANG === "1";
@@ -76,6 +76,13 @@ function permukaan(j, D) {
       await masukEmail(j, kaprodi);
       const ruang = page.getByRole("button", { name: /Saya memimpin bagian sekolah|I lead part of the school/i }).first();
       if (await ruang.isVisible().catch(() => false)) { rec.tab += await j.tekan(ruang); await page.waitForLoadState("networkidle").catch(() => {}); await page.waitForTimeout(1000); }
+      if (putuskan) {
+        // C-4 / L-58 (Bob, 14:46): the whole /pimpinan page, Bagian A included, WHILE the retake request waits
+        if (!new URL(page.url()).pathname.startsWith("/pimpinan")) { await page.goto(`${APP}/pimpinan`); await page.waitForLoadState("networkidle").catch(() => {}); }
+        await lewatiTur(j);
+        await foto(`${awalan}kaprodi-pimpinan-menunggu`);
+        data(`${awalan}approver_pimpinan_while_waiting`, RAPI(await page.locator("main").innerText().catch(() => "")).slice(0, 1200));
+      }
       const tautan = page.getByRole("link", { name: /permintaan kesempatan tambahan|requests for an extra attempt/i }).first();
       if (await tautan.count()) { rec.tab += await j.tekan(tautan, 150); await page.waitForTimeout(1200); }
       await foto(`${awalan}kaprodi`);

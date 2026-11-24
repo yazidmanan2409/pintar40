@@ -102,6 +102,12 @@ function orang(j, D) {
     /** the teacher allows the open test to continue after Galih signed in again */
     async izinkan(rec, foto, data) {
       await masukEmail(j, guru);
+      // C-4 / L-45 (Bob, 14:46): the teacher's home WHILE Galih's request to continue waits, before «Izinkan»
+      await page.goto(`${APP}/mengajar`);
+      await page.waitForLoadState("networkidle").catch(() => {});
+      await lewatiTur(j);
+      await foto("guru-mengajar-menunggu");
+      data("teacher_home_while_waiting", RAPI(await page.locator("main").innerText().catch(() => "")).slice(0, 900));
       await page.goto(`${APP}/mengajar/${K}/siapa?penugasan=${UP}`);
       await foto("guru-siapa-permintaan");
       rec.tab += await j.tekan(page.getByRole("link", { name: new RegExp(`^(Atur|Manage)\\s*·\\s*${galih.nama}`) }).first(), 200);

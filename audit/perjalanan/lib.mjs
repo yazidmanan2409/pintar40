@@ -28,6 +28,7 @@ const DB = process.env.SUPABASE_DB_URL ?? "postgresql://postgres:postgres@127.0.
 export const LEBAR = (process.env.AUDIT_LEBAR ?? "1280,390,320").split(",").map((x) => Number(x.trim())).filter(Boolean);
 export const BAHASA = process.env.AUDIT_BAHASA === "en" ? "en" : "id";
 export const LALUAN = process.env.AUDIT_LALUAN ?? "standar";
+const SAMPAI = process.env.AUDIT_SAMPAI ?? null;
 const LALUAN_SAH = ["standar", "pembaca-layar", "jaringan-lambat", "gerak-dikurangi"];
 if (!LALUAN_SAH.includes(LALUAN)) throw new Error(`AUDIT_LALUAN must be one of ${LALUAN_SAH.join(", ")}`);
 const TINGGI = { 1280: 900, 390: 844, 320: 640 };
@@ -76,6 +77,7 @@ export async function jalan({ perjalanan, lebar, zona = "WIB", nama, label = [] 
   if (label.length) writeFileSync(join(out, "LABEL.txt"), label.join("\n") + "\n");
   let n = 0;
   let berhenti = null;
+  let cukup = false;   // AUDIT_SAMPAI=<step id>: a partial walk, ended after that step (a capture added to a journey)
 
   // A screen is captured once it has SETTLED: the network idle, the streamed page's loading fallback («Memuat
   // halaman…», src/app/loading.tsx) gone, and a heading drawn. Otherwise a capture can be the skeleton, not the screen.
@@ -125,6 +127,7 @@ export async function jalan({ perjalanan, lebar, zona = "WIB", nama, label = [] 
   async function langkah(id, judul, fn) {
     const rec = { id, judul, hasil: "SAMPAI", layar: [], amatan: [], data: {}, tab: 0 };
     if (berhenti) { rec.hasil = "TIDAK_DIJALAN"; rec.amatan.push(`the walk stopped at ${berhenti}`); catatan.langkah.push(rec); return rec; }
+    if (cukup) { rec.hasil = "TIDAK_DIJALAN"; rec.amatan.push(`a partial walk: AUDIT_SAMPAI=${SAMPAI}`); catatan.langkah.push(rec); return rec; }
     const t0 = Date.now();
     try {
       await fn({ ...ctxJalan, rec, amati: (s) => rec.amatan.push(s), data: (k, v) => { rec.data[k] = v; },
@@ -139,6 +142,7 @@ export async function jalan({ perjalanan, lebar, zona = "WIB", nama, label = [] 
       berhenti = id;
     }
     rec.ms = Date.now() - t0;
+    if (SAMPAI && id === SAMPAI) { cukup = true; catatan.sebagian = `AUDIT_SAMPAI=${SAMPAI}: the steps after ${id} were not walked`; }
     catatan.langkah.push(rec);
     console.log(`${rec.hasil.padEnd(12)} ${perjalanan} ${lebar} ${id.padEnd(4)} ${judul}${rec.amatan.length ? " :: " + rec.amatan.join(" | ").slice(0, 300) : ""}`);
     return rec;
