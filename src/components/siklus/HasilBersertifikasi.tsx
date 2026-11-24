@@ -11,8 +11,8 @@ import { alasanBelum, bagianUlang, hitunganSegel, ketuntasan } from "@/lib/siklu
  * An Uji Penguasaan (and any sitting whose mode certifies, as it captured it at the start) shows its learner, in this
  * order and nothing else:
  *   1. the decision, «Lulus.» or «Belum lulus.», with its one-line reason (the K-01 gate keeps its own);
- *   2. what to read again, as advice (no evidence threshold is approved in 4.1, so every section is «Baca lagi:», with
- *      the note that it is advice, not a judgement of mastery);
+ *   2. what to read again, as advice, on a pass too (ruling 74a item 2; no evidence threshold is approved in 4.1, so
+ *      every section is «Baca lagi:», with the note that it is advice, not a judgement of mastery);
  *   3. the retake line, when «Belum lulus»;
  *   4. the counts, secondary, and the attempt ordinal (R-f);
  *   5. one line saying the key and each question's mark are not shown.
@@ -26,7 +26,9 @@ export default function HasilBersertifikasi({ outcome, peta, pelajaran, tugas, l
   const s = (k: HleEvent) => t(k, "learner", { locale });
   const keputusan = ketuntasan(outcome);
   const gerbang = alasanBelum(outcome) === "GERBANG";
-  const baca = keputusan === "BELUM" ? bagianUlang(null, null, peta, pelajaran, outcome.tujuan_gerbang_kode ?? [], outcome.tujuan_ulang ?? []) : [];
+  // ruling 74a item 2 (the owner, via Bob 04:02Z): the sections still to learn are advice on EVERY certifying result, a
+  // pass included (a pass with an objective below the mark still names it); the retake line stays on «Belum lulus»
+  const baca = keputusan ? bagianUlang(null, null, peta, pelajaran, outcome.tujuan_gerbang_kode ?? [], outcome.tujuan_ulang ?? []) : [];
   const hitungan = hitunganSegel(outcome.ringkasan, []);
 
   return (
