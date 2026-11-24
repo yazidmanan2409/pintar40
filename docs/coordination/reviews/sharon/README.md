@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| Audit 79 J7-1 (cert confirmed on now-failing result) | HIGH (Critical once real certs possible); refuse CONFIRMED in DB; prod absent (mig 229 > 111); staging count query | 2002b662 | [AUDIT79-J7-1.md](AUDIT79-J7-1.md) |
 | Audit 79 causes C-1, C-3, C-5 (early view) | no objection with conditions (one helper; id not values; own-sitting gating; labels; boolean-only transfer reason) | 4196eb63 | [AUDIT79-C1-C3-C5-VIEW.md](AUDIT79-C1-C3-C5-VIEW.md) |
 | D2-R batch | PASS, conditional on CI + journeys green; R-1 closes on the same; learning_delta: no partial withholding | 42f6f432 | [D2R-BATCH-42f6f432.md](D2R-BATCH-42f6f432.md) |
 | Counsel brief part 2 (first use) | NOT YET fit: 3 additions (AI off in pilot; all processors incl. email + offsite backup; breach + rights question) | 371e3b48 | [COUNSEL-BRIEF-P2-371e3b48.md](COUNSEL-BRIEF-P2-371e3b48.md) |
