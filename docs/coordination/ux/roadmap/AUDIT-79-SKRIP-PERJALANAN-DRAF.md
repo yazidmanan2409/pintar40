@@ -1,6 +1,7 @@
 # Ruling 79 audit · journey scripts, first sketch (Daisy, 23 Nov 2026)
 
 > **What holds now:**
+> - **Superseded 24 Nov by `AUDIT-79-SKRIP-PERJALANAN.md` (final, ruling 89 task 3b).** This draft stays as history.
 > - **Status:** a design-only draft, written while idle, as Bob allowed. **Nothing runs until 4.1's gates close.** Bob consolidates the final set.
 > - **Contents:** twelve journeys, each with:
 >   - who;
