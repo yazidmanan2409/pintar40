@@ -357,3 +357,12 @@ Nine findings: 5 Significant, 4 Improvement, none Critical. **The core cross-rol
 - **W8 (the gate unreadable):** the learner sees counts with no verdict («5 dari 6 soal dijawab tepat · Kesempatan ke-1»); the teacher sees «83% belum dapat disimpulkan apakah target tercapai…». Daisy judges whether the learner's page should say why there is no verdict.
 - **«Minta membaca lagi»'s pre-tick:** correct in every state (no pre-tick for W8, as scripted).
 - **World data (Bob, routine): L-80 and J3's same-name publications are world artefacts.** The world published per-class copies of one chapter; a real school publishes once and gives it to several classes. **Approved:** one chapter for both classes, with the attempt limit on its shared definition; W3–W6 and J2/J3 reloaded and re-checked. L-80 is then re-judged on the corrected world.
+
+## The J2 and J3 captures judged (Daisy, `e45994dc`, an addendum in each TEMUAN; 24 Nov)
+
+Throttled and reduced motion: everything reached, nothing seen. **EN holds**, but the public check ran signed-out in ID: the builder re-runs that page in EN. **At 320** the header takes about a third of the screen (evidence for L-40 and L-42). L-54 (W7b) and L-43 are confirmed. **Good news:** after W7b the learner's card already says «Asesmen ini tidak dihitung dan tidak memakai kesempatan Anda …» (L-63's not-counted case), though it sits under «Siap untuk … / Lanjutkan» (L-64).
+
+| L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
+|---|---|---|---|---|---|---|
+| L-102 (J3-10) | **W8, the gate unreadable:** the learner gets counts with no decision and no reason, while the teacher reads «belum dapat disimpulkan …» with its reason | B, C | J3 | **Significant** | C-3 | «Keputusan lulus untuk Uji Penguasaan ini belum dapat ditentukan sekarang. Hasil Anda tetap tersimpan. Buka halaman ini lagi nanti.» |
+| L-103 (J2-11) | The certificate's A4 preview is read in full by the screen reader: two h1 «{nama}», two «Periksa keaslian», two QR images | G | J2 | Improvement | — | Hide the duplicate preview from the accessibility tree |
