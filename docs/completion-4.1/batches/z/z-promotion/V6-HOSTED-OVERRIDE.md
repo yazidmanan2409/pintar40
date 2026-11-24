@@ -57,7 +57,7 @@ No configuration was changed. Every read was in `set transaction read only`.
 ## 5 · §2 closed, and Sharon's verdict (24 Nov 2026)
 
 **The owner's request (§2):**
-- About 00:23Z, the owner signed in to staging (gladystubarad), opened the school selection, selected SD Golden School GS-001, and loaded Konfigurasi.
+- About 00:23Z, the owner signed in to staging with a staff account, opened the school selection, selected SD Golden School GS-001, and loaded Konfigurasi.
 - No configuration was changed.
 
 **The re-read** (read-only, 00:24:21Z): `select "pintar_permintaan"."periksa"()` totals **177,809** across the request roles. That is **+148 over the 177,661 baseline** taken at 00:20:16Z.
