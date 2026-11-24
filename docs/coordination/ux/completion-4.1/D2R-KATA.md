@@ -173,3 +173,11 @@ There is no retake line on a pass. The certificate comes before the advice, beca
 - **Pass and not passed use the same words.** The verdict beside them says which result it is. On «Belum lulus», the existing gate and teacher lines (`hasilbelajar.gerbang`, «… tanyakan kepada guru …») stay as they are.
 - **Non-certifying rows** (Pemetaan Awal, Uji Cepat, practice) keep `hasilbelajar.ulang`, `hasilbelajar.ulang_banyak` and «pelajari lagi», unchanged.
 - **The certificate on the Hasil Belajar row:** the link only (§9). Not `sertifikat.disiapkan.arti`.
+
+## 12 · The C line on a certifying «Belum lulus» row (24 Nov, 04:38)
+
+`hasilbelajar.berikutnya_ulang` quotes the mark «pelajari lagi». On a certifying row, section B now marks «baca lagi» (§11), so the quote would point at a word the page does not show. **New key, certifying rows only:**
+- `hasilbelajar.berikutnya_baca_lagi`
+  - ID: «Baca lagi bagian yang ditandai «baca lagi» ({daftar}), lalu tanyakan kepada guru langkah berikutnya.»
+  - EN: «Read again the parts marked «read again» ({daftar}), then ask your teacher for the next step.»
+- **Non-certifying rows** keep `hasilbelajar.berikutnya_ulang` unchanged.
