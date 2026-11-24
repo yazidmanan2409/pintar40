@@ -34,3 +34,13 @@
   - Supabase `ap-southeast-1` is not in the repository, so cite where it was read (the project settings);
   - **Resend's and S3's regions must be filled in by the owner before the brief is sent.** A brief asking about transfer abroad cannot leave its processors' locations blank.
 - Nothing sensitive.
+
+## Addendum · the provider table corrected (`0126f4db`), 24 Nov 2026, 01:45 UTC
+
+**The table is FIT TO SEND once the mail host's processing region is filled in.**
+- **Supabase** `ap-southeast-1`, confirmed by the owner from the dashboard. **Vercel** `sin1`, from `vercel.json`.
+- **Mail:** the `pintarselalu.com` host over SMTPS 465, matching `configure-supabase-smtp.yml:50–54`. Resend was never a processor: the earlier "resend" in `src/` is the word "re-send".
+- **One check with it:** the app's own emails (activation codes, recovery: `src/app/api/_email/kirim.ts`, nodemailer) go through `PINTAR_SMTP_HOST`, which is separate from Supabase Auth's SMTP.
+  - **The owner confirms** that production's `PINTAR_SMTP_HOST` is the same `pintarselalu.com` host.
+  - If it is another host, that host is a further row.
+- **Backup:** GCS Jakarta is correctly stated as proposed and not created. The later workflow change, from S3-style to GCS, comes to me as its own review.
