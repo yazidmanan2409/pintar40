@@ -25,3 +25,29 @@
 - The EN pass at 1280 (the harness runs it in CI);
 - the screen reader, throttled and reduced-motion passes;
 - the PDF (`cetak.pdf`) compared against the screen, which is a visual check from the builder's artifact.
+
+## The passes walked locally (24 Nov 21:50): EN, screen reader, throttled, reduced motion, the print view
+
+I ran the builder's harness `audit/perjalanan/j11.mjs` at `6b248975`, at 1280, once per pass. **Every pass reached its last screen.**
+
+### Holds
+- **EN:**
+  - the school summary and its print view are fully in English, apart from the school's own content names (objectives, cohorts);
+  - every withheld figure keeps its reason («not shown because each was taken by fewer than 10 students», «… a student moved class and took it again …»);
+  - «Evidence that is not yet enough is not a poor result.»
+- **Screen reader:**
+  - the dot chart is exposed as a list with each objective's figure, the weak one named («… 40% Perlu penguatan»);
+  - each «Bagian» has its heading;
+  - the scope line is read first.
+- **Throttled:** L1 takes 16 s, against 0.7–1.3 s for the later steps. The figures are the same.
+- **Reduced motion:** nothing animates.
+- **The print view (EN)** carries the scope line and every withheld reason. The edge-to-edge print view in the capture is media emulation; the PDF has its margins.
+
+### New findings
+
+| # | Finding | Siblings | Cause | Dim. | Fix |
+|---|---|---|---|---|---|
+| J11-3 | **The same letters name different sections on two pages for the same person.** On /pimpinan: A Keputusan · B Yang didukung bukti · C Penguasaan per topik · D Per kelas · **E Kesiapan bukti** · F Perlu diketahui. On the school summary: A Capaian kompetensi · B Angka utama · **C Perbandingan angkatan · D Kesiapan bukti** · E Apa berikutnya. The summary's own E says «Bagian D di atas, «Kesiapan bukti» …», which on /pimpinan is E. | **Disagree** (the letter for one section) | C-6 | H | Either drop the letters on the summary (its headings are enough), or keep one letter per section across both pages |
+| J11-4 | Screen reader: Bagian C on the summary exposes an **empty list** before its three «belum ditampilkan» lines. And Bagian A and D are `region`s while B, C and E are not. | — | — | G | Render the withheld cohorts as the list's items (or drop the empty list). Make every Bagian a region, or none. |
+
+**J11's «left for the builder» lines are closed**, except the PDF-to-screen visual comparison, which is the builder's artifact (`cetak.pdf`). Mine matched the screen content in EN.

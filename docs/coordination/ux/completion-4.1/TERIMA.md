@@ -155,3 +155,4 @@
 - 24 Nov 20:52Z · Bob: J6 recorded (L-124 to L-126); J6-4 corrected from the code. → J6-4 restated (UX half, fix words); my misread logged as ANTISIPASI DAISY-J6.
 - 24 Nov 21:30Z · J8 rest walked locally. Holds: intake all-or-nothing, the approval summary, the card sheet, a role ending today, the last-admin refusals. New: J8-7 Significant (same-name pupils refused), J8-8 to J8-13.
 - 24 Nov 21:40Z · J9 passes walked locally (EN, SR, throttled, reduced motion). All reached the end; the outcome is the same. New: J9-4 Significant (the transfers page untranslated in EN; hard-coded words), J9-5, J9-6.
+- 24 Nov 21:50Z · J11 passes walked locally. All reached the end. New: J11-3 (section letters differ across /pimpinan and the summary), J11-4 (an empty list; inconsistent regions).
