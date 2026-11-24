@@ -196,3 +196,19 @@ Ten findings: 3 Significant, 7 Improvement, none Critical. Still open for J2: th
 | L-51 (J2-8) | Two page numbers on one lesson screen | J2 | B | J2 | Improvement | — |
 | L-52 (J2-9) | The five-step dots have no labels at 390 | J2 | F, G | J2 | Improvement | — |
 | L-53 (J2-10) | «Keluar» is outlined on mobile but not on desktop; ID / EN is heavy | J2 | B | Every journey | Improvement | Goes with L-41 and L-42 |
+
+## J3 walked (Daisy, `AUDIT-79-TEMUAN-J3.md` `20d3fdc9` on ux-1/daisy-experience; the audit world at `00fe853d`; 24 Nov)
+
+Nine findings: 5 Significant, 4 Improvement, none Critical. **The core cross-role check holds:** the verdict is the same on all three surfaces; only the words differ (L-33). Not walked here: W7b, W8 and the screen-reader, throttled and reduced-motion passes (from the builder's capture run). **Ruling 95 applies:** these rows feed the common-cause analysis (`AUDIT-79-COMMON-CAUSES.md`), not one patch each.
+
+| L-id | Observation | Dimension | Journey | Severity | Notes |
+|---|---|---|---|---|---|
+| L-54 (J3-1) | While a retake is open, the learner's result page is a 404 («Halaman ini tidak ada»); the teacher's side shows `hasil.ulang_berjalan` | B, C | J3 | **Significant** | The agreed design keeps the previous result in force, with `hasil.ulang_berjalan` |
+| L-55 (J3-2) | After the retake, the teacher's record shows two Uji Penguasaan rows with no attempt number and nothing marked as current, the older first, each with «Minta membaca lagi» | B | J3 | **Significant** | **Widens L-43** |
+| L-56 (J3-3) | After approval, the learner's start page says «Tidak ada lagi yang menunggu…» at the top, with «Uji Penguasaan dapat dikerjakan sekali lagi · Mulai» further down | B, H | J3 | **Significant** | — |
+| L-57 (J3-4) | After approval, the result still says «Tanyakan kepada guru Anda kapan dapat mengulang.», and the chapter offers no way into the retake | H, B | J3 | **Significant** | — |
+| L-58 (J3-5) | The approver's page: «1 permintaan kesempatan tambahan menunggu persetujuan», then «Bagian A · Keputusan — Tidak ada keputusan yang menunggu Anda.» | B | J3 | **Significant** | The same shape as L-45 |
+| L-59 (J3-6) | After a not-yet-passed result, the chapter's map still marks every section «Sudah kuat» (from the Pemetaan Awal), while the result says «Baca lagi: …» | B, H | J3 | Improvement | The same root as L-46 |
+| L-60 (J3-7) | The retake request is offered only in the sittings list's «Atur» panel, not on the learner's record beside the result | F, A | J3 | Improvement | — |
+| L-61 (J3-8) | One verdict, three wordings on the learner's own pages | B | J3 | Improvement | With L-33 and L-48 |
+| L-62 (J3-9) | Approving a retake is one press, while refusing needs a reason | E | J3 | No change proposed | Noted for the E pass |
