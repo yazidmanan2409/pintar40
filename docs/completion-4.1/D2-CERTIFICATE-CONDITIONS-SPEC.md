@@ -340,3 +340,19 @@ Sharon's part waits until after A3's freeze (ruling 58).
 **Daisy (D2R-KATA §8, `2bfbd3d7`):**
 - `hasil.tidak_ditampilkan` is reworded: «Pada Uji Penguasaan, jawaban yang tepat dan hasil tiap soal tidak ditampilkan.» / «In a Mastery Check, the right answers and the result of each question are not shown.»
 - The DAISY-26 exemption is dropped, so that guard has no exceptions.
+
+### 7.4 · Acceptance evidence: ruling 74a in full (owner's check, 24 Nov)
+
+**The owner's question:** Bob's summary said «learners see only counts». **That was a summary omission.** Ruling 74a's qualitative guidance is the **primary** feedback, and the counts are secondary (74b). What D2-R renders on a certifying result (`HasilBersertifikasi.tsx`, `42f6f432`), in order:
+
+| 74a item | Rendered | State |
+|---|---|---|
+| 3 · Lulus or Belum lulus | «Lulus.» / «Belum lulus.», with its reason line; the must-be-right gate is named | Built |
+| 2 · Those still needing learning | «Baca lagi:» + the sections linked to their lessons + «Bagian ini disarankan untuk dibaca lagi. Saran ini bukan penilaian atas penguasaan Anda…» | **Gap: drawn only on Belum lulus** (inherited from main). **Corrected:** drawn on every certifying result with a below-mark objective |
+| 5 · The retake opportunity | «Anda dapat mengerjakan Uji Penguasaan lagi sesuai aturan sekolah…» on Belum lulus | Built |
+| 4 · Certificate eligibility | Shown today on `/belajar/[tugas]/lanjut`, not on the result | **Corrected:** also on the result, after «Lulus.» |
+| 1 · Objectives mastered, where sufficient evidence supports it | Not shown: no approved evidence threshold exists in 4.1 (Sharon). Mastery claims wait for 4.5 (74b) | As ruled |
+| Counts | «{b} dari {t} soal dijawab tepat», plus the attempt line, **secondary** | Built |
+| No disclosure | No key, no per-question marks, no explanations, no per-objective figure, on every learner route (database-enforced); stated once with `hasil.tidak_ditampilkan` | Built |
+
+**Both corrections are red first on `claude/d2r`.** Daisy confirms the words, and her rendered review checks both.

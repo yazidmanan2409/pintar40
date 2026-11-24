@@ -179,3 +179,5 @@ The App's dispatch then waits for the owner's approval. **This is a configuratio
   - how a delivery failure reaches the person or an administrator;
   - retry handling, with backoff, for the app's sender.
 - **For the 10-adult pilot:** the volume is far below the limit, and no change is indicated.
+
+**Owner's decision (24 Nov): option (b).** The response-time promise in `lapor.langkah.awal` and `lapor.langkah.awal_kelas` is **softened** until a monitored support arrangement exists (PR-12, PR-15). Daisy settles the words, and the change rides D2-R as its own commit.
