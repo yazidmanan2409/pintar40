@@ -111,6 +111,17 @@ jobs:
           APP_URL: http://127.0.0.1:3999
           CERT_SECRET_KEY_V1: synthetic-certificate-key-fable04-32plus   # CI's synthetic key (as the app's): the signatures are checked against it
         run: node audit/dunia/terbitkan.mjs
+      # J2 changes the world (a whole certifying cycle): it loads the world afresh before each walk itself
+      - name: J2 · one chapter, start to certificate (1280, 390, 320; EN at 1280; the screen-reader, reduced-motion and throttled passes)
+        if: success() || failure()
+        env:
+          APP_URL: http://127.0.0.1:3999
+          AUDIT_OUT: ${{ github.workspace }}/audit-out/perjalanan
+        run: |
+          set -euo pipefail
+          node audit/perjalanan/j2.mjs
+          AUDIT_BAHASA=en AUDIT_LEBAR=1280 node audit/perjalanan/j2.mjs
+          for L in pembaca-layar gerak-dikurangi jaringan-lambat; do AUDIT_LALUAN=$L AUDIT_LEBAR=1280 node audit/perjalanan/j2.mjs; done
       # J11 reads the school (W18): read-only, so on a world loaded once
       - name: J11 · reading the school (1280, 390, 320; then EN at 1280)
         if: success() || failure()
