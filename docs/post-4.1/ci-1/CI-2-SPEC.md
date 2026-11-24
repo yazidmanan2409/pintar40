@@ -1,6 +1,6 @@
 # CI-2 · a locked account is not detectable through Auth (Bob, 24 Nov 2026; audit 79 L-78; for the owner's decision)
 
-**Purpose, and only this:** close L-78 (Sharon, `AUDIT79-L78.md`): HIGH now, a production blocker (PR-22), and Critical by nature once real minors hold accounts. **Status: proposed. It needs the owner's approval, as CI-1 did (ruling 97).** Nothing is built.
+**Purpose, and only this:** close L-78 (Sharon, `AUDIT79-L78.md`): HIGH now, a production blocker (PR-22), and Critical by nature once real minors hold accounts. **Status: APPROVED (ruling 98), a separate, prioritised security correction.** Nothing is built yet.
 
 ## 1 · The fix (Sharon's option (iii))
 
@@ -32,3 +32,19 @@ The same discipline as D2-R and CI-1: one frozen candidate, the full pre-flight,
 - **CI-2 must ride with, or precede, any production promotion bringing migration 221 or later** (PR-22).
 - **The owner decides whether CI-1 and CI-2 ship together.** Sharon verifies each independently.
 - Staging: a promotion under its own authorisation, with BEFORE/AFTER. F-4 then writes to staging's synthetic locked accounts only, bounded and counted beforehand.
+
+## 4 · Ruling 98's conditions
+
+- **Independent of CI-1:** reviewed, verified and accepted on its own. **Staging promotions are sequenced, each with its own BEFORE/AFTER preservation evidence:** CI-1 (309 → 310), then CI-2 (310 → 311), or in the order their freezes land, never in one promotion.
+- **Sharon confirms, before the build and again at verification, that CI-2 preserves:**
+  - legitimate suspension: an institution can still suspend when necessary, with no workaround that stops it;
+  - reinstatement;
+  - account recovery;
+  - historical records;
+  - institutional authorisation (who may lock and reopen).
+- **L-75's account-specific disclosure is withdrawn;** the neutral line (F-6) is retained.
+- **Production exposure:** the assumption «production (111) has no bans» is verified during the authorised production readiness process (PR-22), not now. No production changes are authorised.
+
+## 5 · Build order
+
+Second Eye has already started CI-1 (small, and frozen first). **CI-2 is next and prioritised.** Sharon's pre-build review of this spec runs now, in parallel, so CI-2 starts as soon as CI-1 freezes.

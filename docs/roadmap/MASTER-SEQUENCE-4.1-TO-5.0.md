@@ -171,6 +171,7 @@ Every 4.5 specification (4.5-OF-SUP and Quiet Intelligence included) states how 
 2. **Consistent communication across related surfaces:** every person who meets the same event gets a consistent account of it, checked by a cross-surface journey assertion.
 3. **Actions offered only when their known prerequisites are satisfied:** a database-owned «may do / why not» read, using the action's own refusal codes. The database still decides at the moment of action.
 4. **No promises unsupported by the underlying facts.**
+5. **Confidentiality protections hold throughout the system, not only on the user-facing screens** (ruling 98, from L-78). Every layer a person or a client can reach directly (Auth, RPCs, storage, public endpoints) is checked for what it reveals, and not only PINTAR's own pages.
 
 **And L-8, extended:** a change to a state sweeps its dependent tests **and its dependent screens** in the same batch. The source is `docs/post-4.1/AUDIT-79-COMMON-CAUSES.md`.
 
