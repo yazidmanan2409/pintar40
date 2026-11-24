@@ -69,3 +69,15 @@ CI-1's evidence stands as stated.
     - The merged tree equals `94ce6727`'s, whose full CI was green.
     - Main stays red in the evening window until CI-2 or H-1 carries the fix.
 14. **Sharon's condition (V6) is met.** She is asked to record her FINAL. CI-1 is declared closed on staging when she does.
+15. **Sharon: FINAL, PASS on CI-1's staging promotion** (22:48Z). V6 is met (md5 unchanged, counter +190). She read main's ci 45500905491 from the API at 22:49Z (failure) and judged it the test-side clock defect. The window is more precisely 17:00–24:00Z (UTC `current_date` against WIB, UTC+7). The PR ci on the same tree, 45439475500, ran 16:38–17:15Z (success), which fits. **It doesn't change the verdict.**
+    - **Condition carried forward (Sharon):** main has no green full run at `93b93134`, so **no production promotion takes main while its ci is red**. CI-2's clock fix must land and main's ci must go green on the exact commit first. This is recorded in the readiness register (PR-25).
+
+## CI-1: CLOSED ON STAGING (24 Nov 22:50Z)
+
+- **Merged:** main `93b93134`, with a tree equal to the frozen `94ce6727`.
+- **Promoted:** staging 309 → 310, with only line 10 moving.
+- **After-promotion checks and V6:** met.
+- **Sharon:** FINAL PASS.
+- **Still open:**
+  - **L-105 (printed certificates) under CI-1b:** its rectification and independent verification remain mandatory (ruling 101);
+  - **production:** untouched at 111, a separate authorisation, under PR-25's condition.

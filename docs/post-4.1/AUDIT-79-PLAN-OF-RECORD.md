@@ -55,7 +55,7 @@
 | W1 | **Every journey walked locally by Daisy** (J2 to J12, passes included). Builder captures: J2, J3, J4, J7, J10, J5, J6 (J6 to be judged); the PIN-reload probe holds. Re-runs: J5's and J10's EN walks (a harness cookie fault). Next: J8, J9, J11, J12 |
 | W2 | **DONE (Daisy, `e0958ce7`, reconciled by Bob)**. L-1 to L-144. Critical: L-67. High: L-78, L-105, L-112. Daisy's open findings: 91 (`AUDIT-79-DAISY-FINDINGS.md`). Daisy's severity pass is next |
 | W3 | INTERIM: C-1 to C-11 |
-| W4 | **CI-1 READY for the owner:** `94ce6727`, PR #30, ci and journeys GREEN in one attempt, Sharon PASS unconditional (`CI-1-FOR-OWNER.md`) |
+| W4 | **CI-1 CLOSED ON STAGING (ruling 101, 22:50Z):** merged `93b93134` (tree = `94ce6727`), staging 310, only line 10 moved, V6 met, **Sharon FINAL PASS**. Main's ci is red on the known R1 clock bug, so PR-25 holds any production promotion until main is green. L-105 open under CI-1b |
 | W4b | CI-1b specified, words cleared; after CI-2 |
 | W5 | **CI-2 FROZEN at `9c6aae62`; PR #31** (21:17Z), ci 45488925842 and journeys 45488932426 running; then Sharon, then the owner |
 | W6 | After W3 FINAL |
