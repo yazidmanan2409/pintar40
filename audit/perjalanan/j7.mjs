@@ -151,10 +151,13 @@ for (const lebar of LEBAR) {
       // a person with two roles is asked where to go first; the walk chooses the role that page belongs to
       const peran = nm === "pimpinan" ? /Saya memimpin bagian sekolah|I lead part of the school/ : /Saya mengajar|I teach/;
       const pilihPeran = page.locator("button, a", { hasText: peran }).first();
-      if (/Mau ke mana hari ini|Where to today/i.test(await isi()) && await pilihPeran.count()) {
+      if (/Mau ke mana hari ini|Where would you like to go today/i.test(await isi()) && await pilihPeran.count()) {
         rec.tab += await j.tekan(pilihPeran, 100);
+        // the door is a form: let its submit land before going on (a navigation now would cut it off)
+        await page.waitForURL((u) => u.pathname !== "/", { timeout: 20000 }).catch(() => {});
         await page.waitForLoadState("networkidle").catch(() => {});
         if (!new URL(page.url()).pathname.startsWith(url)) { await page.goto(`${APP}${url}`); await page.waitForLoadState("networkidle").catch(() => {}); }
+        if (/Mau ke mana hari ini|Where would you like to go today/i.test(await isi())) throw new Error(`the door to ${url} did not open (still the role chooser)`);
       }
       await lewatiTur(j);
       await foto(`kaprodi-${nm}`);

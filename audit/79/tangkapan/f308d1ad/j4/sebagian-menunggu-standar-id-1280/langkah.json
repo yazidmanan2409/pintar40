@@ -1,0 +1,73 @@
+{
+  "perjalanan": "j4",
+  "nama": "Galih · guru 8A",
+  "lebar": 1280,
+  "zona": "WIB",
+  "bahasa": "id",
+  "laluan": "standar",
+  "label": [],
+  "mulai": "2026-11-24T15:20:10.807Z",
+  "langkah": [
+    {
+      "id": "L1",
+      "judul": "Galih returns: the open test needs his teacher's permission",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-galih-perlu-izin"
+      ],
+      "amatan": [],
+      "data": {
+        "words": "Matematika · Kelas 8 · Persamaan Linear Satu Variabel Asesmen ini perlu diizinkan guru Anda untuk dilanjutkan. Karena Anda masuk lagi atau berganti perangkat, Uji Penguasaan ini hanya dapat dilanjutkan bila guru Anda mengizinkannya. Permintaan Anda tampil di daftar kelas guru Anda. Beri tahu guru Anda juga: Uji Penguasaan · Persamaan Linear Satu Variabel. Setelah guru mengizinkan, pilih Coba lagi. Coba lagi Kembali ke Belajar",
+        "permission_needed": true,
+        "sittings": "IN_PROGRESS answered 2"
+      },
+      "tab": 0,
+      "url": "/",
+      "ms": 4407
+    },
+    {
+      "id": "L2",
+      "judul": "the teacher allows it",
+      "hasil": "SAMPAI",
+      "layar": [
+        "02-guru-mengajar-menunggu",
+        "03-guru-siapa-permintaan",
+        "04-guru-diizinkan"
+      ],
+      "amatan": [],
+      "data": {
+        "teacher_home_while_waiting": "SMP Sintetis Cendekia / TA 2026/2027 SELASA, 24 NOV 2026 Selamat malam, Dimas Saputra Satu hal yang paling layak dikerjakan lebih dulu, lalu kelas dalam lingkup mengajar Anda. Tidak ada yang menunggu keputusan Anda hari ini. KELAS DALAM LINGKUP MENGAJAR ANDA Berdasarkan penugasan dari sekolah. PINTAR tidak menandai kelas sebagai milik seseorang; yang tampil adalah kelas yang tercakup dalam penugasan Anda. 8A Matematika 5 murid Pemetaan Awal — Persamaan Linear Satu Variabel · 2/5 mengumpulkan Uji Penguasaan — Persamaan Linear Satu Variabel · 1/5 mengumpulkan Pemetaan Awal — Statistika Dasar · 1/5 mengumpulkan Uji Penguasaan — Statistika Dasar · 1/5 mengumpulkan Lihat murid yang belum mengumpulkan — 3 murid SEDANG BERJALAN Pemetaan Awal — Persamaan Linear Satu Variabel · 8A Minggu, 23 Mei 2027 2/5 mengumpulkan Berjalan Uji Penguasaan — Persamaan Linear Satu Variabel · 8A Minggu, 23 Mei 202",
+        "teacher_allow_question": "Izinkan Galih Pratama melanjutkan Uji Penguasaan setelah masuk lagi? Sesi sebelumnya tidak menyimpan jawabannya lagi. Jawaban yang sudah tersimpan tetap ada. Tindakan ini dicatat.",
+        "teacher_allow_words": "✓Galih Pratama dapat melanjutkan sampai pukul 22.30 WIB."
+      },
+      "tab": 25,
+      "url": "/",
+      "ms": 8226
+    },
+    {
+      "id": "L3",
+      "judul": "Galih resumes; the network is lost while he answers one more, then returns",
+      "hasil": "TIDAK_DIJALAN",
+      "layar": [],
+      "amatan": [
+        "a partial walk: AUDIT_SAMPAI=L2"
+      ],
+      "data": {},
+      "tab": 0
+    },
+    {
+      "id": "L4",
+      "judul": "the teacher ends it, scored; then both views",
+      "hasil": "TIDAK_DIJALAN",
+      "layar": [],
+      "amatan": [
+        "a partial walk: AUDIT_SAMPAI=L2"
+      ],
+      "data": {},
+      "tab": 0
+    }
+  ],
+  "sebagian": "AUDIT_SAMPAI=L2: the steps after L2 were not walked",
+  "selesai": "2026-11-24T15:20:23.487Z",
+  "sampai_akhir": true
+}

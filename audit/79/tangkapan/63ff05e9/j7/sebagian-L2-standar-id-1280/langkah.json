@@ -1,0 +1,112 @@
+{
+  "perjalanan": "j7",
+  "nama": "Yohana · Made · Ratih · Bayu · Citra · Admin PINTAR",
+  "lebar": 1280,
+  "zona": "WIB",
+  "bahasa": "id",
+  "laluan": "standar",
+  "label": [
+    "bukti OFFICIAL di tenant bootstrap dev/CI (sintetis)"
+  ],
+  "mulai": "2026-11-24T15:15:13.934Z",
+  "langkah": [
+    {
+      "id": "L1",
+      "judul": "the school admin proposes the correction: «Kunci jawaban keliru?», the three steps, «Kirim untuk konfirmasi»",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-studio-paket",
+        "02-langkah-1",
+        "03-langkah-2",
+        "04-langkah-3",
+        "05-terkirim"
+      ],
+      "amatan": [],
+      "data": {
+        "step2_impact": "Studio Perkalian Bilangan Cacah Matematika · SMP · Kelas 9 Terbit Paket ini sudah terbit. Guru dapat menyediakannya untuk kelas mereka. Lihat seperti murid Soal dalam paket ini Periksa setiap soal, kunci jawabannya, dan alasan setiap pilihan sebelum menyetujui. Hanya staf Studio sekolah ini yang melihat bagian ini; murid tidak pernah melihat kunci atau alasannya di sini. 7 soal dalam 1 pelajaran Pelajaran Perkalian (7 soal) Buka Perkalian · 7 soal Soal 1 dari 7 · Pemetaan Awal · Mudah Berapakah 3 × 4? A A. 12 Kunci Alasan: 4 + 4 + 4 = 12. B B. 7 Alasan: Itu 3 + 4. Pemahaman keliru: Dijumlahkan, bukan dikalikan X9W-TAMBAH C C. 16 Alasan: Itu 4 × 4. Pemahaman keliru: Fakta perkalian tertukar X9W-HAFAL D D. 9 Alasan: Itu 3 × 3. Pemahaman keliru: Fakta perkalian tertukar X9W-HAFAL Kunci jawaban keliru? · Soal 1 dari 7 Riwayat soal (1 versi) Catatan peninjau (0) Soal 2 dari 7 · Uji Penguasaan · Mudah Berapakah 9 × 3? A A. 27 Kunci Alasan: 9 + 9 + 9 = 27. B B. 12 Alasan: Itu 9 + 3. Pemahaman keliru: Dijumlahkan, bukan dikalikan X9W-TAMBAH C C. 24 Alasan: Itu 8 × 3. Pemahaman keliru: Fakta perkalian tertukar X9W-HAFAL D D. 36 Alasan: Itu 9 × 4. Pemahaman keliru: Fakta perkalian tertukar X",
+        "words": "✓Perbaikan terkirim untuk dikonfirmasi orang kedua.",
+        "correction": "PENDING A→B"
+      },
+      "tab": 13,
+      "url": "/",
+      "ms": 9265
+    },
+    {
+      "id": "L2",
+      "judul": "the head of department: what tells him a correction waits, then «Konfirmasi perbaikan»",
+      "hasil": "SAMPAI",
+      "layar": [
+        "06-kaprodi-masuk",
+        "07-kaprodi-studio",
+        "08-kaprodi-pimpinan",
+        "09-kaprodi-antrean",
+        "10-kaprodi-koreksi",
+        "11-kaprodi-konfirmasi-dialog",
+        "12-kaprodi-selesai"
+      ],
+      "amatan": [],
+      "data": {
+        "approver_studio": "Studio Studio Buat Paket Antrean Tinjauan Pustaka PINTAR Bank Soal Tinjauan Integritas Tidak ada yang menunggu tindakan Anda di Studio. Paket Pembelajaran Perkalian Bilangan Cacah Matematika · Kelas 9 · PINTAR Bootstrap (OFFICIAL evidence — development and CI only) Terbit Sistem Pencernaan IPA · Kelas 8 · PINTAR Bootstrap (OFFICIAL evidence — development and CI only) Terbit Gaya dan Gerak IPA · Kelas 8 · PINTAR Bootstrap (OFFICIAL evidence — development and CI only) Terbit Cahaya IPA · Kelas 8 · PINTAR Bootstrap (OFFICIAL evidence — development and CI only) Terbit Persamaan Linear Satu Variabel Matematika · Kelas 8 · PINTAR Bootstrap (OFFICIAL evidence — development and CI only) Terbit Pengu",
+        "approver_pimpinan": "Matematika (dunia audit) PIMPINAN Apa yang menunggu Anda Yang muncul di sini memerlukan wewenang, koordinasi, atau penafsiran untuk sekolah secara keseluruhan. Selebihnya tidak muncul. BAGIAN A KEPUTUSAN Tidak ada keputusan yang menunggu Anda. PINTAR mengusulkan, manusia memutuskan. BAGIAN B YANG DIDUKUNG BUKTI Angka bagian ini dihitung per kelas. Bukalah kelasnya di bagian Per kelas di bawah. Bagian C Penguasaan per topik Setiap sel adalah angka «Penguasaan per topik» kelas itu sendiri. Baca mendatar untuk melihat pola; baca menurun untuk melihat satu kelas. Topik 8J (dunia) Sekarang 0 murid; perlu 5. 8K (dunia) Sekarang 1 murid; perlu 5. 9A (dunia) Sekarang 3 murid; perlu 5. Belum ada targ",
+        "approver_antrean": "Studio Studio Buat Paket Antrean Tinjauan Pustaka PINTAR Bank Soal Tinjauan Integritas Antrean Tinjauan Perbaikan kunci menunggu konfirmasi Perbaikan kunci jawaban Soal di Perkalian Bilangan Cacah · kunci A → B · diusulkan Yohana Simanjuntak, 24 Nov 2026, 22.15 WIB Tidak ada yang menunggu tinjauan Anda.",
+        "correction_page": "Antrean Tinjauan Perbaikan kunci jawaban Perkalian Bilangan Cacah Pertanyaan Berapakah 7 × 8? A. 54 B. 56 C. 15 D. 63 KUNCI SEKARANG A KUNCI YANG DIUSULKAN B ALASAN 7 × 8 = 56; kuncinya tertulis 54 (pilihan A). DIUSULKAN OLEH Yohana Simanjuntak · 24 Nov 2026, 22.15 WIB Yang terdampak Soal ini ada di 3 sesi yang sudah selesai, di 1 sekolah. Bila kunci diperbaiki: 3 hasil berubah · 1 keputusan target berubah · 2 sertifikat akan ditinjau sekolahnya · 0 sertifikat baru dapat diterbitkan. Pilihan A akan kehilangan alasan dan pemahaman keliru terkaitnya, karena benar-salahnya berubah. Kunci diperbaiki sekarang; alasannya ditulis sesudahnya. Pilihan B akan kehilangan alasan dan pemahaman keliru terkaitnya, karena benar-salahnya berubah. Kunci diperbaiki sekarang; alasannya ditulis sesudahnya. Kelas Murid Hasil Target Sertifikat 9A (dunia) Bayu Pratama 83% → 100% tercapai — 9A (dunia) Citra Lestari 67% → 50% tercapai → belum tercapai akan ditinjau 9A (dunia) Ratih Kusuma 100% → 83% tercapai ak",
+        "dialog": "Konfirmasi perbaikan Hasil 3 sesi dihitung ulang. Hasil asli tetap tersimpan. Batal Konfirmasi perbaikan",
+        "done": "Antrean Tinjauan Perbaikan kunci jawaban Perkalian Bilangan Cacah Pertanyaan Berapakah 7 × 8? A. 54 B. 56 C. 15 D. 63 KUNCI SEKARANG A KUNCI YANG DIUSULKAN B ALASAN 7 × 8 = 56; kuncinya tertulis 54 (pilihan A). DIUSULKAN OLEH Yohana Simanjuntak · 24 Nov 2026, 22.15 WIB Yang terdampak Soal ini ada di 3 sesi yang sudah selesai, di 1 sekolah. Bila kunci diperbaiki: 3 hasil berubah · 1 keputusan target berubah · 2 sertifikat akan ditinjau sekolahnya · 0 sertifikat baru dapat diterbitkan. Pilihan A a",
+        "correction": "CONFIRMED A→B",
+        "result_Ratih": "100% (asli) → 83% (dihitung ulang)",
+        "result_Bayu": "83% (asli) → 100% (dihitung ulang)",
+        "result_Citra": "67% (asli) → 50% (dihitung ulang)"
+      },
+      "tab": 39,
+      "url": "/",
+      "ms": 8531
+    },
+    {
+      "id": "L3",
+      "judul": "after the recalculation: the three learners, the printed copies, the public checks",
+      "hasil": "TIDAK_DIJALAN",
+      "layar": [],
+      "amatan": [
+        "a partial walk: AUDIT_SAMPAI=L2"
+      ],
+      "data": {},
+      "tab": 0
+    },
+    {
+      "id": "L4",
+      "judul": "the admin's «Sedang ditinjau»: Ratih «Konfirmasi berlaku»; Citra «Cabut» through its confirmation",
+      "hasil": "TIDAK_DIJALAN",
+      "layar": [],
+      "amatan": [
+        "a partial walk: AUDIT_SAMPAI=L2"
+      ],
+      "data": {},
+      "tab": 0
+    },
+    {
+      "id": "L5",
+      "judul": "«Cabut» completed: Citra's certificate page, her printed copy, the public check",
+      "hasil": "TIDAK_DIJALAN",
+      "layar": [],
+      "amatan": [
+        "a partial walk: AUDIT_SAMPAI=L2"
+      ],
+      "data": {},
+      "tab": 0
+    },
+    {
+      "id": "L6",
+      "judul": "the reissue: Admin PINTAR corrects Ratih's name; the school admin issues the replacement; what Ratih and the verifier see",
+      "hasil": "TIDAK_DIJALAN",
+      "layar": [],
+      "amatan": [
+        "a partial walk: AUDIT_SAMPAI=L2"
+      ],
+      "data": {},
+      "tab": 0
+    }
+  ],
+  "sebagian": "AUDIT_SAMPAI=L2: the steps after L2 were not walked",
+  "selesai": "2026-11-24T15:15:31.732Z",
+  "sampai_akhir": true
+}

@@ -1,0 +1,112 @@
+{
+  "perjalanan": "j7",
+  "nama": "Yohana · Made · Ratih · Bayu · Citra · Admin PINTAR",
+  "lebar": 1280,
+  "zona": "WIB",
+  "bahasa": "en",
+  "laluan": "standar",
+  "label": [
+    "bukti OFFICIAL di tenant bootstrap dev/CI (sintetis)"
+  ],
+  "mulai": "2026-11-24T15:18:37.380Z",
+  "langkah": [
+    {
+      "id": "L1",
+      "judul": "the school admin proposes the correction: «Kunci jawaban keliru?», the three steps, «Kirim untuk konfirmasi»",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-studio-paket",
+        "02-langkah-1",
+        "03-langkah-2",
+        "04-langkah-3",
+        "05-terkirim"
+      ],
+      "amatan": [],
+      "data": {
+        "step2_impact": "Home Perkalian Bilangan Cacah Matematika · SMP · Kelas 9 Published This package is published. Teachers can make it available to their classes. See it as a student The questions in this package Check every question, its key and the reason for each option before approving. Only this school's Studio staff see this part; students never see the key or the reasons here. 7 questions in 1 lessons Lesson Perkalian (7 questions) Open Perkalian · 7 questions Question 1 of 7 · Initial Mapping · Easy Berapakah 3 × 4? A A. 12 Key Why: 4 + 4 + 4 = 12. B B. 7 Why: Itu 3 + 4. Misunderstanding: Dijumlahkan, bukan dikalikan X9W-TAMBAH C C. 16 Why: Itu 4 × 4. Misunderstanding: Fakta perkalian tertukar X9W-HAFAL D D. 9 Why: Itu 3 × 3. Misunderstanding: Fakta perkalian tertukar X9W-HAFAL Answer key wrong? · Question 1 of 7 Question history (1 versions) Reviewer notes (0) Question 2 of 7 · Mastery Check · Easy Berapakah 4 × 8? A A. 12 Why: Itu 4 + 8. Misunderstanding: Dijumlahkan, bukan dikalikan X9W-TAMBAH B B. 28 Why: Itu 4 × 7. Misunderstanding: Fakta perkalian tertukar X9W-HAFAL C C. 32 Key Why: Empat kali delapan. D D. 36 Why: Itu 4 × 9. Misunderstanding: Fakta perkalian tertukar X9W-HAFAL Answer ke",
+        "words": "✓The correction was sent for a second person to confirm.",
+        "correction": "PENDING A→B"
+      },
+      "tab": 19,
+      "url": "/",
+      "ms": 9384
+    },
+    {
+      "id": "L2",
+      "judul": "the head of department: what tells him a correction waits, then «Konfirmasi perbaikan»",
+      "hasil": "SAMPAI",
+      "layar": [
+        "06-kaprodi-masuk",
+        "07-kaprodi-studio",
+        "08-kaprodi-pimpinan",
+        "09-kaprodi-antrean",
+        "10-kaprodi-koreksi",
+        "11-kaprodi-konfirmasi-dialog",
+        "12-kaprodi-selesai"
+      ],
+      "amatan": [],
+      "data": {
+        "approver_studio": "Studio Home Create a package Review queue PINTAR Library Item bank Integrity review Nothing in the Studio is waiting for you. Learning Package Perkalian Bilangan Cacah Matematika · Kelas 9 · PINTAR Bootstrap (OFFICIAL evidence — development and CI only) Published Sistem Pencernaan IPA · Kelas 8 · PINTAR Bootstrap (OFFICIAL evidence — development and CI only) Published Gaya dan Gerak IPA · Kelas 8 · PINTAR Bootstrap (OFFICIAL evidence — development and CI only) Published Cahaya IPA · Kelas 8 · PINTAR Bootstrap (OFFICIAL evidence — development and CI only) Published Persamaan Linear Satu Variabel Matematika · Kelas 8 · PINTAR Bootstrap (OFFICIAL evidence — development and CI only) Published Pe",
+        "approver_pimpinan": "Matematika (dunia audit) MANAGEMENT What is waiting for you What appears here needs authority, coordination, or an institution-level reading. Nothing else appears. SECTION A DECISIONS No decisions are waiting for you. PINTAR proposes, a human decides. SECTION B WHAT THE EVIDENCE SUPPORTS This part's figures are counted class by class. Open the class under Class by class below. Section C Mastery by topic Each cell is that class's own «Mastery by topic» figure. Read across for a pattern; read down for one class. Topic 8J (dunia) 0 students so far; 5 needed. 8K (dunia) 1 student so far; 5 needed. 9A (dunia) 3 students so far; 5 needed. No class target can be read here, so this table marks no fi",
+        "approver_antrean": "Studio Home Create a package Review queue PINTAR Library Item bank Integrity review Review Queue Key corrections waiting for confirmation Answer-key correction A question in Perkalian Bilangan Cacah · key A → B · proposed by Yohana Simanjuntak, 24 Nov 2026, 22.18 WIB Nothing is waiting on your review.",
+        "correction_page": "Review queue Answer-key correction Perkalian Bilangan Cacah Question Berapakah 7 × 8? A. 54 B. 56 C. 15 D. 63 CURRENT KEY A PROPOSED KEY B REASON 7 × 8 = 56; kuncinya tertulis 54 (pilihan A). PROPOSED BY Yohana Simanjuntak · 24 Nov 2026, 22.18 WIB Who is affected This question is in 3 finished sittings, at 1 schools. If the key is corrected: 3 results change · 1 target decisions change · 2 certificates will be reviewed by their schools · 0 new certificates can be issued. Option A will lose its explanation and linked misunderstanding, because whether it is right has changed. The key is corrected now; the explanation is written afterwards. Option B will lose its explanation and linked misunderstanding, because whether it is right has changed. The key is corrected now; the explanation is written afterwards. Class Student Result Target Certificate 9A (dunia) Bayu Pratama 83% → 100% met — 9A (dunia) Citra Lestari 67% → 50% met → not met will be reviewed 9A (dunia) Ratih Kusuma 100% → 83% me",
+        "dialog": "Confirm the correction The results of 3 sittings are recalculated. The original results are kept. Cancel Confirm the correction",
+        "done": "Review queue Answer-key correction Perkalian Bilangan Cacah Question Berapakah 7 × 8? A. 54 B. 56 C. 15 D. 63 CURRENT KEY A PROPOSED KEY B REASON 7 × 8 = 56; kuncinya tertulis 54 (pilihan A). PROPOSED BY Yohana Simanjuntak · 24 Nov 2026, 22.18 WIB Who is affected This question is in 3 finished sittings, at 1 schools. If the key is corrected: 3 results change · 1 target decisions change · 2 certificates will be reviewed by their schools · 0 new certificates can be issued. Option A will lose its e",
+        "correction": "CONFIRMED A→B",
+        "result_Ratih": "100% (asli) → 83% (dihitung ulang)",
+        "result_Bayu": "83% (asli) → 100% (dihitung ulang)",
+        "result_Citra": "67% (asli) → 50% (dihitung ulang)"
+      },
+      "tab": 39,
+      "url": "/",
+      "ms": 8579
+    },
+    {
+      "id": "L3",
+      "judul": "after the recalculation: the three learners, the printed copies, the public checks",
+      "hasil": "TIDAK_DIJALAN",
+      "layar": [],
+      "amatan": [
+        "a partial walk: AUDIT_SAMPAI=L2"
+      ],
+      "data": {},
+      "tab": 0
+    },
+    {
+      "id": "L4",
+      "judul": "the admin's «Sedang ditinjau»: Ratih «Konfirmasi berlaku»; Citra «Cabut» through its confirmation",
+      "hasil": "TIDAK_DIJALAN",
+      "layar": [],
+      "amatan": [
+        "a partial walk: AUDIT_SAMPAI=L2"
+      ],
+      "data": {},
+      "tab": 0
+    },
+    {
+      "id": "L5",
+      "judul": "«Cabut» completed: Citra's certificate page, her printed copy, the public check",
+      "hasil": "TIDAK_DIJALAN",
+      "layar": [],
+      "amatan": [
+        "a partial walk: AUDIT_SAMPAI=L2"
+      ],
+      "data": {},
+      "tab": 0
+    },
+    {
+      "id": "L6",
+      "judul": "the reissue: Admin PINTAR corrects Ratih's name; the school admin issues the replacement; what Ratih and the verifier see",
+      "hasil": "TIDAK_DIJALAN",
+      "layar": [],
+      "amatan": [
+        "a partial walk: AUDIT_SAMPAI=L2"
+      ],
+      "data": {},
+      "tab": 0
+    }
+  ],
+  "sebagian": "AUDIT_SAMPAI=L2: the steps after L2 were not walked",
+  "selesai": "2026-11-24T15:18:55.344Z",
+  "sampai_akhir": true
+}
