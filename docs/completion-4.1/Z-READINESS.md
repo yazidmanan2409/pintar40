@@ -138,7 +138,7 @@ The row-by-row audit against main `61a6ff9e` is in `closure/Z-READINESS-CLOSURE-
 | R-13 | Three 4.0 rendered checks | The certificate date goes to **D2-R step 1f** (R-13 on the new sheet). The integrity count line and «Materi tanpa judul» go to **the ruling 79 audit's ledger**, checked in its captures. Ruling 71 removed the "before the walkthrough" deadline | Daisy |
 | R-15 (320 px titles) | No closing citation | **Ruling 79 audit** (dimension G), in the ledger | Daisy |
 | R-15 (C1-R4's printed «Predikat») | Not recorded anywhere | **D2-R (R-c)**: the printed report joins the routes where Predikat is removed. It is added to Second Eye's build map | Sharon (with R-c) |
-| R-28 leftovers (K-06, K-08, K-09, T-01, T-04 to T-12, S-06's SQL half) | «Later» in SAPU-VERIFIED | **Ruling 79 audit**, in the ledger (track 3a) | Daisy |
+| R-28 leftovers (K-06, K-08, K-09, T-01, T-04 to T-08 and T-10 to T-12 (T-09 fixed in Z7), S-06's SQL half) | «Later» in SAPU-VERIFIED | **Ruling 79 audit**, in the ledger (track 3a) | Daisy |
 
 **Caveats from the audit:**
 - R-19 is closed by `d2141539` with no test. It is not reopened.

@@ -301,3 +301,24 @@ Sharon's part waits until after A3's freeze (ruling 58).
 - `sertifikat.kelola.kolom.kursus`: «Materi Pembelajaran» / «Learning Material». This reverses Z7 C-3, so the concept keeps one name.
 
 **Daisy (24 Nov): «Predikat» is removed from the learner's own certificate page (`:166`) as well.** The page must match the certificate and the public check. The band stays internal. No new words.
+
+### 7.2 · Sharon's confirmation of §7.1 (24 Nov, addendum to `D2R-PRECODE-R-c-f.md`): R-d and R-h may start
+
+**F-2, the capture column, with four corrections:**
+- **(a)** Backfill **every** sitting, open and closed, from the **old** `mode_policy`, *before* the same migration changes the certifying modes, and assert that order. Otherwise an open POST_TEST would lose help mid-sitting.
+- **(b)** Fill the column first, then add the immutability trigger. If the trigger has to come first, its only exception is keyed to the migration, never to a setting a client can set.
+- **(c)** A CHECK that the jsonb has exactly the four boolean keys.
+- **(d)** This writes existing `assessment_sessions` rows during the migration, so **D2-R's promotion needs a step 0** (sittings by mode and status), and line 58's `baru` gains `assistance_policy`.
+
+**Refusals and learner routes:**
+- `session_review` refuses on certifying modes.
+- R-h covers `session_answers`, `reading_map`'s reasons and `hasil_koreksi_saya`, each with a plant.
+- `hasil_koreksi_saya` says only that the result changed, and gives the new count. It never says which question changed, or the key.
+
+**per_domain, corrected:**
+- «Baca lagi» is computed client-side from per_domain's per-objective `penguasaan` (`siklus.ts` `bagianUlang`), which is a score in all but name.
+- **On certifying modes, `per_domain` is returned without per-objective numbers**, plus a server-computed **`tujuan_ulang`**: the codes below the mark, plus `tujuan_gerbang_kode`.
+- `bagianUlang` reads `tujuan_ulang`.
+- The forbidden-key test covers `penguasaan` inside `per_domain`.
+
+**Also confirmed:** F-1; F-3; database enforcement for STANDALONE; H10; H18; `verifikasi.lulus` «Lulus» (a string only, with the public contract unchanged).
