@@ -649,8 +649,27 @@ export const c1wLayarTests: SelfTest[] = [
         if (!c.expect(typeof murid0 !== "string", String(murid0))) return c.verdict("");
         const m1 = await (await (murid0 as Komputer).halaman(`/belajar/${la}/hasil`)).text();
         const tm = teks(m1);
-        c.expect(/data-dikoreksi=""/.test(m1) && tm.includes("100%") && tm.includes(id("hasil.dikoreksi", "learner")) && tm.includes("Hasil asli: 50%"),
-          `the learner's result page: «${tm.slice(0, 600)}»`);
+        // RESTATED (D2-R, R-h, ruling 74; restated again to the final order, ruling 74a, H-1 and Daisy §13): the sitting is
+        // an Uji Penguasaan, so its learner reads counts only, in this order: «Lulus.»; the certificate's state (the line
+        // and the link while it is prepared, the link alone once it exists, nothing with no certificate); «Baca lagi:»
+        // only with an objective to read again (none here: all right); «2 dari 2 soal dijawab tepat» as current and the
+        // attempt; the correction's mark (hasil.dikoreksi, whose own sentence says the original is kept); then
+        // hasil.tidak_ditampilkan. No percentage anywhere under the title, no «Hasil asli: N%» and no comparison.
+        const awal = tm.indexOf(id("hasil.title", "learner"));
+        const isi = tm.slice(awal);
+        const urut = [id("hasil.lulus", "learner"), "2 dari 2 soal dijawab tepat", id("hasil.percobaan_ke", "learner").replace("{n}", "1"),
+          id("hasil.dikoreksi", "learner"), id("hasil.tidak_ditampilkan", "learner")].map((k) => isi.indexOf(k));
+        const keadaan = psql(`select coalesce((select status::text from public.certificates where session_id = ${lit(sesi)} order by issued_at desc nulls last limit 1), '')`);
+        const sertifikatBaris = /data-sertifikat=""/.test(m1);
+        const disiapkan = isi.includes(id("sertifikat.disiapkan.judul", "learner"));
+        const sertifikatTepat = keadaan === "" ? !sertifikatBaris
+          : keadaan === "ELIGIBLE" ? sertifikatBaris && disiapkan
+          : sertifikatBaris && !disiapkan;
+        const sertifikatDulu = !sertifikatBaris || isi.indexOf(id("siklus.lihat_sertifikat", "learner")) < urut[1];
+        c.expect(/data-dikoreksi=""/.test(m1) && urut.every((i) => i >= 0) && urut.every((i, k) => k === 0 || i > urut[k - 1])
+          && sertifikatTepat && sertifikatDulu && !/data-baca-lagi/.test(m1)
+          && !/\d+\s?%/.test(isi) && !/Hasil asli:\s*\d/.test(isi) && !isi.includes(id("siklus.delta_arti", "learner")),
+          `the learner's result page (certificate ${keadaan || "none"}; order ${urut.join(",")}): «${isi.slice(0, 700)}»`);
         // the class page: the assignment moved to the corrected release; nothing says «Ditarik»
         const g2 = await (await guru.halaman(`/mengajar/${d.kelas}`)).text();
         c.expect(!/data-rilis-dihentikan/.test(g2) && psql(`select plp_release_id <> ${lit(rel)} from public.learning_assignments where id = ${lit(la)}`) === "t",
@@ -660,7 +679,7 @@ export const c1wLayarTests: SelfTest[] = [
           + "jawaban keliru?» and walks the three steps, step 2 giving the exact counts and the learner by name; she sees «Menunggu konfirmasi orang kedua» and, on the "
           + "second person's page, only her sentence; the head of department finds it in «Antrean Tinjauan», confirms through the dialog («Hasil 1 sesi dihitung ulang…») "
           + "and reads «Selesai. 1 hasil dihitung ulang…»; the sitting keeps its sealed 50% and gains one result in force, 100%; the teacher's report shows 100% with the "
-          + "note and the correction's reason; the learner's result page shows 100% as current, marked recalculated, with «Hasil asli: 50%»; the class's assignment is on the corrected release");
+          + "note and the correction's reason; the learner's result page (an Uji Penguasaan, counts only) shows «2 dari 2 soal dijawab tepat» as current, marked corrected, with no percentage; the class's assignment is on the corrected release");
       } finally {
         bersihkan();
       }

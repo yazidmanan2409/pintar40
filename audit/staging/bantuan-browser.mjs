@@ -6,24 +6,28 @@
 //       whether any assessment on staging is without a window («no help configured»); the database's clock.
 //   B1  SETUP, not journey evidence: the learner's session is made on the server by Auth's admin link, as the L1 browser
 //       harness makes its sessions (perf/lib.mjs). Sign-in is not what this walk verifies.
-//   B2  the Pemetaan Awal in the browser, each answer within a few seconds: no help check at all, no probe, every
-//       answer taken.
-//   B3  the Uji Penguasaan, question 1 left unanswered: the offer appears at the server's due point (its own first
-//       view + the window), after exactly one help check and none before; «Sudah cukup, terima kasih» («Tutup»)
-//       closes it and nothing reopens it for 35 s, with no check and no request to PINTAR at all while idle; then the
-//       answer is saved.
-//   B4  question 2 answered after a few seconds: no help check, no offer, nothing granted.
-//   B5  question 3 left until the offer, then answered: one check after the answer, and the offer goes.
-//   B6  question 4, the browser goes offline (a real `offline`): the notice appears; the save is held; the light
+//   RESTATED (D2-R R-d, ruling 89; Bob's ruling (b), 24 Nov 06:06Z): a certifying Uji Penguasaan offers no help, so the
+//   browser proof of the help offer moves to the Pemetaan Awal, which still offers it. The player saves a Pemetaan Awal
+//   answer on the click (no «Simpan jawaban ini» / «Tersimpan»), so the save-hold steps stay on the Uji Penguasaan,
+//   which now also proves it offers nothing.
+//   B2  the Pemetaan Awal, question 1 left unanswered: the offer appears at the server's due point (its own first view
+//       + the window), after exactly one help check and none before; «Sudah cukup, terima kasih» («Tutup») closes it and
+//       nothing reopens it for 35 s, with no check and no request to PINTAR at all while idle; then answered.
+//   B3  question 2 answered after a few seconds: no help check, no offer, nothing granted.
+//   B4  question 3 left until the offer, then answered: one check after the answer, and the offer goes.
+//   B5  the rest of the Pemetaan Awal answered within a few seconds each: no help check; «Selesaikan pemetaan».
+//   B6  the Uji Penguasaan: its orientation says it offers no help (posttest.tanpa_bantuan); question 1 left well past
+//       the window: no offer and no help check at all; then saved.
+//   B7  question 2, the browser goes offline (a real `offline`): the notice appears; the save is held; the light
 //       recovery check runs (a HEAD of a static file, every 5 s); back online, the notice clears, the held answer is
 //       sent and «Tersimpan» shows, and the recovery check stops.
-//   B7  question 5, PINTAR unreachable while the browser still believes it is online (every request to staging
+//   B8  question 3, PINTAR unreachable while the browser still believes it is online (every request to staging
 //       refused): the failed save turns the notice on; the recovery check runs; when PINTAR answers again the first
-//       successful check clears the notice and the checks stop. Whether the held answer is sent then, before the
-//       hand-in, is recorded as seen.
-//   B8  the rest answered and saved; «Kumpulkan»; the result page.
-//   B9  read back, read only: the sitting FINALIZED with every answer stored once; help granted for questions 1 and 3
-//       only, each 25 s or more after its first view; the telemetry of the offer and the close.
+//       successful check clears the notice and the checks stop; no help check and no offer through it.
+//   B9  the rest answered and saved; «Kumpulkan»; the result page (counts only).
+//   B10 read back, read only: the Pemetaan Awal FINALIZED with help granted for questions 1 and 3 only, each 25 s or
+//       more after its first view, and its telemetry; the Uji Penguasaan FINALIZED with every answer stored once and no
+//       help granted at all; exactly three help checks, all on the Pemetaan Awal.
 //   «No help configured» is checked as a fact of staging (B0): if no assessment lacks a window it cannot be walked
 //   here, and EFF-K01 executes that case.
 //
@@ -141,14 +145,18 @@ await step("B0", `read only: «${KELAS}»'s latest chapter, its help window, a l
         order by e.person_id limit 1) || '|' ||
       (select count(*) from public.assessment_definitions where hesitation_window_seconds is null) || '|' ||
       (select count(*) from public.assessment_definitions) || '|' ||
-      (select min(hesitation_window_min) || '-' || max(hesitation_window_max) from public.assessment_definition_bounds)`);
-  const [tugas, jendela, orang, tanpa, semua, batas] = r.split("|");
+      (select min(hesitation_window_min) || '-' || max(hesitation_window_max) from public.assessment_definition_bounds) || '|' ||
+      coalesce((select d.item_count from public.assessment_assignments aa join public.assessment_definitions d on d.id = aa.assessment_definition_id
+        where aa.learning_assignment_id = (select id from la) and d.mode = 'PRE_TEST' limit 1)::text, '0')`);
+  const [tugas, jendela, orang, tanpa, semua, batas, nPra] = r.split("|");
   if (!tugas || !orang) { rec.verdict = "FAIL"; return `no open chapter or no learner without a sitting in «${KELAS}» (${r})`; }
+  // the help walk (B2–B4) needs three Pemetaan Awal questions
+  if (Number(nPra) < 3) { rec.verdict = "FAIL"; return `the chapter's Pemetaan Awal has ${nPra} question(s); the help walk needs 3`; }
   const [person, email] = orang.split(":");
   S = { tugas: uuid(tugas), person: uuid(person), email, jendela };
   const t0 = Date.now(); const db = Number(sql("select extract(epoch from clock_timestamp()) * 1000")); const t1 = Date.now();
   offset = db - (t0 + t1) / 2;
-  return `chapter ${tugas.slice(0, 8)}…, windows ${jendela}; learner ${person.slice(0, 8)}…; ${tanpa} of ${semua} assessments on staging have no window ` +
+  return `chapter ${tugas.slice(0, 8)}…, windows ${jendela}, Pemetaan Awal ${nPra} questions; learner ${person.slice(0, 8)}…; ${tanpa} of ${semua} assessments on staging have no window ` +
     `(the platform bounds allow ${batas} s), so «no help configured» ${Number(tanpa) ? "exists" : "cannot be walked here"}; clocks differ by ${s1(offset)} (±${s1(t1 - t0)})`;
 });
 
@@ -196,76 +204,45 @@ async function berikutnya() {
 }
 const ditawarkan = async () => (await page.locator(OFFER).count()) > 0;
 
-await step("B2", "the Pemetaan Awal in the browser, each answer within a few seconds: no help check, no probe, every answer taken", async (rec) => {
-  if (!page) { rec.verdict = "NOT RUN"; return "no learner session"; }
-  await page.goto(`${APP}/belajar/${S.tugas}/pemetaan`, { timeout: SLOW, waitUntil: "networkidle" });
-  await closeTour(page);
-  const a = Date.now();
-  await page.getByRole("button", { name: "Mulai Pemetaan Awal", exact: true }).click();
-  let n = 0;
-  for (; n < 40; n++) {
-    await page.locator("h2.pin-stem").first().waitFor({ state: "visible", timeout: SLOW });
-    await tunggu(1500);
-    await pilih();
-    await tunggu(800);
-    if (await page.getByRole("button", { name: "Berikutnya", exact: true }).count()) { await berikutnya(); continue; }
-    await page.getByRole("button", { name: "Selesaikan pemetaan", exact: true }).click();
-    await page.waitForURL((u) => !u.pathname.endsWith("/pemetaan"), { timeout: 60000 });
-    break;
-  }
-  await page.waitForLoadState("networkidle");
-  const b = Date.now();
-  const cek = dalam(a, b, bantuan).length, pr = await periksaDalam(a, b);
-  const simpanan = sql(`select count(*) || '/' || (select count(*) from public.presented_items p where p.session_id = s.id) || '|' || s.status
-      from public.assessment_sessions s join public.responses r on r.session_id = s.id and r.is_final
-     where s.person_id = '${S.person}' and s.learning_assignment_id = '${S.tugas}' and s.mode = 'PRE_TEST' group by s.id, s.status`);
-  if (cek || pr || !/^(\d+)\/\1\|FINALIZED$/.test(simpanan)) rec.verdict = "FAIL";
-  return `${n + 1} questions in ${s1(b - a)}; help checks ${cek}, probes ${pr}; answers stored ${simpanan}; landed ${new URL(page.url()).pathname.replace(/[0-9a-f-]{36}/g, "<id>")}`;
-});
-
-// the Uji Penguasaan's presented items, by stem: the server's first view of each, and what it granted
-let SESI = null;
-const butir = new Map();
-function bacaSesi() {
-  SESI = SESI ?? sql(`select s.id from public.assessment_sessions s where s.person_id = '${S.person}' and s.learning_assignment_id = '${S.tugas}' and s.mode = 'POST_TEST'`);
+// a sitting's presented items, by stem: the server's first view of each, and what it granted (level 0 is the offer)
+const SESI = { PRE_TEST: null, POST_TEST: null };
+const butir = { PRE_TEST: new Map(), POST_TEST: new Map() };
+function bacaSesi(mode) {
+  SESI[mode] = SESI[mode] ?? sql(`select s.id from public.assessment_sessions s where s.person_id = '${S.person}' and s.learning_assignment_id = '${S.tugas}' and s.mode = '${mode}'`);
   for (const row of sql(`select p.id || chr(31) || p.position || chr(31) || replace(replace(i.stem, chr(13), ' '), chr(10), ' ') || chr(31) ||
         coalesce((extract(epoch from v.first_viewed_at) * 1000)::bigint::text, '') || chr(31) ||
         coalesce((select (extract(epoch from min(g.granted_at)) * 1000)::bigint::text from public.assistance_grants g where g.presented_item_id = p.id and g.level = 0), '')
       from public.presented_items p join public.items i on i.id = p.item_id
       left join public.presented_item_views v on v.presented_item_id = p.id
-     where p.session_id = '${uuid(SESI)}' order by p.position`).split("\n").filter(Boolean)) {
+     where p.session_id = '${uuid(SESI[mode])}' order by p.position`).split("\n").filter(Boolean)) {
     const [id, pos, stem, lihat, beri] = row.split("\x1f");
-    butir.set(norm(stem), { id, pos: Number(pos), lihat: lihat ? Number(lihat) : null, beri: beri ? Number(beri) : null });
+    butir[mode].set(norm(stem), { id, pos: Number(pos), lihat: lihat ? Number(lihat) : null, beri: beri ? Number(beri) : null });
   }
 }
-const kini = async () => butir.get(norm(await page.locator("h2.pin-stem").first().innerText()));
+const kini = async (mode) => butir[mode].get(norm(await page.locator("h2.pin-stem").first().innerText()));
 
-let mulaiUji = 0;
-// B7: whether question 5's held answer was still held after PINTAR answered again (then the server, not having it,
-// counts the question as unanswered and may offer help once the window passes)
-let q5Tertahan = false, q5Ditawari = false;
-// the whole Uji Penguasaan page's recovery checks, read before the hand-in navigates away (B8)
+let mulaiPra = 0, pindahUji = 0;
+// the whole Uji Penguasaan page's recovery checks, read before the hand-in navigates away (B9)
 let probeTotal = 0;
-await step("B3", "question 1 left unanswered: the offer at the server's due point after one check and none before; «Tutup» keeps it closed 35 s with nothing sent; then saved", async (rec) => {
+
+await step("B2", "the Pemetaan Awal, question 1 left unanswered: the offer at the server's due point after one check and none before; «Tutup» keeps it closed 35 s with nothing sent; then answered", async (rec) => {
   if (!page) { rec.verdict = "NOT RUN"; return "no learner session"; }
-  await page.goto(`${APP}/belajar/${S.tugas}/penguasaan`, { timeout: SLOW, waitUntil: "networkidle" });
+  await page.goto(`${APP}/belajar/${S.tugas}/pemetaan`, { timeout: SLOW, waitUntil: "networkidle" });
   await closeTour(page);
-  await page.getByRole("button", { name: "Mulai Uji Penguasaan", exact: true }).click();
+  await page.getByRole("button", { name: "Mulai Pemetaan Awal", exact: true }).click();
   await page.locator("h2.pin-stem").first().waitFor({ state: "visible", timeout: SLOW });
-  const tampil = mulaiUji = Date.now();
+  const tampil = mulaiPra = Date.now();
   await page.locator(OFFER).waitFor({ state: "visible", timeout: 60000 });
   const muncul = Date.now();
-  await shot(page, "b3-tawaran");
-  bacaSesi();
-  const q = await kini();
+  await shot(page, "b2-tawaran-pemetaan");
+  bacaSesi("PRE_TEST");
+  const q = await kini("PRE_TEST");
   const sebelum = dalam(tampil, muncul, bantuan);
-  // the offer on the database's clock, against the server's own due point
   const telat = muncul + offset - (q.lihat + 25_000);
   const out = [`offer ${s1(muncul - tampil)} after the question appeared; ${s1(telat)} after the server's due point (its first view + 25 s)`,
     `help checks before it ${sebelum.length} (${sebelum.filter((e) => e.due).length} answered due)`,
     `granted ${q.beri ? s1(q.beri - q.lihat) : "never"} after the first view`];
   const tepat = sebelum.length === 1 && sebelum[0].due && telat >= -1500 && telat <= 4000 && q.beri && q.beri - q.lihat >= 25_000;
-  // «Tutup»: closed and kept closed, nothing asked, nothing sent while idle
   await page.getByRole("button", { name: TUTUP, exact: true }).click();
   await page.locator(OFFER).waitFor({ state: "detached", timeout: SLOW });
   const tutup = Date.now();
@@ -275,36 +252,31 @@ await step("B3", "question 1 left unanswered: the offer at the server's due poin
   const diam = dalam(tutup + 2000, akhir);
   out.push(`«${TUTUP}»: reopened in ${terbuka} of 35 one-second looks; help checks after it ${dalam(tutup, akhir, bantuan).length}; requests to PINTAR while idle (after the close's own) ${diam.length}`);
   await pilih();
-  const s0 = Date.now();
-  await simpan();
-  out.push(`saved in ${Date.now() - s0} ms`);
   if (!tepat || terbuka || dalam(tutup, akhir, bantuan).length || diam.length) rec.verdict = "FAIL";
   return out.join("; ");
 });
 
-await step("B4", "question 2 answered after a few seconds: no help check, no offer, nothing granted", async (rec) => {
-  if (!page || !SESI) { rec.verdict = "NOT RUN"; return "B3 did not start the sitting"; }
+await step("B3", "the Pemetaan Awal's question 2 answered after a few seconds: no help check, no offer, nothing granted", async (rec) => {
+  if (!page || !SESI.PRE_TEST) { rec.verdict = "NOT RUN"; return "B2 did not start the Pemetaan Awal"; }
   const a = await berikutnya();
   await tunggu(4000);
   await pilih();
-  await simpan();
   await tunggu(2000);
   const b = Date.now();
-  bacaSesi();
-  const q = await kini();
+  bacaSesi("PRE_TEST");
+  const q = await kini("PRE_TEST");
   const cek = dalam(a, b, bantuan).length;
   if (cek || (await ditawarkan()) || q.beri) rec.verdict = "FAIL";
   return `help checks ${cek}; offer ${await ditawarkan() ? "shown" : "none"}; granted ${q.beri ? "yes" : "nothing"}`;
 });
 
-await step("B5", "question 3 left until the offer, then answered: one check after the answer, and the offer goes", async (rec) => {
-  if (!page || !SESI) { rec.verdict = "NOT RUN"; return "B3 did not start the sitting"; }
+await step("B4", "the Pemetaan Awal's question 3 left until the offer, then answered: one check after the answer, and the offer goes", async (rec) => {
+  if (!page || !SESI.PRE_TEST) { rec.verdict = "NOT RUN"; return "B2 did not start the Pemetaan Awal"; }
   const a = await berikutnya();
   await page.locator(OFFER).waitFor({ state: "visible", timeout: 60000 });
   const muncul = Date.now();
   await pilih();
   const jawab = Date.now();
-  await simpan();
   await tunggu(4000);
   const b = Date.now();
   const sebelum = dalam(a, muncul, bantuan).length, sesudah = dalam(jawab, b, bantuan).length;
@@ -313,8 +285,52 @@ await step("B5", "question 3 left until the offer, then answered: one check afte
   return `offer after ${s1(muncul - a)}; checks before it ${sebelum}, after the answer ${sesudah}; offer ${masih ? "still shown" : "gone"}`;
 });
 
-await step("B6", "question 4, the browser offline: the notice; the save held; the recovery check every 5 s; back online the notice clears, «Tersimpan», the checks stop", async (rec) => {
-  if (!page || !SESI) { rec.verdict = "NOT RUN"; return "B3 did not start the sitting"; }
+await step("B5", "the rest of the Pemetaan Awal answered within a few seconds each: no help check; «Selesaikan pemetaan»; every answer taken", async (rec) => {
+  if (!page || !SESI.PRE_TEST) { rec.verdict = "NOT RUN"; return "B2 did not start the Pemetaan Awal"; }
+  const a = Date.now();
+  let n = 0;
+  while (await page.getByRole("button", { name: "Berikutnya", exact: true }).count()) {
+    await berikutnya();
+    await tunggu(1500);
+    await pilih();
+    await tunggu(800);
+    n++;
+  }
+  await page.getByRole("button", { name: "Selesaikan pemetaan", exact: true }).click();
+  await page.waitForURL((u) => !u.pathname.endsWith("/pemetaan"), { timeout: 60000 });
+  await page.waitForLoadState("networkidle");
+  const b = Date.now();
+  const cek = dalam(a, b, bantuan).length;
+  const simpanan = sql(`select count(*) || '/' || (select count(*) from public.presented_items p where p.session_id = s.id) || '|' || s.status
+      from public.assessment_sessions s join public.responses r on r.session_id = s.id and r.is_final
+     where s.id = '${uuid(SESI.PRE_TEST)}' group by s.id, s.status`);
+  if (cek || !/^(\d+)\/\1\|FINALIZED$/.test(simpanan)) rec.verdict = "FAIL";
+  return `${n} more answered in ${s1(b - a)}; help checks ${cek}; answers stored ${simpanan}; landed ${new URL(page.url()).pathname.replace(/[0-9a-f-]{36}/g, "<id>")}`;
+});
+
+await step("B6", "the Uji Penguasaan: its orientation says it offers no help; question 1 left well past the window: no offer, no help check; then saved", async (rec) => {
+  if (!page) { rec.verdict = "NOT RUN"; return "no learner session"; }
+  await page.goto(`${APP}/belajar/${S.tugas}/penguasaan`, { timeout: SLOW, waitUntil: "networkidle" });
+  await closeTour(page);
+  const TANPA = "Selama Uji Penguasaan, petunjuk, contoh, dan arah berpikir tidak tersedia."; // posttest.tanpa_bantuan
+  const orientasi = norm(await page.locator("[data-tanpa-bantuan]").innerText().catch(() => ""));
+  await page.getByRole("button", { name: "Mulai Uji Penguasaan", exact: true }).click();
+  await page.locator("h2.pin-stem").first().waitFor({ state: "visible", timeout: SLOW });
+  const a = pindahUji = Date.now();
+  bacaSesi("POST_TEST");
+  let tampil = 0;
+  for (let i = 0; i < 45; i++) { await tunggu(1000); if (await ditawarkan()) tampil++; }
+  const b = Date.now();
+  const cek = dalam(a, b, bantuan).length;
+  await shot(page, "b6-tanpa-bantuan");
+  await pilih();
+  await simpan();
+  if (!orientasi.includes(TANPA) || tampil || cek) rec.verdict = "FAIL";
+  return `the orientation says «${TANPA}» ${orientasi.includes(TANPA)}; question 1 left ${s1(b - a)} (past any window): offer shown in ${tampil} of 45 looks, help checks ${cek}; then saved`;
+});
+
+await step("B7", "the Uji Penguasaan's question 2, the browser offline: the notice; the save held; the recovery check every 5 s; back online the notice clears, «Tersimpan», the checks stop", async (rec) => {
+  if (!page || !SESI.POST_TEST) { rec.verdict = "NOT RUN"; return "B6 did not start the Uji Penguasaan"; }
   const sebelum = await periksaDalam(0, Date.now());
   await berikutnya();
   await tunggu(2000);
@@ -326,7 +342,7 @@ await step("B6", "question 4, the browser offline: the notice; the save held; th
   await simpan(false);
   await tunggu(12_000);
   const tersimpanLuring = await page.getByRole("button", { name: "Tersimpan", exact: true }).count();
-  await shot(page, "b6-luring");
+  await shot(page, "b7-luring");
   const sambung = Date.now();
   await ctx.setOffline(false);
   await page.getByText(LURING).first().waitFor({ state: "detached", timeout: 15000 });
@@ -341,8 +357,8 @@ await step("B6", "question 4, the browser offline: the notice; the save held; th
     `recovery checks while offline ${luring} in ${s1(sambung - putus)}; notice gone ${s1(hilang - sambung)} after reconnecting; «Tersimpan» ${s1(terkirim - sambung)} after; checks in the 15 s after ${setelah}`;
 });
 
-await step("B7", "question 5, PINTAR unreachable while the browser believes it is online (item 17): the notice; no help check for the held answer through the window; the first successful check sends it at once, «Tersimpan» only after the server has it, once; the checks stop", async (rec) => {
-  if (!page || !SESI) { rec.verdict = "NOT RUN"; return "B3 did not start the sitting"; }
+await step("B8", "the Uji Penguasaan's question 3, PINTAR unreachable while the browser believes it is online (item 17): the notice; no help check and no offer through it; the first successful check sends it at once, «Tersimpan» only after the server has it, once; the checks stop", async (rec) => {
+  if (!page || !SESI.POST_TEST) { rec.verdict = "NOT RUN"; return "B6 did not start the Uji Penguasaan"; }
   const lihat = await berikutnya();
   await tunggu(2000);
   await pilih();
@@ -356,7 +372,7 @@ await step("B7", "question 5, PINTAR unreachable while the browser believes it i
   // unreachable past the question's help window (first view + 25 s), so its scheduled help check falls in the gap
   await tunggu(Math.max(0, lihat + 30_000 - Date.now()));
   const sebelumPulih = await page.getByRole("button", { name: "Tersimpan", exact: true }).count();
-  await shot(page, "b7-tak-terjangkau");
+  await shot(page, "b8-tak-terjangkau");
   const sambung = Date.now();
   await ctx.unroute(kePintar, tolak);
   const pulih = await page.getByText(LURING).first().waitFor({ state: "detached", timeout: 15000 }).then(() => true, () => false);
@@ -364,10 +380,9 @@ await step("B7", "question 5, PINTAR unreachable while the browser believes it i
   const terkirim = await page.getByRole("button", { name: "Tersimpan", exact: true }).waitFor({ timeout: 15000 }).then(() => Date.now(), () => null);
   await tunggu(15_000);
   const akhir = Date.now();
-  q5Tertahan = !terkirim;
-  q5Ditawari = await ditawarkan();
+  const q5Ditawari = await ditawarkan();
   // what the server holds for this question: one final answer, when it arrived, and how
-  const q = await kini();
+  const q = await kini("POST_TEST");
   const r = sql(`select count(*) || '|' || coalesce((extract(epoch from min(received_at)) * 1000)::bigint::text, '') || '|' ||
       coalesce(string_agg(distinct receipt_mode::text, ','), '-')
     from public.responses where presented_item_id = '${uuid(q.id)}'`).split("|");
@@ -388,8 +403,8 @@ await step("B7", "question 5, PINTAR unreachable while the browser believes it i
     `answers held by the server for it ${nJawab} (${cara}); checks in the 15 s after ${setelah}; checks (s after the refusal:ok) ${catatan}`;
 });
 
-await step("B8", "the rest answered and saved; «Kumpulkan»; the result page", async (rec) => {
-  if (!page || !SESI) { rec.verdict = "NOT RUN"; return "B3 did not start the sitting"; }
+await step("B9", "the Uji Penguasaan's rest answered and saved; «Kumpulkan»; the result page", async (rec) => {
+  if (!page || !SESI.POST_TEST) { rec.verdict = "NOT RUN"; return "B6 did not start the Uji Penguasaan"; }
   let n = 0;
   while (await page.getByRole("button", { name: "Berikutnya", exact: true }).count()) {
     await berikutnya();
@@ -407,13 +422,16 @@ await step("B8", "the rest answered and saved; «Kumpulkan»; the result page", 
   await page.waitForURL((u) => u.pathname.endsWith("/hasil"), { timeout: 60000 });
   await page.locator("h1").first().waitFor({ timeout: SLOW });
   const t = norm(await page.locator("main").textContent());
-  await shot(page, "b8-hasil");
-  return `${n} more answered; result page: «${t.match(/Terjawab tepat \d+ dari \d+ soal/)?.[0] ?? t.slice(0, 80)}»`;
+  await shot(page, "b9-hasil");
+  // RESTATED (D2-R R-h): a certifying result, in counts only: «N dari M soal dijawab tepat», no percentage
+  const hitung = t.match(/\d+ dari \d+ soal dijawab tepat/)?.[0] ?? null;
+  if (!hitung || /\d\s?%/.test(t)) rec.verdict = "FAIL";
+  return `${n} more answered; result page: «${hitung ?? t.slice(0, 80)}», a percentage ${/\d\s?%/.test(t)}`;
 });
 
-await step("B9", "read back: the sitting FINALIZED, every answer stored once; help granted for questions 1 and 3 only, each at or after the window; exactly three help checks on the page; the offer's and the close's telemetry", async (rec) => {
-  if (!SESI) { rec.verdict = "NOT RUN"; return "no sitting"; }
-  const r = sql(`select s.status || '|' || (select count(*) from public.presented_items p where p.session_id = s.id) || '|' ||
+await step("B10", "read back: the Pemetaan Awal FINALIZED with help granted for questions 1 and 3 only, each at or after the window, and its telemetry; the Uji Penguasaan FINALIZED, every answer stored once, no help granted; exactly three help checks, all on the Pemetaan Awal", async (rec) => {
+  if (!SESI.PRE_TEST || !SESI.POST_TEST) { rec.verdict = "NOT RUN"; return "a sitting is missing"; }
+  const baca = (id) => sql(`select s.status || '|' || (select count(*) from public.presented_items p where p.session_id = s.id) || '|' ||
       (select count(distinct r.presented_item_id) from public.responses r where r.session_id = s.id and r.is_final) || '|' ||
       (select count(*) from (select r.presented_item_id from public.responses r where r.session_id = s.id and r.is_final group by 1 having count(*) > 1) d) || '|' ||
       coalesce((select string_agg(p.position || ':' || round(extract(epoch from g.granted_at - v.first_viewed_at)::numeric, 1), ',' order by p.position)
@@ -421,22 +439,27 @@ await step("B9", "read back: the sitting FINALIZED, every answer stored once; he
          join public.presented_item_views v on v.presented_item_id = p.id where g.session_id = s.id and g.level = 0), '-') || '|' ||
       coalesce((select string_agg(p.position || ':' || a.kind, ',' order by a.observed_at)
          from telemetry.assistance_events a join public.presented_items p on p.id = a.presented_item_id where a.session_id = s.id), '-') || '|' ||
-      (select count(*) from telemetry.hesitation_events h where h.session_id = s.id)
-    from public.assessment_sessions s where s.id = '${uuid(SESI)}'`);
-  const [status, n, diterima, ganda, diberi, tele, ragu] = r.split("|");
-  const posisi = [...butir.values()].sort((a, b) => a.pos - b.pos).map((b) => b.pos);
-  // help is expected on questions 1 and 3; on question 5 only if its answer was still held when the window passed (B7)
+      (select count(*) from telemetry.hesitation_events h where h.session_id = s.id) || '|' ||
+      (select count(*) from public.assistance_grants g where g.session_id = s.id)
+    from public.assessment_sessions s where s.id = '${uuid(id)}'`).split("|");
+  const [stPra, nPra, terimaPra, gandaPra, beriPra, telePra, raguPra] = baca(SESI.PRE_TEST);
+  const [stUji, nUji, terimaUji, gandaUji, , , , semuaUji] = baca(SESI.POST_TEST);
+  const posisi = [...butir.PRE_TEST.values()].sort((a, b) => a.pos - b.pos).map((b) => b.pos);
   const harap = [posisi[0], posisi[2]];
-  const g = diberi === "-" ? [] : diberi.split(",").map((x) => x.split(":").map(Number));
+  const g = beriPra === "-" ? [] : beriPra.split(",").map((x) => x.split(":").map(Number));
   const lain = g.filter(([p]) => !harap.includes(p));
-  const ok = status === "FINALIZED" && Number(diterima) === Number(n) && ganda === "0" &&
-    g.some(([p]) => p === posisi[0]) && g.some(([p]) => p === posisi[2]) && !lain.length && g.every(([, s]) => s >= 25) && Number(ragu) === g.length &&
-    jejak.filter((e) => e.kind === "aksi" && idBantuan.has(e.aksiId)).length === 3;
+  const cekSemua = jejak.filter((e) => e.kind === "aksi" && idBantuan.has(e.aksiId));
+  const cekUji = cekSemua.filter((e) => e.t >= pindahUji).length;
+  const ok = stPra === "FINALIZED" && Number(terimaPra) === Number(nPra) && gandaPra === "0"
+    && g.some(([p]) => p === posisi[0]) && g.some(([p]) => p === posisi[2]) && !lain.length && g.every(([, s]) => s >= 25) && Number(raguPra) === g.length
+    && stUji === "FINALIZED" && Number(terimaUji) === Number(nUji) && gandaUji === "0" && semuaUji === "0"
+    && cekSemua.length === 3 && cekUji === 0;
   if (!ok) rec.verdict = "FAIL";
   const semua = jejak.filter((e) => e.kind === "aksi");
-  writeFileSync(join(OUT, "jejak.json"), JSON.stringify(jejak.map((e) => ({ ...e, t: e.t - mulaiUji })), null, 0));
-  return `${status}; answers stored ${diterima}/${n}, duplicated ${ganda}; help granted (position: seconds after first view) ${diberi}; telemetry ${tele}; hesitations ${ragu}; ` +
-    `the Uji Penguasaan's page: ${semua.length} server actions, ${semua.filter((e) => idBantuan.has(e.aksiId)).length} of them help checks (attempted), ${probeTotal} recovery checks`;
+  writeFileSync(join(OUT, "jejak.json"), JSON.stringify(jejak.map((e) => ({ ...e, t: e.t - mulaiPra })), null, 0));
+  return `Pemetaan Awal ${stPra}; answers stored ${terimaPra}/${nPra}, duplicated ${gandaPra}; help granted (position: seconds after first view) ${beriPra}; telemetry ${telePra}; hesitations ${raguPra}; ` +
+    `Uji Penguasaan ${stUji}; answers stored ${terimaUji}/${nUji}, duplicated ${gandaUji}; help granted ${semuaUji} (a certifying sitting: 0); ` +
+    `help checks ${cekSemua.length} in all, ${cekUji} on the Uji Penguasaan; ${semua.length} server actions; ${probeTotal} recovery checks on the Uji Penguasaan`;
 });
 
 await browser.close();

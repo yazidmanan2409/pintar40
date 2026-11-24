@@ -688,8 +688,14 @@ begin
       raise exception 'Y is not the question this test needs';
     end if;
     -- the post-test: the first learner chooses B on Y, the second A; every other answer right
+    -- RESTATED (D2-R, ruling 89): a certifying result has no review for its learner (D2R-H01, H02). The F-1 rule still
+    -- governs every review a learner opens, so these two sittings are started while POST_TEST's policy row does not
+    -- certify and reveals rationale (each captures both at its start), and the row is put back at once; everything is undone as before.
+    update public.mode_policy set certifies = false, reveals_rationale_on_review = true where mode = 'POST_TEST';
     v_w := selftest.f13_kunci_duduk((v_sesi ->> 'u1')::uuid, v_post, v_y, 'B');
     v_r := selftest.f13_kunci_duduk((v_sesi ->> 'u2')::uuid, v_post, v_y, 'A');
+    perform selftest.as_owner();
+    update public.mode_policy set certifies = true, reveals_rationale_on_review = false where mode = 'POST_TEST';
     v_sebelum_w := selftest.f13_ulasan_baca(v_w);
     v_sebelum_r := selftest.f13_ulasan_baca(v_r);
 

@@ -6913,7 +6913,7 @@
     {
       "id": "Z-R15-01",
       "runner": "static",
-      "proves": "selftest/z-ux.test.ts, R-15's one-string items: reads the source file DaftarKeputusan.tsx (status joined by «, »), executes urutRingkas in src/lib/kenaikan.ts (main group first) and reads KenaikanKelas.tsx using it; the copy table's certificate column «Paket» / «Package» (X12)."
+      "proves": "selftest/z-ux.test.ts, R-15's one-string items: reads the source file DaftarKeputusan.tsx (status joined by «, »), executes urutRingkas in src/lib/kenaikan.ts (main group first) and reads KenaikanKelas.tsx using it; the copy table's certificate column «Materi Pembelajaran» / «Learning Material» (X12, restated by D2-R)."
     },
     {
       "id": "Z-Z5R-01",
@@ -7344,6 +7344,243 @@
       "id": "Z-K01-03",
       "runner": "static",
       "proves": "Z K-01 integrated check (ruling 81), selftest/z-k01-layar.test.ts, executes session_outcome and reading_map as the learner, learner.result as the teacher and percobaan_antrean as the head of department against the migrated database, rolled back, and feeds them into the screens' own rules: learner (i) (percentage met, must-be-right missed) is «belum» by the gate on the learner's page, the teacher's page, «Minta membaca lagi» and the queue; learner (ii)'s verdict changed by an approved two-person key correction reads corrected on all four, both ways."
+    },
+    {
+      "id": "D2R-D01",
+      "runner": "db",
+      "proves": "D2-R R-d, red first, selftest/db/fable39.sql: POST_TEST's policy allows no help, and on the bootstrap learner's open Uji Penguasaan, past its window, a direct open_assistance call is refused at every level.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "D2R-D02",
+      "runner": "db",
+      "proves": "D2-R R-d, red first, fable39: STANDALONE's policy allows no help, and on an open Asesmen Mandiri started by the ordinary start path, past its window, a direct open_assistance call is refused at every level.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "D2R-D03",
+      "runner": "db",
+      "proves": "D2-R R-d, red first, fable39: on the open Uji Penguasaan, assistance_state gives no window and is never due, and session_state gives the player no window.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "D2R-D04",
+      "runner": "db",
+      "proves": "D2-R R-d, red first, fable39: the same on the open Asesmen Mandiri.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "D2R-D06",
+      "runner": "db",
+      "proves": "D2-R R-d pins (the owner's condition), fable39: Pemetaan Awal and an Uji Cepat each serve levels 1 to 3 past their window; PRE_TEST, PRACTICE, QUICK and PUBLIC_DEMO allow help and none certifies.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "D2R-D07",
+      "runner": "db",
+      "proves": "D2-R R-d, red first, fable39: a sitting started while its mode allowed help keeps serving every level after the policy row stops allowing it (the policy captured at the start).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "D2R-D08",
+      "runner": "db",
+      "proves": "D2-R R-d, red first, fable39: assert_mode_policy_complete passes, and names a certifying mode that allows help (POST_TEST, planted).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "D2R-D09",
+      "runner": "db",
+      "proves": "D2-R R-d pin, fable39: TEST, EXAM and PAPER allow no help.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "D2R-D10",
+      "runner": "db",
+      "proves": "D2-R R-d, Sharon's §7.2 (c) and condition 3, selftest/db/fable39.sql: every sitting captures exactly arah, petunjuk, contoh and reveals_rationale_on_review from its mode at the start; a started sitting's capture cannot be changed; a certifying sitting cannot be started with help; with the seal bypassed the CHECK refuses a fifth key.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "D2R-H01",
+      "runner": "db",
+      "proves": "D2-R R-h, red first, fable39: session_review refuses the learner's own finished Uji Penguasaan by a direct call, as a certifying result (counts only).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "D2R-H02",
+      "runner": "db",
+      "proves": "D2-R R-h, red first, fable39: the same for a finished Asesmen Mandiri.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "D2R-H03",
+      "runner": "db",
+      "proves": "D2-R R-h, red first, fable39: reading_map on the all-right Uji Penguasaan gives no reason and no level other than revisit-advice (no KUAT).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "D2R-H04",
+      "runner": "db",
+      "proves": "D2-R R-h, red first, fable39: reading_map on the all-wrong Asesmen Mandiri gives its sections as BACA_LAGI only, with no reason drawn from the wrong options.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "D2R-H05",
+      "runner": "db",
+      "proves": "D2-R R-h, red first, fable39 (Sharon §7.2): session_outcome on both certifying sittings carries lulus and the sealed counts, and per_domain with no number for any section; one below the mark carries the server-computed revisit list (tujuan_ulang).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "D2R-H07",
+      "runner": "db",
+      "proves": "D2-R R-h, red first, fable39 (Sharon §7.2): hasil_koreksi_saya on both certifying sittings says only whether the result changed, when, and the new count; no reason, question or key.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "D2R-H12",
+      "runner": "db",
+      "proves": "D2-R R-h pins, fable39: Pemetaan Awal's reading map keeps its levels and misconception reasons; the Uji Cepat's review keeps its rows and explanations.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "D2R-H14",
+      "runner": "db",
+      "proves": "D2-R R-h, red first, fable39: with POST_TEST's policy row edited to not certify after the sitting, session_review still refuses it (the captured policy decides).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "D2R-H16",
+      "runner": "db",
+      "proves": "D2-R R-h, fable39: session_answers' result type carries no correctness, key or explanation column; it refuses a finished certifying sitting (Sharon's condition 2) and returns the learner's own Uji Cepat answers.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "D2R-H20",
+      "runner": "db",
+      "proves": "D2-R R-h, Sharon's condition 2, selftest/db/fable39.sql: every learner gate reads the captured bersertifikasi, never a mode name: an Uji Cepat marked certifying is refused by session_review and session_answers, given revisit-advice only by reading_map, no per-objective number by session_outcome and no reason by hasil_koreksi_saya.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "D2R-C01",
+      "runner": "db",
+      "proves": "D2-R R-c (rev. 4), red first, fable39: an issued, banded certificate verifies BERLAKU with predikat null; verify_certificate's OUT columns are unchanged.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "D2R-C04",
+      "runner": "db",
+      "proves": "D2-R R-c, fable39: the band stays in certificate_eligibility and the sealed payload; assert_public_surface passes.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "D2R-E01",
+      "runner": "db",
+      "proves": "D2-R R-e, fable39: an admin's extension is on the sitting and its audit row and in the teacher's sittings read; no sealed payload, verify_certificate column or identity-snapshot column carries it.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "D2R-F01",
+      "runner": "db",
+      "proves": "D2-R R-f, red first, fable39: every sitting carries percobaan_ke, the lineage count at its start (1 for each first sitting), which cannot be changed afterwards; no public read, payload or snapshot carries it.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "D2R-H18",
+      "runner": "static",
+      "proves": "D2-R R-h (rev. 4), selftest/d2r.test.ts, read from the schema (pg_get_functiondef of every function a client may execute, and pg_get_viewdef of every view it may read): the list guard in Z-D1-02's form over those that reach answer-bearing data; each is staff, lesson or restricted (a restricted one reads the sitting's captured policy); a planted plpgsql reader, BEGIN ATOMIC reader and view are each named.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "D2R-H11",
+      "runner": "static",
+      "proves": "D2-R R-h, red first, d2r.test.ts, executes the source of src/lib/assessment-engine/jaga-hasil.ts: the engine's result-side check throws on a certifying result carrying a key, a mark, an explanation or per-objective mastery, and leaves a non-certifying one untouched."
+    },
+    {
+      "id": "D2R-H08",
+      "runner": "static",
+      "proves": "D2-R R-h, red first, d2r.test.ts, reads the source of src/app/belajar/[tugas]/hasil/page.tsx, src/lib/hasil-belajar.ts, src/components/siklus/HasilBersertifikasi.tsx and src/components/laporan/KomposisiMurid.tsx: a certifying result is drawn in Daisy's order through HasilBersertifikasi, its review is never asked for, and none of the review's words or figures is drawn."
+    },
+    {
+      "id": "D2R-H15",
+      "runner": "static",
+      "proves": "D2-R R-h, d2r.test.ts, reads the source of every route file under src/app: no learner route sets Content-Disposition (no learner export exists)."
+    },
+    {
+      "id": "D2R-C02",
+      "runner": "static",
+      "proves": "D2-R R-c, red first, d2r.test.ts, reads the source of src/components/sertifikat/KartuSertifikat.tsx, src/app/verifikasi/[token]/page.tsx and src/app/belajar/[tugas]/sertifikat/page.tsx: none renders a band."
+    },
+    {
+      "id": "D2R-C03",
+      "runner": "static",
+      "proves": "D2-R R-c (rev. 4), red first, d2r.test.ts, reads the source of every .tsx file under src/app and src/components: none renders a band outside the internal reports; a planted render site is named."
+    },
+    {
+      "id": "D2R-W01",
+      "runner": "static",
+      "proves": "D2-R strings of record (Daisy's D2R-KATA.md dc275f6a; spec R-a, R-b; rev. 4's alignments), red first, d2r.test.ts, read from the copy table (src/lib/hle.ts): each reads word for word in ID and EN."
+    },
+    {
+      "id": "D2R-G01",
+      "runner": "static",
+      "proves": "D2-R R-g, red first, d2r.test.ts, executes src/lib/siklus.ts (penguasaanTerbuka) and reads the source of src/app/belajar/[tugas]/page.tsx: after Pemetaan Awal with lessons unread the chapter page offers Uji Penguasaan after «Lanjut membaca», with siklus.siap.saran."
+    },
+    {
+      "id": "D2R-D05",
+      "runner": "static",
+      "proves": "D2-R R-d at the player, red first, d2r.test.ts, reads the source of src/app/belajar/_components/PermukaanAsesmen.tsx and src/components/siklus/OrientasiAsesmen.tsx: the player's help window is session_state's (withheld by the database on a certifying sitting); the orientation promises help only with the window and says posttest.tanpa_bantuan."
+    },
+    {
+      "id": "D2R-H21",
+      "runner": "static",
+      "proves": "D2-R ruling 74a item 2 (the owner via Bob 04:02Z), red first, d2r.test.ts, the rendered HTML of src/components/siklus/HasilBersertifikasi.tsx: a certifying «Lulus.» with an objective below the mark advises «Baca lagi:» it with hasil.baca_lagi_arti, shows no percentage and no retake line; with nothing to read again it draws none."
+    },
+    {
+      "id": "D2R-C05",
+      "runner": "static",
+      "proves": "D2-R ruling 74a item 4, Daisy's §9 and her ruling on the null case, Sharon's delta note, N-22, red first, d2r.test.ts, executes keadaanSertifikat in src/lib/sertifikat-kontrak.ts, renders src/components/siklus/HasilBersertifikasi.tsx and reads src/app/belajar/[tugas]/hasil/page.tsx: ELIGIBLE gives «sertifikat.disiapkan.judul.» and the link; ISSUED, REVOKED, SUPERSEDED the link alone; no row or a failed read nothing; directly after the «Lulus» banner, the link screen-only, never .arti, before «Baca lagi:»; «Belum lulus.» links to none."
+    },
+    {
+      "id": "D2R-C06",
+      "runner": "static",
+      "proves": "D2-R Daisy's C-1 and her ruling on the null case, red first, d2r.test.ts, the rendered HTML of src/components/laporan/KomposisiMurid.tsx and reads src/lib/hasil-belajar.ts: a certifying «Lulus» row whose certificate exists or is being prepared links to /belajar/{tugas}/sertifikat with siklus.lihat_sertifikat (screen-only), one with no certificate links to none; a «Belum lulus» row and a non-certifying row do not; the library reads each certifying pass's certificate."
+    },
+    {
+      "id": "D2R-L01",
+      "runner": "static",
+      "proves": "Ruling 90, Daisy's D2R-KATA §10 (ccd42fa6), red first, d2r.test.ts, executes the copy table and reads supabase/migrations/20261119100000_a_staff_member_reports_a_problem.sql and src/lib/lapor-masalah.ts: lapor.langkah.awal and lapor.langkah.awal_kelas read word for word in ID and EN and name no time period (a planted period is caught); a new report is DITERIMA, the status enum's first value, and the triage list orders open reports by status, then stops_class first."
+    },
+    {
+      "id": "D2R-C07",
+      "runner": "static",
+      "proves": "Daisy's D2R-KATA §11 (deacb184), red first, d2r.test.ts, the rendered HTML of src/components/laporan/KomposisiMurid.tsx and reads src/lib/hasil-belajar.ts: every certifying row, Lulus or Belum lulus, gives its sections in hasilbelajar.baca_lagi and marks them hasilbelajar.baca_lagi_tanda by name in section B with no figure; more than two are counted in hasilbelajar.baca_lagi_banyak; non-certifying rows keep hasilbelajar.ulang and «pelajari lagi»."
+    },
+    {
+      "id": "D2R-C08",
+      "runner": "static",
+      "proves": "H-1 (Daisy's recheck of 5dace1ad, the owner's ruling), red first, d2r.test.ts, the rendered HTML of src/components/laporan/KomposisiMurid.tsx: a certifying row on Hasil Belajar and its print shows no Uji Penguasaan, Pemetaan Awal or target percentage, no bar or marks, while keeping its verdict and «{b} dari {t} soal»; the comparison line and the bar legend are drawn only with a non-certifying row; a non-certifying row is unchanged."
+    },
+    {
+      "id": "D2R-F02",
+      "runner": "static",
+      "proves": "D2-R R-f, red first, d2r.test.ts, reads the source of src/components/siklus/HasilBersertifikasi.tsx: the certifying result shows the attempt ordinal from session_outcome."
+    },
+    {
+      "id": "R1-K01",
+      "runner": "db",
+      "proves": "R-1 (Z-READINESS, 4.1 closure; Sharon's ruling), selftest/db/r1.sql: after the school's admin ends the bootstrap learner's enrolment (akhiri_pendaftaran, WITHDRAWN), the open sitting is TERMINATED; a new start of a second assignment, may_continue_session, assistance_state, record_answer and finish_my_session are each refused as the learner; nothing is added.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "R1-K02",
+      "runner": "db",
+      "proves": "R-1, r1.sql: after a transfer (transfer_minta, transfer_terima, transfer_execute) to the synthetic beta school, the open sitting is TERMINATED and start, resume, answer and submit are each refused.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "R1-K03",
+      "runner": "db",
+      "proves": "R-1, r1.sql: after the class moves up into the next school year (kenaikan_tetapkan), the old class's open sitting is TERMINATED and start, resume, answer and submit are each refused.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     }
   ]
 }

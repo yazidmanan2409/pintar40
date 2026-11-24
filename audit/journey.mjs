@@ -1678,7 +1678,10 @@ await step("S21", "five students take Bab 1's pre-test and post-test to plan; st
       }
       await s.locator("h1").first().waitFor({ timeout: SLOW });
       const t = await bodyText(s);
-      const m = t.match(/Terjawab tepat (\d+) dari (\d+) soal/);
+      // RESTATED (D2-R, R-h, Daisy's D2R-KATA §3): an Uji Penguasaan is a certifying result, drawn in counts only:
+      // «N dari M soal dijawab tepat» and the decision «Lulus.» / «Belum lulus.» (was «Terjawab tepat N dari M soal» and
+      // «Target tercapai.» / «Belum mencapai target.»); what to read again is «Baca lagi:» ([data-baca-lagi])
+      const m = t.match(/(\d+) dari (\d+) soal dijawab tepat/);
       // D-085 M3 (W4): the page says whether the target was met; the expectation is the attempt's own seal and result
       const putusan = sql(`select (r.safety_gate_passed and r.mastery >= s.pass_mark)::text || '|' || s.pass_mark
         from public.assessment_sessions s join public.assessment_results r on r.session_id = s.id and r.supersedes_result_id is null
@@ -1686,13 +1689,13 @@ await step("S21", "five students take Bab 1's pre-test and post-test to plan; st
        where s.learning_assignment_id = '${tugas}' and s.mode = 'POST_TEST' and p.display_name = '${k.nama}'
        order by s.created_at desc limit 1`).trim();
       const [lulus, batas] = putusan.split("|");
-      const harapTarget = lulus === "true" ? "Target tercapai." : "Belum mencapai target.";
+      const harapTarget = lulus === "true" ? "Lulus." : "Belum lulus.";
       const targetOk = t.includes(harapTarget) && batas === "0.60" && (plan.post / SOAL.post >= 0.6 || lulus === "false")
-        && (lulus === "true" || await s.locator("#ulang a[href*='/pelajaran/']").count() > 0);
+        && (lulus === "true" || await s.locator("[data-baca-lagi] a[href*='/pelajaran/']").count() > 0);
       const ok = m && Number(m[1]) === plan.post && Number(m[2]) === SOAL.post && !pre.unknown && !post.unknown && targetOk;
       if (!ok) rec.verdict = "FAIL";
       if (i === 0 || w3) rec.shots.push(await shot(s, `d064-murid${i + 1}-hasil`));
-      out.push(`${k.nama}: pre ${pre.right}/${pre.answered}, post ${post.right}/${post.answered}${w3 ? " (the last answer chosen, not saved)" : ""}; «Kumpulkan» ${post.ditanya ? "asked first" : "handed in at once"}; the page says "${m?.[0] ?? "no 'Terjawab tepat' line"}" and "${harapTarget}" ${t.includes(harapTarget)} (sealed ${batas}, lulus ${lulus})${ok ? "" : w3 ? " MISMATCH: the unsaved answer was lost at «Kumpulkan» (W3)" : " MISMATCH"}`);
+      out.push(`${k.nama}: pre ${pre.right}/${pre.answered}, post ${post.right}/${post.answered}${w3 ? " (the last answer chosen, not saved)" : ""}; «Kumpulkan» ${post.ditanya ? "asked first" : "handed in at once"}; the page says "${m?.[0] ?? "no 'dijawab tepat' line"}" and "${harapTarget}" ${t.includes(harapTarget)} (sealed ${batas}, lulus ${lulus})${ok ? "" : w3 ? " MISMATCH: the unsaved answer was lost at «Kumpulkan» (W3)" : " MISMATCH"}`);
     } catch (e) {
       rec.verdict = "FAIL";
       rec.shots.push(await shot(s, `d064-murid${i + 1}-berhenti`));
@@ -1978,7 +1981,10 @@ const UUID = /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/;
 // STU-16 (J6.12): a student comes back to a finished chapter and reviews it. The review is her own: each question of
 // the Uji Penguasaan with whether she had it and her own answer, and the explanation the chapter gives; nothing of the
 // machinery (no internal word, no identifier, no weighting) and nobody else's answers.
-await step("S21h", "a student comes back to her finished chapter from her home («Lihat hasil») and reviews it: her own answers, each question's explanation, nothing internal and nobody else's (STU-16, J6.12)", async (rec) => {
+// RESTATED (D2-R, R-h, ruling 74; Daisy's D2R-KATA §3, §8): the Uji Penguasaan is a certifying result, which discloses
+// counts only: no question under review, no answer, no explanation; the counts «N dari M soal dijawab tepat» for her own
+// sitting and the line saying what is not shown. Still nothing internal and nobody else's.
+await step("S21h", "a student comes back to her finished chapter from her home («Lihat hasil»): her certifying result shows her own counts and says the answers and each question's result are not shown; no per-question review, nothing internal and nobody else's (STU-16, J6.12; D2-R R-h)", async (rec) => {
   if (!terbitBab || kartuKelas.length < MURID.length) { rec.verdict = "BLOCKED"; return !terbitBab ? "Bab 1 was not published (S17)" : "class cards missing (S20)"; }
   const tugas = tugasBab();
   const k = kartuKelas[0];
@@ -2002,16 +2008,18 @@ await step("S21h", "a student comes back to her finished chapter from her home (
         join public.persons p on p.id = ss.person_id
        where ss.learning_assignment_id = '${tugas}' and d.mode::text = 'POST_TEST' and p.display_name = '${k.nama}'
        order by ss.created_at desc limit 1)`).trim() || 0);
-    for (let i = 0; i < n; i++) await butir.nth(i).locator("summary").click();
     const teks = norm(await s.locator("main").innerText());
     rec.shots.push(await shot(s, "stu16-tinjau"));
-    const milikSendiri = (await s.locator(".pin-tinjau .pin-mine").count()) > 0;
+    const jawaban = await s.locator(".pin-tinjau .pin-mine").count();
+    const hitung = teks.match(/(\d+) dari (\d+) soal dijawab tepat/);
+    const TIDAK = "Pada Uji Penguasaan, jawaban yang tepat dan hasil tiap soal tidak ditampilkan."; // hasil.tidak_ditampilkan (§8)
+    const tidakDitampilkan = teks.includes(TIDAK);
     const orangLain = MURID.filter((m) => m !== k.nama && teks.includes(m));
     const internal = KATA_INTERNAL.exec(teks)?.[0] ?? null;
     const pengenal = UUID.exec(teks)?.[0] ?? null;
-    if (n === 0 || n !== harap || !milikSendiri || orangLain.length || internal || pengenal) rec.verdict = "FAIL";
-    return `${k.nama} reached «${norm(await s.locator("h1").first().innerText())}» from her home; ${n} question(s) under review (her Uji Penguasaan had ${harap}); ` +
-      `her own answers shown ${milikSendiri}; other learners named ${orangLain.length ? orangLain.join(", ") : "none"}; internal word ${internal ?? "none"}; identifier ${pengenal ?? "none"}`;
+    if (n !== 0 || jawaban !== 0 || !hitung || Number(hitung[2]) !== harap || !tidakDitampilkan || orangLain.length || internal || pengenal) rec.verdict = "FAIL";
+    return `${k.nama} reached «${norm(await s.locator("h1").first().innerText())}» from her home; ${n} question(s) under review and ${jawaban} answer(s) shown (a certifying result: 0 and 0); ` +
+      `the counts «${hitung?.[0] ?? "none"}» (her Uji Penguasaan had ${harap}); «tidak ditampilkan» said ${tidakDitampilkan}; other learners named ${orangLain.length ? orangLain.join(", ") : "none"}; internal word ${internal ?? "none"}; identifier ${pengenal ?? "none"}`;
   } catch (e) {
     rec.verdict = "FAIL";
     rec.shots.push(await shot(s, "stu16-berhenti"));
@@ -2910,7 +2918,8 @@ await step("S23l", "«Laporkan masalah»: the teacher reports a problem from /me
       `«${saya1.status}» «${saya1.langkah}»; in the database ${r0.slice(1, 8).join(" | ")}, audited ${diterimaAudit}`);
     if (dari !== "/mengajar" || halaman !== "Halaman: Mengajar" ||   // RV-1 (D-140): the place in words, never its path
         !diterima || saya1.ada !== 1 || saya1.status !== "Diterima"
-        || !saya1.langkah.includes("Admin sekolah atau tim PINTAR akan melihatnya dalam satu hari sekolah.")        // hle.ts:2783
+        // RESTATED (ruling 90, Daisy's D2R-KATA §10): no response within a set period is promised
+        || !saya1.langkah.includes("Laporan ini sudah tersimpan. Admin sekolah Anda dan tim PINTAR dapat membacanya.")        // lapor.langkah.awal
         || r0[1] !== "DITERIMA" || r0[2] !== people.guru.name || r0[3] !== "EDUCATOR" || r0[4] !== namaSd || r0[5] !== "/mengajar"
         || r0[6] !== "false" || r0[7] !== "true" || diterimaAudit !== 1) { rec.verdict = "FAIL"; if (!id) return notes.join("; "); }
 

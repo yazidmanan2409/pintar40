@@ -239,12 +239,14 @@ async function jawab(page, mode, right) {
   return { answered: done.length, right: done.filter((d) => d.right).length, unknown: done.filter((d) => !d.known).length, ditanya };
 }
 const target = (n, dari) => Math.round(n * dari);
-// what the result page says: "Terjawab tepat X dari Y soal" and whether the school's target was met (M3)
+// what the result page says (M3). RESTATED (D2-R R-h, ruling 74a): the Uji Penguasaan is a certifying result: «N dari M
+// soal dijawab tepat» and «Lulus.» / «Belum lulus.» (was «Terjawab tepat N dari M soal» and «Target tercapai.» /
+// «Belum mencapai target.»), with no mastery percentage
 async function bacaHasil(page) {
   await page.locator("h1").first().waitFor({ timeout: SLOW });
   const t = norm(await page.locator("main").innerText().catch(() => ""));
-  const m = t.match(/Terjawab tepat (\d+) dari (\d+) soal/);
-  return { tepat: m ? Number(m[1]) : null, dari: m ? Number(m[2]) : null, tercapai: t.includes("Target tercapai."), belum: t.includes("Belum mencapai target.") };
+  const m = t.match(/(\d+) dari (\d+) soal dijawab tepat/);
+  return { tepat: m ? Number(m[1]) : null, dari: m ? Number(m[2]) : null, tercapai: /\bLulus\./.test(t), belum: t.includes("Belum lulus."), persen: /\d\s?%/.test(t) };
 }
 
 // the sittings one student has in this chapter, by mode: J6.2 (opening a test's page starts nothing) is read here
@@ -279,15 +281,16 @@ async function bacaSemua(p, pelajaran, foto = false) {
 }
 // J6.11 on a result page: the learner's own growth, Pemetaan Awal → Uji Penguasaan, as the plan makes it; and no rank,
 // class average or other learner anywhere on it
+// J6.11. RESTATED (D2-R R-h, ruling 91): a certifying result shows no Pemetaan Awal → Uji Penguasaan comparison (was
+// «a% → b%» matching the plan); still no other learner and no rank or average
 async function tumbuh(p, nama, pre, post) {
   const t = norm(await p.locator("main").innerText().catch(() => ""));
   const m = t.match(/(\d+)\s?%\s*→\s*(\d+)\s?%/);
-  const awal = Math.round((100 * pre.right) / SOAL.pre), akhir = Math.round((100 * post.right) / SOAL.post);
-  const tumbuhOk = Boolean(m) && Math.abs(Number(m[1]) - awal) <= 1 && Math.abs(Number(m[2]) - akhir) <= 1;
+  const tumbuhOk = !m && !/Perubahan dari Pemetaan Awal/.test(t);
   const lain = MURID.filter((n) => n !== nama && t.includes(n));
   const peringkat = /peringkat|ranking|rata-rata|rerata|urutan ke|juara/i.test(t);
   return { ok: tumbuhOk && !lain.length && !peringkat,
-    kata: `growth ${m ? `${m[1]}% → ${m[2]}%` : "not shown"} (planned ${awal}% → ${akhir}%); ${lain.length ? `names ${lain.join(", ")}` : "no other learner"}; ${peringkat ? "a rank or average shown" : "no rank or average"}` };
+    kata: `growth ${m ? `${m[1]}% → ${m[2]}% (shown on a certifying result: MISMATCH)` : "not shown, as a certifying result withholds it"}; ${lain.length ? `names ${lain.join(", ")}` : "no other learner"}; ${peringkat ? "a rank or average shown" : "no rank or average"}` };
 }
 
 // ── M2–M5: the primary student, every step by clicking
@@ -345,9 +348,9 @@ await step("M5", `GS-15 (J6.2, J6.10, J6.11, J6.15): the post-test by that link;
   const h = await bacaHasil(U);
   const g = await tumbuh(U, MURID[0], pre0, post);
   await shot(U, "m5-hasil");
-  if (sebelum !== 0 || post.unknown || h.tepat !== post.right || h.dari !== SOAL.post || !h.tercapai || !post.ditanya || !g.ok) rec.verdict = "FAIL";
+  if (sebelum !== 0 || post.unknown || h.tepat !== post.right || h.dari !== SOAL.post || !h.tercapai || h.persen || !post.ditanya || !g.ok) rec.verdict = "FAIL";
   return `sittings before «Mulai Uji Penguasaan»: ${sebelum} (J6.2); answered ${post.answered}/${SOAL.post}, ${post.right} right as planned; «Kumpulkan» asked first ${post.ditanya}; ` +
-    `the page says "Terjawab tepat ${h.tepat} dari ${h.dari} soal", «Target tercapai.» ${h.tercapai}; J6.11: ${g.kata}`;
+    `the page says "${h.tepat} dari ${h.dari} soal dijawab tepat", «Lulus.» ${h.tercapai}, a percentage ${h.persen}; J6.11: ${g.kata}`;
 });
 await U.context().close();
 
@@ -370,9 +373,9 @@ await step("M6", "GS-16: the four other students, each by clicking as the primar
       const post = await jawab(s, "post", target(SOAL.post, RENCANA[i][1]));
       const h = await bacaHasil(s);
       const lulus = RENCANA[i][1] >= 0.7;
-      const ok = !pre.unknown && !post.unknown && h.tepat === post.right && (lulus ? h.tercapai : h.belum);
+      const ok = !pre.unknown && !post.unknown && h.tepat === post.right && (lulus ? h.tercapai : h.belum) && !h.persen;
       if (!ok) rec.verdict = "FAIL";
-      out.push(`${MURID[i]} (landed ${di}): pre ${pre.right}/${pre.answered}; read ${pelajaran.length} lesson(s) by clicking; post ${post.right}/${post.answered}; the page: ${lulus ? "«Target tercapai.»" : "«Belum mencapai target.»"} ${lulus ? h.tercapai : h.belum}${ok ? "" : " MISMATCH"}`);
+      out.push(`${MURID[i]} (landed ${di}): pre ${pre.right}/${pre.answered}; read ${pelajaran.length} lesson(s) by clicking; post ${post.right}/${post.answered}; the page: ${lulus ? "«Lulus.»" : "«Belum lulus.»"} ${lulus ? h.tercapai : h.belum}, a percentage ${h.persen}${ok ? "" : " MISMATCH"}`);
     } catch (e) {
       rec.verdict = "FAIL";
       await shot(s, `m6-murid${i + 1}-berhenti`);

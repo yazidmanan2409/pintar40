@@ -10,7 +10,7 @@
  *                tile); the sheet asks for Q and nothing else does.
  *  B6C-SHEET-01  the frozen composition, rendered from the real KartuSertifikat and measured in .pin-sheet: A4 in mm;
  *                the header pair at 22 mm on a 20 mm margin (the title in the accent, the wordmark slot on its baseline
- *                at a 3.15 mm cap height, ≥ 15 mm wide); name 33 pt, «telah menuntaskan» 12 pt, the course 16.5 pt;
+ *                at a 3.15 mm cap height, ≥ 15 mm wide); name 33 pt, the achievement line 12 pt, the course 16.5 pt;
  *                the record's labels right-aligned to the axis, ending 16 mm above the line; the number in Plex Mono
  *                12 pt, never broken, stepping 12 → 10.5 → 9.75 pt; the gold line centred at 176 mm, 0.75 mm; the
  *                band 176-210 mm inset 10 mm with «Diterbitkan oleh» 9 pt over the school 16.5 pt; the verification
@@ -244,7 +244,7 @@ export const b6cTests: SelfTest[] = [
         return !x ? NaN : x.endsWith("pt") ? parseFloat(x) : x.endsWith("px") ? pxKePt(x) : NaN;
       };
       c.expect(ukur(nama["font-size"]) === 33, `the name is ${ukur(nama["font-size"])} pt, not 33`);
-      c.expect(ukur(done["font-size"]) === 12, `«telah menuntaskan» is ${ukur(done["font-size"])} pt, not 12`);
+      c.expect(ukur(done["font-size"]) === 12, `the achievement line is ${ukur(done["font-size"])} pt, not 12`);
       c.expect(ukur(kursus["font-size"]) === 16.5, `the course is ${ukur(kursus["font-size"])} pt, not 16.5`);
       const capaian = dari(".pin-sheet .pin-s-capaian");
       c.expect(capaian.top === "36mm" && capaian["justify-content"] === "center" && capaian["text-align"] === "center",
@@ -311,9 +311,12 @@ export const b6cTests: SelfTest[] = [
         c.expect(i > at, `the sheet's «${k}» is missing or out of Daisy's order`);
         if (i > at) at = i;
       }
-      c.expect(/<h1 class="pin-name">Bagas Saputra<\/h1>/.test(a) && /<p class="pin-done">telah menuntaskan<\/p>/.test(a)
-        && a.includes("Matematika · Bab 4"), "the achievement is not the name, «telah menuntaskan», the course (the dot kept with its subject)");
-      c.expect(/<p class="pin-s-jenis">Sertifikat Penguasaan<\/p>/.test(a), "the header's title is not sertifikat.jenis");
+      // RESTATED (D2-R R-a, R-b; Daisy's D2R-KATA.md §1): the achievement is R-b's one sentence, its words before the course
+      // on pin-done, the course in its place on pin-course with the sentence's full stop; the title is «Sertifikat»
+      c.expect(/<h1 class="pin-name">Bagas Saputra<\/h1>/.test(a)
+        && a.includes('<p class="pin-done">Telah dinyatakan memenuhi kriteria kelulusan yang ditetapkan berdasarkan hasil asesmen pada Materi Pembelajaran:</p>')
+        && a.includes('<p class="pin-course">Matematika · Bab 4.</p>'), "the achievement is not the name, R-b's sentence and the course in its place (the dot kept with its subject)");
+      c.expect(/<p class="pin-s-jenis">Sertifikat<\/p>/.test(a), "the header's title is not sertifikat.jenis («Sertifikat», R-a)");
       c.expect(/<p class="pin-s-label">Diterbitkan oleh<\/p><p class="pin-inst">SMP Cahaya Kaliandra<\/p>/.test(a),
         "the band is not «Diterbitkan oleh» over the school's name as recorded");
       c.expect(/<dd class="pin-s-nomor">7Q2Z0D9K\/00001<\/dd>/.test(a), "the number is not one unbroken value at 12 pt");
@@ -321,7 +324,7 @@ export const b6cTests: SelfTest[] = [
         "a professional-learning sheet is not sage, or a 55-character number did not step down to 9.75 pt");
       return c.verdict("the sheet is Daisy's frozen composition, measured: A4 in mm; the header pair at 22 mm on the 20 mm margin, the title " +
         "12 pt in the accent and the wordmark slot (one component, today's approved logo) at a 3.15 mm cap height, ≥ 15 mm wide, on its " +
-        "baseline; name 33 pt, «telah menuntaskan» 12 pt, course 16.5 pt; the record on the axis ending 16 mm above the line, the number " +
+        "baseline; name 33 pt, the achievement line 12 pt, course 16.5 pt; the record on the axis ending 16 mm above the line, the number " +
         "Plex Mono 12 pt unbroken and stepping 12 → 10.5 → 9.75 pt; the gold line centred at 176 mm, 0.75 mm; the band 176-210 mm inset 10 mm; " +
         "the verification group 92 + 12 + 26 mm at 236 mm; plum or sage by learning context; nothing at phone width narrows it");
     },
@@ -372,13 +375,14 @@ export const b6cTests: SelfTest[] = [
       }
       c.expect(t("sertifikat.penerbit" as HleEvent, "learner", { locale: "id" }) === "Diterbitkan oleh"
         && t("sertifikat.penerbit" as HleEvent, "learner", { locale: "en" }) === "Issued by", "«Diterbitkan oleh» is not the certificate's own key");
+      // RESTATED (D2-R R-b): the achievement is Daisy's sentence of record, in both languages, with the course in its place
       const en = t("sertifikat.diberikan", "learner", { locale: "en" });
-      c.expect(t("sertifikat.diberikan", "learner", { locale: "id" }) === "telah menuntaskan" && en !== "has completed" && /mastery/.test(en),
-        `the English of «telah menuntaskan» still underclaims: «${en}» (Daisy §4)`);
+      c.expect(t("sertifikat.diberikan", "learner", { locale: "id" }).startsWith("Telah dinyatakan memenuhi kriteria kelulusan") && en.includes("{kursus}")
+        && en !== "has completed" && /passing criteria/.test(en), `the achievement's English is not R-b's: «${en}»`);
       return c.verdict("printing the certificate yields one A4 page: the sheet takes @page sertifikat (A4 portrait, margin 0), is exactly " +
         "210 × 297 mm, never breaks and keeps its colours; a page holding it prints nothing else, and every part around it is pin-noprint; " +
-        "one action «Cetak atau simpan PDF» names the saved file «Sertifikat Penguasaan · <course>» and gives the tab its title back; " +
-        "«Diterbitkan oleh» and the English of «telah menuntaskan» are the certificate's own keys");
+        "one action «Cetak atau simpan PDF» names the saved file «Sertifikat · <course>» (D2-R R-a) and gives the tab its title back; " +
+        "«Diterbitkan oleh» and R-b's achievement sentence, in both languages, are the certificate's own keys");
     },
   },
   {
@@ -448,13 +452,14 @@ export const b6cTests: SelfTest[] = [
         c.expect(!/<svg|pin-s-tautan|pin-chip|verifikasi\//.test(h), `${nama} of a certificate that is not issued shows a QR or a link`);
       }
       const v = teks(a);
-      for (const x of ["Bagas Saputra", "Matematika · Bab 4", "SMP Cahaya Kaliandra", "7Q2Z0D9K/00001", "Predikat Baik", "Tanggal terbit 6 Oktober 2026"]) {
+      for (const x of ["Bagas Saputra", "Matematika · Bab 4", "SMP Cahaya Kaliandra", "7Q2Z0D9K/00001", "Tanggal terbit 6 Oktober 2026"]) {
         c.expect(v.includes(x), `the sheet does not read «${x}» from the credential`);
       }
-      c.expect(!teks(tanpa).includes("Predikat") && !/—/.test(teks(tanpa)), "a certificate with no descriptor draws a descriptor line");
+      // RESTATED (D2-R R-c, rev. 4): the band is never drawn, with or without one in the credential
+      c.expect(!v.includes("Predikat") && !teks(tanpa).includes("Predikat") && !/—/.test(teks(tanpa)), "a certificate draws a descriptor line");
       return c.verdict("the data rules are unchanged: the sheet renders only for ISSUED, a revoked or other non-issued certificate shows no QR " +
         "or link on screen or sheet and keeps its «dicabut» banner; the verification URL is the page's own (appUrl + /verifikasi/ + the token), " +
-        "the sheet's QR decodes to it exactly and the printed link is it without https://; name, course, school, number, date and descriptor are the credential's");
+        "the sheet's QR decodes to it exactly and the printed link is it without https://; name, course, school, number and date are the credential's, and no band is drawn (D2-R R-c)");
     },
   },
 ];

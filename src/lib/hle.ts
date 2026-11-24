@@ -162,7 +162,7 @@ export type HleEvent =
   | "laporan.komposisi.pita_ket" | "laporan.komposisi.saran" | "laporan.komposisi.penguatan_soal" | "laporan.komposisi.soal_wajib_belum"
   | "config.menunggu.alasan.kartu" | "config.menunggu.alasan.email" | "config.menunggu.alasan.pendataan"
   | "hasilbelajar.judul" | "hasilbelajar.cakupan" | "hasilbelajar.a" | "hasilbelajar.b" | "hasilbelajar.b_arti"
-  | "hasilbelajar.belum_ada" | "hasilbelajar.semua_capai" | "hasilbelajar.capai" | "hasilbelajar.selesai" | "hasilbelajar.ulang" | "hasilbelajar.ulang_banyak"
+  | "hasilbelajar.belum_ada" | "hasilbelajar.semua_capai" | "hasilbelajar.capai" | "hasilbelajar.selesai" | "hasilbelajar.ulang" | "hasilbelajar.ulang_banyak" | "hasilbelajar.baca_lagi" | "hasilbelajar.baca_lagi_banyak" | "hasilbelajar.baca_lagi_tanda" | "hasilbelajar.berikutnya_baca_lagi"
   | "hasilbelajar.awal" | "hasilbelajar.akhir" | "hasilbelajar.target" | "hasilbelajar.berjalan"
   | "hasilbelajar.nilai" | "hasilbelajar.tercapai" | "hasilbelajar.belum_capai" | "hasilbelajar.pelajari_lagi"
   | "hasilbelajar.lanjutkan" | "hasilbelajar.berikutnya_ulang" | "hasilbelajar.buka_bab" | "hasilbelajar.sertifikat"
@@ -866,6 +866,19 @@ export type HleEvent =
   | "sertifikat.penerbit"
   | "sertifikat.berkas"
   | "sertifikat.predikat"
+  | "siklus.siap.saran"
+  | "posttest.tanpa_bantuan"
+  | "posttest.tanpa_bantuan_umum"
+  | "hasil.lulus"
+  | "hasil.lulus_arti"
+  | "hasil.belum_lulus"
+  | "hasil.belum_lulus_arti"
+  | "hasil.baca_lagi"
+  | "hasil.baca_lagi_arti"
+  | "hasil.ulang_boleh"
+  | "hasil.dijawab_tepat"
+  | "hasil.tidak_ditampilkan"
+  | "hasil.percobaan_ke"
   | "sertifikat.tanggal"
   | "sertifikat.periksa.judul"
   | "sertifikat.periksa.arti"
@@ -4148,7 +4161,8 @@ const table: Table = {
   "verifikasi.judul": { default: "Verifikasi Sertifikat", en: "Certificate Verification" },
   "verifikasi.status": { default: "Status", en: "Status" },
   "verifikasi.hasil": { default: "Hasil", en: "Result" },
-  "verifikasi.lulus": { default: "Memenuhi capaian", en: "Achieved" },
+  // D2-R §6.3a (Daisy): agrees with «kriteria kelulusan» on the certificate and the result
+  "verifikasi.lulus": { default: "Lulus", en: "Passed" },
   "verifikasi.belum_lulus": { default: "Belum memenuhi capaian", en: "Not yet achieved" },
   "verifikasi.predikat": { default: "Predikat", en: "Grade" },
   "verifikasi.institusi": { default: "Diterbitkan oleh", en: "Issued by" },
@@ -4181,7 +4195,8 @@ const table: Table = {
   "sertifikat.kelola.kolom.pemegang": { default: "Pemegang", en: "Holder" },
   "sertifikat.kelola.kolom.nomor": { default: "Nomor sertifikat", en: "Certificate number" },
   "sertifikat.kelola.kolom.sekolah": { default: "Sekolah", en: "School" },
-  "sertifikat.kelola.kolom.kursus": { default: "Paket Pembelajaran", en: "Learning Package" },
+  // D2-R rev. 4: one name for one concept, R-b's «Materi Pembelajaran» (reverses Z7's C-3)
+  "sertifikat.kelola.kolom.kursus": { default: "Materi Pembelajaran", en: "Learning Material" },
   "sertifikat.kelola.kolom.terbit": { default: "Diterbitkan", en: "Issued" },
   "sertifikat.kelola.kolom.keadaan": { default: "Keadaan", en: "State" },
   "sertifikat.kelola.kolom.tindakan": { default: "Tindakan", en: "Action" },
@@ -4827,11 +4842,29 @@ const table: Table = {
   "sertifikat.status.ISSUED": { default: "Berlaku", en: "Valid" },
   "sertifikat.status.REVOKED": { default: "Dicabut", en: "Revoked" },
   "sertifikat.status.SUPERSEDED": { default: "Digantikan", en: "Replaced" },
-  "sertifikat.jenis": { default: "Sertifikat Penguasaan", en: "Certificate of Mastery" },
-  "sertifikat.diberikan": { default: "telah menuntaskan", en: "has met the mastery standard in" },
+  // D2-R R-a (Daisy's D2R-KATA.md §1): the certificate's name, without «Penguasaan»
+  "sertifikat.jenis": { default: "Sertifikat", en: "Certificate" },
+  // D2-R R-b (Daisy's final wording, ruling 59; «Materi Pembelajaran», rev. 4): one sentence, the course in its place
+  "sertifikat.diberikan": { default: "Telah dinyatakan memenuhi kriteria kelulusan yang ditetapkan berdasarkan hasil asesmen pada Materi Pembelajaran: {kursus}.", en: "Has been declared to meet the passing criteria set on the basis of assessment results in the Learning Material: {kursus}." },
   "sertifikat.penerbit": { default: "Diterbitkan oleh", en: "Issued by" },
-  "sertifikat.berkas": { default: "Sertifikat Penguasaan · {kursus}", en: "Certificate of Mastery · {kursus}" },
+  "sertifikat.berkas": { default: "Sertifikat · {kursus}", en: "Certificate · {kursus}" },
   "sertifikat.predikat": { default: "Predikat", en: "Grade" },
+  // D2-R (Daisy's D2R-KATA.md, ux-1 dc275f6a): R-g's advisory line, the pre-start «no help» line, and R-h's result words
+  "siklus.siap.saran": { default: "Uji Penguasaan sudah dapat dikerjakan. Sebaiknya baca semua pelajaran lebih dulu.", en: "You can take the Mastery Check now. It is best to read every lesson first." },
+  "posttest.tanpa_bantuan": { default: "Selama Uji Penguasaan, petunjuk, contoh, dan arah berpikir tidak tersedia.", en: "During the Mastery Check, hints, examples and thinking prompts are not available." },
+  "posttest.tanpa_bantuan_umum": { default: "Selama asesmen ini, petunjuk, contoh, dan arah berpikir tidak tersedia.", en: "During this assessment, hints, examples and thinking prompts are not available." },
+  "hasil.lulus": { default: "Lulus.", en: "Passed." },
+  "hasil.lulus_arti": { default: "Hasil Uji Penguasaan ini memenuhi kriteria kelulusan bab ini.", en: "This Mastery Check result meets this chapter's passing criteria." },
+  "hasil.belum_lulus": { default: "Belum lulus.", en: "Not passed yet." },
+  "hasil.belum_lulus_arti": { default: "Hasil Uji Penguasaan ini belum memenuhi kriteria kelulusan bab ini.", en: "This Mastery Check result does not meet this chapter's passing criteria yet." },
+  // §6 (no evidence threshold in 4.1, Sharon): one revisit list, so «Baca lagi:» without «juga», and the advice-not-judgement note
+  "hasil.baca_lagi": { default: "Baca lagi:", en: "Read again:" },
+  "hasil.baca_lagi_arti": { default: "Bagian ini disarankan untuk dibaca lagi. Saran ini bukan penilaian atas penguasaan Anda pada bagian ini.", en: "These parts are suggested for reading again. This is advice, not a judgement of your mastery of them." },
+  "hasil.ulang_boleh": { default: "Anda dapat mengerjakan Uji Penguasaan lagi sesuai aturan sekolah. Tanyakan kepada guru Anda kapan dapat mengulang.", en: "You can take the Mastery Check again under your school's rules. Ask your teacher when you can retake it." },
+  "hasil.dijawab_tepat": { default: "dijawab tepat", en: "answered right" },
+  "hasil.tidak_ditampilkan": { default: "Pada Uji Penguasaan, jawaban yang tepat dan hasil tiap soal tidak ditampilkan.", en: "In a Mastery Check, the right answers and the result of each question are not shown." },
+  // D2-R R-f: PROVISIONAL, for Daisy (no string of record yet): the attempt ordinal on the learner's result
+  "hasil.percobaan_ke": { default: "Kesempatan ke-{n}", en: "Attempt {n}" },
   "sertifikat.tanggal": { default: "Tanggal terbit", en: "Issue date" },
   "sertifikat.periksa.judul": { default: "Periksa keaslian", en: "Check it is genuine" },
   "sertifikat.periksa.arti": { default: "Pindai kode ini atau buka tautannya. Halaman itu memastikan sertifikat ini benar diterbitkan dan masih berlaku.", en: "Scan this code or open the link. That page confirms this certificate was genuinely issued and is still valid." },
@@ -5284,6 +5317,12 @@ const table: Table = {
   "hasilbelajar.selesai": { default: "{n} bab sudah selesai.", en: "{n} chapters are finished." },
   "hasilbelajar.ulang": { default: "Pelajari lagi: {daftar}.", en: "Study again: {daftar}." },
   "hasilbelajar.ulang_banyak": { default: "Ada {n} bagian untuk dipelajari lagi; semuanya ditandai «pelajari lagi» di bagian B.", en: "There are {n} parts to study again; each is marked «study again» in section B." },
+  // Daisy's D2R-KATA §11: a certifying row, passed or not, advises reading again in «baca lagi»'s own words
+  "hasilbelajar.baca_lagi": { default: "Disarankan dibaca lagi: {daftar}.", en: "Suggested for reading again: {daftar}." },
+  "hasilbelajar.baca_lagi_banyak": { default: "Ada {n} bagian yang disarankan untuk dibaca lagi; semuanya ditandai «baca lagi» di bagian B.", en: "{n} parts are suggested for reading again; each is marked «read again» in section B." },
+  "hasilbelajar.baca_lagi_tanda": { default: "baca lagi", en: "read again" },
+  // Daisy's §12: the C line on a certifying «Belum lulus» row quotes the mark its section B shows
+  "hasilbelajar.berikutnya_baca_lagi": { default: "Baca lagi bagian yang ditandai «baca lagi» ({daftar}), lalu tanyakan kepada guru langkah berikutnya.", en: "Read again the parts marked «read again» ({daftar}), then ask your teacher for the next step." },
   "hasilbelajar.awal": { default: "Pemetaan Awal", en: "Initial Mapping" },
   "hasilbelajar.akhir": { default: "Uji Penguasaan", en: "Mastery Check" },
   "hasilbelajar.target": { default: "Target bab ini", en: "This chapter's target" },
@@ -5360,8 +5399,9 @@ const table: Table = {
   "lapor.saya.kosong": { default: "Anda belum pernah mengirim laporan.", en: "You have not sent a report yet." },
   "lapor.saya.buka": { default: "Laporan saya", en: "My reports" },
   "lapor.langkah": { default: "Langkah berikutnya:", en: "Next step:" },
-  "lapor.langkah.awal": { default: "Admin sekolah atau tim PINTAR akan melihatnya dalam satu hari sekolah.", en: "Your school admin or the PINTAR team will look at it within one school day." },
-  "lapor.langkah.awal_kelas": { default: "Karena menghentikan kelas, laporan ini dijawab pada hari sekolah yang sama.", en: "Because it is stopping a class, this report is answered the same school day." },
+  // ruling 90 (Daisy D2R-KATA §10): no response within a set period is promised until a monitored process can keep it
+  "lapor.langkah.awal": { default: "Laporan ini sudah tersimpan. Admin sekolah Anda dan tim PINTAR dapat membacanya.", en: "This report is saved. Your school admin and the PINTAR team can read it." },
+  "lapor.langkah.awal_kelas": { default: "Laporan ini ditandai menghentikan kelas. Admin sekolah Anda dan tim PINTAR melihat tanda itu, dan laporan ini tampil lebih dulu di antara laporan yang belum ditangani.", en: "This report is marked as stopping a class. Your school admin and the PINTAR team see that mark, and it is listed first among reports not yet handled." },
   "lapor.status.DITERIMA": { default: "Diterima", en: "Received" },
   "lapor.status.DITANGANI": { default: "Ditangani", en: "Being handled" },
   "lapor.status.SELESAI": { default: "Selesai", en: "Resolved" },
@@ -8110,7 +8150,8 @@ const table: Table = {
   // final words (Bob 11:02Z): the next step names who acts, the sending school, which alone can request again.
   "galat.transfer_source_closed": { default: "Pendaftaran murid ini di sekolah asalnya sudah ditutup setelah permintaan pindah ini dibuat, misalnya karena kenaikan kelas. Perpindahan tidak dijalankan, dan tidak ada yang berubah. Sekolah asal perlu mengajukan perpindahan baru dari pendaftaran murid yang berlaku sekarang.", en: "This student's enrolment at the sending school closed after this transfer was requested, for example at the year-end promotion. The transfer was not carried out, and nothing changed. The sending school needs to request a new transfer from the student's current enrolment." },
   // Z3-A: K-01 (one verdict: the gate as the reason), the gate-unknown state (Sharon's Q3), V2's retake line. Daisy's final words.
-  "hasil.target.belum_gerbang": { default: "Persentase penguasaan bab ini sudah memenuhi target, tetapi ada soal penting yang belum dijawab dengan tepat. Karena itu target bab ini belum tercapai. Tanyakan kepada guru Anda langkah berikutnya.", en: "Your mastery percentage for this chapter meets the target, but an important question was not answered correctly. So this chapter's target is not reached yet. Ask your teacher about the next step." },
+  // D2-R (Daisy's D2R-KATA.md §3): the K-01 gate line ends «belum lulus»
+  "hasil.target.belum_gerbang": { default: "Persentase penguasaan bab ini sudah memenuhi target, tetapi ada soal penting yang belum dijawab dengan tepat. Karena itu Uji Penguasaan ini belum lulus. Tanyakan kepada guru Anda langkah berikutnya.", en: "Your mastery percentage for this chapter meets the target, but an important question was not answered correctly. So this Mastery Check is not passed yet. Ask your teacher about the next step." },
   "mengajar.murid1.gerbang": { default: "belum mencapai target: soal penting belum tepat · target {p}", en: "target not reached: an important question is not right yet · target {p}" },
   "mengajar.murid1.gerbang_tak_diketahui": { default: "belum dapat disimpulkan apakah target tercapai · target {p}", en: "whether the target is reached cannot be concluded yet · target {p}" },
   "mengajar.murid1.gerbang_tak_diketahui_arti": { default: "Data soal penting untuk hasil ini tidak dapat dibaca sekarang. Muat ulang halaman ini nanti.", en: "The important-question data for this result cannot be read right now. Reload this page later." },
@@ -8124,7 +8165,7 @@ const table: Table = {
   // Z8 item 8 (Daisy e53c612e, via Bob 13:22Z): the closure refused, the last usable school administrator; names no school
   "akun.tinggal.galat.account_last_school_admin": { default: "Permintaan ini tidak diajukan: Anda satu-satunya Admin sekolah yang masih aktif di sekolah Anda, jadi akun Anda belum dapat ditutup. Tunjuk Admin sekolah lain lebih dulu di Peran & akses, lalu ajukan lagi. Bila tidak ada orang lain, hubungi Admin PINTAR.", en: "This request was not made: you are the only active school administrator at your school, so your account cannot be closed yet. Appoint another school administrator in Roles & access first, then ask again. If there is no one else, contact an Admin PINTAR." },
   // Daisy's Z3-A verdict C-1 (29a4e841): the summary's gate case says why the target is not reached
-  "hasilbelajar.gerbang": { default: "Ada soal penting yang belum tepat, jadi target bab ini belum tercapai.", en: "An important question is not right yet, so this chapter's target is not reached." },
+  "hasilbelajar.gerbang": { default: "Ada soal penting yang belum tepat, jadi Uji Penguasaan bab ini belum lulus.", en: "An important question is not right yet, so this chapter's Mastery Check is not passed yet." },
 };
 
 /** Words that must never appear on a learner-facing surface (doc 12 "complexity leaking"). */

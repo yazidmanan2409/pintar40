@@ -31,6 +31,7 @@ import {
   type OpenAssessment,
   type Orientation,
 } from "./types";
+import { jagaHasil } from "./jaga-hasil";
 
 /**
  * Structurally typed so this module never names a concrete client. A
@@ -273,7 +274,9 @@ export async function dismissAssistance(db: EngineClient, presentedItemId: strin
 
 // --------------------------------------------------------------------- results
 export async function outcome(db: EngineClient, sessionId: string): Promise<Outcome | null> {
-  return (await call(db, "session_outcome", { p_session: sessionId })) as Outcome | null;
+  const o = (await call(db, "session_outcome", { p_session: sessionId })) as Outcome | null;
+  // D2-R (R-h): a certifying result reaches a page with counts only, or not at all
+  return o ? jagaHasil(o, o.bersertifikasi) : o;
 }
 
 export async function review(db: EngineClient, sessionId: string) {
@@ -284,7 +287,9 @@ export async function review(db: EngineClient, sessionId: string) {
 }
 
 export async function readingMap(db: EngineClient, sessionId: string): Promise<ReadingMapCard[]> {
-  return rows<ReadingMapCard>(await call(db, "reading_map", { p_session: sessionId }));
+  const r = rows<ReadingMapCard>(await call(db, "reading_map", { p_session: sessionId }));
+  // D2-R (R-h): a certifying result's lines are revisit-advice (BACA_LAGI) and carry no reason
+  return jagaHasil(r, r.some((x) => x.tingkat === "BACA_LAGI"));
 }
 
 export async function delta(db: EngineClient, learningAssignmentId: string): Promise<Delta> {

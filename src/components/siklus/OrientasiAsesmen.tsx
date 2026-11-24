@@ -74,6 +74,12 @@ export default function OrientasiAsesmen({
         <p className="pin-eyebrow">{eyebrow}</p>
         <h1 className="pin-h1">{judul}</h1>
         <p className="pin-intro">{s(mode === "PEMETAAN" ? "pretest.intro" : "posttest.intro")}</p>
+        {/* D2-R R-d (Daisy §5.1): an Uji Penguasaan says, before it starts, that it offers no help. The database decides
+            (the window is withheld on a mode that offers none); this line is drawn on an Uji Penguasaan given no window. A
+            certifying Asesmen Mandiri has its own line (Daisy via Bob 02:06Z), drawn when the database says the sitting
+            will certify (bersertifikasi, per Sharon), never from the mode name alone */}
+        {orientasi.mode === "POST_TEST" && orientasi.hesitation_window_seconds == null ? <p className="pin-sub" data-tanpa-bantuan="">{s("posttest.tanpa_bantuan")}</p> : null}
+        {orientasi.mode === "STANDALONE" && orientasi.bersertifikasi === true ? <p className="pin-sub" data-tanpa-bantuan="umum">{s("posttest.tanpa_bantuan_umum")}</p> : null}
       </div>
 
       <div className="pin-orient">

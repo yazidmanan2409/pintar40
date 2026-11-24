@@ -795,8 +795,9 @@ export const zUxStaticTests: SelfTest[] = [
       c.expect(/urutRingkas\(g\)\.map\(/.test(kk), "the review's summary does not use urutRingkas");
       // 3. X12: the certificate list's column names the package
       // (Daisy's Z7 review, C-3: the concept's full name, as studio.paket.judul has it)
-      kata(c, [["sertifikat.kelola.kolom.kursus", "Paket Pembelajaran", "Learning Package"]], "staff");
-      return c.verdict("R-15's one-string items: reads DaftarKeputusan.tsx (Kenaikan step 2's status joined by «, »), executes src/lib/kenaikan.ts's urutRingkas (the review summary names the main group first, then the others in step 2's fixed outcome order, whatever order the learners came in) and reads KenaikanKelas.tsx using it; the copy table's certificate column «Paket» / «Package» (X12)");
+      // RESTATED (D2-R, rev. 4's alignment, Daisy's D2R-KATA.md): the column is «Materi Pembelajaran» / «Learning Material»
+      kata(c, [["sertifikat.kelola.kolom.kursus", "Materi Pembelajaran", "Learning Material"]], "staff");
+      return c.verdict("R-15's one-string items: reads DaftarKeputusan.tsx (Kenaikan step 2's status joined by «, »), executes src/lib/kenaikan.ts's urutRingkas (the review summary names the main group first, then the others in step 2's fixed outcome order, whatever order the learners came in) and reads KenaikanKelas.tsx using it; the copy table's certificate column «Materi Pembelajaran» / «Learning Material» (X12, restated by D2-R)");
     },
   },
   {

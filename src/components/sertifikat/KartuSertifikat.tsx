@@ -67,22 +67,15 @@ export default function KartuSertifikat({
       <div>
         <p className="pin-eyebrow">{s("sertifikat.jenis")}</p>
         <h1 className="pin-name">{cred.nameAsIssued}</h1>
-        <p className="pin-done">{s("sertifikat.diberikan")}</p>
-        <p className="pin-course">{cred.course}</p>
+        <KalimatCapaian kalimat={s("sertifikat.diberikan")} kursus={cred.course} />
       </div>
 
       <hr />
 
       <div>
         <dl className="pin-facts">
-          {/* D-121(a): PINTAR's descriptor has no band below 70%, so a learner who passed a lower school mark holds a
-              certificate with no descriptor, and the line is absent rather than a dash */}
-          {cred.predikat ? (
-            <div>
-              <dt>{s("sertifikat.predikat")}</dt>
-              <dd>{cred.predikat}</dd>
-            </div>
-          ) : null}
+          {/* D2-R R-c (rev. 4): the band is not rendered on the certificate; it stays in eligibility, the snapshot and the
+              internal reports */}
           <div>
             <dt>{s("sertifikat.tanggal")}</dt>
             <dd className="pin-num">{format.date(cred.issuedAtIso, locale, cred.zona)}</dd>
@@ -144,18 +137,11 @@ function LembarSertifikat({ cred, locale, konteks }: { cred: Kredensial; locale:
 
       <div className="pin-s-capaian">
         <h1 className="pin-name">{cred.nameAsIssued}</h1>
-        <p className="pin-done">{s("sertifikat.diberikan")}</p>
-        <p className="pin-course">{kursus}</p>
+        <KalimatCapaian kalimat={s("sertifikat.diberikan")} kursus={kursus} />
       </div>
 
       <dl className="pin-s-rekam">
-        {/* D-121(a): no descriptor, no line — never a dash */}
-        {cred.predikat ? (
-          <div>
-            <dt>{s("sertifikat.predikat")}</dt>
-            <dd>{cred.predikat}</dd>
-          </div>
-        ) : null}
+        {/* D2-R R-c (rev. 4, C1-R4): the printable record renders no band either */}
         <div>
           <dt>{s("sertifikat.tanggal")}</dt>
           <dd>{format.date(cred.issuedAtIso, locale, cred.zona)}</dd>
@@ -183,5 +169,21 @@ function LembarSertifikat({ cred, locale, konteks }: { cred: Kredensial; locale:
         </div>
       ) : null}
     </div>
+  );
+}
+
+/**
+ * D2-R R-b (Daisy's final wording, ruling 59): ONE SENTENCE, the course in its place. The sentence is the copy table's
+ * («…pada Materi Pembelajaran: {kursus}.»); the course keeps its own line and weight (pin-course), as the frozen A4 grid
+ * set it, and the sentence's words before and after it stay with it.
+ */
+function KalimatCapaian({ kalimat, kursus }: { kalimat: string; kursus: string }) {
+  const i = kalimat.indexOf("{kursus}");
+  if (i < 0) return <><p className="pin-done">{kalimat}</p><p className="pin-course">{kursus}</p></>;
+  return (
+    <>
+      <p className="pin-done">{kalimat.slice(0, i).trimEnd()}</p>
+      <p className="pin-course">{kursus}{kalimat.slice(i + "{kursus}".length)}</p>
+    </>
   );
 }
