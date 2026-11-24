@@ -65,3 +65,10 @@ Bob paces the work. The usage allowance is shared by every session.
 - **No waste.** Use focused tests during development, a full verification only at the acceptance boundary (ruling 93), and no speculative reruns. Messages stay short.
 - **If a session hits a usage limit, it stops cleanly.** It commits its work-in-progress notes (never a half-finished push to a PR), resumes after the reset from its own record, and never reports partial work as done.
 - **Quality isn't traded for pace.** If the allowance runs short, the work takes longer; it doesn't get thinner.
+
+## 5 · Owner decisions collected for the closure report (none blocks the work tonight)
+
+| # | Decision | Needed before | Recommendation |
+|---|---|---|---|
+| OD-1 | **CI-2: a reinstated or reopened account signs in with a fresh credential** (a password reset; a new PIN from the school) | CI-2's merge | Accept (Sharon). The alternative, restoring the old password hash, isn't recommended |
+| OD-2 | Merge and staging promotion of CI-1, CI-2 and AR-79, in order, each with its own evidence | Each merge | — |

@@ -48,3 +48,51 @@ The same discipline as D2-R and CI-1: one frozen candidate, the full pre-flight,
 ## 5 · Build order
 
 Second Eye has already started CI-1 (small, and frozen first). **CI-2 is next and prioritised.** Sharon's pre-build review of this spec runs now, in parallel, so CI-2 starts as soon as CI-1 freezes.
+
+## 6 · Sharon's pre-build review (`CI-2-PREBUILD-918ed195.md`, 24 Nov): CORRECT IN DIRECTION, with these amendments, binding for the build
+
+**Four additions from her sweep:**
+1. `pintar_kunci_tetap_jaga` (`20270117160000`) re-bans every account of a locked person. **Replace it with «rotate and revoke any account created for a locked person»**, or L-78 returns.
+2. `admin_akun_dapat_masuk` (Z8 item 8) reads `banned_until`. It's still safe through `admin_dapat_dipakai`'s person checks, but **restate it so no reader trusts `banned_until`**.
+3. **Restate every `akun_kunci` path:**
+   - suspension;
+   - closure;
+   - the sitting-management lock;
+   - reinstatement;
+   - reopening;
+   - anonymisation.
+4. **Assert `banned_until` is null everywhere**, plus a static check that no function writes it.
+
+**(a) Rotation alone isn't enough.**
+- **On lock:** also clear the recovery, confirmation, email-change and reauthentication tokens, and revoke sessions and refresh tokens.
+- **A link requested during the lock:** `/recover` answers 200 for everyone, so the link reaches only the email's owner, and its session is refused by `periksa` and shown the locked page.
+- **Reinstatement and reopening re-key again**, so a password or email set during the lock is never a way back in.
+
+**(b) The card's real secret is the PIN** (`person_pins`). The Auth password is derived from it (`card.ts:11`), so rotation locks the card. **The school's PIN reset must write both the PIN and the derived Auth password:** prove it, or add the write.
+
+**(c) Staging counts, read only, before and after** (the query is in her record):
+
+| Count | BEFORE | AFTER |
+|---|---|---|
+| banned | read | **0** |
+| accounts of locked persons | read | **unchanged** |
+| banned but not locked | read | — |
+| live refresh tokens of locked persons | read | **0** |
+
+The write is bounded to exactly the BEFORE count of locked accounts.
+
+**(d) Anonymisation relies on the ban today.** Under CI-2 it rotates, revokes and clears tokens, and the deletion path never reaches `akun_kunci(…, false)`.
+
+**The five confirmations (ruling 98), conditional on the above:**
+
+| Requirement | Sharon |
+|---|---|
+| Suspension | Preserved, with no workaround |
+| Reinstatement | Preserved, **with a fresh credential** |
+| Recovery | Preserved |
+| Historical records | Preserved: only Auth credential and token columns are written |
+| Institutional authorisation | Preserved |
+
+**Plants Q1–Q9** are in her record.
+
+**OWNER DECISION, before CI-2's merge:** a reinstated account signs in with a **fresh credential**. A staff member resets their password; a learner gets a new PIN from the school. **This is a UX change, to be accepted knowingly** (Daisy writes the on-screen words). Sharon doesn't recommend the alternative, keeping and restoring the old password hash. The build proceeds on Sharon's recommendation; the merge waits for the owner's acceptance.
