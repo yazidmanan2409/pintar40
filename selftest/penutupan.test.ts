@@ -107,21 +107,18 @@ export const penutupanTests: SelfTest[] = [
         kasus.forEach((k, i) => {
           const v = teks(html[i] ?? "");
           const nama = `the ${k.variant} with ${k.predikat ? `«${k.predikat}»` : "no descriptor"}`;
-          if (k.predikat) {
-            c.expect(v.includes(`${label} ${k.predikat}`), `${nama} does not read «${label} ${k.predikat}»: "${v.slice(0, 200)}"`);
-          } else {
-            c.expect(!v.includes(label) && !/—/.test(v), `${nama} still draws a descriptor line: "${v.slice(0, 200)}"`);
-          }
+          // RESTATED (D2-R R-c, rev. 4): the band is not rendered on the certificate at all; a credential that carries one
+          // («Baik», «Cukup») draws no «Predikat» line either, and none draws a dash
+          c.expect(!v.includes(label) && !/—/.test(v), `${nama} draws a descriptor line: "${v.slice(0, 200)}"`);
           c.expect(v.includes("A14CD7ST/00001") && v.includes("Bunga Lestari"), `${nama} lost the rest of the certificate`);
         });
       }
       // the public check is a server page with a fetch: its source draws the descriptor only when there is one
       const cek = readFileSync(join(ctx.repoRoot, "src", "app", "verifikasi", "[token]", "page.tsx"), "utf8");
-      c.expect(/\{row!\.predikat \? \(\s*<div>\s*<dt>\{s\("verifikasi\.predikat"\)\}<\/dt>\s*<dd>\{row!\.predikat\}<\/dd>/.test(cek)
-        && !/row!\.predikat \?\? "—"/.test(cek), "the public check still draws a descriptor line (or a dash) when there is no descriptor");
+      c.expect(!/row!\.predikat/.test(cek) && !/verifikasi\.predikat/.test(cek), "the public check still draws a descriptor line (D2-R R-c)");
       return c.verdict(
-        `rendered from the real KartuSertifikat on screen and on the sheet, a certificate with no descriptor has no «${label}» line ` +
-        "and no dash, and one with «Baik» or «Cukup» reads it; the public check draws the descriptor only when there is one (D-121(a))");
+        `rendered from the real KartuSertifikat on screen and on the sheet, no certificate has a «${label}» line or a dash, whether ` +
+        "its credential carries «Baik», «Cukup» or none (D2-R R-c, rev. 4); the public check draws no descriptor");
     },
   },
   {

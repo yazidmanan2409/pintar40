@@ -1,0 +1,65 @@
+# bukti-s1-start · 2026-11-23T22:54:45Z · commit 61bb1e3e
+
+## plant: a defect that stops next start (the server's register() throws), on a healthy machine; one app test selected
+
+$ git status --short src/instrumentation.ts
+?? src/instrumentation.ts
+[rc=0]
+
+## RED: the runner as it was at 61bb1e3e reads the missing app facility as INFRA, VOID: the defect is hidden
+
+$ bash scripts/dev/.preflight-61bb1e3e.sh --langkah=suite --keluar=/root/pintar-preflight/bukti-s1-start-lama -- --only=F01-R01
+== bersih: bersih: 0 removed, 0; 4 kept
+== siap: READY
+FAIL   suite  rc=1: FAILED  F01-R01  GET / → 500; GET /masuk → 500; unauthenticated /konfigurasi → 500 (no redirect); expected redirect to /masuk; unauthenticated POST /api/assets/upload-url → 500, expected 401; 
+preflight: RUN RED (/root/pintar-preflight/bukti-s1-start-lama)
+[rc=1]
+
+$ bash -c grep -E '^(PASS|FAIL|INFRA|RUN|rows)' '/root/pintar-preflight/bukti-s1-start-lama/SUMMARY.txt'; grep -m3 -iE 'planted|refuses|could not start|did not start' '/root/pintar-preflight/bukti-s1-start-lama/suite.log' | cut -c1-200
+FAIL   suite  rc=1: FAILED  F01-R01  GET / → 500; GET /masuk → 500; unauthenticated /konfigurasi → 500 (no redirect); expected redirect to /masuk; unauthenticated POST /api/assets/upload-url → 500, expected 401; 
+rows: 24 classed; 1 FAIL, 0 INFRA (ROWS.txt)
+RUN RED
+F01-T20     PASS    the whole schema in 146 ms; of four planted entry points, the one guarded two calls down passes and the unguarded one, the one naming the checks only in comments and the one using 
+[rc=0]
+
+## GREEN: the runner now: the machine is healthy, so «facility missing: app» is FAIL and the run is RED
+
+$ scripts/dev/preflight.sh --langkah=suite --keluar=/root/pintar-preflight/bukti-s1-start -- --only=F01-R01
+== bersih: bersih: 1 removed, 428; 4 kept
+== siap: READY
+FAIL   suite  rc=1: 1 FAIL row(s), first F01-R01 GET / → 500; GET /masuk → 500; unauthenticated /konfigurasi → 500 (no redirect); expected redirect to /masuk; unauthenticated POST /api/assets/upload-url 
+preflight: RUN RED (/root/pintar-preflight/bukti-s1-start)
+[rc=1]
+
+$ bash -c grep -E '^(PASS|FAIL|INFRA|RUN|rows)' '/root/pintar-preflight/bukti-s1-start/SUMMARY.txt'; cat '/root/pintar-preflight/bukti-s1-start/ROWS.txt'
+FAIL   suite  rc=1: 1 FAIL row(s), first F01-R01 GET / → 500; GET /masuk → 500; unauthenticated /konfigurasi → 500 (no redirect); expected redirect to /masuk; unauthenticated POST /api/assets/upload-url 
+rows: 24 classed; 1 FAIL, 0 INFRA (ROWS.txt; the machine healthy through the step)
+RUN RED
+F01-T01     PASS   PASS
+F01-T02     PASS   PASS
+F01-T03     PASS   PASS
+F01-T04     PASS   PASS
+F01-T05     PASS   PASS
+F01-T06     PASS   PASS
+F01-T07     PASS   PASS
+F01-T08     PASS   PASS
+F01-T09     PASS   PASS
+F01-T10     PASS   PASS
+F01-T11     PASS   PASS
+F01-T12     PASS   PASS
+F01-T13     PASS   PASS
+F01-T13b    PASS   PASS
+F01-T14     PASS   PASS
+F01-T15     PASS   PASS
+F01-T16     PASS   PASS
+F01-T17     PASS   PASS
+F01-T18     PASS   PASS
+F01-T19     PASS   PASS
+F01-T20     PASS   PASS
+F01-T21     PASS   PASS
+F01-T22     PASS   PASS
+F01-R01     FAIL   FAIL
+[rc=0]
+
+$ git status --short src
+[rc=0]

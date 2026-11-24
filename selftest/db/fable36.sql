@@ -815,7 +815,12 @@ begin
       v_j2 := public.session_outcome(v_dsess);
       v_n := case when public.sesi_saya_dihitung_ulang(v_dsess) then 1 else 0 end;
       perform selftest.as_owner();
-      if (v_j2 ->> 'penguasaan')::numeric is distinct from 0.20 or (v_j2 -> 'per_domain' -> 'E1' ->> 'penguasaan')::numeric is distinct from 0.20 then
+      -- RESTATED (D2-R, ruling 74a; Sharon §7.2): a certifying result's per_domain carries no figure per objective; its
+      -- sealed objectives reach the learner as the server's revisit list from the sealed result (E1 sealed at 20%, under the mark)
+      if (v_j2 ->> 'penguasaan')::numeric is distinct from 0.20
+         or (case when (v_j2 ->> 'bersertifikasi')::boolean
+                  then (v_j2 -> 'per_domain' -> 'E1') is distinct from '{}'::jsonb or not coalesce(v_j2 -> 'tujuan_ulang' ? 'E1', false)
+                  else (v_j2 -> 'per_domain' -> 'E1' ->> 'penguasaan')::numeric is distinct from 0.20 end) then
         d14 := d14 || format('the learner''s own page no longer shows the sealed 20%% and its sealed objectives: %s', left(coalesce(v_j2::text, 'nothing'), 200));
       end if;
       if v_n <> 1 then d14 := d14 || 'the learner is not told their sitting was recalculated'::text; end if;

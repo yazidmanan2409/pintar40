@@ -140,7 +140,15 @@ update public.responses r set value = ${lit(mode.jawab!)}::jsonb from public.pre
 set local session_replication_role = origin;`;
   const tqe = `public.teacher_question_evidence('${d.tugas}', '${kelas}')`;
   const m = (x: string) => `md5(coalesce(${x}, ''))`;
-  return psql(`begin;${mode.pembaca300 ?? ""}${ubah}
+  // RESTATED (D2-R, ruling 74): a certifying sitting's learner reads no review and no reasons. D-1's readers still serve
+  // every sitting that is not certifying, so in this rolled-back world the seeded sitting is one (its capture, set past
+  // the seal as only the harness can), and the learner's two readers are read as D-1 left them
+  const tangkap = `
+set local session_replication_role = replica;
+update public.assessment_sessions set bersertifikasi = false,
+  assistance_policy = jsonb_set(assistance_policy, '{reveals_rationale_on_review}', 'true') where id = '${sesi}';
+set local session_replication_role = origin;`;
+  return psql(`begin;${mode.pembaca300 ?? ""}${ubah}${tangkap}
 select 'stat|' || ${satu ? `(select evidence_count || ':' || correct_count from public.service_item_statistics where item_id = '${soal}')` : `(select ${m("string_agg(x::text, '|' order by x.item_id)")} from public.service_item_statistics x)`};
 select 'uptake|' || ${satu ? `coalesce((select string_agg(label || ':' || chosen_count, ',' order by label) from public.service_distractor_uptake where item_id = '${soal}'), '-')` : `(select ${m("string_agg(x::text, '|' order by x.item_id, x.label)")} from public.service_distractor_uptake x)`};
 select 'cohort|' || ${satu ? `coalesce((select string_agg(distinct misconception_code, ',') from public.service_cohort_misconceptions where class_node_id = '${kelas}'), '-')` : `(select ${m("string_agg(x::text, '|' order by x::text)")} from public.service_cohort_misconceptions x)`};

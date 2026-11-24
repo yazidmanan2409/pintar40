@@ -676,22 +676,27 @@ await step("J11", "student 1 takes the post-test and hands it in (7 of 8 right, 
   return `${viaUi ? "opened from a link" : "WORKAROUND: opened by typing /belajar/<tugas>/penguasaan (no link offered, J10)"}; answered ${r.answered}, meant right ${r.right}, not in the key ${r.unknown}; now on ${new URL(S.url()).pathname}; session ${after}`;
 });
 
+// RESTATED (D2-R R-h, ruling 74a, ruling 91): the Uji Penguasaan is a certifying result, in counts only: «N dari M soal
+// dijawab tepat» and the decision «Lulus.» / «Belum lulus.»; no mastery percentage and no Pemetaan Awal comparison (was
+// «Terjawab tepat N dari M soal», the big percentage and «a% → b%»)
 async function hasil(page, plan) {
   const t = await text(page);
-  const m = t.match(/Terjawab tepat (\d+) dari (\d+) soal/);
-  const big = norm(await page.locator("p.pin-big2").first().innerText().catch(() => ""));
+  const m = t.match(/(\d+) dari (\d+) soal dijawab tepat/);
+  const besar = await page.locator("p.pin-big2").count();
   const delta = t.match(/(\d+)\s*%\s*→\s*(\d+)\s*%/);
-  const want = { right: plan.post, of: N_POST, pct: Math.round((100 * plan.post) / N_POST), pre: Math.round((100 * plan.pre) / N_PRE) };
-  const ok = m && Number(m[1]) === want.right && Number(m[2]) === want.of && Math.abs(parseInt(big, 10) - want.pct) <= 1
-    && (!delta || (Math.abs(Number(delta[1]) - want.pre) <= 1 && Math.abs(Number(delta[2]) - want.pct) <= 1));
-  return { ok, said: `${big}; "${m?.[0] ?? "no 'Terjawab tepat' line"}"; change ${delta ? `${delta[1]}% → ${delta[2]}%` : "not shown"}`, want: `${want.right}/${N_POST} = ${want.pct}%, pre ${want.pre}%`, t };
+  const keputusan = /\bLulus\./.test(t) ? "Lulus." : /Belum lulus\./.test(t) ? "Belum lulus." : null;
+  const want = { right: plan.post, of: N_POST };
+  const ok = m && Number(m[1]) === want.right && Number(m[2]) === want.of && besar === 0 && !delta && keputusan !== null && !/\d\s?%/.test(t);
+  return { ok, said: `"${m?.[0] ?? "no 'dijawab tepat' line"}", ${keputusan ?? "no decision"}; a percentage shown ${besar > 0 || /\d\s?%/.test(t)}; comparison ${delta ? `${delta[1]}% → ${delta[2]}%` : "not shown"}`, want: `${want.right}/${N_POST}, a decision, no percentage, no comparison`, t };
 }
 await step("J12", "student 1 reads the result: the numbers match what was answered; review; what next", ["STU-15", "STU-16", "STU-17", "STU-18", "X-09"], async (rec) => {
   rec.page = S;
   if (!new URL(S.url()).pathname.endsWith("/hasil")) return blocked(rec, "not on the result page");
   rec.shots.push(await shot(S, "siswa1-hasil"));
   const h = await hasil(S, PLAN[0]);
+  // RESTATED (D2-R R-h): a certifying result has no per-question review; it says what is not shown
   const review = await S.locator("details.pin-item").count();
+  const tidakDitampilkan = h.t.includes("Pada Uji Penguasaan, jawaban yang tepat dan hasil tiap soal tidak ditampilkan.");
   const rank = /peringkat|rata-rata kelas/i.test(h.t);
   const next0 = await S.getByRole("link", { name: /Apa berikutnya/ }).first().getAttribute("href");
   await S.getByRole("link", { name: /Apa berikutnya/ }).first().click();
@@ -699,8 +704,8 @@ await step("J12", "student 1 reads the result: the numbers match what was answer
   await S.locator("h1").first().waitFor({ timeout: SLOW });
   rec.shots.push(await shot(S, "siswa1-lanjut"));
   const next = await text(S);
-  if (!h.ok || rank) rec.verdict = "FAIL";
-  return `the page says ${h.said}; expected ${h.want}; questions to review: ${review}; any rank or class average: ${rank}; "Apa berikutnya" (${next0}) → ${new URL(S.url()).pathname}: "${next.slice(0, 240)}"`;
+  if (!h.ok || rank || review !== 0 || !tidakDitampilkan) rec.verdict = "FAIL";
+  return `the page says ${h.said}; expected ${h.want}; questions to review: ${review} (a certifying result: 0); «tidak ditampilkan» said ${tidakDitampilkan}; any rank or class average: ${rank}; "Apa berikutnya" (${next0}) → ${new URL(S.url()).pathname}: "${next.slice(0, 240)}"`;
 });
 
 await step("J13", "students 2-5 sign in with their cards and take both tests to plan (post-test by the same route as J11); student 4 chooses the last post-test answer, does not press «Simpan jawaban ini», and hands in (W3)", ["STU-01", "STU-06", "STU-10", "STU-14", "STU-15", "W3"], async (rec) => {

@@ -1454,6 +1454,8 @@ end $t$;`);
         "assessment_sessions:assessment_sessions_release_is_its_course", "assessment_sessions:assessment_sessions_status",
         "assessment_sessions:assessment_sessions_tenant_immutable", "assessment_sessions:assessment_sessions_termination_provenance",
         "assessment_sessions:assessment_sessions_the_pass_mark_is_sealed", "assessment_sessions:assessment_sessions_zz_exposed_is_not_assessed",
+        // D2-R (20270124100000): the start-time seal of the sitting's help, purpose and ordinal; it reads, and shapes only its own row
+        "assessment_sessions:assessment_sessions_the_policy_is_captured",
         "assessment_sessions:assessment_sessions_zz_no_new_sitting_in_maintenance", "responses:responses_generasi_isi",
         "responses:responses_tenant_immutable", "responses:responses_write"];
       const baca = (tanam: string) => {

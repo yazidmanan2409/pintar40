@@ -894,7 +894,10 @@ export const c1wTests: SelfTest[] = [
         langkah("murid", "m1", `select (x ->> 'penguasaan') || '|' || (x ->> 'dikoreksi') || '|' || (x -> 'koreksi' ->> 'penguasaan_asli') || '|' || (x -> 'koreksi' ->> 'alasan')
              from public.session_outcome(${G("s1")}) x`),
         langkah("murid_saya", "m1", `select (x ->> 'dikoreksi') || '|' || (x -> 'asli' ->> 'penguasaan') || '|' || (x -> 'terkini' ->> 'penguasaan') from public.hasil_koreksi_saya(${G("s1")}) x`),
-        langkah("murid_ulasan", "m1", `select count(*) filter (where y.benar) || '/' || count(*) from public.session_review(${G("s1_post")}) y`),
+        // RESTATED (D2-R, ruling 74): a certifying sitting's learner reads counts only, so the unaffected sitting is read by
+        // its sealed counts, and its review is refused by name
+        langkah("murid_ulasan", "m1", `select (o -> 'ringkasan' ->> 'correct') || '/' || (o -> 'ringkasan' ->> 'item_total') from public.session_outcome(${G("s1_post")}) o`),
+        langkah("murid_ulasan_tolak", "m1", `select count(*) from public.session_review(${G("s1_post")}) y`),
         // Z V2 (Sharon's condition: the key-correction path end to end): Hasil Belajar's summary names the corrected
         // sitting as the result in force, SELESAI, with no retake line
         langkah("murid_ringkasan", "m1", `select h.keadaan || '|' || coalesce((h.pre_session = ${G("s1")})::text, 'null') || '|' || coalesce((h.post_session = ${G("s1_post")})::text, 'null') || '|' || h.ulang_berjalan
@@ -1026,7 +1029,8 @@ export const c1wTests: SelfTest[] = [
       harap("jadwal_cek", "ok:2|1|0.6667|FINALIZED,DEADLINE|true", "the abandoned sitting open at confirmation (ended by its deadline, scored, recalculated under the correction)");
       harap("murid", `ok:0.6667|true|1.0000|${ALASAN}`, "the learner's result page (the corrected result as current, marked corrected, why, the original)");
       harap("murid_saya", "ok:true|1.0000|0.6667", "the learner's own reading of the correction");
-      harap("murid_ulasan", "ok:2/2", "the learner's review of an unaffected sitting");
+      harap("murid_ulasan", "ok:2/2", "the learner's own counts of an unaffected sitting");
+      harap("murid_ulasan_tolak", "PR081:RESULT_COUNTS_ONLY", "the learner's review of a certifying sitting (D2-R: counts only)");
       harap("murid_ringkasan", "ok:SELESAI|true|true|false", "the learner's Hasil Belajar summary after the correction (Z V2: the corrected pre-test and the Uji Penguasaan in force, SELESAI, no retake line)");
       harap("biasa2", "ok:true", "an ordinary recalculation of another sitting");
       harap("murid_biasa", "ok:true|1.0000", "a learner whose sitting was recalculated ordinarily (D14: no correction said, the sealed result read)");
@@ -1113,7 +1117,7 @@ export const c1wTests: SelfTest[] = [
         langkah("ditinjau", null, `select (${verifikasi}) || '|' || (select c.status::text from public.certificates c where c.id = ${G("cert")}) || '|' || (${sidikSert} = ${S("sidik")})`),
         langkah("ditinjau_anon", null, `select v.validity || '|' || (v::text !~ 'KOREKSI|kunci|0\\.8') from public.verify_certificate((select x.verification_token from public.certificates x where x.id = ${G("cert")})) v`),
         `perform selftest.as_user('boot-siswa@bootstrap.pintar.test');
-         v := v || jsonb_build_object('murid', (select concat_ws('|', x ->> 'dikoreksi', x ->> 'sertifikat_ditinjau', public.sertifikat_saya_ditinjau(${G("bs")})::text) from public.hasil_koreksi_saya(${G("bs")}) x));
+         v := v || jsonb_build_object('murid', (select concat_ws('|', x ->> 'dikoreksi', coalesce(x ->> 'sertifikat_ditinjau', 'tanpa'), public.sertifikat_saya_ditinjau(${G("bs")})::text) from public.hasil_koreksi_saya(${G("bs")}) x));
          perform selftest.as_owner();`,
         langkah("antrean", "badmin", `select jsonb_array_length(x) || '|' || (x -> 0 ->> 'sertifikat' = ${S("cert")}) || '|' || (x -> 0 ->> 'boleh_putuskan') from public.tinjauan_sertifikat_antrean(${G("boot")}) x`),
         langkah("pemberitahuan", "badmin", `select jsonb_array_length(x) || '|' || (x -> 0 ->> 'jumlah_sesi') || '|' || (x -> 0 ->> 'tinjauan_menunggu') || '|' || (x -> 0 ->> 'selesai') from public.pemberitahuan_koreksi_kunci(${G("boot")}) x`),
@@ -1169,7 +1173,9 @@ export const c1wTests: SelfTest[] = [
       harap("cabut", "ok:REVOKED", "the school closing that review as revoked");
       harap("cabut_cek", "ok:DICABUT|true|Dicabut langsung oleh sekolah penerbit.|REVOKED|1", "the revoked certificate (its first revocation stands; the review closed; one revocation audited)");
       c.expect(!(m.riwayat ?? "ok").startsWith("ok"), `rewriting a decided review: ${m.riwayat}`);
-      harap("murid", "true|true|true", "the learner's own reading (corrected; certificate under review)");
+      // RESTATED (D2-R, Sharon §7.2): on a certifying sitting hasil_koreksi_saya says only that the result changed and the new
+      // count, so the review flag is not in it; the learner reads it from sertifikat_saya_ditinjau, as the certificate pages do
+      harap("murid", "true|tanpa|true", "the learner's own reading (corrected; no review flag in the counts-only correction; certificate under review by its own read)");
       return c.verdict("an issued certificate whose sitting a correction does not reach verifies as before; once its supporting result changes it verifies "
         + "DITINJAU from that moment (no reason, no score), its status, payload, signature, number and token unchanged, in the issuing school's queue and "
         + "notice; a head of department and a platform admin cannot decide; the school confirms (BERLAKU again) or revokes through revoke_certificate "

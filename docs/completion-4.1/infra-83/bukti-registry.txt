@@ -1,0 +1,35 @@
+# bukti-registry · 2026-11-23T19:20:20Z · commit f5700bd1
+
+## plant: a registry that answers every pull with 429 (a docker shim on PATH; every other docker command passes through)
+
+$ docker rmi -f axllent/mailpit:v1.31.3 axllent/mailpit@sha256:ed9b00c609e77e99c79b93f1178255ebc271868920f2c69a8d166bd5634ed10d
+Untagged: axllent/mailpit:v1.31.3
+Untagged: axllent/mailpit@sha256:ed9b00c609e77e99c79b93f1178255ebc271868920f2c69a8d166bd5634ed10d
+[rc=0]
+
+## RED → INFRA: 4 tries with backoff (2 s, tripled), then «INFRA registry», before anything starts
+
+$ scripts/dev/siap.sh
+siap: disk ok (55G free, minimum 10G)
+siap: runtime ok
+siap: image axllent/mailpit:v1.31.3 missing (or another digest): pulling by digest
+siap: image axllent/mailpit:v1.31.3: pull 1/4 failed (registry: Error response from daemon: toomanyrequests: You have reached your pull rate limit (429 Too Many Requests))
+siap: image axllent/mailpit:v1.31.3: pull 2/4 failed (registry: Error response from daemon: toomanyrequests: You have reached your pull rate limit (429 Too Many Requests))
+siap: image axllent/mailpit:v1.31.3: pull 3/4 failed (registry: Error response from daemon: toomanyrequests: You have reached your pull rate limit (429 Too Many Requests))
+siap: image axllent/mailpit:v1.31.3: pull 4/4 failed (registry: Error response from daemon: toomanyrequests: You have reached your pull rate limit (429 Too Many Requests))
+INFRA registry: the registry refused axllent/mailpit:v1.31.3 after 4 tries with backoff (rate limit)
+[rc=3]
+elapsed 26s
+
+## the registry back: the same gate pulls it and prints READY
+
+$ scripts/dev/siap.sh
+siap: disk ok (55G free, minimum 10G)
+siap: runtime ok
+siap: image axllent/mailpit:v1.31.3 missing (or another digest): pulling by digest
+siap: image axllent/mailpit:v1.31.3: pull 1/4 failed (registry: Error response from daemon: unknown: failed to resolve reference "docker.io/axllent/mailpit@sha256:ed9b00c609e77e99c79b93f1178255ebc271868920f2c69a8d166bd5634ed)
+siap: images pulih (1 pulled, 5 already present, all pinned)
+siap: stack ok (database, Auth, Mailpit)
+siap: port 3999 ok (free)
+READY
+[rc=0]

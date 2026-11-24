@@ -358,11 +358,12 @@ rollback;`], { encoding: "utf8" }).trim().split("\n").filter((l) => l && !/^(BEG
         const post = await jawab(b, "post", plan.post, { luringDi: i === 0 ? 1 : -1 });
         await b.locator("h1").first().waitFor({ timeout: SLOW });
         const hasil = norm(await bodyText(b));
-        const m = hasil.match(/Terjawab tepat (\d+) dari (\d+) soal/);
+        // RESTATED (D2-R, R-h): an Uji Penguasaan's result is counts only, «N dari M soal dijawab tepat», and «Lulus.»
+        const m = hasil.match(/(\d+) dari (\d+) soal dijawab tepat/);
         rec.shots.push(await shot(b, `c12-hasil-bab${i + 1}`));
-        const ok = Number(m?.[1]) === plan.post && Number(m?.[2]) === 4 && /Target tercapai\./.test(hasil) && !pre.unknown && !post.unknown && dibaca === 2;
+        const ok = Number(m?.[1]) === plan.post && Number(m?.[2]) === 4 && /\bLulus\./.test(hasil) && !pre.unknown && !post.unknown && dibaca === 2;
         if (!ok) rec.verdict = "FAIL";
-        notes.push(`Bab ${i + 1}: pre ${pre.right}/${pre.answered}, lessons read ${dibaca}, post ${post.right}/${post.answered}; the page says «${m?.[0] ?? "no count"}», target met ${/Target tercapai\./.test(hasil)}` +
+        notes.push(`Bab ${i + 1}: pre ${pre.right}/${pre.answered}, lessons read ${dibaca}, post ${post.right}/${post.answered}; the page says «${m?.[0] ?? "no count"}», target met ${/\bLulus\./.test(hasil)}` +
           (i === 0 ? `; offline at question 2: ${JSON.stringify(post.luring)}` : ""));
       } catch (e) {
         rec.verdict = "FAIL";

@@ -40,9 +40,10 @@ const KAPRODI = "peraga-kaprodi@evaluasi.pintar.test";
 const ADMIN = "peraga-admin@evaluasi.pintar.test";
 
 export const KATA_Z3A: Array<[string, string, string]> = [
+  // RESTATED (D2-R, Daisy's D2R-KATA.md §3): the learner's K-01 gate line now ends «belum lulus» (the teacher's words stay)
   ["hasil.target.belum_gerbang",
-    "Persentase penguasaan bab ini sudah memenuhi target, tetapi ada soal penting yang belum dijawab dengan tepat. Karena itu target bab ini belum tercapai. Tanyakan kepada guru Anda langkah berikutnya.",
-    "Your mastery percentage for this chapter meets the target, but an important question was not answered correctly. So this chapter's target is not reached yet. Ask your teacher about the next step."],
+    "Persentase penguasaan bab ini sudah memenuhi target, tetapi ada soal penting yang belum dijawab dengan tepat. Karena itu Uji Penguasaan ini belum lulus. Tanyakan kepada guru Anda langkah berikutnya.",
+    "Your mastery percentage for this chapter meets the target, but an important question was not answered correctly. So this Mastery Check is not passed yet. Ask your teacher about the next step."],
   ["mengajar.murid1.gerbang", "belum mencapai target: soal penting belum tepat · target {p}", "target not reached: an important question is not right yet · target {p}"],
   ["mengajar.murid1.gerbang_tak_diketahui", "belum dapat disimpulkan apakah target tercapai · target {p}", "whether the target is reached cannot be concluded yet · target {p}"],
   ["mengajar.murid1.gerbang_tak_diketahui_arti", "Data soal penting untuk hasil ini tidak dapat dibaca sekarang. Muat ulang halaman ini nanti.",
@@ -60,8 +61,9 @@ export const KATA_Z3A: Array<[string, string, string]> = [
     "Soal penting yang belum tepat tidak terhubung ke tujuan pembelajaran mana pun, jadi tidak ada tujuan yang dapat ditunjukkan di sini. Lihat soalnya bersama murid.",
     "The important question that is not right yet is not linked to any learning objective, so no objective can be shown here. Go over the question with the student."],
   // Daisy's Z3-A verdict C-1 (29a4e841): the summary's gate case says why
-  ["hasilbelajar.gerbang", "Ada soal penting yang belum tepat, jadi target bab ini belum tercapai.",
-    "An important question is not right yet, so this chapter's target is not reached."],
+  // RESTATED (D2-R, Daisy's D2R-KATA.md §3): «belum lulus» on a certifying result's summary row
+  ["hasilbelajar.gerbang", "Ada soal penting yang belum tepat, jadi Uji Penguasaan bab ini belum lulus.",
+    "An important question is not right yet, so this chapter's Mastery Check is not passed yet."],
   // N-14 (Bob: replaced in K-01's screens commit)
   ["mengajar.murid1.tujuan_arti",
     "Dari Uji Penguasaan terakhir murid ini di kelas ini: tujuan yang belum tercapai, termasuk tujuan dari soal penting yang belum tepat. Ini yang perlu dipelajari lagi, bukan penilaian atas muridnya.",

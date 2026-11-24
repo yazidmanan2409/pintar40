@@ -29,6 +29,8 @@ const TIER_KEY = {
   WAJIB: "map.tier.WAJIB",
   DISARANKAN: "map.tier.DISARANKAN",
   KUAT: "map.tier.KUAT",
+  // D2-R: a certifying result's only level (revisit-advice); Peta Bacaan draws Pemetaan Awal's map, which never has it
+  BACA_LAGI: "hasil.baca_lagi",
 } as const;
 
 export default function PetaBacaan({ kartu, locale }: { kartu: readonly ReadingMapCard[]; locale: Locale }) {
@@ -41,7 +43,7 @@ export default function PetaBacaan({ kartu, locale }: { kartu: readonly ReadingM
           <span className="pin-tier">{t(TIER_KEY[k.tingkat], "learner", { locale })}</span>
           <span className="pin-claim"><TeksBaris teks={k.pernyataan} /></span>
           <span className="pin-why">
-            {k.tingkat === "KUAT" ? t("map.kuat.arti", "learner", { locale }) : <TeksBaris teks={k.alasan} />}
+            {k.tingkat === "KUAT" ? t("map.kuat.arti", "learner", { locale }) : k.alasan ? <TeksBaris teks={k.alasan} /> : null}
           </span>
         </div>
       ))}

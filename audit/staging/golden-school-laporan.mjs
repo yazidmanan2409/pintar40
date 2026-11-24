@@ -27,7 +27,7 @@
 //       the new one, `account.card_reissued` says why, the results stay, and no session of the old card is open
 //       (D-101(3)). This is how the students sign in again: a card's PIN is shown once (golden-school-murid.mjs).
 //   C2  GS-18 (J8.3): on the class computer, the holder signs in with the new card → «Sertifikat» → the chapter:
-//       «Sertifikat Penguasaan», its number, the name as issued and the verification link, equal to the record.
+//       «Sertifikat» with R-b's sentence (RESTATED, D2-R R-a, R-b), its number, the name as issued and the verification link, equal to the record.
 //   U1  GS-20 (J2.9, J2.20), the same class computer: the holder opens a lesson past its first page; 5 minutes
 //       without touching anything and the screen goes to «PINTAR terkunci» (no name, no question about the
 //       computer); the new card's PIN resumes the lesson at the same page. Idle again: «Bukan akun Anda?» → «Keluar»;
@@ -605,12 +605,14 @@ await step("C2", "GS-18 (J8.3) the holder signs in with her new card and sees th
   TAUTAN = norm(await kelas.locator("code.pin-chip").first().innerText().catch(() => ""));
   const harap = `/verifikasi/${encodeURIComponent(c.token)}`;
   const salah = [];
-  if (!/Sertifikat Penguasaan/i.test(teks)) salah.push("no «Sertifikat Penguasaan»");
+  // RESTATED (D2-R R-a, R-b): the certificate is «Sertifikat» with R-b's sentence (was «Sertifikat Penguasaan»)
+  if (/Sertifikat Penguasaan/i.test(teks)) salah.push("the old title «Sertifikat Penguasaan»");
+  if (!/Telah dinyatakan memenuhi kriteria kelulusan yang ditetapkan berdasarkan hasil asesmen pada Materi Pembelajaran/.test(teks)) salah.push("no R-b sentence");
   if (!teks.includes(c.nomor)) salah.push(`not its number ${c.nomor}`);
   if (!teks.includes(c.nama)) salah.push("not the name as issued");
   if (!TAUTAN.startsWith("https://") || !TAUTAN.endsWith(harap)) salah.push("a verification link that is not the record's");
   if (salah.length) throw new Error(salah.join("; "));
-  return `the new card → /belajar → «Sertifikat» (${lewatMenu ? "its menu link" : "by address"}) → the chapter: «Sertifikat Penguasaan» ${c.nomor}, ` +
+  return `the new card → /belajar → «Sertifikat» (${lewatMenu ? "its menu link" : "by address"}) → the chapter: «Sertifikat» with R-b's sentence ${c.nomor}, ` +
     "the name as issued, «Cetak atau simpan PDF», and its verification link, the record's";
 });
 
@@ -842,10 +844,11 @@ await step("V1", "GS-19 an anonymous visitor opens each issued certificate's ver
     const teks = norm(await p.locator("main").textContent());
     const pemilik = MURID.find((n) => teks.includes(n));
     const ok = di === path && /Verifikasi Sertifikat/i.test(teks) && /Berlaku/.test(teks) && /Sertifikat ini benar diterbitkan dan masih berlaku\./.test(teks) &&
-      /Memenuhi capaian/.test(teks) && teks.includes(S.nama) && /Tanggal terbit/i.test(teks) && /Diterbitkan oleh/i.test(teks) && !pemilik;
+      // RESTATED (D2-R, rev. 4's alignment): verifikasi.lulus is «Lulus» (was «Memenuhi capaian»), and no Predikat (R-c)
+      /\bLulus\b/.test(teks) && !/Memenuhi capaian|Predikat/i.test(teks) && teks.includes(S.nama) && /Tanggal terbit/i.test(teks) && /Diterbitkan oleh/i.test(teks) && !pemilik;
     if (!ok) { rec.verdict = "FAIL"; await shot(p, `v1-${s.nomor.slice(-5)}`); }
     const tanggal = teks.match(/Tanggal terbit\s*([0-9]{1,2} [A-Za-z]+ [0-9]{4})/i)?.[1];
-    out.push(`${s.nomor}${dariHalaman ? " (the link on the holder's page)" : ""}: HTTP ${resp?.status()} ${ok ? `«Berlaku», «Memenuhi capaian», «${S.nama}», ${tanggal ?? "dated"}` : `MISMATCH (at ${di}; ${teks.slice(0, 400)})`}${pemilik ? `; shows the holder's name ${pemilik}` : ""}`);
+    out.push(`${s.nomor}${dariHalaman ? " (the link on the holder's page)" : ""}: HTTP ${resp?.status()} ${ok ? `«Berlaku», «Lulus», no Predikat, «${S.nama}», ${tanggal ?? "dated"}` : `MISMATCH (at ${di}; ${teks.slice(0, 400)})`}${pemilik ? `; shows the holder's name ${pemilik}` : ""}`);
     if (s === SERT[0]) await shot(p, "v1-berlaku");
     await p.close();
   }
@@ -863,7 +866,7 @@ await step("V2", "GS-19 a random and a malformed code: the private not-found, no
     const api = await c.request.get(`${APP}/api/verifikasi/${kode}`);
     const body = await api.text();
     const ok = /Sertifikat dengan tautan ini tidak ditemukan\./.test(teks) && /Periksa kembali tautan atau kode yang Anda terima\./.test(teks) &&
-      !teks.includes(S?.nama ?? "\u0000") && !/Berlaku|Memenuhi capaian|Diterbitkan oleh/.test(teks) && api.status() === 404 && body.replace(/\s/g, "") === '{"found":false}';
+      !teks.includes(S?.nama ?? "\u0000") && !/Berlaku|\bLulus\b|Memenuhi capaian|Diterbitkan oleh/.test(teks) && api.status() === 404 && body.replace(/\s/g, "") === '{"found":false}';
     if (!ok) { rec.verdict = "FAIL"; await shot(p, `v2-${kode.length}`); }
     out.push(`${kode.length}-char code: page HTTP ${resp?.status()} ${ok ? "«tidak ditemukan», nothing else" : `MISMATCH (${teks.slice(0, 120)})`}; API ${api.status()} ${body.slice(0, 40)}`);
   }

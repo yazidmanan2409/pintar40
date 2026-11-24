@@ -13,6 +13,8 @@ import PerTujuan from "@/components/siklus/PerTujuan";
 import { TeksBaris } from "@/components/teks/Teks";
 import { alasanBelum, bagianUlang, ketuntasan, hitunganSegel } from "@/lib/siklus";
 import { judulHalaman } from "@/lib/judul-halaman";
+import HasilBersertifikasi from "@/components/siklus/HasilBersertifikasi";
+import { keadaanSertifikat } from "@/lib/sertifikat-kontrak";
 
 export const generateMetadata = judulHalaman("/belajar/[tugas]/hasil");
 
@@ -46,9 +48,14 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
   const state = await engine.cycleState(db, tugas);
   if (!state.post_session || state.post_status !== "FINALIZED") notFound();
 
-  const [outcome, review, delta, mine, peta, pelajaran, pengembangan, dihitungUlang] = await Promise.all([
-    engine.outcome(db, state.post_session),
-    engine.review(db, state.post_session),
+  // D2-R (R-h): the outcome first, because a certifying result (the sitting's captured purpose) discloses counts only:
+  // its review is never asked for (the database refuses it too), and it is drawn by HasilBersertifikasi
+  const outcome = await engine.outcome(db, state.post_session);
+  if (!outcome) notFound();
+  const bersertifikasi = outcome.bersertifikasi === true;
+  const tanpaTinjauan: Awaited<ReturnType<typeof engine.review>> = [];
+  const [review, delta, mine, peta, pelajaran, pengembangan, dihitungUlang] = await Promise.all([
+    bersertifikasi ? Promise.resolve(tanpaTinjauan) : engine.review(db, state.post_session),
     engine.delta(db, tugas),
     engine.myLearningHistory(db).then((a) => a.find((x) => x.learning_assignment_id === tugas)),
     // UX-26: the objectives' names, from this learner's own session. Only
@@ -62,7 +69,10 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
     // D14: a sitting recalculated after it was sealed is said, neutrally; what this page shows is the sealed result
     engine.sesiDihitungUlang(db, state.post_session).catch(() => false),
   ]);
-  if (!outcome) notFound();
+  // Daisy's §9 and her ruling on the null case: being prepared, the line and the link; a certificate that exists, the
+  // link alone; none (a pass never to be certified) or a failed read, nothing
+  const sertifikat = bersertifikasi && outcome.lulus === true
+    ? keadaanSertifikat(await engine.myCertificate(db, state.post_session).catch(() => null)) : null;
   // UX-40: this result has now been seen, so Belajar's home stops offering it as the next step. Not evidence; a
   // failed note changes nothing on this page.
   await engine.noteResultSeen(db, state.post_session).catch(() => false);
@@ -70,7 +80,7 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
   const target = ketuntasan(outcome);
   // Z K-01: below target by the gate alone says so, and «Pelajari lagi» also takes the missed must-be-right question's
   // objectives (never shown empty: an empty list draws nothing, and belum_gerbang reads right without one; C2)
-  const ulang = target === "BELUM" ? bagianUlang(outcome.per_domain, outcome.ambang, peta, pelajaran, outcome.tujuan_gerbang_kode ?? []) : [];
+  const ulang = target === "BELUM" && !bersertifikasi ? bagianUlang(outcome.per_domain, outcome.ambang, peta, pelajaran, outcome.tujuan_gerbang_kode ?? []) : [];
   const alasan = alasanBelum(outcome);
 
   const pct = outcome.penguasaan == null ? null : outcome.penguasaan;
@@ -104,6 +114,10 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
           <h1 className="pin-h1">{s("hasil.title")}</h1>
         </div>
 
+        {outcome.bersertifikasi ? (
+          <HasilBersertifikasi outcome={outcome} peta={peta} pelajaran={pelajaran} tugas={tugas} locale={locale} dihitungUlang={dihitungUlang} sertifikat={sertifikat} />
+        ) : (
+          <>
         {/* The result, and what it is out of. */}
         <section className="pin-capaian">
           <p className="pin-eyebrow">{s("hasil.mastery")}</p>
@@ -218,9 +232,14 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
           </div>
         </section>
 
+          </>
+        )}
+
         {/* The change, which appears only when both sessions are finished. It
             says so plainly when they are not, rather than showing a zero for a
-            comparison nobody made. */}
+            comparison nobody made. D2-R (R-h, Daisy's §3 order): a certifying result shows no mastery figure, so the
+            comparison is not drawn on it. */}
+        {!bersertifikasi ? (
         <section className="pin-sec">
           <h2>{s(`hasil.delta.${delta.status}` as HleEvent)}</h2>
           {delta.status === "LENGKAP" ? (
@@ -232,6 +251,7 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
             </div>
           ) : null}
         </section>
+        ) : null}
 
         {/* D-195(4), CONTOH LAPORAN 5-peserta: a professional-learning result is the educator's own record, and the page
             says exactly who else sees it, as the database decides (D-069(b),(c)); a chapter's result says nothing here */}

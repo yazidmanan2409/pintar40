@@ -1,0 +1,57 @@
+# bukti-ukuran · 2026-11-23T23:23:43Z · commit 9768e349
+
+## plant: a trace of three earlier boots that stayed up 55, 62 and 68 min (the observed hourly restarts), and this boot
+
+$ cat /root/pintar-preflight/bukti-ukuran/jejak-mesin.log
+2026-11-23T11:00:00Z boot=dddddddd-0000-4000-8000-000000000001 uptime=3300 oom_kill=0 mode=heartbeat run=- result="READY"
+2026-11-23T12:00:00Z boot=dddddddd-0000-4000-8000-000000000002 uptime=3720 oom_kill=0 mode=heartbeat run=- result="READY"
+2026-11-23T13:00:00Z boot=dddddddd-0000-4000-8000-000000000003 uptime=4100 oom_kill=0 mode=heartbeat run=- result="READY"
+[rc=0]
+
+## RED (before L-2): the runner at c1f04845 has no size check at all, so a 100-min run starts silently on a machine that lives about an hour
+
+$ bash -c git show c1f04845:scripts/dev/preflight.sh | grep -ciE "estimated|median|uptime" || true
+0
+[rc=0]
+
+## GREEN: the whole pre-flight is estimated (defaults: suite 25, plants 30, red-case 40 min; lint, typecheck, build-identity 2 each) against the median lifetime: a warning with the CI route
+
+$ scripts/dev/preflight.sh --ukur
+WARN   size  the run is estimated at 101 min, but this machine stayed up a median 62 min over its last 3 boot(s) (the trace): a long run here may be cut by a restart. Keep the session active for the whole run (wait on it within the turn: an idle session may be suspended or reclaimed, L-5), or use CI, the full run's stable route (L-3: push, or dispatch ci.yml). Starting anyway.
+WARN   size  the run is estimated at 101 min, but this machine stayed up a median 62 min over its last 3 boot(s) (the trace): a long run here may be cut by a restart. Keep the session active for the whole run (wait on it within the turn: an idle session may be suspended or reclaimed, L-5), or use CI, the full run's stable route (L-3: push, or dispatch ci.yml). Starting anyway.
+[rc=0]
+
+## a short run fits: no warning
+
+$ scripts/dev/preflight.sh --ukur --langkah=lint,typecheck
+size: estimated 4 min, within this machine's median uptime of 62 min (3 boot(s))
+[rc=0]
+
+## a warning, not a block: with lifetimes of 1-2 min planted, lint and typecheck (4 min estimated) warn and then run
+
+$ scripts/dev/preflight.sh --langkah=lint,typecheck --keluar=/root/pintar-preflight/bukti-ukuran-2/run
+WARN   size  the run is estimated at 4 min, but this machine stayed up a median 1 min over its last 3 boot(s) (the trace): a long run here may be cut by a restart. Keep the session active for the whole run (wait on it within the turn: an idle session may be suspended or reclaimed, L-5), or use CI, the full run's stable route (L-3: push, or dispatch ci.yml). Starting anyway.
+== bersih: bersih: 0 removed, 0; 35 kept
+== previous: the machine restarted since the last check: a REBOOT at 2026-11-23T22:08:15Z, after uptime 120s (the previous boot's last beat: 2026-11-23T13:00:00Z, oom_kill=?) (no run was in progress)
+== siap: READY
+PASS   lint  rc=0 (66s)
+PASS   typecheck  rc=0 (4s)
+preflight: RUN GREEN (/root/pintar-preflight/bukti-ukuran-2/run)
+[rc=0]
+
+$ cat /root/pintar-preflight/bukti-ukuran-2/run/SUMMARY.txt
+commit 9768e349391e9c31363d1ad74fd4b13fdf3eb0d7
+started 2026-11-23T23:23:43Z
+steps lint,typecheck
+heartbeat every 120s
+WARN   size  the run is estimated at 4 min, but this machine stayed up a median 1 min over its last 3 boot(s) (the trace): a long run here may be cut by a restart. Keep the session active for the whole run (wait on it within the turn: an idle session may be suspended or reclaimed, L-5), or use CI, the full run's stable route (L-3: push, or dispatch ci.yml). Starting anyway.
+== bersih: bersih: 0 removed, 0; 35 kept
+== previous: the machine restarted since the last check: a REBOOT at 2026-11-23T22:08:15Z, after uptime 120s (the previous boot's last beat: 2026-11-23T13:00:00Z, oom_kill=?) (no run was in progress)
+== siap: READY
+== lint
+PASS   lint  rc=0 (66s)
+== typecheck
+PASS   typecheck  rc=0 (4s)
+finished 2026-11-23T23:24:57Z
+RUN GREEN
+[rc=0]

@@ -1,0 +1,41 @@
+# bukti-defect · 2026-11-23T22:57:24Z · commit 9768e349
+
+## plant: a real code defect (a user-facing string a static test pins), on a healthy machine
+
+$ git diff --stat
+ docs/completion-4.1/infra-83/bukti-defect.txt | 34 +--------------------------
+ src/lib/hle.ts                                |  2 +-
+ 2 files changed, 2 insertions(+), 34 deletions(-)
+[rc=0]
+
+$ scripts/dev/preflight.sh --langkah=suite --keluar=/root/pintar-preflight/bukti-defect -- --only=Z-T03-01
+== bersih: bersih: 0 removed, 0; 5 kept
+== siap: READY
+FAIL   suite  rc=1: 1 FAIL row(s), first Z-T03-01 email.aman.diatur_ulang.isi (en): «An Admin PINTAT reset recovery with a PIN for your account. Your old PIN no longer works, and you have been signed out of ev
+preflight: RUN RED (/root/pintar-preflight/bukti-defect)
+[rc=1]
+
+$ cat /root/pintar-preflight/bukti-defect/SUMMARY.txt
+commit 9768e349391e9c31363d1ad74fd4b13fdf3eb0d7
+started 2026-11-23T22:57:24Z
+steps suite
+heartbeat every 120s
+size: estimated 0 min; no earlier boot in the trace to compare with
+== bersih: bersih: 0 removed, 0; 5 kept
+== siap: READY
+== suite
+forced reset: done (supabase db reset --local)
+FAIL   suite  rc=1: 1 FAIL row(s), first Z-T03-01 email.aman.diatur_ulang.isi (en): «An Admin PINTAT reset recovery with a PIN for your account. Your old PIN no longer works, and you have been signed out of ev
+rows: 1 classed; 1 FAIL, 0 INFRA (ROWS.txt; the machine healthy through the step)
+finished 2026-11-23T22:58:34Z
+RUN RED
+[rc=0]
+
+$ cat /root/pintar-preflight/bukti-defect/ROWS.txt
+Z-T03-01    FAIL   FAIL
+[rc=0]
+
+$ git diff --stat
+ docs/completion-4.1/infra-83/bukti-defect.txt | 25 +++++++++++++------------
+ 1 file changed, 13 insertions(+), 12 deletions(-)
+[rc=0]

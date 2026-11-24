@@ -44,7 +44,7 @@ returns table (id text, area text, ok boolean, detail text)
 language plpgsql set search_path = public, pg_temp as $$
 declare
   v_probs jsonb := '{}'::jsonb; v_fatal text := ''; f record; v_kelas uuid; q record; v_s uuid; v_post uuid;
-  e record; n int; v_ok boolean; v_detail text; v_prep int; v_raised text; v_o1 jsonb; v_o2 jsonb; v_pol boolean;
+  e record; n int; v_ok boolean; v_detail text; v_prep int; v_raised text; v_o1 jsonb; v_o2 jsonb; v_pol boolean; v_pol_bantuan boolean; v_pol_alasan boolean;
 begin
   perform selftest.as_owner();
   begin
@@ -60,13 +60,16 @@ begin
     -- the sitting starts under the policy before D-082(d) (QUICK certifying)
     -- and finishes under the policy the migrations left (v_pol)
     perform selftest.as_owner();
-    select m.certifies into v_pol from public.mode_policy m where m.mode = 'QUICK';
-    update public.mode_policy set certifies = true where mode = 'QUICK';
+    -- RESTATED, D2-R: a certifying sitting is never started with help (Sharon's condition 3, at insert), so while QUICK
+    -- certifies for this one start it also offers none, as POST_TEST does; all three are restored at once
+    select m.certifies, m.allows_assistance, m.reveals_rationale_on_review into v_pol, v_pol_bantuan, v_pol_alasan
+      from public.mode_policy m where m.mode = 'QUICK';
+    update public.mode_policy set certifies = true, allows_assistance = false, reveals_rationale_on_review = false where mode = 'QUICK';
     perform selftest.as_user('boot-siswa@bootstrap.pintar.test');
     v_s := public.start_learning_session(q.assessment_assignment_id);
     perform selftest.answer_paper(v_s, true);
     perform selftest.as_owner();
-    update public.mode_policy set certifies = v_pol where mode = 'QUICK';
+    update public.mode_policy set certifies = v_pol, allows_assistance = v_pol_bantuan, reveals_rationale_on_review = v_pol_alasan where mode = 'QUICK';
     perform selftest.as_user('boot-siswa@bootstrap.pintar.test');
     perform public.finish_my_session(v_s);
     v_o1 := public.session_outcome(v_s);

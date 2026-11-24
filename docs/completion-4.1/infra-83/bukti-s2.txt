@@ -1,0 +1,51 @@
+# bukti-s2 · 2026-11-23T22:53:33Z · commit 61bb1e3e
+
+## plant: a supabase start that prints planted keys first (an npx shim on PATH; everything else passes through to npx), with the stack stopped
+
+## RED: siap.sh as it was at 61bb1e3e
+
+$ npx --no-install supabase stop
+{"project_id_filter":"pintar40","backup":true,"message":"Stopped supabase local development setup."}
+[rc=0]
+
+$ bash scripts/dev/.siap-61bb1e3e.sh
+siap: trace: same boot as the last check (uptime 2719s)
+siap: disk ok (54.1G free, minimum 10G)
+siap: runtime ok
+siap: images ok (6 present, all pinned by digest)
+siap: stack not running: supabase start
+siap: stack pulih (database, Auth, Mailpit healthy)
+siap: port 3999 ok (free)
+READY
+[rc=0]
+
+## files holding a planted key:
+/tmp/pintar-siap-log/supabase-start.log
+
+## GREEN: siap.sh now (it also scrubs what the old one left, at the start of the gate)
+
+$ npx --no-install supabase stop
+{"project_id_filter":"pintar40","backup":true,"message":"Stopped supabase local development setup."}
+[rc=0]
+
+$ scripts/dev/siap.sh
+siap: trace: same boot as the last check (uptime 2746s)
+siap: disk ok (54.1G free, minimum 10G)
+siap: runtime ok
+siap: images ok (6 present, all pinned by digest)
+siap: stack not running: supabase start
+siap: stack pulih (database, Auth, Mailpit healthy)
+siap: port 3999 ok (free)
+READY
+[rc=0]
+
+## files holding a planted key:
+(none)
+
+$ bash -c grep -oE '«redacted»|«key redacted»|«jwt[a-z ]*redacted»' '/tmp/pintar-siap-log/supabase-start.log' | sort | uniq -c
+     12 «redacted»
+[rc=0]
+
+$ bash -c grep -cE 'eyJ[A-Za-z0-9_-]{8,}\.|sb_secret_|super-secret-jwt|PLANTED' '/tmp/pintar-siap-log/supabase-start.log' || true
+0
+[rc=0]

@@ -166,6 +166,22 @@ export function posisi(state: CycleState, lessons: readonly LessonEntry[]): Posi
 }
 
 /**
+ * D2-R R-g (O-6, Daisy's D2R-KATA.md §2): ONCE PEMETAAN AWAL IS DONE, UJI PENGUASAAN IS OFFERED, beside «Lanjut membaca»,
+ * with one advisory line, while lessons remain unread. The database and the test page already allow it; only the
+ * chapter page waited for every lesson. With every lesson read, posisi() is at PENGUASAAN and the existing «Siap untuk
+ * Uji Penguasaan» stands, so this is false there. Pure.
+ */
+export function penguasaanTerbuka(
+  state: Pick<CycleState, "pre_status" | "post_status" | "post_session">,
+  lessons: ReadonlyArray<Pick<LessonEntry, "furthest_position" | "total_positions">>,
+): boolean {
+  if (state.pre_status !== FINAL || state.post_session || state.post_status === FINAL) return false;
+  const total = lessons.length;
+  const read = lessons.filter(lessonRead).length;
+  return !(total > 0 && read >= total);
+}
+
+/**
  * The ranking behind "the one thing".
  *
  * THE ORDER IS YAZID'S RULING (D-088(d), W18): continue what the learner is
@@ -307,20 +323,29 @@ export function alasanBelum(o: Pick<Outcome, "lulus" | "diagnostik" | "gerbang_k
  * does not name keeps its code and no lesson.
  */
 export function bagianUlang(
-  perDomain: Record<string, { penguasaan: number } | undefined> | null | undefined,
+  perDomain: Record<string, { penguasaan?: number } | undefined> | null | undefined,
   ambang: number | null | undefined,
   peta: ReadonlyArray<{ kode: string; pernyataan: string; pelajaran: string }>,
   lessons: ReadonlyArray<{ lesson_id: string; judul: string }>,
   /** Z K-01 (C2): the codes of the objectives whose must-be-right question this result missed (tujuan_gerbang_kode) */
   gerbang: readonly string[] = [],
+  /** D2-R (Sharon §7.2): a certifying result's server-computed codes to read again; when given, no score is read at all */
+  tujuanUlang?: readonly string[] | null,
 ): BagianUlang[] {
-  if (ambang == null || (!perDomain && gerbang.length === 0)) return [];
   const kartu = new Map(peta.map((k) => [k.kode, k]));
   const idPelajaran = new Map(lessons.map((l) => [l.judul, l.lesson_id]));
   const sisi = (kode: string) => {
     const k = kartu.get(kode);
     return { nama: k?.pernyataan || kode, lessonId: k ? idPelajaran.get(k.pelajaran) ?? null : null, pelajaran: k?.pelajaran ?? null };
   };
+  if (Array.isArray(tujuanUlang)) {
+    // in the chapter's order, as the reading map gives it; each once, with no figure (74b: advice, not a verdict)
+    const urut = new Map(peta.map((k, i) => [k.kode, i]));
+    const diGerbang = new Set(gerbang);
+    return [...new Set(tujuanUlang)].sort((a, b) => (urut.get(a) ?? 1e9) - (urut.get(b) ?? 1e9) || a.localeCompare(b))
+      .map((kode) => ({ kode, ...sisi(kode), penguasaan: null, gerbang: diGerbang.has(kode) }));
+  }
+  if (ambang == null || (!perDomain && gerbang.length === 0)) return [];
   const diGerbang = new Set(gerbang);
   const bawah = Object.entries(perDomain ?? {})
     .filter(([, v]) => v && typeof v.penguasaan === "number" && v.penguasaan < ambang)

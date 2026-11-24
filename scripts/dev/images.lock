@@ -1,0 +1,13 @@
+# Ruling 83 (P-1): every image the local stack and the tests need, pinned by digest.
+# `scripts/dev/siap.sh` checks each is present locally with this digest, and pulls a missing one by digest
+# (with backoff) before anything starts. One line per image: <repository>:<tag> <digest>.
+#
+# The stack is `supabase start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta,mailpit`
+# from the pinned CLI (package-lock, 2.117.0), as in .github/actions/local-stack; Mailpit is CI's separate sink
+# (ci.yml «Mailpit sink (BOB-25)»). A CLI upgrade that changes a tag changes this file in the same commit.
+supabase/postgres:17.6.1.167 sha256:6942962433a569e87f228b4d4ab7e11db5deca64e43babb3a038443ad6c4f1bb
+supabase/gotrue:v2.196.0 sha256:c0c25187a6b835e65a6f6e6c6b39d090e832d40e6de5186f2c038e0411944232
+postgrest/postgrest:v16.2 sha256:85258123312dc496ad4c2ed832154a65e9746f84df0d6d09b44229ff9230c08e
+supabase/storage-api:v1.72.1 sha256:105a2584129c9600aebed6f5ac49ca4371c92b996ecd1af7179750333e9e2120
+kong:2.8.1 sha256:1b53405d8680a09d6f44494b7990bf7da2ea43f84a258c59717d4539abf09f6d
+axllent/mailpit:v1.31.3 sha256:ed9b00c609e77e99c79b93f1178255ebc271868920f2c69a8d166bd5634ed10d

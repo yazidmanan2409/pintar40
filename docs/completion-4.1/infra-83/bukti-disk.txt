@@ -1,0 +1,40 @@
+# bukti-disk · 2026-11-23T19:21:55Z · commit f5700bd1
+
+## plant: a minimum of 52G (2G under the free space), then fill 3G: free space falls below it
+
+$ fallocate -l 3G /tmp/pintar-bukti-isi.bin
+[rc=0]
+
+## RED → INFRA: the pre-flight refuses to start, with «disk», before minute one
+
+$ scripts/dev/preflight.sh --keluar=/root/pintar-preflight/bukti-disk
+== bersih: bersih: 0 removed, 0; 12 kept
+== siap: INFRA disk: 51.6G free on /home/user/pintar40, below the minimum of 52G (scripts/dev/bersih.sh lists what the harness left behind)
+INFRA  siap  disk: 51.6G free on /home/user/pintar40, below the minimum of 52G (scripts/dev/bersih.sh lists what the harness left behind)
+preflight: RUN VOID (/root/pintar-preflight/bukti-disk)
+[rc=3]
+elapsed 2s
+
+$ cat /root/pintar-preflight/bukti-disk/SUMMARY.txt
+commit f5700bd140c7dfeae8791f5e206d594862b2fb56
+started 2026-11-23T19:21:55Z
+steps lint,typecheck,build-identity,suite,plants,redcase
+heartbeat every 120s
+== bersih: bersih: 0 removed, 0; 12 kept
+== siap: INFRA disk: 51.6G free on /home/user/pintar40, below the minimum of 52G (scripts/dev/bersih.sh lists what the harness left behind)
+INFRA  siap  disk: 51.6G free on /home/user/pintar40, below the minimum of 52G (scripts/dev/bersih.sh lists what the harness left behind)
+finished 2026-11-23T19:21:57Z
+RUN VOID
+VOID, not a result: an INFRA row above says what the machine did. Fix that and repeat the run on the same commit.
+[rc=0]
+
+## the space back: the gate is READY
+
+$ scripts/dev/siap.sh
+siap: disk ok (54.6G free, minimum 52G)
+siap: runtime ok
+siap: images ok (6 present, all pinned by digest)
+siap: stack ok (database, Auth, Mailpit)
+siap: port 3999 ok (free)
+READY
+[rc=0]

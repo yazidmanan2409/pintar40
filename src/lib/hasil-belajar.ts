@@ -1,5 +1,6 @@
 import "server-only";
 import { namaBab } from "@/lib/nama-bab";
+import { keadaanSertifikat } from "@/lib/sertifikat-kontrak";
 import * as engine from "@/lib/assessment-engine";
 import { alasanBelum, bagianUlang, hitunganSegel, ketuntasan, type Ketuntasan } from "@/lib/siklus";
 import { namaTujuan } from "@/components/siklus/PerTujuan";
@@ -40,6 +41,10 @@ export type BabHasil = {
   dihitungUlang?: boolean;
   /** Z (Daisy's Z3-A C-1): «belum mencapai target» because a must-be-right question was missed, the figure meeting the mark */
   gerbang?: boolean;
+  /** D2-R (R-h): a certifying result (the sitting's captured purpose): «Lulus» / «Belum lulus», counts only, no parts */
+  bersertifikasi?: boolean;
+  /** Daisy's ruling on the null case: a certifying pass's certificate (keadaanSertifikat); the row links to it unless null */
+  sertifikat?: "DISIAPKAN" | "ADA" | null;
 };
 
 /**
@@ -80,9 +85,12 @@ export async function hasilBelajar(db: engine.EngineClient): Promise<BabHasil[]>
                tercapai: null, benar: 0, total: 0, bagian: [], ulang: [], ...(a.status === "WITHDRAWN" ? { ditarik: true } : {}) };
     }
     if (!t.post_session) return null;
-    const [outcome, review, delta, peta, pelajaran, dihitungUlang] = await Promise.all([
-      engine.outcome(db, t.post_session).catch(() => null),
-      engine.review(db, t.post_session).catch(() => []),
+    // D2-R (R-h): the outcome first; a certifying result's review is never asked for (the database refuses it too)
+    const outcome = await engine.outcome(db, t.post_session).catch(() => null);
+    const bersertifikasi = outcome?.bersertifikasi === true;
+    const tanpaTinjauan: Awaited<ReturnType<typeof engine.review>> = [];
+    const [review, delta, peta, pelajaran, dihitungUlang] = await Promise.all([
+      bersertifikasi ? Promise.resolve(tanpaTinjauan) : engine.review(db, t.post_session).catch(() => tanpaTinjauan),
       engine.delta(db, a.learning_assignment_id).catch(() => null),
       engine.readingMap(db, t.post_session).catch(() => []),
       engine.lessons(db, a.learning_assignment_id).catch(() => []),
@@ -92,7 +100,14 @@ export async function hasilBelajar(db: engine.EngineClient): Promise<BabHasil[]>
     if (!outcome) return berjalan;
     const tercapai = ketuntasan(outcome);
     // Z K-01: the missed must-be-right question's objectives are what to study again too (as the chapter page lists them)
-    const ulang = tercapai === "BELUM" ? bagianUlang(outcome.per_domain, outcome.ambang, peta, pelajaran, outcome.tujuan_gerbang_kode ?? []) : [];
+    // D2-R (R-h, 74b): a certifying result names what to read again from its own list, with no figure
+    // Daisy's §11 (ruling 74a item 2): a certifying result lists what to read again whatever its decision, from its own list
+    const ulang = bersertifikasi ? bagianUlang(null, null, peta, pelajaran, outcome.tujuan_gerbang_kode ?? [], outcome.tujuan_ulang ?? [])
+      : tercapai !== "BELUM" ? []
+      : bagianUlang(outcome.per_domain, outcome.ambang, peta, pelajaran, outcome.tujuan_gerbang_kode ?? []);
+    // Daisy's ruling on the null case: a certifying pass links to its certificate only if one exists or is being prepared
+    const sertifikat = bersertifikasi && tercapai === "TERCAPAI"
+      ? keadaanSertifikat(await engine.myCertificate(db, t.post_session).catch(() => null)) : null;
     const kodeUlang = new Set(ulang.map((u) => u.kode));
     const nama = namaTujuan(peta);
     return {
@@ -107,8 +122,9 @@ export async function hasilBelajar(db: engine.EngineClient): Promise<BabHasil[]>
       // Daisy's B3: the sealed result's own count, as the chapter page says it
       benar: hitunganSegel(outcome.ringkasan, review).benar,
       total: hitunganSegel(outcome.ringkasan, review).total,
-      bagian: Object.entries(outcome.per_domain ?? {}).map(([kode, d]) => ({
-        kode, nama: nama.get(kode) ?? kode, benar: d.benar, total: d.total, ulang: kodeUlang.has(kode),
+      // D2-R (R-h): a certifying result's sections carry no figure, so its parts are not drawn as counts
+      bagian: bersertifikasi ? [] : Object.entries(outcome.per_domain ?? {}).map(([kode, d]) => ({
+        kode, nama: nama.get(kode) ?? kode, benar: d.benar ?? 0, total: d.total ?? 0, ulang: kodeUlang.has(kode),
       })),
       ulang: ulang.map((u) => u.nama),
       ...(t.ulang_berjalan === true ? { ulangBerjalan: true } : {}),
@@ -116,6 +132,7 @@ export async function hasilBelajar(db: engine.EngineClient): Promise<BabHasil[]>
       ...(alasanBelum(outcome) === "GERBANG" ? { gerbang: true } : {}),
       // a governed correction is marked as such on the chapter page (dikoreksi), not as a recalculation
       ...(dihitungUlang === true && !outcome.dikoreksi ? { dihitungUlang: true } : {}),
+      ...(bersertifikasi ? { bersertifikasi: true, sertifikat } : {}),
     };
   }));
   // the learner's history's order, as before

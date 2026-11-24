@@ -1,0 +1,78 @@
+# bukti-usedb · 2026-11-23T19:37:07Z · commit f5700bd1
+
+## I-2 replayed: the WHOLE suite on a fresh database (it leaves the world used), then the targeted run on that database WITHOUT a reset (the old way)
+
+$ scripts/dev/preflight.sh --langkah=suite --keluar=/root/pintar-preflight/bukti-usedb-1
+== bersih: bersih: 0 removed, 0; 20 kept
+== siap: READY
+FAIL   suite  rc=1: FAILED  C3W-C310  the scenario did not run
+preflight: RUN RED (/root/pintar-preflight/bukti-usedb-1)
+[rc=1]
+
+$ scripts/dev/preflight.sh --langkah=suite --tanpa-reset --keluar=/root/pintar-preflight/bukti-usedb-2-tanpa-reset -- --only=F01-*,F02-*,F03-*,A2A-C*
+== bersih: bersih: 14 removed, 357K; 34 kept
+== siap: READY
+FAIL   suite  rc=1: FAILED  B2-D01  runner aborted: PL/pgSQL function selftest.run_fable03() line 19 at PERFORM
+preflight: RUN RED (/root/pintar-preflight/bukti-usedb-2-tanpa-reset)
+[rc=1]
+
+$ cat /root/pintar-preflight/bukti-usedb-2-tanpa-reset/SUMMARY.txt
+commit e5eba70ded8263733105ef7d746925d22831b6ff
+started 2026-11-23T19:54:52Z
+steps suite
+heartbeat every 120s
+== bersih: bersih: 14 removed, 357K; 34 kept
+== siap: READY
+== suite
+FAIL   suite  rc=1: FAILED  B2-D01  runner aborted: PL/pgSQL function selftest.run_fable03() line 19 at PERFORM
+rows: 543 classed; 505 FAIL, 0 INFRA (ROWS.txt)
+finished 2026-11-23T19:56:19Z
+RUN RED
+[rc=0]
+
+$ bash -c grep -v ' PASS ' '/root/pintar-preflight/bukti-usedb-2-tanpa-reset/ROWS.txt' | head -20
+F01-T01     FAIL   FAIL
+F01-T02     FAIL   FAIL
+F01-T03     FAIL   FAIL
+F01-T04     FAIL   FAIL
+F01-T05     FAIL   FAIL
+F01-T06     FAIL   FAIL
+F01-T07     FAIL   FAIL
+F01-T08     FAIL   FAIL
+F01-T09     FAIL   FAIL
+F01-T10     FAIL   FAIL
+F01-T11     FAIL   FAIL
+F01-T12     FAIL   FAIL
+F01-T13     FAIL   FAIL
+F01-T13b    FAIL   FAIL
+F01-T14     FAIL   FAIL
+F01-T15     FAIL   FAIL
+F01-T16     FAIL   FAIL
+F01-T17     FAIL   FAIL
+F01-T18     FAIL   FAIL
+F01-T19     FAIL   FAIL
+[rc=0]
+
+## GREEN: the same replay on the same used database, as the pre-flight now runs it (forced reset first)
+
+$ scripts/dev/preflight.sh --langkah=suite --keluar=/root/pintar-preflight/bukti-usedb-3 -- --only=F01-*,F02-*,F03-*,A2A-C*
+== bersih: bersih: 0 removed, 0; 35 kept
+== siap: READY
+PASS   suite  rc=0 (40s)  96 passed, 0 failed, 0 skipped, 1 justified skips accepted (local only), 0 contract problem(s) → GREEN
+preflight: RUN GREEN (/root/pintar-preflight/bukti-usedb-3)
+[rc=0]
+
+$ cat /root/pintar-preflight/bukti-usedb-3/SUMMARY.txt
+commit e5eba70ded8263733105ef7d746925d22831b6ff
+started 2026-11-23T19:56:19Z
+steps suite
+heartbeat every 120s
+== bersih: bersih: 0 removed, 0; 35 kept
+== siap: READY
+== suite
+forced reset: done (supabase db reset --local)
+PASS   suite  rc=0 (40s)  96 passed, 0 failed, 0 skipped, 1 justified skips accepted (local only), 0 contract problem(s) → GREEN
+rows: 97 classed; 0 FAIL, 0 INFRA (ROWS.txt)
+finished 2026-11-23T19:58:06Z
+RUN GREEN
+[rc=0]

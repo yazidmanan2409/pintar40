@@ -1,0 +1,62 @@
+# bukti-midrun2 · 2026-11-23T22:58:35Z · commit 9768e349
+
+## plant: kill dockerd ONLY (containerd and the containers keep running, so the suite runs on, as in I-1) 20 s into the whole suite; heartbeat every 15 s
+
+$ scripts/dev/preflight.sh --langkah=suite,plants,redcase --keluar=/root/pintar-preflight/bukti-midrun2
+== bersih: bersih: 0 removed, 0; 5 kept
+== siap: READY
+[planted] 23:00:01Z dockerd killed
+INFRA  suite  heartbeat lost after 37s: runtime: docker does not answer (dockerd or containerd is dead) (step stopped)
+NOT RUN plants  (an INFRA row above: the machine is not to be trusted for the rest)
+NOT RUN redcase  (an INFRA row above: the machine is not to be trusted for the rest)
+preflight: RUN VOID (/root/pintar-preflight/bukti-midrun2)
+[rc=3]
+elapsed 102s
+
+$ cat /root/pintar-preflight/bukti-midrun2/SUMMARY.txt
+commit 9768e349391e9c31363d1ad74fd4b13fdf3eb0d7
+started 2026-11-23T22:58:35Z
+steps suite,plants,redcase
+heartbeat every 15s
+size: estimated 70 min; no earlier boot in the trace to compare with
+== bersih: bersih: 0 removed, 0; 5 kept
+== siap: READY
+== suite
+forced reset: done (supabase db reset --local)
+INFRA  suite  heartbeat lost after 37s: runtime: docker does not answer (dockerd or containerd is dead) (step stopped)
+NOT RUN plants  (an INFRA row above: the machine is not to be trusted for the rest)
+NOT RUN redcase  (an INFRA row above: the machine is not to be trusted for the rest)
+finished 2026-11-23T23:00:17Z
+RUN VOID
+VOID, not a result: an INFRA row above says what the machine did, and no row failed. Fix that and repeat the run on the same commit.
+[rc=0]
+
+$ cat /root/pintar-preflight/bukti-midrun2/HEARTBEAT.txt
+22:59:56Z READY
+23:00:12Z INFRA runtime: docker does not answer (dockerd or containerd is dead)
+[rc=0]
+
+$ bash -c tail -3 '/root/pintar-preflight/bukti-midrun2/suite.log'
+[app] starting production-mode app
+
+[static] selftest/static.test.ts
+[rc=0]
+
+$ bash -c pgrep -af "selftest/run.ts|next build|next-server" || echo "no step process left"
+21671 bash -c pgrep -af "selftest/run.ts|next build|next-server" || echo "no step process left"
+[rc=0]
+
+## recovery for the next proof
+
+$ scripts/dev/siap.sh
+siap: trace: same boot as the last check (uptime 3122s)
+siap: disk ok (54.0G free, minimum 10G)
+siap: runtime dead: restarting containerd and dockerd
+siap: runtime pulih (restarted; containerd and dockerd answer)
+siap: images ok (6 present, all pinned by digest)
+siap: stack not running: supabase start
+siap: Mailpit not answering: (re)starting the sink as CI does
+siap: stack pulih (database, Auth, Mailpit healthy)
+siap: port 3999 ok (free)
+READY
+[rc=0]

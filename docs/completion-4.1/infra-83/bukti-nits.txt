@@ -1,0 +1,57 @@
+# bukti-nits · 2026-11-23T22:54:26Z · commit 61bb1e3e
+
+## plant N-1: a harness file that creates a 2-character prefix (ab), and an aged folder of that name
+
+## plant N-2: an abandoned red-case clone with a commit that no branch or tag reaches
+sensitive-scan --staged: 0 finding(s) not allowed; 0 allowed by scripts/guard/allowlist.json
+
+## RED: bersih.sh as it was at 61bb1e3e (dry run): it would remove both
+
+$ bash -c bash scripts/dev/.bersih-61bb1e3e.sh | grep -E 'abN1pl4x|990003|^bersih'
+  would remove /tmp/abN1pl4x  (30)
+  would remove /tmp/pintar-redcase-990003  (196M)
+bersih: 2 would be removed, 196M; 4 kept
+[rc=0]
+
+## GREEN: bersih.sh now (dry run, then --hapus): the prefix is refused and the clone kept
+
+$ bash -c scripts/dev/bersih.sh 2>&1 | grep -E 'refusing|abN1pl4x|990003|^bersih'
+bersih: refusing the harness prefix «ab» (shorter than 4 characters)
+  keep    /tmp/pintar-redcase-990003  (a clone whose HEAD (0fd97f1a) no branch or tag reaches)
+bersih: 0 would be removed, 0; 5 kept
+[rc=0]
+
+$ bash -c scripts/dev/bersih.sh --hapus 2>&1 | grep -E 'refusing|abN1pl4x|990003|^bersih'
+bersih: refusing the harness prefix «ab» (shorter than 4 characters)
+  keep    /tmp/pintar-redcase-990003  (a clone whose HEAD (0fd97f1a) no branch or tag reaches)
+bersih: 0 removed, 0; 5 kept
+[rc=0]
+
+$ ls -d /tmp/abN1pl4x /tmp/pintar-redcase-990003
+/tmp/abN1pl4x
+/tmp/pintar-redcase-990003
+[rc=0]
+
+## plant N-3: a server named next-server on :3999, owned by another user (nobody)
+
+$ bash -c fuser -v -n tcp 3999 2>&1 | tail -1
+3999/tcp:            nobody     6176 F.... python3
+[rc=0]
+
+## RED: siap.sh as it was at 61bb1e3e stops it
+
+$ bash -c bash scripts/dev/.siap-61bb1e3e.sh | grep -E "port|READY|INFRA"
+siap: port 3999 held by a leaked app server (pid 6176, started Mon Nov 23 22:54:32 2026): stopping it
+siap: port 3999 pulih (leaked server stopped)
+READY
+[rc=0]
+
+## GREEN: siap.sh now names it and leaves it
+
+$ bash -c scripts/dev/siap.sh | grep -E "port|READY|INFRA"
+INFRA port: 3999 is held by an app server of another user (pid 6460, uid 65534): not stopped
+[rc=0]
+
+$ bash -c fuser -n tcp 3999 >/dev/null 2>&1 && echo "still running (not stopped)" || echo "stopped"
+still running (not stopped)
+[rc=0]

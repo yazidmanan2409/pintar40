@@ -67,7 +67,8 @@ export type AssistanceLevel = { level: number; kode: string; isi: string; stage:
 
 export type Outcome = {
   penguasaan: number | null;
-  per_domain: Record<string, { benar: number; total: number; penguasaan: number }>;
+  /** D2-R (R-h, 74a; Sharon §7.2): on a certifying result, each section with no number ({}) */
+  per_domain?: Record<string, { benar?: number; total?: number; penguasaan?: number }>;
   ringkasan: Record<string, number>;
   diagnostik: boolean;
   gerbang_keselamatan?: boolean | null;
@@ -80,17 +81,25 @@ export type Outcome = {
   /** C1w (O41-21): the result above is the one a governed key correction put in force; the sealed original is kept */
   dikoreksi?: boolean;
   koreksi?: { alasan: string | null; pada: string | null; penguasaan_asli: number | null; sertifikat_ditinjau: boolean };
+  /** D2-R (R-h): the sitting's captured purpose; a certifying result discloses counts only */
+  bersertifikasi?: boolean;
+  /** D2-R (R-h, 74b; Sharon §7.2): on a certifying result, the server's codes to read again (below the mark, and the gate's) */
+  tujuan_ulang?: string[];
+  /** D2-R (R-f): the attempt ordinal, fixed when the sitting started; null with no assignment */
+  percobaan_ke?: number | null;
 };
 
 export type ReadingMapCard = {
   peringkat: number;
-  tingkat: "PERLU_SEGERA" | "WAJIB" | "DISARANKAN" | "KUAT";
+  /** D2-R (R-h): BACA_LAGI is a certifying result's only level, revisit-advice with no reason */
+  tingkat: "PERLU_SEGERA" | "WAJIB" | "DISARANKAN" | "KUAT" | "BACA_LAGI";
   kode: string;
   pernyataan: string;
   modul: string;
   pelajaran: string;
   halaman: string | null;
-  alasan: string;
+  /** null on a certifying result (D2-R) */
+  alasan: string | null;
 };
 
 export type LessonEntry = {
@@ -180,4 +189,7 @@ export type Orientation = {
   tolak_mulai?: string | null;
   tolak_selesai?: string | null;
   tolak_kelas?: string[] | null;
+  /** D2-R (Daisy via Bob 02:06Z): whether a sitting started now would certify (mode_policy.certifies, the value the start
+   *  captures); a certifying Asesmen Mandiri says before it starts that it offers no help */
+  bersertifikasi?: boolean;
 };
