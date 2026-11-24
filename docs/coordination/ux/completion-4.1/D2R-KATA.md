@@ -90,3 +90,15 @@ On the chapter page, beside «Lanjut membaca», when Pemetaan Awal is done and s
    - It is drawn on certifying modes only. Sharon's §6.3a check («Waktu berjalan» implies no timed test) is hers.
 2. **The evidence threshold** (§3), with Sharon.
 3. **The A4 sheet's rendered check** (R-13) on the new R-b line, with whichever term §1 settles.
+
+## 6 · No evidence threshold in 4.1 (Sharon, via Bob, 24 Nov 01:07): two words change
+
+With no threshold, every objective below the mark goes in the one revisit list. Two of my words assumed two lists:
+- **The list label:** `hasil.baca_lagi` «Baca lagi juga:» → **«Baca lagi:»** / **«Read again:»**. With no list above it, «juga» means nothing.
+- **The note:** `hasil.baca_lagi_arti` claimed «Soal untuk bagian ini sedikit…». That is now **false** for objectives that had plenty of questions. Replace it with:
+  - ID: «Bagian ini disarankan untuk dibaca lagi. Saran ini bukan penilaian atas penguasaan Anda pada bagian ini.»
+  - EN: «These parts are suggested for reading again. This is advice, not a judgement of your mastery of them.»
+- **`hasil.target.ulang` «Bagian yang masih perlu dipelajari:»** is not drawn in 4.1. It waits for 4.5's threshold.
+- **Everything else in §3 stands.**
+
+**«Materi Pembelajaran» kept (ruling 59, Dr Gladys's sentence):** accepted. The admin certificate column follows it: `sertifikat.kelola.kolom.kursus` «Materi Pembelajaran» / «Learning Material», reversing Z7's C-3. That keeps one name.
