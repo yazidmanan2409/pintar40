@@ -35,4 +35,5 @@ artifact.
 |---|---|---|
 | W1 · an SD class of six with printed class cards, none activated | `01-sekolah-sd.sql` (SD Sintetis Melati, 4A) | built; J1 runs on it |
 | 4A's chapter, J1's «today's task» | `02-bab.sql` (`dunia.bab`, the chapter builder) | built |
-| W2–W19 | | next |
+| W3 · SMP Sintetis Cendekia, 8A: the core chapter «Persamaan Linear Satu Variabel», sealed at 60; a Pemetaan Awal of 3; an Uji Penguasaan of 6 (2 multi-answer, 1 must-be-right, objectives of 2, 3 and 1 item: CDK8-3 is the thin one) | `03-sekolah-smp.sql` | built (checked at load); J2's learners join with W4–W5 |
+| W2, W4–W19 | | next |
