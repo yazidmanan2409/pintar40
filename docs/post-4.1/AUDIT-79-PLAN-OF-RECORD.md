@@ -54,7 +54,7 @@
 | W1 | All twelve walked. Captures committed and judged: **J2, J3, J4 closed for builder lines**. The builder next reloads the world (the L-80 world fix, the W12 allowance), runs J2's public check in EN, then J7, J10 and the rest |
 | W2 | L-1 to L-104 recorded |
 | W3 | INTERIM: C-1 to C-11 |
-| W4 | CI-1: the helper scope is ruled (§7, Sharon agrees). Second Eye on focused tests, then the ONE full pre-flight, then the freeze check |
+| W4 | **CI-1 FROZEN at `dfab09b6` (Bob's «freeze», 15:17Z).** The freeze check: scope §1–§7, P1–P9 caught, 8/8 dependent tests, 5 dependent screens, the full pre-flight green on `0c638ace` (red-case step rerun under PREFLIGHT_DENYUT, H-1), then a delta of Daisy's words plus a docs sha only (guards green). Next: one push, the PR, the journeys; Sharon verifies independently. **Merge and staging 309→310 wait for the owner** |
 | W5 | CI-2: pre-build complete (Sharon §6); words cleared (§7). Waiting on CI-1's freeze |
 | W6 | Not started (after W3 FINAL) |
 | W7 | Not started |
