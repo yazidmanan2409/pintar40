@@ -37,3 +37,16 @@
 - journeys 45441914637: `completed`, conclusion `success`, attempt 1, the same head, finished 17:25:56Z.
 
 CI-1's evidence stands as stated.
+
+## Executed under ruling 101 (24 Nov 2026, Bob)
+
+1. **PR #30's description is updated** to the frozen candidate `94ce6727` and the test-only C1W-S06 correction.
+2. **Step 0 on staging** (`promotion/step0-CI1-staging.txt`), read-only, ~22:24Z: 309; 60 issued certificates, none with an open review, none whose result in force fails, so **no certificate changes state**.
+3. **BEFORE** (`promotion/preservation-CI1-staging-BEFORE.txt`), read-only, 22:25:24Z: watermark `audit_id` 10705.
+4. **Pre-merge check:**
+   - the head is still `94ce6727f9325426c328c3340365870593298192`;
+   - migration 310's sha256 is still `2b450700…29e6`;
+   - main `429b7dcc` is the merge base, so there's no conflict;
+   - both runs read `success` from the API.
+5. **Merged** as a merge commit, pinned to the expected head: main **`93b93134`** (parents `429b7dcc`, `94ce6727`). **Its tree is identical to `94ce6727`'s.**
+6. **Staging promotion:** `staging.yml` run **45500905721**, triggered by the push to main, which adds a migration.
