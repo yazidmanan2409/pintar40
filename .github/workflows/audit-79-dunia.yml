@@ -1,0 +1,102 @@
+# Ruling 79's audit, track 3c (ruling 89): the shared synthetic world and the journey captures, on CI.
+#
+# A HARNESS run, not a gate and not a required check: it proves each journey runs from a reset to its last screen and
+# keeps the captures (screens, data reads) as an artifact for Second Eye to reproduce and Daisy to judge.
+# It runs only on this branch (claude/audit-79-world), only when the world, the captures or this file change.
+# Local stack on the runner, synthetic data only: nothing here reaches staging or production, and no credential is used.
+
+name: audit-79 · synthetic world and journey captures
+
+on:
+  push:
+    branches: [claude/audit-79-world]
+    paths:
+      - audit/dunia/**
+      - audit/perjalanan/**
+      - .github/workflows/audit-79-dunia.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: audit-79-dunia-${{ github.ref_name }}
+  cancel-in-progress: true
+
+env:
+  APP_PORT: "3999"
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  perjalanan:
+    name: the world, then each journey from a reset to its last screen
+    # Playwright has no browser build for ubuntu 26.04 (audit-journeys.yml, B0-A); pinned as there.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Keep the stack's host ports out of the ephemeral range
+        run: sudo sysctl -q -w net.ipv4.ip_local_reserved_ports=54320-54329
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install the app's dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Start the local stack (CI's set) and the Mailpit sink
+        run: |
+          set -euo pipefail
+          npx --no-install supabase start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta,mailpit
+          docker run -d --name mailpit -p 127.0.0.1:54325:1025 -p 127.0.0.1:54324:8025 axllent/mailpit:v1.31.3 \
+            --enable-chaos --smtp-auth-accept-any --smtp-auth-allow-insecure --disable-version-check
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:54324/api/v1/info >/dev/null && break; sleep 1; done
+          npx --no-install supabase status -o env > "$RUNNER_TEMP/stack.env"
+          val() { grep -E "^$1=" "$RUNNER_TEMP/stack.env" | head -1 | cut -d= -f2- | tr -d '"'; }
+          svc="$(val SERVICE_ROLE_KEY)"; [ -n "$svc" ] || svc="$(val SECRET_KEY)"
+          anon="$(val ANON_KEY)"; [ -n "$anon" ] || anon="$(val PUBLISHABLE_KEY)"
+          echo "::add-mask::$svc"
+          { echo "SUPABASE_URL=$(val API_URL)"; echo "SUPABASE_ANON_KEY=$anon"; echo "SUPABASE_SERVICE_ROLE_KEY=$svc"; echo "SUPABASE_DB_URL=$(val DB_URL)"; } >> "$GITHUB_ENV"
+      - name: Build and start the app in production mode
+        run: |
+          set -euo pipefail
+          # synthetic values, CI's own (ci.yml): not secrets
+          export NEXT_PUBLIC_SUPABASE_URL="$SUPABASE_URL" NEXT_PUBLIC_SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY"
+          export NEXT_PUBLIC_APP_URL="http://127.0.0.1:${APP_PORT}" PINTAR_BUILD_SHA="$GITHUB_SHA"
+          export CARD_PEPPER=synthetic-card-pepper-fable01-32plus CARD_EMAIL_DOMAIN=cards.synthetic.pintar.test
+          export CERT_SECRET_KEY_V1=synthetic-certificate-key-fable04-32plus
+          export PINTAR_SMTP_HOST=127.0.0.1 PINTAR_SMTP_PORT=54325 PINTAR_SMTP_USER=noreply@pintarselalu.test PINTAR_SMTP_PASSWORD=sink-accepts-any
+          npm run build > "$RUNNER_TEMP/build.log" 2>&1 || { tail -40 "$RUNNER_TEMP/build.log"; exit 1; }
+          nohup npx next start -p "$APP_PORT" -H 127.0.0.1 > "$RUNNER_TEMP/app.log" 2>&1 &
+          for i in $(seq 1 60); do curl -fsS -o /dev/null "http://127.0.0.1:${APP_PORT}/masuk" && break; sleep 2; done
+          curl -fsS -o /dev/null -w 'app up: /masuk %{http_code}\n' "http://127.0.0.1:${APP_PORT}/masuk"
+      - name: Install the harness's browser
+        working-directory: audit
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      # Each journey: the reset and the world (audit/dunia/muat.sh), then its walks. J1 first (ruling 89: «send the head
+      # when the first journey runs end to end on CI»); the others join here as their states land.
+      - name: J1 · the world from a reset, then the standard walk (1280, 390, 320; ID; keyboard)
+        env:
+          APP_URL: http://127.0.0.1:3999
+          AUDIT_OUT: ${{ github.workspace }}/audit-out/perjalanan
+        run: |
+          set -euo pipefail
+          audit/dunia/muat.sh
+          node audit/perjalanan/j1.mjs
+      - name: J1 · the walk in EN (1280)
+        if: success() || failure()
+        env:
+          APP_URL: http://127.0.0.1:3999
+          AUDIT_OUT: ${{ github.workspace }}/audit-out/perjalanan
+          AUDIT_BAHASA: en
+          AUDIT_LEBAR: "1280"
+        run: node audit/perjalanan/j1.mjs
+      - name: Keep the captures
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-79-perjalanan-${{ github.sha }}
+          path: audit-out/perjalanan
+          retention-days: 30
+      - name: The app's log, when a walk stopped
+        if: failure()
+        run: tail -80 "$RUNNER_TEMP/app.log" || true
