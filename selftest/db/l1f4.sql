@@ -478,7 +478,8 @@ begin
         v_probs := selftest.f11_note(v_probs, 'L1F4-K12', 'approving an open request to reopen an anonymised person answered ' || v_t || ' (expected PR140:ACCOUNT_ANONYMISED)');
       end if;
       v_t := (select count(*)::text from public.person_suspensions x where x.person_id = p_j and x.ended_at is null and x.category = 'CLOSED_AT_REQUEST')
-          || '|' || (select coalesce(string_agg((u.banned_until = public.akun_terkunci_sampai())::text, ','), '-') from public.accounts a join auth.users u on u.id = a.auth_user_id where a.person_id = p_j);
+          -- RESTATED, CI-2 (ruling 98): «locked» is the lock's rotation, never a ban; a refused reopen re-keys nothing and bans nothing
+          || '|' || (select coalesce(string_agg((u.banned_until is null and public.orang_ditangguhkan(a.person_id))::text, ','), '-') from public.accounts a join auth.users u on u.id = a.auth_user_id where a.person_id = p_j);
       if v_t is distinct from '1|true' then
         v_probs := selftest.f11_note(v_probs, 'L1F4-K12', 'after the refused reopens, the closure|accounts locked read ' || coalesce(v_t, '-') || ' (expected 1|true: still closed, still locked)');
       end if;

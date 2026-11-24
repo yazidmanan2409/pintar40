@@ -867,13 +867,15 @@ begin
       a02 := a02 || 'a refusal suspended or audited'::text; end if;
 
     -- A01 the suspension
+    -- RESTATED, CI-2 (ruling 98): the lock rotates the account's secret and bans nothing; its fingerprint is read before
+    perform set_config('f38.kunci', (select coalesce(md5(u.encrypted_password), '-') from auth.users u where u.id = u_guru_b), true);
     v_got := selftest.f37_sebagai(u_sys, format('select public.tangguhkan_akun(%L, %L, %L)', p_guru_b, 'SECURITY', 'akun diduga diambil alih'));
     if v_got <> 'OK' then a01 := a01 || ('the suspension: ' || v_got);
     else
-      -- RESTATED, auth correction (owner, 11 Nov): the lock is the one named instant Auth can read
-      -- (public.akun_terkunci_sampai(), 20270116130000), no longer 'infinity', which Auth could not read
-      if (select u.banned_until from auth.users u where u.id = u_guru_b) is distinct from public.akun_terkunci_sampai() then
-        a01 := a01 || 'sign-in is not refused (the Auth user is not banned)'::text; end if;
+      -- RESTATED, CI-2 (ruling 98): no ban; the secret was rotated, so no password from before signs in
+      if (select u.banned_until is not null or coalesce(md5(u.encrypted_password), '-') = current_setting('f38.kunci') from auth.users u where u.id = u_guru_b) then
+        a01 := a01 || 'sign-in is not refused (the secret was not rotated, or the Auth user is banned)'::text; end if;
+      perform set_config('f38.kunci', (select coalesce(md5(u.encrypted_password), '-') from auth.users u where u.id = u_guru_b), true);
       v_got := selftest.f37_sebagai(u_guru_b, 'select pintar_permintaan.periksa()');
       if v_got not like 'PT403%' then a01 := a01 || ('the Guru''s token still answers: ' || v_got); end if;
       if not exists (select 1 from public.staf_peran_hidup(p_guru_b, v_inst)) then a01 := a01 || 'the suspension ended the Guru''s roles'::text; end if;
@@ -889,7 +891,9 @@ begin
     v_got := selftest.f37_sebagai(u_sys, format('select public.aktifkan_kembali_akun(%L, %L)', p_guru_b, 'akun sudah dipulihkan pemiliknya'));
     if v_got <> 'OK' then a03 := a03 || ('the reactivation: ' || v_got);
     else
-      if (select u.banned_until from auth.users u where u.id = u_guru_b) is not null then a03 := a03 || 'sign-in is still refused'::text; end if;
+      -- RESTATED, CI-2 (OD-1, ruling 100): never banned, and re-keyed: the Guru signs in again with a fresh credential only
+      if (select u.banned_until is not null or coalesce(md5(u.encrypted_password), '-') = current_setting('f38.kunci') from auth.users u where u.id = u_guru_b) then
+        a03 := a03 || 'the reactivation did not re-key, or the Auth user is banned'::text; end if;
       v_got := selftest.f37_sebagai(u_guru_b, 'select pintar_permintaan.periksa()');
       if v_got <> 'OK' then a03 := a03 || ('the Guru''s token still refused: ' || v_got); end if;
       if (select count(*) from public.audit_log a where a.action = 'account.reactivated' and a.target_id = p_guru_b::text) <> 1 then
@@ -915,8 +919,8 @@ begin
          or not exists (select 1 from public.account_requests q where q.person_id = p_guru_b and q.kind = 'CLOSE' and q.status = 'DONE') then
         a04 := a04 || 'the closure is not recorded as CLOSED_AT_REQUEST with its request DONE'::text; end if;
       v_got := selftest.f37_sebagai(u_guru_b, 'select pintar_permintaan.periksa()');
-      -- RESTATED, auth correction (owner, 11 Nov): locked until public.akun_terkunci_sampai(), no longer 'infinity'
-      if v_got not like 'PT403%' or (select u.banned_until from auth.users u where u.id = u_guru_b) is distinct from public.akun_terkunci_sampai() then
+      -- RESTATED, CI-2 (ruling 98): refused by periksa, never banned (the closure rotated the secret)
+      if v_got not like 'PT403%' or (select u.banned_until is not null from auth.users u where u.id = u_guru_b) then
         a04 := a04 || ('after closing, the account still signs in or answers: ' || v_got); end if;
     end if;
     perform selftest.as_user_uid(u_sys);

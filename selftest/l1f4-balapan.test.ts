@@ -156,9 +156,10 @@ export const l1f4BalapanTests: SelfTest[] = [
       };
       const hapus = (g: { req: string }) => sebagai(sys, `select public.hapus_data_pribadi('${g.req}', 'sesuai permintaan')`);
       const bukaKembali = (g: { buka: string }) => sebagai(sys, `select public.buka_kembali_akun('${g.buka}', 'identitas diperiksa lewat telepon sekolah')`);
+      // RESTATED, CI-2 (ruling 98): never banned; «locked» is the person's own lock (the account rotated by it), «open» none
       const keadaan = (p: string) => psql(`select (select (anonymized_at is not null)::text from public.persons where id = ${lit(p)})
         || '|' || (select count(*) from public.person_suspensions where person_id = ${lit(p)} and ended_at is null)
-        || '|' || (select coalesce(string_agg(case when u.banned_until = public.akun_terkunci_sampai() then 'locked' when u.banned_until is null then 'open' else 'other' end, ','), '-')
+        || '|' || (select coalesce(string_agg(case when u.banned_until is not null then 'banned' when public.orang_ditangguhkan(a.person_id) then 'locked' else 'open' end, ','), '-')
                    from public.accounts a join auth.users u on u.id = a.auth_user_id where a.person_id = ${lit(p)})`);
       /** The first act sleeps 2 s just after its first lock (its function swapped by fragment); the second starts 0.6 s in. */
       const balap = async (fnPertama: string, pertama: string, kedua: string) => {

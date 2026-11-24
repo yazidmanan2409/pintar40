@@ -73,6 +73,13 @@ begin
     raise exception using errcode = 'PR040', detail = 'PASSWORD_WRITE_REFUSED',
       message = 'a password is set only through PINTAR''s own activation and recovery';
   end if;
+  -- CI-2 (Sharon (a) 3): no usable credential is ever written for a locked person. A write through a permit (a class
+  -- card re-issued during a suspension) goes through as asked, so its route answers as for anyone, but what is stored is
+  -- a random secret of the same cost: the new card or password signs nothing in, during the lock or after it (ruling 100)
+  if exists (select 1 from public.accounts a where a.auth_user_id = new.id and public.orang_ditangguhkan(a.person_id)) then
+    new.encrypted_password := extensions.crypt(encode(extensions.gen_random_bytes(32), 'hex'), extensions.gen_salt('bf',
+      greatest(4, least(coalesce(nullif(substring(new.encrypted_password from '^\$2[aby]\$([0-9]{2})\$'), '')::int, 10), 15))));
+  end if;
   if v_purpose = 'ACTIVATION' then
     update public.account_setup s set password_set_at = clock_timestamp()
       from public.accounts a where a.id = s.account_id and a.auth_user_id = new.id and s.state = 'REQUIRED';
@@ -123,7 +130,7 @@ begin
   return n;
 end $$;
 
--- 4. An account made (or moved) for a locked person: rotated and revoked at once (Sharon addition 1). The re-ban guard goes
+-- 4. An account made for a locked person: rotated and revoked at once (Sharon addition 1). The re-ban guard goes
 create or replace function public.akun_baru_terkunci()
  returns trigger
  language plpgsql
@@ -131,9 +138,6 @@ create or replace function public.akun_baru_terkunci()
  set search_path = public, pg_temp as $$
 begin
   if new.auth_user_id is null then return null; end if;
-  if tg_op = 'UPDATE' and new.auth_user_id is not distinct from old.auth_user_id and new.person_id is not distinct from old.person_id then
-    return null;
-  end if;
   -- Sharon §2a point 2, unchanged: the person's row first, against the suspending act's FOR UPDATE
   perform 1 from public.persons p where p.id = new.person_id for share;
   if public.orang_ditangguhkan(new.person_id) then
@@ -141,9 +145,6 @@ begin
   end if;
   return null;
 end $$;
-drop trigger if exists _l1f2_accounts_terkunci on public.accounts;
-create trigger _l1f2_accounts_terkunci after insert or update of auth_user_id, person_id on public.accounts
-  for each row execute function public.akun_baru_terkunci();
 drop trigger if exists pintar_kunci_tetap_jaga on auth.users;
 drop function if exists public.kunci_tetap_jaga();
 

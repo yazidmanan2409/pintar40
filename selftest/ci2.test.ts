@@ -21,8 +21,9 @@
  *            it is refused by periksa on PostgREST (Q9, periksa without its suspension rule, caught).
  *   CI2-T01  one-time tokens: a recovery link and a magic link issued before the lock fail after it (Q4 caught); a link
  *            issued during the lock gives a session that periksa refuses.
- *   CI2-B01  reinstatement and reopening re-key: a password set during the lock, and the one from before it, do not sign
- *            in after aktifkan_kembali_akun or buka_kembali_akun (Q5 caught); a fresh password afterwards does.
+ *   CI2-B01  during the lock, a password written through a permit is stored as a secret nobody holds (Q10 caught);
+ *            reinstatement and reopening re-key: a password put in during the lock past the guard, the one from before it
+ *            and the permit's do not sign in after aktifkan_kembali_akun or buka_kembali_akun (Q5 caught); a fresh one does.
  *   CI2-P01  the learner (Sharon (b)): reinstated, the old card and PIN read the ordinary mismatch; the school's re-issue
  *            through its route writes the derived Auth password, so the new card and PIN sign in (Q6 caught); a re-issue
  *            during the suspension is re-keyed away by the reinstatement.
@@ -185,6 +186,13 @@ async function sandiLewatIzin(a: Auth, uid: string, password: string): Promise<n
         on conflict (auth_user_id) do update set purpose = excluded.purpose, expires_at = excluded.expires_at`);
   return a.setelSandi(uid, password);
 }
+/** The harness's hand: a credential put straight into Auth's row, past every trigger, as a write the guard never saw. */
+function sandiLangsung(uid: string, password: string) {
+  psql(`begin; set local session_replication_role = replica;
+    update auth.users set encrypted_password = extensions.crypt(${lit(password)}, extensions.gen_salt('bf', 10)) where id = ${lit(uid)}; commit;`);
+}
+const GUARD = "public.auth_password_write_guard()";
+const ATURAN_TERKUNCI = "if exists (select 1 from public.accounts a where a.auth_user_id = new.id and public.orang_ditangguhkan(a.person_id)) then";
 /** The harness's hand at the end: the person's lock lifted and sessions gone (never a product path). */
 function lepaskan(orang: string) {
   if (!orang) return;
@@ -295,6 +303,8 @@ export const ci2StaticTests: SelfTest[] = [
       const hapus = def("public.hapus_data_pribadi");
       c.expect(/akun_rotasi\(/.test(hapus) && !/akun_kunci\([^)]*false/.test(hapus), "the anonymisation does not rotate, or reaches the unlock (Sharon (d))");
       c.expect(/pintar\.kunci_rotasi/.test(def("public.auth_password_write_guard")), "the password guard does not know the rotation's own write");
+      c.expect(def("public.auth_password_write_guard").includes(ATURAN_TERKUNCI) && /new\.encrypted_password := extensions\.crypt\(/.test(def("public.auth_password_write_guard")),
+        "the password guard stores what it is given for a locked person (Sharon (a) 3)");
       // F-5: PINTAR's own code doors leave a locked person out (Auth no longer refuses them)
       for (const f of ["public.recovery_code_target", "public.activation_code_target"]) {
         c.expect(/not public\.orang_ditangguhkan\(a\.person_id\)/.test(def(f)), `${f} still answers for a locked person (F-5)`);
@@ -482,12 +492,27 @@ export const ci2AppTests: SelfTest[] = [
         const s = await buatStaf(a, "b01");
         orang.push(s.orang);
         tangguhkan(s.orang);
+        // through a permit during the lock: the write is taken, and what is stored is a secret nobody holds (the guard)
+        const lewatIzin = `Ci2-Izin-${randomBytes(5).toString("hex")}-Aa1!`;
+        c.expect(await sandiLewatIzin(a, s.uid, lewatIzin) === 200, "the harness could not ask for a password write during the lock");
+        const ri = await a.masuk(s.email, lewatIzin);
+        c.expect(ri.status === 400 && ri.code === "invalid_credentials", `a password written through a permit during the lock signs in (${ri.status} ${ri.code})`);
+        // Q10: the guard writes what it is given for a locked person
+        const s10 = await buatStaf(a, "b01-q10");
+        orang.push(s10.orang);
+        tangguhkan(s10.orang);
+        await denganTanaman(c, GUARD, [[ATURAN_TERKUNCI, "if false then"]], "Q10 (a credential written for a locked person is usable)", async () => {
+          const p = `Ci2-Q10-${randomBytes(5).toString("hex")}-Aa1!`;
+          await sandiLewatIzin(a, s10.uid, p);
+          return (await a.masuk(s10.email, p)).status === 200;
+        });
+        // one put past the guard (a write it never saw): the reinstatement must still replace it
         const selama = `Ci2-Selama-${randomBytes(5).toString("hex")}-Aa1!`;
-        c.expect(await sandiLewatIzin(a, s.uid, selama) === 200, "the harness could not set a password during the lock");
+        sandiLangsung(s.uid, selama);
         const sebelum = hash(s.uid);
         aktifkanKembali(s.orang);
         c.expect(hash(s.uid) !== sebelum, "reinstatement did not re-key");
-        for (const [apa, p] of [["the password set during the lock", selama], ["the password from before the lock", s.sandi]] as const) {
+        for (const [apa, p] of [["the password set during the lock", selama], ["the password from before the lock", s.sandi], ["the one written through a permit", lewatIzin]] as const) {
           const r = await a.masuk(s.email, p);
           c.expect(r.status === 400 && r.code === "invalid_credentials", `reinstated, ${apa} reads ${r.status} ${r.code}`);
         }
@@ -501,7 +526,7 @@ export const ci2AppTests: SelfTest[] = [
         const req = psql(`select id from public.account_requests where person_id = ${lit(t2.orang)} and kind = 'REOPEN' and status in ('RECEIVED', 'IN_PROGRESS')`);
         if (c.expect(/^[0-9a-f-]{36}$/.test(req), `no reopening request was made (${minta.slice(0, 60)})`)) {
           const selama2 = `Ci2-Tutup-${randomBytes(5).toString("hex")}-Aa1!`;
-          await sandiLewatIzin(a, t2.uid, selama2);
+          sandiLangsung(t2.uid, selama2);
           sebagaiUid(uidDari(SYS_EMAIL), `select public.buka_kembali_akun(${lit(req)}, 'uji CI-2: identitas dipastikan lewat telepon')`);
           for (const p of [selama2, t2.sandi]) {
             const r = await a.masuk(t2.email, p);
@@ -515,13 +540,15 @@ export const ci2AppTests: SelfTest[] = [
           "if p_kunci then n := n + public.akun_rotasi(a.auth_user_id, 'DITANGGUHKAN'); end if;"]], "Q5 (the unlock re-keys nothing)", async () => {
           tangguhkan(s5.orang);
           const p = `Ci2-Q5-${randomBytes(5).toString("hex")}-Aa1!`;
-          await sandiLewatIzin(a, s5.uid, p);
+          sandiLangsung(s5.uid, p);
           aktifkanKembali(s5.orang);
           return (await a.masuk(s5.email, p)).status === 200;
         });
-        return c.verdict("reinstated (aktifkan_kembali_akun) and reopened (buka_kembali_akun), the account is re-keyed: the password set during "
-          + "the lock and the one from before it read invalid_credentials; a fresh password set afterwards signs in; Q5 (the unlock re-keys "
-          + "nothing: the password set during the lock signs in) is caught");
+        return c.verdict("during the lock a password written through a permit is stored as a secret nobody holds (it reads invalid_credentials; "
+          + "Q10, the guard writing it as given, is caught); reinstated (aktifkan_kembali_akun) and reopened (buka_kembali_akun), the account is "
+          + "re-keyed: a password put in during the lock past the guard, the one from before it and the one written through a permit read "
+          + "invalid_credentials; a fresh password set afterwards signs in; Q5 (the unlock re-keys nothing: the password put in during the lock "
+          + "signs in) is caught");
       } finally { for (const o of orang) lepaskan(o); }
     },
   },
@@ -550,6 +577,11 @@ export const ci2AppTests: SelfTest[] = [
         tangguhkan(k.orang);
         // a re-issue DURING the suspension: whatever it gives is re-keyed away by the reinstatement
         const selama = await terbit(k.orang);
+        c.expect(selama.status === 200 && Boolean(selama.body.card), `the school's re-issue during the suspension answered ${selama.status} (it answers as for anyone)`);
+        if (selama.body.card) {
+          const r = await kartuMasuk(selama.body.card, selama.body.pin!);
+          c.expect(r.status === 401 && r.body?.code === "CARD_NOT_MATCHED", `during the suspension, the card re-issued in it signs in (${r.status} ${JSON.stringify(r.body)})`);
+        }
         aktifkanKembali(k.orang);
         if (selama.status === 200 && selama.body.card) {
           const r = await kartuMasuk(selama.body.card, selama.body.pin!);
@@ -575,8 +607,8 @@ export const ci2AppTests: SelfTest[] = [
             const r = await kartuMasuk(b.body.card, b.body.pin!);
             return r.status === 401;
           });
-        return c.verdict("reinstated, the learner's old card secret reads invalid_credentials and a card re-issued during the suspension does "
-          + "not sign in; the school's re-issue through /api/akun/kartu-kelas writes the derived Auth password, so the new card and PIN sign "
+        return c.verdict("a card re-issued during the suspension answers as for anyone and signs in neither during it nor after it; reinstated, "
+          + "the learner's old card secret reads invalid_credentials; the school's re-issue through /api/akun/kartu-kelas writes the derived Auth password, so the new card and PIN sign "
           + "in at /masuk/kartu; Q6 (the re-issue's Auth password left random) is caught");
       } finally {
         await admin.kirim("/keluar", { method: "POST" }).catch(() => null);

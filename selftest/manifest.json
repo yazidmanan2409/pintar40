@@ -2126,7 +2126,7 @@
     {
       "id": "L1F4-K12",
       "runner": "db",
-      "proves": "L1-F4, Sharon's result review of 3a63a2b2 (L1F4-A2; her L1F4-K09, renamed), selftest/db/l1f4.sql against migration 20270117200000: the deletion ends an open request to reopen with a note; a request made before it and approved after it is refused, and any other open one is refused ACCOUNT_ANONYMISED; the closure stays open and every account stays locked; a request by PINTAR ID after the deletion answers ok and records nothing."
+      "proves": "L1-F4, Sharon's result review of 3a63a2b2 (L1F4-A2; her L1F4-K09, renamed), selftest/db/l1f4.sql against migration 20270117200000: the deletion ends an open request to reopen with a note; a request made before it and approved after it is refused, and any other open one is refused ACCOUNT_ANONYMISED; the closure stays open and every account stays locked (RESTATED for CI-2: never banned); a request by PINTAR ID after the deletion answers ok and records nothing."
     },
     {
       "id": "L1F4-R01",
@@ -2136,7 +2136,7 @@
     {
       "id": "L1F4-R02",
       "runner": "static",
-      "proves": "L1-F4, selftest/l1f4-balapan.test.ts, Sharon's L1F4-A1 on two real connections against the database (migration 20270117200000): a deletion and a reopen of the same closed person, in both orders, each paused after its first lock; the second waits and is refused, so the person ends either anonymised, closed and locked, or reopened and not anonymised; her plant (the closure checked before the lock) lets both through."
+      "proves": "L1-F4, selftest/l1f4-balapan.test.ts, Sharon's L1F4-A1 on two real connections against the database (migration 20270117200000): a deletion and a reopen of the same closed person, in both orders, each paused after its first lock; the second waits and is refused, so the person ends either anonymised, closed and locked, or reopened and not anonymised (RESTATED for CI-2: never banned either way); her plant (the closure checked before the lock) lets both through."
     },
     {
       "id": "F13-K16",
@@ -3310,13 +3310,13 @@
     {
       "id": "CI2-B01",
       "runner": "app",
-      "proves": "CI-2 F-3 with ruling 100, red first, selftest/ci2.test.ts; executes tangguhkan_akun, aktifkan_kembali_akun, minta_akun CLOSE, minta_buka_kembali and buka_kembali_akun with Auth against the local stack: reinstated or reopened, a password set during the lock and the one from before it read invalid_credentials; a fresh password set afterwards signs in; plant Q5 (the unlock re-keys nothing) is caught.",
+      "proves": "CI-2 F-3 with ruling 100, red first, selftest/ci2.test.ts; executes tangguhkan_akun, aktifkan_kembali_akun, minta_akun CLOSE, minta_buka_kembali and buka_kembali_akun with Auth against the local stack: during the lock a password written through a permit is stored as a secret nobody holds (plant Q10, the guard writing it as given, is caught); reinstated or reopened, a password put in during the lock past the guard, the one from before it and the permit's read invalid_credentials; a fresh password set afterwards signs in; plant Q5 (the unlock re-keys nothing) is caught.",
       "skip_justification": "needs the local stack: Auth, PostgREST and Postgres (CI local stack via SUPABASE_DB_URL)"
     },
     {
       "id": "CI2-P01",
       "runner": "app",
-      "proves": "CI-2 with Sharon's (b), red first, selftest/ci2.test.ts; executes the running app's /api/akun/kartu-kelas and /masuk/kartu with Auth: reinstated, a learner's old card secret reads invalid_credentials and a card re-issued during the suspension does not sign in; the school's re-issue writes the derived Auth password, so the new card and PIN sign in; plant Q6 (the re-issue's Auth password left random) is caught.",
+      "proves": "CI-2 with Sharon's (b), red first, selftest/ci2.test.ts; executes the running app's /api/akun/kartu-kelas and /masuk/kartu with Auth: a card re-issued during the suspension answers as for anyone and signs in neither during it nor after reinstatement; reinstated, a learner's old card secret reads invalid_credentials; the school's re-issue writes the derived Auth password, so the new card and PIN sign in; plant Q6 (the re-issue's Auth password left random) is caught.",
       "skip_justification": "needs the running app and the local stack (Auth, PostgREST)"
     },
     {
@@ -5401,7 +5401,7 @@
     {
       "id": "F38-A01",
       "runner": "db",
-      "proves": "§5b platform suspension (owner, 9 Nov; selftest/db/fable38.sql against 20270113130000): the PINTAR Administrator suspends Kelas B's Guru with the category SECURITY and a note: the Auth user is banned (sign-in refused), pintar_permintaan.periksa refuses the Guru's token PT403 AKUN_DITANGGUHKAN, the Guru's roles and evidence are untouched, and one account.suspended audit row carries the category."
+      "proves": "§5b platform suspension (owner, 9 Nov; selftest/db/fable38.sql against 20270113130000): the PINTAR Administrator suspends Kelas B's Guru with the category SECURITY and a note: the Auth user's secret is rotated, never banned (sign-in refused; RESTATED for CI-2), pintar_permintaan.periksa refuses the Guru's token PT403 AKUN_DITANGGUHKAN, the Guru's roles and evidence are untouched, and one account.suspended audit row carries the category."
     },
     {
       "id": "F38-A02",
@@ -5411,7 +5411,7 @@
     {
       "id": "F38-A03",
       "runner": "db",
-      "proves": "§5b reactivation (selftest/db/fable38.sql): aktifkan_kembali_akun refuses a reason under 10 characters; with one, the suspension ends, the Auth user is unbanned, the token answers again, and one account.reactivated audit row is written."
+      "proves": "§5b reactivation (selftest/db/fable38.sql): aktifkan_kembali_akun refuses a reason under 10 characters; with one, the suspension ends, the Auth user is re-keyed and never banned (RESTATED for CI-2, ruling 100: a fresh credential), the token answers again, and one account.reactivated audit row is written."
     },
     {
       "id": "F38-A04",
@@ -6031,17 +6031,17 @@
     {
       "id": "L1F2-A01",
       "runner": "app",
-      "proves": "L1-F2, selftest/l1f2-layar.test.ts, through the running app's route /api/akun/kartu-kelas and real Auth: a school's reissue of a suspended learner's card answers as for one who is not (status and shape), writes the same account.card_reissued row in the audit log, leaves banned_until at akun_terkunci_sampai(); the new card signs nothing in until reinstatement, and signs in after it (Sharon, settled 12 Nov)."
+      "proves": "L1-F2, selftest/l1f2-layar.test.ts, through the running app's route /api/akun/kartu-kelas and real Auth: a school's reissue of a suspended learner's card answers as for one who is not (status and shape), writes the same account.card_reissued row in the audit log, RESTATED for CI-2 (ruling 98, OD-1 ruling 100): bans nothing; the new card signs nothing in during the suspension (the password guard stores a secret nobody holds) nor after reinstatement (it re-keys), and a fresh re-issue after reinstatement signs in (Sharon, settled 12 Nov)."
     },
     {
       "id": "L1F2-A02",
       "runner": "app",
-      "proves": "L1-F2 (P-1's guarding test), selftest/l1f2-layar.test.ts, through the running app's route /api/akun/aktivasi, real Auth and the mail sink: an EMAIL account for a suspended person and a class card for a closed person answer as ordinary creations, send nothing to anyone, and are created locked; an ordinary one is not."
+      "proves": "L1-F2 (P-1's guarding test), selftest/l1f2-layar.test.ts, through the running app's route /api/akun/aktivasi, real Auth and the mail sink: an EMAIL account for a suspended person and a class card for a closed person answer as ordinary creations, send nothing to anyone, and are created locked (RESTATED for CI-2: rotated and never banned; the closed person's new card reads the ordinary mismatch with its PIN)."
     },
     {
       "id": "L1F2-R01",
       "runner": "static",
-      "proves": "L1-F2, selftest/l1f2-balapan.test.ts, on two real connections against the database (the shared harness selftest/balapan.ts; migration 20270117160000): a suspension and an account creation for the same person race in both orders and the account ends locked either way; with the link trigger's FOR SHARE removed, the creation-first order leaves it unlocked (the plant); everything committed is removed and proven gone."
+      "proves": "L1-F2, selftest/l1f2-balapan.test.ts, on two real connections against the database (the shared harness selftest/balapan.ts; migration 20270117160000): a suspension and an account creation for the same person race in both orders and the account ends locked either way (RESTATED for CI-2: rotated by the lock, never banned); with the link trigger's FOR SHARE removed, the creation-first order leaves it unlocked (the plant); everything committed is removed and proven gone."
     },
     {
       "id": "L1R2-R01",
@@ -6056,22 +6056,22 @@
     {
       "id": "L1R2-R03",
       "runner": "static",
-      "proves": "L1-F2, selftest/l1f2-balapan.test.ts, the engineer's search after Sharon's review, on two real connections against the database (migration 20270117190000): Auth's write of a reissued card holds its auth.users row and sleeps before auth_card_email_guard updates the accounts row while a suspension starts; both complete with no 40P01, the new card number is written and the account ends locked."
+      "proves": "L1-F2, selftest/l1f2-balapan.test.ts, the engineer's search after Sharon's review, on two real connections against the database (migration 20270117190000): Auth's write of a reissued card holds its auth.users row and sleeps before auth_card_email_guard updates the accounts row while a suspension starts; both complete with no 40P01, the new card number is written and the account ends locked (RESTATED for CI-2: rotated by the lock, never banned)."
     },
     {
       "id": "L1F2-S01",
       "runner": "db",
-      "proves": "L1-F2 and L1-R2, selftest/db/l1f2.sql, one rolled-back transaction each, against migration 20270117160000: a person suspended before having an account is given one: it is created locked (Sharon §2a)."
+      "proves": "L1-F2 and L1-R2, selftest/db/l1f2.sql, one rolled-back transaction each, against migration 20270117160000: a person suspended before having an account is given one: it is created locked (Sharon §2a; RESTATED for CI-2: rotated, a secret nobody holds, never banned)."
     },
     {
       "id": "L1F2-S02",
       "runner": "db",
-      "proves": "L1-F2 and L1-R2, selftest/db/l1f2.sql, one rolled-back transaction each, against migration 20270117160000: while the person is suspended, an update clearing banned_until, one of another column and one setting a nearer date each leave the lock (§2a test 4)."
+      "proves": "L1-F2 and L1-R2, selftest/db/l1f2.sql, one rolled-back transaction each, against migration 20270117160000: while the person is suspended, an update of another column leaves the rotated key and a password written with no permit is refused and leaves it (§2a test 4, RESTATED for CI-2: there is no ban to clear)."
     },
     {
       "id": "L1F2-S03",
       "runner": "db",
-      "proves": "L1-F2 and L1-R2, selftest/db/l1f2.sql, one rolled-back transaction each, against migration 20270117160000: suspend, create, reinstate, suspend again: locked, released, locked; reinstatement ends the suspension before it unlocks (§2a test 5)."
+      "proves": "L1-F2 and L1-R2, selftest/db/l1f2.sql, one rolled-back transaction each, against migration 20270117160000: suspend, create, reinstate, suspend again: re-keyed at each step and never banned (RESTATED for CI-2, ruling 100: the unlock re-keys too); reinstatement ends the suspension before it re-keys (§2a test 5)."
     },
     {
       "id": "L1F2-S04",
@@ -6081,7 +6081,7 @@
     {
       "id": "L1F2-S05",
       "runner": "db",
-      "proves": "L1-F2 and L1-R2, selftest/db/l1f2.sql, one rolled-back transaction each, against migration 20270117160000: a closed person (CLOSED_AT_REQUEST) given an account: it is created locked, and buka_kembali_akun releases it (§2a test 6)."
+      "proves": "L1-F2 and L1-R2, selftest/db/l1f2.sql, one rolled-back transaction each, against migration 20270117160000: a closed person (CLOSED_AT_REQUEST) given an account: it is created rotated, and buka_kembali_akun re-keys it; never banned (§2a test 6, RESTATED for CI-2)."
     },
     {
       "id": "L1R2-S01",
@@ -7367,7 +7367,7 @@
     {
       "id": "Z-R15-08",
       "runner": "static",
-      "proves": "Z8 item 8 (Sharon's R-15 B0 read, 23 Nov), selftest/z-r15.test.ts, executes minta_akun and revoke_role from migration 20270123170000 against the migrated database on the synthetic world, each probe rolled back: the last usable school administrator's closure is refused PR140 ACCOUNT_LAST_SCHOOL_ADMIN with a message naming no school, and their own revocation PR160 ROLE_LAST_SCHOOL_ADMIN; a second administrator counts only when appointed now, unsuspended, not anonymised, with an account and not locked (a past banned_until counts); every school the caller administers is checked; with a usable second administrator both are allowed; a platform admin may revoke the last one."
+      "proves": "Z8 item 8 (Sharon's R-15 B0 read, 23 Nov), selftest/z-r15.test.ts, executes minta_akun and revoke_role from migration 20270123170000 against the migrated database on the synthetic world, each probe rolled back: the last usable school administrator's closure is refused PR140 ACCOUNT_LAST_SCHOOL_ADMIN with a message naming no school, and their own revocation PR160 ROLE_LAST_SCHOOL_ADMIN; a second administrator counts only when appointed now, unsuspended, not anonymised, with an account and not locked by PINTAR (RESTATED for CI-2: a ban planted by hand, future or past, is read by no one); every school the caller administers is checked; with a usable second administrator both are allowed; a platform admin may revoke the last one."
     },
     {
       "id": "Z-R15-10",
