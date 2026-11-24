@@ -130,3 +130,4 @@
 - **24 Nov 08:46Z · Daisy to Bob:** the K-1 to K-4 decisions, held for the consolidated revision (FYI).
 - **24 Nov 09:13Z · Bob:** K-1 to K-4 agreed (L-39..L-42); D2-R frozen at 177ab4d2; L-43 is the teacher's ordinal. **Answered 09:17:** PASS (tests only; C1W-J01's order and the help walk checked); L-43 agreed.
 - **24 Nov 10:04Z · Bob:** D2-R accepted on staging; 4.1 gates closed; the ruling 79 audit OPEN on main 429b7dcc. **Answered 10:09:** the L-39..L-43 mapping (L-39 to B, Improvement; L-41 to G; L-42 to B+F; L-43 Significant); my plan to lead (J2 and J3 first).
+- **24 Nov 10:05Z · Bob, correction:** the audit opens only when the owner accepts D2-R on staging (ruling 92). The mapping stands as preparation. **Holding** the journeys until Bob confirms the audit is open.
