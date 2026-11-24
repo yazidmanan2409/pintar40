@@ -1,0 +1,34 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - status: "Anda melanjutkan di sini. Jangan keluar dari akun sampai asesmen ini selesai: untuk melanjutkan lagi, guru perlu mengizinkan sekali lagi."
+  - text: Waktu berjalan 00:18
+  - button "Simpan & Jeda"
+  - button "Daftar soal"
+  - article:
+    - heading "Berapakah x jika 2x + 3 = 11?" [level=2]
+    - list:
+      - listitem:
+        - button "A 4"
+      - listitem:
+        - button "B 7"
+      - listitem:
+        - button "C 14"
+      - listitem:
+        - button "D 8"
+    - button "Simpan jawaban ini" [disabled]
+    - button "Tandai soal ini"
+    - paragraph: Pilih satu jawaban dulu.
+    - status: "Sudah dijawab: 2 dari 6."
+  - navigation:
+    - button "Kembali"
+    - button "Berikutnya"
+- alert

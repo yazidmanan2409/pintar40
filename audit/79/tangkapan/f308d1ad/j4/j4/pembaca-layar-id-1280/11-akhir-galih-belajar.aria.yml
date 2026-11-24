@@ -1,0 +1,75 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - navigation "Belajar":
+    - link "Belajar":
+      - /url: /belajar
+    - link "Sertifikat":
+      - /url: /belajar/sertifikat
+  - button "Bantuan"
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - paragraph: Belajar
+  - heading "Halo, Galih" [level=1]
+  - paragraph: Ini yang sedang berjalan hari ini.
+  - paragraph: Langkah berikutnya
+  - paragraph: Matematika · Persamaan Linear Satu Variabel
+  - heading "Selesai" [level=2]
+  - list:
+    - listitem: Pemetaan Awal
+    - listitem: Peta Bacaan Personal
+    - listitem: Pelajaran
+    - listitem: Uji Penguasaan
+    - listitem: Hasil
+  - link "Lihat hasil":
+    - /url: /belajar/a6cfdcb2-1d07-4388-beb5-2624c3d9ea9d/hasil
+  - link "Lihat semua langkah":
+    - /url: /belajar/a6cfdcb2-1d07-4388-beb5-2624c3d9ea9d
+  - heading "Pembelajaran Anda" [level=2]
+  - article:
+    - text: Matematika · Kelas 8 Persamaan Linear Satu Variabel
+    - list:
+      - listitem: Pemetaan Awal
+      - listitem: Peta Bacaan Personal
+      - listitem: Pelajaran
+      - listitem: Uji Penguasaan
+      - listitem: Hasil
+    - text: Selesai · belum mencapai target
+    - link "Lihat hasil":
+      - /url: /belajar/a6cfdcb2-1d07-4388-beb5-2624c3d9ea9d/hasil
+  - article:
+    - text: Matematika · Kelas 8 Statistika Dasar
+    - list:
+      - listitem: Pemetaan Awal
+      - listitem: Peta Bacaan Personal
+      - listitem: Pelajaran
+      - listitem: Uji Penguasaan
+      - listitem: Hasil
+    - text: Mulai dari Pemetaan Awal
+    - link "Mulai Pemetaan Awal":
+      - /url: /belajar/cf8641bf-73bd-4151-8169-c9e323af77d0/pemetaan
+  - heading "Hasil belajar" [level=2]
+  - paragraph: Semua bab yang sudah Anda kerjakan dalam satu halaman, dengan bagian yang perlu dipelajari lagi.
+  - link "Lihat hasil belajar":
+    - /url: /belajar/hasil
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- dialog "Mulai dari daftar ini":
+  - text: Tur PINTAR Langkah 1 dari 7
+  - button "EN"
+  - button "Lewati tur"
+  - heading "Mulai dari daftar ini" [level=2]
+  - paragraph: Semua yang disediakan untuk Anda ada di sini, sudah diurutkan. Yang paling atas dikerjakan lebih dulu; tombolnya membuka langkah berikutnya.
+  - checkbox "Jangan tampilkan tur ini lagi"
+  - text: Jangan tampilkan tur ini lagi
+  - button "Berikutnya"
+- alert

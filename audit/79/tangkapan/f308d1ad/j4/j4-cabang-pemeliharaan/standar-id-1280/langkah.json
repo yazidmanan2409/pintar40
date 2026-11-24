@@ -1,0 +1,62 @@
+{
+  "perjalanan": "j4-cabang-pemeliharaan",
+  "nama": "Galih · guru 8A",
+  "lebar": 1280,
+  "zona": "WIB",
+  "bahasa": "id",
+  "laluan": "standar",
+  "label": [],
+  "mulai": "2026-11-24T14:32:53.222Z",
+  "langkah": [
+    {
+      "id": "C1",
+      "judul": "maintenance planned in 10 minutes (the T−15 staff line): both views",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-t15-guru-mengajar",
+        "02-t15-guru-siapa",
+        "03-t15-guru-atur",
+        "04-t15-galih-belajar",
+        "05-t15-galih-uji",
+        "06-t15-galih-hasil"
+      ],
+      "amatan": [],
+      "data": {
+        "t15-teacher_home": "SMP Sintetis Cendekia / TA 2026/2027 SELASA, 24 NOV 2026 Selamat malam, Dimas Saputra Satu hal yang paling layak dikerjakan lebih dulu, lalu kelas dalam lingkup mengajar Anda. Tidak ada yang menunggu keputusan Anda hari ini. KELAS DALAM LINGKUP MENGAJAR ANDA Berdasarkan penugasan dari sekolah. PINTAR tidak menandai kelas sebagai milik seseorang; yang tampil adalah kelas yang tercakup dalam penugasan Anda. 8A Matematika 5 murid Pemetaan Awal — Persamaan Linear Satu Variabel · 2/5 mengumpulkan Uji",
+        "t15-teacher_row": "Galih Pratama Mulai 21.32 WIB · sisa 259199 menit Atur · Galih Pratama Sudah mulai, belum mengumpulkan",
+        "t15-teacher_atur": "← 8A SMP Sintetis Cendekia / 8A / TA 2026/2027 UJI PENGUASAAN — PERSAMAAN LINEAR SATU VARIABEL Siapa yang sudah mengumpulkan Tiga daftar nama, diurutkan abjad. Bukan peringkat, bukan penilaian, dan tidak menyebut sebabnya — PINTAR tidak tahu sebabnya. Pemetaan Awal Uji Penguasaan MURID Semua Sudah mengumpulkan · 1 Sudah mulai, belum mengumpulkan · 1 Belum mengerjakan · 3 Siapa yang sudah mengumpulkan · 8A Nama Keadaan Galih Pratama Mulai 21.32 WIB · sisa 259199 menit Atur · Galih Pratama Sudah mulai, belum mengumpulkan Hana Wirawan Belum mengerjakan Intan Permatasari Belum mengerjakan Joko Susilo Belum mengerjakan Rizky Ramadhan Dikumpulkan 21.32 WIB Atur · Rizky Ramadhan Sudah mengumpulkan Menampilkan 1–5 dari 5 murid Sebelumnya Halaman 1 dari 1 Berikutnya ATUR · GALIH PRATAMA Tambah waktu TAMBAHAN WAKTU 5 menit 10 menit 15 menit 30 menit ALASAN 10 sampai 300 karakter. Tercatat di jejak",
+        "t15-learner_home": "BELAJAR Halo, Galih Ini yang sedang berjalan hari ini. LANGKAH BERIKUTNYA Matematika · Persamaan Linear Satu Variabel Siap untuk Uji Penguasaan Pemetaan Awal Peta Bacaan Personal Pelajaran Uji Penguasaan Hasil Lanjutkan Uji Penguasaan Lihat semua langkah PEMBELAJARAN ANDA MATEMATIKA · KELAS 8 Persamaan Linear Satu Variabel Pemetaan Awal Peta Bacaan Personal Pelajaran Uji Penguasaan Hasil Siap untu",
+        "t15-learner_test_page": "Matematika · Kelas 8 · Persamaan Linear Satu Variabel Asesmen ini perlu diizinkan guru Anda untuk dilanjutkan. Karena Anda masuk lagi atau berganti perangkat, Uji Penguasaan ini hanya dapat dilanjutkan bila guru Anda mengizinkannya. Permintaan Anda tampil di daftar kelas guru Anda. Beri tahu guru Anda juga: Uji Penguasaan · Persamaan Linear Satu Variabel. Setelah guru mengizinkan, pilih Coba lagi. Coba lagi Kembali ke Belajar",
+        "t15-learner_result_page": "PINTAR Halaman ini tidak ada Alamatnya mungkin keliru, atau halaman ini sudah dipindahkan. Ke halaman awal"
+      },
+      "tab": 18,
+      "url": "/",
+      "ms": 14039
+    },
+    {
+      "id": "C2",
+      "judul": "the maintenance started (stage 0): both views",
+      "hasil": "SAMPAI",
+      "layar": [
+        "07-mulai-galih-belajar",
+        "08-mulai-galih-uji",
+        "09-mulai-galih-hasil",
+        "10-mulai-guru-mengajar",
+        "11-mulai-guru-siapa"
+      ],
+      "amatan": [],
+      "data": {
+        "mulai-learner_home": "BELAJAR Halo, Galih Ini yang sedang berjalan hari ini. LANGKAH BERIKUTNYA Matematika · Persamaan Linear Satu Variabel Siap untuk Uji Penguasaan Pemetaan Awal Peta Bacaan Personal Pelajaran Uji Penguasaan Hasil Lanjutkan Uji Penguasaan Lihat semua langkah PEMBELAJARAN ANDA MATEMATIKA · KELAS 8 Persamaan Linear Satu Variabel Pemetaan Awal Peta Bacaan Personal Pelajaran Uji Penguasaan Hasil Siap untu",
+        "mulai-learner_test_page": "Matematika · Kelas 8 · Persamaan Linear Satu Variabel Asesmen ini perlu diizinkan guru Anda untuk dilanjutkan. Karena Anda masuk lagi atau berganti perangkat, Uji Penguasaan ini hanya dapat dilanjutkan bila guru Anda mengizinkannya. Permintaan Anda tampil di daftar kelas guru Anda. Beri tahu guru Anda juga: Uji Penguasaan · Persamaan Linear Satu Variabel. Setelah guru mengizinkan, pilih Coba lagi. Coba lagi Kembali ke Belajar",
+        "mulai-learner_result_page": "PINTAR Halaman ini tidak ada Alamatnya mungkin keliru, atau halaman ini sudah dipindahkan. Ke halaman awal",
+        "mulai-teacher_home": "PINTAR ID EN PINTAR sedang dalam pemeliharaan Pemeliharaan dimulai pukul 21.33 WIB. Perkiraan selesai pukul 22.42 WIB. Pesan dari pengelola PINTAR: Pemeliharaan rutin (dunia audit J4). Alasan: Pemeliharaan rutin Apa pun yang sudah tersimpan di PINTAR tetap aman. Silakan kembali setelah pemeliharaan selesai, lalu buka PINTAR lagi. Keluar Pendidikan yang lebih adil, untuk lebih banyak kesempatan.",
+        "mulai-teacher_row": "(no row)"
+      },
+      "tab": 0,
+      "url": "/masuk",
+      "ms": 40830
+    }
+  ],
+  "selesai": "2026-11-24T14:33:48.091Z",
+  "sampai_akhir": true
+}

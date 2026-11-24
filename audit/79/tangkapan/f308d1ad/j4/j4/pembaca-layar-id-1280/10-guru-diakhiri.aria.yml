@@ -1,0 +1,99 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - text: Mengajar
+    - strong: SMP Sintetis Cendekia
+    - link "Mengajar":
+      - /url: /mengajar
+    - link "Studio":
+      - /url: /studio
+  - button "Bantuan"
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fmengajar%2F583f0a92-6601-4d4d-b759-187a91adc000%2Fsiapa
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Dimas Saputra":
+      - strong: Dimas Saputra
+    - button "Keluar"
+- main:
+  - link "← 8A":
+    - /url: /mengajar/583f0a92-6601-4d4d-b759-187a91adc000
+  - text: SMP Sintetis Cendekia 8A TA 2026/2027
+  - paragraph: Uji Penguasaan — Persamaan Linear Satu Variabel
+  - heading "Siapa yang sudah mengumpulkan" [level=1]
+  - paragraph: Tiga daftar nama, diurutkan abjad. Bukan peringkat, bukan penilaian, dan tidak menyebut sebabnya — PINTAR tidak tahu sebabnya.
+  - navigation "Instrumen":
+    - link "Pemetaan Awal":
+      - /url: /mengajar/583f0a92-6601-4d4d-b759-187a91adc000/siapa?penugasan=afc24491-e626-4170-85dc-5934a1ba2122
+    - link "Uji Penguasaan":
+      - /url: /mengajar/583f0a92-6601-4d4d-b759-187a91adc000/siapa?penugasan=7a16cea0-c60b-40c5-b607-ce98050f16b3
+  - region "murid":
+    - heading "murid" [level=2]
+    - status: Sesi Galih Pratama diakhiri. Jawaban yang ada dinilai.
+    - searchbox "Cari murid"
+    - radiogroup "Tampilkan":
+      - radio "Semua" [checked]
+      - text: Semua
+      - radio "Sudah mengumpulkan · 2"
+      - text: Sudah mengumpulkan · 2
+      - radio "Sudah mulai, belum mengumpulkan · 0"
+      - text: Sudah mulai, belum mengumpulkan · 0
+      - radio "Belum mengerjakan · 3"
+      - text: Belum mengerjakan · 3
+    - region "Siapa yang sudah mengumpulkan · 8A":
+      - table "Siapa yang sudah mengumpulkan · 8A":
+        - caption: Siapa yang sudah mengumpulkan · 8A
+        - rowgroup:
+          - row "Nama Keadaan":
+            - columnheader "Nama"
+            - columnheader "Keadaan"
+        - rowgroup:
+          - row "Galih Pratama Diakhiri 21.19 WIB · jawaban yang ada dinilai Atur · Galih Pratama Diakhiri guru · dinilai":
+            - rowheader "Galih Pratama Diakhiri 21.19 WIB · jawaban yang ada dinilai Atur · Galih Pratama":
+              - link "Galih Pratama":
+                - /url: /mengajar/583f0a92-6601-4d4d-b759-187a91adc000/murid/996feb54-aec9-404d-8b92-7468ae617276
+              - text: Diakhiri 21.19 WIB · jawaban yang ada dinilai
+              - link "Atur · Galih Pratama":
+                - /url: /mengajar/583f0a92-6601-4d4d-b759-187a91adc000/siapa?penugasan=7a16cea0-c60b-40c5-b607-ce98050f16b3&sesi=8c863b04-aa4a-4e35-88ed-86c42c3d8317#atur
+            - cell "Diakhiri guru · dinilai"
+          - row "Hana Wirawan Belum mengerjakan":
+            - rowheader "Hana Wirawan":
+              - link "Hana Wirawan":
+                - /url: /mengajar/583f0a92-6601-4d4d-b759-187a91adc000/murid/dcc0d69f-49af-4a2c-8cec-fedfbe7bf8c9
+            - cell "Belum mengerjakan"
+          - row "Intan Permatasari Belum mengerjakan":
+            - rowheader "Intan Permatasari":
+              - link "Intan Permatasari":
+                - /url: /mengajar/583f0a92-6601-4d4d-b759-187a91adc000/murid/d0c0f321-629f-4a0d-9de7-c822006920e9
+            - cell "Belum mengerjakan"
+          - row "Joko Susilo Belum mengerjakan":
+            - rowheader "Joko Susilo":
+              - link "Joko Susilo":
+                - /url: /mengajar/583f0a92-6601-4d4d-b759-187a91adc000/murid/214919cc-0498-40d3-a228-83812209f7ce
+            - cell "Belum mengerjakan"
+          - row "Rizky Ramadhan Dikumpulkan 21.18 WIB Atur · Rizky Ramadhan ✓ Sudah mengumpulkan":
+            - rowheader "Rizky Ramadhan Dikumpulkan 21.18 WIB Atur · Rizky Ramadhan":
+              - link "Rizky Ramadhan":
+                - /url: /mengajar/583f0a92-6601-4d4d-b759-187a91adc000/murid/b00e0879-c551-4913-becd-cc7a70eab503
+              - text: Dikumpulkan 21.18 WIB
+              - link "Atur · Rizky Ramadhan":
+                - /url: /mengajar/583f0a92-6601-4d4d-b759-187a91adc000/siapa?penugasan=7a16cea0-c60b-40c5-b607-ce98050f16b3&sesi=ae462d20-bd41-4f7f-9da6-871999309c4e#atur
+            - cell "✓ Sudah mengumpulkan"
+    - navigation "Halaman daftar murid":
+      - text: Menampilkan 1–5 dari 5 murid
+      - link "Halaman sebelumnya" [disabled]: Sebelumnya
+      - text: Halaman 1 dari 1
+      - link "Halaman berikutnya" [disabled]: Berikutnya
+  - paragraph: Angka di atas adalah hitungan, bukan penilaian. Yang belum mengumpulkan mungkin belum membuka PINTAR.
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- alert: Siapa yang sudah mengumpulkan · PINTAR
