@@ -70,3 +70,56 @@ Both have clear words in `hle.ts` (`galat.ai_tujuan_lain`, `galat.ai_paket_lolos
 | J6-6 | **For the builder / Sharon ([S], not UX):** allowance and ceiling refusals leave `ai_permintaan.hasil` empty, while the learner-data refusal is recorded (`REFUSED_PERSONAL_DATA`). The request log can't show why those two were refused. | — | — | — | Record `REFUSED_ALLOWANCE` / `REFUSED_CEILING`, or the equivalent, as the learner-data case does |
 
 **J6's «left for the builder» lines:** walked, except the stale form and the «already passed» refusal (above). The SR, throttled and reduced-motion passes come from the builder's run, since there is no harness for these passes.
+
+## Capture judgement · the builder's committed J6 (`ddae57a9/j6`, `11c269e2`), 24 Nov 22:00
+
+Seven walks, every one reaching its last screen, with fixtures for the stale form (L4) and the ceiling (L5). **Every finding stands where the capture reaches it:**
+- **J6-2:** accepting a draft gives no line («(no new status line)», L10).
+- **J6-4 (restated):** «Tandai lolos pemeriksaan» runs the check silently. Its one warning appears only after a separate «Periksa isi sekarang» (L8).
+- **J6-5:** `rights_tick_kept: false` after the learner-data refusal.
+
+### Holds (the two refusals I couldn't reproduce)
+- **The stale form (`AI_TUJUAN_LAIN`):** «Tujuan pembelajaran pelajaran ini sudah berubah. Muat ulang halaman, lalu pilih lagi.» It is clear and blames no one, and nothing is sent.
+- **«Already passed the check» (`AI_PAKET_LOLOS_PERIKSA`), from a tab opened before marking:**
+  - the refusal reads «Paket ini sudah ditandai lolos pemeriksaan, jadi draf soal dengan AI tidak dibuat. Soal baru akan membuat paket perlu diperiksa lagi. Tidak ada yang dikirim.»;
+  - on a fresh load, the AI button is gone (`ai_button_now: 0`).
+- **The allowance used up** refuses the same request L1 admitted, and the ceiling words hold. **Both now come from the builder's own run.**
+- **«Ajukan» held while a draft waits:**
+  - the button is disabled, with «**1 soal masih draf dari AI.** Soal ini perlu diterima atau dihapus oleh pendidik sebelum paket diajukan.»;
+  - after acceptance, it submits;
+  - the second person sees «Menunggu tinjauan Anda 1», «1 dari 4 soal disusun dengan AI», «Draf ini sedang ditinjau. Soal dapat diubah lagi bila dikembalikan.», and approves.
+- **W13:** no AI button and no AI word.
+- **EN:** clean in the steps and the findings panel.
+
+### L-143 · the UX side (Sharon decides the severity)
+
+**What happens:**
+- «Tandai sudah tersusun» (L7) and «Tandai lolos pemeriksaan» (L8) both go through with an AI draft waiting.
+- Each answers «✓ … · Selesai», and nothing mentions the draft.
+- The first time the author hears of it is at «Ajukan», two steps later.
+
+**Why it matters:**
+- «Susun isi · Selesai» states the content is composed while one question's inclusion is still undecided.
+- The author marks two steps «Selesai» and is then sent back to a decision they could have made at the first.
+
+**Cause:** C-3. The «undecided drafts» fact is derived only at the Ajukan step.
+
+**Recommended composition (hold at the first step):** «Tandai sudah tersusun» is held, like «Ajukan», while a draft waits. Under it:
+- **ID:** «**{n} soal masih draf dari AI.** Terima atau hapus setiap draf sebelum paket ditandai tersusun.» + the link «Lihat draf pertama»
+- **EN:** «**{n} questions are still AI drafts.** Accept or delete each draft before the package is marked as composed.» + «See the first draft»
+- Singular, reusing the existing pattern: «**1 soal masih draf dari AI.** Terima atau hapus draf ini sebelum paket ditandai tersusun.» / «**1 question is still an AI draft.** Accept or delete it before the package is marked as composed.»
+
+**If Sharon allows marking with drafts waiting** (not recommended), the result names them:
+- ID: «✓ Susun isi · Selesai. {n} draf dari AI masih menunggu: terima atau hapus sebelum paket diajukan.»
+- EN: «✓ Compose · Done. {n} AI drafts are still waiting: accept or delete them before the package is submitted.»
+- The same tail applies on «Tandai lolos pemeriksaan».
+
+**Everywhere, in both cases:** the step panel's «SEKARANG» block carries «{n} draf dari AI menunggu keputusan Anda.» / «{n} AI drafts are waiting for your decision.» This is the same count J6-1 asks for in the package head.
+
+### New
+
+| # | Finding | Siblings | Cause | Dim. | Fix |
+|---|---|---|---|---|---|
+| J6-7 | **The held «Ajukan» is a disabled button with its reason in a separate paragraph** (SR tree: `button "Ajukan untuk ditinjau" [disabled]`, then `paragraph: 1 soal masih draf dari AI …`). A keyboard or screen-reader user tabbing through doesn't reach a disabled button, so they don't hear why. | — | — | G | Use `aria-disabled="true"` (focusable) with `aria-describedby` pointing at the reason. Pressing it moves focus to the first waiting draft. The same applies to L-143's held «Tandai sudah tersusun». |
+
+**J6's «left for the builder» lines are closed.**
