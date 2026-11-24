@@ -1,0 +1,37 @@
+
+# Z4 · S-12, on f258e5f4 + 4bf300da with the S-12 fix stashed
+Z-S12-02    FAIL    the reopening route uses the network's pace before it checks the input (S-12); a refused input is not answered as the input's own line (ISIAN), after the same fixed wait; src/lib/buka-kembali.ts (the route's input check) does not exist
+Z-S12-01    FAIL    no identity: answered 303 /masuk/buka-kembali?kode=TUNGGU, not the input's own line (kode=ISIAN); no identity: the page does not say the input's own line, or says «a request was just sent»; a well-formed request after two refused ones was not sent: /masuk/buka-kembali?kode=TUNGGU
+0 passed, 2 failed, 0 skipped, 0 contract problem(s) → RED
+## R-26 items 1, 2 and 4: docs/completion-4.1/batches/z/layar/r26-tekan.ts in Chromium, against next start of a worktree of 4bf300da (port 3998)
+# base 4bf300da (a worktree of it, next start on 3998)
+FAIL  Z-R26-01 Enter twice on «Kirim permintaan» posts once (2 POST)
+PASS  Z-R26-01 the answer is «Terima kasih. …», not «Tunggu» (/masuk/buka-kembali?hasil=terkirim)
+FAIL  Z-R26-01 while on its way the button says «Mengirim…», busy and disabled (null)
+FAIL  Z-R26-04 the reopening button does not narrow while busy (rest 358.0 px, busy undefined px)
+PASS  Z-R26-01 Back shows the verb again, enabled ({"teks":"Kirim permintaan","mati":false,"busy":null})
+FAIL  Z-R26-04 Pendataan's button, busy as «Menyimpan…», does not narrow (rest 247.8 px, busy 136.0 px)
+FAIL  Z-R26-04 the field beside it does not grow into the button's place (452.2 → 564.0 px; code «»)
+FAIL  Z-R26-02 at 1280 px the hit area of «Mau ke mana hari ini?» is at least 44 px (drawn 164×36; it answers over 36.5 px)
+FAIL  Z-R26-02 at 390 px the hit area of «Mau ke mana hari ini?» is at least 44 px (drawn 164×36; it answers over 36.5 px)
+FAIL  Z-R26-02 at 320 px the hit area of «Mau ke mana hari ini?» is at least 44 px (drawn 164×36; it answers over 36.5 px)
+## at rest, the images of «Kirim permintaan», Pendataan's button and the context block at 1280/390/320, base vs this tree: identical (cmp)
+Z-R26-01    FAIL    TombolKirim has no opt-in `asli` for a native post form, or it changes the server-action path; the native-post button does not hold a second submit at the capture-phase guard, say its busy words, or return to its verb on pageshow; a busy button may narrow (no min-inline-size from the width at submit), or the rule applies at rest; «Kirim permintaan» is still a plain submit but
+0 passed, 1 failed, 0 skipped, 0 contract problem(s) → RED
+Z-R27-02    FAIL    buka_kembali.galat.isian (id): «Isi email atau PINTAR ID, dan pesan 10 sampai 500 karakter.», not «Isi email atau username, dan pesan 10 sampai 500 karakter.»; buka_kembali.galat.isian (en): «Fill in the email or PINTAR ID, and a message of 10 to 500 characters.», not «Fill in the email or username, and a message of 10 to 500 characters.»
+Z-R27-03    FAIL    the identity field still asks for an email keyboard: <input id="identitas" name="identitas" ref={identitasRef} type="text" inputMode="email" autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} readOnly={layar.sibuk} aria-i
+0 passed, 2 failed, 0 skipped, 0 contract problem(s) → RED
+Z-R26-02    FAIL    a.pin-konteks-pilih is not position: relative, or its look changed; a.pin-konteks-pilih has no ::after extending its hit area to control-md (44 px)
+0 passed, 1 failed, 0 skipped, 0 contract problem(s) → RED
+Z-S15-01    FAIL    aktivasi.galat.buat_gagal (id): «—», not «Akun belum bisa dibuat. Coba lagi sebentar lagi.»; aktivasi.galat.buat_gagal (en): «—», not «The account could not be made yet. Try again in a moment.»; an address already registered is not told «Alamat email ini mungkin sudah dipakai akun lain»; an Auth failure that is not a registered address (an outage, a limit) is still told the address may be in use; there is no one function (galatBuat) deciding the route's word fro
+0 passed, 1 failed, 0 skipped, 0 contract problem(s) → RED
+Z-S08-01    FAIL    lupa.pin.berakhir (id): «—», not «Waktu untuk membuat password baru sudah habis. Ketik lagi PINTAR ID dan PIN Anda.»; lupa.pin.berakhir (en): «—», not «The time to make a new password has run out. Type your PINTAR ID and PIN again.»; an expiry on the PINTAR ID + PIN path still says «Minta kode baru» (lupa.berakhir), where there is no code
+0 passed, 1 failed, 0 skipped, 0 contract problem(s) → RED
+Z-S13-01    FAIL    aktifkan.kode_ulang_ok (id): «Jika alamat ini terdaftar, PINTAR sedang mengirim kode baru. Pakai kode dari email yang paling baru.», not «Jika alamat ini terdaftar dan akunnya belum aktif, PINTAR sedang mengirim kode baru. Pakai kode dari email yang paling baru.»; aktifkan.ko
+0 passed, 1 failed, 0 skipped, 0 contract problem(s) → RED
+Z-S11-01    FAIL    the account lookup still accepts only 8 bare characters (a pasted «A14C D7ST» finds nothing), not kanonikPintarId; a malformed entry is not told apart from no entry; the lookup field cuts a pasted ID short or does not mark a malformed one: <input id="akun-pid" name="pid" className="pin-input" defaultValue={pid} maxLength={8} autoComplete="off" />; a malformed PINTAR ID is not said with the existing sentence (ID_TIDAK_SAH, lupa.pin.id_salah)
+0 passed, 1 failed, 0 skipped, 0 contract problem(s) → RED
+## Sharon's R-8 nit (after Z3 review): Z-R8-03 on 5b3409ad
+Z-R8-03     FAIL    a failed certificate read becomes «not found», not its own error for the error page (it must re-throw)
+Z-K07-02    FAIL    config.ketuntasan.arti (id): «Nilai minimum kelulusan setiap pelajaran di sekolah ini, dalam persen bulat dari 0 sampai 100. Guru baru bisa menyediakan sebuah pelajaran untuk kelas setelah batasnya ditetapkan. Perubahan berlaku untuk pelajaran yang disediakan sesudahnya; hasil d
+0 passed, 1 failed, 0 skipped, 0 contract problem(s) → RED

@@ -23,6 +23,14 @@ builds a new golden, so a stale baseline cannot be handed out silently.
 It holds **migrations and seeds only** — editing a selftest suite does not
 invalidate it.
 
+**The server needs pg_cron** (since A1, `20270114110000` creates it), with
+`shared_preload_libraries = 'pg_cron'` and `cron.database_name` set to the
+name of the database being built (`pintar_golden_<fingerprint>_building`).
+pg_cron can be created only in that one database. If either is missing,
+`golden-db.sh` stops before the replay and prints the exact name to set. The
+clones never run a scheduled job; once the build is renamed, the scheduler no
+longer finds a database by that name.
+
 It is **not** clean-install evidence. CI's `migrations · clean database +
 seed` against a real Supabase stack remains the authoritative gate;
 `golden-db.sh rebuild` replays from empty locally when you want the same

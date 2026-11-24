@@ -1561,7 +1561,7 @@
         "network"
       ],
       "skip_justification": "needs the running application and the Supabase project: it opens a real feedback round through open_feedback_cycle as the head of department, submits as a real learner, closes it, and reads every surface over HTTP as six personas. CI has both facilities, so it never skips there",
-      "proves": "one real anonymous-feedback round, opened and closed through the product's own endpoints by the head of department who may -- no seed and no service role -- and measured on the RENDERED html of every surface it touches, fetched over HTTP. THE STUDENT is told feedback is waiting, which class and educator it concerns, whether they have sent theirs and the one action to take; a learner who was not asked sees nothing, and the address bar tells them nothing either, because a round that is not theirs renders the SAME page as one that does not exist. The sheet is five question groups of four closed options with no textarea, text input, search field or contenteditable on it. WHILE THE ROUND IS OPEN NEITHER THE SUBJECT NOR MANAGEMENT RECEIVES A FIGURE, measured with a sweep for any count, proportion or shortfall in either language, and Management's view names no respondent. An INSTITUTION_ADMIN standing over the whole school is refused both the list and one round's results, sees no round id at all, and is offered no entry point on their own surface; another school's educator is refused the round. Sending twice is accepted once -- the second press is refused by WP7B's row lock -- and the learner's home then says they have sent theirs and offers the action no more. CLOSED BELOW THE THRESHOLD, both readers receive the canonical statement with NOTHING after it, checked on the sentence's own neighbourhood rather than on the page, and no figure anywhere; the learner is shown no outcome at all; and a class with no round says so plainly"
+      "proves": "one real anonymous-feedback round, opened and closed through the product's own endpoints by the head of department who may -- no seed and no service role -- and measured on the RENDERED html of every surface it touches, fetched over HTTP. THE STUDENT is told feedback is waiting, which class and educator it concerns, whether they have sent theirs and the one action to take; a learner who was not asked sees nothing, and the address bar tells them nothing either, because a round that is not theirs renders the SAME page as one that does not exist. The sheet is five question groups of four closed options with no textarea, text input, search field or contenteditable on it. WHILE THE ROUND IS OPEN NEITHER THE SUBJECT NOR MANAGEMENT RECEIVES A FIGURE, measured with a sweep for any count, proportion or shortfall in either language, and Management's view names no respondent. An INSTITUTION_ADMIN standing over the whole school is refused both the list and one round's results, sees no round id at all, and is offered no entry point on their own surface; another school's educator is refused the round. Sending twice is accepted once -- the second press is refused by WP7B's row lock -- and the learner's home then says they have sent theirs and offers the action no more. CLOSED BELOW THE THRESHOLD, both readers receive the canonical statement with NOTHING after it, checked on the sentence's own neighbourhood rather than on the page, and no figure anywhere; the learner is shown no outcome at all; and a class with no round says so plainly RESTATED (Z D-6, 20270123140000): while UMPAN_BALIK_TERBUKA is false it proves the containment instead (umpanBalikGelap in selftest/app.test.ts): the nine feedback RPCs refuse the learner and Management over REST, Belajar, the class page and Pimpinan carry no feedback section or link, and the five round addresses answer PINTAR's not-found page; the journey above runs again when a ruling restores the round."
     },
     {
       "id": "UX1-UB-TUTUP-01",
@@ -1577,7 +1577,7 @@
         "network"
       ],
       "skip_justification": "needs the running application and the Supabase project: it opens a real feedback round at Alpha through open_feedback_cycle, asks five personas to close it, and reads the rendered result over HTTP. CI has both facilities, so it never skips there",
-      "proves": "an authorized Management user ends collection for a real feedback round through ordinary PINTAR, and the backend decides what the round became. Measured on the RENDERED html of a round opened for this case at Alpha -- its own class, so the learning-cycle tenant's round is untouched. WHILE IT IS OPEN the operator is offered the act and the page carries no response figure, no threshold and no word of one, and the confirmation they are about to read carries none either. EVERY EXCLUDED READER IS REFUSED BY THE ENDPOINT rather than by a hidden button: an institution administrator, the subject educator, a learner and a head of department from another school are each asked to close the round DIRECTLY and each refused; none is offered a control on the ordinary path; none sees a figure; the administrator meets the refusal page rather than a disabled control; and the round is asserted STILL OPEN after all four attempts, so the refusals refused rather than merely being reported. THE AUTHORIZED OPERATOR THEN CLOSES IT, a second close is refused because terminal means terminal, and the page re-read shows the canonical withheld statement with nothing after it, no figure, no claim that it is still collecting, no close control, no confirmation, and no reopen, reset or publish offered anywhere. The subject's own view of the same round agrees and is offered no control either, because operating a round and reading its result are different things"
+      "proves": "an authorized Management user ends collection for a real feedback round through ordinary PINTAR, and the backend decides what the round became. Measured on the RENDERED html of a round opened for this case at Alpha -- its own class, so the learning-cycle tenant's round is untouched. WHILE IT IS OPEN the operator is offered the act and the page carries no response figure, no threshold and no word of one, and the confirmation they are about to read carries none either. EVERY EXCLUDED READER IS REFUSED BY THE ENDPOINT rather than by a hidden button: an institution administrator, the subject educator, a learner and a head of department from another school are each asked to close the round DIRECTLY and each refused; none is offered a control on the ordinary path; none sees a figure; the administrator meets the refusal page rather than a disabled control; and the round is asserted STILL OPEN after all four attempts, so the refusals refused rather than merely being reported. THE AUTHORIZED OPERATOR THEN CLOSES IT, a second close is refused because terminal means terminal, and the page re-read shows the canonical withheld statement with nothing after it, no figure, no claim that it is still collecting, no close control, no confirmation, and no reopen, reset or publish offered anywhere. The subject's own view of the same round agrees and is offered no control either, because operating a round and reading its result are different things RESTATED (Z D-6, 20270123140000): while UMPAN_BALIK_TERBUKA is false it proves the containment instead (umpanBalikGelap in selftest/app.test.ts): the nine feedback RPCs refuse the learner and Management over REST, Belajar, the class page and Pimpinan carry no feedback section or link, and the five round addresses answer PINTAR's not-found page; the journey above runs again when a ruling restores the round."
     },
     {
       "id": "F07-P14",
@@ -1605,7 +1605,7 @@
         "network"
       ],
       "skip_justification": "needs the running application and the Supabase project: it discovers subjects as five personas, opens a round at Alpha, and reads the rendered Management pages over HTTP. CI has both facilities, so it never skips there",
-      "proves": "Management names the teacher a class will be asked about, and then asks, measured on the RENDERED html of the ordinary Management pages. DISCOVERY WORKS AND IS BOUNDED: an authorized head of department is given the educator who teaches the class with a real display name, and every returned row carries EXACTLY a person id and a display name, asserted key by key because a staff directory would have carried more; the caller is not offered as the subject of their own round. DISCOVERY IS GATED EXACTLY AS THE OPERATION IS: an institution administrator, the educator themselves, a learner and a head of department from another school are each refused the list AND each refused the open, so naming somebody and asking about them are the same authority and neither is the other's key. ON THE ORDINARY PATH the branch offers the class, the class page names the educator and offers the act, excluded roles are offered no control and meet either the refusal page or the not-yours sentence, and no page in the flow carries a response figure. OPENING leaves a round for this class and this educator, and the Management list -- which showed an em dash where a teacher's name belongs before the unblocker -- NAMES THE EDUCATOR, which is the product point of the whole change"
+      "proves": "Management names the teacher a class will be asked about, and then asks, measured on the RENDERED html of the ordinary Management pages. DISCOVERY WORKS AND IS BOUNDED: an authorized head of department is given the educator who teaches the class with a real display name, and every returned row carries EXACTLY a person id and a display name, asserted key by key because a staff directory would have carried more; the caller is not offered as the subject of their own round. DISCOVERY IS GATED EXACTLY AS THE OPERATION IS: an institution administrator, the educator themselves, a learner and a head of department from another school are each refused the list AND each refused the open, so naming somebody and asking about them are the same authority and neither is the other's key. ON THE ORDINARY PATH the branch offers the class, the class page names the educator and offers the act, excluded roles are offered no control and meet either the refusal page or the not-yours sentence, and no page in the flow carries a response figure. OPENING leaves a round for this class and this educator, and the Management list -- which showed an em dash where a teacher's name belongs before the unblocker -- NAMES THE EDUCATOR, which is the product point of the whole change RESTATED (Z D-6, 20270123140000): while UMPAN_BALIK_TERBUKA is false it proves the containment instead (umpanBalikGelap in selftest/app.test.ts): the nine feedback RPCs refuse the learner and Management over REST, Belajar, the class page and Pimpinan carry no feedback section or link, and the five round addresses answer PINTAR's not-found page; the journey above runs again when a ruling restores the round."
     },
     {
       "id": "F08-P01",
@@ -1971,7 +1971,7 @@
     {
       "id": "BOB04-K01",
       "runner": "static",
-      "proves": "BOB-04 (D-008, D-011, D-014). Read from the migration source and the source files src/lib/penugasan-kontrak.ts, src/app/mengajar/actions.ts, src/app/mengajar/[kelas]/siapkan/page.tsx and the learner pages src/app/belajar/[tugas]/pemetaan/page.tsx and penguasaan/page.tsx: the codes assign_refuse raises for assigning are exactly the contract's and each is raised (with the seal's, the boundary's and, since D-183, the exposure guard's code read from migration 20261228100000_exposed_questions_never_give_a_real_verdict.sql); every code has a copy key in both languages without machinery words; sediakanMateri calls assign_release with its declared arguments; the review page shows a refused code's sentence; and neither learner test page can answer 404."
+      "proves": "BOB-04 (D-008, D-011, D-014). Read from the migration source and the source files src/lib/penugasan-kontrak.ts, src/app/mengajar/actions.ts, src/app/mengajar/[kelas]/siapkan/page.tsx and the learner pages src/app/belajar/[tugas]/pemetaan/page.tsx and penguasaan/page.tsx: the codes assign_refuse raises for assigning are exactly the contract's and each is raised (with the seal's, the boundary's and, since D-183, the exposure guard's code read from migration 20261228100000_exposed_questions_never_give_a_real_verdict.sql); every code has a copy key in both languages without machinery words; sediakanMateri calls assign_release with its declared arguments; the review page shows a refused code's sentence; and neither learner test page can answer 404 for the learner's own assignment (Z, R-8: an id that is not theirs answers «not found» through the one ownership guard of /belajar/[tugas]/)."
     },
     {
       "id": "W221-K01",
@@ -2066,47 +2066,47 @@
     {
       "id": "L1F4-E01",
       "runner": "db",
-      "proves": "L1-F4 (ANONYMISED-PERSON-IS-TERMINAL.md \u00a73a.1), selftest/db/l1f4.sql: every foreign key to persons(id) is classified in public.orang_lampiran as DIJAGA (guarded) or BEBAS (exempt, with its reason), and every DIJAGA column has its BEFORE INSERT guard trigger (_l1f4_<table>_<column>); a table added later with an unclassified foreign key turns this red (plant l1f4-1)."
+      "proves": "L1-F4 (ANONYMISED-PERSON-IS-TERMINAL.md §3a.1), selftest/db/l1f4.sql: every foreign key to persons(id) is classified in public.orang_lampiran as DIJAGA (guarded) or BEBAS (exempt, with its reason), and every DIJAGA column has its BEFORE INSERT guard trigger (_l1f4_<table>_<column>); a table added later with an unclassified foreign key turns this red (plant l1f4-1)."
     },
     {
       "id": "L1F4-K01",
       "runner": "db",
-      "proves": "L1-F4 \u00a73a.2: an intake row naming the anonymised person's PINTAR id, checked by import_row_problems as the person's former school's admin, an unrelated school's admin and the platform admin, gives exactly the finding of an id that names no one; the unrelated school cannot read the person (person_visible_to_me false)."
+      "proves": "L1-F4 §3a.2: an intake row naming the anonymised person's PINTAR id, checked by import_row_problems as the person's former school's admin, an unrelated school's admin and the platform admin, gives exactly the finding of an id that names no one; the unrelated school cannot read the person (person_visible_to_me false)."
     },
     {
       "id": "L1F4-K02",
       "runner": "db",
-      "proves": "L1-F4 \u00a73a.2: daftarkan_kembali naming the anonymised person gives exactly the refusal of an unknown id (PR070 PLACE_NOT_THIS_SCHOOL)."
+      "proves": "L1-F4 §3a.2: daftarkan_kembali naming the anonymised person gives exactly the refusal of an unknown id (PR070 PLACE_NOT_THIS_SCHOOL)."
     },
     {
       "id": "L1F4-K03",
       "runner": "db",
-      "proves": "L1-F4 \u00a73a.2: murid_keluar lists a learner who left the school, and no longer lists them once anonymised."
+      "proves": "L1-F4 §3a.2: murid_keluar lists a learner who left the school, and no longer lists them once anonymised."
     },
     {
       "id": "L1F4-K04",
       "runner": "db",
-      "proves": "L1-F4 \u00a73a.1: every guarded column refuses an insert naming the anonymised person (or their enrolment or account) with PR040 PERSON_UNKNOWN, before any other check, and does not refuse the same insert naming a live person as unknown."
+      "proves": "L1-F4 §3a.1: every guarded column refuses an insert naming the anonymised person (or their enrolment or account) with PR040 PERSON_UNKNOWN, before any other check, and does not refuse the same insert naming a live person as unknown."
     },
     {
       "id": "L1F4-K05",
       "runner": "db",
-      "proves": "L1-F4 \u00a73a.4, \u00a73b Option A: certificate_prepare returns a certificate already issued as before; for an anonymised holder a new one is not eligible and nothing is written; a replacement (sertifikat_koreksi_siapkan, W2.22) is refused PR120 CERT_HOLDER_DELETED."
+      "proves": "L1-F4 §3a.4, §3b Option A: certificate_prepare returns a certificate already issued as before; for an anonymised holder a new one is not eligible and nothing is written; a replacement (sertifikat_koreksi_siapkan, W2.22) is refused PR120 CERT_HOLDER_DELETED."
     },
     {
       "id": "L1F4-K06",
       "runner": "db",
-      "proves": "L1-F4 \u00a73a.3: hapus_data_pribadi refuses PR140 ACCOUNT_LIVE_ATTACHMENT when the closed person gained a role after the closure began, changing nothing and leaving the request open; once the school ends that role the deletion completes, with the role held at the closure kept and every role and number byte-identical."
+      "proves": "L1-F4 §3a.3: hapus_data_pribadi refuses PR140 ACCOUNT_LIVE_ATTACHMENT when the closed person gained a role after the closure began, changing nothing and leaving the request open; once the school ends that role the deletion completes, with the role held at the closure kept and every role and number byte-identical."
     },
     {
       "id": "L1F4-K07",
       "runner": "db",
-      "proves": "L1-F4 \u00a73a.1: the guard is INSERT only: an update ending the anonymised person's role passes."
+      "proves": "L1-F4 §3a.1: the guard is INSERT only: an update ending the anonymised person's role passes."
     },
     {
       "id": "L1F4-K08",
       "runner": "db",
-      "proves": "L1-F4 \u00a73b (owner, Option A): a governed key correction of a post-test question that newly earns a certificate for an anonymised learner records it in the correction's outcome as earned but not issued (sertifikat_tidak_diterbitkan), and no certificate row is written. RESTATED (Daisy, 12 Nov): it is not counted among the certificates that can be issued (sertifikat_baru_layak 0), in the preview or the outcome, so the summary line and the row agree."
+      "proves": "L1-F4 §3b (owner, Option A): a governed key correction of a post-test question that newly earns a certificate for an anonymised learner records it in the correction's outcome as earned but not issued (sertifikat_tidak_diterbitkan), and no certificate row is written. RESTATED (Daisy, 12 Nov): it is not counted among the certificates that can be issued (sertifikat_baru_layak 0), in the preview or the outcome, so the summary line and the row agree."
     },
     {
       "id": "L1F4-K09",
@@ -2141,7 +2141,7 @@
     {
       "id": "F13-K16",
       "runner": "db",
-      "proves": "F1-R1b (C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md \u00a70, \u00a73d), selftest/db/fable13.sql (selftest.f13_penjelasan): after a governed key correction of X from A to B, the corrected copy's two flipped options have no rationale and no misconception code and each names the correction (rationale_withdrawn_by); the correction's record (penjelasan_dihapus) holds what they said, and is not rewritten after the decision; the revision that was sat keeps its options byte for byte (supabase/migrations/20270117140000)."
+      "proves": "F1-R1b (C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md §0, §3d), selftest/db/fable13.sql (selftest.f13_penjelasan): after a governed key correction of X from A to B, the corrected copy's two flipped options have no rationale and no misconception code and each names the correction (rationale_withdrawn_by); the correction's record (penjelasan_dihapus) holds what they said, and is not rewritten after the decision; the revision that was sat keeps its options byte for byte (supabase/migrations/20270117140000)."
     },
     {
       "id": "F13-K17",
@@ -2739,7 +2739,7 @@
         "network"
       ],
       "skip_justification": "needs the running application and the Supabase project: it signs in as Alpha's school administrator and the platform administrator and requests Konfigurasi's older and new addresses. CI has both facilities, so it never skips there",
-      "proves": "E-B1-1 (B1, D-166(a)) over real HTTP against the seed, the rendered pages and their redirects: every older Konfigurasi address (each action's ?bagian= result, a section's own parameters such as angkat, dari, pm_cek, cari_sekolah and hal_*) is one redirect to its section's page with every parameter; that page draws its section alone under its own h1, with the same result line and the way back \u00ab\u2190 Konfigurasi\u00bb; the school's index draws no section and lists every section, each opening its page; \u00abSeluruh platform\u00bb lists exactly Sistem, Peran & akses, Jejak audit, Laporan masalah and Pemeliharaan, and a school-shaped or unknown section goes to the index; the index forwards an older fragment (#<section>, #laporan-<id>) and no other."
+      "proves": "E-B1-1 (B1, D-166(a)) over real HTTP against the seed, the rendered pages and their redirects: every older Konfigurasi address (each action's ?bagian= result, a section's own parameters such as angkat, dari, pm_cek, cari_sekolah and hal_*) is one redirect to its section's page with every parameter; that page draws its section alone under its own h1, with the same result line and the way back «← Konfigurasi»; the school's index draws no section and lists every section, each opening its page; «Seluruh platform» lists exactly Sistem, Peran & akses, Jejak audit, Laporan masalah and Pemeliharaan, and a school-shaped or unknown section goes to the index; the index forwards an older fragment (#<section>, #laporan-<id>) and no other."
     },
     {
       "id": "DAISY-17-KIRIM-01",
@@ -2924,7 +2924,7 @@
     {
       "id": "M7-K02",
       "runner": "static",
-      "proves": "H30 several classes' cards in one run, in the source file src/components/aktivasi/FormAktivasi.tsx and the rendered src/components/aktivasi/LembarKartu.tsx: \u00abPilih semua\u00bb and the selected count over the classes the database counted; one run for one class or several, class after class, each learner's card asked through the same per-person request; the per-class control kept; each card of a multi-class set names its class."
+      "proves": "H30 several classes' cards in one run, in the source file src/components/aktivasi/FormAktivasi.tsx and the rendered src/components/aktivasi/LembarKartu.tsx: «Pilih semua» and the selected count over the classes the database counted; one run for one class or several, class after class, each learner's card asked through the same per-person request; the per-class control kept; each card of a multi-class set names its class."
     },
     {
       "id": "W9-K02",
@@ -4547,72 +4547,72 @@
     {
       "id": "D1E-K02",
       "runner": "static",
-      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan \u00a72), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: the reason line (each email's own email.*.alasan) is the first text under the <h1> in all eight identity emails, and the footer no longer repeats it."
+      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan §2), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: the reason line (each email's own email.*.alasan) is the first text under the <h1> in all eight identity emails, and the footer no longer repeats it."
     },
     {
       "id": "D1E-K03",
       "runner": "static",
-      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan \u00a72), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: the context line is drawn only where the data carries a place (the card email); activation, resend, recovery, password changed, both security notices and a card with no school draw no context element and no stand-in words."
+      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan §2), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: the context line is drawn only where the data carries a place (the card email); activation, resend, recovery, password changed, both security notices and a card with no school draw no context element and no stand-in words."
     },
     {
       "id": "D1E-K04",
       "runner": "static",
-      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan \u00a72), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: the context line names every place once, alphabetically, joined by \u00ab, \u00bb and \u00abdan\u00bb (email.bingkai.konteks.dan), and names no role (D-059)."
+      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan §2), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: the context line names every place once, alphabetically, joined by «, » and «dan» (email.bingkai.konteks.dan), and names no role (D-059)."
     },
     {
       "id": "D1E-K05",
       "runner": "static",
-      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan \u00a72), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: the card block draws susunKartu's lines for every order of three roles at one school, and one line per role and school at two, alphabetical, the band in the first role's family colour (--kartu-*)."
+      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan §2), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: the card block draws susunKartu's lines for every order of three roles at one school, and one line per role and school at two, alphabetical, the band in the first role's family colour (--kartu-*)."
     },
     {
       "id": "D1E-K06",
       "runner": "static",
-      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan \u00a72), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: the card in the email is a presentation table of live text (name, ID 4 + 4, roles): no QR, no back, no QR target, no image but today's logo with its alt \u00abPINTAR\u00bb (P2 (a)); the detail rows are gone."
+      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan §2), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: the card in the email is a presentation table of live text (name, ID 4 + 4, roles): no QR, no back, no QR target, no image but today's logo with its alt «PINTAR» (P2 (a)); the detail rows are gone."
     },
     {
       "id": "D1E-K07",
       "runner": "static",
-      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan \u00a72), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: every email's header keeps today's 104 \u00d7 58 logo (P3); the card's wordmark slot is 96 \u00d7 32 with today's logo sized by its height; no \u00abmaster pending F-11\u00bb label is ever sent."
+      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan §2), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: every email's header keeps today's 104 × 58 logo (P3); the card's wordmark slot is 96 × 32 with today's logo sized by its height; no «master pending F-11» label is ever sent."
     },
     {
       "id": "D1E-K08",
       "runner": "static",
-      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan \u00a72), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: every email's card is warm white (--surface-0) with a 3 px gold top edge (--kartu-emas), kept on dark."
+      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan §2), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: every email's card is warm white (--surface-0) with a 3 px gold top edge (--kartu-emas), kept on dark."
     },
     {
       "id": "D1E-K10",
       "runner": "static",
-      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan \u00a72), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: each plain text gives the heading, then its reason (not in the footer), the context line where the HTML has one, and the card as name, ID 4 + 4 and susunKartu's role lines."
+      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan §2), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: each plain text gives the heading, then its reason (not in the footer), the context line where the HTML has one, and the card as name, ID 4 + 4 and susunKartu's role lines."
     },
     {
       "id": "D1E-K12",
       "runner": "static",
-      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan \u00a72), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: every new text pair is AA in light and dark: the reason and context line, the card's name and ID on its paper, the band text on each of the five staff families."
+      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan §2), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: every new text pair is AA in light and dark: the reason and context line, the card's name and ID on its paper, the band text on each of the five staff families."
     },
     {
       "id": "D1E-K14",
       "runner": "static",
-      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan \u00a72), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: the card block's lines are susunKartu(data.konteks)'s; identitas.ts writes no role line of its own (D-164, P1)."
+      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan §2), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: the card block's lines are susunKartu(data.konteks)'s; identitas.ts writes no role line of its own (D-164, P1)."
     },
     {
       "id": "D1E-K15",
       "runner": "static",
-      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan \u00a72), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: the four identity-email data types keep their fields (D-164(b)); no migration."
+      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan §2), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: the four identity-email data types keep their fields (D-164(b)); no migration."
     },
     {
       "id": "D1E-K16",
       "runner": "static",
-      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan \u00a72), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: every light colour the frame and the card block use is a token's value but the code box's border (DAISY-19-EMAIL-01, unwidened; P4)."
+      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan §2), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: every light colour the frame and the card block use is a token's value but the code box's border (DAISY-19-EMAIL-01, unwidened; P4)."
     },
     {
       "id": "R2-TANGGAL-01",
       "runner": "static",
-      "proves": "Retrospective R2-3 (E3 #15, DS/10-dates), selftest/retro.test.ts, reading the source of every .tsx file under src/app and src/components: no screen writes a date in the formal form (\u00ab9 Oktober 2026\u00bb: tanggal/when with \"resmi\" or \"resmiJam\", or format.date); emails, printed letters and the certificate's own frozen form keep it."
+      "proves": "Retrospective R2-3 (E3 #15, DS/10-dates), selftest/retro.test.ts, reading the source of every .tsx file under src/app and src/components: no screen writes a date in the formal form («9 Oktober 2026»: tanggal/when with \"resmi\" or \"resmiJam\", or format.date); emails, printed letters and the certificate's own frozen form keep it."
     },
     {
       "id": "R2-KOSONG-01",
       "runner": "static",
-      "proves": "Retrospective R2-5 (W3.2, D-172 P13), selftest/retro.test.ts, reading the source of every .tsx file under src/app and src/components: every empty state is the Empty state (Kosong); a bare pin-empty line stands only where it is not an empty (a status, \u00abnothing waits\u00bb, or a component its tests import outside Next), each declared with its reason; the feedback page's section refusal (\u00abKelas ini bukan wewenang Anda.\u00bb) is a statement, never drawn as an empty state."
+      "proves": "Retrospective R2-5 (W3.2, D-172 P13), selftest/retro.test.ts, reading the source of every .tsx file under src/app and src/components: every empty state is the Empty state (Kosong); a bare pin-empty line stands only where it is not an empty (a status, «nothing waits», or a component its tests import outside Next), each declared with its reason; the feedback page's section refusal («Kelas ini bukan wewenang Anda.») is a statement, never drawn as an empty state."
     },
     {
       "id": "R3-SOAL-01",
@@ -4622,7 +4622,7 @@
     {
       "id": "R3-A5-01",
       "runner": "static",
-      "proves": "Retrospective R3 (Batch 3's wording and layout questions, answered as Daisy's A4 and A5; D-171(b), D-173(a)), selftest/retro.test.ts, reading the copy table (src/lib/hle.ts) and the source of the Studio package page, Studio's layout and home, KepalaStudio, Siapkan and JendelaTinjau: A4's corrected English exactly; no \u00abcourse\u00bb in the send-back's English; the findings' result echoes its button's verb; one \u00ab(opsional)\u00bb key for every optional field; the package page's one h1 is its title under \u00abStudio\u00bb with its sections one level below and Studio's head aside; a sent-back package carries \u00abDikembalikan ke penyusun\u00bb on Studio's list; Siapkan's review carries the window being confirmed before \u00abSediakan\u00bb."
+      "proves": "Retrospective R3 (Batch 3's wording and layout questions, answered as Daisy's A4 and A5; D-171(b), D-173(a)), selftest/retro.test.ts, reading the copy table (src/lib/hle.ts) and the source of the Studio package page, Studio's layout and home, KepalaStudio, Siapkan and JendelaTinjau: A4's corrected English exactly; no «course» in the send-back's English; the findings' result echoes its button's verb; one «(opsional)» key for every optional field; the package page's one h1 is its title under «Studio» with its sections one level below and Studio's head aside; a sent-back package carries «Dikembalikan ke penyusun» on Studio's list; Siapkan's review carries the window being confirmed before «Sediakan»."
     },
     {
       "id": "R5-PERSOAL-01",
@@ -4672,7 +4672,7 @@
     {
       "id": "D168-KATA-1",
       "runner": "static",
-      "proves": "F03-R02 false positive (D-168), selftest/d168.test.ts, from selftest/isi-materi.ts, the rendered TeksBaris and TeksBlok (src/components/teks/Teks.tsx), the stylesheet src/app/experience.css, the source of ItemPlayer.tsx and the seed supabase/seed/learning_cycle.sql: the learner-surface scan for verdict words reads PINTAR's own words only; authored content, which the shared renderer marks (data-isi-materi) and through which the player draws stems and options, is set aside whole even when nested, so the authored option \u00abSalah satu lebih besar\u00bb is not flagged; PINTAR's \u00abSalah\u00bb badge or \u00abIncorrect\u00bb/\u00abWrong\u00bb feedback beside or after the content is still caught, an unclosed marker sets nothing aside, the wrapper changes no layout, and the seed keeps its option as written."
+      "proves": "F03-R02 false positive (D-168), selftest/d168.test.ts, from selftest/isi-materi.ts, the rendered TeksBaris and TeksBlok (src/components/teks/Teks.tsx), the stylesheet src/app/experience.css, the source of ItemPlayer.tsx and the seed supabase/seed/learning_cycle.sql: the learner-surface scan for verdict words reads PINTAR's own words only; authored content, which the shared renderer marks (data-isi-materi) and through which the player draws stems and options, is set aside whole even when nested, so the authored option «Salah satu lebih besar» is not flagged; PINTAR's «Salah» badge or «Incorrect»/«Wrong» feedback beside or after the content is still caught, an unclosed marker sets nothing aside, the wrapper changes no layout, and the seed keeps its option as written."
     },
     {
       "id": "D168-K8-1",
@@ -4682,32 +4682,32 @@
     {
       "id": "D168-B1-6",
       "runner": "app",
-      "proves": "B1 \u00a71 \u00abPemeliharaan dan pengumuman\u00bb and \u00a74 (D-166(a), D-172), selftest/app.test.ts, over HTTP against the seed and from the source of src/app/konfigurasi/page.tsx and the stylesheet src/app/experience.css: every Konfigurasi section page, for Admin sekolah and Admin platform, runs h1 then h2s only (no heading skips a level); Pemeliharaan is the two-step schedule (no schedule form before \u00abPeriksa waktu ini\u00bb, the collision line before it, as an attention alert), then the windows, then the notices, then, for Admin platform alone, \u00abHentikan sekarang\u00bb last and set apart with its typed phrase and destructive button; a window's and a notice's one action opens its reason in place (?ubah=), named with its record, on surface-2 with \u00abBatal\u00bb, keeping its list's page; two short fields share a row (auto-fit at 220 px)."
+      "proves": "B1 §1 «Pemeliharaan dan pengumuman» and §4 (D-166(a), D-172), selftest/app.test.ts, over HTTP against the seed and from the source of src/app/konfigurasi/page.tsx and the stylesheet src/app/experience.css: every Konfigurasi section page, for Admin sekolah and Admin platform, runs h1 then h2s only (no heading skips a level); Pemeliharaan is the two-step schedule (no schedule form before «Periksa waktu ini», the collision line before it, as an attention alert), then the windows, then the notices, then, for Admin platform alone, «Hentikan sekarang» last and set apart with its typed phrase and destructive button; a window's and a notice's one action opens its reason in place (?ubah=), named with its record, on surface-2 with «Batal», keeping its list's page; two short fields share a row (auto-fit at 220 px)."
     },
     {
       "id": "D168-B1-7",
       "runner": "static",
-      "proves": "B1 \u00a71 \u00abEvery section's pattern\u00bb (D-166(a), D-172), selftest/d168.test.ts, reading the source of src/app/konfigurasi/page.tsx and audit/journey.mjs: Pindah kelas is a narrow GET step («Dari», «Tampilkan murid») then its Kelas's students as rows under its name, each «Pindahkan» named with the student (and the journeys press it so); Peserta is a narrow form with «Orang» and «Tempat» sharing a row, then «Catatan pengembangan profesi» under its heading; Laporan is link rows, the school's summary before the classes'; Sistem & Konfigurasi's schools are read-only rows with «aktif»/«nonaktif» and «data uji» as badges and the school years' dates in words, never ISO; Pergantian tahun ajaran's «Dari» and «Ke» share a row under the school's name; Templat laporan is its records then a narrow form with school and kind sharing a row; on A4 (B1 \u00a72) a section page keeps its content and drops every form, record action, pager and back link (src/app/experience.css; walked in audit/b6-cetak.mjs P6)."
+      "proves": "B1 §1 «Every section's pattern» (D-166(a), D-172), selftest/d168.test.ts, reading the source of src/app/konfigurasi/page.tsx and audit/journey.mjs: Pindah kelas is a narrow GET step («Dari», «Tampilkan murid») then its Kelas's students as rows under its name, each «Pindahkan» named with the student (and the journeys press it so); Peserta is a narrow form with «Orang» and «Tempat» sharing a row, then «Catatan pengembangan profesi» under its heading; Laporan is link rows, the school's summary before the classes'; Sistem & Konfigurasi's schools are read-only rows with «aktif»/«nonaktif» and «data uji» as badges and the school years' dates in words, never ISO; Pergantian tahun ajaran's «Dari» and «Ke» share a row under the school's name; Templat laporan is its records then a narrow form with school and kind sharing a row; on A4 (B1 §2) a section page keeps its content and drops every form, record action, pager and back link (src/app/experience.css; walked in audit/b6-cetak.mjs P6)."
     },
     {
       "id": "D168-B1-3",
       "runner": "static",
-      "proves": "B1 \u00a71 \u00abRecords\u00bb and \u00a74 (D-166(a)), selftest/d168.test.ts, reading the source of src/app/konfigurasi/page.tsx: in Peran & akses and Batas ketuntasan each row's one action is at its end, named with its record (\u00abCabut \u00b7 {name}\u00bb, \u00abTetapkan \u00b7 {lesson}\u00bb), and opens in place: the open record is carried in the address (?ubah=, checked as an id), one row at a time, the row on surface-2 with its short form named like its action, its confirming action (destructive for a revocation) and \u00abBatal\u00bb; a closed row draws no form."
+      "proves": "B1 §1 «Records» and §4 (D-166(a)), selftest/d168.test.ts, reading the source of src/app/konfigurasi/page.tsx: in Peran & akses and Batas ketuntasan each row's one action is at its end, named with its record («Cabut · {name}», «Tetapkan · {lesson}»), and opens in place: the open record is carried in the address (?ubah=, checked as an id), one row at a time, the row on surface-2 with its short form named like its action, its confirming action (destructive for a revocation) and «Batal»; a closed row draws no form."
     },
     {
       "id": "D168-B1-2",
       "runner": "static",
-      "proves": "B1 \u00a71 \u00abJejak audit\u00bb and RV-24 (D-166(a)), selftest/d168.test.ts, reading the source of src/app/konfigurasi/page.tsx and the stylesheet src/app/experience.css: the audit trail is the design system's Table (pin-tabel in its scrollable frame) with a caption and column headers, its rows striped and the stripes printed; \u00abVersi\u00bb is drawn only for Admin platform and only when a row on the page carries a build (adaVersi), and a row without a build leaves its cell empty, never \u00ab\u2014\u00bb."
+      "proves": "B1 §1 «Jejak audit» and RV-24 (D-166(a)), selftest/d168.test.ts, reading the source of src/app/konfigurasi/page.tsx and the stylesheet src/app/experience.css: the audit trail is the design system's Table (pin-tabel in its scrollable frame) with a caption and column headers, its rows striped and the stripes printed; «Versi» is drawn only for Admin platform and only when a row on the page carries a build (adaVersi), and a row without a build leaves its cell empty, never «—»."
     },
     {
       "id": "D168-E1-1",
       "runner": "static",
-      "proves": "E-E1-1 (D-170(c), D-171(a)), selftest/d168.test.ts, from the rendered ItemNav, the stylesheet src/app/experience.css and the source of TombolCiut.tsx, CangkangPengalaman.tsx, TombolBantuan.tsx, TautanLapor.tsx and BarisSesi.tsx: in the staff rail each place's link is named by its own word, visually hidden (never display: none, no aria-label or title), with an aria-hidden tooltip of the same word shown only while the shell is the rail (1024-1279 px unless expanded, 1280 px and up when collapsed), on focus at once and dismissible with Escape; the rail is shell-rail wide; every place has an icon; the collapse control names the state it offers (\u00abCiutkan navigasi\u00bb / \u00abLebarkan navigasi\u00bb) from the rail's own state and is hidden until it knows it; Bantuan, \u00abLaporkan masalah\u00bb and \u00abKeluar\u00bb keep their words."
+      "proves": "E-E1-1 (D-170(c), D-171(a)), selftest/d168.test.ts, from the rendered ItemNav, the stylesheet src/app/experience.css and the source of TombolCiut.tsx, CangkangPengalaman.tsx, TombolBantuan.tsx, TautanLapor.tsx and BarisSesi.tsx: in the staff rail each place's link is named by its own word, visually hidden (never display: none, no aria-label or title), with an aria-hidden tooltip of the same word shown only while the shell is the rail (1024-1279 px unless expanded, 1280 px and up when collapsed), on focus at once and dismissible with Escape; the rail is shell-rail wide; every place has an icon; the collapse control names the state it offers («Ciutkan navigasi» / «Lebarkan navigasi») from the rail's own state and is hidden until it knows it; Bantuan, «Laporkan masalah» and «Keluar» keep their words."
     },
     {
       "id": "D168-E2-1",
       "runner": "static",
-      "proves": "E2 (D-169(c)) with E1 and O12 (D-170(d)), selftest/d168.test.ts, reading the source of NavKonteks.tsx, CangkangPengalaman.tsx, TombolLaci.tsx, src/app/page.tsx, src/lib/nama-tempat.ts and the stylesheet src/app/experience.css: the context control is the navigation's first part (the purpose's short name or G1's slot, the place, the chooser only with another context; in the rail one item named \u00abMau ke mana hari ini? \u00b7 purpose \u00b7 place\u00bb, its initials aria-hidden); the navigation's items no longer carry the place; the places' one order is O12's; the chooser's current door is marked by a check, the primary edge and ground and aria-current, not by weight; the drawer is a modal named \u00abBuka menu\u00bb / \u00abTutup menu\u00bb after \u00abKeluar\u00bb, moving focus in and back with the page inert, and the script-less control is not a second control or a desktop Tab stop."
+      "proves": "E2 (D-169(c)) with E1 and O12 (D-170(d)), selftest/d168.test.ts, reading the source of NavKonteks.tsx, CangkangPengalaman.tsx, TombolLaci.tsx, src/app/page.tsx, src/lib/nama-tempat.ts and the stylesheet src/app/experience.css: the context control is the navigation's first part (the purpose's short name or G1's slot, the place, the chooser only with another context; in the rail one item named «Mau ke mana hari ini? · purpose · place», its initials aria-hidden); the navigation's items no longer carry the place; the places' one order is O12's; the chooser's current door is marked by a check, the primary edge and ground and aria-current, not by weight; the drawer is a modal named «Buka menu» / «Tutup menu» after «Keluar», moving focus in and back with the page inert, and the script-less control is not a second control or a desktop Tab stop."
     },
     {
       "id": "D168-K9-1",
@@ -6169,7 +6169,7 @@
       "id": "A2A-L03",
       "runner": "static",
       "proves": "Sharon's ruling on A2A-L01 (A2A-L01-FINDING-f09da528.md; migration 20270118110000): on two real connections, connection A takes a learner FOR UPDATE and then that learner's sittings in the statuses the hold takes, in pengerjaan_tahan_orang's own query (tangguhkan_akun's order), while connection B runs the real finalize_session of a copy of a sitting IN_PROGRESS a day past its deadline (committed before, removed after; both rolled back); B waits for A and then finishes, with no deadlock, because finalize_session and pengerjaan_putus_tenggat take the learner FOR KEY SHARE before the sitting; with the plant (both of those first locks removed, 245's code) the same race ends in \"deadlock detected\"."
-        },
+    },
     {
       "id": "A2A-L04",
       "runner": "static",
@@ -6751,6 +6751,216 @@
       "proves": "selftest/c3w-z.test.ts, reading the rendered html of the running app's Studio routes: all seven Studio pages and five refusal paths each draw one <main>, the only id=\"isi\", the skip link's target, and exactly one <h1> (Daisy, 19 Nov); on each refusal the first heading in that <main> is the refusal's; the unknown correction gets Daisy's one neutral answer; a learner opening Studio meets the layout's refusal with its own <main>."
     },
     {
+      "id": "Z-K02-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, with the copy table and PetaBacaan rendered to html (K-02; Daisy, SAPU-KATA-RULING-78 §a): a KUAT card reads «Sudah kuat» with map.kuat.arti once in its reason slot and its statement once; other tiers keep the engine's reason; map.tingkat.arti once under the map; the words ID and EN."
+    },
+    {
+      "id": "Z-K03-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the copy table and the source files of tujuanBelum and the teacher's one-learner page (K-03): a failed tujuan_belum_tercapai read is null, never []; the page says it as a failure, and «no Uji Penguasaan yet» as its own state, before «no objective below target»."
+    },
+    {
+      "id": "Z-K04-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, with the copy table and KomposisiSekolah rendered to html (K-04): «Semua bidang kompetensi berada di 60% ke atas» only when no domain is withheld; semua_cukup_sebagian when some are; neither when none has a figure."
+    },
+    {
+      "id": "Z-K05-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the copy table and the source file of the public verification page (K-05; Daisy §b): under DITINJAU and DICABUT the facts are headed «Seperti saat diterbitkan», with verifikasi.fakta.ditinjau under DITINJAU only; BERLAKU, DIGANTIKAN and TIDAK SAH unchanged."
+    },
+    {
+      "id": "Z-M1M2-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the source files LanjutkanDiSini.tsx and PermukaanAsesmen.tsx (R-20 M1, M2; Daisy, Z-M1-M2-SPESIFIKASI): the recovery outcomes the learner did not cause are neutral, OFFLINE stays an error; the teacher is told «Uji Penguasaan · {bab}»."
+    },
+    {
+      "id": "Z-R8-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the source file of every page under /belajar/[tugas]/ (R-8, X-2; Daisy, X2-CATATAN-DESAIN): each calls one ownership guard (src/lib/tugas-saya.ts, notFound) before any learning-state read."
+    },
+    {
+      "id": "Z-R8-03",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, which executes the source file src/lib/tugas-saya.ts with a stand-in database (Sharon's R-8 review): a not-yours id is notFound(), an own certificate's chapter is let through, and a failed certificate read re-throws to the error page, never reading as «not found»."
+    },
+    {
+      "id": "Z-R8-02",
+      "runner": "app",
+      "proves": "selftest/z-ux.test.ts, from the rendered html and status of each route of the running app, as the bootstrap learner (R-8): all eight /belajar/{id}/… routes, with a classmate's assignment, an assessment-assignment id and an unknown id, answer with the not-found page («Halaman ini tidak ada») and never the error page or a reference code, with one HTTP status per route for all three ids (Sharon's condition b)."
+    },
+    {
+      "id": "Z-S12-02",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the source file of the reopening route and by executing src/lib/buka-kembali.ts (S-12): the input is checked before code_request_pace, a refused input answers ISIAN after the same fixed wait, and the check matches minta_buka_kembali's own rule on twelve inputs."
+    },
+    {
+      "id": "Z-R26-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the source files of TombolKirim and the reopening page (R-26 items 1 and 4; ruling 75): an opt-in `asli` native-post button holds a second submit at the capture-phase guard, says «Mengirim…» busy and disabled, and returns to its verb on pageshow; a busy button keeps its width at submit as min-inline-size, only while busy. The browser proof is docs/completion-4.1/batches/z/layar/r26-tekan.ts."
+    },
+    {
+      "id": "Z-R27-02",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the copy table (R-27(a), ruling 77): buka_kembali.galat.isian says «email atau username», as the field is labelled, word for word in ID and EN."
+    },
+    {
+      "id": "Z-R27-03",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the source file of the sign-in screen LayarMasuk.tsx (R-27(c), ruling 77): the identity field has no inputMode=\"email\", no autocapitalise, autocorrect or spell-check, and keeps autoComplete=\"username\"."
+    },
+    {
+      "id": "Z-R26-02",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the source file experience.css (R-26 item 2, ruling 75): a.pin-konteks-pilih keeps its control-sm look and its hit area is extended to control-md (44 px) by an ::after. The browser proof (hit area and identical pixels at 320, 390, 1280) is docs/completion-4.1/batches/z/layar/r26-tekan.ts."
+    },
+    {
+      "id": "Z-R26-03",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the copy table and the source files of the Studio rule and Kanonik pages (R-26 item 3): the four «Simpan» labels say what they do, each its own key, and Kanonik's grant is studio.kanonik.beri «Berikan izin»."
+    },
+    {
+      "id": "Z-S15-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, executing src/components/aktivasi/hasil.ts and reading the activation route's source file and the copy table (S-15): only an address Auth reports as already registered is told «mungkin sudah dipakai»; an outage or a rate limit reads «Akun belum bisa dibuat. Coba lagi sebentar lagi.»"
+    },
+    {
+      "id": "Z-S08-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the source file of the forgotten-password screen and the copy table (S-08): an expiry on the PINTAR ID + PIN path says «Ketik lagi PINTAR ID dan PIN Anda.», never «Minta kode baru» where no code exists."
+    },
+    {
+      "id": "Z-S13-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the copy table (S-13): the activation resend line promises a new code only if the address is registered «dan akunnya belum aktif», ID and EN."
+    },
+    {
+      "id": "Z-S11-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, executing kanonikPintarId over the shared fixture file selftest/fixtures/z/pintar-id-normalisasi.json (R-27(b)'s list) and reading the source files of the platform account lookup (S-11): a pasted «A14C D7ST» is found, the field takes 12 characters, and a malformed entry is said with the existing ID_TIDAK_SAH sentence."
+    },
+    {
+      "id": "Z-K07-02",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the copy table (K-07's floor, Daisy's words via Bob): config.ketuntasan.arti and galat.pass_mark_input_incomplete say «1 sampai 100» / «1 to 100», nothing else changed."
+    },
+    {
+      "id": "Z-N16-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the copy table (N-16, S-12's approved wording): the reopening page's wait line says «Tunggu sebentar, lalu coba lagi.» / «Wait a little, then try again.», never that a request was sent."
+    },
+    {
+      "id": "Z-N17-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the source file of TombolKirim (N-17): a server-action button keeps the width taken at its submit while pending and through «✓ {selesai}», until a change to the form returns its verb. Browser check: docs/completion-4.1/batches/z/layar/n17-lebar.ts."
+    },
+    {
+      "id": "Z-N9-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the staff page's source file and the copy table (N-9): no person, an unknown and a forbidden person all answer «Data staf ini tidak dapat dibuka. …», never the certificate page's sentence."
+    },
+    {
+      "id": "Z-S02-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, executing src/lib/staf-kontrak.ts and reading the staff page's and action's source files and the copy table (S-02, S-03): a role chosen without a valid date is refused ROLE_UNTIL_INVALID in the review and the act, never dropped; the sentence says «hari ini atau sesudahnya»."
+    },
+    {
+      "id": "Z-S04-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, executing src/lib/kode-sekolah.ts and reading the source files of Pendataan's action and page, and the copy table (S-04): a school code of the wrong shape is checked by the database's own rule before the database is asked and said as its shape, never «maybe taken»."
+    },
+    {
+      "id": "Z-S05-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, executing src/lib/galat-kontrak.ts and reading the copy table (S-05): the mix-total and safety-over refusals of save_assessment_definition have their own codes and sentences, and the mix hint states the rule."
+    },
+    {
+      "id": "Z-S06-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the copy table (S-06): pengerjaan.galat.window_not_changeable no longer says «saat ini» / «right now» for a refusal that may be lasting."
+    },
+    {
+      "id": "Z-S07-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the source file of Konfigurasi's actions (S-07): a deactivation reason of spaces answers STRUCTURE_REASON_REQUIRED, the reason's own sentence."
+    },
+    {
+      "id": "Z-S16-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, from the source file of the activation form FormAktivasi.tsx (S-16): the new person's name field has maxLength={200}."
+    },
+    {
+      "id": "Z-T03-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, reading the copy table (T-03): the 22 keys of ruling 78 (d) and email.aman.diatur_ulang.isi's English say «Admin PINTAR» word for word in ID and EN, and no key in the copy table still names the role «Admin platform», «platform admin(istrator)» or «PINTAR administrator»."
+    },
+    {
+      "id": "Z-T09-T02-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, reading the copy table (T-09, T-02): three English keys name «Mastery Check» and «Quick Assessments»; the unused mengajar.langkah.f2 is absent from the copy table and its type, f2w kept."
+    },
+    {
+      "id": "Z-S09-S10-S14-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, reading the copy table (S-09, S-10, S-14): «jaringan ini», «PIN yang bisa dipakai» and «email atau username yang Anda ketik», word for word in ID and EN."
+    },
+    {
+      "id": "Z-N1-N2-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, rendering PengingatPemeliharaan with a class window (N-1, N-2): on the player at stage 0 the reassurance leads and the restriction is not said; at T−15 a staff reader gets the new staff sentence and a learner the learner's; reads the source file PitaPemeliharaan.tsx giving the reader's kind from peranSaya."
+    },
+    {
+      "id": "Z-R15-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, R-15's one-string items: reads the source file DaftarKeputusan.tsx (status joined by «, »), executes urutRingkas in src/lib/kenaikan.ts (main group first) and reads KenaikanKelas.tsx using it; the copy table's certificate column «Paket» / «Package» (X12)."
+    },
+    {
+      "id": "Z-Z5R-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, Daisy's Z5 review: the copy table's C-2 and (a) sentences word for word; the source of Pendataan's action and page refills a refused code (C-1); the rule page's source answers each form in its own words; the CSS file keeps the bar's place word whole, and the shell's source wraps it with the brand (b)."
+    },
+    {
+      "id": "Z-BINGKAI-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, executing BINGKAI from the rendered-check helper audit/a11y.mjs against a page built in the test (R-11): a frame scrolling sideways is caught once, the designed tab row is not, a part wider than the window is, a hidden frame is not; reads the source of audit/crawl.mjs, which holds such a page broken at 320 px unless listed for the ruling 79 audit."
+    },
+    {
+      "id": "Z-R11-01",
+      "runner": "static",
+      "proves": "selftest/z-ux.test.ts, rendering Koleksi with stacked rows, with none and empty (R-11); reads the CSS file (the blocks below 640 px, the instrument switch wrapping below 360 px, N-8's padding at 360 px and under) and the source of «Siapa»."
+    },
+    {
+      "id": "Z-C1-01",
+      "runner": "app",
+      "proves": "selftest/z-ux.test.ts, in the running app (C-1): a school code of the wrong shape posted to Pendataan is refused and the rendered page holds what was typed in the field."
+    },
+    {
+      "id": "Z-C2A-01",
+      "runner": "app",
+      "proves": "selftest/z-ux.test.ts, in the running app on C1w's draft package: a row's count change on a rule divided by difficulty is refused with the row's own rendered sentence (C-2), and a rule made by the new-rule form is answered «Aturan baru dibuat.» (finding a); read back from the rendered html."
+    },
+    {
+      "id": "Z-N9-02",
+      "runner": "app",
+      "proves": "selftest/z-ux.test.ts, from the rendered html of the running app's /konfigurasi/staf as the bootstrap school's administrator (N-9): no person, an unknown person and another school's staff member get the same neutral refusal and status."
+    },
+    {
+      "id": "Z-S01-01",
+      "runner": "app",
+      "proves": "selftest/z-ux.test.ts, through the running app's Studio rule form (route redirect) and read back from the database (S-01, before its fix): renaming a rule with pause and offline on keeps its one version and every other setting."
+    },
+    {
+      "id": "Z-R10-01",
+      "runner": "app",
+      "proves": "selftest/z-ux.test.ts, from the rendered html of the running app's Konfigurasi pages as a school's and the platform's administrator (R-10, option A): every standalone page's «Tempat kerja Anda» is the index's link set, aria-current on its own item or «Konfigurasi», with a way back; the section route is the control."
+    },
+    {
+      "id": "Z-S12-01",
+      "runner": "app",
+      "proves": "selftest/z-ux.test.ts, posting to the running app's reopening route (route redirects and the rendered html) from one address (S-12): two refused inputs each answer the input's own line, never «a request was just sent», and use no pace; a well-formed request is then sent and a second at once is paced."
+    },
+    {
       "id": "C3W-D1",
       "runner": "static",
       "proves": "Sharon's D-1, red first (C3W-1-DESIGN.md §9, 8831d62a): reads the catalogue. The six service functions take one request or attempt id (settle and reconcile also the closed-shape p_penggunaan) and are executable by service_role only; no ai_ or c3w_ function takes a person or a school; every one authenticated can execute is a definer with a fixed search_path reading public.current_person_id(), except c3w_bahan, an invoker by Sharon's ruling (b); anon and authenticated write none of the seven AI tables."
@@ -6788,7 +6998,7 @@
     {
       "id": "C3W-F1",
       "runner": "static",
-      "proves": "Sharon's F-1 (build review of 992b568f; Bob's choice (a)), red first: executes against the migrations in one rolled-back transaction: a 20,000-character request reserves ceil(length \u00d7 ai_token_per_karakter()) plus the option's prompt bound, so a settle at its true worst case stays within its reservation and the platform's stop stays off. Plant: the reservation with its length term removed settles above it."
+      "proves": "Sharon's F-1 (build review of 992b568f; Bob's choice (a)), red first: executes against the migrations in one rolled-back transaction: a 20,000-character request reserves ceil(length × ai_token_per_karakter()) plus the option's prompt bound, so a settle at its true worst case stays within its reservation and the platform's stop stays off. Plant: the reservation with its length term removed settles above it."
     },
     {
       "id": "R3-01",
@@ -7044,6 +7254,96 @@
       "id": "C2W-B3",
       "runner": "app",
       "proves": "PLAN-A2B-C2W.md §3.4 B3 with Sharon's D4 (3a2de775), red first, selftest/c2w-catatan-layar.test.ts, the running app, read from the rendered html of the production build on a package the seeded cycle school's people publish: the head of department finds «Catatan peninjau (0)» after «Riwayat soal», never printed, with «Tulis catatan» on each option; the form has Daisy's label, hint and a 1000-character bound; an empty note is refused in her words and nothing is saved; a note with markup is saved («Catatan tersimpan.»), shown as text and attributed with version 1; «Ganti catatan» says the old note stays, and the old one moves under «Catatan sebelumnya (1)» with «Diganti pada …»; the package's author (CAN_DRAFT only) reads the note with no form; the class's learner's pages carry none."
+    },
+    {
+      "id": "Z-D1-02",
+      "runner": "static",
+      "proves": "Z D-1's guard (R-16; Sharon's RULING55 D-1 table), selftest/z-d1.test.ts, read from pg_proc, pg_views and pg_matviews outside the system schemas: every body reading ->> 'pilihan' is on the allowed list (grade_kunci, grade_response, pilihan_dipilih, pilihan_tunggal, session_answers, each still branching on jsonb_typeof(... 'pilihan')) or on D-1's pending list, empty since 20270123100000 repaired the seven (a reader is added there only by Sharon's ruling); a reader on neither list fails."
+    },
+    {
+      "id": "Z-D1-01",
+      "runner": "static",
+      "proves": "Z D-1 (R-16), red first, selftest/z-d1.test.ts, executes the seven readers against the migrations, rolled back, on the seeded human-evaluation sitting with question 1 made multi-answer (A and C right): for {A, B} session_review reads both options' texts in label order, wrong, with their reason; session_misconceptions, reading_map and service_cohort_misconceptions find B's misconception; service_item_statistics counts one response, right by grade_kunci (1:0, and 1:1 for {A, C}); service_distractor_uptake counts each chosen option; teacher_question_evidence's chosen is null, never JSON text, and chosen_all lists every label. The untouched single-answer sitting reads md5-identically to 300 on all seven (the teacher's added chosen_all aside)."
+    },
+    {
+      "id": "Z-D1-03",
+      "runner": "static",
+      "proves": "Z D-1, Sharon's ruling-56 condition (a check, not a promise), selftest/z-d1.test.ts, reads and runs scripts/release/before-import/d1-multi-answer.sql against the migrations and seeds: one read-only transaction, rolled back, with no write; on the seeded world it reports «Pecahan»'s APPROVED multi-answer items, their final responses (0) and the verdict REPORT, to go to Bob and Sharon before an import or a walkthrough world proceeds."
+    },
+    {
+      "id": "Z-V2-01",
+      "runner": "static",
+      "proves": "Z V2 (R-22; Sharon's conditions; ruling 81), red first, selftest/z-v2.test.ts, executes hasil_belajar_sesi_saya as the learner on the seeded finalised Uji Penguasaan, each case rolled back with a later sitting of the same test: none, SELESAI with the finished result; a retake begun or paused, the finished result stays in force with ulang_berjalan; a retake ended unfinished (TERMINATED, EXPIRED), the result kept and no line; a retake finalised later replaces it, no line; an audited recalculation of the result in force is marked on it (D14, sesi_saya_dihitung_ulang). On 300 a later sitting begun or ended turns the summary to BERJALAN with no result. The two-person key-correction path is C1W-S05's world, which now also reads the summary."
+    },
+    {
+      "id": "Z-K07-01",
+      "runner": "static",
+      "proves": "Z K-07 (ruling 78; ruling 81 refinement 6), red first, selftest/z-k07.test.ts, writes each value against the migrations in its own rolled-back transaction with triggers off, so only the column's checks decide: school_pass_marks.percent refuses 0 and 101 and accepts 1 and 100; assessment_assignments.pass_mark and assessment_sessions.pass_mark (fractions) refuse 0 and 1.01, accept 0.01 and 1.00, and allow null; set_school_pass_mark as the school's admin refuses 0 in its own words (from 1 to 100) and accepts 1; the three floors are validated. On 300 a mark of 0 is accepted everywhere."
+    },
+    {
+      "id": "Z-K01-01",
+      "runner": "static",
+      "proves": "Z K-01's SQL (ruling 78; Sharon's Q1-Q3; Bob's Q2), red first, selftest/z-k01.test.ts, executes session_outcome, tujuan_belum_tercapai and percobaan_antrean against the migrations, rolled back, on the seeded finalised Uji Penguasaan made a gate-only failure: the learner reads lulus false with tujuan_gerbang, the missed must-be-right item's objectives; the teacher's objectives not yet reached are exactly those; the head of department's retake queue shows gerbang false beside the figure and target, the school admin none; the gate passed gives tujuan_gerbang [] and nothing to the teacher; another learner is refused; a pre-test carries no key; the objectives come from the result row's own key (a basis key accepting the answer leaves nothing missed)."
+    },
+    {
+      "id": "Z-D6-01",
+      "runner": "static",
+      "proves": "Z D-6 (R-17; ruling 55; all nine dark), red first, selftest/z-d6.test.ts, reads the migrated world, the migration and the app's source: none of the nine feedback RPCs is executable by authenticated or anon, all nine exist with their registry rows and service_role keeps its grant; 20270123140000 only revokes and checks (no row touched, the feedback tables' counts reported); UMPAN_BALIK_TERBUKA is false, Belajar reads no round, the class page's link and Pimpinan's section are drawn only when it is true, and the five round pages answer notFound(). The dormant logic stays proven by FABLE-07, which grants the nine for its own statement only."
+    },
+    {
+      "id": "Z-V5-01",
+      "runner": "static",
+      "proves": "Z V5 (R-24; Sharon VERIFY-58), red first, selftest/z-v5.test.ts, executes transfer_execute against the migrations, rolled back: an AUTHORIZED transfer from the seeded learner's enrolment, closed since as a rollover closes it, run by her school's administrator is refused PR040 with DETAIL TRANSFER_SOURCE_CLOSED, never the raw «a closed enrollment is immutable»; the transfer stays AUTHORIZED and nothing is written at the receiving school; the action's contract maps it to galat.transfer_source_closed in ID and EN."
+    },
+    {
+      "id": "Z-V6-01",
+      "runner": "static",
+      "proves": "Z V6 (R-25; Sharon VERIFY-58), selftest/z-v6.test.ts, executes the file scripts/release/after-promotion/v6-pre-request.sql against the migrated database, the read-only check a promotion runs on staging and production: OK on the migrated world (authenticator's pgrst.db_pre_request is pintar_permintaan.periksa and the function exists); on two plants rolled back (the setting removed, the setting pointing elsewhere) it names each difference; OK again after."
+    },
+    {
+      "id": "Z-R27-01",
+      "runner": "static",
+      "proves": "Z R-27(b) (Sharon; the shared fixture selftest/fixtures/z/pintar-id-normalisasi.json), selftest/z-r27.test.ts, executes minta_buka_kembali from migration 20270123160000 against the migrated database: on a closed account whose PINTAR ID is the fixture's (rolled back), minta_buka_kembali records a REOPEN request exactly for the cases marked cocok (the card's grouping, a hyphen, lower case, I or L for 1) and for none of the others (a near miss, wrong lengths, U, an email containing the ID, a username, empty); pintar_id_canonical gives each case's kanonik; the answer is the same whether or not it matched."
+    },
+    {
+      "id": "Z-R15-08",
+      "runner": "static",
+      "proves": "Z8 item 8 (Sharon's R-15 B0 read, 23 Nov), selftest/z-r15.test.ts, executes minta_akun and revoke_role from migration 20270123170000 against the migrated database on the synthetic world, each probe rolled back: the last usable school administrator's closure is refused PR140 ACCOUNT_LAST_SCHOOL_ADMIN with a message naming no school, and their own revocation PR160 ROLE_LAST_SCHOOL_ADMIN; a second administrator counts only when appointed now, unsuspended, not anonymised, with an account and not locked (a past banned_until counts); every school the caller administers is checked; with a usable second administrator both are allowed; a platform admin may revoke the last one."
+    },
+    {
+      "id": "Z-R15-10",
+      "runner": "static",
+      "proves": "Z8 item 8 (Sharon (e)), selftest/z-r15.test.ts, executes minta_akun and revoke_role from migration 20270123170000 on two connections against the migrated database: while one administrator's closure is held open, the other administrator's closure and own revocation wait on the school's advisory lock (they time out under lock_timeout); both roll back."
+    },
+    {
+      "id": "Z-R15-09",
+      "runner": "static",
+      "proves": "Z8 item 8, selftest/z-r15.test.ts, reads migration 20270123170000, src/lib/akun-kontrak.ts and src/lib/hle.ts: admin_sekolah_lain_ada is the one «another usable administrator» question and kunci_admin_sekolah the one advisory-lock taker (school id order), both used by peran_terakhir_kode and by minta_akun after the person's lock; no revoking function or the guard is rewritten; ACCOUNT_LAST_SCHOOL_ADMIN is in akun_tolak, raised by minta_akun, in the screens' contract, and has Daisy's ID and EN words; every function created is revoked from PUBLIC."
+    },
+    {
+      "id": "Z9-K01",
+      "runner": "static",
+      "proves": "Z9, Sharon's condition (1) on the BOB18-A01 fix, selftest/z-r15.test.ts, reads every source file under src/app/konfigurasi and src/components/konfigurasi/NavKonfigurasi.tsx: none calls rpc(\"is_system_admin\") directly; and src/lib/auth.ts's isSystemAdmin() is React cache() around the request's own rpc(\"is_system_admin\") returning «data === true», so a failed call denies."
+    },
+    {
+      "id": "Z-R15-11",
+      "runner": "static",
+      "proves": "Z8 item 8, Daisy's SIGNIFICANT finding (via Bob 14:53Z), selftest/z-r15.test.ts, reads the source file src/components/akun/MeninggalkanPintar.tsx and checks its rendered output (HTML) in ID and EN: a signed-in learner is offered no request form and told to ask through the school; a signed-in admin is offered exactly CLOSE and DELETE_PERSONAL_DATA, never REOPEN (a signed-out act that minta_akun does not accept); no element on the section reads «—»."
+    },
+    {
+      "id": "Z-N15-01",
+      "runner": "static",
+      "proves": "Z N-15, selftest/z-n15.test.ts: the source of pengajar.perluPenguatan keeps a failed tujuan_belum_tercapai read as null, and the rendered KomposisiKelas section «Murid yang perlu penguatan» says mengajar.murid1.tujuan_gagal (ID and EN) for that learner only, beside a learner read with an objective and one read with none."
+    },
+    {
+      "id": "Z-K01-02",
+      "runner": "static",
+      "proves": "Z K-01 screens, selftest/z-k01-layar.test.ts, without a database: the source of siklus.alasanBelum and bagianUlang (a gate-only failure is GERBANG, «Pelajari lagi» lists the missed must-be-right question's objective, empty for C2), pengajar.vonisHasil and urutUlang, pengerjaan-kontrak.kunciHasilAntrean, each by its cases; the learner's, teacher's, request and queue pages' source say Daisy's words; the rendered KomposisiMurid carries V2's line and the D14 marker (ID and EN); every new key in the copy table word for word; recovery walks on each failure path."
+    },
+    {
+      "id": "Z-K01-03",
+      "runner": "static",
+      "proves": "Z K-01 integrated check (ruling 81), selftest/z-k01-layar.test.ts, executes session_outcome and reading_map as the learner, learner.result as the teacher and percobaan_antrean as the head of department against the migrated database, rolled back, and feeds them into the screens' own rules: learner (i) (percentage met, must-be-right missed) is «belum» by the gate on the learner's page, the teacher's page, «Minta membaca lagi» and the queue; learner (ii)'s verdict changed by an approved two-person key correction reads corrected on all four, both ways."
     }
   ]
 }

@@ -150,7 +150,9 @@ export default function KomposisiSekolah({ entries, locale, tempat = {}, kesiapa
         ? s("laporan.sekolah.perhatian_banyak").replace("{n}", format.number(rendah.length, locale)).replace("{pita}", s("kesiapan.butuh_pendampingan"))
           .replace("{nama}", namaDomain(rendah[rendah.length - 1])).replace("{p}", format.percent(Number(rendah[rendah.length - 1].mean_score), locale))
         : s("laporan.sekolah.perhatian").replace("{daftar}", daftarKata(rendah.map((d) => namaDomain(d)), locale)).replace("{pita}", s("kesiapan.butuh_pendampingan")))
-      : s("laporan.sekolah.semua_cukup"),
+      // K-04 (SAPU-VERIFIED): «all» never while a domain is withheld: only those with a figure were judged (the sentence is
+      // drawn only when one has a figure)
+      : s(domain.some((d) => typeof d.mean_score !== "number") ? "laporan.sekolah.semua_cukup_sebagian" : "laporan.sekolah.semua_cukup"),
   ].filter(Boolean).join(" ");
   const hBerikut = huruf();
 

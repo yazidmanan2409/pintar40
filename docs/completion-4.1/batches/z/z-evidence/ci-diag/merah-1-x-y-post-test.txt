@@ -1,0 +1,3 @@
+C3W-C32     FAIL    the scenario could not run: ERROR:  invalid input syntax for type uuid: ""; the scenario did not run
+C3W-C36     FAIL    the scenario did not run
+C3W-C310    FAIL    the scenario did not run

@@ -1,3 +1,4 @@
+import { UMPAN_BALIK_TERBUKA } from "@/lib/umpanbalik-kontrak";
 import Link from "next/link";
 import { t, format, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
@@ -174,9 +175,12 @@ export default async function Kelas({
               offered, because whether a round has been held is a fact the
               subject of one is entitled to, and the page behind it says plainly
               when there has not been one. */}
-          <Link className="pin-btn" href={`/mengajar/${id}/umpan-balik`}>
-            {s("umpanbalik.guru.judul")}
-          </Link>
+          {/* Z D-6: dark while the round is (UMPAN_BALIK_TERBUKA) */}
+          {UMPAN_BALIK_TERBUKA ? (
+            <Link className="pin-btn" href={`/mengajar/${id}/umpan-balik`}>
+              {s("umpanbalik.guru.judul")}
+            </Link>
+          ) : null}
         </div>
 
         <div className="pin-sec">

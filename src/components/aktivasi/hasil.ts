@@ -28,7 +28,17 @@ export type JawabanAktivasi = {
 };
 
 /** The words the route itself writes into `error`. */
-export const GALAT_RUTE = ["mode", "unauthenticated", "email", "person_id", "refused", "create_failed", "CONTEXT_OTHER_PLACE"] as const;
+export const GALAT_RUTE = ["mode", "unauthenticated", "email", "person_id", "refused", "email_taken", "create_failed", "CONTEXT_OTHER_PLACE"] as const;
+
+/**
+ * S-15 (SAPU-VERIFIED): THE ROUTE'S WORD FOR AN ACCOUNT AUTH DID NOT CREATE. Only an address Auth reports as already
+ * registered is `email_taken`; an outage, a rate limit or an Auth that could not be reached is `create_failed`, so an
+ * administrator is never told to change a correct address because of an outage.
+ */
+export function galatBuat(e: { code?: string | null; status?: number; message?: string | null }): "email_taken" | "create_failed" {
+  return e.code === "email_exists" || (e.status === 422 && /already (?:been )?registered|already exists/i.test(e.message ?? ""))
+    ? "email_taken" : "create_failed";
+}
 
 /**
  * The same permissive shape check as /masuk (LayarMasuk): it catches a missing
@@ -59,8 +69,11 @@ export function kunciGagal(mode: ModeAktivasi, jawaban: JawabanAktivasi | null):
       return "aktivasi.galat.surel";
     case "refused":
       return mode === "NEW_PERSON" ? "aktivasi.galat.baru_ditolak" : "aktivasi.galat.ditolak";
-    case "create_failed":
+    // S-15: «mungkin sudah dipakai» only when Auth said the address is registered; anything else is a try-again
+    case "email_taken":
       return mode === "CLASSROOM_CARD" ? "aktivasi.galat.kartu" : "aktivasi.galat.dipakai";
+    case "create_failed":
+      return mode === "CLASSROOM_CARD" ? "aktivasi.galat.kartu" : "aktivasi.galat.buat_gagal";
     default:
       return "aktivasi.gagal";
   }

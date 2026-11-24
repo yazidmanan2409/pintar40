@@ -42,10 +42,11 @@ export async function batasPelajaran(c: Db, sekolah: string, course: string): Pr
   return typeof p === "number" ? p : null;
 }
 
-/** A form's mark: a whole number from 0 to 100 written as digits, or null. «60», never «60,5» or «-1». */
+/** A form's mark: a whole number from 1 to 100 written as digits, or null. «60», never «0», «60,5» or «-1». */
 export function bacaPersen(raw: string): number | null {
   const t = raw.trim();
   if (!/^\d{1,3}$/.test(t)) return null;
   const n = Number(t);
-  return n >= 0 && n <= 100 ? n : null;
+  // Z K-07 (20270123120000): a pass mark of 0 lets any score pass; the floor is 1, as set_school_pass_mark refuses
+  return n >= 1 && n <= 100 ? n : null;
 }

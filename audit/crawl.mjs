@@ -13,7 +13,8 @@ import { chromium } from "playwright";
 import { createRequire } from "node:module";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { periksa, ringkas } from "./a11y.mjs";
+import { BINGKAI, bingkaiBaru, periksa, ringkas } from "./a11y.mjs";
+
 
 const APP = process.env.APP_URL;
 const SB = process.env.SUPABASE_URL;
@@ -212,6 +213,9 @@ async function crawl(browser, p) {
       await page.waitForTimeout(200);
       rec.sempit = await page.evaluate(SEMPIT).catch((e) => ({ gagal: String(e.message ?? e).slice(0, 200) }));
       rec.klipSempit = await page.evaluate(KLIP).catch((e) => ({ sebab: [`the clipping check failed: ${String(e.message ?? e).slice(0, 160)}`] }));
+      // Z6: a box inside main that scrolls sideways (BINGKAI), less the parts on the audit list
+      rec.bingkai = await page.evaluate(BINGKAI).catch((e) => ({ lebar: 320, sebab: [`the framed-overflow check failed: ${String(e.message ?? e).slice(0, 160)}`] }));
+      rec.bingkaiBaru = bingkaiBaru(rec.finalPath ?? path, rec.bingkai);
       // The application pass (D-138) reviews every page at both widths, so the 320 px picture is kept for every
       // page, not only for one that failed. A failing page is still named by `sempit`, as before.
       rec.shotSempit = rec.shot?.replace(/\.png$/, "-320.png") ?? null;
@@ -368,6 +372,7 @@ for (const r of all) {
       if (k) broken.push(`${r.persona} ${x.path} at ${w} px clips text: ${k.sebab.join("; ")}`);
     }
     if (x.sempit) broken.push(`${r.persona} ${x.path} at 320 px: ${x.sempit.gagal ?? `${x.sempit.halaman} px wide (${x.sempit.sebab.join("; ") || "no single part named"})`}`);
+    if (x.bingkaiBaru) broken.push(`${r.persona} ${x.path} at 320 px, inside the page: ${x.bingkaiBaru.sebab.join("; ")}`);
   }
 }
 // The controlled red: AUDIT_PLANT=crawl adds one broken page.

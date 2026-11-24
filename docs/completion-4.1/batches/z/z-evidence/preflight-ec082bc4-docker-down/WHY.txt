@@ -1,0 +1,4 @@
+VOID, not a result. The session's container restarted during the run (uptime 12 min at 16:18Z), stopping containerd
+and dockerd. lint, typecheck and build-identity ran (all rc=0); every step needing the stack failed before testing
+anything ("Cannot connect to the Docker daemon"; plants: "fable01.sql did not load"). The runtime was restarted by
+hand and the full pre-flight run again on the same head (preflight-ec082bc4/).

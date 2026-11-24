@@ -64,11 +64,23 @@ import { a2bMulaiDbTests } from "./a2b-mulai.test";
 import { a3DbTests } from "./a3.test";
 import { a3LayarStaticTests } from "./a3-layar.test";
 import { c3wZStaticTests } from "./c3w-z.test";
+import { zUxStaticTests } from "./z-ux.test";
 import { c3wSyaratTests } from "./c3w-syarat.test";
 import { c3wR3Tests } from "./c3w-r3.test";
 import { c3wTerimaTests } from "./c3w-terima.test";
 import { c3wC3Tests } from "./c3w-c3.test";
 import { c3wJalurTests } from "./c3w-jalur.test";
+import { zD1Tests, zD1Tests_01, zD1Tests_03 } from "./z-d1.test";
+import { zV2Tests } from "./z-v2.test";
+import { zK07Tests } from "./z-k07.test";
+import { zK01Tests } from "./z-k01.test";
+import { zD6Tests } from "./z-d6.test";
+import { zV5Tests } from "./z-v5.test";
+import { zV6Tests } from "./z-v6.test";
+import { zR27Tests } from "./z-r27.test";
+import { zR15Tests } from "./z-r15.test";
+import { zN15Tests } from "./z-n15.test";
+import { zK01LayarTests } from "./z-k01-layar.test";
 import { adm02Tests } from "./adm02.test";
 import { adm09Tests } from "./adm09.test";
 import { d088iTests } from "./d088i.test";
@@ -2198,11 +2210,25 @@ export const staticTests: SelfTest[] = [
   ...a3DbTests,
   ...a3LayarStaticTests,
   ...c3wZStaticTests,
+  ...zUxStaticTests,
   ...c3wSyaratTests,
   ...c3wR3Tests,
   ...c3wTerimaTests,
   ...c3wC3Tests,
   ...c3wJalurTests,
+  ...zD1Tests,
+  ...zD1Tests_01,
+  ...zD1Tests_03,
+  ...zV2Tests,
+  ...zK07Tests,
+  ...zK01Tests,
+  ...zD6Tests,
+  ...zV5Tests,
+  ...zV6Tests,
+  ...zR27Tests,
+  ...zR15Tests,
+  ...zN15Tests,
+  ...zK01LayarTests,
   ...adm02Tests,
   ...adm09Tests,
   ...d088iTests,

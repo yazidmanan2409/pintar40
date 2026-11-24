@@ -1,0 +1,2 @@
+F06-S04     FAIL    static/app test(s) whose `proves` does not name the artefact it inspects. A claim about a surface, asserted by a test of a copy table, reads true at a gate and is not:
+  Z-R15-11: Z8 item 8, Daisy's SIGNIFICANT finding (via Bob 14:53Z), selftest/z-r1

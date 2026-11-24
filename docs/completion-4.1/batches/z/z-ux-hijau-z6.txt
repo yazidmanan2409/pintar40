@@ -1,0 +1,31 @@
+# Z6 (stream B) after the fix: focused checks on this commit's tree (23 Nov 2026)
+## lint and typecheck: 0 errors
+## the two tests
+UX1-S0-TOKEN-01 PASS    every re-set Experience surface resolves its colours, radii, type sizes and spacing to a token in the source file src/app/globals.css; every surface is declared either re-set or pending, so a new one cannot be added outside the lint; and every allow-listed constant still exists and carries a reason (249 re-set surface(s), 6 awaiting their slice, 68 classified implementation constant(s))
+Z-BINGKAI-01 PASS    executes BINGKAI from the rendered-check helper audit/a11y.mjs against a page built in the test: a frame scrolling sideways (452 px in 324 px) is caught once, as itself; the tab row (.pin-switch, designed) is not; a part wider than the window in no scrolling box is; a hidden frame and one that fits are not; reads the source of audit/crawl.mjs, which holds a page broken for a framed overflow at 320 px unless the part is on the ruling 79 audit list
+Z-R11-01    PASS    renders Koleksi three ways: rows with their block are drawn as a list named as the table, each block the name as its heading, then the sitting's line, the visible «Keadaan» label with the state, then «Atur»; rows without, and an empty result, stay the table alone; the CSS file replaces the table with the blocks below 640 px (Koleksi's container), wraps the instrument switch one option a line below 360 px, and gives Studio's nested panels less padding at 360 px and under (
+
+## static runner, every static id: 3 failures, all known and outside Z (F06-S01, D060-J78-01: stream A's D-1; BOB26-K01: CARD_PEPPER). UX1-S0-TOKEN-01 is restated with one exemption, 359px (R-11's «below 360»)
+508 passed, 3 failed, 231 skipped, 14 justified skips accepted (local only), 0 contract problem(s) → RED
+
+## app runner with the local stack: every app id whose claim reads Siapa, a Collection, Riwayat soal, the reviewer's notes, Orang, Jejak audit or catatan-masuk, with A1-A01, A1-J01, C2W-B3 and Z-R10-01 (before the last two CSS-only changes, which are proved by the captures and the sweep)
+UX1-UB-KELOLA-01 FAIL    an open round offers its operator no way to close it; an open round does not say it is still collecting; an open round already carries the withheld statement; an open round is described as finished; an excluded reader's attempt moved t
+D168-B1-1   PASS    every older Konfigurasi address (the actions' results, a section's own parameters, its pagers) lands on its section's page with every parameter; that page draws its section alone under its own h1, with its result line and the way back; the 
+BOB26-A01   SKIP*   facility missing: mailsink — justification: needs the running app, the local stack (Auth, PostgREST) and the Mailpit sink
+BOB27-A01   SKIP*   facility missing: mailsink — justification: needs the running app, the local stack (Auth, PostgREST) and the Mailpit sink
+D102-A01    SKIP*   facility missing: mailsink — justification: needs the running app and the local stack (Auth, PostgREST, the mail sink)
+BOB29-A01   PASS    a staff person's unknown browser is asked «Komputer siapa ini?» before /mengajar (shared chosen); declared shared, 5 minutes without activity send its pages to /terkunci, its activity route a 423 and PostgREST a 423, a refreshed token too
+CABUT-A01   SKIP    facility missing: mailsink
+JEJAK-A01   PASS    as Alpha's admin, with 13 runs and 1,310 related rows at the newest end of the trail (more than max_rows): each run is one entry on exactly one page of the trail with its exact count, and no page holds a related row; each run opened reaches
+KENAIKAN-A01 PASS    as Alpha's admin, through the screen (rendered, route): Kelas 5X chosen; all four learners listed, the Tingkat-only one marked; «Naikkan semua ke» pre-selected 6X for the Kelas's three and left D, the live count naming the one undecided;
+A1-A01      PASS    as the class's teacher in the running app: «Siapa yang sudah mengumpulkan» shows each learner's state (not started; open with its start and time left; handed in; «Waktu habis» for one past its deadline, never as a hand-in; «Ditahan» f
+A1-J01      PASS    «a power cut during Uji Penguasaan», through the running app with no engineer: the learner starts the Uji Penguasaan from its orientation and answers two questions; the class's teacher finds the open sitting on «Siapa yang sudah mengumpu
+C1W-A01     PASS    as the package's author in the running app: «Ubah soal ini» turns one article into its form in place, fields in Daisy's order, its heading focusable; a save with problems is refused with «Pertanyaan masih kosong.», «Pilihan B masih kos
+B1-L01      PASS    a teacher is refused; the school's admin reads their own sign-in by name without any network origin; the platform admin reads it with its /24 and never the address; a reference not there says that print records are kept 12 months, from the 
+B1-A04      PASS    a staff member of Alpha, suspended (the right and a wrong password), then closed, each attempt one failure answered and recorded exactly as a wrong password (401 MASUK_TIDAK_COCOK, never one naming the account's state), their person and Alp
+Z-R10-01    PASS    in the running app as the bootstrap school's administrator and as the platform administrator (R-10, option A): on catatan-masuk, kesempatan, keamanan, sertifikat, email-uji, staf and the section route (the control), the rendered html's «Te
+C2W-B3      PASS    in the running app, on a published package: the head of department finds «Catatan peninjau (0)» after «Riwayat soal», never printed, with «Tulis catatan» on each option; the form has Daisy's label, hint and a 1000-character bound; an 
+11 passed, 1 failed, 1 skipped, 3 justified skips accepted (local only), 0 contract problem(s) → RED
+UX1-UB-KELOLA-01: fails on local state only (its round is left WITHHELD by its own earlier green run on the freshly reset database this session); it passes once per fresh database (z-ux-hijau-z7r.txt).
+
+## the sweep after the fix: z6-sapu-1.txt (run 1 of 2; run 2 after Second Eye's second integration merge)

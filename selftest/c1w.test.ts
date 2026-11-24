@@ -895,6 +895,10 @@ export const c1wTests: SelfTest[] = [
              from public.session_outcome(${G("s1")}) x`),
         langkah("murid_saya", "m1", `select (x ->> 'dikoreksi') || '|' || (x -> 'asli' ->> 'penguasaan') || '|' || (x -> 'terkini' ->> 'penguasaan') from public.hasil_koreksi_saya(${G("s1")}) x`),
         langkah("murid_ulasan", "m1", `select count(*) filter (where y.benar) || '/' || count(*) from public.session_review(${G("s1_post")}) y`),
+        // Z V2 (Sharon's condition: the key-correction path end to end): Hasil Belajar's summary names the corrected
+        // sitting as the result in force, SELESAI, with no retake line
+        langkah("murid_ringkasan", "m1", `select h.keadaan || '|' || coalesce((h.pre_session = ${G("s1")})::text, 'null') || '|' || coalesce((h.post_session = ${G("s1_post")})::text, 'null') || '|' || h.ulang_berjalan
+             from public.hasil_belajar_sesi_saya() h join public.assessment_sessions s on s.id = ${G("s1")} where h.learning_assignment_id = s.learning_assignment_id`),
         langkah("murid_biasa", "m2", `select ((x ->> 'dikoreksi') is null) || '|' || (x ->> 'penguasaan') from public.session_outcome(${G("s2_post")}) x`),
         langkah("murid_lain", "m2", `select public.hasil_koreksi_saya(${G("s1")}) ->> 'dikoreksi'`),
         langkah("guru", "guru", `select string_agg(e ->> 'jenis', ',' order by (e ->> 'urutan')::int) || '|' || (select e2 ->> 'jenis' from jsonb_array_elements(x -> 'rantai') e2 where (e2 ->> 'kini')::boolean)
@@ -1023,6 +1027,7 @@ export const c1wTests: SelfTest[] = [
       harap("murid", `ok:0.6667|true|1.0000|${ALASAN}`, "the learner's result page (the corrected result as current, marked corrected, why, the original)");
       harap("murid_saya", "ok:true|1.0000|0.6667", "the learner's own reading of the correction");
       harap("murid_ulasan", "ok:2/2", "the learner's review of an unaffected sitting");
+      harap("murid_ringkasan", "ok:SELESAI|true|true|false", "the learner's Hasil Belajar summary after the correction (Z V2: the corrected pre-test and the Uji Penguasaan in force, SELESAI, no retake line)");
       harap("biasa2", "ok:true", "an ordinary recalculation of another sitting");
       harap("murid_biasa", "ok:true|1.0000", "a learner whose sitting was recalculated ordinarily (D14: no correction said, the sealed result read)");
       harap("murid_lain", "PR190:RESULT_NOT_VISIBLE", "another learner reading it");

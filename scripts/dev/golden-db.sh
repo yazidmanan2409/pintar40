@@ -98,6 +98,17 @@ build_golden() {
     say "golden-db:   auth.users already present — shape file skipped"
   fi
 
+  # Since A1 (20270114110000) a migration creates pg_cron, and pg_cron can be
+  # created only in the one database its server names in cron.database_name.
+  # Say so plainly here instead of failing silently partway through the replay.
+  local cron_db
+  cron_db="$(psql -Atqc "select coalesce((select 'x' from pg_available_extensions where name = 'pg_cron'), '') || '|' || coalesce(current_setting('cron.database_name', true), '')" "$url")"
+  case "$cron_db" in
+    "|"*) die "pg_cron is not installed on this server (since 20270114110000 a migration creates it); install it, add shared_preload_libraries = 'pg_cron' and cron.database_name = '$building', restart, and run again" ;;
+    "x|$building") ;;
+    *) die "pg_cron can be created only in cron.database_name ('${cron_db#x|}'); set cron.database_name = '$building' on this server, restart, and run again" ;;
+  esac
+
   [ -x "$SUPABASE_BIN" ] || die "$SUPABASE_BIN not found (npm ci first)"
   "$SUPABASE_BIN" migration up --db-url "$url" --include-all >/dev/null
   say "golden-db:   $(ls supabase/migrations/*.sql | wc -l | tr -d ' ') migration(s) applied"
@@ -133,7 +144,13 @@ comment on schema pintar_dev is 'local development baseline stamp — see script
 SQL
 
   drop_db "$GOLDEN"
-  psql -q -c "alter database \"$building\" rename to \"$GOLDEN\"" "$admin_url"
+  # pg_cron's launcher holds a connection to cron.database_name (the building
+  # database), which blocks the rename and every later template clone. End it
+  # and rename in one session; renamed, the launcher no longer finds it.
+  psql -q -v ON_ERROR_STOP=1 "$admin_url" >/dev/null <<SQL
+select pg_terminate_backend(pid) from pg_stat_activity where datname = '$building' and pid <> pg_backend_pid();
+alter database "$building" rename to "$GOLDEN";
+SQL
   say "golden-db: $GOLDEN ready"
 }
 

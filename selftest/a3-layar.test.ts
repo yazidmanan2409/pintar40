@@ -41,7 +41,9 @@ export const a3LayarStaticTests: SelfTest[] = [
       c.expect(/sekali\.current = true;/.test(ld) && (ld.match(/coba\(false\)/g) ?? []).length === 2 && (ld.match(/coba\(true\)/g) ?? []).length === 1,
         "the recovery screen calls the act other than once on opening, on «Lanjutkan di sini» and on «Coba lagi»");
       c.expect(!/setInterval|setTimeout\(\(\) => \{ void coba\(true\)/.test(ld) && !/router\.(push|replace)\(/.test(ld), "the recovery screen retries or redirects by itself (§2.1)");
-      c.expect(/<BarisHasil nada="gagal">/.test(ld) && !/role="alert"/.test(ld) && /pengerjaan\.pulih\.diperiksa/.test(ld) && /pengerjaan\.pulih\.perlu_izin_isi/.test(ld), "the refusals are not alerts, or «Coba lagi» does not say when it checked, or the waiting body is missing");
+      // RESTATED (Z, R-20 M1; Daisy, Z-M1-M2-SPESIFIKASI.md): OFFLINE and any unexpected code stay the error line; the
+      // recovery outcomes the learner did not cause are neutral (Z-M1M2-01)
+      c.expect(/<BarisHasil nada=\{kode === "OFFLINE" \|\| !TENANG\.includes\(kode\) \? "gagal" : "netral"\}>/.test(ld) && !/role="alert"/.test(ld) && /pengerjaan\.pulih\.diperiksa/.test(ld) && /pengerjaan\.pulih\.perlu_izin_isi/.test(ld), "the refusals are not alerts, or «Coba lagi» does not say when it checked, or the waiting body is missing");
       c.expect(/kode === "RECOVERY_NOT_AUTHORISED"\) \{[\s\S]*?rpc\("minta_izin_lanjut"/.test(ac), "a refusal for want of a permission does not send the request to the teacher's list");
       c.expect(/keadaan\.di_sesi_ini === false/.test(pa) && /<LanjutkanDiSini/.test(pa) && /<BarisLanjut/.test(pa), "the page does not choose the recovery screen, or the quiet line, from pengerjaan_saya");
       // O-4: the app cannot tell the device differs, so no learner sentence says «perangkat lain»

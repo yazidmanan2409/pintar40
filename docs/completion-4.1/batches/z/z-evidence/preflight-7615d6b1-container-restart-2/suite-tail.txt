@@ -1,0 +1,140 @@
+static pages using 3 workers (24/24) in 272ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /aktifkan
+├ ƒ /aktivasi
+├ ƒ /aktivasi/orang
+├ ƒ /akun
+├ ƒ /api/aktifkan/keadaan
+├ ƒ /api/aktifkan/kode
+├ ƒ /api/aktifkan/nama
+├ ƒ /api/aktifkan/password
+├ ƒ /api/aktifkan/periksa
+├ ƒ /api/aktifkan/pin
+├ ƒ /api/aktifkan/selesai
+├ ƒ /api/aktifkan/username
+├ ƒ /api/akun/aktivasi
+├ ƒ /api/akun/email
+├ ƒ /api/akun/foto
+├ ƒ /api/akun/hapus-data
+├ ƒ /api/akun/kartu
+├ ƒ /api/akun/kartu-ke-email
+├ ƒ /api/akun/kartu-kelas
+├ ƒ /api/akun/kartu/kirim
+├ ƒ /api/akun/pin
+├ ƒ /api/assets/read-url
+├ ƒ /api/assets/upload-url
+├ ƒ /api/certificates/issue
+├ ƒ /api/dev/[[...tool]]
+├ ƒ /api/draf-ai
+├ ƒ /api/email/uji
+├ ƒ /api/evaluation/assume
+├ ƒ /api/keamanan/pemulihan
+├ ƒ /api/masuk/buka-kembali/kirim
+├ ƒ /api/masuk/kartu
+├ ƒ /api/masuk/lupa/kode
+├ ƒ /api/masuk/lupa/password
+├ ƒ /api/masuk/lupa/periksa
+├ ƒ /api/masuk/lupa/pin
+├ ƒ /api/masuk/password
+├ ƒ /api/sertifikat/ganti
+├ ƒ /api/sesi/buka
+├ ƒ /api/sesi/detak
+├ ƒ /api/sesi/keluar-semua
+├ ƒ /api/sesi/kunci
+├ ƒ /api/sesi/perangkat
+├ ƒ /api/verifikasi/[token]
+├ ƒ /auth/callback
+├ ƒ /belajar
+├ ƒ /belajar/[tugas]
+├ ƒ /belajar/[tugas]/hasil
+├ ƒ /belajar/[tugas]/lanjut
+├ ƒ /belajar/[tugas]/pelajaran/[pelajaran]
+├ ƒ /belajar/[tugas]/pemetaan
+├ ƒ /belajar/[tugas]/penguasaan
+├ ƒ /belajar/[tugas]/peta
+├ ƒ /belajar/[tugas]/sertifikat
+├ ƒ /belajar/asesmen/[penugasan]
+├ ƒ /belajar/hasil
+├ ƒ /belajar/sertifikat
+├ ƒ /belajar/umpan-balik/[siklus]
+├ ƒ /dekan/ringkasan
+├ ƒ /edukator/ringkasan
+├ ƒ /evaluasi
+├ ƒ /id/[pintarId]
+├ ƒ /keluar
+├ ƒ /konfigurasi
+├ ƒ /konfigurasi/[bagian]
+├ ƒ /konfigurasi/catatan-masuk
+├ ƒ /konfigurasi/email-uji
+├ ƒ /konfigurasi/keamanan
+├ ƒ /konfigurasi/kesempatan
+├ ƒ /konfigurasi/sertifikat
+├ ƒ /konfigurasi/staf
+├ ƒ /lapor
+├ ƒ /lapor/saya
+├ ƒ /masuk
+├ ƒ /masuk/buka-kembali
+├ ƒ /masuk/lupa
+├ ƒ /mengajar
+├ ƒ /mengajar/[kelas]
+├ ƒ /mengajar/[kelas]/bukti
+├ ƒ /mengajar/[kelas]/langkah
+├ ƒ /mengajar/[kelas]/murid/[orang]
+├ ƒ /mengajar/[kelas]/siapa
+├ ƒ /mengajar/[kelas]/siapkan
+├ ƒ /mengajar/[kelas]/soal
+├ ƒ /mengajar/[kelas]/uji-cepat
+├ ƒ /mengajar/[kelas]/uji-cepat/hasil
+├ ƒ /mengajar/[kelas]/ulang
+├ ƒ /mengajar/[kelas]/umpan-balik
+├ ƒ /mulai
+├ ƒ /pemeliharaan
+├ ƒ /pendataan
+├ ƒ /pendataan/[pekerjaan]
+├ ƒ /pengembangan/[simpul]
+├ ƒ /perangkat
+├ ƒ /pimpinan
+├ ƒ /pimpinan/[simpul]
+├ ƒ /pimpinan/[simpul]/murid
+├ ƒ /pimpinan/[simpul]/murid/[orang]
+├ ƒ /pimpinan/[simpul]/umpan-balik
+├ ƒ /pimpinan/[simpul]/umpan-balik/[siklus]
+├ ƒ /pimpinan/[simpul]/umpan-balik/kelas/[kelas]
+├ ƒ /studio
+├ ƒ /studio/bank
+├ ƒ /studio/definisi
+├ ƒ /studio/integritas
+├ ƒ /studio/kanonik
+├ ƒ /studio/kanonik/[terbitan]
+├ ƒ /studio/paket/[course]
+├ ƒ /studio/pratinjau/[pelajaran]
+├ ƒ /studio/tinjau
+├ ƒ /studio/tinjau/kunci/[koreksi]
+├ ƒ /studio/unggah
+├ ƒ /terkunci
+└ ƒ /verifikasi/[token]
+
+
+ƒ Proxy (Middleware)
+
+ƒ  (Dynamic)  server-rendered on demand
+
+  built and recorded: fingerprint 3a9316871a59 (revision 7615d6b19faf, build 7hoy-8mG_P_Hq-_44B-_D)
+
+[app] starting production-mode app
+
+[static] selftest/static.test.ts
+HLE: no copy for "mengajar.instrumen.MODE_YANG_BELUM_ADA"
+HLE: no copy for "mengajar.instrumen.MODE_YANG_BELUM_ADA"
+HLE: no copy for "mengajar.instrumen.MODE_YANG_BELUM_ADA"
+HLE: no copy for "mengajar.instrumen.MODE_YANG_BELUM_ADA"
+HLE: no copy for "mengajar.instrumen.MODE_YANG_BELUM_ADA"
+HLE: no copy for "mengajar.instrumen.MODE_YANG_BELUM_ADA"
+HLE: no copy for "mengajar.instrumen.MODE_YANG_BELUM_ADA"
+HLE: no copy for "mengajar.instrumen.MODE_YANG_BELUM_ADA"
+HLE: no copy for "mengajar.cepat.sudah_ada"
+HLE: no copy for "mengajar.cepat.sudah_ada"

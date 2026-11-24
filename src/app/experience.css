@@ -397,6 +397,9 @@
 .pin-status .pin-big.pin-quietbig { font-size: var(--type-section); }
 
 .pin-dl { border: 1px solid var(--line); border-radius: var(--radius-2); overflow: hidden; margin: 0; }
+/* K-05: the facts under «Sedang ditinjau» and «Dicabut» are headed as the issue-time ones */
+.pin-verif-fakta-judul { font-size: var(--t-body); font-weight: 600; color: var(--ink-1); margin: var(--space-4) 0 var(--space-2); }
+.pin-verif-fakta-arti { font-size: var(--t-body); color: var(--ink-2); margin: 0 0 var(--space-3); }
 .pin-dl > div {
   display: grid; grid-template-columns: 180px 1fr; gap: var(--space-1) var(--space-5);
   align-items: baseline; padding: var(--space-4) var(--space-5); border-top: 1px solid var(--line);
@@ -1303,8 +1306,10 @@
 .pin-input[readonly] { background: var(--surface-2); border-color: var(--line); }
 .pin-hint { margin: 0; font-size: var(--type-meta); color: var(--ink-3); }
 .pin-value { margin: 0; font-size: var(--type-body); }
+/* Daisy's Z6 ruling: a segmented control never scrolls (a scroll hid options, at 320 px and at 1280, and clipped its
+   own focus ring); it wraps between options, each option whole on one line */
 .pin-seg {
-  display: inline-flex; max-width: 100%; min-width: 0; overflow-x: auto; justify-self: start;
+  display: inline-flex; flex-wrap: wrap; max-width: 100%; min-width: 0; overflow-x: visible; justify-self: start;
   background: var(--surface-2); border-radius: var(--radius-md);
 }
 .pin-seg label { position: relative; display: block; flex: none; }
@@ -1373,7 +1378,9 @@
   /* Tabs keep one row on a phone and scroll inside it (v3 Tabs); the page never does. */
   .pin-switch { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; max-width: 100%; }
   .pin-switch a { flex: none; white-space: nowrap; }
-  .pin-seg { display: grid; grid-template-columns: repeat(3, 1fr); }
+  /* Z6: a phone's segmented control takes the row and wraps between whole options (it was three fixed columns, which a
+     fourth option or a long one overflowed) */
+  .pin-seg { display: flex; }
   .pin-seg span { text-align: center; }
   .pin-isian .pin-input { width: 100%; }
   .pin-paket, .pin-hidup { padding: var(--space-5); }
@@ -3093,6 +3100,8 @@ input[type="file"]:disabled::file-selector-button { background: var(--surface-2)
     background: var(--surface-0); border-bottom: 0; border-right: var(--border-hairline) solid var(--line);
   }
   .pin-staf-kepala { padding: 0 var(--space-2) var(--space-3); }
+  /* the brand and the place word's row (Z5 review, finding b) is a box of its own only under 1024 px */
+  .pin-staf-judul { display: contents; }
   .pin-staf .pin-bar-tempat, .pin-staf .pin-laci-tombol { display: none; }
   .pin-staf .pin-laci { display: flex; flex-direction: column; flex: 1 0 auto; gap: var(--space-2); }
   .pin-staf-bawah { margin-top: auto; padding-top: var(--space-3); border-top: var(--border-hairline) solid var(--line); }
@@ -3116,13 +3125,26 @@ input[type="file"]:disabled::file-selector-button { background: var(--surface-2)
   }
   .pin-staf .pin-merek { --merek-tinggi: var(--logo-height-phone); }
   .pin-staf-kepala { order: 0; display: flex; align-items: center; min-height: var(--shell-bar); }
-  /* W6.4: the page's name wraps onto a second line rather than being cut off: at 320 px, beside the logo and the menu
-     button, it has about 78 px, and «Laporkan masalah», «Konfigurasi» or «Ringkasan Kelas» lost their ends */
-  .pin-staf .pin-bar-tempat {
-    order: 1; flex: 1; min-width: 0;
-    font-weight: var(--weight-strong); white-space: normal; overflow-wrap: anywhere; line-height: var(--leading-tight);
-    padding-block: var(--space-1);
+  /* W6.4: the page's name is never cut off: at 320 px, beside the logo, the «Keluar» button and the menu button, it has
+     about 66 px, and «Laporkan masalah», «Konfigurasi» or «Ringkasan Kelas» lost their ends.
+     Daisy (Z5 review, finding b): nor does it ever break inside a word, and it is never shortened with an ellipsis: it
+     says where the person is. The brand and the place word are one wrapping row (.pin-staf-judul) whose place word is
+     at least its longest word wide, so a word that does not fit beside the brand takes the whole place word to the
+     row's second line and the bar grows; between its words it may wrap, never inside one. */
+  .pin-staf-judul {
+    order: 0; flex: 1 1 0; min-width: 0;
+    display: flex; flex-wrap: wrap; align-items: center; column-gap: var(--space-3);
   }
+  .pin-staf .pin-bar-tempat {
+    flex: 1 1 0; min-width: min-content;
+    font-weight: var(--weight-strong); white-space: normal; overflow-wrap: normal; word-break: normal; hyphens: manual;
+    line-height: var(--leading-tight); padding-block: var(--space-1);
+  }
+  /* «Keluar» and the menu button stay on the brand's line when the place word takes a second one */
+  .pin-staf > :is(.pin-sesi, .pin-laci-tombol, .pin-laci-js) {
+    align-self: flex-start; margin-block-start: calc((var(--shell-bar) - var(--control-md)) / 2);
+  }
+  .pin-staf[data-laci="buka"] > .pin-sesi, .pin-laci-saklar:checked ~ .pin-sesi { margin-block-start: 0; }
   .pin-staf .pin-sesi { order: 2; width: auto; border: 0; padding: 0; flex-wrap: nowrap; }
   .pin-staf .pin-sesi-ket, .pin-staf .pin-sesi-akun { display: none; }
   .pin-staf .pin-laci-tombol {
@@ -3316,7 +3338,24 @@ select:not([multiple]):not([size]) {
 .pin-pager-kecil { display: none; }
 /* a choice that only fits wide: segments there, a select (the same options) here */
 .pin-sempit-saja { display: none; }
+/* R-11 (Daisy, Z-SIAP §2): a collection's rows as blocks of their own (BarisKoleksi.tumpuk), drawn only below 640 px */
+.pin-koleksi-tumpuk { display: none; }
+/* Daisy's Z6 ruling (6): the pager returns to the collection; under the phone's sticky bar it lands below the bar, not
+   under it (the bar is two lines at 320 px when its place word wraps) */
+@media (max-width: 1023px) { .pin-koleksi { scroll-margin-top: calc(var(--shell-bar) + var(--space-4)); } }
+@media (max-width: 360px) { .pin-koleksi { scroll-margin-top: calc(var(--shell-bar) + var(--shell-bar)); } }
 @container (max-width: 639px) {
+  /* R-11: where a table would scroll sideways, its rows are blocks: one learner each, the name its heading, each part
+     with its own visible label; the list keeps the rows' order and is named as the table is */
+  .pin-koleksi[data-tumpuk] > .pin-tabel-bingkai { display: none; }
+  .pin-koleksi-tumpuk { display: grid; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+  .pin-koleksi-tumpuk > li {
+    display: grid; gap: var(--space-1); min-width: 0; padding: var(--space-3) var(--space-4);
+    background: var(--surface-1); border: var(--border-hairline) solid var(--line); border-radius: var(--radius-lg);
+  }
+  .pin-koleksi-tumpuk-judul { margin: 0; font-size: var(--type-body); font-weight: var(--weight-strong); overflow-wrap: anywhere; }
+  .pin-koleksi-tumpuk-bagian > p { margin: 0; }
+  .pin-koleksi-tumpuk-label { color: var(--ink-2); }
   .pin-tabel [data-prioritas="rendah"] { display: none; }
   .pin-cari { max-width: none; }
   .pin-lebar-saja { display: none; }
@@ -3464,8 +3503,15 @@ select:not([multiple]):not([size]) {
 .pin-konteks-tujuan { font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-3); }
 .pin-konteks-tempat { font-size: var(--t-small); line-height: var(--t-small-lh); font-weight: var(--weight-strong); color: var(--ink-1); overflow-wrap: anywhere; }
 a.pin-konteks-pilih {
+  position: relative;
   display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--control-sm); width: fit-content;
   font-size: var(--t-small); font-weight: var(--weight-strong); color: var(--pintar-primary); text-decoration: none;
+}
+/* R-26 item 2 (ruling 75): compact is a look, not a smaller target. The hit area is a control-md band centred on the
+   link, exactly 44 px whatever its border and padding (an inset from the padding box measured 42 px in the browser) */
+a.pin-konteks-pilih::after {
+  content: ""; position: absolute; left: 0; right: 0;
+  top: calc(50% - var(--control-md) / 2); bottom: calc(50% - var(--control-md) / 2);
 }
 a.pin-konteks-pilih:hover { text-decoration: underline; }
 a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
@@ -3930,6 +3976,26 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 .pin-seg-tautan a[aria-current="page"] span { background-color: var(--pintar-primary); color: var(--pintar-primary-ink); }
 .pin-seg-tautan a:focus-visible { outline: none; }
 .pin-seg-tautan a:focus-visible span { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 0; }
+/* R-11: the link's busy mark (TandaTautan, a span) is not an option of its own; it took the options' pill (an empty
+   second pill under each option, with its own focus ring, seen at 560 px and under in the Z6 sweep) */
+.pin-seg.pin-seg-tautan a > span.pin-tanda-tautan {
+  display: inline-block; width: 0; min-height: 0; padding: 0; border: 0; background: none; outline: none;
+}
+/* (and, beside the option's own pill, it opens no line of its own under it) */
+.pin-seg.pin-seg-tautan a { display: flex; align-items: center; }
+/* R-11 (Daisy, Z-SIAP §2): below 360 px the instrument switch wraps, one option a line; it never scrolls, and the
+   current option keeps aria-current */
+@media (max-width: 359px) {
+  .pin-seg.pin-seg-tautan { display: grid; grid-template-columns: minmax(0, 1fr); overflow-x: visible; }
+  .pin-seg.pin-seg-tautan span { white-space: normal; text-align: left; justify-content: flex-start; }
+}
+/* N-8 (Daisy, C2w notes review): at 320 px a disclosure inside a card inside a panel had about 188 px; at 360 px and
+   under, Studio's panels and the cards inside them keep less padding, so the notes and «Riwayat soal» have room. Studio's
+   pages are known by their tabs or, on a package's page (which draws its own head), by .pin-studio-halaman */
+@media (max-width: 360px) {
+  #isi:has(.pin-studio-nav, .pin-studio-halaman) .pin-panel { padding: var(--space-3); }
+  #isi:has(.pin-studio-nav, .pin-studio-halaman) .pin-panel :is(article, .pin-panel) { padding: var(--space-2); }
+}
 /* A1: the acts of one material's row («Akhiri atau tarik», «Ubah jadwal») sit beside each other and wrap as links */
 .pin-baris-tindakan { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); align-items: baseline; }
 .pin-baris-tindakan:empty { display: none; }

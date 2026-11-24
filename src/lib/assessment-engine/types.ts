@@ -72,6 +72,10 @@ export type Outcome = {
   diagnostik: boolean;
   gerbang_keselamatan?: boolean | null;
   lulus?: boolean | null;
+  /** Z K-01 (20270123130000): the objectives of the must-be-right items this result missed; [] when the gate passed */
+  tujuan_gerbang?: string[];
+  /** Z3-A: the same objectives' codes (the learner's reading map and per_domain name them by code) */
+  tujuan_gerbang_kode?: string[];
   ambang?: number | null;
   /** C1w (O41-21): the result above is the one a governed key correction put in force; the sealed original is kept */
   dikoreksi?: boolean;

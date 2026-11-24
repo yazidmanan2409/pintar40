@@ -338,7 +338,8 @@ export default function FormAktivasi({ locale, orang, adminSistem, kelas = [], p
             <div className="pin-actions">
               <label className="pin-akt-isian">
                 <span className="pin-meta">{s("aktivasi.baru.nama")}</span>
-                <input ref={namaBaruRef} className="pin-input" value={baru.nama} autoComplete="off"
+                {/* S-16: authorize_new_person's own limit for a name */}
+                <input ref={namaBaruRef} className="pin-input" value={baru.nama} autoComplete="off" maxLength={200}
                   onChange={(e) => setBaru((b) => ({ ...b, nama: e.target.value }))} />
               </label>
               <label className="pin-akt-isian">

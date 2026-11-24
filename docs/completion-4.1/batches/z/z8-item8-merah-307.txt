@@ -1,0 +1,6 @@
+id          status  detail
+Z-R15-08    FAIL    c_sendiri: expected PR140:ACCOUNT_LAST_SCHOOL_ADMIN, got ok; c_ditangguhkan: expected PR140:ACCOUNT_LAST_SCHOOL_ADMIN, got ok; c_dikunci: expected PR140:ACCOUNT_LAST_SCHOOL_ADMIN, got ok; r_dikunci: expected PR160:ROLE_LAST_SCHOOL_ADMIN, got ok; c_tanpa_akun: expected PR140:ACCOUNT_LAST_SCHOOL_ADMIN, got ok; r_tanpa_akun: expected PR160:ROLE_LAST_SCHOOL_ADMIN, got ok; c_anonim: expected PR140:ACCOUNT_LAST_SCHOOL_ADMIN, got ok; c_mendatang: expected PR140:ACCOUNT_LAST_SCHOOL_ADMIN, got ok; c_dua_sekolah: expected PR140:ACCOUNT_LAST_SCHOOL_ADMIN, got ok
+Z-R15-10    FAIL    tutup: the other administrator's closure did not wait for the open closure (ok); cabut: the other administrator's revocation did not wait for the open closure (ok)
+Z-R15-09    FAIL    supabase/migrations/20270123170000_a_school_keeps_a_usable_administrator.sql is missing
+
+0 passed, 3 failed, 0 skipped, 0 contract problem(s) → RED

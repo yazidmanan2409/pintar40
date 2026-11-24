@@ -50,6 +50,60 @@ const UKUR = () => {
   return { lebar, meluap, terpotong };
 };
 
+/**
+ * Z6 (R-11; Daisy, Z-SIAP-DAISY-7ba18b03 §2): A FRAMED OVERFLOW. The page can stay as wide as the window while a box
+ * inside it scrolls sideways (a table 381 px wide in a 324 px frame, a segmented control clipped with a scrollbar
+ * under it): the window check misses it, and a part of what the box holds is out of sight. In the page, inside
+ * `main`: every box that scrolls sideways (overflow-x auto or scroll) holding more than its own width, and every part
+ * wider than the window that no such box holds. null when there is none.
+ * The one designed exception is the tab row (`.pin-switch`, v3 Tabs and Daisy F10): it keeps one line on a phone and
+ * scrolls inside it, its edge fading while more tabs follow.
+ * Daisy's Z6 ruling (TINJAUAN-Z6-f322c25c): a wide DATA TABLE may scroll in its frame (WCAG 1.4.10 allows two-dimensional
+ * scrolling for data tables) when the frame is a `.pin-tabel-bingkai` that a keyboard can reach and a reader is told of:
+ * role="region", tabindex="0" and an accessible name that resolves to text (aria-label, or aria-labelledby). A frame
+ * missing any of the three is caught. A segmented control (`.pin-seg`) never holds more than its width, scrolling or not:
+ * it wraps between whole options.
+ */
+export const BINGKAI = () => {
+  const akar = document.querySelector("main") ?? document.body;
+  const lebar = document.documentElement.clientWidth;
+  const nama = (el) => el.tagName.toLowerCase() + (el.id ? `#${el.id}` : "") + [...el.classList].slice(0, 3).map((c) => `.${c}`).join("");
+  const SENGAJA = ".pin-switch";
+  const gulir = (c) => c.overflowX === "auto" || c.overflowX === "scroll";
+  const bernama = (el) => {
+    const label = (el.getAttribute("aria-label") ?? "").trim();
+    if (label) return true;
+    const ids = (el.getAttribute("aria-labelledby") ?? "").trim().split(/\s+/).filter(Boolean);
+    return ids.length > 0 && ids.every((i) => (document.getElementById(i)?.textContent ?? "").trim().length > 0);
+  };
+  const tabelBoleh = (el) => el.classList.contains("pin-tabel-bingkai") && el.getAttribute("role") === "region" && el.getAttribute("tabindex") === "0" && bernama(el);
+  const diGulir = (el) => { for (let a = el.parentElement; a && a !== akar.parentElement; a = a.parentElement) if (gulir(getComputedStyle(a))) return true; return false; };
+  const sebab = [];
+  for (const el of akar.querySelectorAll("*")) {
+    const c = getComputedStyle(el);
+    const r = el.getBoundingClientRect();
+    if (r.width === 0 || r.height === 0 || c.visibility === "hidden" || c.position === "fixed") continue;
+    if (el.closest(SENGAJA)) continue;
+    const lebih = el.scrollWidth > el.clientWidth + 1;
+    if (gulir(c) && lebih) { if (!tabelBoleh(el)) sebab.push(`${nama(el)} scrolls sideways (${el.scrollWidth} px in ${el.clientWidth} px)`); }
+    else if (lebih && el.classList.contains("pin-seg")) sebab.push(`${nama(el)} holds more than its width (${el.scrollWidth} px in ${el.clientWidth} px)`);
+    else if (r.right > lebar + 1 && !diGulir(el)) sebab.push(`${nama(el)} is wider than the window (${Math.round(r.width)} px, to ${Math.round(r.right)} in ${lebar})`);
+    if (sebab.length >= 6) break;
+  }
+  return sebab.length ? { lebar, sebab } : null;
+};
+
+// Z6 (R-11; Daisy, Z-SIAP §2): a box inside `main` that scrolls sideways at 320 px is broken, as a page wider than the
+// window is (BINGKAI above; the crawl and the Z6 sweep both judge by bingkaiBaru). The parts below were found by the Z6 sweep (docs/completion-4.1/batches/z/
+// layar/sapu-z6.ts). Daisy's Z6 ruling: nothing is parked; the list is EMPTY, and a part ever added to it carries its
+// own audit item. A part not listed here is broken.
+export const BINGKAI_DIKETAHUI = [];
+export const bingkaiBaru = (path, b) => {
+  if (!b) return null;
+  const sisa = b.sebab.filter((x) => !BINGKAI_DIKETAHUI.some((k) => k.jalan.test(path) && x.startsWith(`${k.bagian} `)));
+  return sisa.length ? { ...b, sebab: sisa } : null;
+};
+
 /** In the page: what has focus, whether it shows a focus indicator, and whether it is on screen. */
 const FOKUS = () => {
   const el = document.activeElement;
@@ -130,7 +184,8 @@ export async function periksa(page) {
     try {
       await page.setViewportSize({ width: w, height: 900 });
       await page.waitForTimeout(150);
-      hasil.lebar[w] = await page.evaluate(UKUR);
+      // Z6: a framed overflow is measured beside the window's (BINGKAI)
+      hasil.lebar[w] = { ...(await page.evaluate(UKUR)), bingkai: await page.evaluate(BINGKAI) };
     } catch (e) { hasil.gagal.push(`${w}px: ${String(e.message ?? e).slice(0, 160)}`); }
   }
   await page.setViewportSize({ width: 1280, height: 900 });
@@ -161,8 +216,9 @@ export function ringkas(semua) {
     axeGagal: hitung((h) => !h.axe),
     meluap: Object.fromEntries(LEBAR.map((w) => [w, hitung((h) => h.lebar?.[w]?.meluap)])),
     terpotong: Object.fromEntries(LEBAR.map((w) => [w, hitung((h) => (h.lebar?.[w]?.terpotong?.length ?? 0) > 0)])),
+    bingkai: Object.fromEntries(LEBAR.map((w) => [w, hitung((h) => h.lebar?.[w]?.bingkai)])),
     aturan: [...aturan.values()].sort((a, b) => ({ critical: 0, serious: 1, moderate: 2, minor: 3 }[a.impact] - { critical: 0, serious: 1, moderate: 2, minor: 3 }[b.impact]) || b.layar - a.layar),
     layarDaftar: layar.map((h) => ({ path: h.path, who: h.who, judul: h.judul, judulMasalah: h.judulMasalah, lompat: h.lompat, papan: h.papan,
-      axe: (h.axe ?? []).map((v) => `${v.id}:${v.impact}:${v.n}`), lebar: Object.fromEntries(Object.entries(h.lebar ?? {}).map(([w, u]) => [w, { meluap: u.meluap, terpotong: u.terpotong.length }])), gagal: h.gagal })),
+      axe: (h.axe ?? []).map((v) => `${v.id}:${v.impact}:${v.n}`), lebar: Object.fromEntries(Object.entries(h.lebar ?? {}).map(([w, u]) => [w, { meluap: u.meluap, terpotong: u.terpotong.length, bingkai: u.bingkai?.sebab ?? null }])), gagal: h.gagal })),
   };
 }

@@ -4,6 +4,7 @@ import { t, type HleEvent } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
 import { currentLocale } from "@/lib/locale";
 import * as engine from "@/lib/assessment-engine";
+import { tugasSaya } from "@/lib/tugas-saya";
 import { lessonRead } from "@/lib/siklus";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
@@ -29,6 +30,8 @@ export default async function Peta({ params }: { params: Promise<{ tugas: string
   const db = (await supabaseServer()) as unknown as engine.EngineClient;
   const s = (k: HleEvent) => t(k, "learner", { locale });
 
+  // R-8 (X-2): an id that is not one of the learner's answers «not found», as every page of this assignment does
+  await tugasSaya(db, tugas);
   const state = await engine.cycleState(db, tugas);
   if (!state.pre_session || state.pre_status !== "FINALIZED") notFound();
 

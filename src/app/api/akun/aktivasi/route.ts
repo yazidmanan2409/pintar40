@@ -5,6 +5,7 @@ import { supabaseService } from "@/lib/supabase/service";
 import { cardEmail, deriveCardSecret } from "@/lib/card";
 import { rujukan } from "@/lib/galat-kontrak";
 import { sasaranDalamKonteks, sekolahOrang } from "@/lib/konteks-server";
+import { galatBuat } from "@/components/aktivasi/hasil";
 
 /**
  * ACCOUNT ACTIVATION (F-01). The one place an Auth identity is created for a
@@ -124,7 +125,8 @@ function refused(fn: string, error: { code?: string | null; message?: string | n
 function gagalBuat(created: { code?: string | null; status?: number; message?: string | null }) {
   const ref = rujukan();
   console.error(`[aktivasi ${ref}] auth.admin.createUser failed`, created.code ?? created.status, created.message);
-  return NextResponse.json({ ok: false, error: "create_failed", ref }, { status: 409 });
+  // S-15: an address already registered is said apart from an outage or a limit (galatBuat)
+  return NextResponse.json({ ok: false, error: galatBuat(created), ref }, { status: 409 });
 }
 
 /** §2.11: the target is outside the working context; the route's own word, and nothing was asked. */

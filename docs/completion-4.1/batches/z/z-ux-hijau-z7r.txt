@@ -1,0 +1,22 @@
+# Daisy's Z7 review, after the fix (23 Nov 2026)
+## lint and typecheck: 0 errors
+## the three restated tests
+Z-T03-01    PASS    reads the copy table (T-03): the 22 keys of ruling 78 (d) say «Admin PINTAR» word for word in ID and EN («an Admin PINTAR» in running text), email.aman.diatur_ulang.isi's English too, and no key in either language still says «Admin platform», «platform admin(istrator)» or «PINTAR administrator»
+Z-S09-S10-S14-01 PASS    reads the copy table: S-09 «jaringan ini», S-10 «PIN yang bisa dipakai» and S-14's two waits naming neither an address nor a username (activation reads them too), word for word in ID and EN
+Z-R15-01    PASS    R-15's one-string items: reads DaftarKeputusan.tsx (Kenaikan step 2's status joined by «, »), executes src/lib/kenaikan.ts's urutRingkas (the review summary names the main group first, then the others in step 2's fixed outcome order, whatever order the learners came in) and reads KenaikanKelas.tsx using it; the copy table's certificate column «Paket» / «Package» (X12)
+
+## static runner, every static id: 3 failures, all known and outside Z (F06-S01, D060-J78-01: stream A's D-1; BOB26-K01: CARD_PEPPER)
+506 passed, 3 failed, 231 skipped, 14 justified skips accepted (local only), 0 contract problem(s) → RED
+
+## app runner on a freshly reset local database (npx supabase db reset; Bob's request)
+UX1-UB-KELOLA-01 PASS    an authorized Management user ends collection for a real round through ordinary PINTAR, and the backend decides what the round became. Measured on the RENDERED html of a round opened for this case at Alpha -- its own class, so the learning-cycle tenant's round is untouched. 
+KENAIKAN-A01 PASS    as Alpha's admin, through the screen (rendered, route): Kelas 5X chosen; all four learners listed, the Tingkat-only one marked; «Naikkan semua ke» pre-selected 6X for the Kelas's three and left D, the live count naming the one undecided; the repeat set straight to 5X ulang and
+SERTIFIKAT-A01 FAIL    threw: psql: CONTEXT:  PL/pgSQL function inline_code_block line 6 at RAISE
+STAF-A01    PASS    as Alpha's admin: «Peran & akses» opens Pak Yusuf's page from his name; the page sets his role and its responsibilities in words; made Kepala departemen as well after a review of what is gained, then back to Guru after a review of what is lost (teaching kept), then his duties a
+Z-C1-01     PASS    in the running app as the bootstrap school's administrator (C-1): «A-» posted as the school code is refused galat=kode_bentuk, and the page it lands on holds «A-» in the code field beside pendataan.kode.bentuk_salah; nothing is saved
+Z-C2A-01    PASS    in the running app as the cycle school's administrator on C1w's draft package: a rule divided by difficulty, its count changed through its own row, is refused DEFINITION_MIX_TOTAL and the row says galat.definition_mix_total_baris, not «Periksa keduanya» (C-2); a rule made throu
+CONTRACT    FAIL    --only pattern "B5-CABUT-A01" names no manifest id
+(B5-CABUT-A01 in that run was a mistyped id, not a test.)
+
+UX1-UB-KELOLA-01 passes on the freshly reset database: its earlier failure was the local round left WITHHELD by an earlier run.
+SERTIFIKAT-A01 passed on the Z7 tree before the reset (z-ux-hijau-z7.txt). After the reset it stops at its own precondition, «Alpha has no Cek penguasaan sitting to copy»: it copies a POST_TEST sitting at Alpha that an earlier test in the full app suite leaves behind, and running F06-R01, A1-A01..J01 or A2B-SP2 first does not create one. It does not read the certificate column this change renames (C-3).

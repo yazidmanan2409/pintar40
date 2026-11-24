@@ -526,6 +526,9 @@ const EXEMPTIONS: Array<{ file: string; literal: string; reason: string }> = [
     reason: "The option key's column, in em so A/B/C/D stays aligned with the type rather than the page." },
   { file: "src/app/experience.css", literal: "20ch",
     reason: "The review question's flex basis, in characters because it wraps prose." },
+  // RESTATED (Z6, R-11; Daisy, Z-SIAP-DAISY-7ba18b03 §2): one exemption more, beside 360px's
+  { file: "src/app/experience.css", literal: "359px",
+    reason: "R-11: the instrument switch («Pemetaan Awal | Uji Penguasaan») wraps one option a line BELOW 360 px, so 360 less one pixel; CSS cannot read a custom property inside @media." },
   { file: "src/app/experience.css", literal: "360px",
     reason: "An inline lesson illustration: wide enough to read a diagram, narrow enough to stay inside the measure." },
   { file: "src/app/experience.css", literal: "0.4",
@@ -2269,7 +2272,22 @@ export const experienceTests: SelfTest[] = [
       // write (20270122140000), the target lesson (20270122150000) and the checked text's hash with the failed
       // attempt's settle (20270122160000), a checked package refused in its own words (20270122170000) and the staff's
       // provenance read (20270122180000), and a draft's objectives held to its target lesson (20270122190000)
-      c.expect(migrations.length === 300, `${migrations.length} migrations; the frozen baseline has 300`);
+      // MOVED TO 301, Z: a multi-answer response is read as every option chosen (20270123100000, D-1): no brand or copy
+      // change in the institution mark
+      // MOVED TO 302, Z: a finished result stays in force while a retake is open (20270123110000, V2): no brand or copy
+      // change in the institution mark
+      // MOVED TO 303, Z: a pass mark has a floor (20270123120000, K-07): no brand or copy change in the institution mark
+      // MOVED TO 304, Z: the gate is part of the verdict everywhere it is read (20270123130000, K-01): no brand or copy
+      // change in the institution mark
+      // MOVED TO 305, Z: the anonymous feedback round is dark (20270123140000, D-6): no brand or copy change in the
+      // institution mark
+      // MOVED TO 306, Z: a transfer whose source enrolment closed is refused by name (20270123150000, V5): no brand or
+      // copy change in the institution mark
+      // MOVED TO 307, Z: a reopening request finds the PINTAR ID however it was typed (20270123160000, R-27(b)): no
+      // brand or copy change in the institution mark
+      // MOVED TO 308, Z8 item 8: a school keeps a usable administrator (20270123170000): no brand or copy change in the
+      // institution mark
+      c.expect(migrations.length === 308, `${migrations.length} migrations; the frozen baseline has 308`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4198,7 +4216,15 @@ export const experienceTests: SelfTest[] = [
       // MOVED 287 -> 288, RESTATED, A3, for 20270121250000 (a recovery is shown): no tour RPC.
       // MOVED TO 290, RESTATED, the merge of main into claude/a3: no tour RPC in any of the eight.
       // MOVED TO 300, C3w-1: none of its ten migrations is a tour RPC.
-      c.expect(migs.length === 300, `${migs.length} migrations; the baseline has 300`);
+      // MOVED TO 301, Z: D-1's 20270123100000 is not a tour RPC.
+      // MOVED TO 302, Z: V2's 20270123110000 is not a tour RPC.
+      // MOVED TO 303, Z: K-07's 20270123120000 is not a tour RPC.
+      // MOVED TO 304, Z: K-01's 20270123130000 is not a tour RPC.
+      // MOVED TO 305, Z: D-6's 20270123140000 revokes, and is not a tour RPC.
+      // MOVED TO 306, Z: V5's 20270123150000 is not a tour RPC.
+      // MOVED TO 307, Z: R-27(b)'s 20270123160000 is not a tour RPC.
+      // MOVED TO 308, Z8 item 8's 20270123170000 is not a tour RPC.
+      c.expect(migs.length === 308, `${migs.length} migrations; the baseline has 308`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
@@ -8654,7 +8680,12 @@ export const experienceTests: SelfTest[] = [
         "the viewer or the roles are no longer read once per request");
       for (const f of ["studio/layout.tsx", "konfigurasi/page.tsx"]) {
         const src = code(readFileSync(join(repoRoot, "src", "app", f), "utf8"));
-        c.expect(/<CangkangStaf\b/.test(src), `${f} does not draw the staff shell, with who is signed in and the way out`);
+        // RESTATED (Z, R-10): Konfigurasi draws the staff shell through its one navigation source, NavKonfigurasi, which
+        // reads the roles once, together with the rest it needs
+        const nav = f === "konfigurasi/page.tsx" ? code(readFileSync(join(repoRoot, "src", "components", "konfigurasi", "NavKonfigurasi.tsx"), "utf8")) : "";
+        c.expect(/<CangkangStaf\b/.test(src) || (/<NavKonfigurasi\b/.test(src) && /<CangkangStaf\b/.test(nav)
+          && (nav.match(/peranSaya\(\)/g) ?? []).length === 1 && /await Promise\.all\(\[\s*peranSaya\(\),/.test(nav)),
+          `${f} does not draw the staff shell, with who is signed in and the way out`);
         c.expect((src.match(/currentViewer\(\)/g) ?? []).length <= 1 && (src.match(/peranSaya\(\)/g) ?? []).length <= 1
           && (!/peranSaya\(\)/.test(src) || /await Promise\.all\(\[currentViewer\(\), peranSaya\(\)/.test(src)),
           `${f} reads the viewer or their roles more than once, or in sequence`);
@@ -8846,7 +8877,8 @@ export const experienceTests: SelfTest[] = [
        *    Aktivasi and Studio (M3) and the administrator's other places;
        *    Studio links back to the person's places.
        */
-      const konfig = code(readFileSync(join(repoRoot, "src", "app", "konfigurasi", "page.tsx"), "utf8"));
+      // RESTATED (Z, R-10): the page and its one navigation source, NavKonfigurasi, which it draws
+      const konfig = code(readFileSync(join(repoRoot, "src", "app", "konfigurasi", "page.tsx"), "utf8")) + code(readFileSync(join(repoRoot, "src", "components", "konfigurasi", "NavKonfigurasi.tsx"), "utf8"));
       for (const h of ["/pendataan", "/aktivasi", "/studio"]) {
         // D-138 step 3: a place in the staff navigation is an ItemNav, which is a Link with its icon (DAISY-18 reads it)
         c.expect(new RegExp(`<(?:Link|ItemNav) href="${h}"`).test(konfig), `Konfigurasi has no link to ${h}`);
@@ -10033,9 +10065,12 @@ export const experienceTests: SelfTest[] = [
       c.expect(kunciGagal("EMAIL", { ok: false, error: "unauthenticated" }) === "aktivasi.galat.sesi", "an ended session is not told as such");
       c.expect(kunciGagal("EMAIL", { ok: false, error: "refused" }) !== kunciGagal("NEW_PERSON", { ok: false, error: "refused" }),
         "a refusal reads the same for a recorded person and a new one");
-      c.expect(kunciGagal("EMAIL", { ok: false, error: "create_failed" }) === "aktivasi.galat.dipakai"
+      // RESTATED (Z, S-15): «mungkin sudah dipakai» belongs to the address Auth reports as registered (email_taken); any
+      // other failure to create is a try-again (Z-S15-01). The card's own sentence is unchanged
+      c.expect(kunciGagal("EMAIL", { ok: false, error: "email_taken" }) === "aktivasi.galat.dipakai"
+        && kunciGagal("EMAIL", { ok: false, error: "create_failed" }) === ("aktivasi.galat.buat_gagal" as HleEvent)
         && kunciGagal("CLASSROOM_CARD", { ok: false, error: "create_failed" }) === "aktivasi.galat.kartu",
-        "a card that could not be made reads like an address already in use");
+        "a card that could not be made reads like an address already in use, or an outage reads like one");
       c.expect(new Set(MODE.flatMap((m) => GALAT.map((e) => kunciGagal(m, { ok: false, error: e })))).size >= 7,
         "the failures collapse into too few sentences to tell the administrator what to do");
 
@@ -11037,7 +11072,8 @@ export const experienceTests: SelfTest[] = [
       const tolak = code(readFileSync(join(repoRoot, "src", "components", "HalamanPenolakan.tsx"), "utf8"));
       c.expect(/const s = \(k: HleEvent\) => t\(k, persona, \{ locale \}\);/.test(tolak) && /\{s\("tolak\.arti"\)\}/.test(tolak),
         "the refusal page does not say tolak.arti in its reader's own register");
-      const konf = code(readFileSync(join(repoRoot, "src", "app", "konfigurasi", "page.tsx"), "utf8"));
+      // RESTATED (Z, R-10): the page and its one navigation source, NavKonfigurasi, which it draws
+      const konf = code(readFileSync(join(repoRoot, "src", "app", "konfigurasi", "page.tsx"), "utf8")) + code(readFileSync(join(repoRoot, "src", "components", "konfigurasi", "NavKonfigurasi.tsx"), "utf8"));
       c.expect(/sekolahPendataan\(\)\.then\(\(x\) => x\.length > 0\)/.test(konf)
         // D-138 step 3: drawn as the staff shell's navigation item; still offered only by /pendataan's own predicate
         && /\{bolehPendataan \? <(?:Link|ItemNav) href="\/pendataan"/.test(konf) && (konf.match(/href="\/pendataan"/g) ?? []).length === 1,
@@ -13290,7 +13326,8 @@ export const experienceTests: SelfTest[] = [
       c.expect(!/\.pin-tabs > [^{]*\{[^}]*\border:/.test(css), "CSS still reorders the places on screen only");
       // RV-3/RV-4: a page that is not a place names itself in the phone bar and marks its parent
       for (const [f, h] of [["konfigurasi/keamanan/page.tsx", "keamanan"], ["konfigurasi/email-uji/page.tsx", "emailuji"], ["akun/page.tsx", "akun"], ["lapor/page.tsx", "lapor"], ["lapor/saya/page.tsx", "lapor"]]) {
-        c.expect(new RegExp(`<CangkangPengalaman [^>]*halamanKini="${h}"`).test(baca("src", "app", ...f.split("/"))), `${f} does not name itself to the shell`);
+        // RESTATED (Z, R-10): a Konfigurasi page names itself to Konfigurasi's one navigation (NavKonfigurasi kini=…)
+        c.expect(new RegExp(`<CangkangPengalaman [^>]*halamanKini="${h}"|<NavKonfigurasi [^>]*kini="${h}"`).test(baca("src", "app", ...f.split("/"))), `${f} does not name itself to the shell`);
       }
       const cangkang = baca("src", "components", "CangkangPengalaman.tsx");
       c.expect((cangkang.match(/kini: kataKini \?\? /g) ?? []).length === 4, "a staff shell's phone bar ignores the page's own name");

@@ -5,7 +5,7 @@ import { daftarKata } from "@/components/laporan/tata";
 import { currentLocale } from "@/lib/locale";
 import { supabaseServer } from "@/lib/supabase/server";
 import { konteksHalaman } from "@/lib/konteks-server";
-import CangkangPengalaman from "@/components/CangkangPengalaman";
+import NavKonfigurasi from "@/components/konfigurasi/NavKonfigurasi";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import BarisHasil from "@/components/BarisHasil";
@@ -16,7 +16,7 @@ import TanggalDenganGema from "@/components/bentuk/TanggalDenganGema";
 import { tanggal } from "@/lib/tanggal";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { kodePeranDari, kunciKodePeran } from "@/lib/peran-kontrak";
-import { URUTAN_KATEGORI, PERAN_SEKOLAH, kodeStafDari, kodeStafDariGalat, kunciTanggungJawab, type KodeStaf } from "@/lib/staf-kontrak";
+import { URUTAN_KATEGORI, PERAN_SEKOLAH, kodeStafDari, kodeStafDariGalat, kunciTanggungJawab, tambahanPeran, type KodeStaf } from "@/lib/staf-kontrak";
 import { akhiriTugasAksi, ubahPeranAksi } from "./actions";
 
 export const generateMetadata = judulHalaman("/konfigurasi/staf");
@@ -55,13 +55,14 @@ export default async function StafSekolah({ searchParams }: { searchParams: Prom
   const orangId = sp.orang && UUID.test(sp.orang) ? sp.orang : null;
   const tolak = (k: HleEvent) => <HalamanPenolakan messageKey={k} persona="staff" locale={locale} backHref="/konfigurasi/roles" backKey="nav.konfigurasi" />;
   if (!sekolah) return tolak("staf.tidak_ada_sekolah");
-  if (!orangId) return tolak("sertifikat.kelola.ditolak");
+  // N-9 (Daisy, Z-SIAP §1): no person, an unknown one and a forbidden one get one neutral answer, the staff page's own
+  if (!orangId) return tolak("staf.tidak_dapat_dibuka");
 
   const supabase = await supabaseServer();
   // Sharon F1: this school's own clock (WIB, WITA or WIT) for every date on the page
   const zona = await zonaSekolah(supabase, sekolah);
   const { data: orangData, error } = await supabase.rpc("peran_orang", { p_person: orangId, p_institution: sekolah });
-  if (error || !orangData) return tolak("sertifikat.kelola.ditolak");
+  if (error || !orangData) return tolak("staf.tidak_dapat_dibuka");
   const orang = orangData as Orang;
   const { data: tempatData } = await supabase.from("org_nodes").select("id, name, kind")
     .eq("institution_id", sekolah).eq("is_active", true).order("kind").order("name");
@@ -76,13 +77,18 @@ export default async function StafSekolah({ searchParams }: { searchParams: Prom
   let tinjau: Tinjau | null = null;
   let kodeTinjau: KodeStaf | null = null;
   if (sp.tinjau === "1") {
-    const tambah = tambahPeran && tambahTempat && tambahSampai
-      ? [{ role: tambahPeran, scope_node_id: tambahTempat, valid_until: batasHari(tambahSampai, "akhir", zona) }] : [];
-    const { data, error: e } = await supabase.rpc("ubah_peran", {
-      p_person: orangId, p_institution: sekolah, p_tambah: tambah, p_cabut: cabut, p_alasan: alasan,
-      p_sidik: orang.sidik, p_konfirmasi_admin: true, p_terapkan: false,
-    });
-    if (e) kodeTinjau = kodeStafDariGalat(e); else tinjau = data as Tinjau;
+    // S-02: a role chosen without a valid last day is refused in the review, never dropped
+    const tambahan = tambahanPeran(tambahPeran, tambahTempat, sp.tambah_sampai ?? "");
+    if ("kode" in tambahan) kodeTinjau = tambahan.kode;
+    else {
+      const tambah = tambahan.ada
+        ? [{ role: tambahPeran, scope_node_id: tambahTempat, valid_until: batasHari(tambahSampai, "akhir", zona) }] : [];
+      const { data, error: e } = await supabase.rpc("ubah_peran", {
+        p_person: orangId, p_institution: sekolah, p_tambah: tambah, p_cabut: cabut, p_alasan: alasan,
+        p_sidik: orang.sidik, p_konfirmasi_admin: true, p_terapkan: false,
+      });
+      if (e) kodeTinjau = kodeStafDariGalat(e); else tinjau = data as Tinjau;
+    }
   }
   // B0: the role guard's refusal on either act reads in its own sentence (peran.galat.*)
   const kodePeran = kodePeranDari(sp.kode);
@@ -102,7 +108,8 @@ export default async function StafSekolah({ searchParams }: { searchParams: Prom
 
   return (
     <>
-      <CangkangPengalaman locale={locale} kind="pendataan" />
+      {/* R-10 (Daisy, option A): the index's own «Tempat kerja Anda» */}
+      <NavKonfigurasi locale={locale} kini="konfigurasi" />
       <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href="/konfigurasi/roles">← {s("config.section.roles")}</Link>
         <div className="pin-head">

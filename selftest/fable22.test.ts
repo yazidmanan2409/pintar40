@@ -150,7 +150,10 @@ const PENJAGA = ["wajibDalamKonteks", "sasaranDalamKonteks", "kelasKonteks"];
 
 /** A2b S-1: the public tables the session role (authenticated) holds no SELECT on, as far as src reads any: A2B-S1G
  *  holds this list equal to the catalogue for every table src names. */
-export const TAK_TERBACA = ["broadcast_notices", "evaluation_personas", "maintenance_windows", "release_distributions"] as const;
+// Z D-6 (Sharon Z2-1): feedback_cycles while the anonymous feedback round is dark (its reads in src/lib/umpanbalik.ts and
+// konteks-server.ts's «siklus» run only behind UMPAN_BALIK_TERBUKA, whose pages answer notFound()); the round's restore
+// path grants it back and removes it here
+export const TAK_TERBACA = ["broadcast_notices", "evaluation_personas", "feedback_cycles", "maintenance_windows", "release_distributions"] as const;
 /** Reads of a TAK_TERBACA table through the service client, by file and table, each with its reason. */
 export const BACA_LAYANAN: Record<string, Record<string, string>> = {
   "src/app/api/evaluation/assume/route.ts": { evaluation_personas: "the evaluation persona route reads its personas with the service client (supabaseService), never the session" },
@@ -160,7 +163,11 @@ export const BACA_LAYANAN: Record<string, Record<string, string>> = {
  *  removed all three with the fix (distribusi_tempat, distribusi_berlaku; SUMBER_SEKOLAH.distribusi gone), so the
  *  list is empty (Sharon's condition: the exception is removed with the fix). An entry still means the same: one read,
  *  named by its line, that fails here once it moves. */
-export const BACA_PENGECUALIAN: Array<{ berkas: string; baris: number; tabel: string; alasan: string }> = [];
+export const BACA_PENGECUALIAN: Array<{ berkas: string; baris: number; tabel: string; alasan: string }> = [
+  { berkas: "src/lib/umpanbalik.ts", baris: 206, tabel: "feedback_cycles", alasan: "Z D-6 (Sharon Z2-1): the anonymous feedback round is dark; this read runs only behind UMPAN_BALIK_TERBUKA, whose pages answer notFound(), and the round's restore path grants feedback_cycles back and removes this line" },
+  { berkas: "src/lib/umpanbalik.ts", baris: 263, tabel: "feedback_cycles", alasan: "Z D-6 (Sharon Z2-1): the anonymous feedback round is dark; this read runs only behind UMPAN_BALIK_TERBUKA, whose pages answer notFound(), and the round's restore path grants feedback_cycles back and removes this line" },
+  { berkas: "src/lib/konteks-server.ts", baris: 161, tabel: "feedback_cycles", alasan: "Z D-6 (Sharon Z2-1): the anonymous feedback round is dark; this read runs only behind UMPAN_BALIK_TERBUKA, whose pages answer notFound(), and the round's restore path grants feedback_cycles back and removes this line" },
+];
 /** The one variable table read in src, by file: its map's values are each checked as literal reads. */
 const BACA_PETA: Record<string, RegExp> = { "src/lib/konteks-server.ts": /\.from\(SUMBER_SEKOLAH\[jenis\]\)/ };
 /** Every app read that names a table the session cannot select, or names no table this rule can read. */

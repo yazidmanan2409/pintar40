@@ -1,0 +1,5 @@
+F06-S04     PASS    884 static/app test(s), each naming the artefact its predicate inspects, so a gate reading the manifest can see the scope of a claim without reading the test
+BOB18-A01   PASS    counted through the running app, a Studio click asks studio_capabilities once and can_in_institution never; Konfigurasi, including the page a saved grant returns to, runs the schema lint only when the platform admin asks for it; and on every click counted the user is asked of Aut
+BOB51-S01   FAIL    the page does not ask is_system_admin and refuse everyone else
+D101-S01    FAIL    grantRoleAction does not ask a School Admin to confirm «Admin sekolah» before granting
+Z9-K01      PASS    18 Konfigurasi source files, none calling rpc("is_system_admin") directly; isSystemAdmin() is cache() around the request's own rpc, reading «data === true», so a failed call denies

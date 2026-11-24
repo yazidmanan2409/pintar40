@@ -1,0 +1,4 @@
+T1 the closure's check removed → Z-R15-08    FAIL    c_sendiri: expected PR140:ACCOUNT_LAST_SCHOOL_ADMIN, got ok; c_ditangguhkan: expected PR140:ACCOUNT_LAST_SCHOOL_ADMIN, got ok; c_dikunci: expected PR140:ACCOUNT_LAST_SCHOOL_ADMIN, got ok; c_tanpa_akun: expected (restored)
+T2 the account and lock condition removed → Z-R15-08    FAIL    c_dikunci: expected PR140:ACCOUNT_LAST_SCHOOL_ADMIN, got ok; r_dikunci: expected PR160:ROLE_LAST_SCHOOL_ADMIN, got ok (restored)
+T3 the advisory lock removed → Z-R15-10    FAIL    tutup: the other administrator's closure did not wait for the open closure (ok); cabut: the other administrator's revocation did not wait for the open closure (ok) (restored)
+T4 the guard's lock removed → Z-R15-10    FAIL    cabut: the other administrator's revocation did not wait for the open closure (ok) (restored)

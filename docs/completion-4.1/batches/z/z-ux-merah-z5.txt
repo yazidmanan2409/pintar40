@@ -1,0 +1,38 @@
+# Z5 (stream B) · red on 954aa9bc (each fix stashed)
+## N-16
+Z-N16-01    FAIL    buka_kembali.galat.tunggu (id): «Baru saja ada permintaan dari jaringan ini. Tunggu beberapa menit, lalu coba lagi.», not «Tunggu sebentar, lalu coba lagi.»; buka_kembali.galat.tunggu (en): «A request was just sent from this network. Wait a few minutes, then try again.», no
+0 passed, 1 failed, 0 skipped, 0 contract problem(s) → RED
+## N-17 (source rule; the browser measure, n17-lebar.ts, cannot go red on a reachable button: «Minta membaca lagi» fills its column, and «Terbitkan» and «Sediakan» get longer result words)
+Z-N17-01    FAIL    a server-action button lets go of its width when it shows «✓ {selesai}», so a shorter result word can pull a neighbour left
+0 passed, 1 failed, 0 skipped, 0 contract problem(s) → RED
+# base: the build of 3f34689b + 954aa9bc's fixes (no N-17)
+PASS  N-17 the button shows its result «✓ Terkirim» (data-keadaan=selesai)
+PASS  N-17 «Minta membaca lagi» does not narrow when it shows «✓ Terkirim» (rest 688.0 px, after 688.0 px)
+PASS  N-17 after a change the verb «Minta membaca lagi» returns at its own width (688.0 px)
+## N-9 (staf page fix stashed)
+Z-N9-01     FAIL    staf.tidak_dapat_dibuka (id): «—», not «Data staf ini tidak dapat dibuka. Mungkin sudah tidak ada, atau bukan untuk Anda.»; staf.tidak_dapat_dibuka (en): «—», not «This staff record cannot be opened. It may no longer exist, or it is not for you.»; the staff page still refuses with the certificate page's sentence; no person, and an unknown or forbidden one, do not ge
+Z-N9-02     FAIL    no person: the staff page does not answer «—» (or still names the certificate page); an unknown person: the staff page does not answer «—» (or still names the certificate page); another school's staff member: the staff page does not answer «—» (or still names the certificate page)
+0 passed, 2 failed, 0 skipped, 0 contract problem(s) → RED
+## S-01 (Z-S01-01, the preserve-all-settings test, on 56ef4c10 before the fix)
+Z-S01-01    FAIL    renaming saved a new version (1 → 2 in the line): the rename was read as an interpretive change; the new name was not saved
+0 passed, 1 failed, 0 skipped, 0 contract problem(s) → RED
+## R-10 + N-9's navigation (Z-R10-01, on 4dbb448f before the fix)
+Z-R10-01    FAIL    the school's administrator, /konfigurasi/catatan-masuk: «Tempat kerja Anda» is not the index's (/aktivasi /konfigurasi /pendataan /studio · index: /aktivasi /konfigurasi /konfigurasi/keamanan /konfigurasi/sertifikat /pendataan /studio); the school's administrator, /konfigurasi/catatan-masuk: aria-current is on [], not /konfigurasi; the school's administrator, /konfigurasi/kesempatan: «Tempat kerja Anda» is not the index's (/aktivasi /konfigurasi /pendataan /studio · index: /aktivasi /konfigurasi /konfigurasi/keamanan /konfigurasi/sertifikat /pendataan /studio); the school's administrator, /konfigurasi/kesempatan: aria-current is on [], not /konfigurasi; the school's administrator, /konfigurasi/keamanan: «Tempat kerja Anda» is not the index's (/aktivasi /konfigurasi /konfigurasi/keamanan /pendataan /studio · index: /aktivasi /konfigurasi /konfigurasi/keamanan /konfigurasi/sertifikat /pendataan /studio); the school's administrator, /konfigurasi/keamanan: aria-current is on ["/konfigurasi","/konfigurasi/keamanan"], not /konfigurasi/keamanan; the school's administrator, /konfigurasi/keamanan: no way back to Konfigurasi (pin-back); the school's administrator, /konfigurasi/sertifikat: «Tempat kerja Anda» is not the index's (/aktivasi /konfigurasi /konfigurasi/sertifikat /pendataan /studio · index: /aktivasi /konfigurasi /konfigurasi/keamanan /konfigurasi/sertifikat /pendataan /studio); the school's administrator, /konfigurasi/sertifikat: aria-current is on ["/konfigurasi","/konfigurasi/sertifikat"], not /konfigurasi/sertifikat; the school's administrator, /konfigurasi/staf?orang=65e43f8d-40dc-4a03-a7c7-2bec110576f9: «Tempat kerja Anda» is not the index's (/aktivasi /konfigurasi /pendataan /studio · index: /aktivasi /konfigurasi /konfigurasi/keamanan /konfigurasi/sertifikat /pendataan /studio); the school's administrator, /konfigurasi/staf?orang=65e43f8d-40dc-4a03-a7c7-2bec110576f9: aria-current is on [], not /konfigurasi; the platform administrator, /konfigurasi/catatan-masuk: «Tempat kerja Anda» is not the index's (/ / /aktivasi /konfigurasi · index: / / /aktivasi /konfigurasi /konfigurasi/email-uji /konfigurasi/keamanan /konfigurasi/sertifikat); the platform administrator, /konfigurasi/catatan-masuk: aria-current is on [], not /konfigurasi; the platform administrator, /konfigurasi/keamanan: «Tempat kerja Anda» is not the index's (/ / /aktivasi /konfigurasi /konfigurasi/keamanan · index: / / /aktivasi /konfigurasi /konfi
+0 passed, 1 failed, 0 skipped, 0 contract problem(s) → RED
+## S-02, S-03 (Z-S02-01, on 75f1fde7 before the fix)
+Z-S02-01    FAIL    staf.galat.role_until_invalid (id): «Tanggal berlaku sampai harus setelah hari ini.», not «Tanggal berlaku sampai harus hari ini atau sesudahnya.»; staf.galat.role_until_invalid (en): «The valid-until date must be after today.», not «The valid-until date must be today or later.»; there is no one rule (tambahanPeran) for the role being added; the role-change action still drops a role without a date (no tambahanPeran refusal); the role-change review still drops a role w
+0 passed, 1 failed, 0 skipped, 0 contract problem(s) → RED
+## S-04 (Z-S04-01, on 0b15e72e before the fix)
+Z-S04-01    FAIL    pendataan.kode.bentuk_salah (id): «—», not «Kode sekolah terdiri dari tiga huruf atau angka.»; pendataan.kode.bentuk_salah (en): «—», not «A school code is three letters or digits.»; src/lib/kode-sekolah.ts (the shape check) does not exist; the code's shape is not checked in the action before the database is asked; the page does not say the shape's own line; the cod
+0 passed, 1 failed, 0 skipped, 0 contract problem(s) → RED
+## S-05 (Z-S05-01, on 8c3cd5df before the fix)
+Z-S05-01    FAIL    studio.definisi.petunjuk.komposisi (id): «Kosongkan bila tingkat kesulitan soal tidak diatur.», not «Kosongkan bila tingkat kesulitan soal tidak diatur. Jumlah ketiganya harus sama dengan Jumlah soal.»; studio.definisi.petunjuk.komposisi (en): «Leave empty if the difficulty of the questions is not set.», not «Leave empty if the difficulty of the questions is not set. The
+0 passed, 1 failed, 0 skipped, 0 contract problem(s) → RED
+## S-06, S-07, S-16 (on the S-05 commit, before the fixes)
+Z-S06-01    FAIL    pengerjaan.galat.window_not_changeable (id): «Jadwal materi ini tidak dapat diubah saat ini.», not «Jadwal materi ini tidak dapat diubah.»; pengerjaan.galat.window_not_changeable (en): «This material's schedule cannot be changed right now.», not «This material's schedule c
+Z-S07-01    FAIL    a deactivation with a reason of spaces is not answered STRUCTURE_REASON_REQUIRED
+0 passed, 3 failed, 0 skipped, 0 contract problem(s) → RED
+Z-S16-01    FAIL    the new person's name field takes more than authorize_new_person accepts: <input ref={namaBaruRef} className="pin-input" value={baru.nama} autoComplete="off"
+## R-26 item 3 (Z-R26-03, on a28f4d35 before the fix)
+Z-R26-03    FAIL    lapor.triase.simpan (id): «Simpan», not «Perbarui status»; lapor.triase.simpan (en): «Save», not «Update status»; config.struktur.simpan (id): «Simpan», not «Simpan nama»; config.struktur.simpan (en): «Save», not «Save name»; studio.definisi.buat (id): «—», not «Buat aturan»; studio.definisi.buat (en): «—», not «Create rule»; studio.definisi.simpan (
+0 passed, 1 failed, 0 skipped, 0 contract problem(s) → RED

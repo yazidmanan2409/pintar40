@@ -6,7 +6,7 @@ import { konteksHalaman } from "@/lib/konteks-server";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { tanggal } from "@/lib/tanggal";
 import { zonaSekolahBanyak } from "@/lib/zona-sekolah";
-import CangkangPengalaman from "@/components/CangkangPengalaman";
+import NavKonfigurasi from "@/components/konfigurasi/NavKonfigurasi";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import Kosong from "@/components/Kosong";
@@ -14,6 +14,7 @@ import Ikon from "@/components/Ikon";
 import TanggalDenganGema from "@/components/bentuk/TanggalDenganGema";
 import { HalamanKoleksi } from "@/components/koleksi/Koleksi";
 import { halamanKoleksi, kueriDiminta } from "@/components/koleksi/aturan";
+import { isSystemAdmin } from "@/lib/auth";
 import {
   CARA_MASUK, JENIS_AKUNTABILITAS, UKURAN_AKUNTABILITAS, ditolakMembaca, kunciCara, kunciHasil, kunciJenis, rujukanCetakDari,
   type BarisAkuntabilitas, type JenisAkuntabilitas,
@@ -45,7 +46,8 @@ export default async function CatatanMasuk({ searchParams }: { searchParams: Pro
   const locale = await currentLocale();
   const s = (k: HleEvent) => t(k, "staff", { locale });
   const supabase = await supabaseServer();
-  const { data: sistem } = await supabase.rpc("is_system_admin");
+  // BOB18-A01: the request-cached isSystemAdmin() (src/lib/auth.ts), so a page and its NavKonfigurasi ask once; same answer (data === true)
+  const sistem = await isSystemAdmin();
   const adminSistem = sistem === true;
   const kh = await konteksHalaman();
   const lama = kh === "TANPA_KONTEKS";
@@ -114,7 +116,8 @@ export default async function CatatanMasuk({ searchParams }: { searchParams: Pro
 
   return (
     <>
-      <CangkangPengalaman locale={locale} kind="pendataan" />
+      {/* R-10 (Daisy, option A): the index's own «Tempat kerja Anda» */}
+      <NavKonfigurasi locale={locale} kini="konfigurasi" />
       <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href="/konfigurasi/audit">← {s("config.section.audit")}</Link>
         <div className="pin-head">

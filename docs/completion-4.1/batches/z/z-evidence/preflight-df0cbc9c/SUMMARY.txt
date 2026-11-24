@@ -1,0 +1,18 @@
+commit df0cbc9c88e01d08c91e58914fddf3331c8dda95
+== lint
+rc=0 
+== typecheck
+rc=0
+== build-identity
+rc=0 # pass 11 # fail 0 
+== whole suite (fresh reset, fresh build)
+rc=0
+1385 passed, 2 failed, 0 skipped, 1 justified skips accepted (local only), 0 contract problem(s) → RED
+FAILED  F06-S04  static/app test(s) whose `proves` does not name the artefact it inspects. A claim about a surface, asserted by a test of a copy table, reads true at a gate and is not:
+FAILED  BOB18-A01  SYSTEM_ADMIN /konfigurasi asked is_system_admin 2 times; INSTITUTION_ADMIN /konfigurasi asked is_system_admin 2 times; SYSTEM_ADMIN /konfigurasi/roles?bagian=roles&hasil=ok asked is_system_admin 2 times; SYSTEM_ADMIN /konfigurasi?periksa=skema asked is_system_admin 2 times
+== planted defects (all gates)
+rc=0
+175/175 plant(s) proved their gate
+== red-case job, locally
+rc=0
+all 11 red-case group(s) passed on df0cbc9c

@@ -529,8 +529,10 @@ export async function saveDefinitionAction(fd: FormData): Promise<void> {
   put("late_sync_grace_seconds", tenggangDetik(num(fd, "tenggang_menit"), num(fd, "tenggang")));
   put("attempt_limit", num(fd, "percobaan"));
   put("shuffle_policy", str(fd, "acak"));
-  payload.allows_pause = str(fd, "jeda") === "on";
-  payload.offline_tolerant = str(fd, "luring") === "on";
+  // S-01 (SAPU-VERIFIED): a checkbox says nothing when unticked, so the two settings are sent only by a form that carries
+  // them (its marks jeda_ada and luring_ada); a row's rename leaves pause and offline as they are, and stays one version
+  if (fd.has("jeda_ada")) payload.allows_pause = str(fd, "jeda") === "on";
+  if (fd.has("luring_ada")) payload.offline_tolerant = str(fd, "luring") === "on";
   // L4 (CR-85): one number per difficulty band; a band left empty is not in the mix (the server checks the rest)
   const mix: Record<string, number> = {};
   for (const b of ["MUDAH", "SEDANG", "SULIT"]) { const n = num(fd, `komposisi_${b}`); if (n !== null) mix[b] = n; }

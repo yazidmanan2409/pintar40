@@ -47,7 +47,14 @@ create table auth.users (
   recovery_token varchar(255),
   email_change_token_new varchar(255),
   email_change varchar(255),
-  last_sign_in_at timestamptz
+  last_sign_in_at timestamptz,
+  -- R-19 (Z): GoTrue columns the migrations read or write. banned_until is read and set by the account lock
+  -- (20270113130000, 20270116130000, 20270117160000); the two tokens are cleared by the email-change triggers
+  -- (20261203100000, 20261217100000, 20270113130000); deleted_at is read by the selftests. Types as GoTrue's.
+  banned_until timestamptz,
+  email_change_token_current varchar(255) default '',
+  reauthentication_token varchar(255) default '',
+  deleted_at timestamptz
 );
 create table auth.identities (
   id uuid primary key default gen_random_uuid(),

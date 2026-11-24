@@ -224,7 +224,9 @@ begin
       when 'sis' then array[
         array['FROM ((((items i', 'FROM (((items i'],
         array[E'\n     LEFT JOIN kunci_berlaku_sesi() kb(session_id, item_id, kunci, pada) ON (((kb.session_id = r.session_id) AND (kb.item_id = i.id))))', ''],
-        array['COALESCE((o.label = ANY (kb.kunci)), o.is_correct)', 'o.is_correct']]
+        -- RESTATED (Z D-1, 20270123100000): a response is right by grade_kunci against the key in force, falling back to
+        -- the item's own key; the sealed reading gives it no key in force, so the item's own (sealed) key decides
+        array['COALESCE(kb.kunci, ARRAY(', 'COALESCE(NULL::text[], ARRAY(']]
       end)
     loop
       if position(p[1] in v_back) = 0 then

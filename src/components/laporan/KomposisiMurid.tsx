@@ -87,7 +87,12 @@ export default function KomposisiMurid({ bab, locale, persona = "learner" }: { b
                   {s("hasilbelajar.nilai").replace("{b}", format.number(b.benar, locale)).replace("{t}", format.number(b.total, locale))}
                   {b.tercapai ? <small className={kurang ? "pin-lk-bawah" : undefined}>{s(kurang ? "hasilbelajar.belum_capai" : "hasilbelajar.tercapai")}</small> : null}
                 </span>
+                {/* Z (Daisy's Z3-A C-1): the gate case says why, directly after the figures; neutral, no icon */}
+                {b.gerbang ? <small className="pin-meta" data-gerbang="">{s("hasilbelajar.gerbang")}</small> : null}
                 {b.ditarik ? <small className="pin-lk-ditarik" data-ditarik="">{s("hasilbelajar.ditarik")}</small> : null}
+                {/* Z V2 (R-22): a retake open, said neutrally; the result above stays the finished one. D14: recalculated */}
+                {b.ulangBerjalan ? <small className="pin-meta" data-ulang-berjalan="">{s("hasil.ulang_berjalan")}</small> : null}
+                {b.dihitungUlang ? <small className="pin-meta" data-dihitung-ulang="">{s("hasil.dihitung_ulang")}</small> : null}
                 {/* the text equivalent of the row's picture */}
                 <span className="pin-sr">
                   {v !== null ? `${s("hasilbelajar.akhir")}: ${persenJujur(v, locale, [b.ambang])}. ` : ""}

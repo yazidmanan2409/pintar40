@@ -1,0 +1,5 @@
+VOID (infrastructure), not a result. Second pre-flight on claude/z 7615d6b1, started 21:22Z after the first void.
+lint rc=0, typecheck rc=0, build-identity 11/0; fresh stack start 21:24Z, db reset 21:25Z, build 21:25Z; the selftest
+started (suite.log: [build], [app], [static]; static results print only at the end) and was still running at its
+last write 21:27Z. The session container restarted at about 22:12Z (found at 22:13Z with /proc/uptime 41 s): the run
+and Docker were gone, no result written. Per Z9: marked VOID, environment restarted, the same head run again.

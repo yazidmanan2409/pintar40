@@ -1,0 +1,1 @@
+VOID, not a result: after the session container restarted, supabase/realtime:v2.130.0 had to be pulled and every registry refused (Docker Hub 429, public ECR data limit, GHCR blob host denied by the agent proxy), so every stack step failed before testing anything. A later retry fetched the image; the run was repeated on the same head with every image local.

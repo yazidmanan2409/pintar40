@@ -1,5 +1,6 @@
+import { UMPAN_BALIK_TERBUKA } from "@/lib/umpanbalik-kontrak";
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
 import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import { currentViewer } from "@/lib/auth";
@@ -42,6 +43,8 @@ export default async function BeriUmpanBalik({
 }: {
   params: Promise<{ siklus: string }>;
 }) {
+  // Z D-6: the round is dark (UMPAN_BALIK_TERBUKA); the address answers «not found», never a dead form
+  if (!UMPAN_BALIK_TERBUKA) notFound();
   const { siklus } = await params;
   const viewer = await currentViewer();
   if (!viewer) redirect(`/masuk?lanjut=/belajar/umpan-balik/${siklus}`);

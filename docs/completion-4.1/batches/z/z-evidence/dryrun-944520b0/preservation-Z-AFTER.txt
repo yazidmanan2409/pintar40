@@ -1,0 +1,68 @@
+BEGIN
+1|2026-11-23 15:03:03.107327+00
+2|320
+10|308 / 20270123170000; versions digest 8844154d58534b221bc5d933607ed0aa
+11|installed 1.6.4
+12|5: on_auth_user_created, pintar_card_email_guard, pintar_email_correction_guard, pintar_kunci_tetap_jaga, pintar_password_write_guard
+20|0
+21|0
+22|0
+23|0
+24|0
+25|0
+26|0 (0)
+27|d41d8cd98f00b204e9800998ecf8427e
+28|d41d8cd98f00b204e9800998ecf8427e
+29|d69efe864e4c0be68b1748ea9ba2be50
+30|93988fd143ae64e28babcafab9f1007e
+31|d41d8cd98f00b204e9800998ecf8427e
+32|d41d8cd98f00b204e9800998ecf8427e
+33|d41d8cd98f00b204e9800998ecf8427e
+40|24 301d980b95b30b98676b884ba809ac79
+41|17 94df93ad45b5da70be7fc055ddb4b62b
+42|17 dccfdff595dd81e9176937d7f7e89712
+43|24 79f0d44f4f17f579ee3750cc4d3c45e4
+44|24 9784054c5c5643b6bc0007acf9f860c6
+45|0
+46|16 e0b68d1b5c8f5e0b177f9a2a7485ab27
+47|0 d41d8cd98f00b204e9800998ecf8427e
+48|0 d41d8cd98f00b204e9800998ecf8427e
+49|8 34bc65cf9ee35b1a7db3774f10fdb5df
+50|6 7d1d998c6e01e2eb685124bed9958706
+51|33 98e18cdd5e2dc0406051bd1de629b65e
+52|3 9c3a1c1bc6290eac13f12c74170b5020
+53|3 84422bb54b9c2c14ba2e96f42e040966
+54|44 276768f975f1694c2b15b8a263a9790d
+55|176 39ac19c444a634215430131c0e70be8c
+56|3 c6337256d7a9685b1a81af0456c60313
+57|4 aa444ba3a7c5c199e442256d15dd1573
+58|1 ad3e66eceb34315a74168b3a8f41f92f
+59|1 d69efe864e4c0be68b1748ea9ba2be50
+60|1 93988fd143ae64e28babcafab9f1007e
+61|0 d41d8cd98f00b204e9800998ecf8427e
+62|74 5c1f400aaca35d3c6605916907b9c651
+63|0 d41d8cd98f00b204e9800998ecf8427e
+64|0
+65|0 d41d8cd98f00b204e9800998ecf8427e
+66|0 d41d8cd98f00b204e9800998ecf8427e
+67|0 d41d8cd98f00b204e9800998ecf8427e
+68|0
+70|0 d41d8cd98f00b204e9800998ecf8427e
+71|0
+72|0 d41d8cd98f00b204e9800998ecf8427e
+73|0 d41d8cd98f00b204e9800998ecf8427e
+74|0
+75|0 d41d8cd98f00b204e9800998ecf8427e
+76|0 
+77|4 942629d9abd3fb751538c286206db12c
+78|0 without a root; 4 are their own root; digest 3fc94912addb3a03b96f86a83176686f
+79|6 5ce328c24626ee05fbfc7b8a93d00fd4
+80|0
+81|1 of 1 (ended at the cutoff: 1, must be 0)
+82|7 present; rows ai_asal_soal=0, ai_hak_sekolah=0, ai_opsi=0, ai_penerimaan=0, ai_percobaan=0, ai_permintaan=0, ai_plafon_platform=0
+83|5: ai_asal_paket, ai_draf_belum_diputuskan, ai_minta_draf, ai_putuskan, ai_tersedia
+84|assessment_assignments_pass_mark_floor:true, assessment_sessions_pass_mark_floor:true, school_pass_marks_percent_floor:true
+85|0 (anon 0, authenticated 0)
+86|0: -
+87|9 tables; feedback_cycle_transitions=2:467fa324b5bef8ee260e2078c877bdca, feedback_cycles=0:d41d8cd98f00b204e9800998ecf8427e, feedback_opportunities=0:d41d8cd98f00b204e9800998ecf8427e, feedback_question_options=20:2460a55fae5f1bd1a0db6023f9f190fa, feedback_question_sets=1:a32a5a9e6c31a9b13c1bab0f6ba32223, feedback_questions=5:54928216e2d2860a903377980ad8ad88, feedback_responses=0:d41d8cd98f00b204e9800998ecf8427e, feedback_results=0:d41d8cd98f00b204e9800998ecf8427e, feedback_thresholds=1:fff25fc1841243cb6cc3bdc6e775169a
+ROLLBACK

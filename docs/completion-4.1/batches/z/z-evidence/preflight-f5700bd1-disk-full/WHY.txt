@@ -1,0 +1,1 @@
+VOID, not a result: the disk was full (99%; about 16 GB of temporary folders that earlier selftest runs had left under /tmp). lint, typecheck and build-identity passed; the stack steps failed before testing anything ("Check free disk space"; npm nospc). The temporary folders were deleted (17 GB free) and the run repeated on the same head.

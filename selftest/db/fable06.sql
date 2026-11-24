@@ -1855,7 +1855,12 @@ begin
     select count(*) into n_declared
       from public.client_rpc_registry r
       join pg_proc p on p.proname = r.function_name and p.pronamespace = 'public'::regnamespace
-     where r.exposure = 'STAFF' and p.provolatile = 'v';
+     where r.exposure = 'STAFF' and p.provolatile = 'v'
+       -- Z D-6 (R-17, 20270123140000): the anonymous feedback round is dark; its four STAFF writers are registered but
+       -- revoked from authenticated by name, so they leave the population only while they are not client-callable
+       and not (r.function_name = any (array['close_feedback_cycle', 'open_feedback_cycle', 'publish_feedback_question_set',
+                                             'publish_feedback_threshold'])
+                and not has_function_privilege('authenticated', p.oid, 'EXECUTE'));
     select count(*) into n_pop from selftest.f06_staff_rpc_contracts();
 
     perform selftest.as_user('alpha-dean@synthetic.pintar.test');

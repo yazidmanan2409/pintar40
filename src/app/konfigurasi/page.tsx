@@ -16,7 +16,7 @@ const UKURAN_ORANG = 50;
 import { asalHasil, kalimatHasil, rujukan } from "@/lib/galat-kontrak";
 import { nilaiSkema } from "@/lib/kesehatan-skema";
 import KartuKesehatan, { type KeadaanKesehatan } from "@/components/konfigurasi/KartuKesehatan";
-import { currentViewer } from "@/lib/auth";
+import { currentViewer, isSystemAdmin } from "@/lib/auth";
 import { supabaseServer } from "@/lib/supabase/server";
 import {
   daftarkanPesertaAction, grantRoleAction, hentikanSekarangAction, jadwalkanPemeliharaanAction, pindahKelasAction,
@@ -27,10 +27,7 @@ import { adaAdminSekolah, calonAdminPertama } from "@/lib/admin-pertama";
 import { pelajaranDanBatas } from "@/lib/batas-ketuntasan";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { currentLocale } from "@/lib/locale";
-import TabTempat, { tempatDariPeran } from "@/components/TabTempat";
-import { navKonteks } from "@/components/NavKonteks";
-import { CangkangStaf } from "@/components/CangkangPengalaman";
-import ItemNav from "@/components/ItemNav";
+import NavKonfigurasi from "@/components/konfigurasi/NavKonfigurasi";
 import { alasanAudit, hasilRun, hitungKeputusan, kataAksiAudit, kataTabelAudit, kelasBarisRun, lipatKenaikan, orangBarisRun, petaEnrolmen, runId, tahunRun } from "@/lib/jejak-audit";
 import { UKURAN_ANAK_RUN, bacaAnakRun, hitungAnakRun, tautanRun, tautanTutupRun } from "@/lib/jejak-run";
 import { kelasDenganTahun, tahunPendek } from "@/lib/kenaikan";
@@ -41,7 +38,6 @@ import { KELOMPOK_KONFIGURASI, adalahBagian, alamatBagian, bagianDariParameter }
 import TerusBagian from "@/components/konfigurasi/TerusBagian";
 import PeranSayaBerakhir from "@/components/peran/PeranSayaBerakhir";
 import { HARI_PERINGATAN, hariSetelah, type PeranBerakhir } from "@/lib/peran-kontrak";
-import { peranSaya } from "@/lib/tur-negara";
 import { bacaStruktur } from "@/lib/struktur";
 import { tahunAjaranPada } from "@/lib/struktur-kontrak";
 import PanelStruktur from "@/components/struktur/PanelStruktur";
@@ -167,8 +163,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   // module's, filling that one token pair from the row acted on (set below, once it is read) for this request only.
   const isiPm: { jam: string | null } = { jam: null };
   const s = (event: HleEvent) => { const v = t(event, "staff"); return isiPm.jam ? v.replace("{jam}\u00a0{zona}", isiPm.jam) : v; };
-  // One parallel read of the viewer and their roles (DAISY-02/03).
-  const [viewer, peran] = await Promise.all([currentViewer(), peranSaya()]);
+  // The viewer (DAISY-02/03); their roles are read by the shared navigation (NavKonfigurasi, R-10).
+  const viewer = await currentViewer();
   const supabase = await supabaseServer();
   const sp = await searchParams;
   // B1 (D-166(a)): the index (/konfigurasi) or one section's page (/konfigurasi/<section>), the same page drawn either
@@ -186,8 +182,9 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   const jalanIni = bagianIni ? alamatBagian(bagianIni) : "/konfigurasi";
 
   // Authority: SYSTEM_ADMIN, or INSTITUTION_ADMIN over at least one institution.
-  const [{ data: isSys }, { data: adminAssignments }] = await Promise.all([
-    supabase.rpc("is_system_admin"),
+  const [isSys, { data: adminAssignments }] = await Promise.all([
+    // BOB18-A01: the request-cached isSystemAdmin() (src/lib/auth.ts), so a page and its NavKonfigurasi ask once; same answer (data === true)
+    isSystemAdmin(),
     supabase.from("role_assignments").select("institution_id, role, valid_until").eq("role", "INSTITUTION_ADMIN").is("revoked_at", null)
       .gt("valid_until", new Date().toISOString()),
   ]);
@@ -844,27 +841,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
     {/* D-138 step 3: the staff shell (AppShell). The places below are this page's own, unchanged: each asks its own
         gate on arrival and a link decides nothing (DAISY-03, D-010); «Laporkan masalah», the language and the way out
         are the shell's, as on every staff surface (DAISY-02, DAISY-12). */}
-    <CangkangStaf
-      locale={await currentLocale()}
-      kini={s("nav.konfigurasi")}
-      nav={
-        <>
-          <ItemNav href="/konfigurasi" label={s("nav.konfigurasi")} kini />
-          {bolehPendataan ? <ItemNav href="/pendataan" label={s("nav.pendataan")} /> : null}
-          {lama || (kh && melayani(kh, "/aktivasi")) ? <ItemNav href="/aktivasi" label={s("nav.aktivasi")} /> : null}
-          {lama || (kh && melayani(kh, "/studio")) ? <ItemNav href="/studio" label={s("nav.studio")} /> : null}
-          {platformIni ? <ItemNav href="/konfigurasi/email-uji" label={s("emailuji.judul")} /> : null}
-          {(platformIni || sekolahIni.length > 0) ? <ItemNav href="/konfigurasi/keamanan" label={s("keamanan.judul")} /> : null}
-          {/* W2.5 (CR-05): the school's certificates, for whom revoke_certificate accepts (the page asks the database) */}
-          {(platformIni || satuSekolah) ? <ItemNav href="/konfigurasi/sertifikat" label={s("sertifikat.kelola.judul")} /> : null}
-          {lama ? (
-            <TabTempat tempat={tempatDariPeran(peran)} kecuali={["/konfigurasi"]} locale={await currentLocale()} persona="staff" bentuk="nav" />
-          ) : (
-            await navKonteks({ locale: await currentLocale(), persona: "staff", kecuali: ["/konfigurasi", "/pendataan", "/aktivasi", "/studio"], bentuk: "nav" })
-          )}
-        </>
-      }
-    />
+    {/* R-10 (Daisy, option A): «Tempat kerja Anda» from the one source every Konfigurasi page draws */}
+    <NavKonfigurasi locale={await currentLocale()} kini="konfigurasi" />
     <main id="isi" tabIndex={-1} className="py-6">
       {/* E-K7 (D-173(d)): one page-head rule — no app-name eyebrow inside the shell, which already names PINTAR */}
       {/* B1 (D-166(a)): the index is «Konfigurasi»; a section's page is its section, with the way back named by its
@@ -1052,7 +1030,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                           <input type="hidden" name="sekolah" value={sekolahStruktur.id} />
                           <input type="hidden" name="pelajaran" value={p.course_id} />
                           <label className={label}>{sl("config.ketuntasan.nilai")}
-                            <input name="persen" type="number" inputMode="numeric" min={0} max={100} step={1} required
+                            <input name="persen" type="number" inputMode="numeric" min={1} max={100} step={1} required
                               defaultValue={p.percent ?? undefined} className={`${field} w-24`} />
                           </label>
                           <label className={label}>{sl("config.ketuntasan.alasan")}

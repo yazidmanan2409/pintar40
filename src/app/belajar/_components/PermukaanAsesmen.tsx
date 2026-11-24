@@ -57,6 +57,7 @@ export default async function PermukaanAsesmen({
   diriHref,
   selesaiHref,
   mode,
+  bab,
 }: {
   /** The assessment assignment: what would be started. */
   penugasan: string;
@@ -72,6 +73,8 @@ export default async function PermukaanAsesmen({
   selesaiHref: string;
   /** Which player treatment: the diagnostic one has no verdict language. */
   mode: "PEMETAAN" | "PENGUASAAN";
+  /** A cycle's sitting: its kind and the chapter's own title (R-20 M2: the name the learner tells their teacher). */
+  bab?: { jenis: "PRE_TEST" | "POST_TEST"; judul: string };
 }) {
   const db = (await supabaseServer()) as unknown as engine.EngineClient;
   const s = (k: HleEvent) => t(k, "learner", { locale });
@@ -99,12 +102,16 @@ export default async function PermukaanAsesmen({
         return (await zonaSimpulBanyak(db, [node]))(node);
       })
       .catch(() => "Asia/Jakarta");
+    // R-20 M2 (Daisy, Z-M1-M2-SPESIFIKASI.md): the teacher is told the assessment and its chapter, «Uji Penguasaan · Pecahan»,
+    // never the course path the eyebrow above already shows
+    const kunciGuru = bab ? kunciNamaAsesmen(bab.jenis) : null;
+    const judulGuru = bab && kunciGuru ? `${s(kunciGuru)} · ${bab.judul}` : eyebrow;
     return (
       <>
         <CangkangPengalaman locale={locale} kind="focus" />
         <main id="isi" tabIndex={-1} className="pin-col">
           <p className="pin-meta">{eyebrow}</p>
-          <LanjutkanDiSini sesi={sesi} perluIzin={keadaan.perlu_izin === true} judul={eyebrow} zona={zona} locale={locale}
+          <LanjutkanDiSini sesi={sesi} perluIzin={keadaan.perlu_izin === true} judul={judulGuru} zona={zona} locale={locale}
             lanjutkan={actions.lanjutkanDiSini} />
         </main>
       </>

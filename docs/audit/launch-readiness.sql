@@ -48,7 +48,9 @@ rights_release as (select unnest(string_to_array(
   'certificates=S classes=S coaching_findings=SU content_ownership_lineage=S ' ||
   'content_review_outcomes=S content_status_transitions=S course_revision_notes=S courses=SIU doctrine_lexicon=S ' ||
   'enrollments=S evidence_class_overrides=SI exam_cooling_policies=SIU feature_flags=SIU ' ||
-  'feedback_cycles=S feedback_opportunities=S generated_reports=S import_jobs=S import_rows=S ' ||
+  -- MOVED for Z D-6 (20270123140000, CORRECTED IN PLACE for Sharon Z2-1): feedback_cycles=S and
+  -- feedback_opportunities=S leave the set while the anonymous feedback round is dark; its restore path puts them back
+  'generated_reports=S import_jobs=S import_rows=S ' ||
   'ingest_batches=SIU ingest_status_transitions=S institutional_identities=S institutions=S ' ||
   'integrity_signals=S item_options=SIU item_type_learner_support=S item_type_registry=S items=SIU ' ||
   'learner_readable_fields=S learning_assignment_release_moves=S ' ||
@@ -73,6 +75,12 @@ exec_now as (
    where n.nspname = 'public' and has_function_privilege('authenticated', p.oid, 'EXECUTE')),
 exec_release as (
   select function_name as f from public.client_rpc_registry
+  -- Z D-6 (R-17, 20270123140000): the anonymous feedback round is dark. Its nine stay registered (nothing is deleted;
+  -- its code still names them) and are revoked from authenticated by name, so they are pinned OUT of the released set:
+  -- a grant that comes back reads +name here until the round is reopened by its own migration, which removes this line
+   where function_name <> all (array['close_feedback_cycle', 'feedback_questionnaire', 'feedback_result',
+                                     'feedback_subjects_for_class', 'my_feedback_cycles', 'open_feedback_cycle',
+                                     'publish_feedback_question_set', 'publish_feedback_threshold', 'submit_feedback'])
   union
   select unnest(string_to_array(
   'bank_tier_rank difficulty_band eligible_items_for_definition engine_version evidence_readiness ' ||

@@ -81,13 +81,24 @@ const HASIL_ATUR: Record<string, HleEvent> = {
  * and how long is left, when it was handed in or ended, the request for another attempt), and one quiet «Atur» link
  * where an act applies. Never a score, never an order.
  */
-function denganAtur(baris: BarisKoleksi, meta: string[], atur: ReactNode | null, ada: boolean): BarisKoleksi {
-  if (!ada) return baris;
+function denganAtur(baris: BarisKoleksi, meta: string[], atur: ReactNode | null, ada: boolean, labelKeadaan: string): BarisKoleksi {
+  // R-11 (Daisy, Z-SIAP §2): below 640 px each learner is one block: the name as its heading, then the sitting's line
+  // («Dikumpulkan {jam} {zona}», or where it stands), then the state with its visible label, then «Atur»
+  const tumpuk = {
+    judul: baris.nama,
+    bagian: [
+      ...(ada ? meta.map((m, i) => <p key={`m${i}`} className="pin-meta" data-atur-meta="">{m}</p>) : []),
+      <p key="k" className="pin-koleksi-tumpuk-baris"><span className="pin-koleksi-tumpuk-label">{labelKeadaan}</span> {baris.sel[0]}</p>,
+      ...(ada && atur ? [<p key="a">{atur}</p>] : []),
+    ],
+  };
+  if (!ada) return { ...baris, tumpuk };
   return {
     kunci: baris.kunci,
     // the link sits under the name, in the column that stays in view when a narrow screen scrolls the table sideways
     nama: <>{baris.nama}{meta.map((m, i) => <span key={i} className="pin-meta pin-atur-meta" data-atur-meta="">{m}</span>)}{atur ? <span className="pin-atur-meta">{atur}</span> : null}</>,
     sel: baris.sel,
+    tumpuk,
   };
 }
 const URUTAN_KEADAAN = ["sudah", "sedang", "belum"] as const;
@@ -218,7 +229,7 @@ export default async function Siapa({
               <Link key="a" className="pin-tautan" href={`${dasar}&sesi=${petaA1.get(m.id)!.sesi_id}#atur`} data-atur-buka={petaA1.get(m.id)!.sesi_id ?? ""}>
                 {s("atur.buka")}<span className="pin-sr"> · {m.nama}</span>
               </Link>
-            ) : null, a1 !== null))}
+            ) : null, a1 !== null, s("mengajar.cepat.hasil.kolom.keadaan")))}
             posisi={halaman.posisi}
             totalSemua={halaman.totalSemua}
             kosong={<Kosong jenis="belum" kalimat={s(kataAnggota("mengajar.siapa.kosong", ctx.ini.jenis))} />}

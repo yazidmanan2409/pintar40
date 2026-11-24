@@ -3,7 +3,7 @@ import { format, t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import { supabaseServer } from "@/lib/supabase/server";
 import { konteksHalaman } from "@/lib/konteks-server";
-import CangkangPengalaman from "@/components/CangkangPengalaman";
+import NavKonfigurasi from "@/components/konfigurasi/NavKonfigurasi";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import BarisHasil from "@/components/BarisHasil";
@@ -22,6 +22,7 @@ import TombolKirim from "@/components/TombolKirim";
 import KonfirmasiBahaya from "@/components/KonfirmasiBahaya";
 import { putuskanTinjauanAksi } from "@/app/studio/soal-actions";
 import { kodeKoreksiDariGalat, kunciKodeKoreksi, KODE_KOREKSI, type KodeKoreksi } from "@/lib/soal-kontrak";
+import { isSystemAdmin } from "@/lib/auth";
 
 export const generateMetadata = judulHalaman("/konfigurasi/sertifikat");
 export const dynamic = "force-dynamic";
@@ -54,7 +55,8 @@ export default async function SertifikatSekolah({ searchParams }: { searchParams
   const locale = await currentLocale();
   const s = (k: HleEvent) => t(k, "staff", { locale });
   const supabase = await supabaseServer();
-  const { data: sistem } = await supabase.rpc("is_system_admin");
+  // BOB18-A01: the request-cached isSystemAdmin() (src/lib/auth.ts), so a page and its NavKonfigurasi ask once; same answer (data === true)
+  const sistem = await isSystemAdmin();
   const adminSistem = sistem === true;
   // L3 (D-132): the working context's school, or every school's in «Seluruh platform» for Admin platform
   const kh = await konteksHalaman();
@@ -136,7 +138,8 @@ export default async function SertifikatSekolah({ searchParams }: { searchParams
 
   return (
     <>
-      <CangkangPengalaman locale={locale} kind="pendataan" halamanKini="sertifikat" />
+      {/* R-10 (Daisy, option A): the index's own «Tempat kerja Anda» */}
+      <NavKonfigurasi locale={locale} kini="sertifikat" />
       <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href="/konfigurasi">← {s("nav.konfigurasi")}</Link>
         <div className="pin-head">

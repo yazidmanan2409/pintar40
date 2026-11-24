@@ -69,6 +69,13 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
     ajar.tujuanBelum(id, orang),
   ]);
 
+  // K-03 (SAPU-VERIFIED): «no objective below target» is said only of a learner who has a scored Uji Penguasaan here
+  const adaUji = catatan.hasil.status === "ok" && catatan.daftarHasil.some((h) => h.mode === "POST_TEST");
+  // Z (Sharon's C2 nit; Daisy): the latest finished Uji Penguasaan missed a must-be-right question that has no objective, so
+  // the objectives list is empty for a reason other than «none below target»
+  const ujiTerakhir = catatan.daftarHasil.find((h) => h.sesi === catatan.terakhirUji);
+  const gerbangTanpaTujuan = ujiTerakhir !== undefined && ajar.vonisHasil(ujiTerakhir) === "GERBANG";
+
   return (
     <>
       <CangkangPengalaman locale={locale} kind="pengajar" current="kelas" />
@@ -123,15 +130,31 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
                     {h.ditarik ? <small data-ditarik="">{s("mengajar.murid1.ditarik")}</small> : null}
                     {/* D-085 M3: below the sealed target, the teacher sees it; the target is shown beside the mastery.
                         Daisy (435a2856, §1.3): not for a withdrawn result, given by mistake, which invites no judgement */}
-                    {h.batas !== null && !h.ditarik ? (
-                      <small data-target={h.penguasaan !== null && h.penguasaan < h.batas ? "belum" : "batas"}>
-                        {h.penguasaan !== null && h.penguasaan < h.batas ? `${s("mengajar.murid1.di_bawah_target")} · ` : ""}
-                        {s("mengajar.murid1.target")} {format.percent(h.batas, locale)}
-                      </small>
-                    ) : null}
+                    {/* Z K-01 (ruling 78): one verdict. A missed must-be-right question is «belum mencapai target» although the
+                        figure meets the mark; a gate that cannot be read is said so, never «reached» (Sharon's Q3) */}
+                    {h.batas !== null && !h.ditarik ? (() => {
+                      const v = ajar.vonisHasil(h);
+                      const p = format.percent(h.batas, locale);
+                      return (
+                        <>
+                          <small data-target={v === "DI_BAWAH" || v === "GERBANG" ? "belum" : v === "TAK_DIKETAHUI" ? "tak-diketahui" : "batas"}
+                            data-vonis={v === "GERBANG" ? "gerbang" : undefined}>
+                            {v === "GERBANG" ? s("mengajar.murid1.gerbang").replace("{p}", p)
+                              : v === "TAK_DIKETAHUI" ? s("mengajar.murid1.gerbang_tak_diketahui").replace("{p}", p)
+                              : <>{v === "DI_BAWAH" ? `${s("mengajar.murid1.di_bawah_target")} · ` : ""}{s("mengajar.murid1.target")} {p}</>}
+                          </small>
+                          {/* Daisy's Z3-A verdict (b): the reason directly under its tag, before the action */}
+                          {v === "TAK_DIKETAHUI" ? <small className="pin-ket" data-gerbang-tak-diketahui="">{s("mengajar.murid1.gerbang_tak_diketahui_arti")}</small> : null}
+                        </>
+                      );
+                    })() : null}
+                    {/* Z V2 (R-22): a retake under way, said neutrally; the figure is this finished result's. Daisy's Z3-A
+                        verdict C-2: after the verdict, a secondary status; the finished result keeps its verdict */}
+                    {h.ulangBerjalan ? <small className="pin-meta" data-ulang-berjalan="">{s("hasil.ulang_berjalan")}</small> : null}
                     {/* D-085 M3 (J5.12): under the target on this class's Uji Penguasaan, the teacher may give material back */}
                     {/* ... nor «Beri ulang»: giving material back because of a mistaken assessment repeats the mistake */}
-                    {h.mode === "POST_TEST" && !h.ditarik && h.batas !== null && h.penguasaan !== null && h.penguasaan < h.batas && catatan.tugasSesi[h.sesi]
+                    {/* Z K-01: every result whose verdict is «belum mencapai target», the gate included; a gate not known keeps it */}
+                    {h.mode === "POST_TEST" && ["DI_BAWAH", "GERBANG", "TAK_DIKETAHUI"].includes(ajar.vonisHasil(h) ?? "") && catatan.tugasSesi[h.sesi]
                       // Daisy (1fad2861, B2): never on a chapter the class is no longer given; the database refuses it there
                       && !catatan.tugasTertutup[catatan.tugasSesi[h.sesi]] ? (
                       <Link className="pin-ulang-tautan" href={`/mengajar/${id}/ulang?penugasan=${catatan.tugasSesi[h.sesi]}&murid=${orang}`}>
@@ -150,7 +173,14 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
         <section className="pin-sec" aria-labelledby="pin-murid-tujuan">
           <h2 id="pin-murid-tujuan">{s("mengajar.murid1.tujuan")}</h2>
           <p className="pin-sub">{s("mengajar.murid1.tujuan_arti")}</p>
-          {belum.length === 0 ? (
+          {/* K-03: a failed read is said as one, and no Uji Penguasaan yet is its own state, before «none below target» */}
+          {belum === null ? (
+            <p className="pin-ket" data-tujuan-gagal="">{s("mengajar.murid1.tujuan_gagal")}</p>
+          ) : !adaUji ? (
+            <Kosong jenis="belum" kalimat={s("mengajar.murid1.tujuan_belum_uji")} />
+          ) : belum.length === 0 && gerbangTanpaTujuan ? (
+            <p className="pin-ket" data-gerbang-tanpa-tujuan="">{s("mengajar.murid1.gerbang_tanpa_tujuan")}</p>
+          ) : belum.length === 0 ? (
             <Kosong jenis="belum" kalimat={s("mengajar.murid1.tujuan_kosong")} />
           ) : (
             <div className="pin-domain">

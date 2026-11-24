@@ -1,0 +1,1 @@
+C3W-C32     FAIL    the scenario could not run: ERROR:  the C3W world: c1.xs is EMPTY (no generated question on the learner's paper; generated drafts presented 0, of x POST_TEST, y POST_TEST); the scenario did not run

@@ -159,7 +159,8 @@ export const koleksiTests: SelfTest[] = [
           `(${locale}) the pager does not say «${ringkas}» under its name`);
         c.expect(x.includes(`<span class="pin-pager-posisi" aria-live="polite"><span class="pin-pager-lebar">${posisi}</span><span class="pin-pager-kecil">2 / 16</span></span>`),
           `(${locale}) the pager does not say «${posisi}» (and «2 / 16» narrow)`);
-        const ke = (h: number) => `/kelas?bagian=murid&cari=Mur&saring=sedang${h > 1 ? `&hal=${h}` : ""}#daftar-murid`;
+        // RESTATED (Z6, Daisy's ruling (6)): the pager returns to the collection (#…-koleksi), which both its views show
+        const ke = (h: number) => `/kelas?bagian=murid&cari=Mur&saring=sedang${h > 1 ? `&hal=${h}` : ""}#daftar-murid-koleksi`;
         const tautan = (h: number, arah: string, nama: string, teks: string) => {
           const a = tag(x, "a", { class: "pin-btn", href: ke(h), "aria-label": nama, "data-pager": arah });
           return Boolean(a) && x.slice(x.indexOf(a)).split("</a>")[0].includes(`<span class="pin-pager-teks">${teks}</span>`);

@@ -1,0 +1,19 @@
+# Daisy's Z7 review (C-1 S-14, C-2 two EN keys, C-3 X12 column, (5) summary order), RED on 3472d3a4 with the new expectations (23 Nov 2026)
+PINTAR selftest — pintar-selftest v204 (PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)); 1375 manifest ids
+TARGETED RUN — Z-S09-S10-S14-01, Z-T03-01, Z-R15-01 → 3 id(s) requested. A db suite runs as one unit, so the suites that own those ids report all of their rows and the tally below counts them. This is a development loop; the completion gate is the whole manifest.
+facilities: app
+
+[static] selftest/static.test.ts
+
+[app] selftest/app.test.ts
+
+id          status  detail
+Z-T03-01    FAIL    laporan.templat.tak_berwenang (en): «Assembling a report template requires institution administrator authority.», not «Assembling a report template requires a school administrator or an Admin PINTAR.»; aktivasi.ditolak (en): «This page is for the people who manage a school's records.», not «This page is for a school administrator or an Admin PINTAR.»
+Z-S09-S10-S14-01 FAIL    aktifkan.minta_sering (id): «Kode sudah terlalu sering diminta untuk email atau username yang Anda ketik, jadi kode tidak dikirim.», not «Kode sudah terlalu sering diminta, jadi kode tidak dikirim.»; aktifkan.minta_sering (en): «A code has been asked for too often for the email or username you typed, so no code was sent.», not «A code has been asked for too often, so no code was sent.»; aktifkan.kode_sering (id): «Kode sudah terlalu sering dicoba untuk email atau username yang Anda ketik.», not «Kode sudah terlalu sering dicoba.»; aktifkan.kode_sering (en): «The code has been tried too many times for the email or username you typed.», not «The code has been tried too many times.»
+Z-R15-01    FAIL    the summary's order is LULUS, KELUAR:PINDAH_SEKOLAH, TINGGAL:x, NAIK:b, NAIK:a; the summary's order follows the learners' order: LULUS, NAIK:a, NAIK:b, TINGGAL:x, KELUAR:PINDAH_SEKOLAH; with no main group the order is not the outcomes' own: KELUAR:X,NAIK:a; sertifikat.kelola.kolom.kursus (id): «Paket», not «Paket Pembelajaran»; sertifikat.kelola.kolom.kursus (en): «Package», not «Learning Package»
+
+0 passed, 3 failed, 0 skipped, 0 contract problem(s) → RED
+
+FAILED  Z-T03-01  laporan.templat.tak_berwenang (en): «Assembling a report template requires institution administrator authority.», not «Assembling a report template requires a school administrator or an Admin PINTAR.»; aktivasi.ditolak (en): «This page is for the people who manage a school's records.», not «This pag
+FAILED  Z-S09-S10-S14-01  aktifkan.minta_sering (id): «Kode sudah terlalu sering diminta untuk email atau username yang Anda ketik, jadi kode tidak dikirim.», not «Kode sudah terlalu sering diminta, jadi kode tidak dikirim.»; aktifkan.minta_sering (en): «A code has been asked for too often for the email or username you typed
+FAILED  Z-R15-01  the summary's order is LULUS, KELUAR:PINDAH_SEKOLAH, TINGGAL:x, NAIK:b, NAIK:a; the summary's order follows the learners' order: LULUS, NAIK:a, NAIK:b, TINGGAL:x, KELUAR:PINDAH_SEKOLAH; with no main group the order is not the outcomes' own: KELUAR:X,NAIK:a; sertifikat.kelola.kolom.kursus (id): «Pake

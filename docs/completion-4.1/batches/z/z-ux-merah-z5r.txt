@@ -1,0 +1,38 @@
+# Daisy's Z5 review (C-1, C-2, findings a and b), RED on the base: the Z7 head 00c71229 with this change's src stashed (23 Nov 2026)
+Z-Z5R-01    FAIL    galat.definition_mix_total_baris (id): «—», not «Aturan ini membagi soalnya per tingkat kesulitan, jadi Jumlah soal tidak dapat diubah di sini. Buat aturan baru dengan jumlah yang diinginkan.»; galat.definition_mix_total_baris (en): «—», not «This rule divides its questions by difficulty, so the Number of questions cannot be changed here. Create a new rule with the number you want.»; studio.definisi.dibuat (id): «—», not «Aturan baru dibuat.»; studio.definisi.dibuat (en): «—», not «The new rule has been created.»; C-1: the shape refusal does not send back what was typed; C-1: the code field is not refilled from kenapa after a refusal; the new-rule 
+Z-C1-01     FAIL    after the refusal the field does not hold «A-»: <input id="pin-kode-isi" class="pin-input" aria-describedby="pin-kode-isi-petunjuk" maxLength="3" size="3" autoComplete="off" spellCheck="false" pattern="[A-Za-z0-9]{3}" name="kode" value=""/>
+Z-C2A-01    FAIL    C-2: the row's refusal points to a mix the row does not show (or says nothing); (a): a brand-new rule is not said as created, or is said as a new version of an old one
+0 passed, 3 failed, 0 skipped, 0 contract problem(s) → RED
+
+## (b) in a real browser, tempat-320.ts against next start of the base build
+# base (00c71229)
+FAIL  /konfigurasi/kesempatan at 320: «Konfigurasi», each word one line box (Konfigurasi:2)
+PASS  /konfigurasi/kesempatan at 320: «Konfigurasi» is whole (text-overflow clip, clipped false)
+PASS  /konfigurasi/kesempatan at 320: the menu button stays on the brand's line (true) and the page does not scroll sideways (0 px)
+PASS  /konfigurasi/kesempatan at 390: «Konfigurasi», each word one line box (Konfigurasi:1)
+PASS  /konfigurasi/kesempatan at 390: «Konfigurasi» is whole (text-overflow clip, clipped false)
+PASS  /konfigurasi/kesempatan at 390: the menu button stays on the brand's line (true) and the page does not scroll sideways (0 px)
+FAIL  /pendataan at 320: «Pendataan», each word one line box (Pendataan:2)
+PASS  /pendataan at 320: «Pendataan» is whole (text-overflow clip, clipped false)
+PASS  /pendataan at 320: the menu button stays on the brand's line (true) and the page does not scroll sideways (0 px)
+PASS  /pendataan at 390: «Pendataan», each word one line box (Pendataan:1)
+PASS  /pendataan at 390: «Pendataan» is whole (text-overflow clip, clipped false)
+PASS  /pendataan at 390: the menu button stays on the brand's line (true) and the page does not scroll sideways (0 px)
+FAIL  /aktivasi at 320: «Aktivasi akun», each word one line box (Aktivasi:2 akun:1)
+PASS  /aktivasi at 320: «Aktivasi akun» is whole (text-overflow clip, clipped false)
+PASS  /aktivasi at 320: the menu button stays on the brand's line (true) and the page does not scroll sideways (0 px)
+PASS  /aktivasi at 390: «Aktivasi akun», each word one line box (Aktivasi:1 akun:1)
+PASS  /aktivasi at 390: «Aktivasi akun» is whole (text-overflow clip, clipped false)
+PASS  /aktivasi at 390: the menu button stays on the brand's line (true) and the page does not scroll sideways (0 px)
+FAIL  /konfigurasi/keamanan at 320: «Konfigurasi», each word one line box (Konfigurasi:2)
+PASS  /konfigurasi/keamanan at 320: «Konfigurasi» is whole (text-overflow clip, clipped false)
+PASS  /konfigurasi/keamanan at 320: the menu button stays on the brand's line (true) and the page does not scroll sideways (0 px)
+PASS  /konfigurasi/keamanan at 390: «Konfigurasi», each word one line box (Konfigurasi:1)
+PASS  /konfigurasi/keamanan at 390: «Konfigurasi» is whole (text-overflow clip, clipped false)
+PASS  /konfigurasi/keamanan at 390: the menu button stays on the brand's line (true) and the page does not scroll sideways (0 px)
+FAIL  /lapor at 320: «Laporkan masalah», each word one line box (Laporkan:2 masalah:2)
+PASS  /lapor at 320: «Laporkan masalah» is whole (text-overflow clip, clipped false)
+PASS  /lapor at 320: the menu button stays on the brand's line (true) and the page does not scroll sideways (0 px)
+PASS  /lapor at 390: «Laporkan masalah», each word one line box (Laporkan:1 masalah:1)
+PASS  /lapor at 390: «Laporkan masalah» is whole (text-overflow clip, clipped false)
+PASS  /lapor at 390: the menu button stays on the brand's line (true) and the page does not scroll sideways (0 px)

@@ -117,6 +117,8 @@ export type BabTampil = {
   keadaan: "SELESAI" | "BERJALAN" | "DITUTUP_AWAL";
   pre_session: string | null;
   post_session: string | null;
+  /** Z V2 (20270123110000): a later sitting of this Uji Penguasaan is open; the result shown stays the finished one */
+  ulang_berjalan?: boolean;
 };
 export async function myResultsShown(db: EngineClient): Promise<BabTampil[]> {
   return rows<BabTampil>(await call(db, "hasil_belajar_sesi_saya"));

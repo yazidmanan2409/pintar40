@@ -1,0 +1,9 @@
+BEGIN
+                 what                 | n 
+--------------------------------------+---
+ school_pass_marks below 1..100       | 0
+ assessment_assignments below 0.01..1 | 0
+ assessment_sessions below 0.01..1    | 0
+(3 rows)
+
+ROLLBACK

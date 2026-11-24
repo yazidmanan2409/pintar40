@@ -1,7 +1,7 @@
 import "server-only";
 import { namaBab } from "@/lib/nama-bab";
 import * as engine from "@/lib/assessment-engine";
-import { bagianUlang, hitunganSegel, ketuntasan, type Ketuntasan } from "@/lib/siklus";
+import { alasanBelum, bagianUlang, hitunganSegel, ketuntasan, type Ketuntasan } from "@/lib/siklus";
 import { namaTujuan } from "@/components/siklus/PerTujuan";
 
 /**
@@ -34,6 +34,12 @@ export type BabHasil = {
   ulang: string[];
   /** owner ruling (10 Nov): the assignment was withdrawn; the result is kept and not counted in class figures */
   ditarik?: boolean;
+  /** Z V2 (R-22): a retake of this Uji Penguasaan is open; the result shown is the earlier, finished one */
+  ulangBerjalan?: boolean;
+  /** D14: the result shown was recalculated after it was sealed; the summary says so, as the chapter page does */
+  dihitungUlang?: boolean;
+  /** Z (Daisy's Z3-A C-1): «belum mencapai target» because a must-be-right question was missed, the figure meeting the mark */
+  gerbang?: boolean;
 };
 
 /**
@@ -74,16 +80,19 @@ export async function hasilBelajar(db: engine.EngineClient): Promise<BabHasil[]>
                tercapai: null, benar: 0, total: 0, bagian: [], ulang: [], ...(a.status === "WITHDRAWN" ? { ditarik: true } : {}) };
     }
     if (!t.post_session) return null;
-    const [outcome, review, delta, peta, pelajaran] = await Promise.all([
+    const [outcome, review, delta, peta, pelajaran, dihitungUlang] = await Promise.all([
       engine.outcome(db, t.post_session).catch(() => null),
       engine.review(db, t.post_session).catch(() => []),
       engine.delta(db, a.learning_assignment_id).catch(() => null),
       engine.readingMap(db, t.post_session).catch(() => []),
       engine.lessons(db, a.learning_assignment_id).catch(() => []),
+      // D14: as the chapter page asks it; a failed read claims nothing
+      engine.sesiDihitungUlang(db, t.post_session).catch(() => false),
     ]);
     if (!outcome) return berjalan;
     const tercapai = ketuntasan(outcome);
-    const ulang = tercapai === "BELUM" ? bagianUlang(outcome.per_domain, outcome.ambang, peta, pelajaran) : [];
+    // Z K-01: the missed must-be-right question's objectives are what to study again too (as the chapter page lists them)
+    const ulang = tercapai === "BELUM" ? bagianUlang(outcome.per_domain, outcome.ambang, peta, pelajaran, outcome.tujuan_gerbang_kode ?? []) : [];
     const kodeUlang = new Set(ulang.map((u) => u.kode));
     const nama = namaTujuan(peta);
     return {
@@ -102,6 +111,11 @@ export async function hasilBelajar(db: engine.EngineClient): Promise<BabHasil[]>
         kode, nama: nama.get(kode) ?? kode, benar: d.benar, total: d.total, ulang: kodeUlang.has(kode),
       })),
       ulang: ulang.map((u) => u.nama),
+      ...(t.ulang_berjalan === true ? { ulangBerjalan: true } : {}),
+      // Daisy's Z3-A C-1: the gate case says why, after the figures (alasanBelum, the chapter page's own reason)
+      ...(alasanBelum(outcome) === "GERBANG" ? { gerbang: true } : {}),
+      // a governed correction is marked as such on the chapter page (dikoreksi), not as a recalculation
+      ...(dihitungUlang === true && !outcome.dikoreksi ? { dihitungUlang: true } : {}),
     };
   }));
   // the learner's history's order, as before

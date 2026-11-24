@@ -212,9 +212,10 @@ export const b6kTests: SelfTest[] = [
       if (!c.expect(m !== null, "there is no card presentation module (src/lib/kartu-pintar.ts)") || !m) return c.verdict("");
       const N = (p: string) => t(`role.${p}` as HleEvent, "staff", { locale: "id" });
       // alphabetical by the Terminology v1 names, whatever the data's order (the database lists by seniority)
+      // RESTATED (Z7, T-03; ruling 78 (d)): the platform's administrator is named «Admin PINTAR»; it still sorts first
       const semua = ["SYSTEM_ADMIN", "INSTITUTION_ADMIN", "DEAN", "HEAD_OF_DEPARTMENT", "EDUCATOR"].map((p) => ({ peran: p as never, institusi: "SMA Satu" }));
       const urut = m.susunKartu(semua).urut.map((k) => N(k.peran));
-      c.expect(JSON.stringify(urut) === JSON.stringify(["Admin platform", "Admin sekolah", "Dekan", "Guru", "Kepala departemen"]), `the roles are in the order ${urut.join(", ")}`);
+      c.expect(JSON.stringify(urut) === JSON.stringify(["Admin PINTAR", "Admin sekolah", "Dekan", "Guru", "Kepala departemen"]), `the roles are in the order ${urut.join(", ")}`);
       const balik = m.susunKartu([...semua].reverse()).urut.map((k) => N(k.peran));
       c.expect(JSON.stringify(balik) === JSON.stringify(urut), "the card's order follows the data's order");
       // the colour: the first role's family
@@ -229,10 +230,10 @@ export const b6kTests: SelfTest[] = [
         `two schools are not one role with its school per line: ${JSON.stringify(s2.baris)}`);
       // a role with no school beside a role at a school: never under that school
       const s3 = m.susunKartu([{ peran: "EDUCATOR", institusi: "SMA Satu" }, { peran: "SYSTEM_ADMIN", institusi: null }]);
-      c.expect(JSON.stringify(s3.baris) === JSON.stringify([{ peran: "Admin platform", sekolah: null }, { peran: "Guru", sekolah: "SMA Satu" }]) && s3.keluarga === "admin-platform",
+      c.expect(JSON.stringify(s3.baris) === JSON.stringify([{ peran: "Admin PINTAR", sekolah: null }, { peran: "Guru", sekolah: "SMA Satu" }]) && s3.keluarga === "admin-platform",
         `the platform role is set under a school: ${JSON.stringify(s3.baris)}`);
       const s4 = m.susunKartu([{ peran: "SYSTEM_ADMIN", institusi: null }]);
-      c.expect(JSON.stringify(s4.baris) === JSON.stringify([{ peran: "Admin platform", sekolah: null }]), "Admin platform has a second line");
+      c.expect(JSON.stringify(s4.baris) === JSON.stringify([{ peran: "Admin PINTAR", sekolah: null }]), "Admin PINTAR has a second line");
       // capacity: two pairs proven; a third is the unresolved exception, every line still drawn
       c.expect(m.KAPASITAS_PASANGAN === 2, "the proven capacity is not two pairs");
       c.expect(!/overflow/.test(aturan(CSS(repoRoot), ".pin-kd-muka")), "the face clips what outgrows it, so a line could be silently cut");

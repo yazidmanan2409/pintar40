@@ -927,7 +927,28 @@ export type HasilResmi = {
   alasan?: string | null;
   /** owner ruling (10 Nov): the sitting's assignment was withdrawn; kept and shown, not counted in class figures */
   ditarik?: boolean;
+  /** Z K-01 (Sharon's Q3): the result's must-be-right gate as learner.result gives it; null when it is not there */
+  gerbang?: boolean | null;
+  /** Z V2 (R-22): an Uji Penguasaan result whose assignment has another sitting open (a retake under way); the result
+   *  shown stays this finished one */
+  ulangBerjalan?: boolean;
 };
+
+/**
+ * Z K-01 (ruling 78, one verdict): the verdict a teacher reads beside one result, by the result's own sealed mark.
+ * DI_BAWAH below the mark; GERBANG at or above it with a must-be-right question missed (an Uji Penguasaan's gate);
+ * TAK_DIKETAHUI when that gate cannot be read (Sharon's Q3: null, withheld or an error is never «reached»); TERCAPAI;
+ * null where no verdict is drawn (no mark, no figure, a withdrawn result). Pure: the page and «Minta membaca lagi»
+ * read the same rule.
+ */
+export type VonisHasil = "DI_BAWAH" | "GERBANG" | "TAK_DIKETAHUI" | "TERCAPAI";
+export function vonisHasil(h: Pick<HasilResmi, "mode" | "penguasaan" | "batas" | "ditarik" | "gerbang">): VonisHasil | null {
+  if (h.batas === null || h.ditarik || h.penguasaan === null) return null;
+  if (h.penguasaan < h.batas) return "DI_BAWAH";
+  if (h.mode !== "POST_TEST") return "TERCAPAI";
+  if (h.gerbang === false) return "GERBANG";
+  return h.gerbang === true ? "TERCAPAI" : "TAK_DIKETAHUI";
+}
 
 /**
  * Daisy (bcecb425 B2, 1fad2861 B2): a Pemetaan Awal or Uji Penguasaan named as the student's page and the reports name
@@ -948,6 +969,9 @@ export type CatatanMurid = {
   /** Daisy (1fad2861, B2): the assessments whose chapter is no longer given to the class (ended or withdrawn); a
    *  request to read it again is refused there (REVIEW_ASSIGNMENT_CLOSED), so none is offered. */
   tugasTertutup: Record<string, boolean>;
+  /** Z (Sharon's C2 nit): the learner's latest FINISHED Uji Penguasaan in this class (its sitting), the one the objectives
+   *  section reads; null when there is none */
+  terakhirUji: string | null;
 };
 
 export async function catatanMurid(kelasId: string, institusi: string, orang: string): Promise<CatatanMurid> {
@@ -961,7 +985,7 @@ export async function catatanMurid(kelasId: string, institusi: string, orang: st
   // it unchanged; a teacher holds no grant on assessment_sessions.pass_mark (the table's client grant is per column)
   const [{ data: sesiData }, { data: segelData }] = tugas.length > 0
     ? await Promise.all([
-        c.from("assessment_sessions").select("id, assessment_assignment_id, person_id, status")
+        c.from("assessment_sessions").select("id, assessment_assignment_id, person_id, status, finalized_at")
           .eq("person_id", orang).in("assessment_assignment_id", tugas.map((x) => x.id)),
         c.from("assessment_assignments").select("id, pass_mark, learning_assignment_id, learning_assignments(status)").in("id", tugas.map((x) => x.id)),
       ])
@@ -972,7 +996,7 @@ export async function catatanMurid(kelasId: string, institusi: string, orang: st
   return susunCatatan(orang, tugas.map((x) => ({ ...x, batas: segel.get(x.id) ?? null, tertutup: tutup.has(x.id) })), rows<SesiMurid>(sesiData), hasil);
 }
 
-type SesiMurid = { id: string; assessment_assignment_id: string; person_id: string; status: string };
+type SesiMurid = { id: string; assessment_assignment_id: string; person_id: string; status: string; finalized_at?: string | null };
 
 /** The record from what was read: pure, so a test drives exactly what the page shows. */
 export function susunCatatan(
@@ -987,10 +1011,15 @@ export function susunCatatan(
   // an attempt carries its assignment's sealed mark (BOB-49 copies it on insert and never changes either)
   const batasTugas = new Map(tugas.map((x) => [x.id, x.batas ?? null]));
   const batasSesi = new Map(milikNya.map((x) => [x.id, batasTugas.get(x.assessment_assignment_id) ?? null]));
+  const tugasDari = new Map(milikNya.map((x) => [x.id, x.assessment_assignment_id]));
   const nilai = hasil.status === "ok" && Array.isArray(hasil.value)
-    ? (hasil.value as Array<{ session_id?: unknown; mode?: unknown; mastery?: unknown; recomputed?: unknown; sealed_mastery?: unknown; recomputation_reason?: unknown; ditarik?: unknown }>)
+    ? (hasil.value as Array<{ session_id?: unknown; mode?: unknown; mastery?: unknown; recomputed?: unknown; sealed_mastery?: unknown; recomputation_reason?: unknown; ditarik?: unknown; safety_gate_passed?: unknown }>)
     : [];
+  const ujiKelas = new Set(tugas.filter((x) => x.mode === "POST_TEST").map((x) => x.id));
+  const terakhirUji = milikNya.filter((x) => x.status === "FINALIZED" && ujiKelas.has(x.assessment_assignment_id) && x.finalized_at)
+    .sort((a, b) => String(b.finalized_at).localeCompare(String(a.finalized_at)))[0]?.id ?? null;
   return {
+    terakhirUji,
     tugasSesi: Object.fromEntries(milikNya.map((x) => [x.id, x.assessment_assignment_id])),
     tugasTertutup: Object.fromEntries(tugas.filter((x) => x.tertutup).map((x) => [x.id, true])),
     tugas: tugas.map((x) => ({
@@ -1009,6 +1038,12 @@ export function susunCatatan(
       alasan: v.recomputed === true && typeof v.recomputation_reason === "string" ? v.recomputation_reason : null,
       // Sharon (addendum, 10 Nov): kept and shown, marked; left out of every class figure
       ...(v.ditarik === true ? { ditarik: true } : {}),
+      // Z K-01: the gate as read; anything but a boolean is not known (never «reached»)
+      gerbang: typeof v.safety_gate_passed === "boolean" ? v.safety_gate_passed : null,
+      // Z V2: another sitting of the same assignment still open, beside this finished one
+      ...(String(v.mode ?? "") === "POST_TEST" && milikNya.some((y) => y.id !== String(v.session_id ?? "")
+          && y.assessment_assignment_id === tugasDari.get(String(v.session_id ?? "")) && ["CREATED", "IN_PROGRESS", "PAUSED"].includes(y.status))
+        ? { ulangBerjalan: true } : {}),
     })),
   };
 }
@@ -1019,14 +1054,18 @@ export function susunCatatan(
  * Penguasaan in this class recorded below the mark sealed on that attempt -- the class's «Penguasaan per tujuan
  * pembelajaran» reading narrowed to one learner, judged by the learner's own result's rule. It returns no figure (a
  * number reaches a staff screen only through the catalogue), no item and no answer, and nothing at all to a reader who
- * does not teach this class or about a learner not in it. Unread is none listed.
+ * does not teach this class or about a learner not in it.
+ *
+ * K-03 (SAPU-VERIFIED): UNREAD IS NULL, never []. An empty list says «no objective below target», so a failed read
+ * answered with one told the teacher every objective was reached (this file's own rule, below: a failed read never says
+ * «nobody»).
  */
 export type TujuanBelum = { id: string | null; pernyataan: string };
 
-export async function tujuanBelum(kelasId: string, orang: string): Promise<TujuanBelum[]> {
+export async function tujuanBelum(kelasId: string, orang: string): Promise<TujuanBelum[] | null> {
   const c = await db();
   const { data, error } = await c.rpc("tujuan_belum_tercapai", { p_class: kelasId, p_learner: orang });
-  if (error) return [];
+  if (error) return null;
   return rows<{ objective_id: string | null; statement: string }>(data)
     .filter((r) => typeof r.statement === "string" && r.statement.trim() !== "")
     .map((r) => ({ id: r.objective_id, pernyataan: r.statement }));
@@ -1040,7 +1079,8 @@ export async function tujuanBelum(kelasId: string, orang: string): Promise<Tujua
  * so a failed read never says «nobody».
  */
 export type MuridPenguatan = {
-  id: string; nama: string; ulang: string[];
+  /** Z N-15: the objectives to study again; null when that learner's read failed (said, never read as «nothing»). */
+  id: string; nama: string; ulang: string[] | null;
   /** The latest Uji Penguasaan's questions right out of its questions (KESETIAAN #5); null when not recorded. */
   benar: number | null; total: number | null;
   /** false: a required question was not right (the safety gate, which alone places a learner in this band). */
@@ -1055,7 +1095,8 @@ export async function perluPenguatan(kelasId: string): Promise<MuridPenguatan[] 
     .filter((r) => typeof r.person_id === "string");
   const ulang = await Promise.all(orang.map((o) => tujuanBelum(kelasId, o.person_id)));
   return orang.map((o, i) => ({
-    id: o.person_id, nama: o.display_name ?? "", ulang: ulang[i].map((u) => u.pernyataan),
+    // Z N-15: a failed objectives read fails closed (null, said as mengajar.murid1.tujuan_gagal), never «nothing to study»
+    id: o.person_id, nama: o.display_name ?? "", ulang: ulang[i] === null ? null : ulang[i].map((u) => u.pernyataan),
     benar: typeof o.total === "number" && o.total > 0 ? o.benar : null, total: typeof o.total === "number" && o.total > 0 ? o.total : null,
     soalWajibTepat: typeof o.soal_wajib_tepat === "boolean" ? o.soal_wajib_tepat : null,
   }));
@@ -1140,25 +1181,31 @@ export const JENDELA_MENIT = [10, 15, 30] as const;
  * D-085 M3 (J5.12): the teacher may give existing material back to the learners who need it. One row per learner
  * of the class: under the chapter's sealed target on their latest finished Uji Penguasaan («bawah»), not finished
  * yet («belum»), or at or over it («capai»). Recorded mastery and the sealed mark only: no second definition of
- * mastery (D-086(b)).
+ * mastery (D-086(b)). Z K-01 (ruling 78, one verdict): at or over the mark with a must-be-right question missed is
+ * «gerbang», listed and pre-ticked with those below it; a gate that cannot be read is «tak_diketahui», listed after
+ * them and before the rest, never pre-ticked and never «capai» (Sharon's Q3; Daisy). The figure shows in every row.
  */
-export type BarisUlang = { id: string; nama: string; penguasaan: number | null; status: "bawah" | "belum" | "capai" };
+export type BarisUlang = { id: string; nama: string; penguasaan: number | null; status: "bawah" | "gerbang" | "tak_diketahui" | "belum" | "capai" };
 
-/** Pure: those under the target first (lowest first), then those not finished, then the rest; by name within each. */
+/** Pure: those not reaching the target first (below it lowest first, then the gate), then those whose gate cannot be
+ *  read, then those not finished, then the rest; by name within each. `gerbang` is each learner's gate on that latest
+ *  attempt as read (absent or null: not known). */
 export function urutUlang(
   murid: ReadonlyArray<{ id: string; nama: string }>,
   penguasaan: ReadonlyMap<string, number | null>,
   batas: number | null,
+  gerbang: ReadonlyMap<string, boolean | null> = new Map(),
 ): BarisUlang[] {
-  const peringkat = { bawah: 0, belum: 1, capai: 2 } as const;
+  const peringkat = { bawah: 0, gerbang: 0, tak_diketahui: 1, belum: 2, capai: 3 } as const;
   return murid
     .map((m): BarisUlang => {
       const p = penguasaan.has(m.id) ? penguasaan.get(m.id) ?? null : null;
-      const status = p === null ? "belum" : batas !== null && p < batas ? "bawah" : "capai";
+      const v = vonisHasil({ mode: "POST_TEST", penguasaan: p, batas, gerbang: gerbang.get(m.id) ?? null });
+      const status = p === null ? "belum" : v === "DI_BAWAH" ? "bawah" : v === "GERBANG" ? "gerbang" : v === "TAK_DIKETAHUI" ? "tak_diketahui" : "capai";
       return { id: m.id, nama: m.nama, penguasaan: p, status };
     })
     .sort((a, b) => peringkat[a.status] - peringkat[b.status]
-      || (a.status === "bawah" ? (a.penguasaan ?? 0) - (b.penguasaan ?? 0) : 0)
+      || (peringkat[a.status] === 0 ? (a.penguasaan ?? 0) - (b.penguasaan ?? 0) : 0)
       || a.nama.localeCompare(b.nama));
 }
 
@@ -1224,12 +1271,16 @@ export async function bahanUlang(kelasId: string, institusi: string, penugasan: 
     if (!kini || String(x.finalized_at ?? "") > kini.at) terakhir.set(x.person_id, { id: x.id, at: String(x.finalized_at ?? "") });
   }
   const penguasaan = new Map<string, number | null>();
+  // Z K-01: and that same attempt's gate, as learner.result gives it (anything but a boolean is not known)
+  const gerbang = new Map<string, boolean | null>();
   await Promise.all(fakta.murid.filter((m) => terakhir.has(m.id)).map(async (m) => {
     const { data: amplop, error } = await c.rpc("metric_evaluate", { p_metric_id: "learner.result", p_node: m.id, p_institution: institusi });
     const nilai = !error && amplop && (amplop as Amplop).status === "ok" && Array.isArray((amplop as Amplop).value)
-      ? ((amplop as Amplop).value as Array<{ session_id?: unknown; mastery?: unknown }>) : [];
-    const v = nilai.find((r) => String(r.session_id ?? "") === terakhir.get(m.id)?.id)?.mastery;
+      ? ((amplop as Amplop).value as Array<{ session_id?: unknown; mastery?: unknown; safety_gate_passed?: unknown }>) : [];
+    const baris = nilai.find((r) => String(r.session_id ?? "") === terakhir.get(m.id)?.id);
+    const v = baris?.mastery;
     penguasaan.set(m.id, typeof v === "number" ? v : v == null ? null : Number(v));
+    gerbang.set(m.id, typeof baris?.safety_gate_passed === "boolean" ? baris.safety_gate_passed : null);
   }));
   const batas = aa.pass_mark == null ? null : Number(aa.pass_mark);
   const nama = new Map(fakta.murid.map((m) => [m.id, m.nama]));
@@ -1240,7 +1291,7 @@ export async function bahanUlang(kelasId: string, institusi: string, penugasan: 
     tertutup: la.status !== "ACTIVE",
     judul,
     batas,
-    murid: urutUlang(fakta.murid, penguasaan, batas),
+    murid: urutUlang(fakta.murid, penguasaan, batas, gerbang),
     pelajaran,
     permintaan: rows<BarisMinta>(minta).map((r) => ({
       id: r.id, orang: r.person_id, nama: nama.get(r.person_id) ?? "—", kapan: r.requested_at,

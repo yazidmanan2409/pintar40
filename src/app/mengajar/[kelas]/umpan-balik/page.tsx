@@ -1,10 +1,11 @@
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import Kosong from "@/components/Kosong";
 import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as ajar from "@/lib/pengajar";
 import * as ub from "@/lib/umpanbalik";
-import { keadaanKunci } from "@/lib/umpanbalik-kontrak";
+import { keadaanKunci, UMPAN_BALIK_TERBUKA } from "@/lib/umpanbalik-kontrak";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
@@ -48,6 +49,8 @@ export default async function UmpanBalikKelas({
 }: {
   params: Promise<{ kelas: string }>;
 }) {
+  // Z D-6: the round is dark (UMPAN_BALIK_TERBUKA); the address answers «not found», never a dead form
+  if (!UMPAN_BALIK_TERBUKA) notFound();
   const { kelas } = await params;
   const locale = await currentLocale();
   const s = (k: string) => t(k as HleEvent, "educator", { locale });

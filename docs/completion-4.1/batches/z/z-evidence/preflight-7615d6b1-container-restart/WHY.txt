@@ -1,0 +1,4 @@
+VOID (infrastructure), not a result. Pre-flight on claude/z 7615d6b1 started 20:32Z.
+lint rc=0, typecheck rc=0, build-identity 11/0; the whole suite had begun (supabase stop for a fresh reset, 20:33Z)
+when the session container restarted (found at 21:20Z with /proc/uptime 143 s): the pre-flight process and the
+Docker daemon were gone, and the suite wrote no result. Per Z9: marked VOID, environment restarted, the same head run again.

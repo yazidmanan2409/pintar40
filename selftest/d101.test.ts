@@ -279,7 +279,8 @@ export const d101Tests: SelfTest[] = [
       const halaman = tanpaKomentar(baca("src/app/konfigurasi/keamanan/page.tsx"));
       c.expect(/"INSTITUTION_ADMIN"/.test(halaman) && /security_event_list/.test(halaman) && /sistem === true \? \(/.test(halaman),
         "Keamanan akun is not open to a School Admin, or shows a School Admin the security record");
-      const konf = tanpaKomentar(baca("src/app/konfigurasi/page.tsx"));
+      // RESTATED (Z, R-10): the page and its one navigation source, NavKonfigurasi
+      const konf = tanpaKomentar(baca("src/app/konfigurasi/page.tsx")) + tanpaKomentar(baca("src/components/konfigurasi/NavKonfigurasi.tsx"));
       // L3 (D-132 C7): Keamanan in «Seluruh platform» (the Platform Admin) and in a school's context (its School Admin)
       // (D-138 step 3: a place in the staff navigation is an ItemNav, a Link with its icon)
       c.expect(/\(platformIni \|\| sekolahIni\.length > 0\) \? <(?:Link|ItemNav) href="\/konfigurasi\/keamanan"/.test(konf),
@@ -291,7 +292,9 @@ export const d101Tests: SelfTest[] = [
         "Peran & akses has no confirming step for «Admin sekolah»");
       c.expect(/jumlahAdminSekolah\(/.test(konf) && /config\.persiapan\.admin_kedua/.test(konf), "Persiapan sekolah has no quiet second-admin line");
       const aksi = tanpaKomentar(baca("src/app/konfigurasi/actions.ts"));
-      c.expect(/role === "INSTITUTION_ADMIN" && str\(fd, "yakin"\) !== "ya"/.test(aksi) && /is_system_admin/.test(aksi) && /angkat/.test(aksi),
+      // RESTATED (Z9, BOB18-A01 / Sharon's condition (1)): the cached isSystemAdmin(), which Z9-K01 pins as cache() around the
+      // request's own rpc with data === true
+      c.expect(/role === "INSTITUTION_ADMIN" && str\(fd, "yakin"\) !== "ya"\) \{\s*const isSys = await isSystemAdmin\(\);\s*if \(isSys !== true\) \{[\s\S]{0,240}angkat/.test(aksi),
         "grantRoleAction does not ask a School Admin to confirm «Admin sekolah» before granting");
       return c.verdict("the source: migration 20261122100000 asks one authority question for the recovery lookup and reset (the Platform Admin; " +
         "an active School Admin of a school that has the person by its number, a role there or a learner there; never oneself; a Platform Admin " +

@@ -28,6 +28,15 @@ const MENUNGGU: readonly (KodePengerjaan | "OFFLINE")[] = [
   "RECOVERY_NOT_AUTHORISED", "RECOVERY_AUTHORISATION_EXPIRED", "RECOVERY_AUTHORISATION_USED", "OFFLINE",
 ];
 
+/**
+ * R-20 M1 (Daisy, Z-M1-M2-SPESIFIKASI.md): the recovery outcomes the learner did not cause are said in the neutral tone
+ * (role=status; the section already takes focus, so its line is read). Only OFFLINE, and any code not listed here,
+ * stays the error box.
+ */
+const TENANG: readonly (KodePengerjaan | "OFFLINE")[] = [
+  "RECOVERY_AUTHORISATION_EXPIRED", "RECOVERY_AUTHORISATION_USED", "RECOVERY_NOTHING",
+];
+
 export default function LanjutkanDiSini(props: {
   sesi: string;
   perluIzin: boolean;
@@ -97,10 +106,10 @@ export default function LanjutkanDiSini(props: {
       {kode === "RECOVERY_NOT_AUTHORISED" ? (
         <>
           <h2>{kata("pengerjaan.galat.recovery_not_authorised")}</h2>
-          <BarisHasil nada="gagal">{kata("pengerjaan.pulih.perlu_izin_isi").replace("{judul}", judul)}</BarisHasil>
+          <BarisHasil nada="netral">{kata("pengerjaan.pulih.perlu_izin_isi").replace("{judul}", judul)}</BarisHasil>
         </>
       ) : (
-        <BarisHasil nada="gagal">{kata(kode === "OFFLINE" ? "auth.card_putus" : kunciKodePengerjaan(kode))}</BarisHasil>
+        <BarisHasil nada={kode === "OFFLINE" || !TENANG.includes(kode) ? "gagal" : "netral"}>{kata(kode === "OFFLINE" ? "auth.card_putus" : kunciKodePengerjaan(kode))}</BarisHasil>
       )}
       {diperiksa ? <p className="pin-meta" data-pulih-diperiksa="">{kata("pengerjaan.pulih.diperiksa").replace("{jam}", diperiksa)}</p> : null}
       <div className="pin-actions">

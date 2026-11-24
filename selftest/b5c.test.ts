@@ -61,7 +61,7 @@ export const b5cTests: SelfTest[] = [
 
       const ajar = kode(baca(ctx.repoRoot, "src/lib/pengajar.ts"));
       const fn = /export async function tujuanBelum\([\s\S]*?\n\}/.exec(ajar)?.[0] ?? "";
-      c.expect(/c\.rpc\("tujuan_belum_tercapai", \{ p_class: kelasId, p_learner: orang \}\)/.test(fn) && /if \(error\) return \[\];/.test(fn)
+      c.expect(/c\.rpc\("tujuan_belum_tercapai", \{ p_class: kelasId, p_learner: orang \}\)/.test(fn) && /if \(error\) return null;/.test(fn)
         && !/\.from\(/.test(fn), "pengajar.tujuanBelum does not ask the database's tujuan_belum_tercapai alone, or lists something it could not read");
 
       const mig = sql(baca(ctx.repoRoot, "supabase/migrations/20261225100000_a_teacher_sees_the_objectives_a_learner_has_not_yet_reached.sql"));

@@ -76,7 +76,9 @@ export const adm02Tests: SelfTest[] = [
       // right after Struktur sekolah, which stays first (DAISY-05); Pendataan keeps its one link (DAISY-17)
       const iStruktur = hal.indexOf('<section id="struktur"'), iSiap = hal.indexOf('<section id="persiapan"'), iPindah = hal.indexOf('<section id="pindah"');
       c.expect(iStruktur > 0 && iSiap > iStruktur && iSiap < iPindah, "the setup is not drawn right after Struktur sekolah");
-      c.expect((hal.match(/href="\/pendataan"/g) ?? []).length === 1, "the setup adds a second way to Pendataan");
+      // RESTATED (Z, R-10): the one way is the page's navigation, now drawn from NavKonfigurasi
+      const nav = buang(readFileSync(join(repoRoot, "src", "components", "konfigurasi", "NavKonfigurasi.tsx"), "utf8"));
+      c.expect(/<NavKonfigurasi\b/.test(hal) && ((hal + nav).match(/href="\/pendataan"/g) ?? []).length === 1, "the setup adds a second way to Pendataan");
 
       return c.verdict(
         "executes persiapanSekolah (src/lib/persiapan-sekolah.ts): a school with no Kelas has nothing done; with two active " +

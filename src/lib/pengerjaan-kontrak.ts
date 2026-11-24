@@ -142,7 +142,21 @@ export type BarisAntrean = {
   judul: string; mode: string; diminta_oleh: string; nama_peminta: string; diminta_pada: string; alasan: string;
   percobaan_terpakai: number; batas_percobaan: number | null; milik_sendiri: boolean;
   kursus: string | null; hasil_terakhir: number | null; target: number | null;
+  /** Z K-01 (Bob's Q2): that last result's must-be-right gate, under the same condition as the figure (null otherwise) */
+  gerbang?: boolean | null;
 };
+
+/**
+ * Z K-01 (ruling 78; Daisy): the retake queue's result line. No figure: none. A figure and no target: the figure alone,
+ * the gate not mentioned. With a target: reached only when the gate passed; a missed must-be-right question says so;
+ * a gate that cannot be read is said so (Sharon's Q3), never «reached». Pure.
+ */
+export function kunciHasilAntrean(r: Pick<BarisAntrean, "hasil_terakhir" | "target" | "gerbang">):
+  "kesempatan.baris.hasil_saja" | "kesempatan.baris.hasil" | "kesempatan.baris.hasil_gerbang" | "kesempatan.baris.hasil_tak_diketahui" | null {
+  if (r.hasil_terakhir === null) return null;
+  if (r.target === null) return "kesempatan.baris.hasil_saja";
+  return r.gerbang === false ? "kesempatan.baris.hasil_gerbang" : r.gerbang === true ? "kesempatan.baris.hasil" : "kesempatan.baris.hasil_tak_diketahui";
+}
 
 /** Where the approver's queue is drawn: a school admin's own page under Konfigurasi, a head of department's own home. */
 export const ALAMAT_ANTREAN = { konfigurasi: "/konfigurasi/kesempatan", pimpinan: "/pimpinan?kesempatan=buka" } as const;
