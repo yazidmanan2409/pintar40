@@ -679,3 +679,11 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
   - It exposed a wrong EN label in the harness's own matcher (`lupa.nama_lain`), now fixed. That's harness, not product.
 - Daisy judges both.
 - **The builder's next step is J8,** with fixture w15-paket (one labelled draft package, so a pass mark can be set), then J9, J11 and J12.
+
+**The J5 and J10 EN re-captures judged (Daisy, `37efc889`):** EN holds in both, and harness note (e) is closed. J5-6, J5-7 and J5-11 stand in EN, and J10-5 is confirmed in EN. **J5's and J10's builder lines are fully closed.**
+
+| L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
+|---|---|---|---|---|---|---|
+| L-145 (J5-13) | «handed in» and «submitted» on one EN page | H | J5 | Improvement | C-6 | One EN term |
+| L-146 (J5-14) | «Ask for a direction to think in…» and «An Admin PINTAR…» read awkwardly in EN | H | J5 | Improvement (optional) | — | Daisy's EN wording |
+| L-147 (J10-9) | The recovery email goes out in the default language (an ID subject) for an EN user, although `email.pulih.subjek` has EN | D | J10 | Improvement | C-6 | Send it in the request page's language. It reveals nothing about the account: the language comes from the requester's page, not from the account |
