@@ -60,7 +60,7 @@ Two milestones open when **4.1's gates close** and run together, before 4.5's op
   - eight dimensions and twelve real journeys, on synthetic data;
   - Daisy, Sharon and Second Eye find; Bob consolidates;
   - one report, classed Critical, Significant or Improvement.
-  - **Draft journey scripts** (design only): Daisy's `docs/coordination/ux/roadmap/AUDIT-79-SKRIP-PERJALANAN-DRAF.md` (`4f0b3f42`, `ux-1/daisy-experience`). Three questions to settle when the audit opens: who captures each journey's evidence; whether Dr Gladys reads J2, J3 and J11 (through the owner); one shared synthetic world or fixtures per journey.
+  - **Journey scripts, FINAL** (Daisy, `docs/coordination/ux/roadmap/AUDIT-79-SKRIP-PERJALANAN.md`, `a06e13e9`, `ux-1/daisy-experience`; ruling 89, 3b). They have 19 world states (W1–W19), and the standard walk is at 1280, 390 and 320 px, by keyboard, with a screen reader, on a throttled network and with reduced motion. **Settled (ruling 89, 3d):** one shared synthetic world (only W7 and W8 per journey); Second Eye reproduces and Daisy judges; whether Dr Gladys reads J2, J3 and J11 goes to the owner when the audit opens.
 - **Codebase Rationalisation & Performance** (ruling 54): optimisation, not behaviour.
 
 **Coordination:** the audit runs first on each area, so rationalisation never changes behaviour the audit is still examining. Approved fixes from both go through the normal gates.
