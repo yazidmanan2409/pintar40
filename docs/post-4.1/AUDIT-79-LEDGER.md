@@ -12,7 +12,7 @@ Proposed dimensions, journeys and severities are Bob's, for Daisy to confirm. **
 
 ## 1 · The twelve journeys (Daisy's draft)
 
-Source: `DX` `docs/coordination/ux/roadmap/AUDIT-79-SKRIP-PERJALANAN-DRAF.md` (`821f7d60`; MASTER-SEQUENCE cites `4f0b3f42`).
+Source: `DX` `docs/coordination/ux/roadmap/AUDIT-79-SKRIP-PERJALANAN.md` (FINAL, `a06e13e9`, `ux-1/daisy-experience`). J-ids, roles and dimensions are unchanged from the draft; the titles below follow the final file.
 
 | Id | Title | Who | Dimensions |
 |---|---|---|---|
