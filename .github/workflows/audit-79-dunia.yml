@@ -88,6 +88,7 @@ jobs:
         run: |
           set -euo pipefail
           audit/dunia/muat.sh
+          audit/dunia/uji-selftest-menolak.sh   # Sharon: the selftests refuse a world-loaded database
           node audit/perjalanan/j1.mjs
       - name: J1 · the walk in EN (1280)
         if: success() || failure()

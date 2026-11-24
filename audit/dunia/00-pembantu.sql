@@ -8,6 +8,11 @@ do $$ begin perform set_config('app.seed_intent', 'synthetic', true); end $$;
 
 drop schema if exists dunia cascade;
 create schema dunia;
+
+-- THE MARKER (Sharon, 24 Nov): a database the world has loaded says so, and selftest/run.ts refuses to start on it.
+-- The world writes past today's guards (W4, W8) and holds rows no selftest expects; selftests run on a reset database.
+create table dunia.penanda (dimuat_pada timestamptz not null default now(), catatan text not null);
+insert into dunia.penanda (catatan) values ('ruling 79 audit world loaded (audit/dunia/muat.sh): reset before running the selftests');
 create table dunia.fakta (k text primary key, v text not null);
 
 -- The seed's own guards (INV-21, L3-F01): never production, only where local fixtures are permitted, only with
