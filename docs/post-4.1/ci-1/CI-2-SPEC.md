@@ -249,3 +249,7 @@ Migration 311 is changed in place (unmerged, applied nowhere; staging is at 310 
 - The Z-S12-01 isolation changes isolation only and weakens nothing.
 - The 311 sha matches.
 - **Required before the run half closes:** ci and journeys on `25681b11` green, from the API conclusion.
+
+**Pushed (Second Eye, 23:26Z; Bob confirms `origin/claude/ci-2` = `25681b110173b87dd2996c752145e5e377b6baf5`):**
+- PR #31's body is updated.
+- Runs: ci **45509971723** on the exact sha (in progress, read from the API) and journeys **45509965430**, dispatched once with the full sha.
