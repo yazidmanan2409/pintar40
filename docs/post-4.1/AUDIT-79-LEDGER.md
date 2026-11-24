@@ -383,3 +383,9 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
 | L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
 |---|---|---|---|---|---|---|
 | L-104 (J4-6) | «Akhiri dan nilai» asks first; «Akhiri tanpa menghitung» ends without asking | E | J4 | Improvement | C-7 | Both ask, each naming its effect |
+
+**The world corrected and re-captured** (builder, `8661fa51`; 24 Nov 14:36Z):
+- **L-80:** one chapter given to two classes (`dunia.berikan`), with the per-class copies gone. **L-80 is withdrawn as a world artefact**; J5's home suggestion is re-captured on this world and re-judged.
+- **J3 and J4 re-captured** (`87769a6b/j3/` `f308d1ad`; `f308d1ad/j4/` `7bc68907`). The earlier `6792ecb9/j3/` and `f606a740/j4/` are **superseded**; J2's captures aren't affected. On the corrected world, J4's teacher home reads «Tidak ada yang menunggu keputusan Anda hari ini.» (L-45's territory: Daisy checks it against a waiting request).
+- **W12:** L = 306, so the remaining allowance is 12,585. Verified locally: the first request is admitted, and the identical second is refused AI_JATAH_HABIS.
+- **J2's public check in EN** (`f370213f/j2/…/standar-en-1280/`): «STATUS Valid · RESULT Passed». The holder's name is not on the page in EN either.
