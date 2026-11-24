@@ -2,7 +2,7 @@
 -- below this header but for line 10's expectation.
 --
 -- CI-1's PAIR IS 309 -> 310: one migration, 20270125100000, sha256:
---   910068aab70e612222958ab304bf482af8f65338649548473d864eab52ba0d9e  (restated at the freeze if it changes)
+--   2b450700b48fe8572406fd021f2ef9c78c4f230d3d63896be16068098fb929e6  (the freeze, 0c638ace)
 -- Line 10 reads "309 / 20270124100000" BEFORE and "310 / 20270125100000" AFTER.
 --
 -- STEP 0 FIRST: step0-CI1.sql (read only): the issued certificates that will read DITINJAU, and why.

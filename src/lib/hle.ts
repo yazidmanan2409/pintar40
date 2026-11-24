@@ -4494,8 +4494,8 @@ const table: Table = {
   "studio.koreksi.galat.cert_review_decided": { default: "Peninjauan sertifikat ini sudah diputuskan.", en: "This certificate review has already been decided." },
   "studio.koreksi.galat.cert_review_decision_invalid": { default: "Pilih salah satu: tetap berlaku atau cabut.", en: "Choose one: keep it valid or revoke it." },
   "studio.koreksi.galat.cert_review_reason_required": { default: "Tuliskan alasan keputusan, 10 sampai 300 karakter.", en: "Write the reason for the decision, 10 to 300 characters." },
-  // CI-1 S-1 (ruling 97): the wording is the builder's draft, for Daisy
-  "studio.koreksi.galat.cert_review_result_no_longer_passes": { default: "Hasil yang berlaku sekarang tidak lagi memenuhi syarat lulus, jadi sertifikat ini tidak dapat dikonfirmasi berlaku. Sertifikat ini dapat dicabut.", en: "The result now in force no longer meets the pass requirement, so this certificate cannot be confirmed as valid. It can be revoked." },
+  // CI-1 S-1 (ruling 97): Daisy's words (CI1-KATA.md, fb6c0958)
+  "studio.koreksi.galat.cert_review_result_no_longer_passes": { default: "Sertifikat ini tidak dapat dikonfirmasi berlaku: hasilnya setelah dihitung ulang tidak lagi memenuhi kriteria kelulusan. Keputusan yang tersisa adalah «Cabut». Tidak ada yang diubah.", en: "This certificate can't be confirmed as valid: its recalculated result no longer meets the passing criteria. The decision left is «Revoke». Nothing was changed." },
   "studio.koreksi.galat.correction_failed": { default: "Koreksi belum tersimpan. Coba lagi.", en: "The correction was not saved. Try again." },
   // C1w on the screens (Daisy, TINJAUAN-A1-C1W: Q5, Q6, §C1·N1, §C1·N2, C1-B1, C1-B2, C1-R1..R5)
   "verifikasi.status.DITINJAU": { default: "Sedang ditinjau", en: "Under review" },
