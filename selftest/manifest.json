@@ -7537,7 +7537,12 @@
     {
       "id": "D2R-C05",
       "runner": "static",
-      "proves": "D2-R ruling 74a item 4, red first, d2r.test.ts, renders src/components/siklus/HasilBersertifikasi.tsx and reads src/app/belajar/[tugas]/hasil/page.tsx: after a certifying «Lulus.» the result links to the issued certificate or says it is being prepared (sertifikat.disiapkan.*), before «Baca lagi:»; «Belum lulus.» says nothing of a certificate; the page passes the certificate's state from myCertificate."
+      "proves": "D2-R ruling 74a item 4, Daisy's C-1 (TINJAUAN-D2R-42f6f432.md), red first, d2r.test.ts, renders src/components/siklus/HasilBersertifikasi.tsx: directly after a certifying «Lulus» banner the chapter result links to /belajar/{tugas}/sertifikat with siklus.lihat_sertifikat and no other words; «Belum lulus.» links to none."
+    },
+    {
+      "id": "D2R-C06",
+      "runner": "static",
+      "proves": "D2-R ruling 74a item 4, Daisy's C-1 on Hasil Belajar, red first, d2r.test.ts, renders src/components/laporan/KomposisiMurid.tsx: a certifying «Lulus» row links to /belajar/{tugas}/sertifikat with siklus.lihat_sertifikat after its verdict; a «Belum lulus» row and a non-certifying row do not."
     },
     {
       "id": "D2R-F02",

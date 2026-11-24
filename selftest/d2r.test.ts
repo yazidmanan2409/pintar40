@@ -337,22 +337,53 @@ export const d2rTests: SelfTest[] = [
       const c = new Checks();
       const { t } = await import("../src/lib/hle");
       const id = (k: string) => t(k as never, "learner", { locale: "id" });
-      // ruling 74a item 4: eligibility is said on the result, after «Lulus.», in the words that exist
-      const terbit = renderHasil(ctx.repoRoot, hasilLulus({ sertifikat: "TERBIT" }));
-      const siap = renderHasil(ctx.repoRoot, hasilLulus({ sertifikat: "DISIAPKAN" }));
-      const belum = renderHasil(ctx.repoRoot, hasilLulus({ sertifikat: null, outcome: { ...hasilLulus().outcome, lulus: false } }));
-      if (!c.expect(terbit.ok && siap.ok && belum.ok, `HasilBersertifikasi could not be rendered: ${terbit.err || siap.err || belum.err}`)) return c.verdict("");
-      const iT = terbit.out.indexOf("data-sertifikat="), iL = terbit.out.indexOf('data-keputusan="lulus"'), iB = terbit.out.indexOf("data-baca-lagi");
-      c.expect(/href="\/belajar\/t1\/sertifikat"/.test(terbit.out) && teksHtml(terbit.out).includes(id("siklus.lihat_sertifikat")),
-        "a pass with its certificate issued does not link to it with «siklus.lihat_sertifikat»");
-      c.expect(iL >= 0 && iT > iL && (iB < 0 || iT < iB), "the certificate line is not right after «Lulus.» (Daisy's §3, item 2)");
-      c.expect(teksHtml(siap.out).includes(id("sertifikat.disiapkan.judul")) && teksHtml(siap.out).includes(id("sertifikat.disiapkan.arti")),
-        "a pass whose certificate is not yet issued does not say it is being prepared (sertifikat.disiapkan.*)");
-      c.expect(!/data-sertifikat=/.test(belum.out), "a «Belum lulus.» result says something about a certificate");
+      // ruling 74a item 4, Daisy's C-1 (TINJAUAN-D2R-42f6f432.md): directly after the «Lulus» banner, a link to the
+      // certificate in the existing words; the certificate page says itself whether it is issued, so no state is read here
+      const lulus = renderHasil(ctx.repoRoot, hasilLulus());
+      const belum = renderHasil(ctx.repoRoot, hasilLulus({ outcome: { ...hasilLulus().outcome, lulus: false } }));
+      if (!c.expect(lulus.ok && belum.ok, `HasilBersertifikasi could not be rendered: ${lulus.err || belum.err}`)) return c.verdict("");
+      const tautan = /<a[^>]*href="\/belajar\/t1\/sertifikat"[^>]*>([^<]*)<\/a>/.exec(lulus.out);
+      c.expect(tautan !== null && tautan[1] === id("siklus.lihat_sertifikat"), "a certifying «Lulus.» does not link to its certificate with «siklus.lihat_sertifikat»");
+      const akhirBanner = lulus.out.indexOf("</div>", lulus.out.indexOf('data-keputusan="lulus"'));
+      const iT = lulus.out.indexOf('data-sertifikat=""');
+      c.expect(akhirBanner >= 0 && iT > akhirBanner && !/<(p|section|ul)\b/.test(lulus.out.slice(akhirBanner + 6, iT)),
+        "the certificate link is not directly after the «Lulus» banner");
+      c.expect(!teksHtml(lulus.out).includes(id("sertifikat.disiapkan.judul")), "the result says more than the link (no new words, Daisy's C-1)");
+      c.expect(!/\/sertifikat"/.test(belum.out), "a «Belum lulus.» result links to a certificate");
       const hasil = tanpaKomentar(baca(ctx.repoRoot, "src/app/belajar/[tugas]/hasil/page.tsx"));
-      c.expect(/engine\.myCertificate\(/.test(hasil) && /rendersCredential\(/.test(hasil) && /<HasilBersertifikasi\b[^>]*\bsertifikat=\{/.test(hasil.replace(/\s+/g, " ")),
-        "the chapter result page does not hand HasilBersertifikasi the certificate's state (myCertificate, rendersCredential)");
-      return c.verdict("rendered: after a certifying «Lulus.» the result links to the issued certificate («siklus.lihat_sertifikat»), or says it is being prepared (sertifikat.disiapkan.judul and .arti) before «Baca lagi:»; «Belum lulus.» says nothing of a certificate; the page reads myCertificate and passes its state");
+      c.expect(/<HasilBersertifikasi\b/.test(hasil), "the chapter result page does not draw HasilBersertifikasi");
+      return c.verdict("rendered: directly after a certifying «Lulus» banner the chapter result links to /belajar/{tugas}/sertifikat with «siklus.lihat_sertifikat» and no other words; «Belum lulus.» links to none");
+    },
+  },
+  {
+    id: "D2R-C06",
+    run: async (ctx) => {
+      const c = new Checks();
+      const { t } = await import("../src/lib/hle");
+      const id = (k: string) => t(k as never, "learner", { locale: "id" });
+      // Daisy's C-1 on the Hasil Belajar row: after a certifying «Lulus», the same link
+      const bab = [
+        { tugas: "t1", judul: "IPA · Bab 2", keadaan: "SELESAI", awal: null, akhir: null, ambang: 0.75, tercapai: "TERCAPAI", benar: 5, total: 6, bagian: [], ulang: [], bersertifikasi: true },
+        { tugas: "t2", judul: "IPA · Bab 3", keadaan: "SELESAI", awal: null, akhir: null, ambang: 0.75, tercapai: "BELUM", benar: 2, total: 6, bagian: [], ulang: [], bersertifikasi: true },
+        { tugas: "t3", judul: "IPA · Bab 4", keadaan: "SELESAI", awal: null, akhir: 0.9, ambang: 0.75, tercapai: "TERCAPAI", benar: 9, total: 10, bagian: [], ulang: [] },
+      ];
+      const skrip = 'const { createElement: h } = await import("react");'
+        + 'const { renderToStaticMarkup } = await import("react-dom/server");'
+        + 'const m = await import("file://" + process.cwd() + "/src/components/laporan/KomposisiMurid.tsx");'
+        + "const K = m.default?.default ?? m.default;"
+        + "process.stdout.write(renderToStaticMarkup(h(K, { bab: JSON.parse(process.env.PROPS), locale: 'id' })));";
+      const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
+        `(async () => {${skrip}})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });`],
+      { cwd: ctx.repoRoot, encoding: "utf8", env: { ...process.env, PROPS: JSON.stringify(bab) } });
+      if (!c.expect(anak.status === 0, `KomposisiMurid could not be rendered: ${(anak.stderr || "").slice(0, 300)}`)) return c.verdict("");
+      const out = anak.stdout;
+      const tautan = /<a[^>]*href="\/belajar\/t1\/sertifikat"[^>]*>([^<]*)<\/a>/.exec(out);
+      c.expect(tautan !== null && tautan[1] === id("siklus.lihat_sertifikat"), "a certifying «Lulus» row does not link to its certificate with «siklus.lihat_sertifikat»");
+      const iL = out.indexOf(`>${id("hasil.lulus")}</small>`);
+      c.expect(iL >= 0 && tautan !== null && out.indexOf(tautan[0]) > iL && out.indexOf(tautan[0]) < out.indexOf("</li>", iL), "the row's certificate link is not after its «Lulus»");
+      c.expect(!/href="\/belajar\/t2\/sertifikat"/.test(out), "a «Belum lulus» row links to a certificate");
+      c.expect(!/href="\/belajar\/t3\/sertifikat"/.test(out), "a non-certifying row gains the certificate link (Daisy's C-1 is the certifying result's)");
+      return c.verdict("rendered: on Hasil Belajar a certifying «Lulus» row links to /belajar/{tugas}/sertifikat with «siklus.lihat_sertifikat» after its verdict; a «Belum lulus» row and a non-certifying row do not");
     },
   },
   {
