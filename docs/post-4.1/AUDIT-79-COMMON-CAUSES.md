@@ -1,6 +1,12 @@
 # Audit 79 · the common causes behind conflicting screens (Bob, 24 Nov 2026; ruling 95)
 
-**Status: INTERIM. All twelve journeys have a TEMUAN file (24 Nov 12:03Z).** The builder's capture judgements are still open. FINAL comes after them. Sol's review (relayed by the owner, 24 Nov) supports the direction in principle, with two qualifications, adopted here: C-1 keeps the current attempt and the result in force as two facts, and every consumer of `my_cycle_state` is checked (§3a); C-5 keeps each recommendation's provenance. Sol's recommendation, as relayed: approve the direction in principle, and finalise the implementation plan only after all twelve journeys. It is updated as Daisy walks each remaining journey. **The correction plan is not final until all twelve are walked** (ruling 95). Nothing here is built.
+**Status: INTERIM, brought up to date at 24 Nov 22:50Z, covering every finding L-1 to L-147.**
+- Daisy has walked all twelve journeys locally, and every finding has a severity (W2).
+- The builder's captures are judged for J2, J3, J4, J5, J6, J7 and J10. J8, J9, J11 and J12 are still to be captured.
+- **FINAL comes once those four are judged** (ruling 95: the plan isn't final until every journey is done), so a cause may still be added.
+- Tonight's update adds C-12 and widens C-3, C-6, C-7 and C-11 (§1, §8).
+
+The original status note (12:03Z) follows. Sol's review (relayed by the owner, 24 Nov) supports the direction in principle, with two qualifications, adopted here: C-1 keeps the current attempt and the result in force as two facts, and every consumer of `my_cycle_state` is checked (§3a); C-5 keeps each recommendation's provenance. Sol's recommendation, as relayed: approve the direction in principle, and finalise the implementation plan only after all twelve journeys. It is updated as Daisy walks each remaining journey. **The correction plan is not final until all twelve are walked** (ruling 95). Nothing here is built.
 
 **Method:**
 - Every finding where screens disagree was traced, read-only, to the code on main `429b7dcc`. For each finding the trace names:
@@ -25,7 +31,8 @@
 | **C-8** (J7, new) | **The person who notices isn't the person who may act** | The teacher and the head of department see a wrong key but only the admin can flag it | L-71 |
 | **C-9** (J10, new) | **A refusal worded to hide a state from strangers is also shown to the person who has proven they own the account** | A closed account with the correct password gets the same «belum cocok» as a wrong password | L-75, L-76. **Sharon's rule:** say more only after the requester has proven what a stranger can't know, and only where the proof is strong: a password qualifies, a PIN doesn't |
 | **C-10** (J8, new) | **Some forms leave validation to the browser** | Three fields refuse only through the browser's bubble (not announced the same way, and gone on scroll), while sibling forms give PINTAR's own line | L-88 (absorbs L-77) |
-| **C-11** (J12, new) | **Two features' rules about the same session were written without each other** | Maintenance tells learners to sign out before it starts; A3's one-device rule makes signing out mid-test require the teacher's permission | L-99 |
+| **C-11** (J12, new; widened by J10) | **Two features' rules about the same session were written without each other** | Maintenance tells learners to sign out before it starts; A3's one-device rule makes signing out mid-test require the teacher's permission. **J10:** the welcome tour moves the page, and the shared-computer lock counts any scroll as a person's activity, so the lock never fires while the tour is open (Sharon traced it: PenjagaSesi listens to `scroll` with capture, and Tur.tsx borrows body padding and calls `scrollBy`) | L-99; **L-112 (HIGH)**, L-114 |
+| **C-12** (J5, J8, new) | **A refusal names the wrong cause** | The refusal shown isn't the one that applies, so the person fixes the wrong thing. A result link missing its parameter is answered as a permission refusal; a learner offered for a staff role is refused as «bukan wewenang Anda», when the real cause is her class card; an immediate account close is refused as «Permintaan ini tidak diajukan». C-9's neighbour: C-9 hides a true cause on purpose, while C-12 names a false one by accident | L-122, L-129, L-133 |
 
 ## 2 · Against the owner's five questions (ruling 95)
 
@@ -119,6 +126,21 @@ The 9 buttons found:
 | J6 | 3 | L-83 (C-4) | — |
 | J8 (part) | 6 | L-89 (C-6); L-39 confirmed | **C-10** (L-88) |
 
+**Since 12:03Z (the builder's captures, Daisy's remaining walks, and the specialists' findings):**
+
+| Journey | New findings | Fit the causes | New or widened cause |
+|---|---|---|---|
+| J10 (capture) | L-112 to L-117, L-147 | L-113, L-116 (principle 4); L-117 (C-6); L-147 (C-6) | **C-11 widened** (L-112, L-114); L-115 is layout |
+| J5 (rest, capture) | L-118 to L-123, L-134, L-141, L-145, L-146 | L-118 (C-3); L-119 (C-7); L-120 (C-10); L-121 (C-6, C-3); L-123 (C-6); L-134 (C-3); L-141 (C-5); L-145 (C-6) | **C-12** (L-122) |
+| J6 (rest, capture) | L-124 to L-126, L-143, L-144 | L-124, L-143 (**C-7, the database half missing**); L-125 (form state); L-144 (accessibility) | **C-7 widened:** a rule held by the screen only, with the database not enforcing it (principle 3's second check). L-126 is accountability (§8) |
+| J8 (rest, probe) | L-127 to L-133, L-142 | L-127 (C-7: a rule assuming names are unique); L-128 (C-7); L-130 (C-10); L-131 (C-3); L-132 (C-7, C-10) | **C-12** (L-129, L-133); **C-3 widened** to contracts: L-142, a sibling route bypassing the helper that guarantees no-store |
+| J9, J11, J12 (passes) | L-135 to L-140 | L-138 (C-6); L-139 (accessibility) | **C-6 widened:** words outside the translation lookup (L-135, L-136, L-140: hard-coded in `konfigurasi/page.tsx`) |
+
+**The counts behind the shape:**
+- **Daisy's W2:** 18 of the 28 Significant findings come from C-3 and C-4. That is the strongest single argument for fixing in the shared layer, not page by page.
+- **Certificates** hold the one Critical (L-67), one High (L-105) and four Significant findings (L-68, L-70, L-106, and L-105's replaced case), so they go first.
+- **Every specialist-classified [S] finding tonight** (L-112, L-124, L-126, L-127, L-131, L-134, L-142, L-143) is either C-7's missing database half or a confidentiality boundary (§8).
+
 ## 4a · Owner direction for the remaining analysis (ruling 96)
 
 - **Certificates, three facts:** the original passing result, the recalculated result, and the certificate's current validity. Each is communicated truthfully and distinctly, on every surface that shows the certificate, the public check included. This is C-1's «two facts, both kept» applied to certificates.
@@ -126,7 +148,7 @@ The 9 buttons found:
 - **Recovery (J10):** better guidance, with no weakening of account confidentiality. Sharon confirms whether any account-specific disclosure is appropriate.
 - **No speculative fixes; don't reopen 4.1 unnecessarily.** A confirmed critical integrity issue goes to the owner promptly.
 
-## 5 · Open (filled as the journeys are walked)
+## 5 · Open (filled as the journeys are walked; at 22:50Z what remains is the builder's J8, J9, J11 and J12 captures and their judgement)
 
 - J4 to J12: does each new finding fit C-1 to C-6, or show a new cause? Daisy adds a «sibling screens» line per finding.
 - To verify before the plan:
@@ -156,11 +178,50 @@ The 9 buttons found:
 - **one helper holds the closed-source rule**, used by the read, the acceptance and `transfer_execute` alike, so no AUTHORIZED row dangles (this also closes L-35's (a) and (b));
 - **the receiving school sees a boolean only**, never why the source closed: that reason is the sending school's record.
 
-## 7 · The four lasting principles (Sol, relayed by the owner, 24 Nov), carried into 4.5, 5.0 and 6.0 (ruling 97)
+## 7 · The lasting principles (Sol, relayed by the owner, 24 Nov), carried into 4.5, 5.0 and 6.0 (rulings 97 and 98)
 
 1. **One authoritative interpretation of each state** (C-1, C-3).
 2. **Consistent communication across related surfaces** (C-2, C-4, C-6), verified by cross-surface journey assertions.
 3. **Actions offered only when their known prerequisites are satisfied** (C-7). The database still decides at the moment of action.
 4. **No promises unsupported by the underlying facts** (L-44, L-67, ruling 90's response-time lesson).
 
+5. **Confidentiality holds throughout the system, not only on the screens** (ruling 98).
+
 They also cover **accessibility as its own verification**: a screen that looks right isn't necessarily accessible (L-87, and the SR pass). And **a finding is told apart from a limitation of the synthetic data** (Daisy's L3 judgement).
+
+## 8 · What tonight's findings add to the direction (proposed; final with W3)
+
+**C-7, the second check.**
+- Principle 3 says the database still decides at the moment of action. L-124 and L-143 show the opposite gap: the screen holds the rule, and the database doesn't.
+  - «Tandai lolos pemeriksaan» runs the check in the app action only.
+  - Neither mark is refused while an AI draft waits.
+- **Direction:** every rule a screen enforces is also enforced by the action's RPC, with the same code. Sharon's conditions bind the «lolos» mark to the exact revision it checked, and approval re-checks the current revision whatever the mark says.
+- The sweep for C-7 therefore runs both ways:
+  - a button without the database's rule (the 9 in §3b);
+  - a database action without the screen's rule.
+
+**Confidentiality as a cause family (principle 5).** Five boundaries were set by Sharon tonight:
+
+| Finding | The boundary |
+|---|---|
+| L-134 | A teacher never learns that a sitting was set aside by an integrity review: only «not countable», and the ordinary next step |
+| L-131, L-142 | A PIN is a secret shown once. Every response carrying a secret is `no-store`, with a static guard against the bypass |
+| L-127 | A name is never identity. NIS is per school, shown only to intake and admin staff, and never matched across schools. No merge without an audited admin decision, and removing an import row never touches a person record |
+| L-126 | Every AI refusal records a closed reason code, so the request log is accountable (before C3w-2's activation; PR-24) |
+| L-112 | The shared-computer lock is a confidentiality control. Only real input counts as activity |
+
+**C-11, the shared session.** The lock, the tour, maintenance and the one-device rule each make rules about one person's session. **Direction:** the idle lock counts only real input (keydown, pointerdown, touchstart, wheel, real pointer movement), never a render or a programmatic scroll, and every component that scrolls, focuses or changes height by itself is swept (Sharon's conditions on L-112).
+
+**C-12, the true refusal.** Each refusal names the cause that applies, from the action's own code (the same codes C-7's «may do / why not» read returns). It's never a generic permission line when the cause is known and harmless to name.
+
+## 9 · Test-reliability causes (not product, recorded for the closure report)
+
+Three test faults went red tonight. Each was a test depending on something it didn't control:
+
+| Fault | Depends on | Fix |
+|---|---|---|
+| C1W-S06 | the random order of questions | proven under both orders (CI-1) |
+| R1-K01 | the wall clock (UTC against the school's day), so it fails every evening from 16:00 to 24:00Z | in CI-2, ported to H-1. **Main carries it until one merges** |
+| Z-S12-01 | randomly drawn test addresses colliding on a rate-limited route (about 2 in 250) | a non-repeating draw, its own range, and a sweep (in CI-2) |
+
+**The lesson:** a passing run is evidence only for the order, time and data it ran with. Tests pin each of these or are independent of them. (Also: a run result is quoted only from the API's conclusion, plan of record §3d.)
