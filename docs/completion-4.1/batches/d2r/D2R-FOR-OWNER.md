@@ -9,7 +9,7 @@
 | **Branch** | `claude/d2r` at **`5550e508`**, from `claude/next-base` `055738ba` (main `61a6ff9e` plus ruling 83's harness) |
 | **Migration** | One: `20270124100000_a_certifying_sitting_offers_no_help_and_discloses_counts_only.sql` (**308 → 309**) |
 | **Change against main** | 103 files: D2-R, ruling 83's `scripts/dev/` harness, and records |
-| **CI of record** | ci **45329600686**, journeys **45329603910**. *Running at 05:10Z; the result is filled in below once both are green, with every job in one attempt* |
+| **CI of record** | Frozen **`177ab4d2`** (ruling 93; product unchanged from `5550e508`): ci **45362136992** and journeys **45362140705**, both green in attempt 1, with all 20 checks passing. (The earlier 45329600686 / 45329603910 were red on stale test pins only.) |
 
 **What it does:** spec revision 4, §7 to §7.4, with rulings 74a, 74b, 90 and 91 applied.
 - **No help in certifying sittings.** The policy is captured and sealed on each sitting at its start. Open sittings are backfilled from the old policy.
@@ -72,3 +72,26 @@
   - the PR-12 and PR-15 names;
   - R-2;
   - the backup.
+
+## 6 · Outcome (24 Nov 2026): G-3 CLOSED
+
+1. **Frozen** at `177ab4d2` by the freeze check:
+   - all approved changes are in;
+   - no reviewer note is open;
+   - 19 of 19 dependent tests were restated;
+   - the full local pre-flight was green, and the product diff since `5550e508` is empty.
+2. **Verified:** ci and journeys were both green in attempt 1. Sharon and Daisy passed the test restatements.
+3. **Merged:** PR #29 as a merge commit, main `429b7dcc`, whose tree equals `177ab4d2`'s; the migration sha256 is `4a6f88ec…`.
+4. **Promoted:** staging.yml `45369413346`, 308 → 309.
+5. **AFTER** (`d2r-promotion/preservation-D2R-staging-AFTER.txt`): only line 10 moves; the other 65 lines are identical to BEFORE.
+6. **After-promotion checks:**
+   - v6 and c3w-r3-bahan are OK;
+   - the periksa md5 equals main's build;
+   - every certifying mode has assistance and reveal off;
+   - 0 sittings are uncaptured, and 0 open certifying sittings offer help;
+   - the periksa counter rose from 177,828 to 177,981 after the owner's staging page load.
+7. **Sharon: PASS on the promotion; R-1 is CLOSED.**
+
+**Disclosed, not blocking:** L-43 in the audit-79 ledger. The teacher's sittings screen does not yet draw «Kesempatan ke-{n}», although the read carries it. It goes into the audit's consolidated revision.
+
+**Production is untouched at 111.**

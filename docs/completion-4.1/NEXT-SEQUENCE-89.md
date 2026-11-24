@@ -10,11 +10,13 @@
 | Gate | State |
 |---|---|
 | G-1 · Z green, reviewed, promoted to staging | **Done** (ruling 88) |
-| G-2 · every Z-READINESS row closed or explicitly deferred | **Bob's closure audit** (track 2 below) |
-| G-3 · D2-R, the certificate refinement, done and accepted on staging | **The critical path** (track 1) |
+| G-2 · every Z-READINESS row closed or explicitly deferred | **CLOSED** at e45af28a |
+| G-3 · D2-R, the certificate refinement, done and accepted on staging | **CLOSED, 24 Nov 10:02Z.** PR #29 merged (main 429b7dcc, tree = frozen 177ab4d2); staging 308 → 309; only line 10 of AFTER moves; every after-promotion check passes, periksa +153; **Sharon PASS**, with R-1 closed |
 | C3w-2 | **Not a gate now.** The master sequence includes it only "if a provider qualifies". None does commercially until counsel clears one (ruling 85: design only, no activation). Its journey J3 is deferred with it |
 
-The comprehensive walkthrough moved to after 5.0 (ruling 71). So **G-2 and G-3 are what remain.**
+The comprehensive walkthrough moved to after 5.0 (ruling 71).
+
+**4.1's internal gates are CLOSED (24 Nov 2026; ruling 71, ruling 92).** Ruling 79's audit is now OPEN (track 3). Production stays at 111; any production promotion needs its own authorisation and step-0 counts (Sharon's carry-over).
 
 ## 1 · The baseline (direction 1): done
 
