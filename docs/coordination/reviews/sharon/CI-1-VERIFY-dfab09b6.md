@@ -87,3 +87,11 @@
 - Its `pg_get_functiondef` md5 must still be `2b4a0444fbd36007341a536916fe14a0`, since CI-1 does not touch `periksa`.
 
 **Once that is recorded, CI-1's staging promotion is a PASS, and CI-1 may be declared closed** (L-105 stays open under CI-1b).
+
+**FINAL (22:50 UTC): CI-1's staging promotion is a PASS.**
+- **V6 is met** (recorded at `9b4df016`): the `periksa` md5 is `2b4a0444…`, unchanged, and the counter read +190 after the promotion (178,026 → 178,216).
+- **`main`'s ci 45500905491, read from the API at 22:49Z:** `completed`, `conclusion=failure`. Bob reads the single failing job as red-case `db-zr1-gates`, whose control R1-K01 is already red. **This does not change the promotion verdict:**
+  - **it is a test-side clock defect:** a UTC `current_date` is passed to a school-clock function. Against WIB (UTC+7), the dates differ from **17:00Z to 24:00Z**, which is more precise than "16:00–24:00Z";
+  - **the same tree passed earlier:** its PR ci 45439475500 (API at 22:49Z: `conclusion=success`) ran 16:38–17:15Z, which fits a gate reached before 17:00Z;
+  - **CI-1 touches neither** `r1.sql` nor `akhiri_pendaftaran`.
+- **A condition carried forward:** `main` has no green full run at `93b93134` (selftest was skipped on it). **No production promotion may take `main` while its ci is red.** CI-2's clock fix must land, and `main`'s ci must be green on the exact commit, before PR-22's production path.
