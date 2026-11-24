@@ -1,0 +1,48 @@
+# CI-1 · certificate integrity: a now-failing result can't be confirmed or read as valid (Bob, 24 Nov 2026; ruling 97)
+
+**Purpose, and only this:** close L-67, a confirmed Critical (Sharon, `AUDIT79-J7-1.md` and its addendum). After an answer-key correction recalculates a certified result to a fail, a reviewer can press «Konfirmasi berlaku», and the public check then reads «Berlaku · HASIL Lulus», although the result in force contradicts it.
+
+**Status:** scope for Sharon's pre-build review. Nothing is built yet.
+
+## 1 · The two safeguards (owner-approved, ruling 97)
+
+| # | Where | Rule | Refusal / read |
+|---|---|---|---|
+| S-1 | `public.putuskan_tinjauan_sertifikat` (last defined in `20270115110000`) | **Refuses a CONFIRMED decision when `sertifikat_layak_dengan(...)` on the result in force (`hasil_murid_id`) is false.** REVOKED stays available, unchanged | A new code, **`CERT_REVIEW_RESULT_NO_LONGER_PASSES`**, named in the refusal registry (Indonesian and English), and no write. The audit row behaves as for any refused call today |
+| S-2 | `public.verify_certificate` (last defined in `20270124100000`, D2-R) | **Reports BERLAKU only while the result in force passes**; otherwise DITINJAU (a review is open) or DICABUT (decided). A defensive read-side invariant, so a row already wrongly confirmed can never read «Berlaku · Lulus». **The contract is unchanged:** the same columns and types, with `predikat` still null (D2-R) | — |
+
+**What the public check may show** (Sharon):
+- a review is open: DITINJAU, with «Seperti saat diterbitkan · Lulus» and `fakta.ditinjau`;
+- still passing and confirmed: BERLAKU;
+- failing and decided: DICABUT only, with the facts marked as at issue;
+- reissued: DIGANTIKAN.
+
+**It never states the recalculated result publicly:** a token holder gets no personal result.
+
+## 2 · What CI-1 preserves (ruling 97)
+
+- **Historical records:** no certificate, review, result or audit row is changed or deleted. The sealed issue payload stays as issued. The migration writes no rows.
+- **The approved correction procedures** (D-2 §1.2; C1w O41-21/22): a correction opens a review; a review ends CONFIRMED (still passing) or REVOKED; a reissue gives DIGANTIKAN; two people. Unchanged except that CONFIRMED is no longer possible on a now-failing result, which the policy never sanctioned.
+- **The public privacy boundaries:** K-05 and what `/verifikasi` discloses today; no new field.
+
+## 3 · Out of scope (the combined revision, or not at all)
+
+- **The reviewer's screen:** offering only «Cabut» on a now-failing row, with words naming the effect (C-7 / L-67's UI). One exception: if the S-1 refusal reaches the screen, it must display as a named refusal, not a generic error. That is the minimum for the refusal to be honest, and it is in CI-1 only if the current page wouldn't show it.
+- L-68 and L-70 (the holder's and the reissue panel's words), and any policy on «keeping» an award.
+
+## 4 · Verification
+
+- **Red first:**
+  - a direct RPC call confirming a now-failing review is refused (S-1);
+  - a still-passing review confirms exactly as today;
+  - a plant row CONFIRMED on a failing result reads DITINJAU / DICABUT from `verify_certificate`, never BERLAKU (S-2);
+  - every existing certificate test stays green.
+- **L-8 sweep:** «dependent tests: N found, N restated» and «dependent screens: N found». Every reader of `verify_certificate` and of the review decision is listed.
+- **Pre-flight, freeze, CI, the PR:** the same discipline as D2-R (ruling 93): one frozen candidate, and a full run at the acceptance boundary.
+- **Promotion:** staging 309 → 310, under its own owner authorisation, with step 0 and BEFORE/AFTER. **Production is untouched** (the flow isn't there: production is at 111, before migration 229).
+- **Sharon verifies independently before acceptance** (ruling 97).
+
+## 5 · Who
+
+- **Build:** Second Eye, on a fresh branch from main, after the L-78 test.
+- **Review:** Sharon (pre-build, and the independent verification). Daisy only for the refusal's wording, if it reaches a screen.
