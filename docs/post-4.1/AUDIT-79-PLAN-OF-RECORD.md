@@ -13,8 +13,8 @@
 
 | # | Stream | Who | Ends at |
 |---|---|---|---|
-| W1 | **Every journey walked locally by Daisy** (J2 to J12, passes included). Builder captures: J2, J3, J4, J7, J10, J5, J6 (J6 to be judged); the PIN-reload probe holds. Re-runs: J5's and J10's EN walks (a harness cookie fault). Next: J8, J9, J11, J12 |
-| W2 | L-1 to L-142 (+ L-143 proposed). Critical: L-67. High: L-78, L-105, L-112. Daisy's open findings: 91 (`AUDIT-79-DAISY-FINDINGS.md`). Daisy's severity pass is next |
+| W1 | **The journeys:** J9, J11 and J12 walked; every outstanding branch, plus SR, throttled and reduced-motion, captured for all twelve | Daisy (walks and judges); the audit builder (captures, committed per run to `claude/audit-79-world` under `audit/79/tangkapan/`) | Every journey's TEMUAN file complete, with no «left for the builder» line still open |
+| W2 | **Classification:** every finding has an L-id, dimension, severity, cause and disposition | Bob (ledger), Daisy (severity), Sharon (anything touching access, privacy, integrity or disclosure) | The ledger has no unclassified row |
 | W3 | **The common-cause analysis, final** | Bob, reviewed by Sharon, Daisy and Second Eye | `AUDIT-79-COMMON-CAUSES.md` marked FINAL after J12 |
 | W4 | **CI-1** (L-67), to its spec and Sharon's amendments | Second Eye builds; Sharon verifies | Frozen, PR open, CI green in one attempt, Sharon PASS. **Merge and staging 309→310 wait for the owner** |
 | W4b | **CI-1b** (L-105, HIGH; the printed copy follows the validity state): app and print stylesheet only; stacked on CI-2's frozen head. **Daisy's words: `CI1B-KATA.md` (`cfc65eb6`).** DICABUT/DIGANTIKAN print a notice page, not a mark (a mark can be cropped or photocopied away), with no name and no new number, matching the public check. DITINJAU prints one line above the certificate. **One rule (Daisy; Sharon CONFIRMED): «Periksa keaslian» with BOTH the QR and the short link text always prints, in all four states and on the notice.** Sharon: on main the printable sheet already renders both (`KartuSertifikat.tsx:166-168`, D-160), so **CI-1b first establishes, from the rendered PDFs, why the page's browser print shows neither** (the sheet isn't printed, or the print CSS hides `.pin-s-qr`/`.pin-s-tautan`), and makes EVERY print path carry both. Printing the token is acceptable for privacy and is the approved design: the token never opens the name. L-105 stays HIGH (Sharon; the action and gate are identical either way). Sharon verifies | Second Eye, after CI-2 | Frozen, PR, CI green, Sharon PASS; **merge waits for the owner** |
@@ -52,8 +52,8 @@
 
 | Stream | State |
 |---|---|
-| W1 | Judged with no open builder lines: J2, J3, J4, J7. **J10 captured** (`6b248975`), with Daisy judging. The builder is on J5 (harness `784fed7b`), then J6, J8, J9, J11, J12 |
-| W2 | L-1 to L-113. Critical: L-67. High: L-78, L-105, **L-112** (the tour blocks the shared-computer lock; PR-23) |
+| W1 | **Every journey walked locally by Daisy** (J2 to J12, passes included). Builder captures: J2, J3, J4, J7, J10, J5, J6 (J6 to be judged); the PIN-reload probe holds. Re-runs: J5's and J10's EN walks (a harness cookie fault). Next: J8, J9, J11, J12 |
+| W2 | L-1 to L-142 (+ L-143 proposed). Critical: L-67. High: L-78, L-105, L-112. Daisy's open findings: 91 (`AUDIT-79-DAISY-FINDINGS.md`). Daisy's severity pass is next |
 | W3 | INTERIM: C-1 to C-11 |
 | W4 | **CI-1 READY for the owner:** `94ce6727`, PR #30, ci and journeys GREEN in one attempt, Sharon PASS unconditional (`CI-1-FOR-OWNER.md`) |
 | W4b | CI-1b specified, words cleared; after CI-2 |
