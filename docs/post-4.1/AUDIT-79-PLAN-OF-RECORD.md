@@ -57,7 +57,7 @@
 | W3 | INTERIM: C-1 to C-11 |
 | W4 | **CI-1 READY for the owner:** `94ce6727`, PR #30, ci and journeys GREEN in one attempt, Sharon PASS unconditional (`CI-1-FOR-OWNER.md`) |
 | W4b | CI-1b specified, words cleared; after CI-2 |
-| W5 | **CI-2 candidate `9c6aae62`**: suite 1446/0; Sharon §8 met (G01, K01, plants Q11–Q13); Daisy's words; locked-PIN rule; go-first proven. Plants and redcase are running on the exact candidate, then «freeze» |
+| W5 | **CI-2 FROZEN at `9c6aae62` (21:10Z)**: suite 1446/0, plants 192/192, redcase 11/11, lint and typecheck; next the push, the PR, the journeys, Sharon, then the owner |
 | W6 | After W3 FINAL |
 | H-1 | `claude/h1`: red `dfa9844c`, fix `21f88ed3`, its proofs green; the real redcase at the default heartbeat is pending |
 

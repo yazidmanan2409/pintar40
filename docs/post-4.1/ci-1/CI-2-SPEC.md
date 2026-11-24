@@ -118,3 +118,30 @@ The write is bounded to exactly the BEFORE count of locked accounts.
 **2. `akun_auth_terkunci(uuid)`: acceptable if** its uuid comes **only** from the caller's verified session (`auth.getUser`), never from request input, and a locked account gets the route's ordinary refusal (the same status, body shape and timing). Plant: the route is fed a foreign uuid.
 
 **Q10:** agreed. **UX (Daisy):** a school PIN reset made during a lock won't work until reinstatement (OD-1's fresh PIN), and the screen says so.
+
+## 9 · Freeze (Bob, 24 Nov 21:10Z): FROZEN at `9c6aae62f15a809bb42cc5e6490c9e4d3f49548a`
+
+**The evidence, all on the exact candidate** (Second Eye, a scratch worktree detached at the sha; the only overlay is `claude/h1`'s `scripts/dev/preflight.sh`, which CI-2 doesn't touch):
+- the full suite 1446/0, targeted 61/61;
+- plants 192/192, at the default heartbeat with a forced reset;
+- redcase 11/11 groups OK;
+- lint and typecheck PASS;
+- migration 311's sha256 `4622be4e313e7063ffa03fc2e3dfbcc7f5c6031aeb3396b3800dedd70689fc3e`;
+- Sharon's §8 met (G01, K01, Q11–Q13); Daisy's words (§7); OD-1 approved (ruling 100); go-first proven.
+
+**Redcase, named:** after two container restarts (20:13Z and about 20:45Z), the evidence came in two parts:
+- 9 groups ran under the H-1 harness at the default heartbeat (23 resets, 14 beats, all READY);
+- 2 groups ran through `redcase-local.mjs --group` directly, with no heartbeat wrapper.
+
+The wrapper only distinguishes infrastructure failure from a test result, so the pass and fail of those 2 groups are the same evidence. `PREFLIGHT_DENYUT=3600` was not used. **Coverage isn't reduced:** every group ran on the exact sha, and the PR's CI re-runs the whole pre-flight.
+
+**Next, in this order:**
+1. Push `claude/ci-2` once at the sha.
+2. Open the PR.
+3. Dispatch the journeys once, with the full sha.
+4. Sharon's independent verification.
+5. The owner's request: merge, then promote staging 309 or 310 → 311, with its own step 0, BEFORE and AFTER.
+
+There are no further pushes or reruns unless a failure is root-caused (ruling 93).
+
+**H-1 evidence from this run:** at the default heartbeat, 23 resets raised no false INFRA (the earlier pre-flights tonight voided at 366 s and 1449 s). No beat landed inside a reset window, so the RESET path is proven only by H-1's own forced test. H-1 freezes separately.
