@@ -1089,7 +1089,6 @@ export const c1wTests: SelfTest[] = [
       const sertifikat = `(select x.id from public.certificates x where x.session_id = ${G("bs")} order by x.issued_at desc limit 1)`;
       const verifikasi = `select v.validity || '|' || coalesce(v.pass::text, '-') from public.verify_certificate((select x.verification_token from public.certificates x where x.id = ${G("cert")})) v`;
       const sidikSert = `(select md5(c.canonical_payload::text || coalesce(c.signature, '') || c.certificate_number || c.verification_token || c.status::text) from public.certificates c where c.id = ${G("cert")})`;
-      const presented = (n: number) => `(select p.item_id from public.presented_items p where p.session_id = ${G("bs")} order by p.position offset ${n} limit 1)`;
       // RESTATED (CI-1, ruling 97): with S-1 the confirmation needs the corrected result to still pass, so the corrected question is
       // the first presented one that is not safety-critical (the paper's order varies; a safety-critical one fails the gate)
       const bukanGerbang = `(select p.item_id from public.presented_items p join public.items i on i.id = p.item_id where p.session_id = ${G("bs")} and not i.is_safety_critical order by p.position limit 1)`;
@@ -1138,7 +1137,10 @@ export const c1wTests: SelfTest[] = [
         langkah("putus_cek", null, `select (${verifikasi}) || '|' || (${sidikSert} = ${S("sidik")}) || '|' || (select v.decision || ',' || (v.decided_by_person_id = ${G("p_badmin")}) from public.certificate_reviews v where v.id = ${G("rv1")})`),
         langkah("putus_lagi", "badmin", `select public.putuskan_tinjauan_sertifikat(${G("rv1")}, 'REVOKED', 'Berubah pikiran setelah keputusan.') ->> 'ok'`),
         // a decided certificate affected again: a new review
-        ajukanB("k2", presented(1)),
+        // RESTATED (CI-1 delta, Bob 16:02Z): k2 is the lowest-position presented question other than k1's. With k1 the first
+        // question that is not safety-critical, presented(1) was k1's own question whenever the paper put a safety-critical one
+        // first, and the second correction was then refused as unchanged (ci 45424228769)
+        ajukanB("k2", `(select p.item_id from public.presented_items p where p.session_id = ${G("bs")} and p.item_id <> ${G("it_k1")} order by p.position limit 1)`),
         lakukan("bkadep", `select public.tegaskan_koreksi_kunci(${G("k2")})`),
         langkah("lagi", null, `select (${verifikasi}) || '|' || (select count(*) from public.certificate_reviews v where v.certificate_id = ${G("cert")}) || '|' || (select count(*) from public.certificate_reviews v where v.certificate_id = ${G("cert")} and v.decision is null)`),
         // precedence: superseded, then revoked, over under review
