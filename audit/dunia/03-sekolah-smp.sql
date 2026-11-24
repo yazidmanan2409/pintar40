@@ -57,7 +57,8 @@ declare spec jsonb := $j${
     "batas": 60, "batas_alasan": "Batas ketuntasan SMP Cendekia (dunia audit, W3)",
     "pelajaran": [
       {"judul": "Kalimat Terbuka dan Persamaan", "ringkas": "Persamaan adalah kalimat terbuka yang memakai tanda sama dengan.",
-       "isi": "## Kalimat terbuka\n\nKalimat terbuka memuat variabel, sehingga benar atau salahnya belum diketahui.\n\n## Persamaan\n\nPersamaan linear satu variabel memuat satu variabel berpangkat satu, misalnya x + 3 = 7."},
+       "isi": "## Kalimat terbuka\n\nKalimat terbuka memuat variabel, sehingga benar atau salahnya belum diketahui.\n\n## Persamaan\n\nPersamaan linear satu variabel memuat satu variabel berpangkat satu, misalnya x + 3 = 7.",
+       "contoh": [{"judul": "Contoh: apakah x + 4 = 9 persamaan linear satu variabel?", "langkah": ["Cari tanda sama dengan: ada, jadi ini persamaan.", "Hitung variabelnya: hanya x, jadi satu variabel.", "Lihat pangkat x: pangkatnya satu, jadi linear.", "Jadi x + 4 = 9 adalah persamaan linear satu variabel."]}]},
       {"judul": "Menyelesaikan Persamaan", "ringkas": "Kedua ruas diberi operasi yang sama sampai variabelnya sendirian.",
        "isi": "## Operasi yang sama di kedua ruas\n\nUntuk menyelesaikan 2x + 3 = 11, kurangi kedua ruas dengan 3, lalu bagi kedua ruas dengan 2.\n\n## Memeriksa jawaban\n\nSubstitusikan nilai x ke persamaan awal."},
       {"judul": "Persamaan dalam Soal Cerita", "ringkas": "Soal cerita diubah dulu menjadi persamaan.",

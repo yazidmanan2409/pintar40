@@ -9,7 +9,8 @@
 --
 -- spec: { "sekolah": k, "kelas": k, "ta": k, "penulis": k, "peninjau": k, "admin": k,   (keys in dunia.fakta)
 --         "mapel", "jenjang", "tingkat", "judul", "batas" (pass mark, or null for none), "batas_alasan",
---         "pelajaran": [ {"judul", "ringkas", "isi"} ],
+--         "pelajaran": [ {"judul", "ringkas", "isi", "contoh": [ {"judul", "langkah": [..]} ] (optional: the lesson's worked
+--                    example, shown step by step: «Tampilkan langkah berikutnya»)} ],
 --         "tujuan": [ {"pel": n, "kode", "pernyataan"} ],
 --         "salah_konsep": [ [kode, label, description, remediation] ]   (the school's misconceptions; every wrong
 --                    option names one, as the MCQ quality pass asks)
@@ -49,7 +50,7 @@ begin
     n := n + 1;
     insert into public.lessons (module_id, institution_id, ordinal, title, summary, body_markdown, worked_examples, media,
                                 source_version_id, page_citation, author_person_id)
-    values (modul, inst, n, t ->> 'judul', t ->> 'ringkas', t ->> 'isi', '[]'::jsonb, '[]'::jsonb, srcv,
+    values (modul, inst, n, t ->> 'judul', t ->> 'ringkas', t ->> 'isi', coalesce(t -> 'contoh', '[]'::jsonb), '[]'::jsonb, srcv,
             'Bagian ' || n, p_penulis)
     returning id into l;
     pel := pel || l;
