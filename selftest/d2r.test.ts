@@ -114,8 +114,9 @@ export const KATA_D2R: Array<[HleEvent, string, string]> = [
   ["hasil.ulang_boleh" as HleEvent, "Anda dapat mengerjakan Uji Penguasaan lagi sesuai aturan sekolah. Tanyakan kepada guru Anda kapan dapat mengulang.",
     "You can take the Mastery Check again under your school's rules. Ask your teacher when you can retake it."],
   ["hasil.dijawab_tepat" as HleEvent, "dijawab tepat", "answered right"],
-  ["hasil.tidak_ditampilkan" as HleEvent, "Pada Uji Penguasaan, kunci jawaban dan benar atau salahnya tiap soal tidak ditampilkan.",
-    "In a Mastery Check, the answer key and whether each question was right are not shown."],
+  // Daisy's §8 (2bfbd3d7): reworded so DAISY-26 needs no exemption
+  ["hasil.tidak_ditampilkan" as HleEvent, "Pada Uji Penguasaan, jawaban yang tepat dan hasil tiap soal tidak ditampilkan.",
+    "In a Mastery Check, the right answers and the result of each question are not shown."],
   ["hasilbelajar.gerbang" as HleEvent, "Ada soal penting yang belum tepat, jadi Uji Penguasaan bab ini belum lulus.", "An important question is not right yet, so this chapter's Mastery Check is not passed yet."],
 ];
 
@@ -187,6 +188,9 @@ export const d2rTests: SelfTest[] = [
       // the chapter page: a certifying result is drawn by HasilBersertifikasi, and the review is asked only otherwise
       c.expect(/outcome\.bersertifikasi/.test(hasil) && /<HasilBersertifikasi\b/.test(hasil), "the chapter result page does not branch on the certifying result to HasilBersertifikasi");
       c.expect(/bersertifikasi\s*\?\s*Promise\.resolve\([^)]*\)\s*:\s*engine\.review\(/.test(hasil.replace(/\s+/g, " ")), "the chapter result page asks for the review of a certifying result");
+      // Daisy's §3 order has no mastery figure: the Pemetaan Awal → Uji Penguasaan comparison is not drawn on a certifying result
+      c.expect(/!bersertifikasi\s*\?\s*\(?\s*<section[^>]*>\s*<h2>\{s\(`hasil\.delta\./.test(hasil.replace(/\s+/g, " ")),
+        "the chapter result page draws the mastery comparison (hasil.delta) on a certifying result");
       // the component draws Daisy's order and none of the review's words
       const urutan = ["hasil.lulus", "hasil.baca_lagi", "hasil.ulang_boleh", "hasil.dijawab_tepat", "hasil.tidak_ditampilkan"].map((k) => kom.indexOf(`"${k}`));
       c.expect(urutan.every((i) => i >= 0) && urutan.every((i, n) => n === 0 || i > urutan[n - 1]), `HasilBersertifikasi does not draw Daisy's order (decision, revisit, retake, counts, not shown): ${urutan.join(",")}`);

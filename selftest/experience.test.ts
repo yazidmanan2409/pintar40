@@ -12221,11 +12221,7 @@ export const experienceTests: SelfTest[] = [
       c.expect(/simpan/i.test(t("posttest.confirm", "learner", { locale: "id" })) && /simpan/i.test(t("posttest.confirmed", "learner", { locale: "id" }))
         && /\bsave\b/i.test(t("posttest.confirm", "learner", { locale: "en" })) && /\bsaved\b/i.test(t("posttest.confirmed", "learner", { locale: "en" })),
         `the answer's button reads "${t("posttest.confirm", "learner", { locale: "id" })}" / "${t("posttest.confirm", "learner", { locale: "en" })}", not a save that becomes «Tersimpan»`);
-      // D2-R (Daisy's D2R-KATA.md, a string of record): hasil.tidak_ditampilkan names «kunci jawaban» as THE ANSWER KEY that a
-      // certifying result does not show, not a locking of the learner's answer; it alone is exempt, by name
-      const KUNCI_KUNCI_JAWABAN = new Set<string>(["hasil.tidak_ditampilkan"]);
-      const mengunci = renderAll().filter((r) => (r.persona === "learner" || r.persona === "public") && KUNCI.test(r.text)
-        && !KUNCI_KUNCI_JAWABAN.has(r.event));
+      const mengunci = renderAll().filter((r) => (r.persona === "learner" || r.persona === "public") && KUNCI.test(r.text));
       c.expect(mengunci.length === 0,
         `a learner line speaks of locking an answer: ${mengunci.slice(0, 3).map((r) => `${r.event} (${r.locale}) "${r.text.slice(0, 80)}"`).join("; ")}`);
 

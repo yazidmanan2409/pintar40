@@ -232,7 +232,9 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
 
         {/* The change, which appears only when both sessions are finished. It
             says so plainly when they are not, rather than showing a zero for a
-            comparison nobody made. */}
+            comparison nobody made. D2-R (R-h, Daisy's §3 order): a certifying result shows no mastery figure, so the
+            comparison is not drawn on it. */}
+        {!bersertifikasi ? (
         <section className="pin-sec">
           <h2>{s(`hasil.delta.${delta.status}` as HleEvent)}</h2>
           {delta.status === "LENGKAP" ? (
@@ -244,6 +246,7 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
             </div>
           ) : null}
         </section>
+        ) : null}
 
         {/* D-195(4), CONTOH LAPORAN 5-peserta: a professional-learning result is the educator's own record, and the page
             says exactly who else sees it, as the database decides (D-069(b),(c)); a chapter's result says nothing here */}

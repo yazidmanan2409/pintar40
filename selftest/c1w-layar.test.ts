@@ -649,7 +649,10 @@ export const c1wLayarTests: SelfTest[] = [
         if (!c.expect(typeof murid0 !== "string", String(murid0))) return c.verdict("");
         const m1 = await (await (murid0 as Komputer).halaman(`/belajar/${la}/hasil`)).text();
         const tm = teks(m1);
-        c.expect(/data-dikoreksi=""/.test(m1) && tm.includes("100%") && tm.includes(id("hasil.dikoreksi", "learner")) && tm.includes("Hasil asli: 50%"),
+        // RESTATED (D2-R, R-h, ruling 74): the sitting is an Uji Penguasaan, so its learner reads counts only: the corrected
+        // count as current, marked corrected, and no mastery figure (no 100%, no «Hasil asli: 50%», no comparison)
+        c.expect(/data-dikoreksi=""/.test(m1) && tm.includes("2 dari 2 soal dijawab tepat") && tm.includes(id("hasil.dikoreksi", "learner"))
+          && !/\d+\s?%/.test(tm.slice(tm.indexOf(id("hasil.title", "learner")))) && !tm.includes("Hasil asli"),
           `the learner's result page: «${tm.slice(0, 600)}»`);
         // the class page: the assignment moved to the corrected release; nothing says «Ditarik»
         const g2 = await (await guru.halaman(`/mengajar/${d.kelas}`)).text();
@@ -660,7 +663,7 @@ export const c1wLayarTests: SelfTest[] = [
           + "jawaban keliru?» and walks the three steps, step 2 giving the exact counts and the learner by name; she sees «Menunggu konfirmasi orang kedua» and, on the "
           + "second person's page, only her sentence; the head of department finds it in «Antrean Tinjauan», confirms through the dialog («Hasil 1 sesi dihitung ulang…») "
           + "and reads «Selesai. 1 hasil dihitung ulang…»; the sitting keeps its sealed 50% and gains one result in force, 100%; the teacher's report shows 100% with the "
-          + "note and the correction's reason; the learner's result page shows 100% as current, marked recalculated, with «Hasil asli: 50%»; the class's assignment is on the corrected release");
+          + "note and the correction's reason; the learner's result page (an Uji Penguasaan, counts only) shows «2 dari 2 soal dijawab tepat» as current, marked corrected, with no percentage; the class's assignment is on the corrected release");
       } finally {
         bersihkan();
       }

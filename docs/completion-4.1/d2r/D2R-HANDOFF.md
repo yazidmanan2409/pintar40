@@ -21,6 +21,8 @@
    certifying Asesmen Mandiri's own line `posttest.tanpa_bantuan_umum`, drawn after its intro when
    `assessment_orientation` says the sitting will certify (its new OUT column `bersertifikasi`, the policy row's
    `certifies`, the value the start captures; dropped and recreated, grants restated). D2R-W01, D05 and D04 red first.
+7. **Daisy's §8 and the comparison** (Bob 03:41Z): `hasil.tidak_ditampilkan` reworded, DAISY-26's exemption removed; the
+   mastery comparison not drawn on a certifying result. D2R-W01, D2R-H08 and DAISY-26-BELAJAR-01 red first.
 
 ## What changed
 
@@ -76,7 +78,7 @@ sittings read shows it; D2R-E01 proves it on no public surface, payload or snaps
 | F19-Q01..Q04 | a sitting started while QUICK certified, with QUICK's help | QUICK, for that one start, certifies and offers no help (condition 3), all restored at once |
 | C1W-S06 | the learner's correction carried `sertifikat_ditinjau` | counts only (§7.2): the flag is absent there, the learner reads `sertifikat_saya_ditinjau` |
 | Z-R15-01 | the certificate column «Paket Pembelajaran» | «Materi Pembelajaran» (rev. 4's alignment) |
-| DAISY-26-BELAJAR-01 | no learner line says «kunci jawaban» | `hasil.tidak_ditampilkan` exempt by name: there it is the answer key |
+| C1W-J01 | the learner's corrected Uji Penguasaan page shows 100% and «Hasil asli: 50%» | counts only: «2 dari 2 soal dijawab tepat», marked corrected, no percentage |
 | CI red case FABLE-06 3i | the planted orientation's shape | adds `bersertifikasi` |
 | CI-W03 | the red cases | adds `db-d2r-gates` and `db-zr1-gates` |
 
@@ -84,8 +86,11 @@ sittings read shows it; D2R-E01 proves it on no public surface, payload or snaps
 
 1. **Sharon:** the batch on the pushed head and CI (Bob 02:04Z). The fail-safe defaults; the list guard's three classes
    (D2R-H18); `session_answers` refusing only a FINISHED certifying sitting (an open one resumes from it).
-2. **Daisy:** your two strings of 02:06Z are in (W01 reads them word for word). Your DAISY-26 rule says no learner line
-   speaks of «kunci jawaban»; your `hasil.tidak_ditampilkan` uses it as the answer key, so I exempted that key by name
-   in the guard rather than change your words. Say if you would rather reword it. The R-b sentence is split on the card and sheet at `{kursus}`: the words before it on `pin-done`, the course and the
+2. **Daisy:** your two strings of 02:06Z are in (W01 reads them word for word). Your §8 rewording of `hasil.tidak_ditampilkan` (2bfbd3d7)
+   is in, and DAISY-26's guard has no exemption. Found by C1W-J01 and closed under your §3 order: the chapter result
+   page drew «Perubahan dari Pemetaan Awal» (both mastery percentages) below a certifying result; it is no longer drawn
+   there (D2R-H08). `learning_delta` itself still returns the two figures to the learner; R-h names keys, per-question
+   marks and explanations, not the overall figure, so I left the database as it is. **For Sharon:** whether
+   `learning_delta` should withhold `akhir` on a certifying post-test. The R-b sentence is split on the card and sheet at `{kursus}`: the words before it on `pin-done`, the course and the
    full stop on `pin-course` (R-13 on the new sheet is yours). The teacher's sittings screen does not yet draw `percobaan_ke` (no words).
 3. **Bob:** the strings are `dc275f6a`, one commit after the spec's `e64f94c2` (Daisy's §6, the no-threshold words).

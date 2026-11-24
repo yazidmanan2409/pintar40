@@ -4862,7 +4862,7 @@ const table: Table = {
   "hasil.baca_lagi_arti": { default: "Bagian ini disarankan untuk dibaca lagi. Saran ini bukan penilaian atas penguasaan Anda pada bagian ini.", en: "These parts are suggested for reading again. This is advice, not a judgement of your mastery of them." },
   "hasil.ulang_boleh": { default: "Anda dapat mengerjakan Uji Penguasaan lagi sesuai aturan sekolah. Tanyakan kepada guru Anda kapan dapat mengulang.", en: "You can take the Mastery Check again under your school's rules. Ask your teacher when you can retake it." },
   "hasil.dijawab_tepat": { default: "dijawab tepat", en: "answered right" },
-  "hasil.tidak_ditampilkan": { default: "Pada Uji Penguasaan, kunci jawaban dan benar atau salahnya tiap soal tidak ditampilkan.", en: "In a Mastery Check, the answer key and whether each question was right are not shown." },
+  "hasil.tidak_ditampilkan": { default: "Pada Uji Penguasaan, jawaban yang tepat dan hasil tiap soal tidak ditampilkan.", en: "In a Mastery Check, the right answers and the result of each question are not shown." },
   // D2-R R-f: PROVISIONAL, for Daisy (no string of record yet): the attempt ordinal on the learner's result
   "hasil.percobaan_ke": { default: "Kesempatan ke-{n}", en: "Attempt {n}" },
   "sertifikat.tanggal": { default: "Tanggal terbit", en: "Issue date" },
