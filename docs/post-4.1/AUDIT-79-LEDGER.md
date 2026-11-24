@@ -687,3 +687,22 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
 | L-145 (J5-13) | «handed in» and «submitted» on one EN page | H | J5 | Improvement | C-6 | One EN term |
 | L-146 (J5-14) | «Ask for a direction to think in…» and «An Admin PINTAR…» read awkwardly in EN | H | J5 | Improvement (optional) | — | Daisy's EN wording |
 | L-147 (J10-9) | The recovery email goes out in the default language (an ID subject) for an EN user, although `email.pulih.subjek` has EN | D | J10 | Improvement | C-6 | Send it in the request page's language. It reveals nothing about the account: the language comes from the requester's page, not from the account |
+
+**J8 captured (builder, `9874ea1b`, `audit/79/tangkapan/434e2c7f/j8/`):** 7 walks reached their last screen, keyboard only, with labelled fixtures w15-paket and w15-staf.
+- **Holds:**
+  - the year and code refusals keep the value;
+  - a pass mark with its reason;
+  - the planted-error check names each row and records nothing until all are readable;
+  - the clean list is recorded, «5 orang tercatat»;
+  - a role ending today is flagged;
+  - the printed cards (two across: name, number, card number, PIN, sign-in address);
+  - the renamed rule («Cara hasil dibaca tidak berubah», still v1);
+  - the last admin can't end their own role, and the account close is refused with the way out.
+- Daisy judges the capture.
+
+| L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
+|---|---|---|---|---|---|---|
+| L-148 | **Bulk intake records learners only** (`PERAN_PENDATAAN = ["STUDENT"]`, BOB-10 interim, `pendataan-kontrak.ts`:334–345), **but the list page says «Ini daftar guru atau staf: catat tanpa kelas»**; a staff list mapped that way is refused row by row («Murid hanya bisa ditempatkan di Kelas…») | A, F | J8 | Pending Daisy (proposed Significant: an unsupported promise on a set-up task) | Principle 4; C-3 | Either the page stops offering staff intake, or it's supported. The interim scope (BOB-10) decides which. **Bob checks the BOB-10 record** before AR-79 decides |
+| L-149 | **«Peran & akses» finds only people with an ACTIVE enrolment** (`school_people_page`): a search for the school's own admin finds no one, so **a new school can't reach any staff member to give a role** (the world needed fixture w15-staf) | F, E | J8 | Pending Daisy (proposed Significant: blocked from a task they must do, with no way round), and Sharon (who may be offered for a role) | C-7 (a read assuming a prerequisite the flow never creates) | With L-148, a new school has no in-product path to staff roles. Bob checks how a real school's first staff get roles (Gate 3 activation, or a platform path) before classifying |
+| L-150 | A pass mark of 150 is held only by the browser («Value must be less than or equal to 100.») | G | J8 | Improvement | C-10 | With L-88 |
+| L-151 | A name row «Citra 123 <b>» passes intake unflagged | [S], C | J8 | **Pending Sharon** | — | Is markup or a digit in a name an input-validation gap (rendering is escaped by React; the question is the stored data and any non-React output: PDF, CSV, email)? |
