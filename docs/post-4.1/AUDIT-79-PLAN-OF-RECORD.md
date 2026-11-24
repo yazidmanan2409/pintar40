@@ -59,7 +59,7 @@
 | W4b | CI-1b specified, words cleared; after CI-2 |
 | W5 | **CI-2 FROZEN at `9c6aae62`; PR #31** (21:17Z), ci 45488925842 and journeys 45488932426 running; then Sharon, then the owner |
 | W6 | After W3 FINAL |
-| H-1 | **FROZEN at `73fc4ab1` (21:26Z; a README-only delta from `5ab2af9a`, naming the test-only uji-* steps)**: red on main's heartbeat (VOID), green with the fix (4 RESET beats); grace 0 → INFRA (the bound holds); a database stopped with no reset → INFRA (the control). In real use: CI-2's redcase at the default heartbeat, 23 resets, no false INFRA. Harness only (2 files). The uji-* steps are kept as the regression test (inert without PREFLIGHT_UJI=1). Next: the PR, its ci, then the owner |
+| H-1 | **FROZEN at `73fc4ab1` (21:26Z; a README-only delta from `5ab2af9a`, naming the test-only uji-* steps)**: red on main's heartbeat (VOID), green with the fix (4 RESET beats); grace 0 → INFRA (the bound holds); a database stopped with no reset → INFRA (the control). In real use: CI-2's redcase at the default heartbeat, 23 resets, no false INFRA. Harness only (2 files). The uji-* steps are kept as the regression test (inert without PREFLIGHT_UJI=1). PR #32: ci 45492159358 **FAILURE** (API, 21:50Z). The cause is NOT H-1's: R1-K01's control is red before any defect (the pre-existing school-clock bug; job log read by Bob), and selftest was skipped as a consequence. **Decision (a):** port CI-2's test-only fix `6aceed28` into H-1 as one commit, re-freeze, push once. |
 
 ## 3a · Harness H-1, recurring (Bob, 14:07Z)
 
@@ -69,7 +69,7 @@ H-1 (the pre-flight heartbeat reads the red-case step's own `supabase db reset` 
 
 - **C1W-S06 (CI-1):** a test picked data by position, and the paper order is random. It passed locally and failed in CI.
 - **SERTIFIKAT-A01, L1F4-K05, F22-K01/K03/K06, PENUGASAN-A01:** each passes only after other suites have created its data.
-- **R1-K01 (main):** a test passed UTC `current_date` to a function that reads the school's clock, so it fails every evening (16:00–24:00Z). Fixed in CI-2's own commit, with its sibling uses swept.
+- **R1-K01 (main):** a test passed UTC `current_date` to a function that reads the school's clock, so it fails every evening (16:00–24:00Z). Fixed in CI-2's own commit, with its sibling uses swept. **Main still carries it:** any PR branched from main and run in that window goes red (H-1's PR #32, 21:47Z). The fix is ported into H-1, and it's a no-op once CI-2 lands.
 
 **Lesson:** a passing run is evidence only for the order, time and data it ran with. Tests must be independent of order, position and wall-clock time, or must pin them.
 
