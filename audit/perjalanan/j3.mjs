@@ -59,9 +59,16 @@ function permukaan(j, D) {
         await page.waitForLoadState("networkidle").catch(() => {});
         await foto(`${awalan}guru-minta-membaca`);
         const kotak = page.getByRole("checkbox", { name: new RegExp(sinta.nama) }).first();
-        data(`${awalan}read_again_sinta_preticked`, await kotak.count() ? await kotak.isChecked() : "(no checkbox for Sinta)");
+        data(`${awalan}read_again_sinta_preticked`, await kotak.count() ? await kotak.isChecked() : "(no checkbox for Sinta)");   // via her page's link (&murid=)
         data(`${awalan}read_again_checked`, (await page.getByRole("checkbox", { checked: true }).allInnerTexts().catch(() => [])).length);
         data(`${awalan}read_again_text`, RAPI(await page.locator("main").innerText()).slice(0, 600));
+        // the link from her page names her (&murid=), which selects her by itself; the list's OWN pre-ticking is read
+        // on the same page without it (as a teacher arriving from «Bukti» sees it)
+        const u = new URL(page.url()); u.searchParams.delete("murid");
+        await page.goto(u.toString()); await page.waitForLoadState("networkidle").catch(() => {});
+        await foto(`${awalan}guru-minta-membaca-daftar`);
+        const k2 = page.getByRole("checkbox", { name: new RegExp(sinta.nama) }).first();
+        data(`${awalan}read_again_list_preticks_sinta`, await k2.count() ? await k2.isChecked() : "(no checkbox for Sinta)");
       } else data(`${awalan}read_again_sinta_preticked`, "(no «Minta membaca lagi» link)");
       await keluar(j);
     },
