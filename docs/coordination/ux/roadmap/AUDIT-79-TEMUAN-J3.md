@@ -57,3 +57,10 @@
   - J3-10: W8 still shows counts with no decision.
   - L-43: no ordinal on the teacher's side.
 - **J3-5** (/pimpinan's «Tidak ada keputusan yang menunggu Anda» beside the waiting request) rests on my local walk, because the harness records only the request panel's text. **For the builder:** capture /pimpinan's Bagian A while the request waits.
+
+**C-4 waiting capture (`e0aa6294`, `87769a6b/j3/sebagian-menunggu-standar-id-1280`), 24 Nov 15:40:**
+- **J3-5 / L-58 is now evidenced in the builder's own run.** At `08-kaprodi-pimpinan-menunggu`, «1 permintaan kesempatan tambahan menunggu persetujuan» sits at the top, and Bagian A reads «Tidak ada keputusan yang menunggu Anda.» **J3's «left for the builder» line is closed.**
+- **New, J3-11 (Improvement, visual), same screen:**
+  - Bagian C's column heads run into each other: «perlu 5.Sekarang 1 murid; perlu 5.Sekarang 3 murid …». The row label «Topik» sits on the heads' second line.
+  - The page footer starts at x 272, left of the content column (x 408).
+  - Fix: one column per class, with the count on its own line under the class name. The footer aligns with the content column. This goes in the visual consistency pass.

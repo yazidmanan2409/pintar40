@@ -50,3 +50,27 @@ These come from the builder's run. Citra's certificate is now «Berlaku» in my 
 - **After a recalculation, the decision is «Konfirmasi berlaku» or «Cabut»,** made on the review card. Ratih, who still passes at 83 %, is the «Konfirmasi berlaku» case, not a reissue.
 - **J7's script step 7 is corrected** to «the review is settled: Ratih confirmed valid, Citra revoked».
 - **J7-4 stands:** the reissue panel's «tidak pernah dihitung ulang» is still false beside a recalculated result.
+
+## Capture judgement · the builder's committed J7 (`63ff05e9/j7`, `5e0d0392`; L2 redone in `e0aa6294`), 24 Nov 15:40
+
+The walks reached their last screen in all seven passes. The «Not walked» items above are now covered: «Cabut» completed, the reissue completed, the printed copies, EN, SR, throttled, reduced motion. **Every finding J7-1 to J7-8 stands in the captures.** J7-4 is visible in `33-admin-terbit-ulang`: «Hasil · Tetap seperti di sertifikat ini; tidak pernah dihitung ulang.» on Ratih's certificate, recalculated to 83 % and confirmed.
+
+### Bob's three questions
+
+| | Judgement |
+|---|---|
+| **(a)** Ratih's own way in opens the replaced certificate | **A finding: J7-9, Significant.** |
+| **(b)** focus opens on «Batal»; the red «Cabut» is one Shift+Tab back | **Holds. Not a finding.** For an action that cannot be undone, focus on the safe choice is the right default. The question names the certificate and the effect («Cabut sertifikat MBPZ95KA/00001? Pemeriksaan sertifikat lalu menyebutnya dicabut.»). The SR tree reads it as a named group with both buttons. The reason field above already says «tidak dapat diubah». |
+| **(c)** L-105, the printed copy | **A finding: J7-10. I propose Critical for a revoked certificate and Significant for a replaced one; Sharon decides.** |
+
+### New findings
+
+| # | Finding | Siblings | Cause | Dim. | Fix |
+|---|---|---|---|---|---|
+| **J7-9 (Significant)** | **After a reissue, the holder's own way in leads to the old certificate.** Ratih's result page «Lihat sertifikat» opens 6PQFF0H5/00001, the replaced one (`35`, `36`). The banner is clear and calm: «Sertifikat ini sudah digantikan dengan yang lebih baru … Gunakan yang baru». But the full certificate still sits below it, ready to print (J7-10). «Buka sertifikat yang baru» goes to the **public check page** (`/verifikasi/…`), not to her own certificate page. | **Disagree.** The admin's list: /00002 «Berlaku», /00001 «Digantikan». The public check of /00001: «Digantikan sertifikat yang lebih baru». The holder's link: /00001. | C-3: the page finds «the certificate» from the sitting, not from the chain's current end | B, E | «Lihat sertifikat» opens the current end of the chain (/00002). The replaced one stays reachable from it: «Menggantikan sertifikat 6PQFF0H5/00001». On the old page, «Buka sertifikat yang baru» opens her own certificate page, not the public check. |
+| **J7-10 (proposed Critical for revoked; Significant for replaced)** | **A printed revoked certificate looks valid.** The browser's print of Citra's revoked certificate (`28`, `citra-dicabut-sertifikat-cetak.pdf`) is the clean certificate: name, «Telah dinyatakan memenuhi kriteria kelulusan …», date, number. There is no «Dicabut», no banner, and no way to check it. The replaced /00001 prints the same way (`37`). **Every printed copy, valid ones too, also lacks a check address.** The public check opens by a link token, so a reader holding only the paper and its number cannot check it, unless there is a lookup by number I have not seen. | **Disagree.** The screen: «Sertifikat ini sudah dicabut oleh penerbitnya». The public check: «Dicabut». The paper: valid. | C-3 (the print view re-derives the document without its state). Revocation exists to stop this exact use. | E, B | (1) The print view carries the state on the document itself, for example a band across it: «DICABUT · {tanggal}. Sertifikat ini tidak berlaku.» or «DIGANTIKAN oleh {nomor baru}». (2) Every printed copy carries its check address in words (and a QR if the product wants one): «Periksa keasliannya: {alamat}». (3) Sharon decides whether a revoked certificate offers printing at all. |
+| J7-11 | **The certificate table does not fit at 1280.** With the sidebar, the «Keadaan» column is cut («Berlak…», «Dicabu…», «Diganti…») and the «Cabut» column is off-screen (`25`, `34`). After a search the table scrolls sideways and the number column is cut instead («…at», «0001», `33`). On the admin's one page for certificate state, the state is the column that is hidden. | — | — | V, F | The table fits 1280 with the sidebar: the long confirmation note wraps under the badge in a narrower cell, or moves to the selected row's panel. Below that width, use stacked rows like other lists. |
+| J7-12 | **The selected-certificate panel is headed «CABUT SERTIFIKAT · {nomor}»** while it also holds «Terbitkan ulang», and stays so on a certificate already «Digantikan» (`33`, `34`) | — | C-6 | H | Head it with the certificate: «Sertifikat {nomor}». «Cabut» and «Terbitkan ulang» become the two sections under it. |
+| J7-13 | The success line «✓ Sertifikat dikonfirmasi berlaku.» does not name the certificate, and stays above Citra's card after Ratih's confirmation (`24`) | — | — | H | «✓ Sertifikat {nomor} ({nama}) dikonfirmasi berlaku.» |
+
+**J7's «left for the builder» lines are closed.**

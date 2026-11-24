@@ -69,3 +69,7 @@
 - **On Bob's question,** the teacher's home «Tidak ada yang menunggu keputusan Anda hari ini.»: in the builder's run it is captured only **after** the sitting ended (L4's end, and C1's time-out), when nothing was waiting. **There it is true.**
 - **L-45 rests on my local walks**, where the home was read **while** the «minta lanjut» request waited (J2: `j2-22-guru-beranda`; J4: `j4-03-guru-beranda`) and said nothing of it.
 - **For the builder:** capture /mengajar at L1, between Galih's request and the teacher's «Izinkan», so the record shows L-45 in its own run.
+
+**C-4 waiting capture (`e0aa6294`, `f308d1ad/j4/sebagian-menunggu-standar-id-1280`), 24 Nov 15:40:**
+- **L-45 is now evidenced in the builder's own run.** At `02-guru-mengajar-menunggu`, Galih's request waits (`01`), and Dimas's home reads «Tidak ada yang menunggu keputusan Anda hari ini.» J4-2 / L-45 stands.
+- **New, J4-7 (Improvement, visual):** in the same screen, the sidebar's popover («Anda masuk … Mengerti») opens past the left edge of the window. Its text is cut («Anda masuk», «ka dari»). It belongs with the sidebar revision (L-39 to L-43): the popover stays inside the window.
