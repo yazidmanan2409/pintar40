@@ -122,3 +122,26 @@ Everything else is closed, with citations. The open items are classed at Z.
 - 1 goes to 4.2: C1-R5's email.
 
 **R-15 is triaged.** Its Z items join Second Eye's Z fixes after A3.
+
+## 6 · Closure after Z (Bob, 24 Nov 2026; ruling 89, gate G-2)
+
+The row-by-row audit against main `61a6ff9e` is in `closure/Z-READINESS-CLOSURE-TABLE.md`. Each row there is closed with a citation or deferred to a named phase, except for the ten below. **Bob's proposed disposition for each**, to be confirmed by the reviewer named:
+
+| Row | What remains | Proposed | Confirms |
+|---|---|---|---|
+| R-1 | A departed learner opening a sitting by its web address: never re-checked after A3 changed the start path | **4.1 closure: verify on `claude/next-base`**, with a test if one is missing. Second Eye, beside D2-R's map | Sharon |
+| R-2 | Two simultaneous refused acts can each write an audit row | **4.5** (operational foundation), unless Sharon classes it as integrity | Sharon |
+| R-3 | A2b's start branch reads `now()` | **4.5**, unless Sharon classes it as correctness | Sharon |
+| R-4 | A2B-R3, the fail-open root | **Ruling 54's rationalisation**, if Sharon's assessment agrees | Sharon |
+| R-5 | A2B-R1, emergency reason codes | **4.5** (operational foundation) | Bob (stated) |
+| R-6 | A3-R3's full lock ranking: registered for Z, not built | **Ruling 54's rationalisation**, unless Sharon finds a reachable deadlock | Sharon |
+| R-13 | Three 4.0 rendered checks | The certificate date goes to **D2-R step 1f** (R-13 on the new sheet). The integrity count line and «Materi tanpa judul» go to **the ruling 79 audit's ledger**, checked in its captures. Ruling 71 removed the "before the walkthrough" deadline | Daisy |
+| R-15 (320 px titles) | No closing citation | **Ruling 79 audit** (dimension G), in the ledger | Daisy |
+| R-15 (C1-R4's printed «Predikat») | Not recorded anywhere | **D2-R (R-c)**: the printed report joins the routes where Predikat is removed. It is added to Second Eye's build map | Sharon (with R-c) |
+| R-28 leftovers (K-06, K-08, K-09, T-01, T-04 to T-12, S-06's SQL half) | «Later» in SAPU-VERIFIED | **Ruling 79 audit**, in the ledger (track 3a) | Daisy |
+
+**Caveats from the audit:**
+- R-19 is closed by `d2141539` with no test. It is not reopened.
+- R-7 and R-9 closed in C3w-1 (`102921ce`).
+
+**G-2 closes** when these confirmations are recorded. None of them is a blocker or reopens Z.
