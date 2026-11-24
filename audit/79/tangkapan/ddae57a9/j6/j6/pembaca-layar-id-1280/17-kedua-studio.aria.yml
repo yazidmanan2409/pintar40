@@ -1,0 +1,55 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - strong: SMP Sintetis Cendekia
+    - link "Konfigurasi":
+      - /url: /konfigurasi
+    - link "Pendataan":
+      - /url: /pendataan
+    - link "Aktivasi akun":
+      - /url: /aktivasi
+    - link "Studio":
+      - /url: /studio
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fstudio
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Yohana Simatupang":
+      - strong: Yohana Simatupang
+    - button "Keluar"
+- main:
+  - heading "Studio" [level=1]
+  - navigation "Studio":
+    - link "Studio":
+      - /url: /studio
+    - link "Buat Paket":
+      - /url: /studio/unggah
+    - link "Antrean Tinjauan":
+      - /url: /studio/tinjau
+    - link "Pustaka PINTAR":
+      - /url: /studio/kanonik
+    - link "Aturan Asesmen":
+      - /url: /studio/definisi
+    - link "Bank Soal":
+      - /url: /studio/bank
+    - link "Tinjauan Integritas":
+      - /url: /studio/integritas
+  - link "SMP Sintetis Cendekia Menunggu tinjauan Anda 1":
+    - /url: /studio/tinjau
+    - paragraph: SMP Sintetis Cendekia
+    - paragraph: Menunggu tinjauan Anda
+    - paragraph: "1"
+  - heading "Paket Pembelajaran" [level=2]
+  - 'link "Perbandingan dan Skala Matematika · Kelas 8 · SMP Sintetis Cendekia Sekarang: Setujui isi"':
+    - /url: /studio/paket/a6936e03-4956-4137-bee7-c30f416f0361
+  - link "Persamaan Linear Satu Variabel Matematika · Kelas 8 · SMP Sintetis Cendekia ✓ Terbit":
+    - /url: /studio/paket/15dcf7e5-8812-4202-9042-d3522eca0a5e
+  - link "Statistika Dasar Matematika · Kelas 8 · SMP Sintetis Cendekia ✓ Terbit":
+    - /url: /studio/paket/8701975e-1505-4961-8a30-663ee384ade8
+- alert

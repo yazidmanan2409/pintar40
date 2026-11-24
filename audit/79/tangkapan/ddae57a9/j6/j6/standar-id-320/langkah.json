@@ -1,0 +1,227 @@
+{
+  "perjalanan": "j6",
+  "nama": "Dimas · Admin sekolah Cendekia · Guru 4A Melati",
+  "lebar": 320,
+  "zona": "WIB",
+  "bahasa": "id",
+  "laluan": "standar",
+  "label": [
+    "penyedia AI: penyedia lokal (stand-in), bukan penyedia AI nyata",
+    "keadaan fiksasi di L4 (tujuan pembelajaran diganti saat formulir terbuka) dan L5 (plafon platform dihentikan, lalu dilepas; dunia lokal)"
+  ],
+  "mulai": "2026-11-24T21:32:23.299Z",
+  "langkah": [
+    {
+      "id": "L1",
+      "judul": "the AI form → the drafts (a lesson-text request of 2, admitted)",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-paket",
+        "02-formulir",
+        "03-draf"
+      ],
+      "amatan": [],
+      "data": {
+        "package_head": "Studio Perbandingan dan Skala Matematika · SMP · Kelas 8 Perlu tindakan Ada yang bisa Anda selesaikan sekarang di Studio. Lihat seperti murid Soal dalam paket ini Periksa setiap soal, kunci jawabannya, dan alasan setiap pilihan sebelum menyetujui. Hanya staf Studio sekolah ini yang melihat bagian ini; murid tidak pernah melihat kunci atau alasannya di sini. 3 soal dalam 2 pelajaran Pelajaran Perbandingan senilai (2 soal) Skala pada peta (1 soal) Buka Perbandingan senilai · 2 soal Buat draf soal ",
+        "form": "Buat draf soal dengan AI Pelajaran tujuan Perbandingan senilai Skala pada peta Draf soal ditambahkan ke pelajaran ini. Sumber hanya dipakai untuk menyusun soal. Sumber Teks pelajaran tujuan Teks yang saya tempel Tujuan pembelajaran Menyelesaikan masalah perbandingan senilai. Banyak soal (1–10) Saya menyatakan bahwa sekolah memiliki hak atau izin untuk memakai sumber ini dalam membuat soal. Pernyataan ini dicatat bersama permintaan. Pernyataan ini bukan izin hukum. Buat draf Batal",
+        "response": "200 {\"ok\":true,\"permintaan\":\"b81c9457-a7fd-4c1d-bce0-29accf33754d\",\"items\":[…]}",
+        "result_line": "✓2 draf soal siap ditinjau. | | | | |",
+        "requests": "DRAFTED len 306",
+        "drafts": "2 waiting, 0 accepted, 2 from AI in the package"
+      },
+      "tab": 7,
+      "url": "/studio/paket/a933ce3e-30a6-4989-9008-b4847553be6a",
+      "ms": 7406
+    },
+    {
+      "id": "L2",
+      "judul": "one draft deleted (its confirmation); the other left waiting",
+      "hasil": "SAMPAI",
+      "layar": [
+        "04-hapus-tanya",
+        "05-dihapus"
+      ],
+      "amatan": [],
+      "data": {
+        "delete_question": "Hapus draf ini? Draf yang dihapus tidak dapat dikembalikan. Hapus Batal",
+        "after_delete": "✓Draf dihapus. | ✓Draf dihapus. | ✓2 draf soal siap ditinjau. | | | |",
+        "drafts": "1 waiting, 0 accepted, 1 from AI in the package"
+      },
+      "tab": 2,
+      "url": "/studio/paket/a933ce3e-30a6-4989-9008-b4847553be6a",
+      "ms": 1100
+    },
+    {
+      "id": "L3",
+      "judul": "a pasted source naming a learner: refused before anything leaves PINTAR",
+      "hasil": "SAMPAI",
+      "layar": [
+        "06-data-murid"
+      ],
+      "amatan": [],
+      "data": {
+        "response": "422 {\"ok\":false,\"kode\":\"AI_DATA_PRIBADI\",\"permintaan\":\"7e2e8012-5969-486d-a660-25310e300252\",\"kelas\":[\"NAME\"],\"rentang\":[\"[0",
+        "refusal": "Sumber ini tampaknya memuat nama atau data murid, jadi tidak dikirim. Hapus data murid dari sumbernya, lalu coba lagi. | | | |",
+        "text_kept": true,
+        "rights_tick_kept": false,
+        "requests": "DRAFTED len 306; REFUSED_PERSONAL_DATA len 96"
+      },
+      "tab": 8,
+      "url": "/studio/paket/a933ce3e-30a6-4989-9008-b4847553be6a",
+      "ms": 3928
+    },
+    {
+      "id": "L4",
+      "judul": "a stale form: an objective moved while the form is open (fixture), then sent",
+      "hasil": "SAMPAI",
+      "layar": [
+        "07-formulir-terbuka",
+        "08-tujuan-lain"
+      ],
+      "amatan": [],
+      "data": {
+        "response": "422 {\"ok\":false,\"kode\":\"AI_TUJUAN_LAIN\"}",
+        "refusal": "Tujuan pembelajaran pelajaran ini sudah berubah. Muat ulang halaman, lalu pilih lagi. | | | |",
+        "requests": "DRAFTED len 306; REFUSED_PERSONAL_DATA len 96"
+      },
+      "tab": 7,
+      "url": "/studio/paket/a933ce3e-30a6-4989-9008-b4847553be6a",
+      "ms": 3838
+    },
+    {
+      "id": "L5",
+      "judul": "the provider ceiling (fixture: the platform stop set, then reset, in the local world)",
+      "hasil": "SAMPAI",
+      "layar": [
+        "09-plafon"
+      ],
+      "amatan": [],
+      "data": {
+        "response": "422 {\"ok\":false,\"kode\":\"AI_PLAFON\",\"permintaan\":\"0329067d-5196-49e6-a2bf-a684b40db3ee\"}",
+        "refusal": "Pembuatan draf dengan AI sedang tidak dapat dipakai untuk sementara. Ini tidak mengurangi jatah sekolah Anda. Tidak ada yang dikirim. Coba lagi nanti, atau tulis soal sendiri. | | |",
+        "requests": "DRAFTED len 306; REFUSED_PERSONAL_DATA len 96; (none) len 292"
+      },
+      "tab": 8,
+      "url": "/studio/paket/a933ce3e-30a6-4989-9008-b4847553be6a",
+      "ms": 3965
+    },
+    {
+      "id": "L6",
+      "judul": "the allowance used up: the same request as L1",
+      "hasil": "SAMPAI",
+      "layar": [
+        "10-jatah-habis"
+      ],
+      "amatan": [],
+      "data": {
+        "response": "422 {\"ok\":false,\"kode\":\"AI_JATAH_HABIS\",\"permintaan\":\"13f66167-965d-4447-9c07-33216e39cc80\"}",
+        "refusal": "Batas pembuatan draf dengan AI sudah tercapai untuk periode ini. Tidak ada yang dikirim. Admin sekolah Anda dapat menanyakannya kepada Admin PINTAR. Anda tetap dapat menulis soal sendiri. | | | |",
+        "requests": "DRAFTED len 306; REFUSED_PERSONAL_DATA len 96; (none) len 292; (none) len 306"
+      },
+      "tab": 7,
+      "url": "/studio/paket/a933ce3e-30a6-4989-9008-b4847553be6a",
+      "ms": 3712
+    },
+    {
+      "id": "L7",
+      "judul": "«Tandai sudah tersusun» with an AI draft still waiting",
+      "hasil": "SAMPAI",
+      "layar": [
+        "11-tersusun"
+      ],
+      "amatan": [],
+      "data": {
+        "drafts_waiting_when_marked": "1 waiting, 0 accepted, 1 from AI in the package",
+        "marked": "| ✓Susun isi · Selesai | | | Perbandingan dan Skala",
+        "package": "STRUCTURED"
+      },
+      "tab": 9,
+      "url": "/studio/paket/a933ce3e-30a6-4989-9008-b4847553be6a",
+      "ms": 3154
+    },
+    {
+      "id": "L8",
+      "judul": "L-124: «Tandai lolos pemeriksaan» before any check has run; then «Periksa isi sekarang»",
+      "hasil": "SAMPAI",
+      "layar": [
+        "12-lolos-tanpa-periksa",
+        "13-periksa-sesudahnya"
+      ],
+      "amatan": [],
+      "data": {
+        "findings_before": "Temuan Temuan ditinjau oleh orang kedua, bukan oleh penyusun paket. Periksa isi sekarang PINTAR memeriksa pelajaran dan soalnya. Temuannya muncul di sini; langkah Kunci terbitan memeriksa sekali lagi. Tidak ada catatan mutu yang menunggu.",
+        "second_tab_ai_button": 1,
+        "marked_passed": "| ✓Periksa isi · Selesai | | Perbandingan dan Skala",
+        "package_after_mark": "VALIDATED",
+        "check_after": "Temuan Temuan ditinjau oleh orang kedua, bukan oleh penyusun paket. Periksa isi sekarang PINTAR memeriksa pelajaran dan soalnya. Temuannya muncul di sini; langkah Kunci terbitan memeriksa sekali lagi. ✓Tersimpan. Pemeriksaan isi selesai. Temuannya ada di bawah. Tidak satu pun pengecoh tertaut ke miskonsepsi. 1 temuan Mengapa penting: Tanpa tautan itu, jawaban salah tidak bisa dijelaskan atau diremediasi. Cara memperbaiki: Tautkan setiap pengecoh ke kode miskonsepsi yang menjelaskan mengapa murid memilihnya. Lihat lokasinya",
+        "package_after_check": "VALIDATED"
+      },
+      "tab": 10,
+      "url": "/studio/paket/a933ce3e-30a6-4989-9008-b4847553be6a",
+      "ms": 5295
+    },
+    {
+      "id": "L9",
+      "judul": "«already passed the check»: an AI request from a tab opened before the package was marked",
+      "hasil": "SAMPAI",
+      "layar": [],
+      "amatan": [],
+      "data": {
+        "ai_button_now": 0,
+        "response": "422 {\"ok\":false,\"kode\":\"AI_PAKET_LOLOS_PERIKSA\"}",
+        "refusal": "Paket ini sudah ditandai lolos pemeriksaan, jadi draf soal dengan AI tidak dibuat. Soal baru akan membuat paket perlu diperiksa lagi. Tidak ada yang dikirim. | | |",
+        "requests": "DRAFTED len 306; REFUSED_PERSONAL_DATA len 96; (none) len 292; (none) len 306"
+      },
+      "tab": 8,
+      "url": "/studio/paket/a933ce3e-30a6-4989-9008-b4847553be6a",
+      "ms": 3534
+    },
+    {
+      "id": "L10",
+      "judul": "«Ajukan» held while an AI draft waits; the draft accepted; «Ajukan»; the second person's count and «Setujui isi»",
+      "hasil": "SAMPAI",
+      "layar": [
+        "14-ajukan-ditahan",
+        "15-diterima",
+        "16-diajukan",
+        "17-kedua-studio",
+        "18-kedua-paket",
+        "19-disetujui"
+      ],
+      "amatan": [],
+      "data": {
+        "held": "Ajukan untuk ditinjau (disabled) · 1 soal masih draf dari AI. Soal ini perlu diterima atau dihapus oleh pendidik sebelum paket diajukan.",
+        "after_accept": "(no new status line) | |",
+        "drafts": "0 waiting, 1 accepted, 1 from AI in the package",
+        "package_after_accept": "VALIDATED",
+        "submitted": "✓Ajukan untuk ditinjau · Selesai | | Perbandingan dan Skala",
+        "author_after": "Langkah ini bukan wewenang Anda di sekolah ini. Minta orang yang disebut di atas; PINTAR tidak mengirim pemberitahuan.",
+        "second_studio": "Studio Studio Buat Paket Antrean Tinjauan Pustaka PINTAR Aturan Asesmen Bank Soal Tinjauan Integritas SMP Sintetis Cendekia Menunggu tinjauan Anda 1 Paket Pembelajaran Perbandingan dan Skala Matematika · Kelas 8 · SMP Sintetis Cendekia Sekarang: Setujui isi Persamaan Linear Satu Variabel Matematika · Kelas 8 · SMP Sintetis Cendekia Terbit Statistika Dasar Matematika · Kelas 8 · SMP Sintetis Cendekia Terbit",
+        "second_package_head": "Studio Perbandingan dan Skala Matematika · SMP · Kelas 8 1 dari 4 soal disusun dengan AI Perlu tindakan Ada yang bisa Anda selesaikan sekarang di Studio. Lihat seperti murid Soal dalam paket ini Periksa setiap soal, kunci jawabannya, dan alasan setiap pilihan sebelum menyetujui. Hanya staf Studio sekolah ini yang melihat bagian ini; murid tidak pernah melihat kunci atau alasannya di sini. Draf ini sedang ditinjau. Soal dapat diubah lagi bila dikembalikan. 4 soal dalam 2 pelajaran Pelajaran Perba",
+        "approved": "✓Setujui isi · Selesai | | | | Perbandingan dan Skala",
+        "package": "APPROVED"
+      },
+      "tab": 9,
+      "url": "/",
+      "ms": 12760
+    },
+    {
+      "id": "L11",
+      "judul": "W13: Melati's 4A teacher sees no AI button or word",
+      "hasil": "SAMPAI",
+      "layar": [
+        "20-w13"
+      ],
+      "amatan": [],
+      "data": {
+        "ai_button": 0,
+        "ai_words": []
+      },
+      "tab": 0,
+      "url": "/",
+      "ms": 5174
+    }
+  ],
+  "selesai": "2026-11-24T21:33:17.166Z",
+  "sampai_akhir": true
+}

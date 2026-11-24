@@ -1,0 +1,197 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - text: Mengajar
+    - strong: SMP Sintetis Cendekia
+    - link "Mengajar":
+      - /url: /mengajar
+    - link "Studio":
+      - /url: /studio
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fstudio%2Fpaket%2Fa6936e03-4956-4137-bee7-c30f416f0361
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Dimas Saputra":
+      - strong: Dimas Saputra
+    - button "Keluar"
+- main:
+  - paragraph:
+    - link "Studio":
+      - /url: /studio
+  - heading "Perbandingan dan Skala" [level=1]
+  - region "Perbandingan dan Skala":
+    - paragraph: Matematika · SMP · Kelas 8
+    - paragraph: 1 dari 4 soal disusun dengan AI
+    - paragraph: Perlu tindakan
+    - paragraph: Ada yang bisa Anda selesaikan sekarang di Studio.
+    - link "Lihat seperti murid":
+      - /url: /studio/pratinjau/683e8a5f-8d81-49a5-9e4d-5f11adc37992
+  - region "Soal dalam paket ini":
+    - heading "Soal dalam paket ini" [level=2]
+    - paragraph: Periksa setiap soal, kunci jawabannya, dan alasan setiap pilihan sebelum menyetujui. Hanya staf Studio sekolah ini yang melihat bagian ini; murid tidak pernah melihat kunci atau alasannya di sini.
+    - paragraph: 4 soal dalam 2 pelajaran
+    - text: Pelajaran
+    - combobox "Pelajaran":
+      - option "Perbandingan senilai (3 soal)" [selected]
+      - option "Skala pada peta (1 soal)"
+    - button "Buka"
+    - region "Perbandingan senilai · 3 soal":
+      - heading "Perbandingan senilai · 3 soal" [level=3]
+      - form "Buat draf soal dengan AI":
+        - heading "Buat draf soal dengan AI" [level=4]
+        - text: Pelajaran tujuan
+        - combobox "Pelajaran tujuan Draf soal ditambahkan ke pelajaran ini. Sumber hanya dipakai untuk menyusun soal.":
+          - option "Perbandingan senilai" [selected]
+          - option "Skala pada peta"
+        - text: Draf soal ditambahkan ke pelajaran ini. Sumber hanya dipakai untuk menyusun soal.
+        - group "Sumber":
+          - text: Sumber
+          - radio "Teks pelajaran tujuan" [checked]
+          - text: Teks pelajaran tujuan
+          - radio "Teks yang saya tempel"
+          - text: Teks yang saya tempel
+        - group "Tujuan pembelajaran":
+          - text: Tujuan pembelajaran
+          - checkbox "Menyelesaikan masalah perbandingan senilai." [checked]
+          - text: Menyelesaikan masalah perbandingan senilai.
+        - text: Banyak soal (1–10)
+        - spinbutton "Banyak soal (1–10)": "2"
+        - checkbox "Saya menyatakan bahwa sekolah memiliki hak atau izin untuk memakai sumber ini dalam membuat soal. Pernyataan ini dicatat bersama permintaan. Pernyataan ini bukan izin hukum." [checked]
+        - text: Saya menyatakan bahwa sekolah memiliki hak atau izin untuk memakai sumber ini dalam membuat soal. Pernyataan ini dicatat bersama permintaan. Pernyataan ini bukan izin hukum.
+        - alert: Tujuan pembelajaran pelajaran ini sudah berubah. Muat ulang halaman, lalu pilih lagi.
+        - button "Buat draf"
+        - button "Batal"
+      - list:
+        - listitem:
+          - article "Harga 2 pensil Rp6.000. Berapa harga 6 pensil?":
+            - paragraph: Soal 1 dari 4 · Pemetaan Awal · Mudah
+            - heading "Harga 2 pensil Rp6.000. Berapa harga 6 pensil?" [level=4]
+            - list "Soal 1 dari 4":
+              - listitem:
+                - paragraph:
+                  - text: A. Rp18.000
+                  - strong: Kunci
+                - paragraph: "Alasan: Faktornya 3."
+              - listitem:
+                - paragraph: B. Rp12.000
+                - paragraph: "Alasan: Faktornya 3, bukan 2."
+                - paragraph: "Pemahaman keliru: Faktor hanya pada satu besaran CDK-SENILAI"
+              - listitem:
+                - paragraph: C. Rp6.000
+                - paragraph: "Alasan: Harganya ikut bertambah."
+                - paragraph: "Pemahaman keliru: Faktor hanya pada satu besaran CDK-SENILAI"
+              - listitem:
+                - paragraph: D. Rp36.000
+                - paragraph: "Alasan: Faktornya 3, bukan 6."
+                - paragraph: "Pemahaman keliru: Faktor hanya pada satu besaran CDK-SENILAI"
+            - paragraph:
+              - link "Ubah soal ini · Soal 1 dari 4":
+                - /url: /studio/paket/a6936e03-4956-4137-bee7-c30f416f0361?pelajaran=1&ubah=4fdd19a1-e134-429b-a231-6086f6d844e8#soal-4fdd19a1-e134-429b-a231-6086f6d844e8
+        - listitem:
+          - article "3 kg beras harganya Rp45.000. Berapa harga 5 kg?":
+            - paragraph: Soal 2 dari 4 · Uji Penguasaan · Mudah
+            - heading "3 kg beras harganya Rp45.000. Berapa harga 5 kg?" [level=4]
+            - list "Soal 2 dari 4":
+              - listitem:
+                - paragraph:
+                  - text: A. Rp75.000
+                  - strong: Kunci
+                - paragraph: "Alasan: Rp15.000 × 5."
+              - listitem:
+                - paragraph: B. Rp60.000
+                - paragraph: "Alasan: Harga 1 kg Rp15.000."
+                - paragraph: "Pemahaman keliru: Faktor hanya pada satu besaran CDK-SENILAI"
+              - listitem:
+                - paragraph: C. Rp90.000
+                - paragraph: "Alasan: Itu harga 6 kg."
+                - paragraph: "Pemahaman keliru: Faktor hanya pada satu besaran CDK-SENILAI"
+              - listitem:
+                - paragraph: D. Rp50.000
+                - paragraph: "Alasan: Harga 1 kg Rp15.000."
+                - paragraph: "Pemahaman keliru: Faktor hanya pada satu besaran CDK-SENILAI"
+            - paragraph:
+              - link "Ubah soal ini · Soal 2 dari 4":
+                - /url: /studio/paket/a6936e03-4956-4137-bee7-c30f416f0361?pelajaran=1&ubah=113240d5-8a36-4aba-a13e-e536f881e8f6#soal-113240d5-8a36-4aba-a13e-e536f881e8f6
+        - listitem:
+          - 'article "Soal latihan 2: Menyelesaikan masalah perbandingan senilai."':
+            - paragraph: Soal 3 dari 4 · Latihan
+            - 'heading "Soal latihan 2: Menyelesaikan masalah perbandingan senilai." [level=4]'
+            - list "Soal 3 dari 4":
+              - listitem:
+                - paragraph: A. Pilihan A
+                - paragraph: "Alasan: Pilihan A belum sesuai dengan tujuan ini."
+                - paragraph: "Pemahaman keliru: belum dikaitkan"
+              - listitem:
+                - paragraph: B. Pilihan B
+                - paragraph: "Alasan: Pilihan B belum sesuai dengan tujuan ini."
+                - paragraph: "Pemahaman keliru: belum dikaitkan"
+              - listitem:
+                - paragraph:
+                  - text: C. Pilihan C
+                  - strong: Kunci
+                - paragraph: "Alasan: Pilihan C sesuai dengan tujuan ini."
+              - listitem:
+                - paragraph: D. Pilihan D
+                - paragraph: "Alasan: Pilihan D belum sesuai dengan tujuan ini."
+                - paragraph: "Pemahaman keliru: belum dikaitkan"
+            - paragraph: Sebagian pilihan salah belum dikaitkan dengan pemahaman keliru. Jawaban pada pilihan itu tidak masuk hitungan pemahaman keliru.
+            - paragraph: Diubah oleh Dimas Saputra, 25 Nov 2026, 04.36 WIB
+            - paragraph: Draf dari AI
+            - paragraph: Disusun dengan AI (penyedia lokal (stand-in), bukan penyedia AI nyata) dari teks pelajaran Perbandingan senilai · diminta oleh Dimas Saputra, 25 Nov 2026, 04.36 WIB
+            - paragraph: "Menunggu keputusan Anda: terima atau hapus."
+            - button "Terima · Soal 3 dari 4"
+            - status
+            - button "Hapus · Soal 3 dari 4"
+            - paragraph:
+              - link "Ubah soal ini · Soal 3 dari 4":
+                - /url: /studio/paket/a6936e03-4956-4137-bee7-c30f416f0361?pelajaran=1&ubah=c00b89ab-8bc8-43d1-8138-a3ad81da708c#soal-c00b89ab-8bc8-43d1-8138-a3ad81da708c
+      - paragraph:
+        - link "Tambah soal":
+          - /url: /studio/paket/a6936e03-4956-4137-bee7-c30f416f0361?pelajaran=1&tambah=683e8a5f-8d81-49a5-9e4d-5f11adc37992#tambah-683e8a5f-8d81-49a5-9e4d-5f11adc37992
+    - navigation "Pelajaran dalam paket ini":
+      - link "Sebelumnya" [disabled]
+      - text: Pelajaran 1 dari 2
+      - link "Berikutnya":
+        - /url: /studio/paket/a6936e03-4956-4137-bee7-c30f416f0361?pelajaran=2#pin-soal-pelajaran
+  - region "Langkah menuju terbit":
+    - heading "Langkah menuju terbit" [level=2]
+    - paragraph: Tujuh langkah dari unggahan sampai terbit, dalam urutan yang dijalankan PINTAR. Tombol hanya muncul untuk orang yang boleh mengambil langkah itu.
+    - list "Langkah menuju terbit":
+      - listitem:
+        - paragraph: Susun isi
+      - listitem:
+        - paragraph: Periksa isi
+      - listitem:
+        - paragraph: Ajukan untuk ditinjau
+      - listitem:
+        - paragraph: Setujui isi
+      - listitem:
+        - paragraph: Buat terbitan
+      - listitem:
+        - paragraph: Kunci terbitan
+      - listitem:
+        - paragraph: Terbitkan
+      - listitem:
+        - paragraph: Terbit
+    - paragraph: Sekarang
+    - heading "Susun isi" [level=3]
+    - paragraph: "Buku kerja sudah menjadi paket: bab, pelajaran, dan soal. Lihat seperti murid untuk memeriksa tampilannya, lalu tandai sudah tersusun."
+    - paragraph: "Oleh: Guru, Kepala departemen atau Admin sekolah"
+    - button "Tandai sudah tersusun"
+    - status
+  - heading "Temuan" [level=2]
+  - paragraph: Temuan ditinjau oleh orang kedua, bukan oleh penyusun paket.
+  - button "Periksa isi sekarang"
+  - status
+  - text: PINTAR memeriksa pelajaran dan soalnya. Temuannya muncul di sini; langkah Kunci terbitan memeriksa sekali lagi.
+  - paragraph: Tidak ada catatan mutu yang menunggu.
+  - region "Buang draf ini":
+    - heading "Buang draf ini" [level=2]
+    - button "Buang draf ini"
+- alert
