@@ -118,6 +118,11 @@ export const KATA_D2R: Array<[HleEvent, string, string]> = [
   // Daisy's §8 (2bfbd3d7): reworded so DAISY-26 needs no exemption
   ["hasil.tidak_ditampilkan" as HleEvent, "Pada Uji Penguasaan, jawaban yang tepat dan hasil tiap soal tidak ditampilkan.",
     "In a Mastery Check, the right answers and the result of each question are not shown."],
+  // Daisy's §11 (deacb184): Hasil Belajar and its print, on every certifying row
+  ["hasilbelajar.baca_lagi" as HleEvent, "Disarankan dibaca lagi: {daftar}.", "Suggested for reading again: {daftar}."],
+  ["hasilbelajar.baca_lagi_banyak" as HleEvent, "Ada {n} bagian yang disarankan untuk dibaca lagi; semuanya ditandai «baca lagi» di bagian B.",
+    "{n} parts are suggested for reading again; each is marked «read again» in section B."],
+  ["hasilbelajar.baca_lagi_tanda" as HleEvent, "baca lagi", "read again"],
   ["hasilbelajar.gerbang" as HleEvent, "Ada soal penting yang belum tepat, jadi Uji Penguasaan bab ini belum lulus.", "An important question is not right yet, so this chapter's Mastery Check is not passed yet."],
 ];
 
@@ -425,6 +430,58 @@ export const d2rTests: SelfTest[] = [
       c.expect(/\.neq\("status", "SELESAI"\) \.order\("status"\)\.order\("stops_class", \{ ascending: false \}\)/.test(lib),
         "the triage list does not order the reports not yet handled by status, then stops_class first");
       return c.verdict("Daisy's §10 lines read word for word in ID and EN and name no time period (a planted period is caught); a new report is DITERIMA, the enum's first value, and the triage list orders open reports by status then stops_class first, so among reports not yet handled a class-stopping one is listed first");
+    },
+  },
+  {
+    id: "D2R-C07",
+    run: async (ctx) => {
+      const c = new Checks();
+      const { t } = await import("../src/lib/hle");
+      const id = (k: string) => t(k as never, "learner", { locale: "id" });
+      // Daisy's §11 (deacb184): on every certifying row, Lulus or Belum lulus, the sections to read again in «baca lagi»'s
+      // words, in the lead and marked in section B; non-certifying rows keep «pelajari lagi»
+      const render = (bab: unknown[]) => {
+        const skrip = 'const { createElement: h } = await import("react");'
+          + 'const { renderToStaticMarkup } = await import("react-dom/server");'
+          + 'const m = await import("file://" + process.cwd() + "/src/components/laporan/KomposisiMurid.tsx");'
+          + "const K = m.default?.default ?? m.default;"
+          + "process.stdout.write(renderToStaticMarkup(h(K, { bab: JSON.parse(process.env.PROPS), locale: 'id' })));";
+        const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
+          `(async () => {${skrip}})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });`],
+        { cwd: ctx.repoRoot, encoding: "utf8", env: { ...process.env, PROPS: JSON.stringify(bab) } });
+        return { ok: anak.status === 0, out: anak.stdout, err: (anak.stderr || "").slice(0, 300) };
+      };
+      const lulus = { tugas: "t1", judul: "IPA · Bab 2", keadaan: "SELESAI", awal: null, akhir: null, ambang: 0.75, tercapai: "TERCAPAI", benar: 5, total: 6, bagian: [], ulang: ["Tanda bahaya"], bersertifikasi: true };
+      const belum = { tugas: "t2", judul: "IPA · Bab 3", keadaan: "SELESAI", awal: null, akhir: null, ambang: 0.75, tercapai: "BELUM", benar: 2, total: 6, bagian: [], ulang: ["Rantai makanan"], bersertifikasi: true };
+      const biasa = { tugas: "t3", judul: "IPA · Bab 4", keadaan: "SELESAI", awal: null, akhir: 0.5, ambang: 0.75, tercapai: "BELUM", benar: 5, total: 10,
+        bagian: [{ kode: "M", nama: "Massa jenis", benar: 1, total: 4, ulang: true }], ulang: ["Massa jenis"] };
+      const r = render([lulus, belum, biasa]);
+      if (!c.expect(r.ok, `KomposisiMurid could not be rendered: ${r.err}`)) return c.verdict("");
+      const tx = teksHtml(r.out);
+      const bacaLagi = id("hasilbelajar.baca_lagi").replace("{daftar}", "Tanda bahaya (IPA · Bab 2); Rantai makanan (IPA · Bab 3)");
+      c.expect(tx.includes(bacaLagi), `the lead does not advise reading again the certifying rows' sections, pass and not passed alike: «${tx.slice(0, 500)}»`);
+      c.expect(tx.includes(id("hasilbelajar.ulang").replace("{daftar}", "Massa jenis (IPA · Bab 4)")) && !/Tanda bahaya[^.]*\(IPA · Bab 2\)[^.]*Pelajari lagi|Pelajari lagi: [^.]*Tanda bahaya/.test(tx),
+        "a non-certifying row does not keep «Pelajari lagi», or a certifying section is listed under it");
+      // section B: a certifying chapter's sections by name, marked «baca lagi», with no figure
+      const iB = r.out.indexOf('data-lk="bagian"');
+      const B = iB >= 0 ? r.out.slice(iB, r.out.indexOf("</section>", iB)) : "";
+      const kel = (judul: string) => { const i = B.indexOf(`<h3>${judul}</h3>`); return i >= 0 ? B.slice(i, B.indexOf("</div>", i)) : ""; };
+      const kL = kel("IPA · Bab 2"), kB = kel("IPA · Bab 3"), kN = kel("IPA · Bab 4");
+      const tanda = `>${id("hasilbelajar.baca_lagi_tanda")}</small>`;
+      c.expect(kL.includes("Tanda bahaya") && kL.includes(tanda) && kB.includes("Rantai makanan") && kB.includes(tanda),
+        "section B does not list a certifying row's sections marked «baca lagi» (pass and not passed)");
+      c.expect(!/\d+ dari \d+|pin-lk-kotak|%/.test(kL + kB), "section B gives a certifying section a figure");
+      c.expect(kN.includes(`>${id("hasilbelajar.pelajari_lagi")}</small>`) && !kN.includes(tanda), "a non-certifying row's section B does not keep «pelajari lagi»");
+      // many: each kind counted on its own and pointed to section B in its own words
+      const banyak = render([{ ...lulus, ulang: ["A1", "A2"] }, { ...belum, ulang: ["B1"] }, biasa]);
+      const tb = teksHtml(banyak.out);
+      c.expect(banyak.ok && tb.includes(id("hasilbelajar.baca_lagi_banyak").replace("{n}", "3")) && !tb.includes(id("hasilbelajar.ulang_banyak").replace("{n}", "4")),
+        "more than two certifying sections are not counted in «baca lagi»'s own words, apart from «pelajari lagi»");
+      // the library lists a certifying pass's sections too (ruling 74a item 2), from its own list
+      const lib = tanpaKomentar(baca(ctx.repoRoot, "src/lib/hasil-belajar.ts")).replace(/\s+/g, " ");
+      c.expect(/const ulang = bersertifikasi \? bagianUlang\(null, null, peta, pelajaran, outcome\.tujuan_gerbang_kode \?\? \[\], outcome\.tujuan_ulang \?\? \[\]\)/.test(lib),
+        "Hasil Belajar does not list a certifying result's sections whatever its decision");
+      return c.verdict("rendered: on Hasil Belajar every certifying row, Lulus or Belum lulus, gives its sections in «Disarankan dibaca lagi:» and marks them «baca lagi» by name in section B with no figure; more than two are counted in «baca lagi»'s own words; non-certifying rows keep «Pelajari lagi»; the library lists a certifying pass's sections from its own list");
     },
   },
   {

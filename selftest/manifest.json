@@ -7550,6 +7550,11 @@
       "proves": "Ruling 90, Daisy's D2R-KATA §10 (ccd42fa6), red first, d2r.test.ts, executes the copy table and reads supabase/migrations/20261119100000_a_staff_member_reports_a_problem.sql and src/lib/lapor-masalah.ts: lapor.langkah.awal and lapor.langkah.awal_kelas read word for word in ID and EN and name no time period (a planted period is caught); a new report is DITERIMA, the status enum's first value, and the triage list orders open reports by status, then stops_class first."
     },
     {
+      "id": "D2R-C07",
+      "runner": "static",
+      "proves": "Daisy's D2R-KATA §11 (deacb184), red first, d2r.test.ts, renders src/components/laporan/KomposisiMurid.tsx and reads src/lib/hasil-belajar.ts: every certifying row, Lulus or Belum lulus, gives its sections in hasilbelajar.baca_lagi and marks them hasilbelajar.baca_lagi_tanda by name in section B with no figure; more than two are counted in hasilbelajar.baca_lagi_banyak; non-certifying rows keep hasilbelajar.ulang and «pelajari lagi»."
+    },
+    {
       "id": "D2R-F02",
       "runner": "static",
       "proves": "D2-R R-f, red first, d2r.test.ts, reads the source of src/components/siklus/HasilBersertifikasi.tsx: the certifying result shows the attempt ordinal from session_outcome."
