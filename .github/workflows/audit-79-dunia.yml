@@ -69,9 +69,12 @@ jobs:
           curl -fsS -o /dev/null -w 'app up: /masuk %{http_code}\n' "http://127.0.0.1:${APP_PORT}/masuk"
       - name: Install the harness's browser
         working-directory: audit
+        # Chromium alone first: the runner image already has its system libraries, and --with-deps goes through apt,
+        # whose mirror held runs 3 and 4 for minutes. The apt route stays as the fallback.
+        timeout-minutes: 10
         run: |
           npm install --no-audit --no-fund
-          npx playwright install --with-deps chromium
+          npx playwright install chromium || npx playwright install --with-deps chromium
       # Each journey: the reset and the world (audit/dunia/muat.sh), then its walks. J1 first (ruling 89: «send the head
       # when the first journey runs end to end on CI»); the others join here as their states land.
       - name: J1 · the world from a reset, then the standard walk (1280, 390, 320; ID; keyboard)

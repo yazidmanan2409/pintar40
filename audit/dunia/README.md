@@ -47,4 +47,8 @@ artifact.
 | W4 · «Statistika Dasar» given to 8A before a pass mark; Hana (J2's learner) finished it: a result with no verdict. **A legacy state, written past today's guard** (the product now refuses it: ASSIGN_PASS_MARK_MISSING); `dunia.bab` with `"warisan": true` disables the one sealing trigger for that chapter's own rows and enables it again at once | `05-hasil.sql` | built |
 | W5 · Rizky, 8A: W3's Uji Penguasaan 5 of 6, only CDK8-3 wrong (83 %, gate passed, the thin objective below) | `05-hasil.sql` | built (sat through the product) |
 | W6 · Sinta, class 8B (W3's chapter, attempt limit 1): 5 of 6 (83 %) with the must-be-right question missed (gate failed); the approver is the head of department, not 8B's teacher | `05-hasil.sql` | built (sat through the product) |
-| W7–W19 | | next |
+| W9 · Galih, 8A: W3's Pemetaan Awal done, the Uji Penguasaan started with 2 answered and left open | `06-w9-w11.sql` | built |
+| W10 · Ayu Lestari, a teacher new to PINTAR: of 8A and 8C, no prior action | `06-w9-w11.sql` | built |
+| W11 · 8C: four learners, nothing given, no result | `06-w9-w11.sql` | built |
+| W17 · Puspa Anggraini, a former teacher, closed her own account (`minta_akun('CLOSE')`). Staff, because next-base refuses a learner's own closing (ACCOUNT_LEARNER_VIA_SCHOOL) | `07-w17.sql` | built |
+| W7, W8 (J3's per-journey fixtures), W12–W16, W18, W19 | | next |
