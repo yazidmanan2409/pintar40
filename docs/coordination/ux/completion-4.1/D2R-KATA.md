@@ -1,6 +1,7 @@
 # D2-R · Words for the certificate refinement, written before the build (Daisy, 24 Nov 2026)
 
 > **What holds now:**
+> - **Verdict (24 Nov, 01:05, ruling 89 task 1a):** R-a, R-b and R-g **PASS** against the frozen A4 grid, with one term for Bob or the owner (§1: «Materi» or «Paket» Pembelajaran). The R-h words are **final** (§3). §6.3a: **one change**, `verifikasi.lulus` to «Lulus» (§4). The pre-start conditions are found and resolved (§5.1). Read again on the new base, `claude/next-base` `055738ba`.
 > - **Purpose:** my pre-code input to D2-R (`D2-CERTIFICATE-CONDITIONS-SPEC.md` §6, rulings 59, 74, 74a and 74b). It holds the R-h result words, which «Daisy writes», R-g's advisory line, the §6.3 step 2 check of R-a and R-b, and §6.3a's consistency check.
 > - **Design only.** Read against the Z tree (`claude/z` `a8d9ff27`), which is accepted on staging under ruling 88.
 > - **For Bob:**
@@ -81,11 +82,11 @@ On the chapter page, beside «Lanjut membaca», when Pemetaan Awal is done and s
 
 ## 5 · To confirm at the build
 
-1. **The pre-start conditions screen** for Uji Penguasaan (window close, attempts, what counts):
-   - I did not find its strings by key in this read.
-   - **At the build:** add, from D2-R, one line saying help isn't available, new key `pengerjaan.syarat.tanpa_bantuan`:
+1. **The pre-start conditions: found (`posttest.*` on `055738ba`).**
+   - Today the test page opens with `posttest.intro` «Kerjakan dengan tenang. Anda bisa menandai soal dan kembali lagi.», then «Waktu berjalan» (elapsed, not a limit) and «Simpan & Jeda». None of these contradicts the certificate or «Lulus».
+   - **From D2-R, add directly after `posttest.intro`,** new key `posttest.tanpa_bantuan`:
      - ID: «Selama Uji Penguasaan, petunjuk, contoh, dan arah berpikir tidak tersedia.»
      - EN: «During the Mastery Check, hints, examples and thinking prompts are not available.»
-   - Then I check the screen's other lines against §4.
+   - It is drawn on certifying modes only. Sharon's §6.3a check («Waktu berjalan» implies no timed test) is hers.
 2. **The evidence threshold** (§3), with Sharon.
 3. **The A4 sheet's rendered check** (R-13) on the new R-b line, with whichever term §1 settles.
