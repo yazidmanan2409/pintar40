@@ -19,10 +19,13 @@ artifact.
 ## The rules (Daisy's §3)
 
 - Invented names only. Synthetic passwords and card PINs, the same after every reset.
-- One school year (TA 2026/2027). ID first; each journey walked once in EN.
+- One school year, the one that contains the day the world is loaded (`dunia.ta_mulai()`: the second Monday of July
+  on or before today). ID first; each journey walked once in EN.
+- **The clock (Bob, 24 Nov):** every date in the world is relative to the load time (now() plus or minus intervals), so
+  windows, deadlines and expiries hold whenever it runs. The SERVER's clock is the machine's: the product has no clock
+  override, and none is added.
 - The time zone fixed per school, set by an Admin PINTAR through `atur_zona_waktu_sekolah`: SD Sintetis Melati and SMP
-  Sintetis Cendekia are WIB (Asia/Jakarta); the WITA school joins with J12's state. The browser runs in the school's zone. The server's clock is the machine's: the product has no clock override, and
-  this track changes no product code.
+  Sintetis Cendekia are WIB (Asia/Jakarta); the WITA school joins with J12's state. The browser runs in the school's zone.
 - A reset returns every state: `muat.sh` always starts from `supabase db reset --local`, and loads the world as one
   transaction.
 - Every result is SAT through the product's own functions, by the learner as themself (`dunia.duduk`:

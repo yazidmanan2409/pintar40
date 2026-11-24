@@ -18,3 +18,9 @@ failure). An OBSERVED note records what a screen did where the script expected s
 | Journey | Script | World | Status |
 |---|---|---|---|
 | J1 · First day (SD) | `j1.mjs` | W1 | runs end to end. L4 (personal PIN) and L5 («Komputer siapa ini?») are recorded as the screen offers them: on next-base a class-card session is never asked about the computer (D-086(c)); a learner by email (W2) is asked at `/perangkat`, and the personal PIN is an email account's |
+
+**The clock:** the browser runs in the school's zone (WIB or WITA). The server's clock is the machine's, and every world
+date is relative to the load time, so a capture's dates are the day it ran.
+
+**J6 (AI drafts)** is walked with C3w-1's local stand-in provider, as 4.1 ships it. Its captures are labelled «penyedia
+lokal (stand-in), bukan penyedia AI nyata». The real provider's draft quality is C3w-2's, and out of scope.

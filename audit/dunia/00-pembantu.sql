@@ -168,3 +168,17 @@ begin
   perform dunia.sebagai(null);
   return s;
 end $$;
+
+-- THE CLOCK (Bob, 24 Nov): every date in the world is relative to the moment it is loaded, so windows, deadlines and
+-- expiries hold whenever it runs. The school year is the one that contains today: it starts on the second Monday of
+-- July (Indonesia's school year) on or before today, and ends about 50 weeks later. The server's clock is the
+-- machine's; the product has no clock override, and none is added.
+create function dunia.ta_mulai() returns date language sql stable as $$
+  select d + ((8 - extract(isodow from d)::int) % 7) + 7
+    from (select make_date(case when extract(month from current_date) >= 7 then extract(year from current_date)::int
+                                else extract(year from current_date)::int - 1 end, 7, 1) as d) x
+$$;
+create function dunia.ta_selesai() returns date language sql stable as $$ select dunia.ta_mulai() + 349 $$;
+create function dunia.ta_nama() returns text language sql stable as $$
+  select 'TA ' || extract(year from dunia.ta_mulai())::int || '/' || (extract(year from dunia.ta_mulai())::int + 1)
+$$;

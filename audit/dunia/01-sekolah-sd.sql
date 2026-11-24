@@ -37,7 +37,7 @@ begin
   perform public.atur_zona_waktu_sekolah(sekolah, 'Asia/Jakarta');   -- WIB
   perform dunia.sebagai(null);
   insert into public.academic_periods (institution_id, name, starts_on, ends_on)
-  values (sekolah, 'TA 2026/2027', '2026-07-13', '2027-06-26') returning id into ta;
+  values (sekolah, dunia.ta_nama(), dunia.ta_mulai(), dunia.ta_selesai()) returning id into ta;
   perform dunia.simpan('sd.ta', ta::text);
   insert into public.org_nodes (institution_id, parent_id, kind, name) values (sekolah, sekolah, 'FACULTY', 'Sekolah Dasar') returning id into fak;
   insert into public.org_nodes (institution_id, parent_id, kind, name) values (sekolah, fak, 'DEPARTMENT', 'Kelas Tinggi') returning id into dep;
