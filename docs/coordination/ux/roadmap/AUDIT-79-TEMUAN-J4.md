@@ -48,7 +48,7 @@
 
 | # | Cause |
 |---|---|
-| J4-1 | **New cause (proposed C-7): who changed a state is recorded, but shown only to the person who acted.** The ending («diakhiri oleh guru, jawaban yang ada dinilai») lives on the sitting and its audit row, and the teacher reads it. The learner's result is derived from the outcome alone, so it cannot tell a hand-in from a teacher's end. L-59's sibling (the approved retake the learner isn't told of) is C-2, not this |
+| J4-1 | **Proposed cause (unnumbered; Bob mapped it to C-2): who changed a state is recorded, but shown only to the person who acted.** The ending («diakhiri oleh guru, jawaban yang ada dinilai») lives on the sitting and its audit row, and the teacher reads it. The learner's result is derived from the outcome alone, so it cannot tell a hand-in from a teacher's end. L-59's sibling (the approved retake the learner isn't told of) is C-2, not this |
 | J4-2 | C-4 (L-45) |
 | J4-3 | C-2: the start card's step derivation says «Siap» while the sitting is begun. That is the same step derivation that misses the approved retake |
 | J4-4 | None: wording only |
