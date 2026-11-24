@@ -1,0 +1,138 @@
+{
+  "perjalanan": "j8-pin-muat-ulang",
+  "nama": "Wahyu Nugroho (Admin sekolah Anggrek)",
+  "lebar": 1280,
+  "zona": "WIB",
+  "bahasa": "id",
+  "laluan": "standar",
+  "label": [
+    "keadaan fiksasi: kelas 1A Anggrek dengan tiga murid menunggu kartu",
+    "PIN sintetis (dunia audit), boleh tercatat"
+  ],
+  "mulai": "2026-11-24T21:43:49.545Z",
+  "langkah": [
+    {
+      "id": "P1",
+      "judul": "1A: the cards made (the sheet with its PINs)",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-aktivasi-1A",
+        "02-1a-dibuat"
+      ],
+      "amatan": [],
+      "data": {
+        "1a-dibuat": {
+          "url": "/aktivasi",
+          "pins_known": 3,
+          "visible": 3,
+          "in_dom": 3,
+          "in_history_state": 0,
+          "in_url": 0,
+          "in_web_storage": 0,
+          "restored_from_bfcache": false
+        }
+      },
+      "tab": 14,
+      "url": "/aktivasi",
+      "ms": 6807
+    },
+    {
+      "id": "P2",
+      "judul": "1A: Reload",
+      "hasil": "SAMPAI",
+      "layar": [
+        "03-1a-muat-ulang"
+      ],
+      "amatan": [],
+      "data": {
+        "1a-muat-ulang": {
+          "url": "/aktivasi",
+          "pins_known": 3,
+          "visible": 0,
+          "in_dom": 0,
+          "in_history_state": 0,
+          "in_url": 0,
+          "in_web_storage": 0,
+          "restored_from_bfcache": false
+        }
+      },
+      "tab": 0,
+      "url": "/aktivasi",
+      "ms": 2307
+    },
+    {
+      "id": "P3",
+      "judul": "1B: the cards made, then left for another page (Konfigurasi)",
+      "hasil": "SAMPAI",
+      "layar": [
+        "04-aktivasi-1B",
+        "05-1b-dibuat",
+        "06-1b-ditinggal"
+      ],
+      "amatan": [],
+      "data": {
+        "new_pins": 2,
+        "1b-dibuat": {
+          "url": "/aktivasi",
+          "pins_known": 6,
+          "visible": 3,
+          "in_dom": 3,
+          "in_history_state": 0,
+          "in_url": 0,
+          "in_web_storage": 0,
+          "restored_from_bfcache": false
+        },
+        "1b-ditinggal": {
+          "url": "/konfigurasi",
+          "pins_known": 6,
+          "visible": 0,
+          "in_dom": 0,
+          "in_history_state": 0,
+          "in_url": 0,
+          "in_web_storage": 0,
+          "restored_from_bfcache": false
+        }
+      },
+      "tab": 14,
+      "url": "/konfigurasi",
+      "ms": 6260
+    },
+    {
+      "id": "P4",
+      "judul": "1B: Back to the sheet's page; then Forward and Back again",
+      "hasil": "SAMPAI",
+      "layar": [
+        "07-1b-kembali",
+        "08-1b-kembali-lagi"
+      ],
+      "amatan": [],
+      "data": {
+        "1b-kembali": {
+          "url": "/aktivasi",
+          "pins_known": 6,
+          "visible": 0,
+          "in_dom": 0,
+          "in_history_state": 0,
+          "in_url": 0,
+          "in_web_storage": 0,
+          "restored_from_bfcache": false
+        },
+        "1b-kembali-lagi": {
+          "url": "/aktivasi",
+          "pins_known": 6,
+          "visible": 0,
+          "in_dom": 0,
+          "in_history_state": 0,
+          "in_url": 0,
+          "in_web_storage": 0,
+          "restored_from_bfcache": false
+        }
+      },
+      "tab": 0,
+      "url": "/aktivasi",
+      "ms": 5299
+    }
+  ],
+  "selesai": "2026-11-24T21:44:10.276Z",
+  "sampai_akhir": true
+}
