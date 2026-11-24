@@ -100,7 +100,7 @@ The engine's forbidden-key list (`ANSWER_KEY_FIELDS`, `AI_PROVENANCE_FIELDS`) gu
 |---|---|
 | R-a | `src/lib/hle.ts:4830` `sertifikat.jenis` («Sertifikat Penguasaan»), `:4833` `sertifikat.berkas` |
 | R-b | `src/lib/hle.ts:4831` `sertifikat.diberikan` («telah menuntaskan») |
-| R-c | **Rendered:** `src/components/sertifikat/KartuSertifikat.tsx`, `LembarA4.tsx` (A4), `src/app/verifikasi/[token]/page.tsx`, `src/app/api/verifikasi/[token]/route.ts`, `src/lib/certificates/verification.ts`, `src/lib/sertifikat-kontrak.ts`, `src/app/belajar/[tugas]/sertifikat/page.tsx`, and the predikat copy keys in `hle.ts`. **Kept:** the band in `certificate_eligibility` (`20261102100000`), the sealed snapshot, `verify_certificate`, `assert_public_surface()` |
+| R-c | **Public data (rev. 4 correction):** `verify_certificate` returns `TABLE(pass, predikat, institution, date, validity)` (live at 308), and `/api/verifikasi/[token]` (`route.ts:29`) passes `predikat` through. **Rev. 4:** the RPC returns `predikat` null for every certificate. The OUT columns and `assert_public_surface()` are unchanged. **Render sites:** the card `KartuSertifikat.tsx:80`, the printable record `:153` (C1-R4), the A4 sheet (`sertifikat-lembar`, `LembarA4.tsx`), `/verifikasi/[token]/page.tsx`, and the learner's own page `belajar/[tugas]/sertifikat/page.tsx:166` (not public; Daisy's call). Also `src/lib/certificates/verification.ts`, `src/lib/sertifikat-kontrak.ts` and the `sertifikat.predikat` keys in `hle.ts`. **Kept:** the band in `certificate_eligibility` (`20261102100000`), the sealed snapshot and internal reports |
 | R-e | `extend_session_deadline` updates `assessment_sessions.authoritative_deadline` and `deadline_extended_count`, and writes `audit_write('assessment_session.deadline_extended', …)` with the old and new deadline. «Recorded with the result» therefore means carrying it onto the result or staff read; the public reads (`verify_certificate`, the certificate) must not gain it |
 | R-f | **No ordinal column today:** `assessment_sessions` has none. The count is `percobaan_terpakai` (`20270114100000:269`), across the lineage (A3, `percobaan_penugasan_segaris`), under the `minta_percobaan` advisory lock (`20270114100000:799`) and the start path's lock. R-f adds a column set at the start, under that same lock, and shown on the learner's result (`/belajar/[tugas]/hasil`) and staff views only |
 | R-g | `src/lib/siklus.ts` `posisi()` `:140–165`: `PENGUASAAN` is offered only when `read >= total`. The chapter page follows it. The database (`may_start_assessment`) and the test page already allow it (spec). The copy goes in `hle.ts` (`siklus.*`) |
@@ -142,28 +142,37 @@ Each case is written first, seen **red** on `055738ba` (or red against its plant
 | D2R-H13 | **Pins:** the staff views (teacher evidence, per-question, Studio) unchanged | — | — |
 | D2R-H14 | **Capture:** a sitting's disclosure follows its captured `certifies`, not a later `mode_policy` edit | — | Edit `mode_policy` mid-sitting |
 | D2R-H15 | **Export:** none exists. A static pin fails if a learner route gains `Content-Disposition` without passing the same check | — | Add a route |
+| D2R-H16 | RPC `session_answers`, both modes (rev. 4 names it). It returns `posisi` (own chosen positions) and no correctness. Classified on the guard's list; a certifying sitting returns no correctness or key, by a direct call | — | Add `benar` to its output |
+| D2R-H17 | RPC `hasil_koreksi_saya`: a correction's `alasan` gives no per-question detail for a certifying sitting (this tightens H07) | — | Add the item's key to the reason |
+| D2R-H18 | **The list guard** (Z-D1-02 style, `selftest/z-d1.test.ts:71`): every function granted to `authenticated` that reads `responses`, `presented_items`, `item_options` or the key tables is on a classified list (learner-safe, learner-restricted-by-capture, or staff-only). Any new unclassified learner reader fails. **Plants** (as in `PILIHAN_TANAMAN`): a planted SQL function, a `BEGIN ATOMIC` one and a view, each must be named | — | Each plant must be named |
+| D2R-H19 | **The section line** (no threshold in 4.1): every section in `reading_map` for a certifying sitting is revisit-advice («Baca lagi juga:», with the no-blame note). `tujuan_gerbang_kode` is allowed as section advice. «Bagian yang masih perlu dipelajari:» is not drawn | — | Draw `hasil.target.ulang` |
 
 ### R-a, R-b, R-c, R-e, R-f, R-g
 
 | Id | Case | Plant |
 |---|---|---|
 | D2R-W01 | R-a and R-b: the three strings in ID and EN, word for word (Daisy's); the sheet guard B6C-SHEET-01; the rendered check R-13 on the new A4 | Restore the old line |
-| D2R-C01 | R-c: no «Predikat» on the card, the A4 sheet, `/verifikasi/[token]` or the API's rendered output | Render it again |
-| D2R-C02 | R-c: the band is still in `certificate_eligibility` and the snapshot; `assert_public_surface()` and F04-S01 green, with no new field | Drop the band from eligibility |
-| D2R-E01 | R-e: an A1 extension is recorded with the result and shown to staff; absent from every public read and the certificate | Expose it on `verify_certificate` |
+| D2R-C01 | R-c (rev. 4): for a **banded** certificate, `verify_certificate` returns `predikat` null **and** `/api/verifikasi/[token]` returns null | Return the band from the RPC |
+| D2R-C02 | R-c: no «Predikat» on the card (`:80`), the printable record (`:153`, C1-R4), the A4 sheet or `/verifikasi/[token]` | Render it again on one site |
+| D2R-C03 | R-c: a **list test** fails on any Predikat render site outside the internal reports | Add a render site |
+| D2R-C04 | R-c: the band is still in `certificate_eligibility`, the snapshot and the internal reports. The OUT columns and `assert_public_surface()` are unchanged. F04-S01 is green | Drop the band from eligibility |
+| D2R-C05 | §6.3a: `verifikasi.lulus` reads «Lulus» / «Passed»; the public contract is unchanged | Restore «Memenuhi capaian» |
+| D2R-E01 | R-e: an A1 extension is recorded with the result and shown to staff. It is absent from every public surface (`verify_certificate`, the API, `/verifikasi`, the card, the A4 sheet) **and from the public snapshot** (rev. 4) | Put it in the snapshot |
 | D2R-F01 | R-f: the ordinal equals the lineage count at the start (across versions, ruling 46); fixed under the lock; on the learner's result and staff views; absent from public reads | Compute it at read time |
 | D2R-G01 | R-g: after Pemetaan Awal, with lessons unread, the chapter page offers Uji Penguasaan with the advisory line; the database and the test page unchanged | Restore `read >= total` |
 
-## 5 · Questions for spec revision 4 (they decide the cases above)
+## 5 · Rev. 4 (spec §7, final 01:05Z, on `claude/bob-41-master-plan`) folds in Sharon's `D2R-PRECODE-R-c-f.md` (`dfb5167f`) and Daisy's `D2R-KATA.md` (`e64f94c2`)
 
-1. **R-h shape:** for a certifying sitting, should `session_review` **refuse** (as PRE_TEST does today), or return rows with `benar`, `alasan` and `arah` nulled? Refusing is simpler and closes direct calls. The result page then needs only the counts, which `session_outcome` can carry.
-2. **`reading_map` for certifying sittings:**
-   - drop `alasan` and `KUAT`, and keep only the sections still to learn;
-   - and decide which evidence threshold names a section (74b: «confirmed with Sharon at the build»).
-3. **`per_domain` in `session_outcome`** (and `learning_delta`): is a per-objective mastery number a «mastery verdict» under 74a? If yes, it is withheld from the learner for certifying sittings and kept for staff.
-4. **The counts' source:** `session_outcome` gains `benar` and `salah` (correct and incorrect) for certifying sittings. Pre-test counts are unchanged.
-5. **The capture column:** one jsonb policy snapshot on `assessment_sessions` (`kebijakan_mode`), or two booleans (`bantuan_diizinkan`, `rinci_diungkap`)? Sharon's call (F-2).
-6. **STANDALONE's learner result:** none exists. Confirm that none is in scope (D2-R adds no route); R-h then only closes the RPCs.
+What rev. 4 settles here:
+
+- **R-c:** the band goes from the public data as well as the pages. Cases C01–C05 above.
+- **R-d:** `open_assistance` reads the policy captured on the sitting. F-1 still applies: `assistance_state` reads the same capture.
+- **R-e:** absent from every public surface and from the public snapshot (E01).
+- **R-h:** every learner route is named, each with a plant: `session_review` (H01–H02), `session_answers` (H16), `reading_map`'s reasons (H03–H04), `hasil_koreksi_saya` (H07, H17), and the print and export (H09, H10, H15). There is also a list guard (H18), and section lines are revisit-advice only (H19).
+- **Strings:** Daisy's set at `e64f94c2`. «Materi Pembelajaran» is in R-b, and the admin column follows it. `verifikasi.lulus` reads «Lulus». R-g's string is `siklus.siap.saran`.
+- **R-1 (Z-READINESS):** verified on `claude/next-base`. If no red-first test exists, one is added on `claude/d2r` as its own commit.
+
+Still to settle at the build, with Sharon: the shape of the capture column (F-2), and refuse vs null for `session_review`. I propose refusing, as PRE_TEST already does: it closes direct calls, and the counts come from `session_outcome`.
 
 **What is not changed** (spec §6.1 «Preserved unchanged»):
 - `certificate_eligibility`, the sealed pass mark and the gate;
