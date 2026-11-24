@@ -64,3 +64,17 @@ Under CI-2, a PIN made while the account is suspended or closed is stored as a r
 - **Recommended:** the line **replaces** the reset button and the PIN card for a locked learner. A button that produces a PIN that never works hands a child a dead PIN, and the admin can't tell. The words are written for that composition («PIN tidak dapat dibuat sekarang»).
 - If the button must stay, the line sits directly above it, and the result must not show or print a PIN card. Bob or Sharon decides.
 - The words reuse the app's terms: «ditangguhkan» / «suspended» (`keamanan.akun.ditangguhkan`), and «ditutup» / «closed».
+
+## 6 · KartuUlang (Aktivasi · «Kartu hilang atau rusak») for a learner whose account can't be used: one neutral line (24 Nov 21:30, Sharon's V-1 via Bob, CI-2-SPEC §10 `7fe2f9e3`)
+
+`card_holders()` returns only the neutral «terkunci». The panel shows this line **in place of** the category and the reset button. It doesn't show a card or PIN, and doesn't offer one.
+
+`aktivasi.kartu_ulang.tidak_dapat_dipakai`:
+- **ID:** «Kartu dan PIN baru untuk {nama} belum dapat dibuat sekarang, karena akunnya sedang tidak dapat dipakai. Tanyakan kepada admin sekolah Anda; admin sekolah dapat menanyakannya kepada Admin PINTAR.»
+- **EN:** «A new card and PIN can't be made for {nama} right now, because the account can't be used at the moment. Ask your school admin; a school admin can ask Admin PINTAR.»
+
+**Why these words:**
+- **«sedang tidak dapat dipakai» / «can't be used at the moment»:** it states neither closed nor suspended, nor why. «terkunci» is avoided because PINTAR already uses «PINTAR terkunci» for the session lock (a different thing the same staff meet). «tidak aktif» is avoided because it reads as «not activated yet», and «Aktifkan akun» is on the same page.
+- **Who to ask:** the school admin decides school-side matters. The second clause covers a platform-side safeguarding suspension, which the school admin can't lift either. It names no state.
+
+**§5 is superseded for this panel.** §5's two variants name the state («ditangguhkan» / «ditutup») on the assumption that the admin already knows it. V-1 says staff must not be shown which. Wherever V-1 applies, §5's two lines give way to this one. It already says that no PIN can be made now.

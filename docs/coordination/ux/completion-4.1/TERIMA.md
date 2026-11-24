@@ -160,3 +160,4 @@
 - 24 Nov 21:14Z · Bob: J8 recorded (L-127 to L-133); Sharon's identity rule (a73874d6). → J8-7 words fitted per case, ID and EN. One reading flagged for Sharon (no NIS and no date).
 - 24 Nov 21:19Z · Bob: J5 captured (9be73ecf); code answers (per-browser device question; L-134 conditional wording adopted). → J5 capture judged next.
 - 24 Nov 21:45Z · J5 capture judged (9be73ecf). All findings stand. New: J5-12; L-134 widened to the Uji Cepat result page. Harness: EN is applied only at L1; the tour covers the request card.
+- 24 Nov 21:25Z · Bob (priority): one neutral KartuUlang line for V-1. → CI2-KATA §6 (ID and EN); §5 superseded where V-1 applies.
