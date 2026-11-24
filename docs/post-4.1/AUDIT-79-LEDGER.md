@@ -488,3 +488,7 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
   - (2) **The mark isn't bound to the content it checked** (Sharon's (a)).
   - (3) **UX:** the step tells the author to run the check first, but the button runs it silently, and the warnings it found aren't surfaced at the moment of marking. Daisy re-words this.
 - **Severity stays Sharon's.** Her conditions (a) and (b) and the red-first tests apply unchanged; they're exactly the database half. The HIGH test (any approve or publish path without the re-check) is still to be proven in AR-79's red-first tests.
+- **Sharon (20:53Z): L-124 stays SIGNIFICANT on the restated facts.**
+  - A direct `langkah_konten` call to VALIDATED sets the mark; it doesn't approve or publish, so it isn't the HIGH path. The HIGH test stays the approve and publish paths: each re-runs the check on the current content and refuses with an open ERROR, whatever the mark says.
+  - **Addition:** the reviewer's approval screen and RPC must not treat VALIDATED as "checked". Approval runs, or reads, a check of the current revision itself, so an unchecked direct mark changes nothing downstream.
+  - (a), (b) and the red-first tests stand as the database half.
