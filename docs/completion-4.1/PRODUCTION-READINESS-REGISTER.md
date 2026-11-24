@@ -136,3 +136,21 @@ UNKNOWN (needs the owner or a read).
 The App's dispatch then waits for the owner's approval. **This is a configuration change on GitHub, so it is the owner's to authorise and make.** The workflow edits for point 1 can be prepared on a branch and reviewed by Sharon.
 
 **A note for PRQ-4 (24 Nov):** the owner reports that the repository settings page returned 404. A protected environment is configured on that page, so PRQ-4 needs settings access confirmed first. It is not blocking, and nothing is changed now.
+
+### Daisy's reading of PR-12, PR-15 and PR-19 (24 Nov, `BACA-REGISTER-PR12-15-19.md`, `fef73844`)
+
+**One real gap: the screens promise a response time that nobody yet guarantees.**
+- «Laporkan masalah» says «Admin sekolah atau tim PINTAR akan melihatnya dalam satu hari sekolah.» For a class that has stopped, it says «… dijawab pada hari sekolah yang sama.» (`lapor.langkah.*`).
+- PR-12 (no monitored route) and PR-15 (no named contact) are both GAP, so the promise depends on someone happening to look.
+
+**Before the first use, one of these (the owner's choice; it doesn't block 4.1's gates):**
+- **(a) Preferred:** close PR-12 and PR-15, and add to PR-15's exit «hours cover school days in WIB, WITA and WIT». The words then stay as they are.
+- **(b) Otherwise, soften the two strings** until (a) is met:
+  - `lapor.langkah.awal` becomes «Admin sekolah Anda dan tim PINTAR dapat melihatnya di sini.»;
+  - `lapor.langkah.awal_kelas` becomes «Laporan ini ditandai menghentikan kelas, jadi dibaca lebih dulu.», and only if the triage list really sorts these first.
+
+**PR-19:** nothing for the person to see until counsel answers. Any disclosure belongs in the privacy information, not in each flow.
+
+**Two small items go to the ruling 79 ledger (J10):**
+- the error page has no «Laporkan masalah» link carrying the reference code;
+- it tells a learner «pengelola sekolah Anda», where everything else says «guru Anda».

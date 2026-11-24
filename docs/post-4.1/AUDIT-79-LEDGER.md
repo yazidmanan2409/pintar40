@@ -127,3 +127,10 @@ If the audit's journeys run on `claude/next-base` plus D2-R (NEXT-SEQUENCE-89 tr
 - one shared synthetic world or per-journey fixtures.
 
 L-08, L-11 and L-12 need the world to hold empty, untitled and integrity states.
+
+## Added from Daisy's register read (24 Nov, `fef73844`)
+
+| L-id | Finding | Source | Dimension | Journey | Proposed severity | Notes |
+|---|---|---|---|---|---|---|
+| L-31 | The error page has no «Laporkan masalah» link carrying the reference code | `BACA-REGISTER-PR12-15-19.md` | C | J10 | Improvement | — |
+| L-32 | The error page tells a learner «pengelola sekolah Anda», where the rest of the product says «guru Anda» | same | B | J10 | Improvement | A term consistency issue, as T-01 |
