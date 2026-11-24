@@ -345,8 +345,8 @@ export const d2rTests: SelfTest[] = [
       const tautan = /<a[^>]*href="\/belajar\/t1\/sertifikat"[^>]*>([^<]*)<\/a>/.exec(lulus.out);
       c.expect(tautan !== null && tautan[1] === id("siklus.lihat_sertifikat"), "a certifying «Lulus.» does not link to its certificate with «siklus.lihat_sertifikat»");
       const akhirBanner = lulus.out.indexOf("</div>", lulus.out.indexOf('data-keputusan="lulus"'));
-      const iT = lulus.out.indexOf('data-sertifikat=""');
-      c.expect(akhirBanner >= 0 && iT > akhirBanner && !/<(p|section|ul)\b/.test(lulus.out.slice(akhirBanner + 6, iT)),
+      const iT = lulus.out.indexOf('<p data-sertifikat=""');
+      c.expect(akhirBanner >= 0 && iT === akhirBanner + "</div>".length,
         "the certificate link is not directly after the «Lulus» banner");
       c.expect(!teksHtml(lulus.out).includes(id("sertifikat.disiapkan.judul")), "the result says more than the link (no new words, Daisy's C-1)");
       c.expect(!/\/sertifikat"/.test(belum.out), "a «Belum lulus.» result links to a certificate");

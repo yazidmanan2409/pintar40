@@ -24,10 +24,11 @@
 7. **Daisy's §8 and the comparison** (Bob 03:41Z): `hasil.tidak_ditampilkan` reworded, DAISY-26's exemption removed; the
    mastery comparison not drawn on a certifying result. D2R-W01, D2R-H08 and DAISY-26-BELAJAR-01 red first.
 8. **Ruling 74a in full** (the owner, Bob 04:02Z), red first (D2R-H21, D2R-C05, both rendering the component):
-   item 2, «Baca lagi:» on a certifying pass too (the retake line stays on «Belum lulus»); item 4, after «Lulus.» the
-   certificate: the link (`siklus.lihat_sertifikat`) when it renders, else `sertifikat.disiapkan.judul` and `.arti`, as the
-   certificate page says it, with no new words. Hasil Belajar still lists sections only on «Belum lulus»: its words
-   («…lalu tanyakan kepada guru langkah berikutnya») are for a result not yet passed, so a pass there waits for Daisy.
+   item 2, «Baca lagi:» on a certifying pass too (the retake line stays on «Belum lulus»); item 4 as Daisy's C-1
+   (TINJAUAN-D2R-42f6f432.md): directly after the «Lulus» banner, a link to /belajar/{tugas}/sertifikat with
+   `siklus.lihat_sertifikat` and no other words, on the chapter result and on the Hasil Belajar row (D2R-C05, D2R-C06).
+   Hasil Belajar still lists sections only on «Belum lulus»: its words («…lalu tanyakan kepada guru langkah berikutnya»)
+   are for a result not yet passed, so a pass there waits for Daisy.
 
 ## What changed
 
@@ -94,8 +95,6 @@ sittings read shows it; D2R-E01 proves it on no public surface, payload or snaps
 2. **Daisy:** your two strings of 02:06Z are in (W01 reads them word for word). Your §8 rewording of `hasil.tidak_ditampilkan` (2bfbd3d7)
    is in, and DAISY-26's guard has no exemption. Found by C1W-J01 and closed under your §3 order: the chapter result
    page drew «Perubahan dari Pemetaan Awal» (both mastery percentages) below a certifying result; it is no longer drawn
-   there (D2R-H08). `learning_delta` itself still returns the two figures to the learner; R-h names keys, per-question
-   marks and explanations, not the overall figure, so I left the database as it is. **For Sharon:** whether
-   `learning_delta` should withhold `akhir` on a certifying post-test. The R-b sentence is split on the card and sheet at `{kursus}`: the words before it on `pin-done`, the course and the
+   there (D2R-H08). `learning_delta` is unchanged (Sharon, 04:03Z: `akhir` is the counts' ratio, which `session_outcome` already gives). The R-b sentence is split on the card and sheet at `{kursus}`: the words before it on `pin-done`, the course and the
    full stop on `pin-course` (R-13 on the new sheet is yours). The teacher's sittings screen does not yet draw `percobaan_ke` (no words).
 3. **Bob:** the strings are `dc275f6a`, one commit after the spec's `e64f94c2` (Daisy's §6, the no-threshold words).

@@ -14,7 +14,6 @@ import { TeksBaris } from "@/components/teks/Teks";
 import { alasanBelum, bagianUlang, ketuntasan, hitunganSegel } from "@/lib/siklus";
 import { judulHalaman } from "@/lib/judul-halaman";
 import HasilBersertifikasi from "@/components/siklus/HasilBersertifikasi";
-import { rendersCredential, type CertificateStatus } from "@/lib/sertifikat-kontrak";
 
 export const generateMetadata = judulHalaman("/belajar/[tugas]/hasil");
 
@@ -69,11 +68,6 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
     // D14: a sitting recalculated after it was sealed is said, neutrally; what this page shows is the sealed result
     engine.sesiDihitungUlang(db, state.post_session).catch(() => false),
   ]);
-  // ruling 74a item 4: a certifying pass says what became of its certificate, read as /lanjut reads it (a failed read
-  // claims nothing: «sedang disiapkan», which the certificate page itself rechecks)
-  const sertifikatSaya = bersertifikasi && outcome.lulus === true ? await engine.myCertificate(db, state.post_session).catch(() => null) : null;
-  const sertifikat: "TERBIT" | "DISIAPKAN" | null = !(bersertifikasi && outcome.lulus === true) ? null
-    : sertifikatSaya && rendersCredential(sertifikatSaya.status as CertificateStatus) ? "TERBIT" : "DISIAPKAN";
   // UX-40: this result has now been seen, so Belajar's home stops offering it as the next step. Not evidence; a
   // failed note changes nothing on this page.
   await engine.noteResultSeen(db, state.post_session).catch(() => false);
@@ -116,7 +110,7 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
         </div>
 
         {outcome.bersertifikasi ? (
-          <HasilBersertifikasi outcome={outcome} peta={peta} pelajaran={pelajaran} tugas={tugas} locale={locale} dihitungUlang={dihitungUlang} sertifikat={sertifikat} />
+          <HasilBersertifikasi outcome={outcome} peta={peta} pelajaran={pelajaran} tugas={tugas} locale={locale} dihitungUlang={dihitungUlang} />
         ) : (
           <>
         {/* The result, and what it is out of. */}
