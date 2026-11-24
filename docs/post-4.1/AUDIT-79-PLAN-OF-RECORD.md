@@ -48,16 +48,17 @@
   - one frozen candidate per PR;
   - no speculative reruns.
 
-## 3 · Status (13:46Z)
+## 3 · Status (15:46Z)
 
 | Stream | State |
 |---|---|
-| W1 | All twelve walked. Captures committed and judged: **J2, J3, J4 closed for builder lines**. The builder next reloads the world (the L-80 world fix, the W12 allowance), runs J2's public check in EN, then J7, J10 and the rest |
-| W2 | L-1 to L-104 recorded |
+| W1 | All twelve walked. Captures judged with no open builder lines: **J2, J3, J4, J7**. The world is corrected (L-80 withdrawn), W12 is set, and the C-4 waiting states are evidenced. Next: the builder's J10, then J5, J6, J8, J9, J11 and J12 captures |
+| W2 | L-1 to L-111 recorded. One Critical (L-67), High: L-78 and L-105 |
 | W3 | INTERIM: C-1 to C-11 |
-| W4 | **CI-1 FROZEN at `dfab09b6` (Bob's «freeze», 15:17Z).** The freeze check: scope §1–§7, P1–P9 caught, 8/8 dependent tests, 5 dependent screens, the full pre-flight green on `0c638ace` (red-case step rerun under PREFLIGHT_DENYUT, H-1), then a delta of Daisy's words plus a docs sha only (guards green). Next: one push, the PR, the journeys; Sharon verifies independently. **Merge and staging 309→310 wait for the owner** |
-| W5 | CI-2: pre-build complete (Sharon §6); words cleared (§7). Waiting on CI-1's freeze |
-| W6 | Not started (after W3 FINAL) |
+| W4 | **CI-1 FROZEN `dfab09b6`, PR #30**, ci 45424228769 and journeys 45424259782 running; **Sharon PASS** (conditional on the runs). Merge and staging 309→310 wait for the owner |
+| W4b | CI-1b (L-105) specified, words cleared (Daisy, Sharon); built after CI-2 |
+| W5 | CI-2 being built by Second Eye on `dfab09b6` (migration 311); OD-1 approved (ruling 100) |
+| W6 | After W3 FINAL; H-1 fixed before its pre-flight |
 | W7 | Not started |
 
 ## 3a · Harness H-1, recurring (Bob, 14:07Z)
