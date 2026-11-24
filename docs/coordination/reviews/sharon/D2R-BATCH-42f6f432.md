@@ -147,3 +147,22 @@ Every gate reads `bersertifikasi` (condition 2):
   - L-43 (the teacher's screen not yet drawing `percobaan_ke`) and harness H-1 sit in the ledger.
   - L-43 discloses nothing: it is an omission on a staff screen.
 - **D2-R: PASS on `177ab4d2`** once both runs are green in attempt 1. **R-1 closes then.** The promotion verdict follows on the AFTER read.
+
+## Addendum · staging promotion (309), 24 Nov 2026, 10:05 UTC: PASS, conditional only on the V6 counter re-read
+
+- **The merge:**
+  - ci 45362136992 and journeys 45362140705 were green in attempt 1 on `177ab4d2`, with all 20 PR checks passing.
+  - Main `429b7dcc`'s tree equals `177ab4d2`'s (`ef5afb30…`, which I checked).
+  - The migration sha256 is `4a6f88ec…`.
+  - staging.yml 45369413346 succeeded.
+- **My own diff of BEFORE against AFTER** (`d4d96a42`): **only line 10 moves**, from 308 to 309, digest `3f6d5ddc…`.
+  - `batas` lines 1 and 2 are identical.
+  - Line 58 (sittings, with the three new columns excluded) is identical: 1779 `5fff2350…`. The backfill touched only the captured columns.
+  - Lines 84, 85 and 86 are unchanged: the K-07 floors true, the D-6 feedback round 0 and 0.
+- **After the promotion:**
+  - `v6-pre-request` OK and `c3w-r3-bahan` OK;
+  - `periksa` md5 equals main's build;
+  - every certifying mode (EXAM, PAPER, POST_TEST, STANDALONE, TEST) has `allows_assistance` false and `reveals` false;
+  - 0 sittings lack a capture, and 0 open certifying sittings offer help.
+- **One condition remains:** the `periksa` counter must read above 177,828 after one staging request, as at Z's §2.
+- **R-1: CLOSED.** R1-K01 to K03 are green in the run of record, and `zr1-1` proves the gate.
