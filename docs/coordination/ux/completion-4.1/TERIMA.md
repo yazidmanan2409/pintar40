@@ -116,3 +116,4 @@
 - **24 Nov 04:26Z · Bob:** §9, §10 and §11 go to Second Eye as one final push. Don't read 589b9b41; the final head and its CI will be sent for the recheck. Waiting.
 - **24 Nov 04:36Z · Bob:** final head 5dace1ad; plus the C-line question. **Answered:** §12. **Recheck:** TINJAUAN-D2R-5dace1ad.md, with §9–§11 PASS and H-1 for decision.
 - **24 Nov 04:40Z · Bob:** Sharon's disiapkan note; J9, J11 and J12 notes (L-35..L-37). **Answered:** D2R-KATA §13 (the null case shows nothing); the script corrected at f19d202c; L-35 is Significant if «Laksanakan» stays offered.
+- **24 Nov 04:45Z · Bob:** §12 and Sharon's disiapkan fix ride the final push; the rest on 5dace1ad is done (19471eaa). Waiting for the final head, to read the C line and the three certificate states, including §13's no-row case.
