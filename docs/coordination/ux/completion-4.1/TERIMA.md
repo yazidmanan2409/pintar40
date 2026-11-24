@@ -152,3 +152,4 @@
 - 24 Nov 20:45Z · J5 rest walked locally with the builder's harness (6b248975). New: J5-6 Significant (learner not told the Uji Cepat window); J5-7 to J5-11 Improvement; four harness notes; one world question.
 - 24 Nov 20:32Z · Bob: J5 recorded (L-118 to L-123). Next: walk the remaining builder lines locally, in order J6, J8, J9, J11, J12.
 - 24 Nov 21:00Z · J6 rest walked locally. Holds: the learner-data refusal, the allowance, the ceiling, «Ajukan», the reviewer count, approval. New: J6-4 Significant («lolos pemeriksaan» before any check), J6-5, J6-6 ([S] request log).
+- 24 Nov 20:52Z · Bob: J6 recorded (L-124 to L-126); J6-4 corrected from the code. → J6-4 restated (UX half, fix words); my misread logged as ANTISIPASI DAISY-J6.

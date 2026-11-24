@@ -100,3 +100,11 @@
 - **DAISY-J1b (24 Nov 03:26):** J1's script said the card sign-in waits after three wrong PINs. The code waits after five within 15 minutes (`card_signin_attempt`); three is the session lock's count. I mixed the two. **Fixed** in `AUDIT-79-SKRIP-PERJALANAN.md`. **The lesson:** check every count in a script against the code that enforces it.
 
 - **DAISY-D2R-1 (24 Nov 04:55):** D2R-KATA §3 kept «the counts line unchanged» on Hasil Belajar without naming the percentages, so the summary still prints the mastery figures the result page withholds (H-1). **The lesson:** when withholding on one surface, list every surface that shows the same figure.
+
+## DAISY-J6 · J6-4 first read as «accepted before any check» (24 Nov 21:00)
+
+- **What happened:** I judged «Tandai lolos pemeriksaan» from its visible result alone. It showed no findings before it, and 4 findings appeared after a later check. I called it «accepted before any content check had run».
+- **What was true:** Bob read the code (`advanceContentAction`). The button runs both checks itself and refuses on an open ERROR. The 4 findings were warnings.
+- **The fix:** J6-4 is restated as its UX half: the step's words, and showing what the silent check found.
+- **Why it matters:** a severity built on a wrong mechanism wastes a builder's cycle.
+- **Rule from here:** before I call an action «unchecked», I read the server action it posts to.
