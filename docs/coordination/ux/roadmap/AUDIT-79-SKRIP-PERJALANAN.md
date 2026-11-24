@@ -1,7 +1,7 @@
 # Ruling 79 audit · the twelve journey scripts, final (Daisy, 24 Nov 2026)
-> - **Visual consistency pass (owner, 24 Nov):** on every journey's screens, check row affordance alignment, one button style per role, the sidebar and footer chrome at each width, truncated labels, and oversized controls. It starts from `../completion-4.1/SIDEBAR-KONFIG-CATATAN.md` (K-1 to K-4), and the fixes go in one consolidated revision.
 
 > **What holds now:**
+> - **Visual consistency pass (owner, 24 Nov):** on every journey's screens, check row affordance alignment, one button style per role, the sidebar and footer chrome at each width, truncated labels, and oversized controls. It starts from `../completion-4.1/SIDEBAR-KONFIG-CATATAN.md` (K-1 to K-4), and the fixes go in one consolidated revision.
 > - **Status:** final scripts for track 3b (ruling 89, `NEXT-SEQUENCE-89.md`). They supersede `AUDIT-79-SKRIP-PERJALANAN-DRAF.md` (`4f0b3f42`), which stays as history.
 > - **Base:** `claude/next-base` `055738ba`, **plus D2-R when it lands.** J2, J3 and J7 read D2-R's result words (`../completion-4.1/D2R-KATA.md`).
 > - **For the builder (3c):** §3 names every state the shared synthetic world must hold, one row per state, with the journeys that need it. Per-journey fixtures only where §3 says so.
