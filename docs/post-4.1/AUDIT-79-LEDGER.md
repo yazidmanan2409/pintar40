@@ -733,3 +733,15 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
 - **L-150 is confirmed** (C-10).
 - **Holds:** a pass mark of 70 with its scope; the rule rename keeps its settings; the card PDF.
 - **For the builder:** re-take capture 03 (caught mid-submit).
+
+**J9 captured (builder, `1ed2d250`, `audit/79/tangkapan/25fe5ea9/j9/`):** 7 walks reached their last screen. These are the first committed J9 captures. J1, J11 and J12 have none yet; J11 is running, then J12, then J1.
+- **EN:** the whole transfers section stays in ID, results and refusal included, although the EN keys exist. **This confirms L-135** in the builder's own run, after one more harness cause was fixed (the language cookie mirrored to localhost and 127.0.0.1). The J8 EN walk didn't show it.
+- **The J9 [S] case** («ruling 73's own-authority rule, if W16 also holds a suspended requester») **is not walkable today, by design.**
+  - Ruling 73 (C′) decided that a pending transfer from a since-suspended administrator completes only by **re-confirmation, placed at 4.5** (readiness register PR-3: GAP, needed before any real transfer, not for the one-school pilot).
+  - The builder's code read (`transfer_execute` `20270123150000`; nothing reads the requester's authority at a later step) is exactly that recorded gap, not a new finding.
+  - It's named in the closure report under PR-3 and 4.5.
+
+**L-149: the builder's code reading disagrees with Daisy's reproduction.**
+- **The builder says:** `issue_institutional_id` is service_role only, called by the import pipeline. The fourth source, «persons awaiting a first role», «can only be learners».
+- **Daisy says:** a staff list with Peran and Tempat «Tidak dipakai» IS recorded, through that same import pipeline, as persons with no role and no class, who then appear in «Berikan peran» and were granted Guru.
+- **Bob:** the two fit if a row with no role passes `import_row_problems` (it refuses STAFF roles, not role-less rows). A reproduction outranks a reading, so L-149 stays withdrawn **pending the builder's own walk of Daisy's exact steps** (requested at 23:52Z). If that walk fails, L-149 returns and goes to the owner as material.
