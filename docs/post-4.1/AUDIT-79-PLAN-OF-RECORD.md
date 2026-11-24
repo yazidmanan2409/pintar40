@@ -48,16 +48,16 @@
   - one frozen candidate per PR;
   - no speculative reruns.
 
-## 3 · Status (21:50Z)
+## 3 · Status (23:50Z)
 
 | Stream | State |
 |---|---|
-| W1 | **Every journey walked locally by Daisy** (J2 to J12, passes included). Builder captures: J2, J3, J4, J7, J10, J5, J6 (J6 to be judged); the PIN-reload probe holds. Re-runs: J5's and J10's EN walks (a harness cookie fault). Next: J8, J9, J11, J12 |
-| W2 | **DONE (Daisy, `e0958ce7`, reconciled by Bob)**. L-1 to L-144. Critical: L-67. High: L-78, L-105, L-112. Daisy's open findings: 91 (`AUDIT-79-DAISY-FINDINGS.md`). Daisy's severity pass is next |
+| W1 | **Every journey walked locally by Daisy.** Captured and judged: J2, J3, J4, J5, J6, J7, J10. **J8 captured** (`9874ea1b`), Daisy judging. The PIN-reload probe holds. The builder is on J9, J11 and J12, plus the L-149 staff-path check |
+| W2 | **DONE** (Daisy `e0958ce7`, reconciled by Bob). L-1 to L-151. Critical: L-67 (closed by CI-1). High: L-78 (CI-2), L-105 (CI-1b), L-112 (AR-79). **L-149 may be material** (a new school's first staff have no path to a role); the builder confirms |
 | W3 | INTERIM: C-1 to C-11 |
 | W4 | **CI-1 CLOSED ON STAGING (ruling 101, 22:50Z):** merged `93b93134` (tree = `94ce6727`), staging 310, only line 10 moved, V6 met, **Sharon FINAL PASS**. Main's ci is red on the known R1 clock bug, so PR-25 holds any production promotion until main is green. L-105 open under CI-1b |
 | W4b | CI-1b specified, words cleared; after CI-2 |
-| W5 | **CI-2 FROZEN at `9c6aae62`; PR #31** (21:17Z), ci 45488925842 and journeys 45488932426 running; then Sharon, then the owner |
+| W5 | **CI-2 RE-FROZEN at `25681b11`** (V-1, V-2, Z-S12-01); Sharon PASS on the delta's code; ci 45509971723 and journeys 45509965430 running (API 23:48Z); then the owner (update-branch at merge) |
 | W6 | After W3 FINAL |
 | H-1 | **FROZEN at `73fc4ab1` (21:26Z; a README-only delta from `5ab2af9a`, naming the test-only uji-* steps)**: red on main's heartbeat (VOID), green with the fix (4 RESET beats); grace 0 → INFRA (the bound holds); a database stopped with no reset → INFRA (the control). In real use: CI-2's redcase at the default heartbeat, 23 resets, no false INFRA. Harness only (2 files). The uji-* steps are kept as the regression test (inert without PREFLIGHT_UJI=1). PR #32: ci 45492159358 **FAILURE** (API, 21:50Z). The cause is NOT H-1's: R1-K01's control is red before any defect (the pre-existing school-clock bug; job log read by Bob), and selftest was skipped as a consequence. **Decision (a):** port CI-2's test-only fix `6aceed28` into H-1 as one commit. **Re-frozen at `7716f228` (22:14Z):** red 46/1 at `73fc4ab1`, green 47/0 ported, with lines identical to `6aceed28`. Pushed at `7716f228`; PR #32 ci 45499450461 is running (its first selftest run in CI). |
 

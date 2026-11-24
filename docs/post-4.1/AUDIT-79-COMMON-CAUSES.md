@@ -134,6 +134,7 @@ The 9 buttons found:
 | J5 (rest, capture) | L-118 to L-123, L-134, L-141, L-145, L-146 | L-118 (C-3); L-119 (C-7); L-120 (C-10); L-121 (C-6, C-3); L-123 (C-6); L-134 (C-3); L-141 (C-5); L-145 (C-6) | **C-12** (L-122) |
 | J6 (rest, capture) | L-124 to L-126, L-143, L-144 | L-124, L-143 (**C-7, the database half missing**); L-125 (form state); L-144 (accessibility) | **C-7 widened:** a rule held by the screen only, with the database not enforcing it (principle 3's second check). L-126 is accountability (§8) |
 | J8 (rest, probe) | L-127 to L-133, L-142 | L-127 (C-7: a rule assuming names are unique); L-128 (C-7); L-130 (C-10); L-131 (C-3); L-132 (C-7, C-10) | **C-12** (L-129, L-133); **C-3 widened** to contracts: L-142, a sibling route bypassing the helper that guarantees no-store |
+| J8 (capture) | L-148 to L-151 | L-148 (principle 4, plus **C-12**: a staff row refused with the learner line); L-149 (**C-7**: a read assuming an enrolment that the set-up flow never creates); L-150 (C-10); L-151 (data quality, Sharon's encode-on-output rules) | — |
 | J9, J11, J12 (passes) | L-135 to L-140 | L-138 (C-6); L-139 (accessibility) | **C-6 widened:** words outside the translation lookup (L-135, L-136, L-140: hard-coded in `konfigurasi/page.tsx`) |
 
 **The counts behind the shape:**
