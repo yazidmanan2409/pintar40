@@ -144,3 +144,13 @@ L-08, L-11 and L-12 need the world to hold empty, untitled and integrity states.
   - B1-R1 to R5 were closed at the B2 visit, and B2 left nothing open.
   - C2w-Kanonik's N-6 and N-7 were fixed before C3w-1.
 - **Journey ids** refer to her final scripts (`AUDIT-79-SKRIP-PERJALANAN.md`, `a06e13e9`). The ids are unchanged from the draft.| L-34 | «Matematika · Matematika Kelas 5 …»: the subject is repeated before a course title that already names it | Daisy, `TINJAUAN-D2R-42f6f432.md` (`6a96917c`), N-21; predates D2-R | B | J2 | Improvement | — |
+
+## Observations from the harness (builder, 24 Nov, `claude/audit-79-world` `f3c05c5b`): recorded, not yet judged
+
+| L-id | Observation | Source | Dimension | Journey | Proposed severity | Notes |
+|---|---|---|---|---|---|---|
+| L-35 | After a rollover, «Terima perpindahan» on the old request is still ACCEPTED (REQUESTED → AUTHORIZED). The refusal comes only at «Laksanakan», and **the old request then stays AUTHORIZED**, a dangling row. On a new request, the learner lands in the receiving school's *current* year (2026/27), although the sending school had promoted them to 2027/28 | J9 step 2 capture | B, E | J9 | **Significant (candidate)**, pending Daisy and Sharon | Touches V5 and ruling 73; the rollover race is already 4.5. **Sharon** classes the dangling AUTHORIZED state and the year placement; **Daisy** the human side |
+| L-36 | The last usable Admin PINTAR's own row offers only «Perpanjang», never «Lepaskan»: ROLE_LAST_PLATFORM_ADMIN guards a release the screen doesn't offer | J12 step 6 | E | J12 | — (it reads as a defence in depth) | Script note for Daisy |
+| L-37 | On the W18 state, the school summary's «semua» sentence is «…dari semua bukti sekolah ini…». The script's «Semua bidang kompetensi yang punya angka…» doesn't appear, because several domains are withheld | J11 step 4 | — | J11 | — | Script note for Daisy |
+
+**An environment fact, not a finding:** `/api/email/uji` rejects 127.0.0.1 as cross-origin (`BUKAN_ASAL_SAMA`), because Next reports the origin as localhost. A deployment with one hostname has no such split.
