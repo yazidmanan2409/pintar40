@@ -50,7 +50,7 @@ export function baca(sql) {
  * never a judgement of the screen). `amati` records what a step OBSERVED without stopping (for example a step the
  * script names that the screen did not offer).
  */
-export async function jalan({ perjalanan, lebar, zona = "WIB", nama }) {
+export async function jalan({ perjalanan, lebar, zona = "WIB", nama, label = [] }) {
   const out = join(process.env.AUDIT_OUT ?? "audit-out/perjalanan", perjalanan, `${LALUAN}-${BAHASA}-${lebar}`);
   rmSync(out, { recursive: true, force: true });   // a walk's folder holds that walk only
   mkdirSync(out, { recursive: true });
@@ -70,7 +70,10 @@ export async function jalan({ perjalanan, lebar, zona = "WIB", nama }) {
       offline: false, latency: 400, downloadThroughput: (400 * 1024) / 8, uploadThroughput: (400 * 1024) / 8,
     });
   }
-  const catatan = { perjalanan, nama, lebar, zona, bahasa: BAHASA, laluan: LALUAN, mulai: new Date().toISOString(), langkah: [] };
+  // A walk's labels (Bob): what the reader must know before judging its screens, e.g. a legacy state written past
+  // today's guards, or OFFICIAL evidence in the dev/CI bootstrap tenant. Kept in langkah.json and in LABEL.txt.
+  const catatan = { perjalanan, nama, lebar, zona, bahasa: BAHASA, laluan: LALUAN, label, mulai: new Date().toISOString(), langkah: [] };
+  if (label.length) writeFileSync(join(out, "LABEL.txt"), label.join("\n") + "\n");
   let n = 0;
   let berhenti = null;
 
@@ -163,6 +166,7 @@ export function ringkas(perjalanan, hasil) {
   const out = join(process.env.AUDIT_OUT ?? "audit-out/perjalanan", perjalanan);
   mkdirSync(out, { recursive: true });
   const baris = hasil.map((c) => `${c.sampai_akhir ? "SAMPAI AKHIR" : "BERHENTI    "}  ${c.laluan}/${c.bahasa}/${c.lebar}  ${c.nama}  `
+    + (c.label?.length ? `[${c.label.join("; ")}]  ` : "")
     + c.langkah.map((l) => `${l.id}:${l.hasil}`).join(" "));
   const semua = hasil.every((c) => c.sampai_akhir);
   writeFileSync(join(out, "RINGKASAN.txt"), `${perjalanan} · ${new Date().toISOString()}\n${baris.join("\n")}\n${semua ? "EVERY WALK REACHED ITS LAST SCREEN" : "A WALK STOPPED"}\n`);

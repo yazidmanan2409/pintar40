@@ -95,6 +95,13 @@ jobs:
           AUDIT_BAHASA: en
           AUDIT_LEBAR: "1280"
         run: node audit/perjalanan/j1.mjs
+      - name: J1 · the branches (1280, ID; a wrong card PIN to the wait, a mistyped number, the tour reopened, out and in)
+        if: success() || failure()
+        env:
+          APP_URL: http://127.0.0.1:3999
+          AUDIT_OUT: ${{ github.workspace }}/audit-out/perjalanan
+          AUDIT_CABANG: "1"
+        run: node audit/perjalanan/j1.mjs
       - name: Keep the captures
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
