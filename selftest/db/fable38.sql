@@ -136,6 +136,14 @@ create or replace function selftest.f38_sertifikat(p_session uuid)
 returns uuid language plpgsql set search_path = public, pg_temp as $$
 declare v_s public.assessment_sessions; v_p public.persons; v_snap uuid; v_id uuid; v_num text; v_tok text; v_iso text;
 begin
+  -- RESTATED (CI-1, ruling 97): an issued certificate is one its sitting earned. The suite's chapter has no school pass mark,
+  -- so the fixture gives the sitting the default mark (0.60 from SCHOOL, below every mastery this suite certifies) and
+  -- OFFICIAL evidence past the seal, as an issue would have found them; without it the one validity helper rightly questions the certificate (DITINJAU)
+  set local session_replication_role = replica;
+  update public.assessment_sessions set pass_mark = 0.60, pass_mark_source = 'SCHOOL' where id = p_session and pass_mark is null;
+  -- and, as certificate_eligibility requires (INV-20), its evidence is OFFICIAL
+  update public.assessment_sessions set evidence_class = 'OFFICIAL' where id = p_session and public.effective_evidence_class(p_session) <> 'OFFICIAL';
+  set local session_replication_role = origin;
   select * into v_s from public.assessment_sessions where id = p_session;
   select * into v_p from public.persons where id = v_s.person_id;
   insert into public.certificate_identity_snapshots (person_id, institution_id, name_as_issued, snapshot_hash)
