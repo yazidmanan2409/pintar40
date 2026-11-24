@@ -95,7 +95,7 @@ The write is bounded to exactly the BEFORE count of locked accounts.
 
 **Plants Q1–Q9** are in her record.
 
-**OWNER DECISION, before CI-2's merge:** a reinstated account signs in with a **fresh credential**. A staff member resets their password; a learner gets a new PIN from the school. **This is a UX change, to be accepted knowingly** (Daisy writes the on-screen words). Sharon doesn't recommend the alternative, keeping and restoring the old password hash. The build proceeds on Sharon's recommendation; the merge waits for the owner's acceptance.
+**OWNER DECISION: APPROVED (ruling 100, 24 Nov).** a reinstated account signs in with a **fresh credential**. A staff member resets their password; a learner gets a new PIN from the school. **This is a UX change, to be accepted knowingly** (Daisy writes the on-screen words). Sharon doesn't recommend the alternative, keeping and restoring the old password hash. The build proceeds on Sharon's recommendation; the merge waits for the owner's acceptance.
 
 ## 7 · Daisy's words for OD-1 (`CI2-KATA.md` `f15f33e2`, 24 Nov), meeting Sol's ask (recovery is clear, with no dead-credential loop)
 
