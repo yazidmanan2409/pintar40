@@ -122,3 +122,5 @@ A row wrongly CONFIRMED has no revocation, so DICABUT would be a different false
 
 **PR #30's ci 45439475500 on `94ce6727`: GREEN (17:15Z).** The journeys run 45441914637 is still running.
 **A known exposure, recorded (17:21Z):** a test-clock bug that predates CI-1. `selftest/db/r1.sql` passes `current_date` (UTC) to `akhiri_pendaftaran`, which checks the date on the school's clock. Any run reaching R1 between 16:00Z (WITA) / 17:00Z (WIB) and 24:00Z fails R1-K01. It is on main `429b7dcc` too. CI-1's ci ran R1 before the boundary. **No product defect.** The fix, and the sweep of its sibling uses of `current_date`, ride in CI-2 as their own commit. CI-1 isn't refrozen for it.
+
+**ACCEPTANCE RUNS COMPLETE (17:29Z):** on `94ce6727`, PR #30's ci 45439475500 is **GREEN** and journeys 45441914637 (run 326) is **GREEN**, each in one attempt. The earlier 45439529758 died at the input check and tested nothing. Sharon's PASS carries over (the product diff from `dfab09b6` is empty). **CI-1 is ready for the owner's authorisation:** `CI-1-FOR-OWNER.md`.
