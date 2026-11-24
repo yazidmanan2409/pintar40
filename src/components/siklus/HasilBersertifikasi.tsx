@@ -50,7 +50,8 @@ export default function HasilBersertifikasi({ outcome, peta, pelajaran, tugas, l
       {keputusan === "TERCAPAI" ? (
         <p data-sertifikat="">
           {sertifikatDisiapkan ? <>{s("sertifikat.disiapkan.judul")}. </> : null}
-          <Link href={`/belajar/${tugas}/sertifikat`}>{s("siklus.lihat_sertifikat")}</Link>
+          {/* N-22: a link is screen-only; in print it would read as bare words */}
+          <Link className="pin-noprint" href={`/belajar/${tugas}/sertifikat`}>{s("siklus.lihat_sertifikat")}</Link>
         </p>
       ) : keputusan === "BELUM" ? (
         <div className="pin-banner pin-attention pin-target" role="status" data-keputusan="belum-lulus" id="ulang">
