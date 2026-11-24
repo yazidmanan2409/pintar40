@@ -49,6 +49,8 @@ for (const lebar of LEBAR) {
     const browser = page.context().browser();
     for (const [peran, o, rumah] of pengamat) {
       const ctx = await browser.newContext({ viewport: { width: lebar, height: 900 }, locale: BAHASA === "en" ? "en-GB" : "id-ID", timezoneId: "Asia/Jakarta" });
+      // the EN walk's observers carry the reader's language choice (the browser cookie pintar-lang)
+      if (BAHASA === "en") await ctx.addCookies([{ name: "pintar-lang", value: "en", url: APP }]);
       const p = await ctx.newPage();
       try {
         await p.goto(`${APP}/masuk`);
@@ -63,6 +65,9 @@ for (const lebar of LEBAR) {
         }
         if (!new URL(p.url()).pathname.startsWith(rumah)) await p.goto(`${APP}${rumah}`).catch(() => {});
         await p.waitForLoadState("networkidle").catch(() => {});
+        // J12-4: the welcome tour opens on a home page at sign-in and would cover what the observer sees: skipped
+        const lewati = p.getByRole("button", { name: /^Lewati tur$|^Skip tour$/ }).first();
+        if (await lewati.isVisible().catch(() => false)) { await lewati.click().catch(() => {}); await p.waitForTimeout(500); }
         const f = `pengamat-${String(++nPengamat).padStart(2, "0")}-${saat}-${peran}.png`;
         await p.screenshot({ path: join(j.out, f), fullPage: false });
         rec.layar.push(f.replace(/\.png$/, ""));
