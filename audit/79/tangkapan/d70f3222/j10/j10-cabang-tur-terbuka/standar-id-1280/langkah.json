@@ -1,0 +1,60 @@
+{
+  "perjalanan": "j10-cabang-tur-terbuka",
+  "nama": "Intan",
+  "lebar": 1280,
+  "zona": "WIB",
+  "bahasa": "id",
+  "laluan": "standar",
+  "label": [],
+  "mulai": "2026-11-24T19:44:35.432Z",
+  "langkah": [
+    {
+      "id": "C1",
+      "judul": "a shared computer left with the welcome tour open: does it lock?",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-tur-terbuka",
+        "02-tur-terbuka-4.5-menit",
+        "03-tur-terbuka-akhir"
+      ],
+      "amatan": [
+        "not locked within 9 minutes with the tour open"
+      ],
+      "data": {
+        "tour_open": true,
+        "samples": [
+          "30s BUKA last 19:44:38 /belajar",
+          "60s BUKA last 19:45:38 /belajar",
+          "90s BUKA last 19:45:38 /belajar",
+          "120s BUKA last 19:45:38 /belajar",
+          "150s BUKA last 19:45:38 /belajar",
+          "180s BUKA last 19:45:38 /belajar",
+          "210s BUKA last 19:45:38 /belajar",
+          "240s BUKA last 19:45:38 /belajar",
+          "270s BUKA last 19:48:43 /belajar",
+          "300s BUKA last 19:48:43 /belajar",
+          "330s BUKA last 19:49:48 /belajar",
+          "360s BUKA last 19:49:48 /belajar",
+          "390s BUKA last 19:49:48 /belajar",
+          "420s BUKA last 19:49:48 /belajar",
+          "450s BUKA last 19:49:48 /belajar",
+          "480s BUKA last 19:49:48 /belajar",
+          "510s BUKA last 19:52:48 /belajar",
+          "540s BUKA last 19:52:48 /belajar"
+        ],
+        "heartbeats_s": [
+          57,
+          242,
+          307,
+          487
+        ],
+        "locked_after_s": "not within 9 minutes"
+      },
+      "tab": 0,
+      "url": "/belajar",
+      "ms": 546892
+    }
+  ],
+  "selesai": "2026-11-24T19:53:42.325Z",
+  "sampai_akhir": true
+}

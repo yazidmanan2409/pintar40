@@ -1,0 +1,20 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- main:
+  - text: PINTAR
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - paragraph: Langkah 1 dari 4
+  - heading "Pilih username" [level=1]
+  - paragraph: "Selain email, Anda bisa masuk ke PINTAR dengan username. Pilih dengan teliti: username tidak bisa diganti."
+  - text: Username
+  - textbox "Username"
+  - paragraph: "4–20 karakter: huruf kecil, angka, titik (.) atau garis bawah (_), diawali huruf."
+  - button "Simpan username"
+  - button "Keluar dan lanjutkan nanti"
+  - paragraph: Pendidikan yang lebih adil, untuk lebih banyak kesempatan.
+  - region "Belajar dengan bukti. Memahami sebelum memutuskan.":
+    - heading "Belajar dengan bukti. Memahami sebelum memutuskan." [level=2]
+    - paragraph: PINTAR membantu melihat apa yang sedang terjadi dalam proses belajar. Keputusannya tetap pada manusia.
+- alert

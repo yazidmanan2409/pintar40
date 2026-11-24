@@ -1,0 +1,37 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - navigation "Belajar":
+    - link "Belajar":
+      - /url: /belajar
+    - link "Sertifikat":
+      - /url: /belajar/sertifikat
+  - button "Bantuan"
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - heading "Akun saya" [level=1]
+  - paragraph: Akun PINTAR Anda, dan cara meninggalkannya.
+  - region "Meninggalkan PINTAR":
+    - heading "Meninggalkan PINTAR" [level=2]
+    - paragraph: Anda boleh pergi kapan saja. Inilah yang terjadi bila akun ditutup atau data pribadi dihapus, sebagaimana PINTAR bekerja saat ini.
+    - list:
+      - listitem: "Akses: saat akun ditutup, semua perangkat keluar dan masuk tidak lagi bisa, di semua sekolah."
+      - listitem: "Catatan akademik: hasil dan pengerjaan tetap tersimpan di sekolahnya. Setelah penghapusan, catatan itu tanpa nama Anda."
+      - listitem: "Sertifikat: tetap dapat diperiksa. Nama yang tertulis di sertifikat adalah catatan sertifikat itu sendiri dan tidak diubah."
+    - paragraph: Karena Anda murid, permintaan menutup akun atau menghapus data pribadi diajukan oleh sekolah bersama keluarga Anda. Sampaikan kepada wali kelas atau guru Anda.
+  - region "Keluar dari semua perangkat":
+    - heading "Keluar dari semua perangkat" [level=2]
+    - paragraph: Akun Anda keluar dari setiap komputer dan perangkat tempat Anda masuk, termasuk yang ini. Setelah itu Anda masuk lagi di perangkat yang Anda pakai.
+    - button "Keluar dari semua perangkat"
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- alert

@@ -1,0 +1,25 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- main:
+  - text: PINTAR
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - heading "Pulihkan dengan PINTAR ID dan PIN" [level=1]
+  - paragraph: Ketik PINTAR ID yang ada di kartu PINTAR Anda dan PIN pribadi Anda. Setelah itu Anda membuat password baru.
+  - text: PINTAR ID
+  - textbox "PINTAR ID" [invalid]: ZZ9ZZ9ZZ
+  - text: PIN pribadi (4 angka)
+  - textbox "PIN pribadi (4 angka)" [invalid]: "4829"
+  - button "Tampilkan PIN"
+  - alert: PINTAR ID atau PIN tidak cocok. Periksa keduanya, lalu coba lagi.
+  - button "Lanjut"
+  - button "Pulihkan lewat email"
+  - paragraph:
+    - link "Kembali ke halaman masuk":
+      - /url: /masuk
+  - paragraph: Pendidikan yang lebih adil, untuk lebih banyak kesempatan.
+  - region "Belajar dengan bukti. Memahami sebelum memutuskan.":
+    - heading "Belajar dengan bukti. Memahami sebelum memutuskan." [level=2]
+    - paragraph: PINTAR membantu melihat apa yang sedang terjadi dalam proses belajar. Keputusannya tetap pada manusia.
+- alert

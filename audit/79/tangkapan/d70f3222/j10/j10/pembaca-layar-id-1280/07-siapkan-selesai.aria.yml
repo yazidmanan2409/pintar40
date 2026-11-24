@@ -1,0 +1,16 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- main:
+  - text: PINTAR
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - heading "Selamat datang di PINTAR" [level=1]
+  - paragraph: Akun Anda sudah aktif. Mulai sekarang, masuk dengan email atau username, dan password Anda.
+  - link "Masuk ke PINTAR":
+    - /url: /mulai
+  - paragraph: Pendidikan yang lebih adil, untuk lebih banyak kesempatan.
+  - region "Belajar dengan bukti. Memahami sebelum memutuskan.":
+    - heading "Belajar dengan bukti. Memahami sebelum memutuskan." [level=2]
+    - paragraph: PINTAR membantu melihat apa yang sedang terjadi dalam proses belajar. Keputusannya tetap pada manusia.
+- alert

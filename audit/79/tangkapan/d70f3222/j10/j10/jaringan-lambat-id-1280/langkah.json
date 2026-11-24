@@ -1,0 +1,241 @@
+{
+  "perjalanan": "j10",
+  "nama": "Wulan · Intan · Joko · Bima · Dimas · Puspa",
+  "lebar": 1280,
+  "zona": "WIB",
+  "bahasa": "id",
+  "laluan": "jaringan-lambat",
+  "label": [
+    "keadaan fiksasi di L4 (izin pemulihan diakhiri), L6–L8 (waktu diam dimajukan) dan L9 (kunci 61 menit)"
+  ],
+  "mulai": "2026-11-24T19:36:10.164Z",
+  "langkah": [
+    {
+      "id": "L1",
+      "judul": "account set-up: Wulan's four steps, «Komputer siapa ini?», then «Akun saya»",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-siapkan-1-username",
+        "02-siapkan-2-password",
+        "03-siapkan-3-pin",
+        "04-siapkan-3-pin-sama",
+        "05-siapkan-3-pin-beda",
+        "06-siapkan-4-nama",
+        "07-siapkan-selesai",
+        "08-perangkat-pertama",
+        "09-akun-saya",
+        "10-akun-ubah-perangkat",
+        "11-akun-sesudah"
+      ],
+      "amatan": [
+        "«Akun saya» offers no «Komputer ini · Ubah» to this learner; /perangkat opened by its address"
+      ],
+      "data": {
+        "pin_sama": "Hindari PIN yang mudah ditebak: angka yang sama (1111), berurutan (1234), berpola (1212, 2580), atau tahun (1990). | PIN ini hanya satu angka yang diulang. Pilih PIN lain. |",
+        "pin_urut": "Hindari PIN yang mudah ditebak: angka yang sama (1111), berurutan (1234), berpola (1212, 2580), atau tahun (1990). | PIN ini angka berurutan, jadi mudah ditebak. Pilih PIN lain. |",
+        "pin_pola": "Hindari PIN yang mudah ditebak: angka yang sama (1111), berurutan (1234), berpola (1212, 2580), atau tahun (1990). | PIN ini berpola, seperti 1212 atau 1122, jadi mudah ditebak. Pilih PIN lain. |",
+        "pin_garis": "Hindari PIN yang mudah ditebak: angka yang sama (1111), berurutan (1234), berpola (1212, 2580), atau tahun (1990). | PIN ini satu garis lurus di papan angka, jadi mudah ditebak. Pilih PIN lain. |",
+        "pin_tahun": "Hindari PIN yang mudah ditebak: angka yang sama (1111), berurutan (1234), berpola (1212, 2580), atau tahun (1990). | PIN ini terbaca seperti tahun, jadi mudah ditebak. Pilih PIN lain. |",
+        "pin_beda": "Hindari PIN yang mudah ditebak: angka yang sama (1111), berurutan (1234), berpola (1212, 2580), atau tahun (1990). | Kedua PIN belum sama. Ketik ulang keduanya. |",
+        "welcome": "PINTAR ID EN ✓ Selamat datang di PINTAR Akun Anda sudah aktif. Mulai sekarang, masuk dengan email atau username, dan password Anda. Masuk ke PINTAR Pendidikan yang lebih adil, untuk lebih banyak kesempatan. Belajar dengan bukti. Memahami sebelum memutuskan. PINTAR membantu melihat apa yang sedang terjadi dalam proses belajar. Keputusannya tetap pada manusia.",
+        "welcome_leads_to": "/perangkat",
+        "computer_question": "asked; «Komputer pribadi saya» chosen",
+        "account_computer": "(no «Komputer ini»)",
+        "account_offers_change": false,
+        "account_computer_after": "(no «Komputer ini»)",
+        "sessions": "SHARED BERAKHIR ended PASSWORD_PERTAMA; SHARED BUKA"
+      },
+      "tab": 94,
+      "url": "/akun",
+      "ms": 42064
+    },
+    {
+      "id": "L2",
+      "judul": "forgot password by email: an address with no account, then Intan's; the code from the sink",
+      "hasil": "SAMPAI",
+      "layar": [
+        "12-lupa",
+        "13-lupa-kode-tanpa-akun",
+        "14-lupa-kode",
+        "15-lupa-password",
+        "16-lupa-selesai"
+      ],
+      "amatan": [],
+      "data": {
+        "no_account_screen": "PINTAR ID EN ✉ Periksa email Anda Jika nama ini milik akun PINTAR yang sudah aktif, PINTAR sedang mengirim kode ke email akun itu. Biasanya kode tiba dalam satu menit. Ketik kodenya di sini. Kode berlaku selama 10 menit. Kode untuk membuat password baru Lanjut Belum ada email? Periksa folder Spam atau Promosi. Kode hanya dikirim ke email akun itu sendiri. Kirim ulang kode Kode bisa dikirim ulang d",
+        "same_screen_as_no_account": true,
+        "mail": "Kode untuk membuat password baru PINTAR → intan.permatasari@dunia.pintar.test",
+        "done": "PINTAR ID EN ✓ Password Anda sudah diganti Akun ini sudah keluar dari semua perangkat lain. Mulai sekarang, masuk dengan password baru Anda. Lanjut Pendidikan yang lebih adil, untuk lebih banyak kesempatan. Belajar dengan bukti. Memahami sebelum memutuskan. PINTAR membantu melihat apa yang sedang terjadi dalam proses belajar. Keputusannya tetap pada manusia."
+      },
+      "tab": 19,
+      "url": "/masuk/lupa",
+      "ms": 8480
+    },
+    {
+      "id": "L3",
+      "judul": "forgot password by username: the code goes to the account's email",
+      "hasil": "SAMPAI",
+      "layar": [
+        "17-lupa-username-kode"
+      ],
+      "amatan": [],
+      "data": {
+        "mail": "Kode untuk membuat password baru PINTAR → wulan.sari@dunia.pintar.test"
+      },
+      "tab": 4,
+      "url": "/masuk/lupa",
+      "ms": 4176
+    },
+    {
+      "id": "L4",
+      "judul": "by PINTAR ID + PIN: an unknown ID, a wrong PIN, a reset PIN; then the time runs out; then to the end",
+      "hasil": "SAMPAI",
+      "layar": [
+        "18-pin",
+        "19-pin-id-tidak-dikenal",
+        "20-pin-pin-salah",
+        "21-pin-pin-diatur-ulang",
+        "22-pin-password",
+        "23-pin-berakhir",
+        "24-pin-selesai"
+      ],
+      "amatan": [],
+      "data": {
+        "pin_id-tidak-dikenal": "PINTAR ID atau PIN tidak cocok. Periksa keduanya, lalu coba lagi. |",
+        "pin_pin-salah": "PINTAR ID atau PIN tidak cocok. Periksa keduanya, lalu coba lagi. |",
+        "pin_pin-diatur-ulang": "PINTAR ID atau PIN tidak cocok. Periksa keduanya, lalu coba lagi. |",
+        "time_ran_out": "Waktu untuk membuat password baru sudah habis. Ketik lagi PINTAR ID dan PIN Anda. |",
+        "done": "PINTAR ID EN ✓ Password Anda sudah diganti Akun ini sudah keluar dari semua perangkat lain. Mulai sekarang, masuk dengan password baru Anda. Lanjut Pendidikan yang lebih adil, untuk lebih banyak kesempatan. Belajar dengan bukti. Memahami sebelum memutuskan. PINTAR membantu melihat apa yang sedang terjadi dalam proses belajar. Keputusannya tetap pada manusia."
+      },
+      "tab": 62,
+      "url": "/masuk/lupa",
+      "ms": 13746
+    },
+    {
+      "id": "L5",
+      "judul": "the session lock in real time on a shared computer: the warning, the lock, a wrong PIN, the right one",
+      "hasil": "SAMPAI",
+      "layar": [
+        "25-bersama-belajar",
+        "26-bersama-peringatan",
+        "27-terkunci",
+        "28-terkunci-pin-salah",
+        "29-terbuka"
+      ],
+      "amatan": [
+        "the warning at 242 s",
+        "the lock at 303 s, at /terkunci"
+      ],
+      "data": {
+        "tour_skipped": true,
+        "sessions_start": "SHARED BERAKHIR ended KREDENSIAL_DIGANTI; SHARED BUKA",
+        "warning": "PINTAR akan terkunci dalam 1 menit Komputer ini belum dipakai selama 4 menit. Sebentar lagi PINTAR menutup layar ini; Anda bisa membukanya lagi dengan PIN. Saya masih di sini | Tur akan muncul lagi saat Anda masuk berikutnya. Bisa juga dibuka dari Bantuan kapan saja. Mengerti |",
+        "lock": "PINTAR ID EN PINTAR terkunci Terkunci untuk Intan Permatasari Komputer ini tidak dipakai selama 5 menit, jadi PINTAR menutup layar ini agar data Anda aman. Ketik PIN pribadi Anda untuk melanjutkan. PIN pribadi (4 angka) 👁 Lanjutkan Lupa PIN? Keluar, lalu masuk lagi dengan password Anda. Bukan akun Anda? Keluar dulu, supaya Anda bisa masuk dengan akun Anda sendiri. Keluar Pendidikan yang lebih adil, untuk lebih banyak kesempatan.",
+        "sessions_locked": "SHARED BERAKHIR ended KREDENSIAL_DIGANTI; SHARED TERKUNCI",
+        "wrong_pin": "PIN tidak cocok. Anda bisa mencoba 2 kali lagi. | Lupa PIN? Keluar, lalu masuk lagi dengan password Anda. | Bukan akun Anda? Keluar dulu, supaya Anda bisa masuk dengan akun Anda sendiri. |",
+        "unlocked_at": "/belajar",
+        "sessions_after": "SHARED BERAKHIR ended KREDENSIAL_DIGANTI; SHARED BUKA"
+      },
+      "tab": 0,
+      "url": "/belajar",
+      "ms": 321505
+    },
+    {
+      "id": "L6",
+      "judul": "three wrong PINs: the session ends",
+      "hasil": "SAMPAI",
+      "layar": [
+        "30-tiga-1",
+        "31-tiga-2",
+        "32-tiga-3"
+      ],
+      "amatan": [],
+      "data": {
+        "try_1": "PIN tidak cocok. Anda bisa mencoba 2 kali lagi. | Lupa PIN? Keluar, lalu masuk lagi dengan password Anda. | Bukan akun Anda? Keluar dulu, supaya Anda bisa masuk dengan akun Anda sendiri. |",
+        "try_2": "PIN tidak cocok. Anda bisa mencoba 1 kali lagi; jika tidak cocok lagi, Anda perlu masuk lagi. | Lupa PIN? Keluar, lalu masuk lagi dengan password Anda. | Bukan akun Anda? Keluar dulu, supaya Anda bisa masuk dengan akun Anda sendiri. |",
+        "try_3": "Sesi di komputer ini sudah berakhir. Masuk lagi untuk melanjutkan. |",
+        "sessions": "SHARED BERAKHIR ended KREDENSIAL_DIGANTI; SHARED BERAKHIR ended PIN_GAGAL"
+      },
+      "tab": 0,
+      "url": "/masuk",
+      "ms": 8558
+    },
+    {
+      "id": "L7",
+      "judul": "a class card's session lock: the card PIN",
+      "hasil": "SAMPAI",
+      "layar": [
+        "33-kartu-terkunci",
+        "34-kartu-terbuka"
+      ],
+      "amatan": [],
+      "data": {
+        "card_lock": "PINTAR ID EN PINTAR terkunci Komputer ini tidak dipakai selama 5 menit, jadi PINTAR menutup layar ini. Ketik PIN kartu Anda untuk melanjutkan. PIN kartu 👁 Lanjutkan Lupa PIN? Keluar, lalu minta bantuan guru Anda. Bukan akun Anda? Keluar dulu, supaya Anda bisa masuk dengan akun Anda sendiri. Keluar Pendidikan yang lebih adil, untuk lebih banyak kesempatan.",
+        "unlocked_at": "/belajar"
+      },
+      "tab": 0,
+      "url": "/masuk",
+      "ms": 13011
+    },
+    {
+      "id": "L8",
+      "judul": "a reset PIN on the lock",
+      "hasil": "SAMPAI",
+      "layar": [
+        "35-reset-terkunci"
+      ],
+      "amatan": [],
+      "data": {
+        "reset_lock": "PINTAR ID EN PINTAR terkunci Akun ini belum punya PIN yang bisa dipakai, jadi layar ini tidak bisa dibuka dengan PIN. Keluar, lalu masuk lagi. Bukan akun Anda? Keluar dulu, supaya Anda bisa masuk dengan akun Anda sendiri. Keluar Pendidikan yang lebih adil, untuk lebih banyak kesempatan."
+      },
+      "tab": 0,
+      "url": "/masuk",
+      "ms": 10951
+    },
+    {
+      "id": "L9",
+      "judul": "locked past 60 minutes: the session has ended",
+      "hasil": "SAMPAI",
+      "layar": [
+        "36-kunci-berakhir"
+      ],
+      "amatan": [],
+      "data": {
+        "ended": "PINTAR ID EN Sesi di komputer ini sudah berakhir. Masuk lagi untuk melanjutkan. Selamat datang di PINTAR Masuk dengan email atau username, dan password Anda. Email atau username Password 👁 Masuk Lupa password? Akun Anda sudah ditutup? Minta dibuka kembali Belum mengaktifkan akun? Aktifkan akun Puny",
+        "at": "/masuk"
+      },
+      "tab": 0,
+      "url": "/masuk",
+      "ms": 12129
+    },
+    {
+      "id": "L10",
+      "judul": "a closed account: signing in with the right password; then the reopening request",
+      "hasil": "SAMPAI",
+      "layar": [
+        "37-tutup-masuk",
+        "38-buka-kembali",
+        "39-buka-kembali-pendek",
+        "40-buka-kembali-terkirim",
+        "41-buka-kembali-kembali"
+      ],
+      "amatan": [],
+      "data": {
+        "closed_sign_in": "Email, username, atau password belum cocok. Periksa lagi, lalu coba sekali lagi. |",
+        "short_message": {
+          "url": "/masuk/buka-kembali",
+          "validity": "Please lengthen this text to 10 characters or more (you are currently using 6 characters).",
+          "page_line": "|"
+        },
+        "sent": "PINTAR ID EN Minta akun dibuka kembali Akun yang sudah ditutup tidak dibuka dengan sendirinya. Admin PINTAR membaca permintaan ini, memastikan bahwa Anda pemilik akun itu, lalu memutuskan. Catatan Anda tetap tersimpan selama akun tertutup. ✓Terima kasih. Jika akun itu memang sudah ditutup, permintaan Anda kini menunggu di Admin PINTAR. Akun dibuka kembali hanya setelah Admin PINTAR memastikan identitas Anda. Kembali ke halaman masuk Pendidikan yang lebih adil, untuk lebih banyak kesempatan. Belajar dengan bukti. Memahami sebelum memutuskan. PINTAR membantu melihat apa yang sedang terjadi dalam proses belajar. Keputusannya tetap pada manusia.",
+        "requests": "1 reopening request(s) after the double press",
+        "after_back": "PINTAR ID EN Minta akun dibuka kembali Akun yang sudah ditutup tidak dibuka dengan sendirinya. Admin PINTAR membaca permintaan ini, memastikan bahwa Anda pemilik akun itu, lalu memutuskan. Catatan Anda tetap tersimpan selama akun tertutup. EMAIL ATAU USERNAME PESAN UNTUK ADMIN PINTAR Tuliskan mengap"
+      },
+      "tab": 16,
+      "url": "/masuk/buka-kembali",
+      "ms": 8667
+    }
+  ],
+  "selesai": "2026-11-24T19:43:33.453Z",
+  "sampai_akhir": true
+}

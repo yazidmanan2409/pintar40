@@ -1,0 +1,24 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- main:
+  - text: PINTAR
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - heading "Minta akun dibuka kembali" [level=1]
+  - paragraph: Akun yang sudah ditutup tidak dibuka dengan sendirinya. Admin PINTAR membaca permintaan ini, memastikan bahwa Anda pemilik akun itu, lalu memutuskan. Catatan Anda tetap tersimpan selama akun tertutup.
+  - text: Email atau username
+  - textbox "Email atau username": puspa.anggraini@dunia.pintar.test
+  - text: Pesan untuk Admin PINTAR
+  - paragraph: Tuliskan mengapa Anda ingin kembali dan bagaimana Admin PINTAR dapat menghubungi Anda untuk memastikan identitas Anda. 10 sampai 500 karakter.
+  - textbox "Pesan untuk Admin PINTAR": Mohon.
+  - button "Kirim permintaan"
+  - status
+  - paragraph:
+    - link "Kembali ke halaman masuk":
+      - /url: /masuk
+  - paragraph: Pendidikan yang lebih adil, untuk lebih banyak kesempatan.
+  - region "Belajar dengan bukti. Memahami sebelum memutuskan.":
+    - heading "Belajar dengan bukti. Memahami sebelum memutuskan." [level=2]
+    - paragraph: PINTAR membantu melihat apa yang sedang terjadi dalam proses belajar. Keputusannya tetap pada manusia.
+- alert

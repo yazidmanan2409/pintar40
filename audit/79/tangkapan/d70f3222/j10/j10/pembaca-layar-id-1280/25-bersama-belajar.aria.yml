@@ -1,0 +1,65 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - navigation "Belajar":
+    - link "Belajar":
+      - /url: /belajar
+    - link "Sertifikat":
+      - /url: /belajar/sertifikat
+  - button "Bantuan"
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - paragraph: Belajar
+  - heading "Halo, Intan" [level=1]
+  - paragraph: Ini yang sedang berjalan hari ini.
+  - paragraph: Langkah berikutnya
+  - paragraph: Matematika · Persamaan Linear Satu Variabel
+  - heading "Mulai dari Pemetaan Awal" [level=2]
+  - list:
+    - listitem: Pemetaan Awal
+    - listitem: Peta Bacaan Personal
+    - listitem: Pelajaran
+    - listitem: Uji Penguasaan
+    - listitem: Hasil
+  - link "Mulai Pemetaan Awal":
+    - /url: /belajar/62dbd6e2-017e-4d4d-a751-bcee73490f1d/pemetaan
+  - link "Lihat semua langkah":
+    - /url: /belajar/62dbd6e2-017e-4d4d-a751-bcee73490f1d
+  - heading "Pembelajaran Anda" [level=2]
+  - article:
+    - text: Matematika · Kelas 8 Persamaan Linear Satu Variabel
+    - list:
+      - listitem: Pemetaan Awal
+      - listitem: Peta Bacaan Personal
+      - listitem: Pelajaran
+      - listitem: Uji Penguasaan
+      - listitem: Hasil
+    - text: Mulai dari Pemetaan Awal
+    - link "Mulai Pemetaan Awal":
+      - /url: /belajar/62dbd6e2-017e-4d4d-a751-bcee73490f1d/pemetaan
+  - article:
+    - text: Matematika · Kelas 8 Statistika Dasar
+    - list:
+      - listitem: Pemetaan Awal
+      - listitem: Peta Bacaan Personal
+      - listitem: Pelajaran
+      - listitem: Uji Penguasaan
+      - listitem: Hasil
+    - text: Mulai dari Pemetaan Awal
+    - link "Mulai Pemetaan Awal":
+      - /url: /belajar/ce381a00-10af-4cec-914c-25125e159056/pemetaan
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- status:
+  - paragraph: Tur akan muncul lagi saat Anda masuk berikutnya. Bisa juga dibuka dari Bantuan kapan saja.
+  - button "Mengerti"
+- alert

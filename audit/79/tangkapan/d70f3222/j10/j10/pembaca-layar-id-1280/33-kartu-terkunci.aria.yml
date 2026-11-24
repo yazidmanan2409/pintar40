@@ -1,0 +1,20 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- main:
+  - text: PINTAR
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - heading "PINTAR terkunci" [level=1]
+  - paragraph: Komputer ini tidak dipakai selama 5 menit, jadi PINTAR menutup layar ini. Ketik PIN kartu Anda untuk melanjutkan.
+  - text: PIN kartu
+  - textbox "PIN kartu"
+  - button "Tampilkan PIN"
+  - button "Lanjutkan"
+  - paragraph: Lupa PIN? Keluar, lalu minta bantuan guru Anda.
+  - paragraph:
+    - strong: Bukan akun Anda?
+    - text: Keluar dulu, supaya Anda bisa masuk dengan akun Anda sendiri.
+  - button "Keluar"
+  - paragraph: Pendidikan yang lebih adil, untuk lebih banyak kesempatan.
+- alert

@@ -1,0 +1,22 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- main:
+  - text: PINTAR
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - heading "Periksa email Anda" [level=1]
+  - paragraph: Jika nama ini milik akun PINTAR yang sudah aktif, PINTAR sedang mengirim kode ke email akun itu. Biasanya kode tiba dalam satu menit. Ketik kodenya di sini.
+  - paragraph: Kode berlaku selama 10 menit.
+  - text: Kode untuk membuat password baru
+  - textbox "Kode untuk membuat password baru"
+  - button "Lanjut"
+  - paragraph: Belum ada email? Periksa folder Spam atau Promosi. Kode hanya dikirim ke email akun itu sendiri.
+  - button "Kirim ulang kode" [disabled]
+  - paragraph: Kode bisa dikirim ulang dalam 1 menit.
+  - button "Gunakan email atau username lain"
+  - paragraph: Pendidikan yang lebih adil, untuk lebih banyak kesempatan.
+  - region "Belajar dengan bukti. Memahami sebelum memutuskan.":
+    - heading "Belajar dengan bukti. Memahami sebelum memutuskan." [level=2]
+    - paragraph: PINTAR membantu melihat apa yang sedang terjadi dalam proses belajar. Keputusannya tetap pada manusia.
+- alert

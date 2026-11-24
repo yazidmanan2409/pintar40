@@ -1,0 +1,21 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- main:
+  - text: PINTAR
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - heading "Komputer siapa ini?" [level=1]
+  - paragraph: PINTAR menjaga akun Anda sesuai komputer yang Anda pakai. Anda bisa mengubah pilihan ini nanti di Akun saya.
+  - group "Komputer siapa ini?":
+    - text: Komputer siapa ini?
+    - radio "Komputer bersama Dipakai bergantian, seperti komputer sekolah atau lab. Setelah 5 menit tidak dipakai, PINTAR menutup layar dan Anda membukanya lagi dengan PIN. Ini pilihan yang lebih aman." [checked]
+    - strong: Komputer bersama
+    - text: Dipakai bergantian, seperti komputer sekolah atau lab. Setelah 5 menit tidak dipakai, PINTAR menutup layar dan Anda membukanya lagi dengan PIN. Ini pilihan yang lebih aman.
+    - radio "Komputer pribadi saya Hanya Anda yang memakainya. Anda tetap masuk hingga 7 hari tanpa dipakai."
+    - strong: Komputer pribadi saya
+    - text: Hanya Anda yang memakainya. Anda tetap masuk hingga 7 hari tanpa dipakai.
+  - paragraph: Ini pilihan Anda untuk browser ini, bukan bukti kepemilikan.
+  - button "Simpan pilihan"
+  - paragraph: Pendidikan yang lebih adil, untuk lebih banyak kesempatan.
+- alert

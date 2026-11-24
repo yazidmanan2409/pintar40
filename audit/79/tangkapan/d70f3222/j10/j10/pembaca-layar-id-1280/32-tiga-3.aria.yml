@@ -1,0 +1,13 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- main:
+  - text: PINTAR
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - heading "PINTAR terkunci" [level=1]
+  - status: Sesi di komputer ini sudah berakhir. Masuk lagi untuk melanjutkan.
+  - link "Masuk":
+    - /url: /masuk
+  - paragraph: Pendidikan yang lebih adil, untuk lebih banyak kesempatan.
+- alert

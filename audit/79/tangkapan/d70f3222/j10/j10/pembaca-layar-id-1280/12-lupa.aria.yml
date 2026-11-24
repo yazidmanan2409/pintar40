@@ -1,0 +1,25 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- main:
+  - text: PINTAR
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - heading "Lupa password" [level=1]
+  - paragraph: Ketik email atau username akun PINTAR Anda. Jika akun itu sudah aktif, PINTAR mengirim kode ke email akun itu untuk membuat password baru.
+  - text: Email atau username
+  - textbox "Email atau username"
+  - button "Kirim kode"
+  - button "Pakai PINTAR ID dan PIN"
+  - paragraph:
+    - text: Belum pernah mengaktifkan akun?
+    - link "Aktifkan akun":
+      - /url: /aktifkan
+  - paragraph:
+    - link "Kembali ke halaman masuk":
+      - /url: /masuk
+  - paragraph: Pendidikan yang lebih adil, untuk lebih banyak kesempatan.
+  - region "Belajar dengan bukti. Memahami sebelum memutuskan.":
+    - heading "Belajar dengan bukti. Memahami sebelum memutuskan." [level=2]
+    - paragraph: PINTAR membantu melihat apa yang sedang terjadi dalam proses belajar. Keputusannya tetap pada manusia.
+- alert
