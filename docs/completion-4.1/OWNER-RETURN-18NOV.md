@@ -452,3 +452,5 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
   - **Open for the owner:** the dashboard check for `PGRST_DB_PRE_REQUEST`; staging acceptance; the D-1 containment decision (not lifted). Evidence: `batches/z/z-promotion/`.
 
 **24 Nov, 00:28–00:35Z.** Second Eye: local 308 md5 of `periksa` = `2b4a0444fbd36007341a536916fe14a0`, identical to staging (built from a8d9ff27 = main 61a6ff9e tree). Sharon's condition met: her side of Z staging acceptance complete. Second Eye: ruling 83 PASS at `claude/infra-83` 8a1293be. Z goes to the owner for staging acceptance and the separate D-1 decision.
+
+**24 Nov, ~00:40Z. Ruling 88.** The owner accepted Z on staging (300 → 308) and lifted the D-1 multi-answer containment. Multi-answer authoring resumes; the fixture rule and the before-import check end; AI drafts stay single-answer (ruling 81). Production stays at 111 without the repair, so no multi-answer content goes to production learners before Z's own production authorisation.
