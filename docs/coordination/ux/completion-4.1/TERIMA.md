@@ -133,3 +133,4 @@
 - **24 Nov 10:05Z · Bob, correction:** the audit opens only when the owner accepts D2-R on staging (ruling 92). The mapping stands as preparation. **Holding** the journeys until Bob confirms the audit is open.
 - **24 Nov 10:06Z · Bob:** audit 79 OPEN (ruling 94). **J2 walked:** AUDIT-79-TEMUAN-J2.md (7755a3d8); 3 Significant, 7 Improvement; sent 10:25. Next: J3.
 - **24 Nov 10:12Z and 10:22Z · Bob:** mapping applied (81e1268d); captures come from the audit builder (stream B), not Second Eye; the audit world is at 00fe853d (merged with main), and only captures from 00fe853d on count. My J2 was walked on a local build of main 429b7dcc (same product); I'll cross-check it against the builder's J2 run. J3 waits for the builder's world states (the gate needs W-fixtures).
+- **24 Nov 10:27Z · Bob:** J2 → L-44..L-53. **J3 walked** on a local audit world 00fe853d: AUDIT-79-TEMUAN-J3.md (20d3fdc9); 5 Significant, 4 Improvement.
