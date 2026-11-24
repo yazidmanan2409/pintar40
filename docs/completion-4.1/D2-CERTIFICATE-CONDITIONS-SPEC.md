@@ -299,3 +299,5 @@ Sharon's part waits until after A3's freeze (ruling 58).
 - `hasil.baca_lagi`: «Baca lagi:» / «Read again:» (no «juga», since there is no list above it).
 - `hasil.baca_lagi_arti`: «Bagian ini disarankan untuk dibaca lagi. Saran ini bukan penilaian atas penguasaan Anda pada bagian ini.» / «These parts are suggested for reading again. This is advice, not a judgement of your mastery of them.»
 - `sertifikat.kelola.kolom.kursus`: «Materi Pembelajaran» / «Learning Material». This reverses Z7 C-3, so the concept keeps one name.
+
+**Daisy (24 Nov): «Predikat» is removed from the learner's own certificate page (`:166`) as well.** The page must match the certificate and the public check. The band stays internal. No new words.
