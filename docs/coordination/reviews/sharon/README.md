@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| Audit 79 L-78 (Auth reveals locked account) | HIGH now, Critical by nature with real minors; production BLOCKER for mig 221+; fix (iii) rotate+revoke not ban; own correction CI-2; L-75 withdrawn for a generic line | e59276ce | [AUDIT79-L78.md](AUDIT79-L78.md) |
 | CI-1 pre-build (L-67 fix) | correct; (a) DICABUT only with a revocation, else DITINJAU; (b) one helper for public+learner+staff readers; (c) lock; plants P1–P7 | d99fa8d3 | [CI-1-PREBUILD-d99fa8d3.md](CI-1-PREBUILD-d99fa8d3.md) |
 | Audit 79 J10 L-75/L-76 (recovery disclosure) | L-75 OK for password after proof (blocking Auth user_banned order test; re-key on reopen); NOT for PIN; L-76 reveals nothing | 4dd5afc3 | [AUDIT79-J10-L75-L76.md](AUDIT79-J10-L75-L76.md) |
 | Audit 79 J7-1 (cert confirmed on now-failing result) | HIGH (Critical once real certs possible); refuse CONFIRMED in DB; prod absent (mig 229 > 111); staging count query | 2002b662 | [AUDIT79-J7-1.md](AUDIT79-J7-1.md) |
