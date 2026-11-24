@@ -294,3 +294,8 @@ Sharon's part waits until after A3's freeze (ruling 58).
 - **Result payloads are not key-sanitised:** every certifying learner RPC is covered by a forbidden-key test, the engine's existing list applied to result payloads (H-series).
 
 **The build may start now on R-a, R-b, R-c, R-e, R-f, R-g and R-1.** R-d and R-h start once Sharon confirms F-2's shape and the per_domain line.
+
+**Daisy's string update, with no threshold (`D2R-KATA.md` §6, `dc275f6a`), adopted:**
+- `hasil.baca_lagi`: «Baca lagi:» / «Read again:» (no «juga», since there is no list above it).
+- `hasil.baca_lagi_arti`: «Bagian ini disarankan untuk dibaca lagi. Saran ini bukan penilaian atas penguasaan Anda pada bagian ini.» / «These parts are suggested for reading again. This is advice, not a judgement of your mastery of them.»
+- `sertifikat.kelola.kolom.kursus`: «Materi Pembelajaran» / «Learning Material». This reverses Z7 C-3, so the concept keeps one name.
