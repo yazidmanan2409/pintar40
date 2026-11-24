@@ -20,12 +20,12 @@ import { alasanBelum, bagianUlang, hitunganSegel, ketuntasan } from "@/lib/siklu
  * Never «tidak lulus». No per-question row, no key, no explanation, no mastery figure per objective: the database
  * withholds them (20270124100000) and the engine refuses a result that carries one (jagaHasil). Staff views are unchanged.
  */
-export default function HasilBersertifikasi({ outcome, peta, pelajaran, tugas, locale, dihitungUlang, sertifikatTerbit = false }: {
+export default function HasilBersertifikasi({ outcome, peta, pelajaran, tugas, locale, dihitungUlang, sertifikatDisiapkan = false }: {
   outcome: Outcome; peta: readonly ReadingMapCard[]; pelajaran: readonly LessonEntry[]; tugas: string; locale: Locale;
   dihitungUlang: boolean;
-  /** Daisy's §9: whether this pass's certificate renders as a credential yet (a failed read: not yet, which the
-   *  certificate page itself rechecks) */
-  sertifikatTerbit?: boolean;
+  /** Daisy's §9, Sharon's note: whether this pass's certificate is really being prepared (sedangDisiapkan); otherwise
+   *  the link alone */
+  sertifikatDisiapkan?: boolean;
 }) {
   const s = (k: HleEvent) => t(k, "learner", { locale });
   const keputusan = ketuntasan(outcome);
@@ -49,7 +49,7 @@ export default function HasilBersertifikasi({ outcome, peta, pelajaran, tugas, l
           «akan muncul di sini» means the certificate page) */}
       {keputusan === "TERCAPAI" ? (
         <p data-sertifikat="">
-          {sertifikatTerbit ? null : <>{s("sertifikat.disiapkan.judul")}. </>}
+          {sertifikatDisiapkan ? <>{s("sertifikat.disiapkan.judul")}. </> : null}
           <Link href={`/belajar/${tugas}/sertifikat`}>{s("siklus.lihat_sertifikat")}</Link>
         </p>
       ) : keputusan === "BELUM" ? (

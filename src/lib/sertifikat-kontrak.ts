@@ -68,6 +68,15 @@ export function rendersCredential(status: CertificateStatus): boolean {
   return status !== "ELIGIBLE";
 }
 
+/**
+ * D2-R (Daisy §9, Sharon's delta note, ruling 90's principle): «Sertifikat Anda sedang disiapkan» only when a
+ * certificate is really being prepared, a row in ELIGIBLE. No row (a pass that will never be certified, INV-20, or a
+ * failed read) promises nothing.
+ */
+export function sedangDisiapkan(row: { status: CertificateStatus | string } | null | undefined): boolean {
+  return row?.status === "ELIGIBLE";
+}
+
 /** Only an ISSUED certificate is a credential to present. */
 export function rendersVerification(status: CertificateStatus): boolean {
   return status === "ISSUED";
