@@ -47,3 +47,20 @@ The six EN lines are **confirmed with one required correction**:
   - «Account activation» matches `nav.aktivasi`.
   - «sign-in page» is already used in the app.
   - `masuk.f6`, `masuk.f6_murid` and `akun.dibuka.kredensial_murid_tautan` («Make a new PIN for {nama}») are confirmed as written.
+
+## 5 · The admin's PIN reset while a learner's account is locked (24 Nov 18:50Z, asked by Bob; Sharon's note)
+
+Under CI-2, a PIN made while the account is suspended or closed is stored as a random secret and never works. The working PIN is the fresh one made at reinstatement (§2). The admin already knows the account's state, so this line reveals nothing.
+
+**Suspended,** `aktivasi.pin_terkunci.ditangguhkan`:
+- ID: «Akun {nama} sedang ditangguhkan, jadi PIN tidak dapat dibuat sekarang. PIN baru dibuat saat penangguhannya dicabut.»
+- EN: «{nama}'s account is suspended, so a PIN can't be made now. A new PIN is made when the suspension is lifted.»
+
+**Closed,** `aktivasi.pin_terkunci.ditutup`:
+- ID: «Akun {nama} sudah ditutup, jadi PIN tidak dapat dibuat sekarang. PIN baru dibuat saat akunnya dibuka kembali.»
+- EN: «{nama}'s account is closed, so a PIN can't be made now. A new PIN is made when the account is reopened.»
+
+**Composition (C-7):**
+- **Recommended:** the line **replaces** the reset button and the PIN card for a locked learner. A button that produces a PIN that never works hands a child a dead PIN, and the admin can't tell. The words are written for that composition («PIN tidak dapat dibuat sekarang»).
+- If the button must stay, the line sits directly above it, and the result must not show or print a PIN card. Bob or Sharon decides.
+- The words reuse the app's terms: «ditangguhkan» / «suspended» (`keamanan.akun.ditangguhkan`), and «ditutup» / «closed».
