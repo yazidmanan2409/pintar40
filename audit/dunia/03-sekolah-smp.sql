@@ -47,10 +47,10 @@ begin
   perform dunia.staf('smp.guru8a',  'guru8a.cendekia@dunia.pintar.test',  'Sintetis-CendekiaGuru-54!',   'Dimas Saputra',     'EDUCATOR',           k8a);
 end $$;
 
--- W3: the core chapter, given to 8A
+-- W3: the core chapter, given to 8A. Its spec is kept (w3.spec), so a state that needs the same chapter elsewhere
+-- (W6's class with an attempt limit of 1) builds it from the same words.
 do $$
-begin
-  perform dunia.bab($j${
+declare spec jsonb := $j${
     "sekolah": "smp.sekolah", "kelas": "smp.kelas8a", "ta": "smp.ta",
     "penulis": "smp.guru8a", "peninjau": "smp.wakasek", "admin": "smp.admin",
     "mapel": "Matematika", "jenjang": "SMP", "tingkat": "Kelas 8", "judul": "Persamaan Linear Satu Variabel",
@@ -143,7 +143,10 @@ begin
               ["C", "n = 7 + 20", false, "Hubungannya tertukar.", "CDK-CERITA"], ["D", "n − 7 = 20", false, "Ditambah, bukan dikurang.", "CDK-TANDA"]]}
     ],
     "batas_percobaan": 2, "simpan": "w3.bab"
-  }$j$::jsonb);
+  }$j$::jsonb;
+begin
+  perform dunia.simpan('w3.spec', spec::text);
+  perform dunia.bab(spec);
 end $$;
 
 -- W3's own checks: the Uji Penguasaan's paper is what Daisy named

@@ -11,7 +11,9 @@
 // L4/L5 note: on next-base a class-card session is always shared (src/lib/penjaga-sesi.ts: "CARD every class-card
 // session (T1, D-086(c)); a learner is never asked about the computer"), and a card's PIN is the card's. The capture
 // records what the screen did at those two steps and the data behind it; whether the script or the screen is right
-// is Daisy's call.
+// is Daisy's call. For comparison: a learner who signs in BY EMAIL (W2's) is taken to /perangkat («Komputer siapa
+// ini?») after the sign-in, and a personal PIN is an email account's (set_my_pin). The two steps exist; on next-base
+// they belong to the email path, not the class card's.
 import { APP, dunia, jalan, pilihBahasa, ringkas, BAHASA, LALUAN, LEBAR } from "./lib.mjs";
 
 const D = dunia();

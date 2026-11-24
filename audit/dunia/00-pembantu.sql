@@ -95,7 +95,10 @@ begin
   end if;
   u := (dunia.ambil(p_k))::jsonb ->> 'auth';
   if u is null then raise exception 'dunia.sebagai: no such person %', p_k; end if;
-  perform set_config('request.jwt.claims', json_build_object('sub', u, 'role', 'authenticated')::text, true);
+  -- a real token always carries its Auth session id; each person of the world has one, fixed (one device), as the
+  -- selftest's as_user gives its personas (A3). A sitting is bound to the session that started it.
+  perform set_config('request.jwt.claims', json_build_object('sub', u, 'role', 'authenticated',
+    'session_id', md5('dunia-sesi:' || u)::uuid)::text, true);
   perform set_config('request.jwt.claim.sub', u, true);
 end $$;
 
@@ -129,4 +132,39 @@ begin
   perform dunia.simpan(p_k, jsonb_build_object('email', p_email, 'password', p_password, 'nama', p_nama, 'person', p,
                                                'auth', u, 'pintar_id', (select pintar_id from public.persons where id = p))::text);
   return p;
+end $$;
+
+-- A learner sits an assessment through the product's own functions, as themself (start_learning_session,
+-- record_answer for each delivered question, finish_my_session), answering each question right unless its stem is
+-- in p_salah. A multi-answer question answered right chooses every correct option; answered wrong, the wrong ones.
+-- The display order is the product's own (option_display_order), read as the database owner, as the selftest's
+-- answer_paper reads it. Returns the session.
+create function dunia.duduk(p_murid text, p_aa uuid, p_salah text[] default '{}') returns uuid language plpgsql as $$
+declare s uuid; r record; v_pos int; v_positions int[]; v_benar boolean; n int := 0;
+begin
+  perform dunia.sebagai(p_murid);
+  s := public.start_learning_session(p_aa);
+  for r in select p.id as pid, p.item_id, i.item_type, i.stem
+             from public.presented_items p join public.items i on i.id = p.item_id
+            where p.session_id = s order by p.position loop
+    v_benar := not (r.stem = any (p_salah));
+    if r.item_type = 'MCQ_MULTI' then
+      select array_agg(d.display_position order by d.display_position) into v_positions
+        from public.option_display_order(s, r.item_id) d
+        join public.item_options o on o.item_id = r.item_id and o.label = d.label
+       where o.is_correct = v_benar;
+      perform public.record_answer(r.pid, 1, jsonb_build_object('posisi', to_jsonb(v_positions)));
+    else
+      select d.display_position into v_pos
+        from public.option_display_order(s, r.item_id) d
+        join public.item_options o on o.item_id = r.item_id and o.label = d.label
+       where o.is_correct = v_benar order by d.display_position limit 1;
+      perform public.record_answer(r.pid, 1, jsonb_build_object('posisi', v_pos));
+    end if;
+    n := n + 1;
+  end loop;
+  if n = 0 then raise exception 'dunia.duduk: the paper delivered no question'; end if;
+  perform public.finish_my_session(s);
+  perform dunia.sebagai(null);
+  return s;
 end $$;

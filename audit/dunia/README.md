@@ -25,6 +25,9 @@ artifact.
   this track changes no product code.
 - A reset returns every state: `muat.sh` always starts from `supabase db reset --local`, and loads the world as one
   transaction.
+- Every result is SAT through the product's own functions, by the learner as themself (`dunia.duduk`:
+  `start_learning_session`, `record_answer`, `finish_my_session`; a fixed Auth session per person, as the selftest's
+  personas have).
 - Every state is made through the product's own functions where one exists (a card through
   `authorize_account_activation`, a chapter through review, the validator, the MCQ quality gate and publication, a
   pass mark through `set_school_pass_mark`). Where it doesn't, it is written as the seeds write it.
@@ -38,4 +41,7 @@ artifact.
 | W3 · SMP Sintetis Cendekia, 8A: the core chapter «Persamaan Linear Satu Variabel», sealed at 60; a Pemetaan Awal of 3; an Uji Penguasaan of 6 (2 multi-answer, 1 must-be-right, objectives of 2, 3 and 1 item: CDK8-3 is the thin one) | `03-sekolah-smp.sql` | built (checked at load); J2's learners join with W4–W5 |
 | W2 · activated learners by email at Cendekia 8A: one with a personal PIN, one whose PIN the school admin reset (`admin_reset_recovery`); the 8A teacher's PIN | `04-w2.sql` | built (checked at load) |
 | The platform: two Admin PINTAR (W19's pair) | `01-sekolah-sd.sql` | built |
-| W4–W19 | | next |
+| W4 · «Statistika Dasar» given to 8A before a pass mark; Hana (J2's learner) finished it: a result with no verdict. **A legacy state, written past today's guard** (the product now refuses it: ASSIGN_PASS_MARK_MISSING); `dunia.bab` with `"warisan": true` disables the one sealing trigger for that chapter's own rows and enables it again at once | `05-hasil.sql` | built |
+| W5 · Rizky, 8A: W3's Uji Penguasaan 5 of 6, only CDK8-3 wrong (83 %, gate passed, the thin objective below) | `05-hasil.sql` | built (sat through the product) |
+| W6 · Sinta, class 8B (W3's chapter, attempt limit 1): 5 of 6 (83 %) with the must-be-right question missed (gate failed); the approver is the head of department, not 8B's teacher | `05-hasil.sql` | built (sat through the product) |
+| W7–W19 | | next |

@@ -17,4 +17,4 @@ failure). An OBSERVED note records what a screen did where the script expected s
 
 | Journey | Script | World | Status |
 |---|---|---|---|
-| J1 · First day (SD) | `j1.mjs` | W1 | runs end to end. L4 (personal PIN) and L5 («Komputer siapa ini?») are recorded as the screen offers them: on next-base a class-card session is never asked about the computer (D-086(c)) |
+| J1 · First day (SD) | `j1.mjs` | W1 | runs end to end. L4 (personal PIN) and L5 («Komputer siapa ini?») are recorded as the screen offers them: on next-base a class-card session is never asked about the computer (D-086(c)); a learner by email (W2) is asked at `/perangkat`, and the personal PIN is an email account's |

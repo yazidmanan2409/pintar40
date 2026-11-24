@@ -133,6 +133,15 @@ begin
   -- the school's pass mark (W4 gives a chapter before one exists: "batas" null), then the class is given the chapter
   if spec ->> 'batas' is not null then
     perform public.set_school_pass_mark(inst, kursus, (spec ->> 'batas')::int, coalesce(spec ->> 'batas_alasan', 'Batas ketuntasan sekolah (dunia audit)'));
+  elsif not coalesce((spec ->> 'warisan')::boolean, false) then
+    raise exception 'dunia.bab «%»: no pass mark, and not marked "warisan" (a legacy state)', spec ->> 'judul';
+  end if;
+  -- W4, A LEGACY STATE, WRITTEN PAST TODAY'S GUARD: a chapter given before the school had a pass mark (as real data from
+  -- before D-088(b) holds). The product now refuses that (seal_assignment_pass_mark: ASSIGN_PASS_MARK_MISSING), so the
+  -- one sealing trigger is disabled for this chapter's own assignment rows only, and enabled again at once, as the
+  -- selftests do for their fixture-only states. Only a spec marked "warisan" reaches it.
+  if coalesce((spec ->> 'warisan')::boolean, false) then
+    alter table public.assessment_assignments disable trigger assessment_assignments_the_pass_mark_is_sealed;
   end if;
   insert into public.learning_assignments (institution_id, plp_release_id, course_id, node_id, academic_period_id,
     is_required, learning_cycle, assigned_by_person_id, assigned_at)
@@ -147,6 +156,9 @@ begin
     academic_period_id, opens_at, closes_at, assigned_by_person_id, assigned_at)
   values (inst, def_post, la, kelas, ta, now() - interval '1 day', now() + interval '180 days', p_admin, now())
   returning id into aa_post;
+  if coalesce((spec ->> 'warisan')::boolean, false) then
+    alter table public.assessment_assignments enable trigger assessment_assignments_the_pass_mark_is_sealed;
+  end if;
   foreach k in array array['SCHEDULED','OPEN'] loop
     update public.assessment_assignments set status = k::public.assessment_assignment_status where id in (aa_pre, aa_post);
   end loop;
