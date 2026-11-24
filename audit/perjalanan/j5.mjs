@@ -66,7 +66,7 @@ for (const lebar of LEBAR) {
     await ke(`/mengajar/${K8A}/uji-cepat`);
     await foto(`${awalan}guru-uji-cepat`);
     data(`${awalan}teacher_running`, (await isi()).slice(0, 600));
-    await ke(`/mengajar/${K8A}/uji-cepat/hasil`);
+    await ke(`/mengajar/${K8A}/uji-cepat/hasil?penugasan=${penugasan}`);
     await foto(`${awalan}guru-hasil`);
     data(`${awalan}teacher_result`, (await isi()).slice(0, 700));
     await keluar(j);
@@ -115,7 +115,7 @@ for (const lebar of LEBAR) {
     for (let i = 0; i < 3 && i < (await centang.count()); i++) { rec.tab += await j.tabKe(centang.nth(i), 200); if (!(await centang.nth(i).isChecked())) await page.keyboard.press("Space"); }
     const menit = page.locator("input[type=radio][name=menit]");
     data("windows_offered", RAPI((await page.locator("input[type=radio][name=menit]").evaluateAll((xs) => xs.map((x) => x.value))).join(",")));
-    rec.tab += await j.tabKe(menit.first(), 200);
+    rec.tab += await j.tabKe(page.locator("input[type=radio][name=menit]:checked").first(), 200);   // a radio group: the checked one is its Tab stop
     for (let i = 0; i < 6 && (await menit.last().isChecked()) === false; i++) await page.keyboard.press("ArrowDown");   // the longest window
     rec.tab += await j.tekan(page.getByRole("button", { name: /^(Lanjut ke tinjauan|Continue to review)/ }).first(), 200);
     await tunggu();
@@ -183,6 +183,14 @@ for (const lebar of LEBAR) {
     await ke(`/belajar/asesmen/${penugasan}`);
     await foto("sesudah-henti-intan");
     data("after_stop_learner", (await isi()).slice(0, 500));
+    // signed in again: «Lanjutkan di sini?», then the rest answered and submitted
+    const sini = page.getByRole("button", { name: /^(Lanjutkan di sini|Continue here)/ }).first();
+    if (await sini.count()) { rec.tab += await j.tekan(sini, 100); await tunggu(); }
+    const mulai = page.getByRole("button", { name: /^(Mulai|Start|Lanjutkan|Continue)/ }).first();
+    if (await mulai.count()) { rec.tab += await j.tekan(mulai, 150); await tunggu(); }
+    data("after_stop_answered", await kerjakan(j, kunci, rec, foto, "intan-lanjut", /^(Kumpulkan|Submit)/i, {}, null));
+    await foto("intan-selesai");
+    data("sittings_after_stop", cepat());
     await keluar(j);
   });
 
@@ -198,12 +206,24 @@ for (const lebar of LEBAR) {
     await ayuMasuk();
     await ke(`/mengajar/${K8A}/murid/${rizky.person}`);
     await foto("rizky");
-    rec.tab += await j.tekan(page.getByRole("link", { name: /Minta membaca lagi|Ask to read again/ }).first(), 200);
+    const tautan = page.getByRole("link", { name: /Minta membaca lagi|Ask to read again/ }).first();
+    data("student_page_offers_it", await tautan.count() > 0);
+    if (await tautan.count()) rec.tab += await j.tekan(tautan, 200);
+    else {
+      await ke(`/mengajar/${K8A}`);
+      const dariKelas = page.getByRole("link", { name: /Minta membaca lagi|Ask to read again/ }).first();
+      data("class_page_offers_it", await dariKelas.count() > 0);
+      if (await dariKelas.count()) rec.tab += await j.tekan(dariKelas, 300);
+      else await ke(`/mengajar/${K8A}/ulang?penugasan=${W3.up}`);
+    }
     await page.waitForURL((u) => u.pathname.endsWith("/ulang"), { timeout: 30000 });
     await tunggu();
     await foto("minta-membaca");
-    data("request_page", (await isi()).slice(0, 700));
-    rec.tab += await j.tekan(page.getByRole("button", { name: /^(Kirim|Send|Minta)/ }).first(), 300);
+    data("request_page", (await isi()).slice(0, 900));
+    const rizkyKotak = page.locator(`input[type=checkbox][name=murid][value="${rizky.person}"]`).first();
+    if (await rizkyKotak.count() && !(await rizkyKotak.isChecked())) { rec.tab += await j.tabKe(rizkyKotak, 200); await page.keyboard.press("Space"); }
+    data("rizky_ticked", await rizkyKotak.isChecked().catch(() => false));
+    rec.tab += await j.tekan(page.locator("form.pin-ulang button[type=submit]").first(), 300);
     await tunggu();
     await foto("minta-membaca-terkirim");
     data("sent", await pesan());
@@ -222,16 +242,20 @@ for (const lebar of LEBAR) {
     rec.tab += await j.tekan(page.locator("a[data-jadwal-buka]").first(), 200);
     await tunggu();
     await foto("jadwal");
-    const sampai = page.getByLabel(/^Sampai|^Until/).first();
+    // «Sampai» (a date and time field): typed by keyboard, its segments in the page's order; the reason is required
+    const sampai = page.locator("#jadwal-sampai");
     rec.tab += await j.tabKe(sampai, 100);
     await page.keyboard.type("31122026");
-    await page.keyboard.press("Tab"); await page.keyboard.type("1500");
+    await page.keyboard.type("1500");
+    if (!(await sampai.inputValue().catch(() => ""))) { await sampai.fill("2026-12-31T15:00"); data("end_date_typed", "the field took no typed date; filled"); }
+    data("end_date_value", await sampai.inputValue().catch(() => ""));
+    rec.tab += await j.ketik(page.locator("#jadwal-alasan"), "Diberi batas akhir sebelum libur semester (dunia audit J5).", 30);
     rec.tab += await j.tekan(page.getByRole("button", { name: /^(Simpan jadwal|Save schedule)$/ }).first(), 60);
     await tunggu();
     await foto("jadwal-disimpan");
     data("saved", await pesan());
-    data("closes", j.baca(`select coalesce(string_agg(to_char(aa.closes_at at time zone 'Asia/Jakarta', 'YYYY-MM-DD HH24:MI'), ','), 'none')
-      from public.assessment_assignments aa join public.learning_assignments la on la.id = aa.learning_assignment_id where la.node_id = '${K8C}'`));
+    data("until", j.baca(`select coalesce(string_agg(coalesce(to_char(la.available_until at time zone 'Asia/Jakarta', 'YYYY-MM-DD HH24:MI'), 'none'), ','), 'none')
+      from public.learning_assignments la where la.node_id = '${K8C}' and la.course_id = '${W3.kursus}'`));
     await keluar(j);
   });
 
@@ -241,16 +265,21 @@ for (const lebar of LEBAR) {
     rec.tab += await j.tekan(page.getByRole("link", { name: new RegExp(`^(Atur|Manage)\\s*·\\s*${galih.nama}`) }).first(), 200);
     await tunggu();
     await foto("atur");
-    const waktu = page.locator("section, div, form").filter({ has: page.getByRole("heading", { name: /^(Tambah waktu|Add time)$/ }) }).last();
-    data("add_time_panel", RAPI(await waktu.innerText().catch(() => "(no «Tambah waktu»)")).slice(0, 500));
-    const isian = waktu.locator("input, select").first();
-    if (await isian.count()) { rec.tab += await j.tabKe(isian, 100); if ((await isian.evaluate((e) => e.tagName)) === "INPUT") await page.keyboard.type("10"); }
-    const alasan = waktu.getByRole("textbox", { name: /Alasan|Reason/ }).first();
-    if (await alasan.count()) rec.tab += await j.ketik(alasan, "Galih terlambat karena gangguan jaringan (dunia audit J5).", 60);
-    rec.tab += await j.tekan(waktu.locator("button[data-bahaya-buka], button").first(), 60);
-    await page.waitForTimeout(600);
-    const pasti = waktu.locator("[data-bahaya-tanya] button").first();
-    if (await pasti.count()) { await foto("atur-tanya"); data("question", RAPI(await waktu.locator("[data-bahaya-tanya]").innerText())); rec.tab += 0; await pasti.focus(); await page.keyboard.press("Enter"); }
+    const waktu = page.locator("form[data-atur-tindakan=waktu]").first();
+    await waktu.waitFor({ timeout: 20000 });
+    data("add_time_panel", RAPI(await waktu.innerText().catch(() => "(no «Tambah waktu»)")).slice(0, 400));
+    rec.tab += await j.tabKe(waktu.locator("select[name=menit]"), 200);
+    await page.keyboard.press("ArrowDown");   // 10 minutes
+    rec.tab += await j.ketik(waktu.locator("textarea").first(), "Galih terlambat karena gangguan jaringan (dunia audit J5).", 30);
+    const buka = waktu.locator("button[data-bahaya-buka]:visible").first();
+    rec.tab += await j.tekan(buka, 30);
+    const tanya = waktu.locator("[data-bahaya-tanya]:visible").first();
+    await tanya.waitFor({ timeout: 10000 });
+    await foto("atur-tanya");
+    data("question", RAPI(await tanya.innerText()));
+    // the focus opens on «Batal»; the confirming button is before it
+    await page.keyboard.press("Shift+Tab");
+    await page.keyboard.press("Enter");
     await tunggu();
     await foto("atur-waktu-ditambah");
     data("added", await pesan());

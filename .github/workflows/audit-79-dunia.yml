@@ -160,6 +160,17 @@ jobs:
           node audit/perjalanan/j7.mjs
           AUDIT_BAHASA=en AUDIT_LEBAR=1280 node audit/perjalanan/j7.mjs
           for L in pembaca-layar gerak-dikurangi jaringan-lambat; do AUDIT_LALUAN=$L AUDIT_LEBAR=1280 node audit/perjalanan/j7.mjs; done
+      # J5 changes the world (a chapter given, an Uji Cepat run through an emergency stop, a schedule, added time)
+      - name: J5 · a teacher's week (1280, 390, 320; EN; the three passes)
+        if: success() || failure()
+        env:
+          APP_URL: http://127.0.0.1:3999
+          AUDIT_OUT: ${{ github.workspace }}/audit-out/perjalanan
+        run: |
+          set -euo pipefail
+          node audit/perjalanan/j5.mjs
+          AUDIT_BAHASA=en AUDIT_LEBAR=1280 node audit/perjalanan/j5.mjs
+          for L in pembaca-layar gerak-dikurangi jaringan-lambat; do AUDIT_LALUAN=$L AUDIT_LEBAR=1280 node audit/perjalanan/j5.mjs; done
       # J10 changes the world (set-up done, passwords recovered, sessions locked): it loads the world afresh per walk;
       # the email path reads its code from the Mailpit sink started above; L5 waits the real 5-minute lock
       - name: J10 · locked out (1280, 390, 320; EN; the three passes; the tour-open branch)
