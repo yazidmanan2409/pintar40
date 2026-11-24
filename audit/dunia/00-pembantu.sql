@@ -139,7 +139,9 @@ end $$;
 -- in p_salah. A multi-answer question answered right chooses every correct option; answered wrong, the wrong ones.
 -- The display order is the product's own (option_display_order), read as the database owner, as the selftest's
 -- answer_paper reads it. Returns the session.
-create function dunia.duduk(p_murid text, p_aa uuid, p_salah text[] default '{}') returns uuid language plpgsql as $$
+-- p_berhenti: answer only the first N questions and leave the sitting open (W9: a learner mid-sitting).
+create function dunia.duduk(p_murid text, p_aa uuid, p_salah text[] default '{}', p_berhenti int default null)
+returns uuid language plpgsql as $$
 declare s uuid; r record; v_pos int; v_positions int[]; v_benar boolean; n int := 0;
 begin
   perform dunia.sebagai(p_murid);
@@ -162,8 +164,10 @@ begin
       perform public.record_answer(r.pid, 1, jsonb_build_object('posisi', v_pos));
     end if;
     n := n + 1;
+    exit when p_berhenti is not null and n >= p_berhenti;
   end loop;
   if n = 0 then raise exception 'dunia.duduk: the paper delivered no question'; end if;
+  if p_berhenti is not null then perform dunia.sebagai(null); return s; end if;
   perform public.finish_my_session(s);
   perform dunia.sebagai(null);
   return s;
