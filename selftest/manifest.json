@@ -7530,6 +7530,16 @@
       "proves": "D2-R R-d at the player, red first, d2r.test.ts, reads the source of src/app/belajar/_components/PermukaanAsesmen.tsx and src/components/siklus/OrientasiAsesmen.tsx: the player's help window is session_state's (withheld by the database on a certifying sitting); the orientation promises help only with the window and says posttest.tanpa_bantuan."
     },
     {
+      "id": "D2R-H21",
+      "runner": "static",
+      "proves": "D2-R ruling 74a item 2 (the owner via Bob 04:02Z), red first, d2r.test.ts, renders src/components/siklus/HasilBersertifikasi.tsx: a certifying «Lulus.» with an objective below the mark advises «Baca lagi:» it with hasil.baca_lagi_arti, shows no percentage and no retake line; with nothing to read again it draws none."
+    },
+    {
+      "id": "D2R-C05",
+      "runner": "static",
+      "proves": "D2-R ruling 74a item 4, red first, d2r.test.ts, renders src/components/siklus/HasilBersertifikasi.tsx and reads src/app/belajar/[tugas]/hasil/page.tsx: after a certifying «Lulus.» the result links to the issued certificate or says it is being prepared (sertifikat.disiapkan.*), before «Baca lagi:»; «Belum lulus.» says nothing of a certificate; the page passes the certificate's state from myCertificate."
+    },
+    {
       "id": "D2R-F02",
       "runner": "static",
       "proves": "D2-R R-f, red first, d2r.test.ts, reads the source of src/components/siklus/HasilBersertifikasi.tsx: the certifying result shows the attempt ordinal from session_outcome."

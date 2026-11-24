@@ -29,6 +29,7 @@
  *   D2R-F02  R-f on the learner's result: the attempt ordinal is shown on the chapter result, from the outcome
  */
 import { readFileSync, readdirSync, statSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { psql } from "./bob26.test";
@@ -134,6 +135,31 @@ export function situsPredikat(root: string, tambahan: Record<string, string> = {
   const isi = (f: string) => tambahan[f] ?? tanpaKomentar(baca(root, f));
   return [...berkas, ...Object.keys(tambahan).filter((f) => !berkas.includes(f))]
     .filter((f) => RENDER_PREDIKAT.test(isi(f)) && !PREDIKAT_LAPORAN_INTERNAL.includes(f));
+}
+
+
+// ─────────────────────────────────────────────────────────────────────────────────────────────── H21/C05, rendered
+/** Renders HasilBersertifikasi in a child (tsx), in ID: the props are JSON in the environment. */
+function renderHasil(root: string, props: Record<string, unknown>): { ok: boolean; out: string; err: string } {
+  const skrip = 'const { createElement: h } = await import("react");'
+    + 'const { renderToStaticMarkup } = await import("react-dom/server");'
+    + 'const m = await import("file://" + process.cwd() + "/src/components/siklus/HasilBersertifikasi.tsx");'
+    + "const K = m.default?.default ?? m.default;"
+    + "process.stdout.write(renderToStaticMarkup(h(K, JSON.parse(process.env.PROPS))));";
+  const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
+    `(async () => {${skrip}})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });`],
+  { cwd: root, encoding: "utf8", env: { ...process.env, PROPS: JSON.stringify(props) } });
+  return { ok: anak.status === 0, out: anak.stdout, err: (anak.stderr || "").split("\n").slice(0, 3).join(" ") };
+}
+const teksHtml = (x: string) => x.replace(/<[^>]+>/g, " ").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+/** W5's Rizky: a pass with one objective below the mark (CDK8-3 at 0/1), the sitting's counts 5/6. */
+function hasilLulus(tambahan: Record<string, unknown> = {}) {
+  return {
+    outcome: { diagnostik: false, lulus: true, penguasaan: 0.83, ambang: 0.75, gerbang_keselamatan: true, bersertifikasi: true,
+      ringkasan: { correct: 5, item_total: 6 }, per_domain: { "CDK8-1": {}, "CDK8-3": {} }, tujuan_ulang: ["CDK8-3"], tujuan_gerbang_kode: [], percobaan_ke: 1 },
+    peta: [{ kode: "CDK8-3", pernyataan: "Menjelaskan tanda bahaya", pelajaran: "Pelajaran 3" }],
+    pelajaran: [{ lesson_id: "l3", judul: "Pelajaran 3" }], tugas: "t1", locale: "id", dihitungUlang: false, ...tambahan,
+  };
 }
 
 export const d2rTests: SelfTest[] = [
@@ -283,6 +309,50 @@ export const d2rTests: SelfTest[] = [
         "the orientation does not draw posttest.tanpa_bantuan_umum on a STANDALONE that the database says certifies");
       c.expect(!/posttest\.tanpa_bantuan_umum"[^\n]*POST_TEST|POST_TEST[^\n]*posttest\.tanpa_bantuan_umum"/.test(ori), "the Uji Penguasaan must keep posttest.tanpa_bantuan");
       return c.verdict("the player schedules help only from session_state's window, which the database withholds on a certifying sitting (D2R-D03/D04); the orientation promises help only with the window, says posttest.tanpa_bantuan on an Uji Penguasaan, and posttest.tanpa_bantuan_umum on an Asesmen Mandiri the orientation says certifies");
+    },
+  },
+  {
+    id: "D2R-H21",
+    run: async (ctx) => {
+      const c = new Checks();
+      const { t } = await import("../src/lib/hle");
+      const id = (k: string) => t(k as never, "learner", { locale: "id" });
+      // ruling 74a item 2 (the owner, via Bob 04:02Z): the sections still to learn are advice on EVERY certifying result
+      const r = renderHasil(ctx.repoRoot, hasilLulus({ sertifikat: "DISIAPKAN" }));
+      if (!c.expect(r.ok, `HasilBersertifikasi could not be rendered: ${r.err}`)) return c.verdict("");
+      const tx = teksHtml(r.out);
+      c.expect(tx.includes(id("hasil.lulus")), "the pass is not said");
+      c.expect(/data-baca-lagi=""/.test(r.out) && tx.includes(id("hasil.baca_lagi")) && tx.includes("Menjelaskan tanda bahaya") && tx.includes(id("hasil.baca_lagi_arti")),
+        `a pass with an objective below the mark does not advise reading it again: «${tx.slice(0, 400)}»`);
+      c.expect(!/\d+\s?%/.test(tx), `a certifying pass shows a percentage: «${tx}»`);
+      c.expect(!/data-ulang-boleh/.test(r.out), "a pass shows the retake line");
+      const bersih = renderHasil(ctx.repoRoot, hasilLulus({ sertifikat: "DISIAPKAN", outcome: { ...hasilLulus().outcome, tujuan_ulang: [] } }));
+      c.expect(bersih.ok && !/data-baca-lagi/.test(bersih.out), "a pass with nothing to read again draws «Baca lagi:»");
+      return c.verdict("rendered: a certifying «Lulus.» with an objective below the mark (CDK8-3) advises «Baca lagi:» it, with the advice-not-judgement line, no percentage and no retake line; with nothing to read again it draws none");
+    },
+  },
+  {
+    id: "D2R-C05",
+    run: async (ctx) => {
+      const c = new Checks();
+      const { t } = await import("../src/lib/hle");
+      const id = (k: string) => t(k as never, "learner", { locale: "id" });
+      // ruling 74a item 4: eligibility is said on the result, after «Lulus.», in the words that exist
+      const terbit = renderHasil(ctx.repoRoot, hasilLulus({ sertifikat: "TERBIT" }));
+      const siap = renderHasil(ctx.repoRoot, hasilLulus({ sertifikat: "DISIAPKAN" }));
+      const belum = renderHasil(ctx.repoRoot, hasilLulus({ sertifikat: null, outcome: { ...hasilLulus().outcome, lulus: false } }));
+      if (!c.expect(terbit.ok && siap.ok && belum.ok, `HasilBersertifikasi could not be rendered: ${terbit.err || siap.err || belum.err}`)) return c.verdict("");
+      const iT = terbit.out.indexOf("data-sertifikat="), iL = terbit.out.indexOf('data-keputusan="lulus"'), iB = terbit.out.indexOf("data-baca-lagi");
+      c.expect(/href="\/belajar\/t1\/sertifikat"/.test(terbit.out) && teksHtml(terbit.out).includes(id("siklus.lihat_sertifikat")),
+        "a pass with its certificate issued does not link to it with «siklus.lihat_sertifikat»");
+      c.expect(iL >= 0 && iT > iL && (iB < 0 || iT < iB), "the certificate line is not right after «Lulus.» (Daisy's §3, item 2)");
+      c.expect(teksHtml(siap.out).includes(id("sertifikat.disiapkan.judul")) && teksHtml(siap.out).includes(id("sertifikat.disiapkan.arti")),
+        "a pass whose certificate is not yet issued does not say it is being prepared (sertifikat.disiapkan.*)");
+      c.expect(!/data-sertifikat=/.test(belum.out), "a «Belum lulus.» result says something about a certificate");
+      const hasil = tanpaKomentar(baca(ctx.repoRoot, "src/app/belajar/[tugas]/hasil/page.tsx"));
+      c.expect(/engine\.myCertificate\(/.test(hasil) && /rendersCredential\(/.test(hasil) && /<HasilBersertifikasi\b[^>]*\bsertifikat=\{/.test(hasil.replace(/\s+/g, " ")),
+        "the chapter result page does not hand HasilBersertifikasi the certificate's state (myCertificate, rendersCredential)");
+      return c.verdict("rendered: after a certifying «Lulus.» the result links to the issued certificate («siklus.lihat_sertifikat»), or says it is being prepared (sertifikat.disiapkan.judul and .arti) before «Baca lagi:»; «Belum lulus.» says nothing of a certificate; the page reads myCertificate and passes its state");
     },
   },
   {
