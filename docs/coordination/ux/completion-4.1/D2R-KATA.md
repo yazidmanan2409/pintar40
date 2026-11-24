@@ -102,3 +102,11 @@ With no threshold, every objective below the mark goes in the one revisit list. 
 - **Everything else in §3 stands.**
 
 **«Materi Pembelajaran» kept (ruling 59, Dr Gladys's sentence):** accepted. The admin certificate column follows it: `sertifikat.kelola.kolom.kursus` «Materi Pembelajaran» / «Learning Material», reversing Z7's C-3. That keeps one name.
+
+## 7 · Two strings for the build (24 Nov, 02:00)
+
+- **`hasil.percobaan_ke` (R-f):** «Kesempatan ke-{n}» / «Attempt {n}». Learners and teachers say «kesempatan» (T-08), so this replaces the provisional «Percobaan ke-{n}».
+- **Certifying STANDALONE «no help» line:** new key `posttest.tanpa_bantuan_umum`, drawn after STANDALONE's intro, when it certifies:
+  - ID: «Selama asesmen ini, petunjuk, contoh, dan arah berpikir tidak tersedia.»
+  - EN: «During this assessment, hints, examples and thinking prompts are not available.»
+  - Uji Penguasaan keeps `posttest.tanpa_bantuan`.
