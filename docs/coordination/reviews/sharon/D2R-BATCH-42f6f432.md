@@ -100,3 +100,19 @@ Every gate reads `bersertifikasi` (condition 2):
   - on a null read, show the link alone, and let the certificate page say why.
 - **Ruling 90's strings** (`lapor.langkah`) are wording only. BOB15-K01 is green, as Bob reports.
 - **The header note:** closed at `2d3986ff` (my check above).
+
+## Addendum · the final delta `5dace1ad` → CANDIDATE `5550e508`: PASS, conditional on ci 45329600686 and journeys 45329603910, all jobs in one attempt (24 Nov 2026, 05:10 UTC)
+
+- **App side only.** No `supabase/` file changes.
+- **`keadaanSertifikat`:** one pure function over the learner's own `myCertificate` row.
+  - ELIGIBLE gives «sedang disiapkan» plus the link.
+  - ISSUED, REVOKED and SUPERSEDED give the link.
+  - No row, or a failed read, gives nothing.
+  - **My nit is closed:** a pass that will never be certified (no row) now says nothing untrue.
+- **No disclosure.** `hasil-belajar.ts` reads each certifying pass's certificate through the same learner-scoped read as `/lanjut`. Only its status class reaches the page.
+  - On any surface rendered for someone other than the learner, that read is the learner's own session read and yields nothing, so it reveals no other person's certificate.
+  - It is one read per certifying row, bounded by the learner's own chapters.
+- **H-1 (ruling 91):** certifying rows show no percentages, bar or comparison, with a print guard. The database is untouched. That is acceptable as I recorded: the overall figure equals «b dari t», which stays shown.
+- **N-22** (the link hidden in print) and **§12** (the «Belum lulus» C line) are wording and presentation only.
+
+**D2-R: my side is complete once that CI is green. R-1 closes at the same moment.**
