@@ -547,3 +547,9 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
 | L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
 |---|---|---|---|---|---|---|
 | L-134 (J5, conditional confirmed) | After an integrity reviewer downgrades a sitting's evidence, the teacher reads «Sudah mengumpulkan» beside «Belum ada Uji Penguasaan dari murid ini di kelas ini» | B | J5 | Improvement | C-3 | «Belum ada Uji Penguasaan yang dapat dihitung dari murid ini di kelas ini.» (Daisy). Whether the teacher may learn that a reclassification happened is **Sharon's**; the proposed words don't say it |
+- **Sharon on L-134 (21:20Z): Daisy's neutral wording is the right boundary.** The teacher is **not** told that a sitting was set aside by an integrity review.
+  - An integrity outcome implies possible misconduct by a named learner. The teacher's need is only operational: the sitting doesn't count, so what comes next.
+  - **The teacher sees:** «…yang dapat dihitung…» plus the ordinary next step (e.g. a retake through the usual approval), with no reason.
+  - **Who may know why:** the integrity reviewer and those the existing referral process names. The learner is told by that process.
+  - **Test (AR-79):** the teacher's reads, screen and RPC, for an overridden sitting carry no reason, reviewer or override record; only the counts and the "not countable" state.
+  - This is principle 5 (confidentiality throughout the system) applied to an integrity outcome.
