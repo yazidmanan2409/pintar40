@@ -42,6 +42,9 @@
    «{b} dari {t} soal» stay; the database and staff views unchanged (D2R-C08).
 9. **Ruling 90** (Daisy §10, ccd42fa6): `lapor.langkah.awal` and `.awal_kelas` say only what the product does today; no
    time period (guarded), and «listed first» pinned to the triage order (D2R-L01); BOB15-K01 green.
+10. **The journeys, swept** (Bob's L-8 and ruling (b), 24 Nov 06:06Z): every journey that read the old result, help or
+   band restated to prove the new behaviour (below); the staging help walk moved to the Pemetaan Awal; J6.4b added.
+   **Count: 13 restated + 2 moved or added; 14 checked, not dependent.**
 
 ## What changed
 
@@ -100,6 +103,22 @@ sittings read shows it; D2R-E01 proves it on no public surface, payload or snaps
 | C1W-J01 | the learner's corrected Uji Penguasaan page shows 100% and «Hasil asli: 50%» | counts only: «2 dari 2 soal dijawab tepat», marked corrected, no percentage |
 | CI red case FABLE-06 3i | the planted orientation's shape | adds `bersertifikasi` |
 | CI-W03 | the red cases | adds `db-d2r-gates` and `db-zr1-gates` |
+
+### The journeys (L-8 sweep: 13 restated + 2 moved or added; 14 checked, not dependent)
+
+| Journey | Now |
+|---|---|
+| CI `b8-jalan` J6.4 | the Uji Penguasaan says before it starts that it offers no help (`posttest.tanpa_bantuan`); none before or after the window |
+| CI `journey` S21, S21h, S23l | counts only, «Lulus.» / «Belum lulus.», «Baca lagi:»; no reviews or answers; the ruling 90 line |
+| CI `c12` C12d | the count and «Lulus.» |
+| staging `journey` hasil(), J12 | counts only |
+| staging `golden-school-murid` M5, M6, J6.11 | counts only, «Baca lagi:», no comparison |
+| staging `golden-school-laporan` C2, V1, V2 | «Sertifikat» and the R-b sentence; «Lulus», no Predikat |
+| staging `bantuan-browser` B9 (was B8) | counts only, no percentage |
+| **moved:** staging `bantuan-browser` B2–B5, B10 | the help walk on the Pemetaan Awal (offer at the due point, «Tutup», answered quickly, offer then answer; grants on 1 and 3); B6 proves the Uji Penguasaan's orientation and no offer past the window; B7–B9 (offline, unreachable, Kumpulkan) stay on the Uji Penguasaan, the one sitting with «Simpan jawaban ini» / «Tersimpan»; B10 reads both sittings, the Uji Penguasaan with no grant and no help check |
+| **added:** CI `b8-jalan` J6.4b | on the Pemetaan Awal, nothing before the window, the offer after it, and it opens to its first level |
+
+Checked, not dependent (14 selftest hits: `b5a`, `z-k01-layar`, `d78`, `m3`, `d168`, the experience comment).
 
 ## For Sharon, Daisy and Bob
 

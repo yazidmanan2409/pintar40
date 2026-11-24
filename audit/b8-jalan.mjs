@@ -199,6 +199,41 @@ await step("J2.20", "a shared computer left idle: warned at four minutes, locked
   await s.context.close();
 });
 
+// J6.4b (D2-R, R-d, ruling 89; Bob, 24 Nov 06:06Z): a new case beside J6.4's restatement. The Pemetaan Awal is not a
+// certifying sitting, so it still offers help: on its first question, nothing before the window, the offer after it, and
+// the offer opens to its first level. The question is then answered and the page left; J6.4 resumes the same sitting.
+await step("J6.4b", "on the Pemetaan Awal, help is offered after the question's hesitation window, not before, and opens to its first level", async (rec) => {
+  const s = await masuk(browser, MURID);
+  const tugas = sql(`select la.id from public.learning_assignments la join public.assessment_assignments aa on aa.learning_assignment_id = la.id
+    join public.assessment_definitions d on d.id = aa.assessment_definition_id join public.institutions i on i.id = la.institution_id
+    where i.slug like 'synth-siklus-%' and d.mode = 'POST_TEST' and d.allows_pause and aa.status = 'OPEN' limit 1`);
+  if (!harus(rec, /^[0-9a-f-]{36}$/.test(tugas), `the class holds the chapter J6.4 uses (${tugas || "none"})`)) { await s.context.close(); return; }
+  const jendela = Number(sql(`select d.hesitation_window_seconds from public.assessment_assignments aa join public.assessment_definitions d on d.id = aa.assessment_definition_id
+    where aa.learning_assignment_id = ${lit(tugas)} and d.mode = 'PRE_TEST' limit 1`));
+  const tunggu = Number.isFinite(jendela) && jendela > 0 ? jendela : 25;
+  await s.page.goto(`${APP}/belajar/${tugas}/pemetaan`, { waitUntil: "networkidle" });
+  const mulaiPa = s.page.getByRole("button", { name: /^Mulai Pemetaan Awal$/ });
+  if (await mulaiPa.count()) { await mulaiPa.click(); }
+  await s.page.locator("h2.pin-stem").first().waitFor({ state: "visible", timeout: SLOW });
+  const bantuan = s.page.locator(".pin-bantuan-soal");
+  await s.page.waitForTimeout(Math.max(0, (tunggu - 8) * 1000));
+  harus(rec, !(await bantuan.isVisible().catch(() => false)), `no help is offered before the ${tunggu}-second window`);
+  const ada = await bantuan.waitFor({ state: "visible", timeout: 40000 }).then(() => true, () => false);
+  harus(rec, ada, `help is offered after the ${tunggu}-second window`);
+  if (ada) {
+    await bantuan.locator("button.pin-btn:not(.pin-quiet)").first().click();
+    const buka = await bantuan.locator("p .pin-lvl").first().waitFor({ state: "visible", timeout: SLOW }).then(() => true, () => false);
+    harus(rec, buka, "the offer opens to its first level");
+    harus(rec, buka && (await bantuan.locator("p").last().innerText()).trim().length > 0, "the opened level has its text");
+    await shot(s.page, rec, "pemetaan-bantuan");
+  }
+  // answered, so J6.4 picks the sitting up where it was left
+  await s.page.locator("ul.pin-opsi button.pin-op").first().click();
+  await s.page.waitForFunction(() => document.querySelector("ul.pin-opsi button.pin-op")?.getAttribute("aria-pressed") === "true", null, { timeout: SLOW });
+  await s.page.waitForLoadState("networkidle");
+  await s.context.close();
+});
+
 // RESTATED (D2-R, R-d, ruling 89): a certifying sitting offers no help, so the Uji Penguasaan's orientation says so and no
 // help appears at any time, the question's window included; the sitting is left open for J6.7 as before
 await step("J6.4", "the learner finishes the Pemetaan Awal by the screens, starts the Uji Penguasaan, is told before it starts that it offers no help, and is offered none, before or after the question's hesitation window", async (rec) => {
