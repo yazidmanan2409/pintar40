@@ -753,3 +753,4 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
   - **So L-152 is UX:** the database refuses correctly, but the screen shows «…diakhiri oleh admin lain» and offers «Lepaskan». **AR-79** traces why the staff-page path maps the refusal to the wrong line (C-12), and draws the button disabled with the true cause.
 
 **J11 captured (builder, `eccb71ad`, `audit/79/tangkapan/1ed2d250/j11/`):** 7 walks reached their last screen, on W18 at the bootstrap (OFFICIAL evidence, labelled synthetic). The printed summary is kept as a PDF, and EN stayed EN. Daisy judges it.
+- **Sharon on L-152 (23:59Z, corrected at `dbb12f12`): confirmed UX.** The B0 race exists (`b0.test.ts` ~568–631). Removing the lock is covered only statically (line 192 checks for `for update`), so **AR-79 adds a dynamic plant:** drop the FOR UPDATE, run the same race, and it must go red. Non-blocking.
