@@ -181,7 +181,7 @@ for (const lebar of LEBAR) {
     await foto("lupa-kode-tanpa-akun");
     const tanpa = await isi();
     data("no_account_screen", tanpa.slice(0, 400));
-    rec.tab += await j.tekan(page.getByRole("button", { name: /Gunakan email atau username lain|Use another email or username/ }).first());
+    rec.tab += await j.tekan(page.getByRole("button", { name: /Gunakan email atau username lain|Use a different email or username/ }).first());
     await page.locator("#nama").waitFor({ timeout: 20000 });
     const sejak = Date.now();
     await page.locator("#nama").fill("");
