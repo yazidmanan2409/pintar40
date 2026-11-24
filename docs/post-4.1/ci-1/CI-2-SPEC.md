@@ -201,3 +201,11 @@ There are no further pushes or reruns unless a failure is root-caused (ruling 93
 - journeys 45488932426: `completed`, conclusion `success`, attempt 1, finished 21:45:12Z.
 
 This is evidence for the pre-V-1 head only. V-1 and V-2 change the head, so the re-frozen sha needs its own ci and journeys runs, read from the API.
+
+**The Z-S12-01 isolation fix (Second Eye, `25681b11`, test-only, on top of `8678de21`), Bob's decision of 22:14Z:**
+- `ipUji` never returns one address twice in a run. It draws from 198.18.0.0/15 (RFC 2544), which no test names.
+- Z-S12-01 posts from its own 192.0.2.0/24 and checks that 2000 draws neither repeat nor enter that range.
+- **The plant:** Z-S12-01, given another test's just-used address, goes red.
+- **The sweep:** every route paced by address, namely code_request_pace (AKUN-A02, Z-S12-01), RECOVERY_PIN (5 files) and Auth's per-address limits (19 files, plus bob50's fixed address, now its own).
+- **Quick check:** 39/0. Migration 311's sha256 is unchanged at `5c4b2306…1627`.
+- **Next on `25681b11`:** the full suite, plants, redcase, then the report and the re-freeze.
