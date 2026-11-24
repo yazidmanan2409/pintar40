@@ -48,12 +48,12 @@
   - one frozen candidate per PR;
   - no speculative reruns.
 
-## 3 · Status (19:47Z)
+## 3 · Status (20:05Z)
 
 | Stream | State |
 |---|---|
-| W1 | Judged with no open builder lines: J2, J3, J4, J7. The builder restarted J10 at 17:50Z (idle 15:22–17:50), then J5, J6, J8, J9, J11, J12 |
-| W2 | L-1 to L-111. Critical: L-67. High: L-78, L-105 |
+| W1 | Judged with no open builder lines: J2, J3, J4, J7. **J10 captured** (`6b248975`), with Daisy judging. The builder is on J5 (harness `784fed7b`), then J6, J8, J9, J11, J12 |
+| W2 | L-1 to L-113. Critical: L-67. High: L-78, L-105, **L-112** (the tour blocks the shared-computer lock; PR-23) |
 | W3 | INTERIM: C-1 to C-11 |
 | W4 | **CI-1 READY for the owner:** `94ce6727`, PR #30, ci and journeys GREEN in one attempt, Sharon PASS unconditional (`CI-1-FOR-OWNER.md`) |
 | W4b | CI-1b specified, words cleared; after CI-2 |
