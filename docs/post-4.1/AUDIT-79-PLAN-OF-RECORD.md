@@ -59,6 +59,10 @@
 | W6 | Not started (after W3 FINAL) |
 | W7 | Not started |
 
+## 3a · Harness H-1, recurring (Bob, 14:07Z)
+
+H-1 (the pre-flight heartbeat reads the red-case step's own `supabase db reset` as a dead database) has now voided CI-1's red-case step, as it voided D2-R's twice. **For CI-1:** the red-case step alone is rerun on the same commit with `PREFLIGHT_DENYUT=3600` (the D2-R precedent), and the freeze check names it. **Decision:** H-1 is fixed before AR-79's pre-flight, not after it. AR-79 is the largest candidate, and every VOID costs a run. It's a separate, harness-only change in `scripts/dev/`, with its own small PR, and it touches no product.
+
 ## 4 · Pacing (owner, 24 Nov: usage isn't monitored overnight)
 
 Bob paces the work. The usage allowance is shared by every session.
