@@ -265,7 +265,7 @@ jobs:
           - { group: "static-second-verification-route", cases: " static-second-verification-route " }
           - { group: "static-fable06-gates", cases: " static-fable06-gates " }
           - { group: "db-table-without-rls", cases: " db-table-without-rls " }
-          - { group: "db · fable06 task2 bob06 bob50 bob25 d2r", cases: " db-fable06-gates db-task2-gates db-bob06-gates db-bob50-gates db-bob25-gates db-d2r-gates " }
+          - { group: "db · fable06 task2 bob06 bob50 bob25 d2r", cases: " db-fable06-gates db-task2-gates db-bob06-gates db-bob50-gates db-bob25-gates db-d2r-gates db-zr1-gates " }
           - { group: "db · wp1 task1 bob36 bob02 wp8", cases: " db-wp1-gates db-task1-gates db-bob36-gates db-bob02-gates db-wp8-gates " }
           - { group: "db · tour r1 fable05 bob12 bob03", cases: " db-tour-gates db-r1-gates db-fable05-gates db-bob12-gates db-bob03-gates " }
           - { group: "db · bob37 bob24 bob39 bob04 fable04 l1f4 b2 l1f2 l1f4t", cases: " db-bob37-gates db-bob24-gates db-bob39-gates db-bob04-gates db-fable04-gates db-l1f4-gates db-b2-gates db-l1f2-gates db-l1f4-tutup-gates " }
@@ -354,6 +354,8 @@ jobs:
               echo "the four Uji Cepat certificate defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-d2r-gates)
               echo "the fourteen D2-R defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+            db-zr1-gates)
+              echo "R-1's departure defect declared in selftest/plants/plants.json is planted against the running stack, below" ;;
             db-bob36-gates)
               echo "the four Uji Cepat rule defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
           esac
@@ -2064,6 +2066,17 @@ jobs:
         env:
           DB_URL: ${{ steps.gatesD2r.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-d2r-gates
+
+      # R-1's gate (Z-READINESS, 4.1 closure): a departed learner can neither start, resume, answer nor submit by address.
+      - name: Local stack (R-1 gate)
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-zr1-gates ') }}
+        id: gatesZr1
+        uses: ./.github/actions/local-stack
+      - name: The planted R-1 defect must turn its own R1 test red
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-zr1-gates ') }}
+        env:
+          DB_URL: ${{ steps.gatesZr1.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-zr1-gates
 
   baseline-parity:
     name: baseline · frozen documents are what they say they are

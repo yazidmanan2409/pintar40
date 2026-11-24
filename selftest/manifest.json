@@ -7527,6 +7527,24 @@
       "id": "D2R-F02",
       "runner": "static",
       "proves": "D2-R R-f, red first, d2r.test.ts, reads the source of src/components/siklus/HasilBersertifikasi.tsx: the certifying result shows the attempt ordinal from session_outcome."
+    },
+    {
+      "id": "R1-K01",
+      "runner": "db",
+      "proves": "R-1 (Z-READINESS, 4.1 closure; Sharon's ruling), selftest/db/r1.sql: after the school's admin ends the bootstrap learner's enrolment (akhiri_pendaftaran, WITHDRAWN), the open sitting is TERMINATED; a new start of a second assignment, may_continue_session, assistance_state, record_answer and finish_my_session are each refused as the learner; nothing is added.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "R1-K02",
+      "runner": "db",
+      "proves": "R-1, r1.sql: after a transfer (transfer_minta, transfer_terima, transfer_execute) to the synthetic beta school, the open sitting is TERMINATED and start, resume, answer and submit are each refused.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "R1-K03",
+      "runner": "db",
+      "proves": "R-1, r1.sql: after the class moves up into the next school year (kenaikan_tetapkan), the old class's open sitting is TERMINATED and start, resume, answer and submit are each refused.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     }
   ]
 }

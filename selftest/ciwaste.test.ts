@@ -250,7 +250,9 @@ export const ciwasteTests: SelfTest[] = [
         // L1-F4, Sharon's required change and Daisy's count (12 Nov): the closure's record, not timestamps
         "db-l1f4-tutup-gates",
         // D2-R (ruling 89): a certifying sitting offers no help and discloses counts only; the public read drops the band
-        "db-d2r-gates"];
+        "db-d2r-gates",
+        // R-1 (Z-READINESS, 4.1 closure): a departed learner can neither start, resume, answer nor submit by address
+        "db-zr1-gates"];
       const ci = readFileSync(join(ctx.repoRoot, ".github/workflows/ci.yml"), "utf8");
       const redCase = ci.slice(ci.indexOf("\n  red-case:\n"), ci.indexOf("\n  baseline-parity:\n"));
       const groups = [...redCase.matchAll(/- \{ group: "([^"]+)", cases: " ([a-z0-9 -]+) " \}/g)].map((x) => ({ group: x[1], cases: x[2].split(" ") }));

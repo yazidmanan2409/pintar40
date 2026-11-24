@@ -109,6 +109,11 @@
       "suite": "selftest.run_fable39()",
       "control_green": 22,
       "what": "D2-R (ruling 89): a certifying sitting offers no help and discloses counts only, by the sitting's captured policy; the public read drops the band; the attempt ordinal is fixed at the start; Pemetaan Awal and Uji Cepat keep their help and explanations"
+    },
+    "db-zr1-gates": {
+      "suite": "selftest.run_r1()",
+      "control_green": 3,
+      "what": "R-1 (Z-READINESS, 4.1 closure): a learner who has left, been transferred or rolled over can neither start, resume, answer nor submit by address, and the sitting ends with the enrolment"
     }
   },
   "plants": [
@@ -1245,6 +1250,12 @@
       "gate": "db-d2r-gates",
       "expect_red": "D2R-H12",
       "expect_detail": "Pemetaan Awal's reading map lost"
+    },
+    {
+      "name": "zr1-1",
+      "gate": "db-zr1-gates",
+      "expect_red": "R1-K01",
+      "expect_detail": "not TERMINATED"
     },
     {
       "name": "d2r-15",
