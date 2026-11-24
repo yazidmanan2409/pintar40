@@ -179,3 +179,20 @@ The owner: «you and bob decide what's best». Daisy decided and Bob agrees; Dai
 | L-id | Observation | Source | Dimension | Journey | Proposed severity | Notes |
 |---|---|---|---|---|---|---|
 | L-43 | **R-f's staff display is not drawn.** Spec R-f / D2R-F01: the attempt ordinal is shown «on the learner's result and in authorised staff views only». The learner's result draws «Kesempatan ke-{n}». The teacher's sittings read carries `daftar_pengerjaan.percobaan_ke`, but the teacher's sittings screen doesn't draw it | D2-R hand-off item 131, disclosed to Sharon and Daisy before their PASS on `5550e508` | B | J3, J5 | **Significant**, confirmed by Daisy: on retakes a teacher can't tell attempt 1 from attempt 2, which J3 needs | No wording is missing: «Kesempatan» is Daisy's learner **and** teacher word (spec §7.3). The ordinal's restriction (no certificate, no public page) **is** enforced. Not changed on the frozen candidate, by ruling 93. Fix it in the audit's consolidated revision |
+
+## J2 walked (Daisy, `AUDIT-79-TEMUAN-J2.md` `7755a3d8` on ux-1/daisy-experience; local build of main `429b7dcc`; 24 Nov)
+
+Ten findings: 3 Significant, 7 Improvement, none Critical. Still open for J2: the screen-reader, throttled and reduced-motion passes, from the builder's CI capture run on `00fe853d` or later.
+
+| L-id | Observation | Source | Dimension | Journey | Severity | Notes |
+|---|---|---|---|---|---|---|
+| L-44 (J2-1) | `/belajar/{t}/sertifikat` says «Sertifikat Anda sedang disiapkan … akan muncul di sini» on a pass that can never certify (non-OFFICIAL, INV-20: every demo and preview school), while the result page correctly shows nothing (§13) | J2 | B, E | J2 | **Significant** | **A sibling of D2-R's `keadaanSertifikat`, missed by D2-R's sweep:** the certificate page doesn't follow the same three states. Fix: the page follows §13, and where no certificate is possible it says so and promises nothing. Record it as an L-8 / sibling-defect lesson |
+| L-45 (J2-2) | The teacher's `/mengajar` home says «Tidak ada yang menunggu keputusan Anda hari ini.» while a learner is blocked on «minta lanjut», and the learner is told it «tampil di daftar kelas guru Anda» | J2 | A, E | J2, J4 | **Significant** | A waiting request becomes the teacher's «one thing first» |
+| L-46 (J2-3) | With every lesson read, «Siap untuk Uji Penguasaan» still says «Mulailah dari kartu paling atas…» | J2 | B | J2 | **Significant** | The agreed line is «Semua pelajaran sudah dibaca.» |
+| L-47 (J2-4) | «sisa 259191 menit» | J2 | A | J2 | Improvement | A human unit (days/hours) |
+| L-48 (J2-5) | «Selesai · target tercapai» and «mencapai target» beside «Lulus» | J2 | B | J2 | Improvement | Evidence for L-33 |
+| L-49 (J2-6) | The Belajar card says «dipelajari lagi»; the page says «baca lagi» | J2 | B | J2 | Improvement | One term: «baca lagi» |
+| L-50 (J2-7) | The result's last three lines run together at 390 | J2 | G | J2 | Improvement | Spacing |
+| L-51 (J2-8) | Two page numbers on one lesson screen | J2 | B | J2 | Improvement | — |
+| L-52 (J2-9) | The five-step dots have no labels at 390 | J2 | F, G | J2 | Improvement | — |
+| L-53 (J2-10) | «Keluar» is outlined on mobile but not on desktop; ID / EN is heavy | J2 | B | Every journey | Improvement | Goes with L-41 and L-42 |
