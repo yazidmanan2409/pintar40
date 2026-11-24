@@ -541,7 +541,13 @@ export const d2rTests: SelfTest[] = [
       const arti = id("siklus.delta_arti");
       c.expect(teksHtml(r.out).includes(arti) && !teksHtml(hanya.out).includes(arti), "the comparison line is drawn with only certifying rows, or dropped with a non-certifying one");
       c.expect(!/pin-lk-pita-ket/.test(hanya.out), "the bar's legend is drawn with only certifying rows");
-      return c.verdict("rendered: a certifying row on Hasil Belajar shows no Uji Penguasaan, Pemetaan Awal or target percentage, no bar or marks, while keeping its verdict and «{b} dari {t} soal»; the comparison line and the bar legend are drawn only when a non-certifying row is; a non-certifying row is unchanged");
+      // the print (ruling 91): Hasil Belajar is printed from this page itself (cetakLaporan only records the request), so
+      // the markup above, the screen-reader line «Uji Penguasaan: …%» included, is what the PDF carries
+      const hal = tanpaKomentar(baca(ctx.repoRoot, "src/app/belajar/hasil/page.tsx"));
+      const cetak = tanpaKomentar(baca(ctx.repoRoot, "src/app/laporan/cetak/actions.ts"));
+      c.expect(/<KomposisiMurid bab=\{bab\}/.test(hal) && /aksi=\{cetakLaporan\}/.test(hal) && !/Komposisi|renderTo/.test(cetak),
+        "Hasil Belajar's print is not the page's own KomposisiMurid (a second print rendering would need its own case)");
+      return c.verdict("rendered: a certifying row on Hasil Belajar and its print (the page itself, cetakLaporan only records) shows no Uji Penguasaan, Pemetaan Awal or target percentage, no bar or marks, while keeping its verdict and «{b} dari {t} soal»; the comparison line and the bar legend are drawn only when a non-certifying row is; a non-certifying row is unchanged");
     },
   },
   {
