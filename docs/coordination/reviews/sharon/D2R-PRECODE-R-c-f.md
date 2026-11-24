@@ -73,3 +73,46 @@ Since my first review (`ed8ad32b`), my four points are in the spec:
 **The learner's own certificate page** (`belajar/[tugas]/sertifikat/page.tsx:166`) reads `detail.predikat`. Either drop it there too, or leave it as the learner's own view, which is Daisy's call. It is not public.
 
 **The proof:** a static list test, like Z-D1-02, in which every `predikat` render site outside the internal reports fails. Plant one on the card.
+
+## Addendum · spec §7.1 (Bob's decisions on `D2R-BUILD-MAP.md`, `cefb60eb`): CONFIRMED with four corrections (24 Nov 2026, 01:25 UTC)
+
+### 1 · F-2's capture shape: CONFIRMED
+
+The shape is `assessment_sessions.assistance_policy jsonb not null`, written once at start, immutable by a guard trigger, and read by both `open_assistance` and `assistance_state`. Four corrections:
+- **(a) The backfill takes the OLD policy.**
+  - Every existing sitting, open or closed, is backfilled from `mode_policy` **before** the same migration changes the certifying modes' levels.
+  - Order the statements and assert it: backfill, then update `mode_policy`.
+  - Otherwise an open POST_TEST sitting loses help mid-sitting, which contradicts §6.2.
+  - `not null` needs every row, so closed sittings carry their historical policy too.
+- **(b) The guard trigger allows only that backfill.**
+  - Set the column, then add the trigger.
+  - Or, if the trigger must exist first, keep its one exception keyed to the migration (as A3 did), never a session setting a client can set.
+- **(c) Constrain the shape.** A `CHECK` that the jsonb has exactly the four boolean keys, so a malformed capture cannot read as "allowed".
+- **(d) The preservation pair will see a write.** This migration updates existing rows of `assessment_sessions` at migration time.
+  - D2-R's promotion therefore needs a step 0, counting sittings by mode and status.
+  - Line 58's column exclusion (`baru`) gains `assistance_policy`.
+
+### 2 · `session_review` on a certifying mode: refuse. CONFIRMED
+
+- The words are Daisy's.
+- **The other learner routes named in R-h get the same treatment**, each with its plant: `session_answers` (correctness and the key), `reading_map`'s reasons, and `hasil_koreksi_saya`. Under R-h, `hasil_koreksi_saya` should state that the result changed and its new count, not which question or which key.
+
+### 3 · `per_domain` on certifying learner routes: CONFIRMED, with one correction
+
+- **No label is not enough.** Today the learner's «Baca lagi» list is computed **on the client** from `per_domain`'s per-objective numbers (`siklus.ts` `bagianUlang`: `penguasaan < ambang`). Returning those numbers is a per-objective score in all but name.
+- **The fix:** on a certifying mode, `session_outcome` returns `per_domain` **without per-objective numbers**, plus a server-computed `tujuan_ulang`.
+  - `tujuan_ulang` is the codes below the mark, together with `tujuan_gerbang_kode`, ordered.
+  - `bagianUlang` reads that list.
+  - The overall counts stay.
+- **KUAT** is not shown on a certifying route. Staff views are unchanged.
+- **The forbidden-key test** includes `penguasaan` inside `per_domain` for certifying learner payloads.
+
+### 4 · Also confirmed
+
+- F-1 is closed by the captured policy.
+- F-3 reads the capture in `session_review`, with the PRE_TEST refusal kept.
+- R-h is enforced in the database for STANDALONE.
+- H10 asserts the learner export is absent, and H18 is the list guard.
+- **`verifikasi.lulus` «Lulus»:** checked with R-c. It is a string change only; the five OUT columns and `assert_public_surface()` are unchanged.
+
+**R-d and R-h may start** with these corrections.
