@@ -5,6 +5,7 @@
 --   w2.murid_reset  SMP Cendekia 8A, by email, setup complete, her PIN set and then RESET by the school admin
 --                   (admin_reset_recovery: the PIN needs setting again: «belum punya PIN yang bisa dipakai»)
 --   w2.guru_pin     the 8A teacher's own personal PIN (staff: J10's session lock by PIN)
+--   w2.murid_baru   SMP Cendekia 8A, by email, set-up NOT done (J10's account set-up: PIN, «Komputer siapa ini?»)
 -- Staff with email accounts already stand in both schools (01-, 03-). The PINs are synthetic and fixed.
 
 do $$ begin perform set_config('app.seed_intent', 'synthetic', true); end $$;
@@ -28,6 +29,11 @@ begin
                                       'Dunia audit W2: PIN lupa, diatur ulang oleh sekolah');
   perform dunia.sebagai(null);
 
+  -- J10's account set-up (moved from J1, 24 Nov): an email learner whose account exists but whose set-up is NOT done
+  -- (no PIN, the computer question not answered): she makes a personal PIN and answers «Komputer siapa ini?»
+  perform dunia.murid_email('w2.murid_baru', 'wulan.sari@dunia.pintar.test', 'Sintetis-WulanS-63!', 'Wulan Sari',
+                            'smp.sekolah', 'smp.ta', 'smp.prog', array['smp.ang8', 'smp.kelas8a'], 'smp.admin', false);
+
   perform dunia.sebagai('smp.guru8a');
   perform public.set_my_pin('6150');
   perform dunia.sebagai(null);
@@ -42,5 +48,5 @@ begin
                   and pp.reset_required) then
     raise exception 'W2: the learner with a reset PIN is not marked for a new PIN';
   end if;
-  raise notice 'dunia: W2 two activated learners (a PIN; a reset PIN) and a teacher''s PIN';
+  raise notice 'dunia: W2 two activated learners (a PIN; a reset PIN), one with set-up pending, and a teacher''s PIN';
 end $$;
