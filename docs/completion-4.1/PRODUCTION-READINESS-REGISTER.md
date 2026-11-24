@@ -183,3 +183,8 @@ The App's dispatch then waits for the owner's approval. **This is a configuratio
 **Owner's decision (24 Nov): option (b).** The response-time promise in `lapor.langkah.awal` and `lapor.langkah.awal_kelas` is **softened** until a monitored support arrangement exists (PR-12, PR-15). Daisy settles the words, and the change rides D2-R as its own commit.
 
 **Ruling 90 (24 Nov):** the wording is softened in 4.1 (no time-bound promise without an operational process). The full support capability, with notifications, escalation and threads, is a 4.5 item: **4.5-OF-SUP**. PR-12 and PR-15 remain the owner's for the first use's operational arrangement.
+**The softened wording (Daisy, `D2R-KATA` §10, `ccd42fa6`), riding D2-R:**
+- `lapor.langkah.awal`: «Laporan ini sudah tersimpan. Admin sekolah Anda dan tim PINTAR dapat membacanya.»
+- `lapor.langkah.awal_kelas`: «Laporan ini ditandai menghentikan kelas. Admin sekolah Anda dan tim PINTAR melihat tanda itu, dan laporan ini tampil lebih dulu di antara laporan yang belum ditangani.»
+
+No time period appears in either line. The second line is true per `lapor-masalah.ts:85`, and a test pins it.
