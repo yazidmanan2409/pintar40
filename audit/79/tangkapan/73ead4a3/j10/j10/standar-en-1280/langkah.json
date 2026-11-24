@@ -1,0 +1,241 @@
+{
+  "perjalanan": "j10",
+  "nama": "Wulan · Intan · Joko · Bima · Dimas · Puspa",
+  "lebar": 1280,
+  "zona": "WIB",
+  "bahasa": "en",
+  "laluan": "standar",
+  "label": [
+    "keadaan fiksasi di L4 (izin pemulihan diakhiri), L6–L8 (waktu diam dimajukan) dan L9 (kunci 61 menit)"
+  ],
+  "mulai": "2026-11-24T21:52:59.291Z",
+  "langkah": [
+    {
+      "id": "L1",
+      "judul": "account set-up: Wulan's four steps, «Komputer siapa ini?», then «Akun saya»",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-siapkan-1-username",
+        "02-siapkan-2-password",
+        "03-siapkan-3-pin",
+        "04-siapkan-3-pin-sama",
+        "05-siapkan-3-pin-beda",
+        "06-siapkan-4-nama",
+        "07-siapkan-selesai",
+        "08-perangkat-pertama",
+        "09-akun-saya",
+        "10-akun-ubah-perangkat",
+        "11-akun-sesudah"
+      ],
+      "amatan": [
+        "«Akun saya» offers no «Komputer ini · Ubah» to this learner; /perangkat opened by its address"
+      ],
+      "data": {
+        "pin_sama": "Avoid a PIN that is easy to guess: one digit repeated (1111), digits in order (1234), a pattern (1212, 2580), or a year (1990). | This PIN is one digit repeated. Choose another. |",
+        "pin_urut": "Avoid a PIN that is easy to guess: one digit repeated (1111), digits in order (1234), a pattern (1212, 2580), or a year (1990). | This PIN is digits in order, so it is easy to guess. Choose another. |",
+        "pin_pola": "Avoid a PIN that is easy to guess: one digit repeated (1111), digits in order (1234), a pattern (1212, 2580), or a year (1990). | This PIN is a pattern, like 1212 or 1122, so it is easy to guess. Choose another. |",
+        "pin_garis": "Avoid a PIN that is easy to guess: one digit repeated (1111), digits in order (1234), a pattern (1212, 2580), or a year (1990). | This PIN is a straight line on the keypad, so it is easy to guess. Choose another. |",
+        "pin_tahun": "Avoid a PIN that is easy to guess: one digit repeated (1111), digits in order (1234), a pattern (1212, 2580), or a year (1990). | This PIN reads like a year, so it is easy to guess. Choose another. |",
+        "pin_beda": "Avoid a PIN that is easy to guess: one digit repeated (1111), digits in order (1234), a pattern (1212, 2580), or a year (1990). | The two PINs don't match. Type both again. |",
+        "welcome": "PINTAR ID EN ✓ Welcome to PINTAR Your account is active. From now on, sign in with your email or username, and your password. Go to PINTAR Fairer education, for more opportunity. Learning with evidence. Understand before deciding. PINTAR helps make sense of what is happening in the learning process. The decision stays with people.",
+        "welcome_leads_to": "/perangkat",
+        "computer_question": "asked; «Komputer pribadi saya» chosen",
+        "account_computer": "(no «Komputer ini»)",
+        "account_offers_change": false,
+        "account_computer_after": "(no «Komputer ini»)",
+        "sessions": "SHARED BERAKHIR ended PASSWORD_PERTAMA; SHARED BUKA"
+      },
+      "tab": 91,
+      "url": "/akun",
+      "ms": 20040
+    },
+    {
+      "id": "L2",
+      "judul": "forgot password by email: an address with no account, then Intan's; the code from the sink",
+      "hasil": "SAMPAI",
+      "layar": [
+        "12-lupa",
+        "13-lupa-kode-tanpa-akun",
+        "14-lupa-kode",
+        "15-lupa-password",
+        "16-lupa-selesai"
+      ],
+      "amatan": [],
+      "data": {
+        "no_account_screen": "PINTAR ID EN ✉ Check your email If this name belongs to an active PINTAR account, PINTAR is sending a code to that account's email address. It usually arrives within a minute. Type the code here. The code is valid for 10 minutes. Code to make a new password Continue No email yet? Check your Spam or Promotions folder. The code goes only to the account's own email address. Send the code again You ca",
+        "same_screen_as_no_account": true,
+        "mail": "Kode untuk membuat password baru PINTAR → intan.permatasari@dunia.pintar.test",
+        "done": "PINTAR ID EN ✓ Your password has been changed This account has been signed out of every other device. From now on, sign in with your new password. Continue Fairer education, for more opportunity. Learning with evidence. Understand before deciding. PINTAR helps make sense of what is happening in the learning process. The decision stays with people."
+      },
+      "tab": 19,
+      "url": "/masuk/lupa",
+      "ms": 5115
+    },
+    {
+      "id": "L3",
+      "judul": "forgot password by username: the code goes to the account's email",
+      "hasil": "SAMPAI",
+      "layar": [
+        "17-lupa-username-kode"
+      ],
+      "amatan": [],
+      "data": {
+        "mail": "Kode untuk membuat password baru PINTAR → wulan.sari@dunia.pintar.test"
+      },
+      "tab": 4,
+      "url": "/masuk/lupa",
+      "ms": 2043
+    },
+    {
+      "id": "L4",
+      "judul": "by PINTAR ID + PIN: an unknown ID, a wrong PIN, a reset PIN; then the time runs out; then to the end",
+      "hasil": "SAMPAI",
+      "layar": [
+        "18-pin",
+        "19-pin-id-tidak-dikenal",
+        "20-pin-pin-salah",
+        "21-pin-pin-diatur-ulang",
+        "22-pin-password",
+        "23-pin-berakhir",
+        "24-pin-selesai"
+      ],
+      "amatan": [],
+      "data": {
+        "pin_id-tidak-dikenal": "The PINTAR ID or the PIN doesn't match. Check both, then try again. |",
+        "pin_pin-salah": "The PINTAR ID or the PIN doesn't match. Check both, then try again. |",
+        "pin_pin-diatur-ulang": "The PINTAR ID or the PIN doesn't match. Check both, then try again. |",
+        "time_ran_out": "The time to make a new password has run out. Type your PINTAR ID and PIN again. |",
+        "done": "PINTAR ID EN ✓ Your password has been changed This account has been signed out of every other device. From now on, sign in with your new password. Continue Fairer education, for more opportunity. Learning with evidence. Understand before deciding. PINTAR helps make sense of what is happening in the learning process. The decision stays with people."
+      },
+      "tab": 62,
+      "url": "/masuk/lupa",
+      "ms": 11208
+    },
+    {
+      "id": "L5",
+      "judul": "the session lock in real time on a shared computer: the warning, the lock, a wrong PIN, the right one",
+      "hasil": "SAMPAI",
+      "layar": [
+        "25-bersama-belajar",
+        "26-bersama-peringatan",
+        "27-terkunci",
+        "28-terkunci-pin-salah",
+        "29-terbuka"
+      ],
+      "amatan": [
+        "the warning at 244 s",
+        "the lock at 303 s, at /terkunci"
+      ],
+      "data": {
+        "tour_skipped": true,
+        "sessions_start": "SHARED BERAKHIR ended KREDENSIAL_DIGANTI; SHARED BUKA",
+        "warning": "PINTAR will lock in 1 minute This computer hasn't been used for 4 minutes. In a moment PINTAR will close this screen; you can open it again with your PIN. I'm still here | The tour will appear again next time you sign in. You can also open it from Help any time. Got it |",
+        "lock": "PINTAR ID EN PINTAR is locked Locked for Intan Permatasari This computer wasn't used for 5 minutes, so PINTAR closed this screen to keep your information safe. Type your personal PIN to continue. Personal PIN (4 digits) 👁 Continue Forgot your PIN? Sign out, then sign in again with your password. Not your account? Sign out first, so you can sign in with your own account. Sign out Fairer education, for more opportunity.",
+        "sessions_locked": "SHARED BERAKHIR ended KREDENSIAL_DIGANTI; SHARED TERKUNCI",
+        "wrong_pin": "That PIN doesn't match. You can try 2 more times. | Forgot your PIN? Sign out, then sign in again with your password. | Not your account? Sign out first, so you can sign in with your own account. |",
+        "unlocked_at": "/belajar",
+        "sessions_after": "SHARED BERAKHIR ended KREDENSIAL_DIGANTI; SHARED BUKA"
+      },
+      "tab": 0,
+      "url": "/belajar",
+      "ms": 313365
+    },
+    {
+      "id": "L6",
+      "judul": "three wrong PINs: the session ends",
+      "hasil": "SAMPAI",
+      "layar": [
+        "30-tiga-1",
+        "31-tiga-2",
+        "32-tiga-3"
+      ],
+      "amatan": [],
+      "data": {
+        "try_1": "That PIN doesn't match. You can try 2 more times. | Forgot your PIN? Sign out, then sign in again with your password. | Not your account? Sign out first, so you can sign in with your own account. |",
+        "try_2": "That PIN doesn't match. You can try once more; if it doesn't match again, you'll need to sign in again. | Forgot your PIN? Sign out, then sign in again with your password. | Not your account? Sign out first, so you can sign in with your own account. |",
+        "try_3": "The session on this computer has ended. Sign in again to continue. |",
+        "sessions": "SHARED BERAKHIR ended KREDENSIAL_DIGANTI; SHARED BERAKHIR ended PIN_GAGAL"
+      },
+      "tab": 0,
+      "url": "/masuk",
+      "ms": 6435
+    },
+    {
+      "id": "L7",
+      "judul": "a class card's session lock: the card PIN",
+      "hasil": "SAMPAI",
+      "layar": [
+        "33-kartu-terkunci",
+        "34-kartu-terbuka"
+      ],
+      "amatan": [],
+      "data": {
+        "card_lock": "PINTAR ID EN PINTAR is locked This computer wasn't used for 5 minutes, so PINTAR closed this screen. Type your card's PIN to continue. Card PIN 👁 Continue Forgot your PIN? Sign out, then ask your teacher for help. Not your account? Sign out first, so you can sign in with your own account. Sign out Fairer education, for more opportunity.",
+        "unlocked_at": "/belajar"
+      },
+      "tab": 0,
+      "url": "/masuk",
+      "ms": 6871
+    },
+    {
+      "id": "L8",
+      "judul": "a reset PIN on the lock",
+      "hasil": "SAMPAI",
+      "layar": [
+        "35-reset-terkunci"
+      ],
+      "amatan": [],
+      "data": {
+        "reset_lock": "PINTAR ID EN PINTAR is locked This account has no PIN that can be used, so this screen can't be opened with a PIN. Sign out, then sign in again. Not your account? Sign out first, so you can sign in with your own account. Sign out Fairer education, for more opportunity."
+      },
+      "tab": 0,
+      "url": "/masuk",
+      "ms": 5084
+    },
+    {
+      "id": "L9",
+      "judul": "locked past 60 minutes: the session has ended",
+      "hasil": "SAMPAI",
+      "layar": [
+        "36-kunci-berakhir"
+      ],
+      "amatan": [],
+      "data": {
+        "ended": "PINTAR ID EN The session on this computer has ended. Sign in again to continue. Welcome to PINTAR Sign in with your email or username, and your password. Email or username Password 👁 Sign in Forgot your password? Has your account been closed? Ask for it to be reopened Haven't activated your account",
+        "at": "/masuk"
+      },
+      "tab": 0,
+      "url": "/masuk",
+      "ms": 5317
+    },
+    {
+      "id": "L10",
+      "judul": "a closed account: signing in with the right password; then the reopening request",
+      "hasil": "SAMPAI",
+      "layar": [
+        "37-tutup-masuk",
+        "38-buka-kembali",
+        "39-buka-kembali-pendek",
+        "40-buka-kembali-terkirim",
+        "41-buka-kembali-kembali"
+      ],
+      "amatan": [],
+      "data": {
+        "closed_sign_in": "The email, username or password doesn't match. Check them, then try once more. |",
+        "short_message": {
+          "url": "/masuk/buka-kembali",
+          "validity": "Please lengthen this text to 10 characters or more (you are currently using 6 characters).",
+          "page_line": "|"
+        },
+        "sent": "PINTAR ID EN Ask for your account to be reopened A closed account is never reopened by itself. An Admin PINTAR reads this request, makes sure you are the account's owner, then decides. Your records stay kept while the account is closed. ✓Thank you. If that account has been closed, your request is now waiting with an Admin PINTAR. The account is reopened only after an Admin PINTAR has confirmed who you are. Back to sign-in Fairer education, for more opportunity. Learning with evidence. Understand before deciding. PINTAR helps make sense of what is happening in the learning process. The decision stays with people.",
+        "requests": "1 reopening request(s) after the double press",
+        "after_back": "PINTAR ID EN Ask for your account to be reopened A closed account is never reopened by itself. An Admin PINTAR reads this request, makes sure you are the account's owner, then decides. Your records stay kept while the account is closed. EMAIL OR USERNAME MESSAGE FOR THE ADMIN PINTAR Say why you want"
+      },
+      "tab": 16,
+      "url": "/masuk/buka-kembali",
+      "ms": 6863
+    }
+  ],
+  "selesai": "2026-11-24T21:59:21.636Z",
+  "sampai_akhir": true
+}
