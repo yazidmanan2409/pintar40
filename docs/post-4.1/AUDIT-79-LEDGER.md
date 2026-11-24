@@ -265,3 +265,14 @@ Nine findings: 5 Significant, 4 Improvement, none Critical. **The core cross-rol
 | L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
 |---|---|---|---|---|---|---|
 | L-78 | Closed and suspended accounts are banned in Supabase Auth, and Auth's token endpoint is callable directly with the public anon key. **If Auth answers `user_banned` before checking the password, an account's closed state is already public to anyone who knows its email**, whatever PINTAR's screens say | D | J10 | **Unknown until tested**; if confirmed, an existing confidentiality defect | — | **The test (Second Eye, local stack only):** `/auth/v1/token?grant_type=password` directly, 20 calls each: banned + right password; banned + wrong password; ordinary + wrong password. Record status, error_code, body and median time, and do the same for the card path. If `user_banned` doesn't depend on the password, stop: it's an existing oracle, and the fix belongs at the Auth layer. L-75 waits on this |
+
+## J5 walked in part (Daisy, `AUDIT-79-TEMUAN-J5.md` `01441d33`; 24 Nov)
+
+**Covered:** Ayu's /mengajar, 8A and 8C, «Siapkan» to its last step, Bukti, Uji Cepat and Langkah. **For the builder's J5 run:** running an Uji Cepat (late joiner, a stop), «Minta membaca lagi» sent, «Ubah jadwal», «Tambah waktu», and the SR, throttled and reduced-motion passes. J5-5 repeats L-47 and L-64; it is not a new row.
+
+| L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
+|---|---|---|---|---|---|---|
+| L-79 (J5-1) | «Statistika Dasar» reads «Siap disediakan» on the class page and the Siapkan list. Its review step says «Batas ketuntasan belum ditetapkan … belum bisa disediakan», yet still offers «Sediakan …», which the database refuses (ASSIGN_PASS_MARK_MISSING) | B, E | J5 | **Significant** | C-3, C-7 | Readiness is derived three ways; the action is offered although its rule refuses it (the same shape as L-35) |
+| L-80 (J5-2) | The home's «Layak dikerjakan lebih dulu» suggests the «(8B)» copy for 8A, which already runs that chapter, and doesn't mention 8C, which has nothing | A, H | J5 | Improvement | C-4 | Partly world data (same-name publications): **the builder confirms** |
+| L-81 (J5-3) | 8C's Langkah offers Uji Cepat, which dead-ends with no link onward | H | J5 | Improvement | C-7 | — |
+| L-82 (J5-4) | Siapkan's certificate step still says «bila murid memenuhi capaian» | B | J5 | Improvement | C-6 | **A D2-R §4 sibling missed by its sweep** (like L-44): it should say «lulus Uji Penguasaan» |

@@ -1,6 +1,6 @@
 # Audit 79 · the common causes behind conflicting screens (Bob, 24 Nov 2026; ruling 95)
 
-**Status: INTERIM, after J1 to J4, J7 and J10.** Sol's review (relayed by the owner, 24 Nov) supports the direction in principle, with two qualifications, adopted here: C-1 keeps the current attempt and the result in force as two facts, and every consumer of `my_cycle_state` is checked (§3a); C-5 keeps each recommendation's provenance. Sol's recommendation, as relayed: approve the direction in principle, and finalise the implementation plan only after all twelve journeys. It is updated as Daisy walks each remaining journey. **The correction plan is not final until all twelve are walked** (ruling 95). Nothing here is built.
+**Status: INTERIM, after J1 to J4, J7, J10 and part of J5.** Sol's review (relayed by the owner, 24 Nov) supports the direction in principle, with two qualifications, adopted here: C-1 keeps the current attempt and the result in force as two facts, and every consumer of `my_cycle_state` is checked (§3a); C-5 keeps each recommendation's provenance. Sol's recommendation, as relayed: approve the direction in principle, and finalise the implementation plan only after all twelve journeys. It is updated as Daisy walks each remaining journey. **The correction plan is not final until all twelve are walked** (ruling 95). Nothing here is built.
 
 **Method:**
 - Every finding where screens disagree was traced, read-only, to the code on main `429b7dcc`. For each finding the trace names:
@@ -33,7 +33,7 @@
 | 2 · Are pending decisions visible to the person responsible? | **Partly.** Each surface lists one kind of decision and then declares there is nothing else (C-4). The decisions themselves are recorded correctly |
 | 3 · Are approved actions reflected throughout the journey? | **No.** An approved retake shows on one card and the test page only (C-2) |
 | 4 · Are historical results, the current attempt and recommendations distinguished? | **No.** Attempts are unnumbered, and none is marked as in force (C-1, C-2: L-43 / L-55). Recommendations come from the oldest result (C-5) |
-| 5 · Do changes to one screen reach its dependent screens? | **Not reliably.** The retake (C-2), Z's V2 «latest finalized» (C-1) and D2-R's certificate state (C-3, L-44) each stopped short of a sibling. **This is L-8 applied to screens:** the sweep covered tests (L-8) but not dependent screens |
+| 5 · Do changes to one screen reach its dependent screens? | **Not reliably.** The retake (C-2), Z's V2 «latest finalized» (C-1) and D2-R's certificate state (C-3, L-44) each stopped short of a sibling. **This is L-8 applied to screens:** the sweep covered tests (L-8) but not dependent screens. D2-R's own sweep missed two sibling screens: L-44 (the certificate page) and L-82 (Siapkan's certificate step) |
 
 **What holds** (J3's own check): the verdict itself is identical for learner, teacher and approver. The facts in the database are right; it is the screens that disagree.
 
@@ -82,6 +82,7 @@ Today `post_session` / `pre_session` is the latest *begun* sitting. **That meani
 | J4 | 3 new, plus 2 confirmations | L-63, L-64 (C-2); L-45 confirmed (C-4) | — (L-65 is wording only) |
 | J7 | 8 | L-68, L-70 (C-3); L-69 (C-4); L-74 (C-6) | **C-7** (L-67), **C-8** (L-71) |
 | J10 | 3 | — | **C-9** (L-75, L-76); L-77 is layout |
+| J5 (part) | 4 | L-79 (C-3, C-7), L-80 (C-4), L-81 (C-7), L-82 (C-6) | — |
 
 ## 4a · Owner direction for the remaining analysis (ruling 96)
 
