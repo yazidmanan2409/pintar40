@@ -1,0 +1,53 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - navigation "Belajar":
+    - link "Belajar":
+      - /url: /belajar
+    - link "Sertifikat":
+      - /url: /belajar/sertifikat
+  - button "Bantuan"
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - paragraph: Belajar
+  - heading "Halo, Sinta" [level=1]
+  - region "Tidak ada lagi yang menunggu":
+    - heading "Tidak ada lagi yang menunggu" [level=2]
+    - text: Semua yang disediakan untuk Anda sudah selesai. Materi baru, jika ada, akan muncul di halaman Belajar.
+  - heading "Pembelajaran Anda" [level=2]
+  - article:
+    - text: Matematika · Kelas 8 Persamaan Linear Satu Variabel (8K)
+    - list:
+      - listitem: Pemetaan Awal
+      - listitem: Peta Bacaan Personal
+      - listitem: Pelajaran
+      - listitem: Uji Penguasaan
+      - listitem: Hasil
+    - text: Selesai · belum mencapai target
+    - link "Lihat hasil":
+      - /url: /belajar/5681470e-a50f-43e9-a17b-6a8fd15cf322/hasil
+  - heading "Hasil belajar" [level=2]
+  - paragraph: Semua bab yang sudah Anda kerjakan dalam satu halaman, dengan bagian yang perlu dipelajari lagi.
+  - link "Lihat hasil belajar":
+    - /url: /belajar/hasil
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- dialog "Mulai dari daftar ini":
+  - text: Tur PINTAR Langkah 1 dari 7
+  - button "EN"
+  - button "Lewati tur"
+  - heading "Mulai dari daftar ini" [level=2]
+  - paragraph: Semua yang disediakan untuk Anda ada di sini, sudah diurutkan. Yang paling atas dikerjakan lebih dulu; tombolnya membuka langkah berikutnya.
+  - checkbox "Jangan tampilkan tur ini lagi"
+  - text: Jangan tampilkan tur ini lagi
+  - button "Berikutnya"
+- alert

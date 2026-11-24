@@ -1,0 +1,33 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - text: Waktu berjalan 00:00
+  - button "Simpan & Jeda"
+  - button "Daftar soal"
+  - article:
+    - heading "Pada persamaan 3x − 2 = 10, manakah variabelnya?" [level=2]
+    - list:
+      - listitem:
+        - button "A −2"
+      - listitem:
+        - button "B x"
+      - listitem:
+        - button "C 10"
+      - listitem:
+        - button "D 3"
+    - button "Simpan jawaban ini" [disabled]
+    - button "Tandai soal ini"
+    - paragraph: Pilih satu jawaban dulu.
+    - status
+  - navigation:
+    - button "Kembali" [disabled]
+    - button "Berikutnya"
+- alert

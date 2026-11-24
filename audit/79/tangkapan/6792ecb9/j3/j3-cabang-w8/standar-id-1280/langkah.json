@@ -1,0 +1,47 @@
+{
+  "perjalanan": "j3-cabang-w8",
+  "nama": "Sinta · Bambang · Made",
+  "lebar": 1280,
+  "zona": "WIB",
+  "bahasa": "id",
+  "laluan": "standar",
+  "label": [
+    "bukti OFFICIAL di tenant bootstrap dev/CI (sintetis)",
+    "keadaan fiksasi (dibuat melewati penjaga hari ini)"
+  ],
+  "mulai": "2026-11-24T12:09:50.868Z",
+  "langkah": [
+    {
+      "id": "C1",
+      "judul": "W8: the gate unknown, on all three surfaces (nobody pre-ticked)",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-w8-murid-hasil",
+        "02-w8-murid-belajar",
+        "03-w8-guru-murid",
+        "04-w8-guru-minta-membaca",
+        "05-w8-guru-minta-membaca-daftar",
+        "06-w8-kaprodi"
+      ],
+      "amatan": [],
+      "data": {
+        "w8-learner_verdict": "(none)",
+        "w8-learner_text": "← Perjalanan belajar Anda MATEMATIKA · PERSAMAAN LINEAR SATU VARIABEL (8K) Hasil 5 dari 6 soal dijawab tepat · Kesempatan ke-1 Pada Uji Penguasaan, jawaban yang tepat dan hasil tiap soal tidak ditampilkan. Apa berikutnya → Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com",
+        "w8-learner_home_line": "BELAJAR Halo, Sinta TIDAK ADA LAGI YANG MENUNGGU Semua yang disediakan untuk Anda sudah selesai. Materi baru, jika ada, akan muncul di halaman Belajar. PEMBELAJARAN ANDA MATEMATIKA · KELAS 8 Persamaan Linear Satu Variabel (8K) Pemetaan Awal Peta Bacaan Personal Pelajaran Uji Penguasaan Hasil Selesai Lihat hasil HASIL BELAJAR Semua bab yang sudah Anda kerjakan dalam satu halaman, dengan bagian yang",
+        "w8-teacher_text": "← 8K (dunia) PINTAR Bootstrap (OFFICIAL evidence — development and CI only) / 8K (dunia) / TA 2026/2027 (dunia audit) CATATAN BELAJAR Sinta Maharani Catatan belajar satu murid di kelas Anda, untuk mendukung belajarnya. Tidak dibandingkan dengan murid lain dan bukan peringkat. PENILAIAN DI KELAS INI PEMETAAN AWAL · PERSAMAAN LINEAR SATU VARIABEL (8K) Sudah mengumpulkan UJI PENGUASAAN · PERSAMAAN LINEAR SATU VARIABEL (8K) Sudah mengumpulkan HASIL RESMI Penguasaan yang tercatat pada tiap asesmen yang sudah dinilai. PEMETAAN AWAL · PERSAMAAN LINEAR SATU VARIABEL (8K) 100% UJI PENGUASAAN · PERSAMAAN LINEAR SATU VARIABEL (8K) 83% belum dapat disimpulkan apakah target tercapai · target 60% Data soal penting untuk hasil ini tidak dapat dibaca sekarang. Muat ulang halaman ini nanti. Minta membaca lagi TUJUAN PEMBELAJARAN YANG BELUM TERCAPAI Dari Uji Penguasaan terakhir murid ini di kelas ini: tuj",
+        "w8-teacher_shows_kesempatan_ke": false,
+        "w8-teacher_official_results": "HASIL RESMI Penguasaan yang tercatat pada tiap asesmen yang sudah dinilai. PEMETAAN AWAL · PERSAMAAN LINEAR SATU VARIABEL (8K) 100% UJI PENGUASAAN · PERSAMAAN LINEAR SATU VARIABEL (8K) 83% belum dapat disimpulkan apakah target tercapai · target 60% Data soal penting untuk hasil ini tidak dapat dibaca sekarang. Muat ulang halaman ini nanti. Minta membaca lagi TUJUAN PEMBELAJARAN YANG BELUM TERCAPAI Dari Uji Penguasaan",
+        "w8-read_again_sinta_preticked": true,
+        "w8-read_again_checked": 4,
+        "w8-read_again_text": "← Lihat bukti PINTAR Bootstrap (OFFICIAL evidence — development and CI only) / 8K (dunia) / TA 2026/2027 (dunia audit) PERSAMAAN LINEAR SATU VARIABEL (8K) Minta membaca lagi Pilih murid yang perlu bantuan dan pelajaran yang perlu mereka baca lagi. Mereka akan menemukan permintaan ini di beranda mereka. target 60% Murid Sinta Maharani 83% · Belum dapat disimpulkan apakah target tercapai. Pelajaran untuk dibaca lagi Kalimat Terbuka dan Persamaan Menyelesaikan Persamaan Persamaan dalam Soal Cerita Hasil murid tidak berubah, dan tidak ada tes baru. Minta membaca lagi PERMINTAAN YANG SUDAH DIKIRIM ",
+        "w8-read_again_list_preticks_sinta": false,
+        "w8-approver_text": "(no request section)"
+      },
+      "tab": 17,
+      "url": "/",
+      "ms": 43954
+    }
+  ],
+  "selesai": "2026-11-24T12:10:34.822Z",
+  "sampai_akhir": true
+}
