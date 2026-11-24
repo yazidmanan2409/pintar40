@@ -1,4 +1,5 @@
 # Ruling 79 audit · the twelve journey scripts, final (Daisy, 24 Nov 2026)
+> - **Visual consistency pass (owner, 24 Nov):** on every journey's screens, check row affordance alignment, one button style per role, the sidebar and footer chrome at each width, truncated labels, and oversized controls. It starts from `../completion-4.1/SIDEBAR-KONFIG-CATATAN.md` (K-1 to K-4), and the fixes go in one consolidated revision.
 
 > **What holds now:**
 > - **Status:** final scripts for track 3b (ruling 89, `NEXT-SEQUENCE-89.md`). They supersede `AUDIT-79-SKRIP-PERJALANAN-DRAF.md` (`4f0b3f42`), which stays as history.
