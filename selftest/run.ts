@@ -187,6 +187,8 @@ const DB_RUNNERS = [
   { file: "b2.sql", fn: "selftest.run_b2()", done: "B2-DONE", emits: ["B2-D"] },
   // L1-F2 and L1-R2 (owner, 12 Nov): a suspension covers the accounts made after it; no permit survives a lock
   { file: "l1f2.sql", fn: "selftest.run_l1f2()", done: "L1F2-DONE", emits: ["L1F2-S", "L1R2-S"] },
+  // D2-R (ruling 89): a certifying sitting offers no help and discloses counts only; the public read drops the band
+  { file: "fable39.sql", fn: "selftest.run_fable39()", done: "F39-DONE", emits: ["D2R-D01", "D2R-D02", "D2R-D03", "D2R-D04", "D2R-D06", "D2R-D07", "D2R-D08", "D2R-D09", "D2R-H01", "D2R-H02", "D2R-H03", "D2R-H04", "D2R-H05", "D2R-H07", "D2R-H12", "D2R-H14", "D2R-H16", "D2R-C01", "D2R-C04", "D2R-E01", "D2R-F01"] },
 ] as const;
 
 /**
