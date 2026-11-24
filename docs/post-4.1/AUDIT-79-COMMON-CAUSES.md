@@ -84,3 +84,26 @@ Today `post_session` / `pre_session` is the latest *begun* sitting. **That meani
 - To verify before the plan:
   - whether `learner.result` carries `percobaan_ke`;
   - ~~whether a later migration redefines `my_cycle_state`~~ **Checked (Bob): `20261010100000` is the last migration to define it, so «latest begun» is what main runs.**
+
+## 6 · Sharon's early view on C-1, C-3 and C-5 (24 Nov; her record `AUDIT79-C1-C3-C5-VIEW.md`): conditions for the plan
+
+**C-1 (a), adding «the result in force» to `my_cycle_state`.** Beyond the usual contract and registry checks:
+1. **One SQL helper for «the result in force»** (the latest FINALIZED), shared with `hasil_belajar_sesi_orang`, so the two cannot drift.
+2. **Return the sitting id, never result values.** Pages read it through `session_outcome` / `reading_map`, so they inherit `hasil_murid_id` (D14) and that sitting's own captured `bersertifikasi` gating.
+3. **The same own-assignment ownership rule**, with no person parameter.
+4. **For a TABLE return:** drop and create, with the grant and the registry entry asserted.
+5. **A red-first test for each of the 11 consumers**, with the pinned case: an open retake after a finished attempt. The result page shows attempt 1, and the test page resumes attempt 2.
+
+**C-1 (b), disclosure:** nothing new. The learner already sees that result in Hasil Belajar, and it stays counts-only by the old sitting's own flag. **Two conditions:**
+- never call outcome, map or review with the OPEN retake's id;
+- label the result as the previous attempt's.
+
+**C-5, both recommendations shown:** nothing changes, provided that:
+- each block is read with its own sitting's id and gated by that sitting's flag;
+- each block's provenance is labelled (Daisy's words);
+- if a pre-test KUAT beside a certifying result still reads as a mastery verdict, KUAT is dropped in that view only;
+- a plant feeds the certifying id to the pre-test block, and must be refused.
+
+**C-3, the transfer row:** no objection, provided that:
+- **one helper holds the closed-source rule**, used by the read, the acceptance and `transfer_execute` alike, so no AUTHORIZED row dangles (this also closes L-35's (a) and (b));
+- **the receiving school sees a boolean only**, never why the source closed: that reason is the sending school's record.
