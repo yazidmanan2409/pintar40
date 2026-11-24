@@ -672,3 +672,10 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
   - Both marks use L-144's pattern: `aria-disabled` (focusable) plus `aria-describedby`; the press goes to the first waiting draft, with «Lihat draf pertama» / «See the first draft».
   - A database refusal (e.g. a draft made in another tab) uses the same sentence.
   - KEPARAHAN is updated to Sharon's ruling.
+
+**The EN re-captures (builder):**
+- **J5:** `7b3c7891`, `4b1de38a/j5/j5/standar-en-1280/`. It's EN throughout, and the tour is dismissed. It supersedes only `d41ed05c/…/standar-en-1280`.
+- **J10:** `541bab59`, `73ead4a3/j10/j10/standar-en-1280/`. It's EN throughout. It supersedes only `d70f3222/…/standar-en-1280`.
+  - It exposed a wrong EN label in the harness's own matcher (`lupa.nama_lain`), now fixed. That's harness, not product.
+- Daisy judges both.
+- **The builder's next step is J8,** with fixture w15-paket (one labelled draft package, so a pass mark can be set), then J9, J11 and J12.
