@@ -163,3 +163,19 @@ The App's dispatch then waits for the owner's approval. **This is a configuratio
 | **Email is sent through Namecheap's mail host for `pintarselalu.com`** | The owner. **Verified in the repository (Bob):** `configure-supabase-smtp.yml` (production) and `staging.yml` set Supabase Auth's SMTP to `pintarselalu.com:465` (SMTPS), sender `noreply@pintarselalu.com`; credentials come from secrets and are not read here | PR-14: the sender exists. **The hosting server for `pintarselalu.com` is in Singapore** (owner-confirmed, 24 Nov). **Separately, any additional email processing or relay locations Namecheap may use remain unverified.** Counsel part 2 states both, and Q4 asks what must be established about such locations. **A second sender exists:** the app's own emails (activation, recovery: `_email/kirim.ts`) use `PINTAR_SMTP_HOST`, which is set in the application's environment, separately from Supabase Auth. **Owner-confirmed (24 Nov): production's `PINTAR_SMTP_HOST` is `pintarselalu.com`.** Both Supabase Auth's email and the app's own emails use the same Namecheap mail host. *Correction:* Bob's earlier draft named "Resend". That was wrong: the word came from unrelated uses of "resend" in the repository |
 | **The off-site backup: Google Cloud Storage preferred over AWS, in Jakarta (`asia-southeast2`), proposed** | The owner | PR-5 and PR-6: **the implementation is deferred pending separate authorisation.** `backup-offsite.yml` today targets S3-style storage, so moving to GCS is a workflow change (GCS's S3-compatible interface or its own client). That is to be designed and reviewed with Sharon when authorised |
 | **The Google Cloud project `pintar-staging-backup` exists, with no buckets; Cloud Storage is not activated** | The owner | Nothing exists yet to secure or point at. Nothing is created now |
+
+### Email capacity (owner, 24 Nov 2026): for future capacity planning
+
+- **The plan:** `pintarselalu.com` is on Namecheap's **Stellar Business** shared hosting plan, in Singapore (owner).
+- **The sending limit:** **10,000 outgoing emails per hour per domain**, per Namecheap's documentation as cited by the owner (Namecheap knowledgebase article 9347, «Benefits of Stellar Business hosting packages»). This session could not open the page, so the figure is recorded as owner-cited.
+- **The decision:** Namecheap stays the email provider. **No additional email provider or subscription is needed at this stage.**
+- **What exists today** (read from the repository, for the future review):
+  - Both senders share one domain, and so one hourly limit: Supabase Auth's sign-in emails and the app's own activation and recovery emails.
+  - The app's sender (`src/app/api/_email/kirim.ts`) sets connection, greeting and socket timeouts (10 s, 10 s, 20 s), catches a failure, and **does not retry**.
+  - `configure-supabase-smtp.yml` reads back Supabase Auth's `smtp_max_frequency` and `rate_limit_email_sent`, but this record does not establish their production values.
+- **For future scalability reviews (no work now):**
+  - aggregate volume across both senders, against the per-domain hourly limit;
+  - rate limiting on the PINTAR side, so that a bulk action (for example, a class's activation emails) cannot exhaust the shared limit;
+  - how a delivery failure reaches the person or an administrator;
+  - retry handling, with backoff, for the app's sender.
+- **For the 10-adult pilot:** the volume is far below the limit, and no change is indicated.
