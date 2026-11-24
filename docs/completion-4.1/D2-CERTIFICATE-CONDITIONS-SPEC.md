@@ -322,3 +322,17 @@ Sharon's part waits until after A3's freeze (ruling 58).
 - The forbidden-key test covers `penguasaan` inside `per_domain`.
 
 **Also confirmed:** F-1; F-3; database enforcement for STANDALONE; H10; H18; `verifikasi.lulus` «Lulus» (a string only, with the public contract unchanged).
+
+### 7.3 · At the build (24 Nov, about 02:05Z)
+
+**Sharon accepts Second Eye's deviation:** a separate sealed `bersertifikasi` column records the result's purpose. It is needed because Pemetaan Awal hides rationales but keeps its reading-map reasons, so the review key can't decide purpose. Her four conditions:
+1. It is captured at start from `mode_policy.certifies`, sealed with the same trigger, and backfilled in the same step as `assistance_policy`.
+2. Every R-h gate reads `bersertifikasi`, never a mode name or `reveals_rationale`. One plant sets `bersertifikasi=true` on a non-certifying mode name, and the gate must still hold.
+3. «`bersertifikasi` ⇒ all assistance false» is enforced at INSERT only, as a trigger. Certifying sittings backfilled from before D2-R legitimately hold true.
+4. Both new columns join line 58's `baru`, and step 0 counts sittings by mode and `bersertifikasi`.
+
+**R-1 is accepted as built** (green on its first run). Sharon closes it on the pushed head and CI.
+
+**Daisy's two strings:**
+- `hasil.percobaan_ke`: «Kesempatan ke-{n}» / «Attempt {n}». «Kesempatan» is the learner and teacher word.
+- A new key, `posttest.tanpa_bantuan_umum`, for a certifying STANDALONE only: «Selama asesmen ini, petunjuk, contoh, dan arah berpikir tidak tersedia.» / «During this assessment, hints, examples and thinking prompts are not available.»
