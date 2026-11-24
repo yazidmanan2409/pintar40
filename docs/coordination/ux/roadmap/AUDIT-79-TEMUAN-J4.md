@@ -43,3 +43,13 @@
 - **The teacher's «Izinkan»** asks a question that names the learner and the effect («Sesi sebelumnya tidak menyimpan jawabannya lagi. Jawaban yang sudah tersimpan tetap ada.»), with a reason that is audited. Its result names the end time.
 - **On resuming:** «Jangan keluar dari akun sampai asesmen ini selesai: untuk melanjutkan lagi, guru perlu mengizinkan sekali lagi.» is honest about what happens next time.
 - **The teacher's «Akhiri sesi»** explains both choices (scored, which uses an attempt; not counted, where the answers are kept and the learner can start again), then confirms in words that name the effect. That is good E practice.
+
+## Cause tags (Bob's interim `AUDIT-79-COMMON-CAUSES.md`, 35cccdf1)
+
+| # | Cause |
+|---|---|
+| J4-1 | **New cause (proposed C-7): who changed a state is recorded, but shown only to the person who acted.** The ending («diakhiri oleh guru, jawaban yang ada dinilai») lives on the sitting and its audit row, and the teacher reads it. The learner's result is derived from the outcome alone, so it cannot tell a hand-in from a teacher's end. L-59's sibling (the approved retake the learner isn't told of) is C-2, not this |
+| J4-2 | C-4 (L-45) |
+| J4-3 | C-2: the start card's step derivation says «Siap» while the sitting is begun. That is the same step derivation that misses the approved retake |
+| J4-4 | None: wording only |
+| J4-5 | None: formatting (L-47) |
