@@ -76,3 +76,29 @@ Read from the source, not from the builder's summary.
 - **What I based my words on:** I had not read either run. My record said "conditional on … being green in attempt 1", a condition, not a result. But my message to Bob put it as "PASS WITH TWO CONDITIONS, plus ci … and journeys … green in attempt 1", which reads as a claim.
 - **The lesson** (adopted): a run's result is quoted only from the API's `conclusion`, with the time it was read. A condition is written as "required: … green", never as a run ID followed by "green".
 - **These runs are of `9c6aae62`, which V-1 changes,** so the runs of record will be those of the re-frozen head. I quote their conclusions when they finish.
+
+---
+
+## Addendum: re-freeze delta 9c6aae62..25681b11 (Sharon, read-only, 2026-11-24)
+
+**Verdict on the code: PASS. V-1 and V-2 are closed in the code.**
+**Required: ci and journeys on 25681b11 green**, quoted from the GitHub API conclusion along with the time it was read. Until then the run half stays OPEN.
+
+- **V-1, the category is no longer shown:**
+  - `card_holders()` returns `terkunci boolean` = `public.orang_ditangguhkan(p.id)`; the category column is gone.
+  - `pemegang-kartu.ts` passes only `terkunci === true`.
+  - `KartuUlang.tsx` renders one key, `aktivasi.kartu_ulang.tidak_dapat_dipakai` (Daisy §6), with `data-kartu-terkunci="ya"`. The line names no reason. The two §5 keys (DITANGGUHKAN/DITUTUP) are removed from `hle.ts`.
+  - CI2-P01 asserts:
+    - the list adds exactly `{"terkunci": false}` / `{"terkunci": true}` for both SECURITY and CLOSED_AT_REQUEST;
+    - the row matches no suspend/closed vocabulary;
+    - the suspended row and the closed row are byte-identical, with no button and no card.
+- **V-2, the test now reads full function definitions:**
+  - CI2-G01 reads `pg_get_functiondef` throughout, never `prosrc`.
+  - Plant Q14 is a BEGIN ATOMIC setter of `pintar.kunci_rotasi`, which has an empty `prosrc`, and it must be caught.
+- **Z-S12-01 test isolation:**
+  - `ipUji` is now a counter over 198.18.0.0/15, so it never repeats within a run.
+  - Z-S12-01 posts from 192.0.2.0/24 and checks over 2000 draws that `ipUji` never lands there.
+  - This is isolation only; no assertion was weakened.
+- **Migration 311:** sha256 begins `5c4b2306c4c1c418`, matching Bob's value. `preservation-CI2.sql` carries the new sha, and that is its only change.
+- Could reasonably have been anticipated: yes, as V-1/V-2 already said. No new findings.
+- I have not queried staging; this is a code read only.
