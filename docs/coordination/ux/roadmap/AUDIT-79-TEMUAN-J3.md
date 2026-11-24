@@ -39,3 +39,12 @@
 - **The approver's card** shows the learner, the class, the test, «1 kesempatan dipakai», the verdict with its reason, who asked and why. A refusal reason is read by the teacher, not the learner (as said).
 - **The retake's intro** carries `posttest.tanpa_bantuan`. The new result reads «Kesempatan ke-2» and replaces the old one on every learner surface.
 - **A fixture question, not a finding:** the teacher's «Layak dikerjakan lebih dulu: Persamaan Linear Satu Variabel … belum disediakan untuk 8K» refers to the school's own publication of the same title, not the world's «(8K)» copy. Real schools are unlikely to have two same-named publications; the builder should confirm.
+
+## Capture judgement · the builder's committed J3 (`6792ecb9/j3`, `3c1af1ae`), 24 Nov 12:30
+
+| Item | Verdict |
+|---|---|
+| **W7a (retake open)** | The learner's result is a 404 (**J3-1 / L-54**, confirmed). The teacher's «Uji Penguasaan ulang sedang berlangsung …» holds |
+| **W7b (retake ended, not counted)** | The learner's result is still a 404 (added to L-54 by Bob, C-1). **New, partly good:** the learner's start card now says «Asesmen ini tidak dihitung dan tidak memakai kesempatan Anda. Jawaban yang sudah tersimpan tetap ada.», which is exactly what J4-1 asks for in the not-counted case. But it sits under «Siap untuk Uji Penguasaan» + «Lanjutkan Uji Penguasaan» (**J4-3**) |
+| **W8 (gate unreadable)** | **New, J3-10 (Significant): the learner gets counts and no decision, with no reason.** The learner's result reads only «5 dari 6 soal dijawab tepat · Kesempatan ke-1 …», with no «Lulus» or «Belum lulus» and no word why. The teacher reads «belum dapat disimpulkan apakah target tercapai · target 60%» + «Data soal penting untuk hasil ini tidak dapat dibaca sekarang. Muat ulang halaman ini nanti.» **Siblings disagree** (C-3). **Fix:** the learner's result: «Keputusan lulus untuk Uji Penguasaan ini belum dapat ditentukan sekarang. Hasil Anda tetap tersimpan. Buka halaman ini lagi nanti.» (vocabulary: «belum dapat …»; no blame) |
+| **L-43** | Confirmed in every state: no «Kesempatan ke-{n}» on the teacher's record |

@@ -55,3 +55,16 @@
    - On screen, the address should be a link («Buka halaman pemeriksaan»), so a learner or parent can open it in one tap. On the printed sheet it stays text plus the QR.
    - **Siblings:** the A4 sheet (text, correct) and «Sertifikat Anda» (no address); they don't conflict.
    - **L8,** the holder's name absent on the public check: **holds**, the intended privacy boundary («Nama pemegang tertera pada sertifikatnya.»).
+
+## Capture judgement · the builder's committed J2 (`da220028/j2`, `d62f967e`; L3 at `854b93d4`, `567cc4da`), 24 Nov 12:30
+
+| Run | Verdict |
+|---|---|
+| **1280 / 390 / 320 (ID)** | Every step reached. Nothing new beyond the findings above. **One visual note at 320:** the header takes about a third of the screen before content (ID / EN on its own row, then «Bukan akun Anda?» and «Keluar» on another). This is evidence for **L-40 and L-42** (no new row). «Lihat sertifikat» sits on the counts line, not underlined (**L-01**, **J2-7**) |
+| **EN 1280** | Holds. The only Indonesian is author content (objective statements) and the certificate, which keeps its issue language by design (`language_as_issued`). The public check opened in a fresh signed-out context showed ID. **For the builder:** set EN on that page too, or it isn't an EN check |
+| **Screen reader 1280** | Questions: single (the double drawing is retracted). **New, J2-11 (Improvement, G):** the certificate page exposes the A4 print preview to screen readers in full: a second level-1 heading «Hana Wirawan», a second «Periksa keaslian» heading and a second QR image. A reader hears the certificate twice. **Fix:** hide the preview's duplicate from the accessibility tree (it is a visual preview) and keep its heading «Sertifikat · A4» with one line saying it is the same certificate laid out for paper |
+| **Throttled, reduced motion (1280)** | Every step reached, no observation recorded. Nothing seen in the still captures; motion itself can't be judged from stills, and the harness's run under `prefers-reduced-motion` completed |
+| **L3 with a worked example** | «Tampilkan langkah berikutnya» shows. The L3 question is closed |
+| **Branches** (a lesson resumed, a multi-answer item partly chosen, W4, W5) | Reached; I'll read them with W2's severity pass |
+
+**J2's «left for the builder» lines are now closed,** except the EN public-check re-run.
