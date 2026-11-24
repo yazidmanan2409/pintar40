@@ -65,6 +65,14 @@
 
 H-1 (the pre-flight heartbeat reads the red-case step's own `supabase db reset` as a dead database) has now voided CI-1's red-case step, as it voided D2-R's twice. **For CI-1:** the red-case step alone is rerun on the same commit with `PREFLIGHT_DENYUT=3600` (the D2-R precedent), and the freeze check names it. **Decision:** H-1 is fixed before AR-79's pre-flight, not after it. AR-79 is the largest candidate, and every VOID costs a run. It's a separate, harness-only change in `scripts/dev/`, with its own small PR, and it touches no product.
 
+## 3b · Test-clock and test-order lessons (24 Nov, recorded for the closure report)
+
+- **C1W-S06 (CI-1):** a test picked data by position, and the paper order is random. It passed locally and failed in CI.
+- **SERTIFIKAT-A01, L1F4-K05, F22-K01/K03/K06, PENUGASAN-A01:** each passes only after other suites have created its data.
+- **R1-K01 (main):** a test passed UTC `current_date` to a function that reads the school's clock, so it fails every evening (16:00–24:00Z). Fixed in CI-2's own commit, with its sibling uses swept.
+
+**Lesson:** a passing run is evidence only for the order, time and data it ran with. Tests must be independent of order, position and wall-clock time, or must pin them.
+
 ## 4 · Pacing (owner, 24 Nov: usage isn't monitored overnight)
 
 Bob paces the work. The usage allowance is shared by every session.
