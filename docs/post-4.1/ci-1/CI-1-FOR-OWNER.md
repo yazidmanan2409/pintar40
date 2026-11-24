@@ -63,3 +63,9 @@ CI-1's evidence stands as stated.
     - She found that the migration writes only its registry row, that public and staff validity agree, and that step 0's prediction matches.
     - She verified from the evidence, the repo and the API. She did not query staging herself: her standing rule is no staging access unless the owner authorises her in her own session.
 11. **The V6 re-read** (22:42:25Z): periksa md5 `2b4a0444…` is unchanged, and the counter baseline is 178,026. **It needs one staging request after 22:42:25Z** (the owner's page load, as for Z and D2-R), then Bob re-reads. **CI-1 isn't closed until that's shown.**
+12. **The V6 re-read after the owner's staging sign-in** (22:44:34Z): 178,216, **+190** over the 178,026 baseline; the md5 is unchanged. **V6's hosted condition is met.**
+13. **Main's ci on the merge** (45500905491): **FAILURE**, read from the API.
+    - Bob read the logs: the only failure is R1-K01's control (the pre-existing clock bug, disclosed above), with selftest skipped as a consequence. It's not CI-1's code.
+    - The merged tree equals `94ce6727`'s, whose full CI was green.
+    - Main stays red in the evening window until CI-2 or H-1 carries the fix.
+14. **Sharon's condition (V6) is met.** She is asked to record her FINAL. CI-1 is declared closed on staging when she does.

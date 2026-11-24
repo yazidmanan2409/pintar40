@@ -27,3 +27,20 @@ V6 HOSTED CHECK (Sharon's condition on the promotion, 22:38Z), read only, 2026-1
   service_role 3,854). There's no reading between the promotion (22:27:06Z) and this one, so THIS is the post-promotion
   baseline. Showing it rising needs one staging request after 22:42:25Z (as for Z §2 and D2-R: the owner loads a staging
   page). PENDING.
+
+V6 RE-READ after the owner's staging sign-in (owner reported "staging log in - done"), read only, 2026-11-24 22:44:34Z:
+- periksa calls: 178,216 (anon 2,136, authenticated 172,221, service_role 3,859): +190 over the 178,026 post-promotion
+  baseline (22:42:25Z). So the pre-request ran on requests made after the promotion: there is no disabling override.
+- periksa md5: 2b4a0444fbd36007341a536916fe14a0, unchanged. Latest migration: 20270125100000.
+V6's hosted condition is MET.
+
+MAIN'S CI ON THE MERGE (93b93134), run 45500905491, read from the API at ~22:45Z: completed, conclusion FAILURE, attempt 1.
+- Failed jobs (2 of 18): «red case · db · fable06 task2 bob06 bob50 bob25 d2r» at step plants --gate=db-zr1-gates:
+  "plants: control for db-zr1-gates is already red before any defect: R1-K01" (22:42:17Z); and the verdict job, as a
+  consequence. selftest was SKIPPED (it depends on red-case). Every other job succeeded.
+- Cause: the pre-existing school-clock bug in selftest/db/r1.sql:49 (UTC current_date into a school-clock function),
+  disclosed in CI-1-FOR-OWNER before the authorisation. It's identical to H-1's PR #32 failure at 21:47Z. Not CI-1's code:
+  CI-1 changes neither r1.sql nor akhiri_pendaftaran.
+- The merged tree equals 94ce6727's, whose PR ci 45439475500 ran the full suite and every red case green (success,
+  attempt 1). So the merged code's evidence of record stands.
+- Main stays red in that window until the fix lands (CI-2's 6aceed28, or H-1's port 7716f228). Disclosed, not hidden.
