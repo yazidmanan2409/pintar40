@@ -98,6 +98,8 @@ The 9 buttons found:
 | 8 | `langkah/page.tsx:66`, `[kelas]/page.tsx:152` | Uji Cepat | no chapter available (L-81); also `soalUjiCepat` turns any RPC error into «empty» (`pengajar.ts:643`), and the empty state offers no way on |
 | 9 | `[kelas]/page.tsx:261`, `pengajar.ts:842` | «Siap» and the f4 card | the chapter-line rule that Siapkan applies (whether the DB enforces it: to confirm) |
 
+**Sol's qualification (relayed by the owner, 24 Nov): both checks remain.** A readiness read informs the person; **the database still makes the final decision when the action is performed**, because circumstances can change between drawing a button and pressing it. So the «may do / why not» read never replaces the action's own refusal; it uses the same codes, and a refusal at press time is still shown as a named refusal (DAISY-18). Reusing PINTAR's existing pattern, rather than a new framework, is supported.
+
 **How it stays consistent (lasting, not per row):**
 - **L-8 extended to screens:** a change to a state also sweeps every screen that shows that state, in the same batch. The hand-off names them («dependent screens: N found, N updated»). This applies the existing principle; it is not a new procedure.
 - **Cross-surface checks become journey assertions.** J3's three-surface verdict check is the model: for each cause, one journey step asserts that the sibling screens agree. For example, after a retake is approved, the home, result, chapter and `lanjut` all offer it; after a retake opens, the learner and the teacher both show the result in force.
@@ -149,3 +151,12 @@ The 9 buttons found:
 **C-3, the transfer row:** no objection, provided that:
 - **one helper holds the closed-source rule**, used by the read, the acceptance and `transfer_execute` alike, so no AUTHORIZED row dangles (this also closes L-35's (a) and (b));
 - **the receiving school sees a boolean only**, never why the source closed: that reason is the sending school's record.
+
+## 7 · The four lasting principles (Sol, relayed by the owner, 24 Nov), carried into 4.5, 5.0 and 6.0 (ruling 97)
+
+1. **One authoritative interpretation of each state** (C-1, C-3).
+2. **Consistent communication across related surfaces** (C-2, C-4, C-6), verified by cross-surface journey assertions.
+3. **Actions offered only when their known prerequisites are satisfied** (C-7). The database still decides at the moment of action.
+4. **No promises unsupported by the underlying facts** (L-44, L-67, ruling 90's response-time lesson).
+
+They also cover **accessibility as its own verification**: a screen that looks right isn't necessarily accessible (L-87, and the SR pass). And **a finding is told apart from a limitation of the synthetic data** (Daisy's L3 judgement).

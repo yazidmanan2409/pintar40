@@ -164,6 +164,16 @@ the audit's existing rows. There is no fresh replanning.
 
 **The objective:** to learn from what is reported and keep improving PINTAR, not only to resolve the problems. Detailed specification and implementation follow the established sequence: 4.5's planning gate, then specification, then reviews, then batches. **There is no 4.1 expansion and no implementation now.**
 
+## 2c · Lasting principles from ruling 79's audit (rulings 95–97; Sol): binding on 4.5, 5.0 and 6.0
+
+Every 4.5 specification (4.5-OF-SUP and Quiet Intelligence included) states how it meets these, and its journeys assert them:
+1. **One authoritative interpretation of each state:** a shared SQL read, never a per-page re-derivation.
+2. **Consistent communication across related surfaces:** every person who meets the same event gets a consistent account of it, checked by a cross-surface journey assertion.
+3. **Actions offered only when their known prerequisites are satisfied:** a database-owned «may do / why not» read, using the action's own refusal codes. The database still decides at the moment of action.
+4. **No promises unsupported by the underlying facts.**
+
+**And L-8, extended:** a change to a state sweeps its dependent tests **and its dependent screens** in the same batch. The source is `docs/post-4.1/AUDIT-79-COMMON-CAUSES.md`.
+
 ## 3 · Decisions for the owner (each blocks a named stage, not today's work)
 
 | # | Decision | Why it matters | Bob recommends | Needed by |
