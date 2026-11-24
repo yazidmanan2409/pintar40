@@ -159,4 +159,11 @@ The row-by-row audit against main `61a6ff9e` is in `closure/Z-READINESS-CLOSURE-
 - **R-6 → ruling 54.** No known reachable deadlock, and Postgres's detection fails closed. A found one is a defect.
 - **C1-R4 → D2-R's R-c**, already named in its render sites.
 
-**Still to confirm:** Daisy (R-13, R-15's 320 px titles, R-28's leftovers).
+**Daisy's rows: confirmed** through her confirmation of the ruling 79 ledger (`LEDGER-79-KONFIRMASI-689f8a35.md`, `3b40e31f`):
+- the R-13 integrity count line and «Materi tanpa judul» are L-11 and L-12;
+- R-15's 320 px titles are L-03;
+- R-28's «Later» rows are in the ledger.
+
+R-13's certificate date is checked in D2-R's rendered review (1f).
+
+**G-2 is CLOSED (24 Nov, about 01:15Z).** Every row is closed with a citation or deferred to a named phase. R-1 remains as a 4.1 test, riding `claude/d2r`, and Sharon confirms it on the test.
