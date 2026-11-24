@@ -195,3 +195,9 @@ There are no further pushes or reruns unless a failure is root-caused (ruling 93
 - **Two words are avoided:** «terkunci» (it clashes with the session lock) and «tidak aktif» (it reads as not yet activated).
 - **§5's category-naming variants are superseded** wherever V-1 applies.
 - **The test:** the line is identical for DITUTUP and DITANGGUHKAN, with no category in the RPC result or the DOM.
+
+**The runs on `9c6aae62`, read by Bob from the API at 21:51Z:**
+- ci 45488925842: `completed`, conclusion `success`, attempt 1, finished 21:51:12Z.
+- journeys 45488932426: `completed`, conclusion `success`, attempt 1, finished 21:45:12Z.
+
+This is evidence for the pre-V-1 head only. V-1 and V-2 change the head, so the re-frozen sha needs its own ci and journeys runs, read from the API.
