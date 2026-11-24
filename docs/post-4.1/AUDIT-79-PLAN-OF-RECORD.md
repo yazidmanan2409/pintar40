@@ -28,6 +28,7 @@
   - **CI-2:** `claude/ci-2` from **CI-1's frozen head**, migration 311. CI-2 doesn't touch CI-1's functions, but stacking keeps the migration order and the AFTER reads honest.
   - **AR-79:** `claude/ar-79` from **CI-2's frozen head**, migrations 312 onwards. AR-79 touches certificate screens (C-3) that read CI-1's helper.
   - **The PRs merge in that order**, each under its own owner authorisation, each with its own step 0 / BEFORE / AFTER. If the owner wants a different order, only the bases change.
+  - **Sharon's safeguard:** CI-2 is the production blocker (PR-22). It stays **free of any dependency on CI-1's code**, so that if CI-1 is held at review or acceptance, CI-2 can be rebased onto main and go first (ruling 98: «in the order their freezes land»). Each stacked PR's preservation pair is taken against its predecessor's AFTER, and Sharon's verifications follow the same chain.
 - **AR-79's scope** is every confirmed finding whose fix is a correction of existing behaviour: wording, layout, consistency, a missing state on a sibling screen, a prerequisite read, the result in force. **Excluded, and named in the closure report with the reason:**
   - (a) findings already placed in 4.5 by ruling (L-26 to L-30, L-35's 4.5 parts);
   - (b) anything that is a new feature or a policy change (ruling 79's scope), such as bulk class entry (L-91), if judged a feature;
