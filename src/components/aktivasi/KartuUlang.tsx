@@ -104,11 +104,11 @@ export default function KartuUlang({ locale, pemegang, ada, dicari }: { locale: 
                     {" · "}{s("aktivasi.ulang.akhiran")} <span className="pin-num">{akhiran[p.person_id] ?? p.card_last4}</span>
                   </span>
                   {p.terkunci ? (
-                    // CI-2 (Daisy CI2-KATA §5; Bob, principle 3, C-7; Sharon V-1): a locked learner gets one neutral line in place of
+                    // CI-2 (Daisy CI2-KATA §6; Bob, principle 3, C-7; Sharon V-1): a locked learner gets one neutral line in place of
                     // the button, naming no reason, so no card is drawn and no PIN that cannot work is shown or printed. The
                     // database decides at the press regardless
                     <span className="pin-meta" data-kartu-terkunci="ya">
-                      {s("aktivasi.ulang.terkunci").split("{nama}").join(p.display_name)}
+                      {s("aktivasi.kartu_ulang.tidak_dapat_dipakai").split("{nama}").join(p.display_name)}
                     </span>
                   ) : dipilih ? (
                     <span>

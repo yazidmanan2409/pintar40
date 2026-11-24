@@ -52,7 +52,7 @@ import { t } from "../src/lib/hle";
 
 export const MIGRASI_CI2 = "supabase/migrations/20270126100000_a_locked_account_reads_as_any_wrong_password.sql";
 const HITUNG_STAGING = "docs/post-4.1/ci-2/evidence/staging-counts-CI2.sql";
-/** Daisy's words (CI2-KATA.md f15f33e2; EN confirmed at 35cc08eb, «Forgot your password?» = auth.pw_lupa; §5 at 6697120b), exactly. */
+/** Daisy's words (CI2-KATA.md f15f33e2; EN confirmed at 35cc08eb, «Forgot your password?» = auth.pw_lupa; §6 at d87ef205), exactly. */
 export const KATA_CI2 = {
   "akun.dibuka.kredensial_staf": {
     default: "✓ Akun {nama} dapat dipakai lagi. Password lamanya tidak berlaku lagi. Beri tahu {nama}: buat password baru lewat «Lupa password?» di halaman masuk, dengan email akun ini.",
@@ -71,11 +71,12 @@ export const KATA_CI2 = {
     default: "Bila akun Anda ditutup atau ditangguhkan, tanyakan kepada admin sekolah Anda.",
     en: "If your account was closed or suspended, ask your school admin.",
   },
-  // Sharon V-1: one neutral line, no category. PLACEHOLDER until Daisy's words arrive (not to be frozen with it)
-  "aktivasi.ulang.terkunci": {
-    default: "Kartu baru untuk {nama} tidak dapat dibuat sekarang.",
-    en: "A new card for {nama} can't be made right now.",
+  // Sharon V-1, Daisy CI2-KATA §6 (d87ef205): one neutral line, the same for a suspension and a closure
+  "aktivasi.kartu_ulang.tidak_dapat_dipakai": {
+    default: "Kartu dan PIN baru untuk {nama} belum dapat dibuat sekarang, karena akunnya sedang tidak dapat dipakai. Tanyakan kepada admin sekolah Anda; admin sekolah dapat menanyakannya kepada Admin PINTAR.",
+    en: "A new card and PIN can't be made for {nama} right now, because the account can't be used at the moment. Ask your school admin; a school admin can ask Admin PINTAR.",
   },
+
 } as const;
 
 type JawabanAuth = { status: number; code: string | null; body: string; ms: number };
@@ -682,12 +683,21 @@ export const ci2AppTests: SelfTest[] = [
         c.expect(daftarLebih(null) === '{"terkunci": false}', `before the lock, card_holders() adds ${daftarLebih(null)} for the learner; only {"terkunci": false} (V-1)`);
         tangguhkan(k.orang);
         const saatKunci = await barisDaftar();
-        const kalimat = KATA_CI2["aktivasi.ulang.terkunci"].default.split("{nama}").join(nama);
+        const kalimat = KATA_CI2["aktivasi.kartu_ulang.tidak_dapat_dipakai"].default.split("{nama}").join(nama);
         c.expect(saatKunci.baris.includes('data-kartu-terkunci="ya"') && saatKunci.baris.includes(kalimat)
           && !saatKunci.baris.includes(t("aktivasi.ulang.pilih", "staff")) && !saatKunci.baris.includes("<button") && !saatKunci.kartu,
           `suspended, the learner's row is not the one neutral line in place of the button with no card drawn: ${saatKunci.baris.slice(0, 300)}`);
         c.expect(!/ditangguhkan|ditutup|DITANGGUHKAN|DITUTUP|suspend|closed/i.test(saatKunci.baris),
           `suspended, the learner's row names why they are locked: ${saatKunci.baris.slice(0, 300)} (V-1)`);
+        // Daisy CI2-KATA §6: the same line, byte for byte, when the same learner is locked by a closure at their request
+        const kategoriKini = (kategori: string) => psql(`begin; set local session_replication_role = replica;
+          update public.person_suspensions set category = ${lit(kategori)} where person_id = ${lit(k.orang)} and ended_at is null; commit;`);
+        kategoriKini("CLOSED_AT_REQUEST");
+        try {
+          const saatTutup = await barisDaftar();
+          c.expect(saatTutup.baris === saatKunci.baris && !saatTutup.kartu,
+            `closed, the learner's row differs from the suspended one (the line must be one and the same, V-1): ${saatTutup.baris.slice(0, 300)}`);
+        } finally { kategoriKini("SECURITY"); }
         // the list itself carries no category, for a suspension or for a closure at the person's request alike
         for (const kategori of ["SECURITY", "CLOSED_AT_REQUEST"]) {
           const lebih = daftarLebih(kategori);

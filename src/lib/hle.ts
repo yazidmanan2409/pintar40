@@ -3049,7 +3049,7 @@ export type HleEvent =
   | "aktivasi.ulang.tidak_ketemu"
   | "aktivasi.ulang.akhiran"
   | "aktivasi.ulang.pilih"
-  | "aktivasi.ulang.terkunci"
+  | "aktivasi.kartu_ulang.tidak_dapat_dipakai"
   | "aktivasi.ulang.alasan"
   | "aktivasi.ulang.hilang"
   | "aktivasi.ulang.rusak"
@@ -6903,9 +6903,9 @@ const table: Table = {
   "aktivasi.ulang.tidak_ketemu": { default: "Tidak ada nama yang cocok.", en: "No name matches." },
   "aktivasi.ulang.akhiran": { default: "Kartu berakhiran", en: "Card ending in" },
   "aktivasi.ulang.pilih": { default: "Terbitkan kartu baru", en: "Issue a new card" },
-  // CI-2 (Daisy CI2-KATA §5; Bob, principle 3, C-7; Sharon V-1): for a locked learner this ONE NEUTRAL line, naming no
-  // reason, takes the place of the button and the card. PLACEHOLDER words until Daisy's arrive: not to be frozen with them
-  "aktivasi.ulang.terkunci": { default: "Kartu baru untuk {nama} tidak dapat dibuat sekarang.", en: "A new card for {nama} can't be made right now." },
+  // CI-2 (Daisy CI2-KATA §6, d87ef205; Bob, principle 3, C-7; Sharon V-1): for a locked learner this ONE NEUTRAL line,
+  // the same for a suspension and a closure, takes the place of the button and the card. It supersedes §5's two lines
+  "aktivasi.kartu_ulang.tidak_dapat_dipakai": { default: "Kartu dan PIN baru untuk {nama} belum dapat dibuat sekarang, karena akunnya sedang tidak dapat dipakai. Tanyakan kepada admin sekolah Anda; admin sekolah dapat menanyakannya kepada Admin PINTAR.", en: "A new card and PIN can't be made for {nama} right now, because the account can't be used at the moment. Ask your school admin; a school admin can ask Admin PINTAR." },
   "aktivasi.ulang.alasan": { default: "Mengapa?", en: "Why?" },
   "aktivasi.ulang.hilang": { default: "Kartunya hilang", en: "The card is lost" },
   "aktivasi.ulang.rusak": { default: "Kartunya rusak", en: "The card is damaged" },
