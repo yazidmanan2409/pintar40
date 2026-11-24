@@ -1,6 +1,6 @@
 # Ruling 79 · the consolidated findings ledger (draft 1; Bob, 24 Nov 2026; track 3a)
 
-**THE AUDIT OPENS on the owner's acceptance of D2-R on staging** (ruling 92). D2-R is on main `429b7dcc` and on staging at 309, with Sharon's final PASS. Until then, preparation only. Findings are made on main (`429b7dcc` or later), on synthetic data, in approved environments only. Scope is ruling 79's: no new features, no policy changes, nothing on production. The fixes are ONE consolidated revision.
+**THE AUDIT IS OPEN (ruling 94, 24 Nov 2026).** 4.1's gates are closed: D2-R is on main `429b7dcc` and on staging at 309, accepted by the owner. Findings are made on main (`429b7dcc` or later), on synthetic data, in approved environments only. Scope is ruling 79's: no new features, no policy changes, nothing on production. The fixes are ONE consolidated revision.
 
 Proposed dimensions, journeys and severities are Bob's, for Daisy to confirm. **Known gap:** the «next batch / not blocking» notes in pre-Z reviews (A2b-D8, B1, B2, C2w-Kanonik) are not yet swept; Daisy adds them. Items marked ✓main were re-checked open on main 61a6ff9e.
 

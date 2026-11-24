@@ -73,7 +73,7 @@
   - R-2;
   - the backup.
 
-## 6 · Outcome (24 Nov 2026): ready for the owner's acceptance; G-3 closes on it
+## 6 · Outcome (24 Nov 2026): ACCEPTED by the owner (ruling 94); G-3 CLOSED
 
 1. **Frozen** at `177ab4d2` by the freeze check:
    - all approved changes are in;
