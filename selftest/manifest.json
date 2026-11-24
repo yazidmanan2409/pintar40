@@ -7537,12 +7537,12 @@
     {
       "id": "D2R-C05",
       "runner": "static",
-      "proves": "D2-R ruling 74a item 4, Daisy's §9 and Sharon's delta note, red first, d2r.test.ts, executes sedangDisiapkan in src/lib/sertifikat-kontrak.ts, renders src/components/siklus/HasilBersertifikasi.tsx and reads src/app/belajar/[tugas]/hasil/page.tsx: «sedang disiapkan» only for a certificate in ELIGIBLE; issued (ISSUED, REVOKED, SUPERSEDED), no row or a failed read gives the link siklus.lihat_sertifikat alone; directly after the «Lulus» banner, never .arti, before «Baca lagi:»; «Belum lulus.» links to none."
+      "proves": "D2-R ruling 74a item 4, Daisy's §9 and her ruling on the null case, Sharon's delta note, N-22, red first, d2r.test.ts, executes keadaanSertifikat in src/lib/sertifikat-kontrak.ts, renders src/components/siklus/HasilBersertifikasi.tsx and reads src/app/belajar/[tugas]/hasil/page.tsx: ELIGIBLE gives «sertifikat.disiapkan.judul.» and the link; ISSUED, REVOKED, SUPERSEDED the link alone; no row or a failed read nothing; directly after the «Lulus» banner, the link screen-only, never .arti, before «Baca lagi:»; «Belum lulus.» links to none."
     },
     {
       "id": "D2R-C06",
       "runner": "static",
-      "proves": "D2-R ruling 74a item 4, Daisy's C-1 on Hasil Belajar, red first, d2r.test.ts, renders src/components/laporan/KomposisiMurid.tsx: a certifying «Lulus» row links to /belajar/{tugas}/sertifikat with siklus.lihat_sertifikat after its verdict; a «Belum lulus» row and a non-certifying row do not."
+      "proves": "D2-R Daisy's C-1 and her ruling on the null case, red first, d2r.test.ts, renders src/components/laporan/KomposisiMurid.tsx and reads src/lib/hasil-belajar.ts: a certifying «Lulus» row whose certificate exists or is being prepared links to /belajar/{tugas}/sertifikat with siklus.lihat_sertifikat (screen-only), one with no certificate links to none; a «Belum lulus» row and a non-certifying row do not; the library reads each certifying pass's certificate."
     },
     {
       "id": "D2R-L01",

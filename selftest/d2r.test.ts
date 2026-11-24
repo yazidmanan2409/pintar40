@@ -345,42 +345,47 @@ export const d2rTests: SelfTest[] = [
       const c = new Checks();
       const { t } = await import("../src/lib/hle");
       const id = (k: string) => t(k as never, "learner", { locale: "id" });
-      // ruling 74a item 4, Daisy's §9, Sharon's delta note (ruling 90's principle): «Sertifikat Anda sedang disiapkan.» only
-      // when a certificate is really being prepared (my_certificate returns a row in ELIGIBLE). Issued, no row (a pass that
-      // will never be certified, INV-20) or a failed read: the link alone. Never sertifikat.disiapkan.arti.
-      const kontrak = await import("../src/lib/sertifikat-kontrak") as { sedangDisiapkan?: (r: { status: string } | null | undefined) => boolean };
-      const f = kontrak.sedangDisiapkan;
-      if (c.expect(typeof f === "function", "src/lib/sertifikat-kontrak.ts has no sedangDisiapkan")) {
-        c.expect(f!({ status: "ELIGIBLE" }) === true, "a certificate being prepared (ELIGIBLE) is not said to be prepared");
-        for (const st of ["ISSUED", "REVOKED", "SUPERSEDED"]) c.expect(f!({ status: st }) === false, `a ${st} certificate is said to be prepared`);
-        c.expect(f!(null) === false && f!(undefined) === false, "a pass with no certificate row (never certified, or a failed read) is said to be prepared");
+      // ruling 74a item 4, Daisy's §9, Sharon's delta note and Daisy's ruling on the null case: being prepared (a row in
+      // ELIGIBLE): «Sertifikat Anda sedang disiapkan.» and the link; a certificate that exists (ISSUED, REVOKED,
+      // SUPERSEDED, which the certificate page explains): the link alone; no row or a failed read: no line and no link
+      // (a link to a certificate that can never exist is a broken promise). Never sertifikat.disiapkan.arti.
+      const kontrak = await import("../src/lib/sertifikat-kontrak") as { keadaanSertifikat?: (r: { status: string } | null | undefined) => string | null };
+      const f = kontrak.keadaanSertifikat;
+      if (c.expect(typeof f === "function", "src/lib/sertifikat-kontrak.ts has no keadaanSertifikat")) {
+        c.expect(f!({ status: "ELIGIBLE" }) === "DISIAPKAN", "a certificate being prepared (ELIGIBLE) is not DISIAPKAN");
+        for (const st of ["ISSUED", "REVOKED", "SUPERSEDED"]) c.expect(f!({ status: st }) === "ADA", `a ${st} certificate is not ADA (the link alone)`);
+        c.expect(f!(null) === null && f!(undefined) === null, "no certificate row (never certified, or a failed read) is not null (nothing drawn)");
       }
-      const siap = renderHasil(ctx.repoRoot, hasilLulus({ sertifikatDisiapkan: true }));
-      const tanpa = renderHasil(ctx.repoRoot, hasilLulus({ sertifikatDisiapkan: false }));
-      const belum = renderHasil(ctx.repoRoot, hasilLulus({ sertifikatDisiapkan: true, outcome: { ...hasilLulus().outcome, lulus: false } }));
-      if (!c.expect(siap.ok && tanpa.ok && belum.ok, `HasilBersertifikasi could not be rendered: ${siap.err || tanpa.err || belum.err}`)) return c.verdict("");
+      const siap = renderHasil(ctx.repoRoot, hasilLulus({ sertifikat: "DISIAPKAN" }));
+      const ada = renderHasil(ctx.repoRoot, hasilLulus({ sertifikat: "ADA" }));
+      const tiada = renderHasil(ctx.repoRoot, hasilLulus({ sertifikat: null }));
+      const belum = renderHasil(ctx.repoRoot, hasilLulus({ sertifikat: "ADA", outcome: { ...hasilLulus().outcome, lulus: false } }));
+      if (!c.expect(siap.ok && ada.ok && tiada.ok && belum.ok, `HasilBersertifikasi could not be rendered: ${siap.err || ada.err || tiada.err || belum.err}`)) return c.verdict("");
       const baris = (h: string) => {
         const akhir = h.indexOf("</div>", h.indexOf('data-keputusan="lulus"'));
         const i = h.indexOf('<p data-sertifikat=""');
         return { tepat: akhir >= 0 && i === akhir + "</div>".length, isi: i >= 0 ? h.slice(i, h.indexOf("</p>", i) + 4) : "" };
       };
       const lihat = id("siklus.lihat_sertifikat");
-      const S = baris(siap.out), T = baris(tanpa.out);
-      c.expect(S.tepat && T.tepat, "the certificate is not directly after the «Lulus» banner");
-      c.expect(/href="\/belajar\/t1\/sertifikat"/.test(T.isi) && teksHtml(T.isi) === lihat, `issued, none or unread: not exactly the link «${lihat}»: «${teksHtml(T.isi)}»`);
+      const S = baris(siap.out), A = baris(ada.out);
+      c.expect(S.tepat && A.tepat, "the certificate is not directly after the «Lulus» banner");
+      c.expect(/href="\/belajar\/t1\/sertifikat"/.test(A.isi) && teksHtml(A.isi) === lihat, `a certificate that exists is not exactly the link «${lihat}»: «${teksHtml(A.isi)}»`);
       const harapSiap = `${id("sertifikat.disiapkan.judul")}. ${lihat}`;
       c.expect(/href="\/belajar\/t1\/sertifikat"/.test(S.isi) && teksHtml(S.isi) === harapSiap, `being prepared: not «${harapSiap}», as one line: «${teksHtml(S.isi)}»`);
-      c.expect(!teksHtml(siap.out).includes(id("sertifikat.disiapkan.arti")) && !teksHtml(tanpa.out).includes(id("sertifikat.disiapkan.arti")), "the result draws sertifikat.disiapkan.arti");
-      c.expect(siap.out.indexOf("data-sertifikat") < siap.out.indexOf("data-baca-lagi") && !/data-ulang-boleh/.test(siap.out), "on a pass the certificate is not before «Baca lagi:», or a retake line is drawn");
+      c.expect(!/data-sertifikat/.test(tiada.out) && !/\/sertifikat"/.test(tiada.out) && !teksHtml(tiada.out).includes(id("sertifikat.disiapkan.judul")),
+        "with no certificate row the result still draws a certificate line or link");
+      c.expect(teksHtml(tiada.out).includes(id("hasil.lulus")), "with no certificate row «Lulus.» is not drawn");
       // N-22 (Daisy's recheck): the link is screen-only; in print it would read as bare words
-      c.expect(/<a[^>]*class="[^"]*\bpin-noprint\b[^"]*"[^>]*href="\/belajar\/t1\/sertifikat"|<a[^>]*href="\/belajar\/t1\/sertifikat"[^>]*class="[^"]*\bpin-noprint\b/.test(S.isi + T.isi)
+      c.expect(/<a[^>]*class="[^"]*\bpin-noprint\b[^"]*"[^>]*href="\/belajar\/t1\/sertifikat"|<a[^>]*href="\/belajar\/t1\/sertifikat"[^>]*class="[^"]*\bpin-noprint\b/.test(S.isi + A.isi)
         && /@media print \{[^}]*\.pin-noprint \{ display: none !important; \}/.test(baca(ctx.repoRoot, "src/app/experience.css").replace(/\s+/g, " ")),
         "the certificate link is printed (N-22: it must carry pin-noprint)");
+      c.expect(!teksHtml(siap.out).includes(id("sertifikat.disiapkan.arti")) && !teksHtml(ada.out).includes(id("sertifikat.disiapkan.arti")), "the result draws sertifikat.disiapkan.arti");
+      c.expect(siap.out.indexOf("data-sertifikat") < siap.out.indexOf("data-baca-lagi") && !/data-ulang-boleh/.test(siap.out), "on a pass the certificate is not before «Baca lagi:», or a retake line is drawn");
       c.expect(!/\/sertifikat"/.test(belum.out), "a «Belum lulus.» result links to a certificate");
       const hasil = tanpaKomentar(baca(ctx.repoRoot, "src/app/belajar/[tugas]/hasil/page.tsx")).replace(/\s+/g, " ");
-      c.expect(/engine\.myCertificate\([^)]*\)\.catch\(\(\) => null\)/.test(hasil) && /sedangDisiapkan\(/.test(hasil) && /<HasilBersertifikasi\b[^>]*\bsertifikatDisiapkan=\{/.test(hasil),
-        "the chapter result page does not decide «sedang disiapkan» by sedangDisiapkan over myCertificate (a failed read as none)");
-      return c.verdict("sedangDisiapkan: ELIGIBLE only; ISSUED, REVOKED, SUPERSEDED, no row and a failed read are not; rendered: directly after a certifying «Lulus» banner, a certificate being prepared reads «Sertifikat Anda sedang disiapkan.» and the link as one line, otherwise the link alone; never .arti; before «Baca lagi:», no retake line; «Belum lulus.» links to none; the page decides by sedangDisiapkan over myCertificate");
+      c.expect(/engine\.myCertificate\([^)]*\)\.catch\(\(\) => null\)/.test(hasil) && /keadaanSertifikat\(/.test(hasil) && /<HasilBersertifikasi\b[^>]*\bsertifikat=\{/.test(hasil),
+        "the chapter result page does not decide the certificate line by keadaanSertifikat over myCertificate (a failed read as none)");
+      return c.verdict("keadaanSertifikat: ELIGIBLE → DISIAPKAN; ISSUED, REVOKED, SUPERSEDED → ADA; no row or a failed read → null; rendered: directly after a certifying «Lulus» banner, DISIAPKAN reads «Sertifikat Anda sedang disiapkan.» and the link as one line, ADA the link alone (screen-only), null nothing; never .arti; before «Baca lagi:», no retake line; «Belum lulus.» links to none");
     },
   },
   {
@@ -391,7 +396,9 @@ export const d2rTests: SelfTest[] = [
       const id = (k: string) => t(k as never, "learner", { locale: "id" });
       // Daisy's C-1 on the Hasil Belajar row: after a certifying «Lulus», the same link
       const bab = [
-        { tugas: "t1", judul: "IPA · Bab 2", keadaan: "SELESAI", awal: null, akhir: null, ambang: 0.75, tercapai: "TERCAPAI", benar: 5, total: 6, bagian: [], ulang: [], bersertifikasi: true },
+        { tugas: "t1", judul: "IPA · Bab 2", keadaan: "SELESAI", awal: null, akhir: null, ambang: 0.75, tercapai: "TERCAPAI", benar: 5, total: 6, bagian: [], ulang: [], bersertifikasi: true, sertifikat: "ADA" },
+        { tugas: "t5", judul: "IPA · Bab 5", keadaan: "SELESAI", awal: null, akhir: null, ambang: 0.75, tercapai: "TERCAPAI", benar: 6, total: 6, bagian: [], ulang: [], bersertifikasi: true, sertifikat: "DISIAPKAN" },
+        { tugas: "t6", judul: "IPA · Bab 6", keadaan: "SELESAI", awal: null, akhir: null, ambang: 0.75, tercapai: "TERCAPAI", benar: 6, total: 6, bagian: [], ulang: [], bersertifikasi: true, sertifikat: null },
         { tugas: "t2", judul: "IPA · Bab 3", keadaan: "SELESAI", awal: null, akhir: null, ambang: 0.75, tercapai: "BELUM", benar: 2, total: 6, bagian: [], ulang: [], bersertifikasi: true },
         { tugas: "t3", judul: "IPA · Bab 4", keadaan: "SELESAI", awal: null, akhir: 0.9, ambang: 0.75, tercapai: "TERCAPAI", benar: 9, total: 10, bagian: [], ulang: [] },
       ];
@@ -410,6 +417,14 @@ export const d2rTests: SelfTest[] = [
       const iL = out.indexOf(`>${id("hasil.lulus")}</small>`);
       c.expect(iL >= 0 && tautan !== null && out.indexOf(tautan[0]) > iL && out.indexOf(tautan[0]) < out.indexOf("</li>", iL), "the row's certificate link is not after its «Lulus»");
       c.expect(tautan !== null && /\bpin-noprint\b/.test(tautan[0]), "the row's certificate link is printed (N-22: it must carry pin-noprint)");
+      // Daisy's ruling on the null case: the row has the link (alone) when a certificate exists or is being prepared, and
+      // nothing when there is none
+      c.expect(/href="\/belajar\/t5\/sertifikat"/.test(out), "a row whose certificate is being prepared does not link to it");
+      c.expect(!/href="\/belajar\/t6\/sertifikat"/.test(out), "a row with no certificate links to one (a broken promise)");
+      c.expect(!teksHtml(out).includes(id("sertifikat.disiapkan.judul")), "the row draws «sedang disiapkan» (the row has the link only)");
+      const lib = tanpaKomentar(baca(ctx.repoRoot, "src/lib/hasil-belajar.ts")).replace(/\s+/g, " ");
+      c.expect(/engine\.myCertificate\([^)]*\)\.catch\(\(\) => null\)/.test(lib) && /keadaanSertifikat\(/.test(lib),
+        "Hasil Belajar does not read each certifying pass's certificate (myCertificate, keadaanSertifikat)");
       c.expect(!/href="\/belajar\/t2\/sertifikat"/.test(out), "a «Belum lulus» row links to a certificate");
       c.expect(!/href="\/belajar\/t3\/sertifikat"/.test(out), "a non-certifying row gains the certificate link (Daisy's C-1 is the certifying result's)");
       return c.verdict("rendered: on Hasil Belajar a certifying «Lulus» row links to /belajar/{tugas}/sertifikat with «siklus.lihat_sertifikat» after its verdict; a «Belum lulus» row and a non-certifying row do not");
