@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| D2-R batch | PASS, conditional on CI + journeys green; R-1 closes on the same; learning_delta: no partial withholding | 42f6f432 | [D2R-BATCH-42f6f432.md](D2R-BATCH-42f6f432.md) |
 | Counsel brief part 2 (first use) | NOT YET fit: 3 additions (AI off in pilot; all processors incl. email + offsite backup; breach + rights question) | 371e3b48 | [COUNSEL-BRIEF-P2-371e3b48.md](COUNSEL-BRIEF-P2-371e3b48.md) |
 | G-2 Z-READINESS rows (R-1..R-4, R-6, R-15) | all confirmed; R-1 stays 4.1 until its test (cases named) | Z-READINESS §6 | [G2-ROWS-SHARON.md](G2-ROWS-SHARON.md) |
 | D2-R pre-code review (R-c..R-f, R-h, §6.3a) | R-d/e/f ready; R-c fix (predikat null in RPC/API); R-h name every learner route + list guard | 0623517d (spec) | [D2R-PRECODE-R-c-f.md](D2R-PRECODE-R-c-f.md) |
