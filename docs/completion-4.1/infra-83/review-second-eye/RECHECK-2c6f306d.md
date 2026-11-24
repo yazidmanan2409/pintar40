@@ -39,3 +39,40 @@ With missing dependencies, siap.sh should name the npx line («missing packages:
 of only «supabase start failed twice».
 
 After N-4, ruling 83 is a PASS from Second Eye.
+
+## Run 2: the one-run real-reboot proof of 2c6f306d (relayed by Bob, 00:24Z)
+
+B-1 is now closed from his side.
+
+State (00:16:31Z): uptime 26.77 s; boot_id da41f0f6-474e-4dcf-bfa7-b293b4873736; 0 dockerd or containerd processes.
+Left by the previous boot (dockerd's managed containerd):
+
+```
+  srw-rw---- root docker 0 2026-11-23T23:59:58 /var/run/docker.sock
+  -rw-r--r-- root root   3 2026-11-23T23:59:58 /var/run/docker/containerd/containerd.pid
+  srw-rw---- root root   0 2026-11-24T00:00:00 /var/run/docker/containerd/containerd.sock (+ .ttrpc, containerd-debug.sock)
+  (no /run/containerd socket this time)
+```
+
+siap.sh from 2c6f306d, unchanged, worktree outside /tmp with node_modules (00:16:31Z → 00:16:38Z):
+
+```
+  siap: the machine restarted since the last check: a REBOOT at 2026-11-24T00:16:05Z, after uptime 99s (the previous boot's last beat: 2026-11-24T00:01:11Z, oom_kill=0) (no run was in progress)
+  siap: disk ok (15.3G free, minimum 10G)
+  siap: runtime dead: restarting containerd and dockerd
+  siap: runtime: removed the stale socket /var/run/docker.sock
+  siap: runtime: removed the stale socket /var/run/docker/containerd/containerd.sock
+  siap: runtime: removed the stale socket /var/run/docker/containerd/containerd.sock.ttrpc
+  siap: runtime: removed the stale pid file /var/run/docker.pid
+  siap: runtime: removed the stale pid file /var/run/docker/containerd/containerd.pid
+  siap: runtime pulih (restarted; containerd and dockerd answer)
+  siap: images ok (6 present, all pinned by digest)
+  siap: Mailpit not answering: (re)starting the sink as CI does
+  siap: stack pulih (database, Auth, Mailpit healthy)
+  siap: port 3999 ok (free)
+  READY
+  rc=0
+```
+
+That is READY in one run, in 7 s, and it holds both ways a boot leaves its runtime (/run/containerd at 00:00Z,
+/var/run/docker now).
