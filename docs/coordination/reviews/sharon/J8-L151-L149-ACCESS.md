@@ -58,3 +58,21 @@ Could reasonably have been anticipated: partly. Output encoding was done through
    - a test that none of the point 3 exclusions appears in the result.
 
 Could reasonably have been anticipated: yes. The ACTIVE-only population was a W2.17 choice for the transfer picker, and it was reused for the roles picker without asking who the roles picker needs.
+
+---
+
+## Addendum (2026-11-24, 23:5xZ): L-149 withdrawn; L-152 access angle
+
+**L-149: withdrawn by Bob.** Daisy reproduced the staff path: staff recorded without a class are found in «Peran & akses» and can be given a role. The boundary above ~~is needed now~~ stays on record as the condition for any future widening of `school_people_page`. The L-151 rules go into AR-79 as written.
+
+**L-152 (the last admin releasing their own role is given a false cause). The access angle:**
+- **What I found:** a code read of the latest `revoke_role` (migration `20261111100000`) and a search of the migrations turned up **no server-side last-admin guard**. The only refusals are "assignment not found", "not authorized to revoke" and ROLE_REASON_REQUIRED. If the UI is what blocks the last admin, the database does not, and a school can be left with no INSTITUTION_ADMIN. Only the platform admin can recover it. Please confirm or point me to a guard I missed.
+- **If a guard is added:**
+  1. It belongs in the database, in `revoke_role` and any other path that ends an INSTITUTION_ADMIN assignment: expiry, person suspension, anonymisation.
+  2. It must hold under concurrency. Two admins each revoking the other at the same moment must not both pass a count check. Take a per-institution advisory lock, in the A2A-L01 order, or lock the remaining active admin rows FOR UPDATE, before counting.
+  3. The refusal names the true cause, with its own errcode and detail, e.g. LAST_INSTITUTION_ADMIN. It names no other admin and gives no count beyond "the last one".
+  4. Suspending or closing the last admin's person is a platform-admin act. Whether that leaves the school without an admin, or is refused, is the owner's or Daisy's call, not a silent outcome.
+  5. Test with a planted race, two sessions revoking each other, ending with ≥1 admin left; with a PLANT that removes the lock and turns the test red; and with a test that the refusal text matches the cause.
+- **If the guard exists and only the message is wrong:** this is UX and not a security gap, though the message must still not leak other admins' identities.
+
+Could reasonably have been anticipated: yes. L-36 is the sibling at platform level.
