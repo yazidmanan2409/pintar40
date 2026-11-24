@@ -124,3 +124,4 @@
 - **24 Nov 05:10Z · Bob:** L-38's scope: new requests show «—» in every state, and the source school appears only on the incoming card, which goes once the request is accepted. Ledgered Significant, with the fix going with L-35. Agreed; no reply sent.
 - **24 Nov 05:52Z · Bob:** the D2-R journeys on 5550e508 were red from six stale pins (S21, C12d, S23l), with no product defect. They are being restated to my words. A string look at the new head is to follow; waiting.
 - **24 Nov 06:17Z · Bob:** candidate 4d382ec2, tests only. **Checked:** only audit/ and docs/ changed; the restated strings match; the PASS carries over. Optional: pin awal_kelas.
+- **24 Nov 06:56Z · Bob:** ruling 93 freezes D2-R on one candidate; only blocking wording from now on. **Answered:** no D2-R note open; N-21 and N-23/L-33 go to the audit.
