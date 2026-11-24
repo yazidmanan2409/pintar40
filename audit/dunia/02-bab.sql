@@ -17,6 +17,7 @@
 --                    "wajib_tepat": bool, "d": difficulty, "stem", "petunjuk", "arah",
 --                    "op": [[label, body, correct, rationale, misconception kode|null]] } ],
 --         "batas_percobaan": n (the Uji Penguasaan's attempt limit), "simpan": k }
+--         "tahap": "draf" (optional: stop at the draft package, as an upload leaves it)
 -- It records under spec.simpan: course, release, learning assignment, both assessment assignments.
 
 do $$ begin perform set_config('app.seed_intent', 'synthetic', true); end $$;
@@ -95,6 +96,14 @@ begin
           (select count(*) from jsonb_array_elements(spec -> 'soal') x where x ->> 'peran' = 'POST_TEST' and (x ->> 'wajib_tepat')::boolean),
           '{"mastery_min":0.6}'::jsonb, 25, 'ITEMS_AND_OPTIONS', true, true, 120,
           coalesce((spec ->> 'batas_percobaan')::int, 2), p_penulis) returning id into def_post;
+
+  -- "tahap": "draf" stops here: the package as an upload leaves it (INGESTED, the author's to edit and submit; J6)
+  if spec ->> 'tahap' = 'draf' then
+    t := jsonb_build_object('kursus', kursus, 'modul', modul, 'pelajaran', to_jsonb(pel), 'tujuan', tujuan,
+                            'def_pa', def_pre, 'def_up', def_post);
+    perform dunia.simpan(spec ->> 'simpan', t::text);
+    return t;
+  end if;
 
   -- through review, approved by the reviewer of record (never the author)
   foreach k in array array['STRUCTURED','VALIDATED','IN_REVIEW'] loop
