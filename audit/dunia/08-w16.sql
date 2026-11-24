@@ -1,7 +1,8 @@
 -- Ruling 79's audit world (track 3c), part 8: W16 (J9) and the WITA school (J12's banners).
 --
 -- W16 (Daisy's §3): two schools; a learner at A with an open transfer request to B; A's year ready to promote.
---   A  SMP Sintetis Flamboyan (WIB): this school year and the next; class 7A with four learners; Qori Ananda has an
+--   A  SMP Sintetis Flamboyan (WIB): this school year and the next (with next year's Kelas 8 and its 8A, the
+--      promotion's destination); class 7A with four learners; Qori Ananda has an
 --      open transfer request to B, made by A's admin (transfer_minta: CAN_AUTHORIZE_TRANSFER at the sending school)
 --   B  SMP Sintetis Kenari (WITA, Asia/Makassar): its own admin, this year, class 7A to receive into. It is also the
 --      world's WITA school, for J12's banners.
@@ -46,6 +47,17 @@ begin
   values (a, 'TA ' || (extract(year from dunia.ta_mulai())::int + 1) || '/' || (extract(year from dunia.ta_mulai())::int + 2),
           dunia.ta_selesai() + 15, dunia.ta_selesai() + 15 + 349) returning id into ta2;
   perform dunia.simpan('w16a.ta_baru', ta2::text);
+  -- next year's Kelas 8 with its 8A: the promotion's destination («Naikkan semua ke» offers the next year's classes)
+  declare ang2 uuid; k2 uuid;
+  begin
+    insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
+    values (a, dunia.ambil('w16a.prog')::uuid, 'COHORT', 'Kelas 8 — ' || (select name from public.academic_periods where id = ta2), ta2)
+    returning id into ang2;
+    insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
+    values (a, ang2, 'CLASS', '8A', ta2) returning id into k2;
+    insert into public.classes (node_id, subject, status) values (k2, 'Matematika', 'ACTIVE');
+    perform dunia.simpan('w16a.kelas_baru', k2::text);
+  end;
 
   perform dunia.staf('w16a.admin', 'admin.flamboyan@dunia.pintar.test', 'Sintetis-FlamboyanAdmin-61!', 'Teguh Wibowo', 'INSTITUTION_ADMIN', a);
   perform dunia.staf('w16a.guru', 'guru7a.flamboyan@dunia.pintar.test', 'Sintetis-FlamboyanGuru-62!', 'Siti Rahmawati', 'EDUCATOR', dunia.ambil('w16a.kelas')::uuid);

@@ -174,3 +174,29 @@ export function ringkas(perjalanan, hasil) {
   console.log(semua ? `${perjalanan}: every walk reached its last screen` : `${perjalanan}: a walk stopped`);
   return semua ? 0 : 1;
 }
+
+/**
+ * Sign in by email and password, by keyboard (the sign-in page's default form), and answer «Komputer siapa ini?»
+ * when the app asks (an email account's first sign-in on a device: /perangkat). `perangkat` is "pribadi" (default for
+ * a staff walk: a walk is longer than the shared computer's 5-minute lock) or "bersama". Returns where it landed and
+ * the choice made, for the step's record. A journey that walks «Komputer siapa ini?» itself (J10) passes null.
+ */
+export async function masukEmail(j, orang, perangkat = "pribadi") {
+  const { page } = j;
+  if (!new URL(page.url()).pathname.startsWith("/masuk")) await page.goto(`${APP}/masuk`);
+  await j.ketik(page.locator("#identitas"), orang.email);
+  await j.ketik(page.locator("#password"), orang.password);
+  await page.keyboard.press("Enter");
+  await page.waitForURL((u) => !u.pathname.startsWith("/masuk"), { timeout: 30000 });
+  let dipilih = null;
+  if (perangkat && new URL(page.url()).pathname === "/perangkat") {
+    const nama = perangkat === "bersama" ? /^Komputer bersama|^Shared computer/i : /^Komputer pribadi saya|^My own computer/i;
+    await j.tabKe(page.getByRole("radio", { name: nama }).first());
+    await page.keyboard.press("Space");
+    await j.tekan(page.getByRole("button", { name: /^(Simpan pilihan|Save)/i }).first());
+    await page.waitForURL((u) => u.pathname !== "/perangkat", { timeout: 30000 });
+    dipilih = perangkat;
+  }
+  await page.waitForLoadState("networkidle").catch(() => {});
+  return { mendarat: new URL(page.url()).pathname, perangkat: dipilih };
+}
