@@ -85,3 +85,12 @@ They also hit a full disk (16 GB of stale /tmp) and registry refusals after a re
 - It came up without the service-role key, so every sign-in failed with «PINTAR sedang tidak dapat memproses ini».
 - The builder caught it from the log, restarted the app, and kept no capture from that window.
 - **Follow-up for the next base:** the app's start waits for the stack's keys, or `siap.sh` checks that the app's environment has them. Red first.
+
+**L-8 (24 Nov, the owner, after D2-R's red journeys; Z's c4c8f792 was the same): «What else did that change?» includes the tests.**
+- When approved behaviour or wording changes, **every dependent test is examined before expensive verification starts**.
+- **This applies the sibling-defect principle to the whole suite**, journeys included. It is not a new procedure.
+- **In practice:**
+  - With each product change, the builder searches the whole test tree for the strings, keys, routes and behaviours it changes: the journeys (`audit/`, the journey scripts), selftest, and the static guards.
+  - The builder updates each dependent expectation in the same batch, before the hand-off.
+  - Each replacement **proves the new behaviour**; it never simply removes the old assertion.
+- **The hand-off names this sweep and its result** ("dependent tests: N found, N restated"), and Bob checks for it before sending the batch to review.
