@@ -1,4 +1,4 @@
-# Audit 79 · Daisy's findings, complete list (as of 24 Nov 2026, 21:10Z)
+# Audit 79 · Daisy's findings, complete list (as of 24 Nov 2026, 21:20Z)
 
 Compiled by Bob from Daisy's eleven journey files, `docs/coordination/ux/roadmap/AUDIT-79-TEMUAN-J2.md` to `…-J12.md`, on `ux-1/daisy-experience` at `92eb2040`. The ledger references are from `docs/post-4.1/AUDIT-79-LEDGER.md`.
 
@@ -16,11 +16,11 @@ Compiled by Bob from Daisy's eleven journey files, `docs/coordination/ux/roadmap
 | Critical | 1 (J7-1) |
 | High | 1 (J7-10) |
 | Significant | 23 |
-| Improvement | 58 |
-| **Open findings** | **83** |
+| Improvement | 59 |
+| **Open findings** | **84** |
 | Not counted: confirmations of an earlier row, a harness note, a world artefact, no change proposed | 6 (J4-2, J4-5, J5-2, J5-5, J12-4, J3-9) |
 
-**Captures still to come:** J2, J3, J4, J7 and J10 are fully judged against the builder's captures. J5, J6, J8, J9, J11 and J12 are walked by Daisy (J5 fully, with the builder's harness, at 20:28Z), and the builder's captures are pending (J5 is in progress), so those journeys may still add findings.
+**Captures still to come:** J2, J3, J4, J7 and J10 are fully judged against the builder's captures. J5 is captured (`9be73ecf`), with Daisy to judge it. J6, J8, J9, J11 and J12 are walked by Daisy, and the builder's captures are pending (J6 is next), so those journeys may still add findings.
 
 **The dimensions** are A to H from Daisy's script. **V** means visual and **[S]** means Sharon decides the confidentiality side.
 
@@ -82,6 +82,7 @@ Fully walked by Daisy (the rest with the builder's harness, `dde3c077`); the bui
 | J5-9 | L-121 | Improvement | One Uji Cepat shows two times in two formats | One label from one timestamp |
 | J5-10 | L-122 | Improvement | A result link missing its parameter gets a permission refusal | «Uji Cepat ini tidak ditemukan…» + the link |
 | J5-11 | L-123 | Improvement | During an emergency stop, the teacher gets the learner's page | A staff variant of the words |
+| J5 (world question) | L-134 | Improvement | After an integrity downgrade, «Sudah mengumpulkan» sits beside «Belum ada Uji Penguasaan dari murid ini» (the builder confirmed a real path) | «…yang dapat dihitung…» |
 
 ## J6 · Authoring with AI drafts
 

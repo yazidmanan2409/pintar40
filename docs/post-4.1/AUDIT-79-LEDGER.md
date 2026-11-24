@@ -532,3 +532,18 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
   - Once, on the sheet only, as Daisy proposes.
   - **The real check is whether a reload or Back re-shows PINs.** Assert `Cache-Control: no-store`, PINs kept out of history state, and that the server can't return them a second time. **If a reload does re-show them, that's a separate, higher finding.**
   - (PenjagaSesi's comment says every page is sent no-store; that is to be proven, not assumed.) **This is assigned to the builder's J8 capture:** make the cards, then Reload and Back, recording the response headers and the screen.
+
+**J5 captured (builder, `9be73ecf`, `audit/79/tangkapan/d41ed05c/j5/`):** 7 walks reached their last screen, with Daisy's harness notes applied (L6 on OFFICIAL evidence, labelled).
+- The stop, the late joiner (28:30 left), «Tambah waktu», «Minta membaca lagi» and «Ubah jadwal» all completed.
+- «Belum ada nilai» on Cendekia is a world artefact (a synthetic school).
+- Daisy judges the capture.
+
+**The builder's two code answers:**
+1. **«Komputer siapa ini?» is asked per browser and person,** not once per account. `device_contexts` is keyed by the hash of the httpOnly `pintar_perangkat` cookie plus `auth_user_id` (`20261117100000`, l.23–25 and l.165–178; `src/proxy.ts` l.260–266). A new browser or cleared cookies asks again; class cards are never asked.
+   - **For L-113:** Daisy's recommendation stands (the learner gets «Komputer ini»), and her fallback wording is now known to be true if it's ever needed.
+   - Code comments say «a staff person», but an email learner is asked too (`d70f3222/j10/…/08-perangkat-pertama.png`). The comment is corrected in AR-79.
+2. **Yes, a real school can show «Sudah mengumpulkan» beside «Belum ada Uji Penguasaan dari murid ini», by one path:** an integrity reviewer's downward `evidence_class_overrides` (`enforce_evidence_override`; `official_sessions` keeps only OFFICIAL, `20260912194513`). The sitting still reads as submitted, but no longer counts. So Daisy's conditional wording becomes a finding:
+
+| L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
+|---|---|---|---|---|---|---|
+| L-134 (J5, conditional confirmed) | After an integrity reviewer downgrades a sitting's evidence, the teacher reads «Sudah mengumpulkan» beside «Belum ada Uji Penguasaan dari murid ini di kelas ini» | B | J5 | Improvement | C-3 | «Belum ada Uji Penguasaan yang dapat dihitung dari murid ini di kelas ini.» (Daisy). Whether the teacher may learn that a reclassification happened is **Sharon's**; the proposed words don't say it |
