@@ -134,3 +134,5 @@ UNKNOWN (needs the owner or a read).
 4. The owner is the required reviewer. «Prevent self-review» is off only because the owner is the sole administrator, and that is recorded here.
 
 The App's dispatch then waits for the owner's approval. **This is a configuration change on GitHub, so it is the owner's to authorise and make.** The workflow edits for point 1 can be prepared on a branch and reviewed by Sharon.
+
+**A note for PRQ-4 (24 Nov):** the owner reports that the repository settings page returned 404. A protected environment is configured on that page, so PRQ-4 needs settings access confirmed first. It is not blocking, and nothing is changed now.

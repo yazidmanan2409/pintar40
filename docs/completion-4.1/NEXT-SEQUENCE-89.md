@@ -78,7 +78,7 @@ Estimate: about 1–1.5 days of build plus the reviews; about 3–5 days end to 
 1. **D2-R's PR, merge and staging promotion** (track 1g), the same way as Z.
 2. **Dr Gladys reading J2, J3 and J11** (track 3d), when the audit opens.
 3. **Counsel:** sending the brief once fees are confirmed.
-4. **Deleting the diagnostic branches.** The session's git proxy refuses the deletion, so it is done in GitHub's branch list. They are confirmed no longer needed: the diagnostic logs are kept in `batches/z/z-evidence/ci-diag/`, on main.
+4. **The diagnostic branches: DEFERRED, not a blocker** (owner, 24 Nov). GitHub refused both deletions, and the repository settings page returned 404. **Both branches are left untouched.** Repository permissions, branch protection and rulesets are not changed to allow the deletion. They are inert, and their logs are kept in `batches/z/z-evidence/ci-diag/` on main.
 
 ## 5 · Expected timing (an estimate, not a date)
 
