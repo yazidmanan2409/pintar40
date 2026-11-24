@@ -1,0 +1,66 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - navigation "Belajar":
+    - link "Belajar":
+      - /url: /belajar
+    - link "Sertifikat":
+      - /url: /belajar/sertifikat
+  - button "Bantuan"
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - paragraph: Belajar
+  - heading "Halo, Joko" [level=1]
+  - paragraph: Ini yang sedang berjalan hari ini.
+  - paragraph: Langkah berikutnya
+  - paragraph: Matematika · Persamaan Linear Satu Variabel
+  - heading "Mulai dari Pemetaan Awal" [level=2]
+  - list:
+    - listitem: Pemetaan Awal
+    - listitem: Peta Bacaan Personal
+    - listitem: Pelajaran
+    - listitem: Uji Penguasaan
+    - listitem: Hasil
+  - link "Mulai Pemetaan Awal":
+    - /url: /belajar/09db531d-0e68-4d21-b72c-f6286d0bfab5/pemetaan
+  - link "Lihat semua langkah":
+    - /url: /belajar/09db531d-0e68-4d21-b72c-f6286d0bfab5
+  - heading "Pembelajaran Anda" [level=2]
+  - article:
+    - text: Matematika · Kelas 8 Persamaan Linear Satu Variabel
+    - list:
+      - listitem: Pemetaan Awal
+      - listitem: Peta Bacaan Personal
+      - listitem: Pelajaran
+      - listitem: Uji Penguasaan
+      - listitem: Hasil
+    - text: Mulai dari Pemetaan Awal
+    - link "Mulai Pemetaan Awal":
+      - /url: /belajar/09db531d-0e68-4d21-b72c-f6286d0bfab5/pemetaan
+  - article:
+    - text: Matematika · Kelas 8 Statistika Dasar
+    - list:
+      - listitem: Pemetaan Awal
+      - listitem: Peta Bacaan Personal
+      - listitem: Pelajaran
+      - listitem: Uji Penguasaan
+      - listitem: Hasil
+    - text: Mulai dari Pemetaan Awal
+    - link "Mulai Pemetaan Awal":
+      - /url: /belajar/c890546c-7a64-4679-a028-e127f2fc7eba/pemetaan
+  - heading "Bisa dikerjakan sekarang" [level=2]
+  - text: Uji Cepat · 25 Nov 2026, 03.57 WIB 3 soal · 8A · Ditutup Rabu, 25 Nov 2026
+  - link "Buka":
+    - /url: /belajar/asesmen/d873211b-3f95-4eba-afa5-880e0bf84190
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- alert

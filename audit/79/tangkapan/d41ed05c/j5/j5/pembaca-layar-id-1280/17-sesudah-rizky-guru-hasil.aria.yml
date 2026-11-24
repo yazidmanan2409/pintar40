@@ -1,0 +1,89 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - text: Mengajar
+    - strong: SMP Sintetis Cendekia
+    - link "Mengajar":
+      - /url: /mengajar
+    - link "Studio":
+      - /url: /studio
+  - button "Bantuan"
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fmengajar%2F994ef1b9-ec5a-4457-9f56-63e464c9215b%2Fuji-cepat%2Fhasil
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Ayu Lestari":
+      - strong: Ayu Lestari
+    - button "Keluar"
+- main:
+  - link "← Kembali ke Uji Cepat":
+    - /url: /mengajar/994ef1b9-ec5a-4457-9f56-63e464c9215b/uji-cepat
+  - text: SMP Sintetis Cendekia 8A TA 2026/2027
+  - paragraph: Uji Cepat · 25 Nov 2026, 03.57 WIB
+  - heading "Hasil Uji Cepat" [level=1]
+  - paragraph: Belum ada nilai. Rata-rata nilai kelas muncul di sini setelah ada yang mengumpulkan.
+  - link "Lihat per soal":
+    - /url: /mengajar/994ef1b9-ec5a-4457-9f56-63e464c9215b/soal?penugasan=d873211b-3f95-4eba-afa5-880e0bf84190
+  - region "Rincian nilai":
+    - heading "Rincian nilai" [level=2]
+    - paragraph: Diurutkan abjad. Bukan peringkat.
+    - searchbox "Cari murid"
+    - radiogroup "Tampilkan":
+      - radio "Semua" [checked]
+      - text: Semua
+      - radio "Sudah mengumpulkan"
+      - text: Sudah mengumpulkan
+      - radio "Sudah mulai, belum mengumpulkan"
+      - text: Sudah mulai, belum mengumpulkan
+      - radio "Belum mengerjakan"
+      - text: Belum mengerjakan
+    - region "Rincian nilai · 8A":
+      - table "Rincian nilai · 8A":
+        - caption: Rincian nilai · 8A
+        - rowgroup:
+          - row "Nama Keadaan Nilai":
+            - columnheader "Nama"
+            - columnheader "Keadaan"
+            - columnheader "Nilai"
+        - rowgroup:
+          - row "Galih Pratama Belum mengerjakan —":
+            - rowheader "Galih Pratama"
+            - cell "Belum mengerjakan"
+            - cell "—"
+          - row "Hana Wirawan Belum mengerjakan —":
+            - rowheader "Hana Wirawan"
+            - cell "Belum mengerjakan"
+            - cell "—"
+          - row "Intan Permatasari Belum mengerjakan —":
+            - rowheader "Intan Permatasari"
+            - cell "Belum mengerjakan"
+            - cell "—"
+          - row "Joko Susilo Belum mengerjakan —":
+            - rowheader "Joko Susilo"
+            - cell "Belum mengerjakan"
+            - cell "—"
+          - row "Rizky Ramadhan ✓ Sudah mengumpulkan Belum ada nilai":
+            - rowheader "Rizky Ramadhan"
+            - cell "✓ Sudah mengumpulkan"
+            - cell "Belum ada nilai"
+          - row "Wulan Sari Belum mengerjakan —":
+            - rowheader "Wulan Sari"
+            - cell "Belum mengerjakan"
+            - cell "—"
+    - navigation "Halaman daftar murid":
+      - text: Menampilkan 1–6 dari 6 murid
+      - link "Halaman sebelumnya" [disabled]: Sebelumnya
+      - text: Halaman 1 dari 1
+      - link "Halaman berikutnya" [disabled]: Berikutnya
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- alert

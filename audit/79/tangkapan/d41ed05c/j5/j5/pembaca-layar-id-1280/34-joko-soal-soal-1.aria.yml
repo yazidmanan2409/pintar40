@@ -1,0 +1,32 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - text: Waktu berjalan 00:00
+  - button "Daftar soal"
+  - article:
+    - heading "Manakah yang merupakan persamaan linear satu variabel?" [level=2]
+    - list:
+      - listitem:
+        - button "A x + y = 5"
+      - listitem:
+        - button "B x + 4 = 9"
+      - listitem:
+        - button "C x² = 16"
+      - listitem:
+        - button "D 3 + 4 = 7"
+    - button "Simpan jawaban ini" [disabled]
+    - button "Tandai soal ini"
+    - paragraph: Pilih satu jawaban dulu.
+    - status
+  - navigation:
+    - button "Kembali" [disabled]
+    - button "Berikutnya"
+- alert

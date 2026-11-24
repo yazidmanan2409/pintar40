@@ -1,0 +1,16 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- main:
+  - text: PINTAR
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - heading "PINTAR dihentikan sementara" [level=1]
+  - paragraph: Admin PINTAR menghentikan PINTAR karena ada masalah yang harus ditangani lebih dulu agar data tetap aman.
+  - paragraph: Apa pun yang sudah tersimpan tetap aman dan tidak dihapus. Jawaban yang belum tampil «Tersimpan» belum diterima PINTAR.
+  - paragraph: Penghentian ini tidak mengumpulkan dan tidak menilai asesmen yang sedang dikerjakan. Asesmen itu ditahan bersama jawaban yang sudah tersimpan dan sisa waktunya. Setelah PINTAR kembali, buka lagi asesmen tersebut; sisa waktunya sama seperti saat dihentikan.
+  - paragraph:
+    - strong: Buka lagi halaman ini nanti untuk melihat apakah PINTAR sudah kembali.
+  - button "Keluar"
+  - paragraph: Pendidikan yang lebih adil, untuk lebih banyak kesempatan.
+- alert

@@ -1,0 +1,77 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - navigation "Belajar":
+    - link "Belajar":
+      - /url: /belajar
+    - link "Sertifikat":
+      - /url: /belajar/sertifikat
+  - button "Bantuan"
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - paragraph: Belajar
+  - heading "Halo, Sinta" [level=1]
+  - paragraph: Ini yang sedang berjalan hari ini.
+  - paragraph: Langkah berikutnya
+  - paragraph: Matematika · Persamaan Linear Satu Variabel
+  - heading "Selesai" [level=2]
+  - list:
+    - listitem: Pemetaan Awal
+    - listitem: Peta Bacaan Personal
+    - listitem: Pelajaran
+    - listitem: Uji Penguasaan
+    - listitem: Hasil
+  - link "Lihat hasil":
+    - /url: /belajar/1864817e-f4dd-4af0-ae8f-567d5e853901/hasil
+  - link "Lihat semua langkah":
+    - /url: /belajar/1864817e-f4dd-4af0-ae8f-567d5e853901
+  - region "Diminta guru Anda":
+    - heading "Diminta guru Anda" [level=2]
+    - text: "Persamaan Linear Satu Variabel Bambang Sutrisno meminta Anda membaca lagi:"
+    - list:
+      - listitem:
+        - link "Kalimat Terbuka dan Persamaan":
+          - /url: /belajar/1864817e-f4dd-4af0-ae8f-567d5e853901/pelajaran/594757c0-4a89-4240-a46b-32cff3981469?ulang=6ef4c24f-ae2b-4bc2-b9e8-79ecb6542d9a
+      - listitem:
+        - link "Menyelesaikan Persamaan":
+          - /url: /belajar/1864817e-f4dd-4af0-ae8f-567d5e853901/pelajaran/7853a91f-52b7-4582-b376-46c38982130e?ulang=6ef4c24f-ae2b-4bc2-b9e8-79ecb6542d9a
+      - listitem:
+        - link "Persamaan dalam Soal Cerita":
+          - /url: /belajar/1864817e-f4dd-4af0-ae8f-567d5e853901/pelajaran/7a9dbd36-578b-4e34-a89d-a52adef0785d?ulang=6ef4c24f-ae2b-4bc2-b9e8-79ecb6542d9a
+  - heading "Pembelajaran Anda" [level=2]
+  - article:
+    - text: Matematika · Kelas 8 Persamaan Linear Satu Variabel
+    - list:
+      - listitem: Pemetaan Awal
+      - listitem: Peta Bacaan Personal
+      - listitem: Pelajaran
+      - listitem: Uji Penguasaan
+      - listitem: Hasil
+    - text: Selesai · belum mencapai target
+    - link "Lihat hasil":
+      - /url: /belajar/1864817e-f4dd-4af0-ae8f-567d5e853901/hasil
+  - heading "Hasil belajar" [level=2]
+  - paragraph: Semua bab yang sudah Anda kerjakan dalam satu halaman, dengan bagian yang perlu dipelajari lagi.
+  - link "Lihat hasil belajar":
+    - /url: /belajar/hasil
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- dialog "Mulai dari daftar ini":
+  - text: Tur PINTAR Langkah 1 dari 7
+  - button "EN"
+  - button "Lewati tur"
+  - heading "Mulai dari daftar ini" [level=2]
+  - paragraph: Semua yang disediakan untuk Anda ada di sini, sudah diurutkan. Yang paling atas dikerjakan lebih dulu; tombolnya membuka langkah berikutnya.
+  - checkbox "Jangan tampilkan tur ini lagi"
+  - text: Jangan tampilkan tur ini lagi
+  - button "Berikutnya"
+- alert

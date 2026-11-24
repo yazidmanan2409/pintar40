@@ -1,0 +1,235 @@
+{
+  "perjalanan": "j5",
+  "nama": "Ayu · Rizky · Intan · Joko · Admin PINTAR · (L6) Bambang · Sinta",
+  "lebar": 320,
+  "zona": "WIB",
+  "bahasa": "id",
+  "laluan": "standar",
+  "label": [
+    "L6: bukti OFFICIAL di tenant bootstrap dev/CI (sintetis)"
+  ],
+  "mulai": "2026-11-24T20:48:14.032Z",
+  "langkah": [
+    {
+      "id": "L1",
+      "judul": "Ayu's first look, then «Siapkan» W3's chapter for 8C («Sampai» left empty)",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-mengajar",
+        "02-kelas-8c",
+        "03-siapkan-pilih",
+        "04-siapkan-tinjau",
+        "05-siapkan-selesai"
+      ],
+      "amatan": [],
+      "data": {
+        "teacher_home": "SMP Sintetis Cendekia / TA 2026/2027 RABU, 25 NOV 2026 Selamat pagi, Ayu Lestari Satu hal yang paling layak dikerjakan lebih dulu, lalu kelas dalam lingkup mengajar Anda. Layak dikerjakan lebih dulu Materi yang diterbitkan sekolah belum disediakan untuk 8C Siapkan materi Lihat 8C KELAS DALAM LINGKUP MENGAJAR ANDA Berdasarkan penugasan dari sekolah. PINTAR tidak menandai kelas sebagai milik seseorang; yang tampil adalah kelas yang tercakup dalam penugasan Anda. 8A Matematika 6 murid Pemetaan Awal — Persamaan Linear Satu Variabel · 2/6 mengumpulkan Uji Penguasaan — Persamaan Linear Satu Variabel · 1/6 mengumpulkan Pemetaan Awal — Statistika Dasar · 1/6 mengumpulkan Uji Penguasaan — Statistika ",
+        "class_8c": "← Mengajar SMP Sintetis Cendekia / 8C / TA 2026/2027 ANDA SEDANG MELIHAT 8C Kelas ini tampil karena sekolah menugaskan Anda ke lingkup yang mencakupnya. Daftar murid berasal dari pendaftaran sekolah, bukan dari PINTAR. 8A 8C MATA PELAJARAN Matematika MURID TERDAFTAR 4 MATERI TERSEDIA Belum ada Siapkan materi Uji Cepat Lihat bukti Ringkasan Kelas Langkah berikutnya YANG SEDANG BERJALAN DI KELAS INI Tidak ada yang sedang berjalan. MATERI UNTUK KELAS INI Urutan mengikuti kurikulum sekolah. Menyediakan materi tidak sama dengan menerbitkannya; penerbitan dilakukan sekolah. Statistika Dasar Diterbitkan sekolah 25 Nov 2026 Siap disediakan Persamaan Linear Satu Variabel Diterbitkan sekolah 25 Nov 20",
+        "prepare_review": "← 8C SMP Sintetis Cendekia / 8C / TA 2026/2027 PILIH MATERI TINJAU YANG AKAN DITERIMA MURID SEDIAKAN SIAPKAN MATERI · 8C Pilih materi yang akan disediakan Statistika Dasar Materi sekolah Diterbitkan sekolah 25 Nov 2026 Siap disediakan Persamaan Linear Satu Variabel Materi sekolah Diterbitkan sekolah 25 Nov 2026 Siap disediakan Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com",
+        "prepared": "Yang akan diterima murid | | ✓Materi disediakan untuk kelas ini. Mulai Rabu, 25 Nov 2026 · Tanpa batas akhir.",
+        "given_to_8c": "1"
+      },
+      "tab": 22,
+      "url": "/",
+      "ms": 8045
+    },
+    {
+      "id": "L2",
+      "judul": "an Uji Cepat for 8A: the chapter, three questions, the window, the review, «Sediakan»",
+      "hasil": "SAMPAI",
+      "layar": [
+        "06-cepat-awal",
+        "07-cepat-pilih",
+        "08-cepat-tinjau",
+        "09-cepat-berjalan"
+      ],
+      "amatan": [],
+      "data": {
+        "questions_offered": 12,
+        "windows_offered": "10,15,30",
+        "review": "← Ubah pilihan soal SMP Sintetis Cendekia / 8A / TA 2026/2027 ATUR TINJAU SEDIAKAN UJI CEPAT · 8A Yang akan terjadi Persamaan Linear Satu Variabel · 3 soal · 30 menit Belum disediakan 1 Murid kelas ini yang masuk PINTAR melihat Uji Cepat itu di halaman Belajar mereka. 2 Satu kesempatan untuk tiap murid, dan jendelanya mulai berjalan begitu disediakan. 3 Hasilnya tercatat sebagai bukti pembelajaran. Uji Cepat tidak menerbitkan sertifikat. 4 Murid yang tidak sempat mengerjakan tidak dicatat sebagai tidak mampu — tercatat belum mengumpulkan. SOAL YANG AKAN DITERIMA MURID 1. Pilih SEMUA yang merupakan persamaan linear satu variabel. A. 2p + 1 = 9 B. y − 4 = 0 C. a² + 1 = 5 D. m + n = 8 2. Latihan: manakah yang merupakan kalimat terbuka? A. 7 + 2 = 9 B. n + 2 = 9 C. 7 + 2 = 10 D. 9 = 9 3. Manakah yang merupakan persamaan linear satu variabel? A. x + 4 = 9 B. x² = 16 C. x + y = 5 D. 3 + 4 = 7 ",
+        "made_available": "✓Uji Cepat disediakan untuk kelas ini. |",
+        "assignment": "recorded"
+      },
+      "tab": 31,
+      "url": "/",
+      "ms": 8199
+    },
+    {
+      "id": "L3",
+      "judul": "Rizky takes it and submits; Ayu's running view",
+      "hasil": "SAMPAI",
+      "layar": [
+        "10-rizky-belajar",
+        "11-rizky-uji-cepat",
+        "12-rizky-soal-soal-1",
+        "13-rizky-soal-soal-terakhir",
+        "14-rizky-soal-konfirmasi",
+        "15-rizky-akhir",
+        "16-sesudah-rizky-guru-uji-cepat",
+        "17-sesudah-rizky-guru-hasil"
+      ],
+      "amatan": [],
+      "data": {
+        "rizky-learner_home": "BELAJAR Halo, Rizky Ini yang sedang berjalan hari ini. LANGKAH BERIKUTNYA Matematika · Persamaan Linear Satu Variabel Selesai Pemetaan Awal Peta Bacaan Personal Pelajaran Uji Penguasaan Hasil Lihat hasil Lihat semua langkah PEMBELAJARAN ANDA MATEMATIKA · KELAS 8 Persamaan Linear Satu Variabel Pemetaan Awal Peta Bacaan Personal Pelajaran Uji Penguasaan Hasil Selesai · target tercapai Lihat hasil MATEMATIKA · KELAS 8 Statistika Dasar Pemetaan Awal Peta Bacaan Personal Pelajaran Uji Penguasaan Hasi",
+        "rizky-test_page": "← Belajar 8A Uji Cepat Kerjakan dengan tenang. Anda bisa menandai soal dan kembali lagi. JUMLAH SOAL 3 DITUTUP Rabu, 25 Nov 2026 YANG BISA DILAKUKAN Menandai soal dan kembali lagi Meminta arah berpikir bila sebuah soal terasa buntu Tentang catatan sesi Selama asesmen, aktivitas sesi tertentu dapat dicatat untuk menjaga integritas proses. Catatan ini merupakan observasi dan tidak menentukan hasil Anda secara otomatis. Mulai Uji Cepat Nanti saja Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR S",
+        "rizky-soal_confirm_words": "Kumpulkan sekarang? Setelah dikumpulkan, jawaban tidak bisa diubah. Kumpulkan Periksa lagi",
+        "rizky-answered": {
+          "soal": 3,
+          "bantuan_ditawarkan_di": []
+        },
+        "rizky-end": "BELAJAR Halo, Rizky Ini yang sedang berjalan hari ini. LANGKAH BERIKUTNYA Matematika · Persamaan Linear Satu Variabel Selesai Pemetaan Awal Peta Bacaan Personal Pelajaran Uji Penguasaan Hasil Lihat hasil Lihat semua langkah PEMBELAJARAN ANDA MATEMATIKA · KELAS 8 Persamaan Linear Satu Variabel Pemetaan Awal Peta Bacaan Personal Pelajaran Uji Penguasaan Hasil Selesai · target tercapai Lihat hasil MA",
+        "sittings": "FINALIZED Rizky Ramadhan",
+        "sesudah-rizky-teacher_running": "← 8A SMP Sintetis Cendekia / 8A / TA 2026/2027 ATUR TINJAU SEDIAKAN TERSEDIA UNTUK KELAS INI Uji Cepat sedang berjalan Uji Cepat · 25 Nov 2026, 03.48 WIB · 3 soal SUDAH MENGUMPULKAN 1 / 6 SISA WAKTU 29 menit Angka di atas adalah hitungan, bukan penilaian. Yang belum mengumpulkan mungkin belum membuka PINTAR. Lihat siapa yang sudah mengumpulkan Lihat hasil Lihat per soal Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com",
+        "sesudah-rizky-teacher_result": "← Kembali ke Uji Cepat SMP Sintetis Cendekia / 8A / TA 2026/2027 UJI CEPAT · 25 NOV 2026, 03.48 WIB Hasil Uji Cepat Belum ada nilai. Rata-rata nilai kelas muncul di sini setelah ada yang mengumpulkan. Lihat per soal Rincian nilai Diurutkan abjad. Bukan peringkat. Semua Sudah mengumpulkan Sudah mulai, belum mengumpulkan Belum mengerjakan Rincian nilai · 8A Nama Keadaan Nilai Galih Pratama Belum mengerjakan — Hana Wirawan Belum mengerjakan — Intan Permatasari Belum mengerjakan — Joko Susilo Belum mengerjakan — Rizky Ramadhan Sudah mengumpulkan Belum ada nilai Wulan Sari Belum mengerjakan — Menampilkan 1–6 dari 6 murid Sebelumnya 1 / 1 Berikutnya Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINT"
+      },
+      "tab": 71,
+      "url": "/",
+      "ms": 50810
+    },
+    {
+      "id": "L4",
+      "judul": "a stop while Intan is answering: her, Ayu's and the result page's views; then the stop ended",
+      "hasil": "SAMPAI",
+      "layar": [
+        "18-intan-belajar",
+        "19-intan-uji-cepat",
+        "20-intan-soal-soal-1",
+        "21-intan-akhir",
+        "22-henti",
+        "23-henti-intan",
+        "24-henti-guru-uji-cepat",
+        "25-henti-guru-hasil",
+        "26-henti-diakhiri",
+        "27-sesudah-henti-intan",
+        "28-intan-lanjut-soal-1",
+        "29-intan-lanjut-soal-terakhir",
+        "30-intan-lanjut-konfirmasi",
+        "31-intan-selesai"
+      ],
+      "amatan": [],
+      "data": {
+        "intan-learner_home": "BELAJAR Halo, Intan Ini yang sedang berjalan hari ini. LANGKAH BERIKUTNYA Matematika · Persamaan Linear Satu Variabel Mulai dari Pemetaan Awal Pemetaan Awal Peta Bacaan Personal Pelajaran Uji Penguasaan Hasil Mulai Pemetaan Awal Lihat semua langkah PEMBELAJARAN ANDA MATEMATIKA · KELAS 8 Persamaan Linear Satu Variabel Pemetaan Awal Peta Bacaan Personal Pelajaran Uji Penguasaan Hasil Mulai dari Pemetaan Awal Mulai Pemetaan Awal MATEMATIKA · KELAS 8 Statistika Dasar Pemetaan Awal Peta Bacaan Person",
+        "intan-test_page": "← Belajar 8A Uji Cepat Kerjakan dengan tenang. Anda bisa menandai soal dan kembali lagi. JUMLAH SOAL 3 DITUTUP Rabu, 25 Nov 2026 YANG BISA DILAKUKAN Menandai soal dan kembali lagi Meminta arah berpikir bila sebuah soal terasa buntu Tentang catatan sesi Selama asesmen, aktivitas sesi tertentu dapat dicatat untuk menjaga integritas proses. Catatan ini merupakan observasi dan tidak menentukan hasil Anda secara otomatis. Mulai Uji Cepat Nanti saja Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR S",
+        "intan-answered": {
+          "soal": 1,
+          "bantuan_ditawarkan_di": [],
+          "berhenti": true
+        },
+        "intan-end": "Waktu berjalan 00:01 Daftar soal Manakah yang merupakan persamaan linear satu variabel? A x² = 16 B 3 + 4 = 7 C x + 4 = 9 D x + y = 5 Tersimpan Tandai soal ini Sudah dijawab: 1 dari 3. Kembali Berikutnya",
+        "stopped": "Pemeliharaan dan pengumuman | | | ✓Selesai. PINTAR dihentikan untuk cakupan itu. Akhiri dari daftar pemeliharaan bila sudah aman.",
+        "stopped_learner": "PINTAR ID EN PINTAR dihentikan sementara Admin PINTAR menghentikan PINTAR karena ada masalah yang harus ditangani lebih dulu agar data tetap aman. Apa pun yang sudah tersimpan tetap aman dan tidak dihapus. Jawaban yang belum tampil «Tersimpan» belum diterima PINTAR. Penghentian ini tidak mengumpulkan dan tidak menilai asesmen yang sedang dikerjakan. Asesmen itu ditahan bersama jawaban yang sudah tersimpan dan sisa waktunya. Setelah PINTAR kembali, buka lagi asesmen tersebut; sisa waktunya sama s",
+        "henti-teacher_running": "PINTAR ID EN PINTAR dihentikan sementara Admin PINTAR menghentikan PINTAR karena ada masalah yang harus ditangani lebih dulu agar data tetap aman. Apa pun yang sudah tersimpan tetap aman dan tidak dihapus. Jawaban yang belum tampil «Tersimpan» belum diterima PINTAR. Penghentian ini tidak mengumpulkan dan tidak menilai asesmen yang sedang dikerjakan. Asesmen itu ditahan bersama jawaban yang sudah tersimpan dan sisa waktunya. Setelah PINTAR kembali, buka lagi asesmen tersebut; sisa waktunya sama seperti saat dihentikan. Buka lagi halaman ini nanti untuk melihat apakah PINTAR sudah kembali. Kelua",
+        "henti-teacher_result": "PINTAR ID EN PINTAR dihentikan sementara Admin PINTAR menghentikan PINTAR karena ada masalah yang harus ditangani lebih dulu agar data tetap aman. Apa pun yang sudah tersimpan tetap aman dan tidak dihapus. Jawaban yang belum tampil «Tersimpan» belum diterima PINTAR. Penghentian ini tidak mengumpulkan dan tidak menilai asesmen yang sedang dikerjakan. Asesmen itu ditahan bersama jawaban yang sudah tersimpan dan sisa waktunya. Setelah PINTAR kembali, buka lagi asesmen tersebut; sisa waktunya sama seperti saat dihentikan. Buka lagi halaman ini nanti untuk melihat apakah PINTAR sudah kembali. Keluar Pendidikan yang lebih adil, untuk lebih banyak kesempatan.",
+        "sittings_stopped": "IN_PROGRESS Intan Permatasari; FINALIZED Rizky Ramadhan",
+        "after_stop_learner": "Lanjutkan di sini? Anda masuk lagi, jadi asesmen ini dilanjutkan di sesi baru. Jawaban yang sudah tersimpan tetap ada. Lanjutkan di sini Batal",
+        "intan-lanjut_confirm_words": "Kumpulkan sekarang? Setelah dikumpulkan, jawaban tidak bisa diubah. Kumpulkan Periksa lagi",
+        "after_stop_answered": {
+          "soal": 2,
+          "bantuan_ditawarkan_di": []
+        },
+        "sittings_after_stop": "FINALIZED Intan Permatasari; FINALIZED Rizky Ramadhan"
+      },
+      "tab": 194,
+      "url": "/",
+      "ms": 73184
+    },
+    {
+      "id": "L5",
+      "judul": "the late joiner: Joko starts after the stop; Ayu's running view and the result page",
+      "hasil": "SAMPAI",
+      "layar": [
+        "32-joko-belajar",
+        "33-joko-uji-cepat",
+        "34-joko-soal-soal-1",
+        "35-joko-soal-soal-terakhir",
+        "36-joko-soal-konfirmasi",
+        "37-joko-akhir",
+        "38-akhir-guru-uji-cepat",
+        "39-akhir-guru-hasil"
+      ],
+      "amatan": [],
+      "data": {
+        "late_join_at": "02:05 after it opened; closes in 27:54",
+        "joko-learner_home": "BELAJAR Halo, Joko Ini yang sedang berjalan hari ini. LANGKAH BERIKUTNYA Matematika · Persamaan Linear Satu Variabel Mulai dari Pemetaan Awal Pemetaan Awal Peta Bacaan Personal Pelajaran Uji Penguasaan Hasil Mulai Pemetaan Awal Lihat semua langkah PEMBELAJARAN ANDA MATEMATIKA · KELAS 8 Persamaan Linear Satu Variabel Pemetaan Awal Peta Bacaan Personal Pelajaran Uji Penguasaan Hasil Mulai dari Pemetaan Awal Mulai Pemetaan Awal MATEMATIKA · KELAS 8 Statistika Dasar Pemetaan Awal Peta Bacaan Persona",
+        "joko-test_page": "← Belajar 8A Uji Cepat Kerjakan dengan tenang. Anda bisa menandai soal dan kembali lagi. JUMLAH SOAL 3 DITUTUP Rabu, 25 Nov 2026 YANG BISA DILAKUKAN Menandai soal dan kembali lagi Meminta arah berpikir bila sebuah soal terasa buntu Tentang catatan sesi Selama asesmen, aktivitas sesi tertentu dapat dicatat untuk menjaga integritas proses. Catatan ini merupakan observasi dan tidak menentukan hasil Anda secara otomatis. Mulai Uji Cepat Nanti saja Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR S",
+        "joko-soal_confirm_words": "Kumpulkan sekarang? Setelah dikumpulkan, jawaban tidak bisa diubah. Kumpulkan Periksa lagi",
+        "joko-answered": {
+          "soal": 3,
+          "bantuan_ditawarkan_di": []
+        },
+        "joko-end": "BELAJAR Halo, Joko Ini yang sedang berjalan hari ini. LANGKAH BERIKUTNYA Matematika · Persamaan Linear Satu Variabel Mulai dari Pemetaan Awal Pemetaan Awal Peta Bacaan Personal Pelajaran Uji Penguasaan Hasil Mulai Pemetaan Awal Lihat semua langkah PEMBELAJARAN ANDA MATEMATIKA · KELAS 8 Persamaan Linear Satu Variabel Pemetaan Awal Peta Bacaan Personal Pelajaran Uji Penguasaan Hasil Mulai dari Pemet",
+        "sittings": "FINALIZED Intan Permatasari; FINALIZED Joko Susilo; FINALIZED Rizky Ramadhan",
+        "akhir-teacher_running": "← 8A SMP Sintetis Cendekia / 8A / TA 2026/2027 ATUR TINJAU SEDIAKAN TERSEDIA UNTUK KELAS INI Uji Cepat sedang berjalan Uji Cepat · 25 Nov 2026, 03.48 WIB · 3 soal SUDAH MENGUMPULKAN 3 / 6 SISA WAKTU 27 menit Angka di atas adalah hitungan, bukan penilaian. Yang belum mengumpulkan mungkin belum membuka PINTAR. Lihat siapa yang sudah mengumpulkan Lihat hasil Lihat per soal Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com",
+        "akhir-teacher_result": "← Kembali ke Uji Cepat SMP Sintetis Cendekia / 8A / TA 2026/2027 UJI CEPAT · 25 NOV 2026, 03.48 WIB Hasil Uji Cepat Belum ada nilai. Rata-rata nilai kelas muncul di sini setelah ada yang mengumpulkan. Lihat per soal Rincian nilai Diurutkan abjad. Bukan peringkat. Semua Sudah mengumpulkan Sudah mulai, belum mengumpulkan Belum mengerjakan Rincian nilai · 8A Nama Keadaan Nilai Galih Pratama Belum mengerjakan — Hana Wirawan Belum mengerjakan — Intan Permatasari Sudah mengumpulkan Belum ada nilai Joko Susilo Sudah mengumpulkan Belum ada nilai Rizky Ramadhan Sudah mengumpulkan Belum ada nilai Wulan Sari Belum mengerjakan — Menampilkan 1–6 dari 6 murid Sebelumnya 1 / 1 Berikutnya Dr. dr. Gladys DT "
+      },
+      "tab": 71,
+      "url": "/",
+      "ms": 50783
+    },
+    {
+      "id": "L6",
+      "judul": "«Minta membaca lagi» sent (OFFICIAL evidence: the bootstrap's 8K, Bambang for Sinta)",
+      "hasil": "SAMPAI",
+      "layar": [
+        "40-sinta",
+        "41-minta-membaca",
+        "42-minta-membaca-terkirim",
+        "43-sinta-belajar"
+      ],
+      "amatan": [
+        "bukti OFFICIAL di tenant bootstrap dev/CI (sintetis): Bambang Sutrisno · Sinta Maharani, 8K"
+      ],
+      "data": {
+        "student_page_offers_it": true,
+        "request_page": "← Lihat bukti PINTAR Bootstrap (OFFICIAL evidence — development and CI only) / 8K (dunia) / TA 2026/2027 (dunia audit) PERSAMAAN LINEAR SATU VARIABEL Minta membaca lagi Pilih murid yang perlu bantuan dan pelajaran yang perlu mereka baca lagi. Mereka akan menemukan permintaan ini di beranda mereka. target 60% Murid Sinta Maharani 83% · Persentase sudah memenuhi target, tetapi ada soal penting yang belum tepat. Pelajaran untuk dibaca lagi Kalimat Terbuka dan Persamaan Menyelesaikan Persamaan Persamaan dalam Soal Cerita Hasil murid tidak berubah, dan tidak ada tes baru. Minta membaca lagi PERMINTAAN YANG SUDAH DIKIRIM Belum ada permintaan untuk bab ini. Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com",
+        "sinta_preticked": true,
+        "sent": "Minta membaca lagi | ✓Permintaan dikirim kepada 1 murid. |",
+        "learner_sees": "BELAJAR Halo, Sinta Ini yang sedang berjalan hari ini. LANGKAH BERIKUTNYA Matematika · Persamaan Linear Satu Variabel Selesai Pemetaan Awal Peta Bacaan Personal Pelajaran Uji Penguasaan Hasil Lihat hasil Lihat semua langkah DIMINTA GURU ANDA Persamaan Linear Satu Variabel Bambang Sutrisno meminta Anda membaca lagi: Kalimat Terbuka dan Persamaan Menyelesaikan Persamaan Persamaan dalam Soal Cerita PEMBELAJARAN ANDA MATEMATIKA · KELAS 8 Persamaan Linear Satu Variabel Pemetaan Awal Peta Bacaan Perso"
+      },
+      "tab": 14,
+      "url": "/",
+      "ms": 12340
+    },
+    {
+      "id": "L7",
+      "judul": "«Ubah jadwal» on 8C's chapter: an end date set",
+      "hasil": "SAMPAI",
+      "layar": [
+        "44-jadwal",
+        "45-jadwal-disimpan"
+      ],
+      "amatan": [],
+      "data": {
+        "end_date_value": "2026-12-31T15:00",
+        "saved": "✓Jadwal diubah. Murid yang sedang mengerjakan tetap memakai batas waktunya sendiri. |",
+        "until": "2026-12-31 15:00"
+      },
+      "tab": 29,
+      "url": "/",
+      "ms": 6341
+    },
+    {
+      "id": "L8",
+      "judul": "«Atur» → «Tambah waktu» on Galih's open Uji Penguasaan",
+      "hasil": "SAMPAI",
+      "layar": [
+        "46-atur",
+        "47-atur-tanya",
+        "48-atur-waktu-ditambah"
+      ],
+      "amatan": [],
+      "data": {
+        "add_time_panel": "Tambah waktu TAMBAHAN WAKTU 5 menit 10 menit 15 menit 30 menit ALASAN 10 sampai 300 karakter. Tercatat di jejak audit sekolah dan terlihat oleh guru kelas ini. Tambah waktu",
+        "question": "Tambah 10 menit untuk Galih Pratama? Batas baru 24 Mei 2027, 03.58 WIB. Tambah waktu Batal",
+        "added": "✓Waktu Galih Pratama ditambah 10 menit. Batas baru 24 Mei 2027, 03.58 WIB. | Siapa yang sudah mengumpulkan · PINTAR",
+        "deadline": "2027-05-24 03:58"
+      },
+      "tab": 13,
+      "url": "/",
+      "ms": 6440
+    }
+  ],
+  "selesai": "2026-11-24T20:51:50.175Z",
+  "sampai_akhir": true
+}

@@ -1,0 +1,75 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - text: Mengajar
+    - strong: SMP Sintetis Cendekia
+    - link "Mengajar":
+      - /url: /mengajar
+    - link "Studio":
+      - /url: /studio
+  - button "Bantuan"
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fmengajar%2F994ef1b9-ec5a-4457-9f56-63e464c9215b%2Fuji-cepat
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Ayu Lestari":
+      - strong: Ayu Lestari
+    - button "Keluar"
+- main:
+  - link "← Ubah pilihan soal":
+    - /url: /mengajar/994ef1b9-ec5a-4457-9f56-63e464c9215b/uji-cepat?bab=3be31bda-ee4d-47a2-ae28-1e7467fafac3&menit=30&butir=5833cdd8-839c-4b5c-a33d-07edd23e62e3%2C76570714-811d-4afe-ae36-672648694949%2C85b005c4-9fa6-4c82-ae75-13311636f7d6
+  - text: SMP Sintetis Cendekia 8A TA 2026/2027
+  - list:
+    - listitem: Atur
+    - listitem: Tinjau
+    - listitem: Sediakan
+  - paragraph: Uji Cepat · 8A
+  - heading "Yang akan terjadi" [level=1]
+  - heading "Persamaan Linear Satu Variabel · 3 soal · 30 menit" [level=2]
+  - text: Belum disediakan
+  - list:
+    - listitem: 1 Murid kelas ini yang masuk PINTAR melihat Uji Cepat itu di halaman Belajar mereka.
+    - listitem: 2 Satu kesempatan untuk tiap murid, dan jendelanya mulai berjalan begitu disediakan.
+    - listitem: 3 Hasilnya tercatat sebagai bukti pembelajaran. Uji Cepat tidak menerbitkan sertifikat.
+    - listitem: 4 Murid yang tidak sempat mengerjakan tidak dicatat sebagai tidak mampu — tercatat belum mengumpulkan.
+  - region "Soal yang akan diterima murid":
+    - heading "Soal yang akan diterima murid" [level=2]
+    - list:
+      - listitem:
+        - paragraph: 1. Pilih SEMUA yang merupakan persamaan linear satu variabel.
+        - list:
+          - listitem: A. 2p + 1 = 9
+          - listitem: B. y − 4 = 0
+          - listitem: C. a² + 1 = 5
+          - listitem: D. m + n = 8
+      - listitem:
+        - paragraph: "2. Latihan: manakah yang merupakan kalimat terbuka?"
+        - list:
+          - listitem: A. 7 + 2 = 9
+          - listitem: B. n + 2 = 9
+          - listitem: C. 7 + 2 = 10
+          - listitem: D. 9 = 9
+      - listitem:
+        - paragraph: 3. Manakah yang merupakan persamaan linear satu variabel?
+        - list:
+          - listitem: A. x + 4 = 9
+          - listitem: B. x² = 16
+          - listitem: C. x + y = 5
+          - listitem: D. 3 + 4 = 7
+  - paragraph: Begitu disediakan, jendela mulai berjalan untuk semua murid dan murid bisa langsung mulai mengerjakan.
+  - button "Sediakan Uji Cepat sekarang"
+  - status
+  - link "Ubah pilihan soal":
+    - /url: /mengajar/994ef1b9-ec5a-4457-9f56-63e464c9215b/uji-cepat?bab=3be31bda-ee4d-47a2-ae28-1e7467fafac3&menit=30&butir=5833cdd8-839c-4b5c-a33d-07edd23e62e3%2C76570714-811d-4afe-ae36-672648694949%2C85b005c4-9fa6-4c82-ae75-13311636f7d6
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- alert

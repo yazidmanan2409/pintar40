@@ -1,0 +1,31 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - text: Waktu berjalan 00:32
+  - button "Daftar soal"
+  - article:
+    - 'heading "Latihan: manakah yang merupakan kalimat terbuka?" [level=2]'
+    - list:
+      - listitem:
+        - button "A 7 + 2 = 9"
+      - listitem:
+        - button "B 7 + 2 = 10"
+      - listitem:
+        - button "C n + 2 = 9" [pressed]
+      - listitem:
+        - button "D 9 = 9"
+    - button "Tersimpan" [disabled]
+    - button "Tandai soal ini"
+    - status: "Sudah dijawab: 3 dari 3."
+  - navigation:
+    - button "Kembali"
+    - button "Kumpulkan"
+- alert

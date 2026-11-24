@@ -1,0 +1,96 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - text: Mengajar
+    - strong: SMP Sintetis Cendekia
+    - link "Mengajar":
+      - /url: /mengajar
+    - link "Studio":
+      - /url: /studio
+  - button "Bantuan"
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fmengajar%2Fcf4d3f5d-45bf-441a-8405-e62c86b7f102
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Ayu Lestari":
+      - strong: Ayu Lestari
+    - button "Keluar"
+- main:
+  - link "← Mengajar":
+    - /url: /mengajar
+  - text: SMP Sintetis Cendekia 8C TA 2026/2027
+  - paragraph: Anda sedang melihat
+  - heading "8C" [level=1]
+  - paragraph: Kelas ini tampil karena sekolah menugaskan Anda ke lingkup yang mencakupnya. Daftar murid berasal dari pendaftaran sekolah, bukan dari PINTAR.
+  - group "Pindah kelas":
+    - link "8A":
+      - /url: /mengajar/994ef1b9-ec5a-4457-9f56-63e464c9215b
+    - link "8C":
+      - /url: /mengajar/cf4d3f5d-45bf-441a-8405-e62c86b7f102
+  - term: Mata pelajaran
+  - definition: Matematika
+  - term: Murid terdaftar
+  - definition: "4"
+  - term: Materi tersedia
+  - definition: Belum ada
+  - link "Siapkan materi":
+    - /url: /mengajar/cf4d3f5d-45bf-441a-8405-e62c86b7f102/siapkan
+  - link "Uji Cepat":
+    - /url: /mengajar/cf4d3f5d-45bf-441a-8405-e62c86b7f102/uji-cepat
+  - link "Lihat bukti":
+    - /url: /mengajar/cf4d3f5d-45bf-441a-8405-e62c86b7f102/bukti
+  - link "Ringkasan Kelas":
+    - /url: /edukator/ringkasan?kelas=cf4d3f5d-45bf-441a-8405-e62c86b7f102&dari=kelas
+  - link "Langkah berikutnya":
+    - /url: /mengajar/cf4d3f5d-45bf-441a-8405-e62c86b7f102/langkah
+  - heading "Yang sedang berjalan di kelas ini" [level=2]
+  - paragraph: Tidak ada yang sedang berjalan.
+  - heading "Materi untuk kelas ini" [level=2]
+  - paragraph: Urutan mengikuti kurikulum sekolah. Menyediakan materi tidak sama dengan menerbitkannya; penerbitan dilakukan sekolah.
+  - link "Statistika Dasar Diterbitkan sekolah 25 Nov 2026 Siap disediakan":
+    - /url: /mengajar/cf4d3f5d-45bf-441a-8405-e62c86b7f102/siapkan?terbitan=190daaa4-940a-408e-a24e-170ddbee8127
+  - link "Persamaan Linear Satu Variabel Diterbitkan sekolah 25 Nov 2026 Siap disediakan":
+    - /url: /mengajar/cf4d3f5d-45bf-441a-8405-e62c86b7f102/siapkan?terbitan=6ed45db3-d5b1-4943-9c23-533a2b4f7939
+  - heading "Murid" [level=2]
+  - paragraph: 4 murid terdaftar. Nama diurutkan abjad; tidak ada peringkat. Perubahan terakhir 25 Nov 2026.
+  - searchbox "Cari murid"
+  - region "Murid · 8C":
+    - table "Murid · 8C":
+      - caption: Murid · 8C
+      - rowgroup:
+        - row "Nama":
+          - columnheader "Nama"
+      - rowgroup:
+        - row "Kevin Sanjaya":
+          - rowheader "Kevin Sanjaya":
+            - link "Kevin Sanjaya":
+              - /url: /mengajar/cf4d3f5d-45bf-441a-8405-e62c86b7f102/murid/5c1e7675-cd54-4541-ad3d-b9380c2db04d
+        - row "Laras Ayuningtyas":
+          - rowheader "Laras Ayuningtyas":
+            - link "Laras Ayuningtyas":
+              - /url: /mengajar/cf4d3f5d-45bf-441a-8405-e62c86b7f102/murid/b873793a-03f2-4074-a7f8-94f4c8571bac
+        - row "Made Wirawan":
+          - rowheader "Made Wirawan":
+            - link "Made Wirawan":
+              - /url: /mengajar/cf4d3f5d-45bf-441a-8405-e62c86b7f102/murid/521f3411-9e0a-44ae-be66-f618cfbfa433
+        - row "Nadia Putri":
+          - rowheader "Nadia Putri":
+            - link "Nadia Putri":
+              - /url: /mengajar/cf4d3f5d-45bf-441a-8405-e62c86b7f102/murid/c5d15486-48dd-4645-820c-52f2a301b473
+  - navigation "Halaman daftar murid":
+    - text: Menampilkan 1–4 dari 4 murid
+    - link "Halaman sebelumnya" [disabled]: Sebelumnya
+    - text: Halaman 1 dari 1
+    - link "Halaman berikutnya" [disabled]: Berikutnya
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- alert

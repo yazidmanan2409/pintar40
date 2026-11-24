@@ -1,0 +1,19 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - paragraph
+  - region "Lanjutkan di sini?":
+    - heading "Lanjutkan di sini?" [level=2]
+    - paragraph: Anda masuk lagi, jadi asesmen ini dilanjutkan di sesi baru. Jawaban yang sudah tersimpan tetap ada.
+    - button "Lanjutkan di sini"
+    - link "Batal":
+      - /url: /belajar
+- alert

@@ -1,0 +1,170 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - text: Mengajar
+    - strong: SMP Sintetis Cendekia
+    - link "Mengajar":
+      - /url: /mengajar
+    - link "Studio":
+      - /url: /studio
+  - button "Bantuan"
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fmengajar%2F994ef1b9-ec5a-4457-9f56-63e464c9215b%2Fuji-cepat
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Ayu Lestari":
+      - strong: Ayu Lestari
+    - button "Keluar"
+- main:
+  - link "← 8A":
+    - /url: /mengajar/994ef1b9-ec5a-4457-9f56-63e464c9215b
+  - text: SMP Sintetis Cendekia 8A TA 2026/2027
+  - list:
+    - listitem: Atur
+    - listitem: Tinjau
+    - listitem: Sediakan
+  - paragraph: Uji Cepat · 8A
+  - heading "Uji Cepat" [level=1]
+  - paragraph: Beberapa soal untuk mengecek pemahaman hari ini. Hasilnya dinilai seperti asesmen lain dan menjadi bagian dari bukti pembelajaran kelas ini.
+  - text: Bab
+  - combobox "Bab":
+    - option "Persamaan Linear Satu Variabel" [selected]
+    - option "Statistika Dasar"
+  - paragraph: Soal diambil dari terbitan yang sudah diterbitkan sekolah untuk bab ini.
+  - button "Tampilkan soal bab ini"
+  - region "Pilih soal":
+    - heading "Pilih soal" [level=2]
+    - paragraph: Centang soal yang ingin diberikan. Semua murid mendapat soal yang sama, dengan urutan yang diacak untuk masing-masing.
+    - list:
+      - listitem:
+        - checkbox "Pilih SEMUA yang merupakan persamaan linear satu variabel."
+        - text: Pilih SEMUA yang merupakan persamaan linear satu variabel.
+        - list:
+          - listitem: A. 2p + 1 = 9
+          - listitem: B. y − 4 = 0
+          - listitem: C. a² + 1 = 5
+          - listitem: D. m + n = 8
+        - paragraph: Pelajaran 1 · Mengenali persamaan linear satu variabel. · Sedang · Juga di Uji Penguasaan
+      - listitem:
+        - 'checkbox "Latihan: manakah yang merupakan kalimat terbuka?"'
+        - text: "Latihan: manakah yang merupakan kalimat terbuka?"
+        - list:
+          - listitem: A. 7 + 2 = 9
+          - listitem: B. n + 2 = 9
+          - listitem: C. 7 + 2 = 10
+          - listitem: D. 9 = 9
+        - paragraph: Pelajaran 1 · Mengenali persamaan linear satu variabel. · Mudah
+      - listitem:
+        - checkbox "Manakah yang merupakan persamaan linear satu variabel?"
+        - text: Manakah yang merupakan persamaan linear satu variabel?
+        - list:
+          - listitem: A. x + 4 = 9
+          - listitem: B. x² = 16
+          - listitem: C. x + y = 5
+          - listitem: D. 3 + 4 = 7
+        - paragraph: Pelajaran 1 · Mengenali persamaan linear satu variabel. · Mudah · Juga di Pemetaan Awal
+      - listitem:
+        - checkbox "Pada persamaan 3x − 2 = 10, manakah variabelnya?"
+        - text: Pada persamaan 3x − 2 = 10, manakah variabelnya?
+        - list:
+          - listitem: A. 3
+          - listitem: B. x
+          - listitem: C. 10
+          - listitem: D. −2
+        - paragraph: Pelajaran 1 · Mengenali persamaan linear satu variabel. · Mudah · Juga di Uji Penguasaan
+      - listitem:
+        - checkbox "Berapakah y jika 5y − 4 = 21?"
+        - text: Berapakah y jika 5y − 4 = 21?
+        - list:
+          - listitem: A. 3,4
+          - listitem: B. 25
+          - listitem: C. 5
+          - listitem: D. 17
+        - paragraph: Pelajaran 2 · Menyelesaikan persamaan linear satu variabel. · Sedang · Juga di Uji Penguasaan
+      - listitem:
+        - checkbox "Berapakah x jika x + 5 = 12?"
+        - text: Berapakah x jika x + 5 = 12?
+        - list:
+          - listitem: A. 17
+          - listitem: B. 7
+          - listitem: C. 5
+          - listitem: D. 12
+        - paragraph: Pelajaran 2 · Menyelesaikan persamaan linear satu variabel. · Mudah · Juga di Pemetaan Awal
+      - listitem:
+        - 'checkbox "Latihan: berapakah x jika x − 6 = 4?"'
+        - text: "Latihan: berapakah x jika x − 6 = 4?"
+        - list:
+          - listitem: A. −2
+          - listitem: B. 10
+          - listitem: C. 4
+          - listitem: D. 24
+        - paragraph: Pelajaran 2 · Menyelesaikan persamaan linear satu variabel. · Mudah
+      - listitem:
+        - checkbox "Pilih SEMUA langkah yang benar untuk menyelesaikan 4x − 8 = 12."
+        - text: Pilih SEMUA langkah yang benar untuk menyelesaikan 4x − 8 = 12.
+        - list:
+          - listitem: "A. Tambahkan 8 pada kedua ruas: 4x = 20"
+          - listitem: "B. Bagi kedua ruas dengan 4: x = 5"
+          - listitem: "C. Kurangi 8 dari ruas kanan saja: 4x = 4"
+          - listitem: "D. Bagi ruas kiri saja dengan 4: x − 8 = 12"
+        - paragraph: Pelajaran 2 · Menyelesaikan persamaan linear satu variabel. · Sedang · Juga di Uji Penguasaan
+      - listitem:
+        - checkbox "Berapakah x jika 2x + 3 = 11?"
+        - text: Berapakah x jika 2x + 3 = 11?
+        - list:
+          - listitem: A. 4
+          - listitem: B. 7
+          - listitem: C. 8
+          - listitem: D. 14
+        - paragraph: Pelajaran 2 · Menyelesaikan persamaan linear satu variabel. · Sedang · Juga di Uji Penguasaan
+      - listitem:
+        - checkbox "Umur Rani 3 tahun lebih tua dari Sita yang berumur s tahun. Umur Rani 15 tahun. Persamaannya?"
+        - text: Umur Rani 3 tahun lebih tua dari Sita yang berumur s tahun. Umur Rani 15 tahun. Persamaannya?
+        - list:
+          - listitem: A. s + 3 = 15
+          - listitem: B. s − 3 = 15
+          - listitem: C. 3s = 15
+          - listitem: D. s = 15
+        - paragraph: Pelajaran 3 · Menyusun persamaan dari soal cerita. · Sedang · Juga di Pemetaan Awal
+      - listitem:
+        - checkbox "Harga 3 buku sama dengan Rp24.000. Jika harga satu buku b rupiah, persamaannya?"
+        - text: Harga 3 buku sama dengan Rp24.000. Jika harga satu buku b rupiah, persamaannya?
+        - list:
+          - listitem: A. b + 3 = 24.000
+          - listitem: B. 3b = 24.000
+          - listitem: C. b = 3 × 24.000
+          - listitem: D. b − 3 = 24.000
+        - paragraph: Pelajaran 3 · Menyusun persamaan dari soal cerita. · Sedang · Juga di Uji Penguasaan
+      - listitem:
+        - 'checkbox "Latihan: sebuah bilangan ditambah 7 hasilnya 20. Persamaannya?"'
+        - text: "Latihan: sebuah bilangan ditambah 7 hasilnya 20. Persamaannya?"
+        - list:
+          - listitem: A. n + 7 = 20
+          - listitem: B. 7n = 20
+          - listitem: C. n = 7 + 20
+          - listitem: D. n − 7 = 20
+        - paragraph: Pelajaran 3 · Menyusun persamaan dari soal cerita. · Sedang
+    - paragraph: Antara 3 dan 20 soal.
+  - text: Jendela
+  - radio "10 menit"
+  - text: 10 menit
+  - radio "15 menit" [checked]
+  - text: 15 menit
+  - radio "30 menit"
+  - text: 30 menit
+  - paragraph: Berhitung sejak disediakan. Tiap murid mendapat satu kesempatan.
+  - text: Untuk
+  - paragraph: 8A (dipilih) · 6 murid terdaftar hari ini
+  - button "Lanjut ke tinjauan"
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- alert

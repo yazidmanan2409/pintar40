@@ -1,0 +1,66 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- alert: Yang akan diterima murid
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - text: Mengajar
+    - strong: SMP Sintetis Cendekia
+    - link "Mengajar":
+      - /url: /mengajar
+    - link "Studio":
+      - /url: /studio
+  - button "Bantuan"
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fmengajar%2Fcf4d3f5d-45bf-441a-8405-e62c86b7f102%2Fsiapkan
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Ayu Lestari":
+      - strong: Ayu Lestari
+    - button "Keluar"
+- main:
+  - link "← Kembali ke pilihan materi":
+    - /url: /mengajar/cf4d3f5d-45bf-441a-8405-e62c86b7f102/siapkan
+  - text: SMP Sintetis Cendekia 8C TA 2026/2027
+  - list:
+    - listitem: Pilih materi
+    - listitem: Tinjau yang akan diterima murid
+    - listitem: Sediakan
+  - paragraph: Siapkan materi · 8C
+  - heading "Yang akan diterima murid" [level=1]
+  - paragraph: Belum ada yang berubah untuk murid. Semua di bawah ini baru berlaku setelah Anda menekan tombol sediakan di bagian akhir.
+  - heading "Persamaan Linear Satu Variabel" [level=2]
+  - text: Materi sekolah ✓ Tersedia
+  - paragraph: Diterbitkan sekolah 25 Nov 2026 · 3 pelajaran · 9 soal
+  - paragraph: "Batas ketuntasan: 60%"
+  - list:
+    - listitem: 1 Pemetaan Awal 3 soal · 1 kesempatan Pemetaan Awal — Persamaan Linear Satu Variabel
+    - listitem: 2 Uji Penguasaan 6 soal · 1 kesempatan Uji Penguasaan — Persamaan Linear Satu Variabel
+    - listitem: 3 Sertifikat Diterbitkan sekolah bila murid memenuhi capaian; bisa diperiksa siapa pun lewat tautan.
+  - heading "Jendela" [level=2]
+  - paragraph: Murid melihat materi ini di halaman Belajar selama jendela terbuka.
+  - term: Mulai
+  - definition:
+    - paragraph:
+      - status "Mulai": Rabu, 25 Nov 2026
+  - term: Sampai (opsional)
+  - definition:
+    - paragraph:
+      - status "Sampai (opsional)": Tanpa batas akhir
+  - heading "Tinjauan sebelum disediakan" [level=2]
+  - paragraph: Disediakan untuk 8C · 4 murid terdaftar hari ini
+  - paragraph: Setelah disediakan, 4 murid 8C akan melihat materi ini di halaman Belajar mereka. Anda bisa mengubah jendelanya nanti, tetapi tidak bisa menarik kembali pekerjaan yang sudah dimulai murid.
+  - button "Disediakan" [disabled]
+  - status
+  - link "8C":
+    - /url: /mengajar/cf4d3f5d-45bf-441a-8405-e62c86b7f102
+  - status: Materi disediakan untuk kelas ini. Mulai Rabu, 25 Nov 2026 · Tanpa batas akhir.
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com

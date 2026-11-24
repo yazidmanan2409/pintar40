@@ -1,0 +1,42 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - navigation "Belajar":
+    - link "Belajar":
+      - /url: /belajar
+    - link "Sertifikat":
+      - /url: /belajar/sertifikat
+  - button "Bantuan"
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - link "← Belajar":
+    - /url: /belajar
+  - paragraph: 8A
+  - heading "Uji Cepat" [level=1]
+  - paragraph: Kerjakan dengan tenang. Anda bisa menandai soal dan kembali lagi.
+  - term: Jumlah soal
+  - definition: "3"
+  - term: Ditutup
+  - definition: Rabu, 25 Nov 2026
+  - paragraph: Yang bisa dilakukan
+  - list:
+    - listitem: Menandai soal dan kembali lagi
+    - listitem: Meminta arah berpikir bila sebuah soal terasa buntu
+  - strong: Tentang catatan sesi
+  - text: Selama asesmen, aktivitas sesi tertentu dapat dicatat untuk menjaga integritas proses. Catatan ini merupakan observasi dan tidak menentukan hasil Anda secara otomatis.
+  - button "Mulai Uji Cepat"
+  - status
+  - link "Nanti saja":
+    - /url: /belajar
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- alert

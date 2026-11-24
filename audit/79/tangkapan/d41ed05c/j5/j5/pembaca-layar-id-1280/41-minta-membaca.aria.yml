@@ -1,0 +1,61 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- alert: Minta membaca lagi · PINTAR
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - text: Mengajar
+    - strong: PINTAR Bootstrap (OFFICIAL evidence — development and CI only)
+    - link "Mengajar":
+      - /url: /mengajar
+    - link "Studio":
+      - /url: /studio
+  - button "Bantuan"
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fmengajar%2F7577c439-eddb-49a2-ad7b-94f2f9c9b79e%2Fulang
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Bambang Sutrisno":
+      - strong: Bambang Sutrisno
+    - button "Keluar"
+- main:
+  - link "← Lihat bukti":
+    - /url: /mengajar/7577c439-eddb-49a2-ad7b-94f2f9c9b79e/bukti
+  - text: PINTAR Bootstrap (OFFICIAL evidence — development and CI only) 8K (dunia) TA 2026/2027 (dunia audit)
+  - paragraph: Persamaan Linear Satu Variabel
+  - heading "Minta membaca lagi" [level=1]
+  - paragraph: Pilih murid yang perlu bantuan dan pelajaran yang perlu mereka baca lagi. Mereka akan menemukan permintaan ini di beranda mereka.
+  - paragraph: target 60%
+  - group "Murid":
+    - text: Murid
+    - list:
+      - listitem:
+        - checkbox "Sinta Maharani 83% · Persentase sudah memenuhi target, tetapi ada soal penting yang belum tepat." [checked]
+        - text: Sinta Maharani 83% · Persentase sudah memenuhi target, tetapi ada soal penting yang belum tepat.
+  - group "Pelajaran untuk dibaca lagi":
+    - text: Pelajaran untuk dibaca lagi
+    - list:
+      - listitem:
+        - checkbox "Kalimat Terbuka dan Persamaan" [checked]
+        - text: Kalimat Terbuka dan Persamaan
+      - listitem:
+        - checkbox "Menyelesaikan Persamaan" [checked]
+        - text: Menyelesaikan Persamaan
+      - listitem:
+        - checkbox "Persamaan dalam Soal Cerita" [checked]
+        - text: Persamaan dalam Soal Cerita
+  - paragraph: Hasil murid tidak berubah, dan tidak ada tes baru.
+  - button "Minta membaca lagi"
+  - status
+  - region "Permintaan yang sudah dikirim":
+    - heading "Permintaan yang sudah dikirim" [level=2]
+    - paragraph: Belum ada permintaan untuk bab ini.
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
