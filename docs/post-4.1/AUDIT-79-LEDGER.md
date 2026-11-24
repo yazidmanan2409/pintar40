@@ -264,7 +264,7 @@ Nine findings: 5 Significant, 4 Improvement, none Critical. **The core cross-rol
 
 | L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
 |---|---|---|---|---|---|---|
-| L-78 | Closed and suspended accounts are banned in Supabase Auth, and Auth's token endpoint is callable directly with the public anon key. **If Auth answers `user_banned` before checking the password, an account's closed state is already public to anyone who knows its email**, whatever PINTAR's screens say | D | J10 | **Unknown until tested**; if confirmed, an existing confidentiality defect | — | **The test (Second Eye, local stack only):** `/auth/v1/token?grant_type=password` directly, 20 calls each: banned + right password; banned + wrong password; ordinary + wrong password. Record status, error_code, body and median time, and do the same for the card path. If `user_banned` doesn't depend on the password, stop: it's an existing oracle, and the fix belongs at the Auth layer. L-75 waits on this |
+| L-78 | Closed and suspended accounts are banned in Supabase Auth, and Auth's token endpoint is callable directly with the public anon key. **If Auth answers `user_banned` before checking the password, an account's closed state is already public to anyone who knows its email**, whatever PINTAR's screens say | D | J10 | **CONFIRMED (Second Eye, local stack, 24 Nov 11:33Z): an existing state oracle.** Severity: Sharon | — | **The test (Second Eye, local stack only):** `/auth/v1/token?grant_type=password` directly, 20 calls each: banned + right password; banned + wrong password; ordinary + wrong password. Record status, error_code, body and median time, and do the same for the card path. If `user_banned` doesn't depend on the password, stop: it's an existing oracle, and the fix belongs at the Auth layer. L-75 waits on this |
 
 ## J5 walked in part (Daisy, `AUDIT-79-TEMUAN-J5.md` `01441d33`; 24 Nov)
 
@@ -317,3 +317,19 @@ Nine findings: 5 Significant, 4 Improvement, none Critical. **The core cross-rol
 | L-91 (J8-4) | Kelas are added one per submission (about 20 for a 600-learner school) | F | J8 | Improvement | — | Allow «1A, 1B, 1C» |
 | L-92 (J8-5) | A bare «Belum ada.» on Sistem & Konfigurasi | A | J8 | Improvement | — | — |
 | L-93 (J8-6) | «Struktur sekolah di atas», but it isn't above | B | J8 | Improvement | — | — |
+
+**L-78 result** (Second Eye, `docs/completion-4.1/audit-79/L78-AUTH-BANNED-LOCAL.md`, `e59276ce` on `claude/l78-auth-banned`, local stack from main `429b7dcc`, synthetic accounts, no code change; stopped after round 1 as instructed). `POST /auth/v1/token?grant_type=password` with the anon key:
+
+| Case | Status | error_code | Time |
+|---|---|---|---|
+| (a) banned, right password | 400 | `user_banned` | 71 ms (first call) |
+| (b) banned, wrong password | 400 | `user_banned` | 27 ms |
+| (c) ordinary, wrong password | 400 | `invalid_credentials` | 28 ms |
+| (d) ordinary, right password | 200 | — | 42 ms |
+
+- **(b) ≠ (c), and (a) = (b):** Auth answers the ban BEFORE checking the password. Anyone holding the public anon key and an email learns whether that account is closed or suspended.
+- **Cards too:** a card's Auth email is derived from its number (`card-<n>@<CARD_EMAIL_DOMAIN>`). Card 7002 (suspended) with a wrong password gives `user_banned`; card 7001 gives `invalid_credentials`. A card number alone, with no PIN, reveals whether that learner's account is suspended.
+- **PINTAR's own routes mask it.** `/masuk/kartu` answers 401 CARD_NOT_MATCHED alike for (a), (b) and (c), because `akunTerkunci` maps `user_banned` to the ordinary non-match. A direct call to Auth bypasses the mask.
+- Suspension and closure both set the same `banned_until` (2999-12-31) through `akun_kunci`, so Auth tells «locked» apart, but not which kind.
+
+**Exposure, by migration order (no production read):** `banned_until` is first used by migration 221 (`20270113130000`). **Production (111) does not have the mechanism, so nobody is banned there and nothing leaks.** **Staging (309) has it, and its accounts are synthetic.** **L-75 stays unbuilt, and the existing protections stay (ruling 96).**
