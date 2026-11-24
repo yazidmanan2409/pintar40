@@ -1628,8 +1628,27 @@ async function runTests(tests: SelfTest[], runner: string, ctx: Context, facilit
 }
 
 // ---------------------------------------------------------------- main
+/**
+ * NOT ON A WORLD-LOADED DATABASE (Sharon, 24 Nov; ruling 79's audit world). The audit world (audit/dunia/muat.sh)
+ * writes past today's guards for its legacy and fixture states and holds rows no selftest expects, and it marks the
+ * database it loaded (dunia.penanda). The selftests refuse to start there, before any suite, with exit 3. Reset the
+ * database (`supabase db reset --local`) and run again. Proven by audit/dunia/uji-selftest-menolak.sh.
+ */
+function refuseWorldLoadedDatabase(dbUrl: string | undefined): boolean {
+  if (!dbUrl || !hasPsql()) return false;
+  const r = spawnSync("psql", ["-XqAt", "-c", "select count(*) from pg_catalog.pg_tables where schemaname = 'dunia' and tablename = 'penanda'", dbUrl], { encoding: "utf8" });
+  if (r.status === 0 && Number(r.stdout.trim()) > 0) {
+    log("REFUSED: this database holds the ruling 79 audit world (dunia.penanda). The selftests run on a reset database only:");
+    log("  supabase db reset --local, then run the selftests again.");
+    exitAfterFlush(3);
+    return true;
+  }
+  return false;
+}
+
 async function main() {
   loadDotEnvLocal();
+  if (refuseWorldLoadedDatabase(process.env.SUPABASE_DB_URL)) return;
   log(`PINTAR selftest — ${manifest.contract} v${manifest.version} (${manifest.phase}); ${manifest.tests.length} manifest ids`);
   if (only) {
     log(
