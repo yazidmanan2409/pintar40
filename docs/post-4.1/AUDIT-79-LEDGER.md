@@ -228,3 +228,18 @@ Nine findings: 5 Significant, 4 Improvement, none Critical. **The core cross-rol
 | L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
 |---|---|---|---|---|---|---|
 | L-66 | While a retake is open, a certificate earned on an earlier attempt loses its chapter title in the certificate list: the list maps certificates through `my_cycle_state.post_session`, the latest *begun* sitting (`belajar/sertifikat/page.tsx:71`). Also, `adaHasilTertutup` falls back to the pre-test while a retake is open (`hasil-belajar.ts:59`) | B, C | J3 (retake open) | Improvement (it degrades gracefully: the date and status stay) | **C-1** | To be confirmed by the builder's J3 capture with a retake open |
+
+## J7 walked (Daisy, `AUDIT-79-TEMUAN-J7.md` `2002b662`; the local audit world W14, with certificates issued through the route; 24 Nov)
+
+**What works:** the three-step correction proposal with its exact impact preview; «Hasil asli tetap tersimpan»; «Sedang ditinjau» agreeing everywhere; K-05 on the public page.
+
+| L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
+|---|---|---|---|---|---|---|
+| L-67 (J7-1) | Under «Sedang ditinjau», a certificate whose result was recalculated to a fail (67 → 50%, target 60) offers «Konfirmasi berlaku» exactly like a still-passing one: one press, no confirmation, no words naming the effect. Afterwards the **public check reads «Berlaku · HASIL Lulus»**, while the learner's own result says «Belum lulus» | E, C, D | J7 | **Possibly Critical: Sharon is judging** (severity, enforcement, exposure on staging and production) | **C-7 (new)** | Daisy: should the button exist at all on a now-failing result? At least, a confirmation that names the effect, with «Cabut» suggested |
+| L-68 (J7-2) | A certificate under review still tells its holder the check page confirms it is «masih berlaku»; the public page says «tidak dinyatakan berlaku» | B, C | J7 | **Significant** | C-3 | — |
+| L-69 (J7-3) | The second person is told nothing waits for them (Studio home, /pimpinan, the queue's own empty line) while a correction waits for them | A, E | J7 | **Significant** | C-4 | The third sighting of C-4 |
+| L-70 (J7-4) | The reissue panel says «tidak pernah dihitung ulang» right after a recalculation | B | J7 | **Significant** | C-3 | — |
+| L-71 (J7-5) | Only the admin can flag a wrong key; the teacher and the head of department see it but can't act | A, F | J7 | Improvement | **C-8 (new)** | — |
+| L-72 (J7-6) | Keys are shown as letters only («A → B») | A | J7 | Improvement | Wording / layout | — |
+| L-73 (J7-7) | Step 2 is wordy | A | J7 | Improvement | Wording | — |
+| L-74 (J7-8) | One verdict, different words | B | J7 | Improvement | C-6 (L-33) | — |
