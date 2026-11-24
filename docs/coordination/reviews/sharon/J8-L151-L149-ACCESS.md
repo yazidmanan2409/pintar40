@@ -66,7 +66,7 @@ Could reasonably have been anticipated: yes. The ACTIVE-only population was a W2
 **L-149: withdrawn by Bob.** Daisy reproduced the staff path: staff recorded without a class are found in «Peran & akses» and can be given a role. The boundary above ~~is needed now~~ stays on record as the condition for any future widening of `school_people_page`. The L-151 rules go into AR-79 as written.
 
 **L-152 (the last admin releasing their own role is given a false cause). The access angle:**
-- **What I found:** a code read of the latest `revoke_role` (migration `20261111100000`) and a search of the migrations turned up **no server-side last-admin guard**. The only refusals are "assignment not found", "not authorized to revoke" and ROLE_REASON_REQUIRED. If the UI is what blocks the last admin, the database does not, and a school can be left with no INSTITUTION_ADMIN. Only the platform admin can recover it. Please confirm or point me to a guard I missed.
+- ~~**What I found:** a code read of the latest `revoke_role` (migration `20261111100000`) and a search of the migrations turned up **no server-side last-admin guard**.~~ **Withdrawn: see the correction below.** I searched for the wrong names and missed the guard. The only refusals are "assignment not found", "not authorized to revoke" and ROLE_REASON_REQUIRED. If the UI is what blocks the last admin, the database does not, and a school can be left with no INSTITUTION_ADMIN. Only the platform admin can recover it. Please confirm or point me to a guard I missed.
 - **If a guard is added:**
   1. It belongs in the database, in `revoke_role` and any other path that ends an INSTITUTION_ADMIN assignment: expiry, person suspension, anonymisation.
   2. It must hold under concurrency. Two admins each revoking the other at the same moment must not both pass a count check. Take a per-institution advisory lock, in the A2A-L01 order, or lock the remaining active admin rows FOR UPDATE, before counting.
@@ -76,3 +76,20 @@ Could reasonably have been anticipated: yes. The ACTIVE-only population was a W2
 - **If the guard exists and only the message is wrong:** this is UX and not a security gap, though the message must still not leak other admins' identities.
 
 Could reasonably have been anticipated: yes. L-36 is the sibling at platform level.
+
+### Correction (2026-11-24, 00:0xZ on 11-25): the guard exists, and L-152 is UX
+
+Bob pointed me to the guard, and I confirmed it on origin/main:
+- **Where it lives:** `role_assignments_guard` is a trigger on the UPDATE that writes `revoked_at` (`20270113170000`, reinforced by `20270123170000`).
+- **What it asks:** it calls `peran_terakhir_kode(old.id, true)`.
+- **The lock:** that function locks the school's `institutions` row, or `platform_environment` for the platform, FOR UPDATE before counting `admin_dapat_dipakai`.
+- **The refusals:** ROLE_LAST_SCHOOL_ADMIN unless the actor is a platform admin; ROLE_LAST_PLATFORM_ADMIN for everyone.
+
+Every revoking path passes through it. My statement above was wrong: I had searched for guard names, not the trigger. **L-152 is UX:** the screen maps the refusal to the wrong line. It is not a security gap.
+
+**B0's tests:**
+- **The planted race exists.** `b0.test.ts` ~568–631 runs two connections; the second must wait for the first to commit, and exactly one usable admin must be left.
+- **Removing the lock:** today this is covered only statically. Line 192 checks that `for update` appears in `peran_terakhir_kode`, and line 194 that the locked question is asked only in the guard.
+- **What AR-79 adds:** a **dynamic plant** that removes the FOR UPDATE, runs the same race, and must turn it red. That proves the race test itself would catch a lost lock. It is non-blocking and goes to the ledger.
+
+Could reasonably have been anticipated (my error): yes. A trigger-based guard is the codebase's usual pattern, and I should have searched the triggers on `role_assignments`.
