@@ -135,6 +135,18 @@ jobs:
           AUDIT_BAHASA=en AUDIT_LEBAR=1280 node audit/perjalanan/j3.mjs
           for L in pembaca-layar gerak-dikurangi jaringan-lambat; do AUDIT_LALUAN=$L AUDIT_LEBAR=1280 node audit/perjalanan/j3.mjs; done
           AUDIT_CABANG=1 node audit/perjalanan/j3.mjs
+      # J4 changes the world (a sitting resumed, ended, timed out; a maintenance window): it loads the world afresh per walk
+      - name: J4 · away from a sitting and back (1280, 390, 320; EN; the three passes; not counted, time out, maintenance)
+        if: success() || failure()
+        env:
+          APP_URL: http://127.0.0.1:3999
+          AUDIT_OUT: ${{ github.workspace }}/audit-out/perjalanan
+        run: |
+          set -euo pipefail
+          node audit/perjalanan/j4.mjs
+          AUDIT_BAHASA=en AUDIT_LEBAR=1280 node audit/perjalanan/j4.mjs
+          for L in pembaca-layar gerak-dikurangi jaringan-lambat; do AUDIT_LALUAN=$L AUDIT_LEBAR=1280 node audit/perjalanan/j4.mjs; done
+          AUDIT_CABANG=1 node audit/perjalanan/j4.mjs
       # J11 reads the school (W18): read-only, so on a world loaded once
       - name: J11 · reading the school (1280, 390, 320; then EN at 1280)
         if: success() || failure()
