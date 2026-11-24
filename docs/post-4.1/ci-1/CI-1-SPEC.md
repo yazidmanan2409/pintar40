@@ -104,3 +104,15 @@ A row wrongly CONFIRMED has no revocation, so DICABUT would be a different false
   - §7 (3) met;
   - no rows written.
 - **The merge and the staging promotion 309→310 wait for the owner.** Sharon gives her promotion verdict on AFTER, plus the V6 counter.
+
+## 9 · PR #30's CI RED on C1W-S06, a test-only defect (24 Nov 15:57Z)
+
+- **Journeys 45424259782:** GREEN.
+- **ci 45424228769:** 1435 passed, **1 failed: C1W-S06** («the new key is the key the question already has», CORRECTION_KEY_UNCHANGED).
+- **The cause is in CI-1's own restatement, and depends on the paper order.** k1 moved to «the first non-safety-critical presented question», but k2 stayed presented(1). When a safety-critical question comes first, both corrections hit the same question, and the product rightly refuses the second. Reproduced locally by forcing the order. **No product defect.**
+- **Bob's ruling:**
+  - the one-line, test-only fix (k2 = the lowest-position presented question other than k1's) makes a new frozen head;
+  - before the freeze, S06 must be proven under BOTH orders (forced), and every CI-1 test that picks questions by position is swept for the same order dependence;
+  - then a delta freeze check, one push, and **both** PR ci and journeys on the new head, in one attempt (the same head for every check; the product diff is empty);
+  - Sharon's PASS carries over if the product diff from `dfab09b6` is empty.
+- **Lesson (L-8, extended):** a test that picks data by position must be checked against every order the product can produce. A local pass on one random order is not proof.
