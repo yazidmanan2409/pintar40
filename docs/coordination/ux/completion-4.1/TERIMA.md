@@ -100,3 +100,4 @@
 | 24 Nov, 01:06 | Bob (ruling 89, 2b) | Register draft 2: PR-12, PR-15, PR-19 | `7aae24e0` | `BACA-REGISTER-PR12-15-19.md`: one gap (`lapor.langkah.*` promise depends on PR-12/15), two small notes |
 | 24 Nov, 01:07 | Bob | D2-R words adopted; no threshold in 4.1 | spec rev 4 | Two words change: «Baca lagi:», and a new no-blame note (the old one claimed few questions); column follows «Materi Pembelajaran» |
 | 24 Nov, 01:15 | Bob (ruling 89, 3a) | Ledger draft 1 mapping | `689f8a35` | `LEDGER-79-KONFIRMASI-689f8a35.md`: 24 confirmed, 6 changed, 3 added (L-31–L-33); pre-Z sweep: nothing new |
+| 24 Nov, 01:09 | Bob | D2-R: learner certificate page «Predikat»? | next-base | **Remove** (match the certificate and the public check; band stays internal) |
