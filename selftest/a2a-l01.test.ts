@@ -246,7 +246,7 @@ export const PENGECUALIAN: { penulis: string; lewat: Lewat; alasan: string; syar
       && /; earlier via (GoTrue > \[auth\.users I\] )?handle_new_auth_user$/.test(v))
       // RESTATED, CI-2: the new account of a locked person is rotated (akun_baru_terkunci > akun_rotasi), the same new row
       || /^an upgrade on auth\.users: strength 0 via (GoTrue > \[auth\.users I\] )?handle_new_auth_user, then 2 via .*\[accounts I\] akun_baru_terkunci( > akun_rotasi)?$/.test(v),
-    alasan: "the auth.users row held is the new row Auth is inserting: no other transaction can see it, so none can hold it",
+    alasan: "the auth.users row held is the new row Auth is inserting: no other transaction can see it, so none can hold it (CI-2, Sharon §8 1(e): widened to akun_baru_terkunci > akun_rotasi rotating that same new row)",
     syarat: (kat: Katalog) => [...kat.pemicu].every(([k, fs]) => !fs.includes("handle_new_auth_user") || /^auth\.users\|I\|/.test(k)),
   })),
   // the window functions, RE-READ AFTER B1 (change C; the "pending B1" exception is removed): the actor's foreign key
@@ -310,7 +310,7 @@ export const PENGECUALIAN: { penulis: string; lewat: Lewat; alasan: string; syar
   // unchanged-password return directly, and (2) every caller reaching it through its own UPDATE of auth.users that sets
   // encrypted_password is akun_rotasi, whose body sets the GUC to p_auth_user before that update and writes only that row
   { penulis: "*", lewat: (v: string) => /akun_rotasi > \[auth\.users U\] auth_password_write_guard/.test(v),
-    alasan: "the rotation's own write (CI-2): the guard returns at the GUC check naming the row, before any permit, recovery or person",
+    alasan: "the rotation's own write (CI-2; Sharon CI-2-SPEC §8 1(e)): exactly akun_rotasi > auth_password_write_guard; the guard returns at the GUC check, which names this row, set transaction-locally and cleared after the one-row update, before any permit, recovery or person",
     syarat: (kat: Katalog, _l?: Kunci[], v?: string) => {
       // bersih blanks string literals, so the GUC's name is read from the raw body
       const jaga = (kat.fns.get("auth_password_write_guard") ?? []).every((b) => bersih(b).replace(/\s+/g, " ")

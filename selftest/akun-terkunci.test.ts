@@ -302,8 +302,21 @@ export const akunTerkunciAppTests: SelfTest[] = [
         c.expect(/^\d{6}$/.test(benar1), "Auth issued no code for the suspended account to try");
         const rk = await pakai("/masuk/lupa/periksa", { nama: email, kode: benar1 });
         c.expect(sama(rk, dasar.pulih), `suspended, recovery code (right): ${tampil(rk)}; a wrong code is ${tampil(dasar.pulih)}`);
-        const ra = await pakai("/aktifkan/periksa", { email, kode: await kodeAuth() });
+        // Sharon CI-2-SPEC §8 2: the locked account's accepted code is the route's ordinary refusal in status and body AND in
+        // its pacing (jeda): it is counted on the code door exactly as a wrong code is, so the next wait is the same
+        const hitungKode = () => Number(psql(`select coalesce(sum(cardinality(percobaan)), 0) from public.identity_attempts where scope = 'CODE_VERIFY'`));
+        const kodeBenar = await kodeAuth();
+        // the harness's hand, as ladderNol: the code door's own counter starts empty, so neither attempt meets its wait
+        psql(`delete from public.identity_attempts where scope = 'CODE_VERIFY'`);
+        const n0 = hitungKode();
+        const ra = await pakai("/aktifkan/periksa", { email, kode: kodeBenar });
+        const n1 = hitungKode();
+        const raSalah = await pakai("/aktifkan/periksa", { email, kode: salahKode });
+        const n2 = hitungKode();
         c.expect(sama(ra, dasar.aktivasi), `suspended, activation code (right): ${tampil(ra)}; a wrong code is ${tampil(dasar.aktivasi)}`);
+        c.expect(sama(raSalah, dasar.aktivasi), `suspended, activation code (wrong): ${tampil(raSalah)}; a wrong code is ${tampil(dasar.aktivasi)}`);
+        c.expect(n1 - n0 === 1 && n2 - n1 === 1,
+          `suspended: the accepted code counted ${n1 - n0} attempt(s) and a wrong code ${n2 - n1}; both must count one, so the pacing (jeda) is the same (Sharon §8 2)`);
         // the grant from before the suspension, used now (RESTATED, L-1, Sharon §6b): exactly an expired grant's answer and
         // record, field by field; the password byte-identical (the permit refuses a locked person's grant)
         const sebelumIzin = hashSandi();

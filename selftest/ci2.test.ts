@@ -52,11 +52,11 @@ import { t } from "../src/lib/hle";
 
 export const MIGRASI_CI2 = "supabase/migrations/20270126100000_a_locked_account_reads_as_any_wrong_password.sql";
 const HITUNG_STAGING = "docs/post-4.1/ci-2/evidence/staging-counts-CI2.sql";
-/** Daisy's words (CI2-KATA.md f15f33e2), exactly. */
+/** Daisy's words (CI2-KATA.md f15f33e2; EN confirmed at 35cc08eb, «Forgot your password?» = auth.pw_lupa; §5 at 6697120b), exactly. */
 export const KATA_CI2 = {
   "akun.dibuka.kredensial_staf": {
     default: "✓ Akun {nama} dapat dipakai lagi. Password lamanya tidak berlaku lagi. Beri tahu {nama}: buat password baru lewat «Lupa password?» di halaman masuk, dengan email akun ini.",
-    en: "✓ {nama}'s account can be used again. The old password no longer works. Tell {nama}: make a new password with «Forgot password?» on the sign-in page, using this account's email.",
+    en: "✓ {nama}'s account can be used again. The old password no longer works. Tell {nama}: make a new password with «Forgot your password?» on the sign-in page, using this account's email.",
   },
   "akun.dibuka.kredensial_murid": {
     default: "✓ {nama} dapat masuk lagi setelah mendapat PIN baru. PIN dan kartu lamanya tidak berlaku lagi. Buat PIN baru di Aktivasi akun, lalu berikan kepada {nama} sendiri.",
@@ -64,12 +64,20 @@ export const KATA_CI2 = {
   },
   "masuk.dibuka_kembali_baru": {
     default: "Akun yang baru dibuka kembali memakai password atau PIN baru. Staf: buat password baru lewat «Lupa password?». Murid: minta PIN baru kepada sekolah.",
-    en: "An account that was just reopened uses a new password or PIN. Staff: make a new password with «Forgot password?». Learners: ask the school for a new PIN.",
+    en: "An account that was just reopened uses a new password or PIN. Staff: make a new password with «Forgot your password?». Learners: ask your school for a new PIN.",
   },
   "masuk.f6": { default: "Bila akun Anda ditutup atau ditangguhkan, Anda dapat meminta dibuka kembali." },
   "masuk.f6_murid": {
     default: "Bila akun Anda ditutup atau ditangguhkan, tanyakan kepada admin sekolah Anda.",
     en: "If your account was closed or suspended, ask your school admin.",
+  },
+  "aktivasi.ulang.terkunci.DITANGGUHKAN": {
+    default: "Akun {nama} sedang ditangguhkan, jadi PIN tidak dapat dibuat sekarang. PIN baru dibuat saat penangguhannya dicabut.",
+    en: "{nama}'s account is suspended, so a PIN can't be made now. A new PIN is made when the suspension is lifted.",
+  },
+  "aktivasi.ulang.terkunci.DITUTUP": {
+    default: "Akun {nama} sudah ditutup, jadi PIN tidak dapat dibuat sekarang. PIN baru dibuat saat akunnya dibuka kembali.",
+    en: "{nama}'s account is closed, so a PIN can't be made now. A new PIN is made when the account is reopened.",
   },
 } as const;
 
@@ -313,6 +321,21 @@ export const ci2StaticTests: SelfTest[] = [
       c.expect(/if \(alat\.terkunci && \(await alat\.terkunci\(\)/.test(aktivasi) && /rpc\("akun_auth_terkunci"/.test(rutePeriksa) && /keluarPerangkatIni\(supabase\)/.test(rutePeriksa)
         && /orang_ditangguhkan\(a\.person_id\)/.test(def("public.akun_auth_terkunci")),
         "the activation door does not answer a locked person's accepted code as the ordinary wrong code (F-5)");
+      // Sharon CI-2-SPEC §8 2: akun_auth_terkunci is asked for the VERIFIED session's user only, never a value of the request.
+      // In the route's terkunci closure: the user is read from supabase.auth.getUser(), p_auth_user is that user's id, and
+      // nothing of the request (the form, the request, its headers or cookies) is read there. Q13 plants a foreign uuid
+      const dariSesi = (src: string) => {
+        const awal = src.indexOf("terkunci: async () => {");
+        const akhir = awal < 0 ? -1 : src.indexOf("\n      },\n", awal);
+        const tubuh = awal < 0 || akhir < 0 ? "" : src.slice(awal, akhir);
+        const panggil = tubuh.match(/rpc\("akun_auth_terkunci",\s*\{([^}]*)\}\)/);
+        return /const \{ data: \{ user \} \} = await supabase\.auth\.getUser\(\);/.test(tubuh)
+          && panggil !== null && panggil[1].trim() === "p_auth_user: user.id"
+          && !/\b(fd|request|masukan|headers|cookies|searchParams)\b/.test(tubuh.replace(/\/\/.*$/gm, ""));
+      };
+      c.expect(dariSesi(rutePeriksa), "the activation check does not ask akun_auth_terkunci for the verified session's own user alone (Sharon §8 2)");
+      const q13 = rutePeriksa.replace('{ p_auth_user: user.id }', '{ p_auth_user: String(fd?.get("akun") ?? user.id) }');
+      c.expect(q13 !== rutePeriksa && !dariSesi(q13), "Q13 (the route fed a foreign uuid from the request) was not caught");
       // F-4 bounded, and the end state asserted
       c.expect(/banned_until is not null/.test(mig) && /raise exception/.test(mig), "the migration does not assert that no account is left banned");
       // Daisy's words, ID and EN, exactly
@@ -354,6 +377,55 @@ export const ci2StaticTests: SelfTest[] = [
 
 // ---------------------------------------------------------------------------------------------------------------------
 export const ci2AppTests: SelfTest[] = [
+  {
+    // Sharon CI-2-SPEC §8 1(c): the rotation's GUC is confined to the pair that uses it, and no SECURITY DEFINER function
+    // lets a caller name the setting it sets. Read from pg_proc (every schema but the catalogue), each with its plant
+    id: "CI2-G01",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      const katalog = "n.nspname not in ('pg_catalog', 'information_schema')";
+      // each call is its own session: a plant written after an open «begin» is rolled back when the session ends
+      const gucDi = (tanaman = "") => psql(`${tanaman} select coalesce(string_agg(n.nspname || '.' || p.proname, ',' order by n.nspname, p.proname), '')
+          from pg_proc p join pg_namespace n on n.oid = p.pronamespace where ${katalog} and p.prosrc like '%pintar.kunci_rotasi%'`)
+        .split("\n").pop()!.split(",").filter(Boolean);
+      // set_config whose first argument is not a string literal: the setting's NAME supplied by whoever calls
+      const NAMA_BEBAS = "set_config[[:space:]]*\\([[:space:]]*[^'[:space:]]";
+      const namaBebas = (tanaman = "") => psql(`${tanaman} select coalesce(string_agg(distinct n.nspname || '.' || p.proname, ','), '')
+          from pg_proc p join pg_namespace n on n.oid = p.pronamespace where ${katalog} and p.prosecdef and p.prosrc ~* ${lit(NAMA_BEBAS)}`)
+        .split("\n").pop()!.split(",").filter(Boolean);
+      const di = gucDi();
+      c.expect(di.join(",") === "public.akun_rotasi,public.auth_password_write_guard",
+        `the bodies naming pintar.kunci_rotasi are ${di.join(", ") || "none"}; only akun_rotasi and auth_password_write_guard may (Sharon §8 1(c))`);
+      const bebas = namaBebas();
+      c.expect(bebas.length === 0, `SECURITY DEFINER functions setting a caller-named setting: ${bebas.join(", ")} (Sharon §8 1(c))`);
+      // the rotation's own use, as Sharon §8 1(a) and (b) read it: transaction-local, cleared after its one-row update; the
+      // guard's test is equality with the row, and only after an unchanged password has returned
+      const rot = psql(`select pg_get_functiondef('public.akun_rotasi(uuid, text)'::regprocedure)`);
+      const set = rot.indexOf("set_config('pintar.kunci_rotasi', p_auth_user::text, true)");
+      const tulis = rot.indexOf("update auth.users u set encrypted_password = v_hash");
+      const kosong = rot.indexOf("set_config('pintar.kunci_rotasi', '', true)");
+      c.expect(set > 0 && tulis > set && kosong > tulis && /where u\.id = p_auth_user;/.test(rot.slice(tulis, kosong)),
+        "akun_rotasi does not set the GUC transaction-locally to the one user, write that one row, then clear it (Sharon §8 1(a))");
+      const jaga = psql(`select pg_get_functiondef('public.auth_password_write_guard()'::regprocedure)`);
+      const tetap = jaga.indexOf("if new.encrypted_password is not distinct from old.encrypted_password");
+      const guc = jaga.indexOf("if current_setting('pintar.kunci_rotasi', true) = new.id::text then");
+      c.expect(tetap > 0 && guc > tetap && (jaga.match(/kunci_rotasi/g) ?? []).length === 1,
+        "the guard does not test the GUC once, for equality with the row, after its unchanged-password return (Sharon §8 1(b))");
+      // Q11: a second setter of the GUC; Q12: a SECURITY DEFINER function that sets whatever setting it is told
+      const q11 = gucDi(`begin; create function public.ci2_q11_penyetel(p uuid) returns void language plpgsql security definer
+          set search_path = public, pg_temp as $q$ begin perform set_config('pintar.kunci_rotasi', p::text, true); end $q$;`);
+      c.expect(q11.includes("public.ci2_q11_penyetel"), "Q11 (a second setter of pintar.kunci_rotasi) was not caught");
+      const q12 = namaBebas(`begin; create function public.ci2_q12_penyetel(p_nama text, p_nilai text) returns void language plpgsql
+          security definer set search_path = public, pg_temp as $q$ begin perform set_config(p_nama, p_nilai, true); end $q$;`);
+      c.expect(q12.includes("public.ci2_q12_penyetel"), "Q12 (a SECURITY DEFINER function setting a caller-named setting) was not caught");
+      c.expect(psql(`select count(*) from pg_proc where proname in ('ci2_q11_penyetel', 'ci2_q12_penyetel')`) === "0", "a plant was left in the database");
+      return c.verdict("only akun_rotasi and auth_password_write_guard name pintar.kunci_rotasi; no SECURITY DEFINER function sets a "
+        + "caller-named setting; the rotation sets the GUC to its one user, writes that row and clears it, and the guard tests it for "
+        + "equality only after an unchanged password returned (Sharon §8 1(a)-(c)); Q11 (a second setter) and Q12 (a caller-named "
+        + "setting) are each caught, and rolled back");
+    },
+  },
   {
     id: "CI2-U01",
     requires: ["network", "db"],
@@ -575,7 +647,33 @@ export const ci2AppTests: SelfTest[] = [
         const kartuMasuk = (kartu: string, pin: string) => new Peramban(asal, ipUji()).jsonDari("/masuk/kartu", { form: { kartu, pin } });
         const k = await buatKartu(a, "p01");
         orang.push(k.orang);
+        // Bob (principle 3, C-7; Daisy CI2-KATA §5): the re-issue list shows a locked learner Daisy's line IN PLACE of the
+        // button, and draws no card. The learner needs a school identity to be listed (card_holders)
+        psql(`select public.issue_institutional_id(${lit(k.orang)}, (select id from public.institutions where namespace is not null order by created_at, id limit 1))`);
+        const nama = psql(`select display_name from public.persons where id = ${lit(k.orang)}`);
+        const barisDaftar = async () => {
+          const h = await (await admin.kirim(`/aktivasi?cari_kartu=${encodeURIComponent(nama)}`)).text();
+          const i = h.indexOf(`<strong>${nama}</strong>`);
+          return { baris: i < 0 ? "" : h.slice(i, h.indexOf("</li>", i)), kartu: h.includes("pin-akt-lembar") };
+        };
+        const sebelumKunci = await barisDaftar();
+        c.expect(sebelumKunci.baris.includes(t("aktivasi.ulang.pilih", "staff")) && !sebelumKunci.baris.includes("data-kartu-terkunci"),
+          `before the lock, the learner's row does not offer «${t("aktivasi.ulang.pilih", "staff")}» (the control): ${sebelumKunci.baris.slice(0, 200)}`);
         tangguhkan(k.orang);
+        const saatKunci = await barisDaftar();
+        const kalimat = KATA_CI2["aktivasi.ulang.terkunci.DITANGGUHKAN"].default.split("{nama}").join(nama);
+        c.expect(saatKunci.baris.includes('data-kartu-terkunci="DITANGGUHKAN"') && saatKunci.baris.includes(kalimat)
+          && !saatKunci.baris.includes(t("aktivasi.ulang.pilih", "staff")) && !saatKunci.baris.includes("<button") && !saatKunci.kartu,
+          `suspended, the learner's row is not Daisy's line in place of the button with no card drawn: ${saatKunci.baris.slice(0, 300)}`);
+        // the closed variant, from the same list: the open suspension read as a closure at the person's request
+        const ditutup = psql(`begin; set local session_replication_role = replica;
+          update public.person_suspensions set category = 'CLOSED_AT_REQUEST' where person_id = ${lit(k.orang)} and ended_at is null;
+          set local session_replication_role = origin;
+          select set_config('request.jwt.claims', json_build_object('sub', ${lit(uidDari(SYS_EMAIL))}, 'role', 'authenticated')::text, true);
+          select set_config('request.jwt.claim.sub', ${lit(uidDari(SYS_EMAIL))}, true);
+          set local role authenticated;
+          select coalesce((select kunci from public.card_holders() where person_id = ${lit(k.orang)}), '-'); rollback;`).split("\n").filter((l) => /^(DITUTUP|DITANGGUHKAN|-)$/.test(l)).pop();
+        c.expect(ditutup === "DITUTUP", `a closed learner is listed with kunci ${ditutup}, not DITUTUP`);
         // a re-issue DURING the suspension: whatever it gives is re-keyed away by the reinstatement
         const selama = await terbit(k.orang);
         c.expect(selama.status === 200 && Boolean(selama.body.card), `the school's re-issue during the suspension answered ${selama.status} (it answers as for anyone)`);
@@ -608,7 +706,8 @@ export const ci2AppTests: SelfTest[] = [
             const r = await kartuMasuk(b.body.card, b.body.pin!);
             return r.status === 401;
           });
-        return c.verdict("a card re-issued during the suspension answers as for anyone and signs in neither during it nor after it; reinstated, "
+        return c.verdict("the re-issue list offers the button before the lock and, for the suspended learner, Daisy's line in its place with no "
+          + "button and no card drawn (a closed learner is listed DITUTUP); a card re-issued during the suspension answers as for anyone and signs in neither during it nor after it; reinstated, "
           + "the learner's old card secret reads invalid_credentials; the school's re-issue through /api/akun/kartu-kelas writes the derived Auth password, so the new card and PIN sign "
           + "in at /masuk/kartu; Q6 (the re-issue's Auth password left random) is caught");
       } finally {

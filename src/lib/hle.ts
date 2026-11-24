@@ -3049,6 +3049,8 @@ export type HleEvent =
   | "aktivasi.ulang.tidak_ketemu"
   | "aktivasi.ulang.akhiran"
   | "aktivasi.ulang.pilih"
+  | "aktivasi.ulang.terkunci.DITANGGUHKAN"
+  | "aktivasi.ulang.terkunci.DITUTUP"
   | "aktivasi.ulang.alasan"
   | "aktivasi.ulang.hilang"
   | "aktivasi.ulang.rusak"
@@ -6902,6 +6904,10 @@ const table: Table = {
   "aktivasi.ulang.tidak_ketemu": { default: "Tidak ada nama yang cocok.", en: "No name matches." },
   "aktivasi.ulang.akhiran": { default: "Kartu berakhiran", en: "Card ending in" },
   "aktivasi.ulang.pilih": { default: "Terbitkan kartu baru", en: "Issue a new card" },
+  // CI-2 (Daisy CI2-KATA §5, 6697120b; Bob, principle 3, C-7): for a locked learner this line takes the place of the button
+  // and the card, so no PIN that cannot work is shown or printed
+  "aktivasi.ulang.terkunci.DITANGGUHKAN": { default: "Akun {nama} sedang ditangguhkan, jadi PIN tidak dapat dibuat sekarang. PIN baru dibuat saat penangguhannya dicabut.", en: "{nama}'s account is suspended, so a PIN can't be made now. A new PIN is made when the suspension is lifted." },
+  "aktivasi.ulang.terkunci.DITUTUP": { default: "Akun {nama} sudah ditutup, jadi PIN tidak dapat dibuat sekarang. PIN baru dibuat saat akunnya dibuka kembali.", en: "{nama}'s account is closed, so a PIN can't be made now. A new PIN is made when the account is reopened." },
   "aktivasi.ulang.alasan": { default: "Mengapa?", en: "Why?" },
   "aktivasi.ulang.hilang": { default: "Kartunya hilang", en: "The card is lost" },
   "aktivasi.ulang.rusak": { default: "Kartunya rusak", en: "The card is damaged" },
@@ -7135,12 +7141,12 @@ const table: Table = {
   "auth.tutup_go": { default: "Minta dibuka kembali", en: "Ask for it to be reopened" },
   // CI-2 (ruling 98, OD-1 ruling 100; Daisy, CI2-KATA.md f15f33e2). §3 and F-6 are static lines of the sign-in, card and
   // recovery views, under the refusal and never as its text (Sharon §7, binding): their presence cannot vary by account.
-  // F-6's EN and the re-issue link's words are the builder's, for Daisy's read.
-  "masuk.dibuka_kembali_baru": { default: "Akun yang baru dibuka kembali memakai password atau PIN baru. Staf: buat password baru lewat «Lupa password?». Murid: minta PIN baru kepada sekolah.", en: "An account that was just reopened uses a new password or PIN. Staff: make a new password with «Forgot password?». Learners: ask the school for a new PIN." },
+  // F-6's EN and the re-issue link's words: Daisy confirmed (CI2-KATA.md 35cc08eb), «Forgot your password?» being auth.pw_lupa's own label
+  "masuk.dibuka_kembali_baru": { default: "Akun yang baru dibuka kembali memakai password atau PIN baru. Staf: buat password baru lewat «Lupa password?». Murid: minta PIN baru kepada sekolah.", en: "An account that was just reopened uses a new password or PIN. Staff: make a new password with «Forgot your password?». Learners: ask your school for a new PIN." },
   "masuk.f6": { default: "Bila akun Anda ditutup atau ditangguhkan, Anda dapat meminta dibuka kembali.", en: "If your account was closed or suspended, you can ask for it to be reopened." },
   "masuk.f6_murid": { default: "Bila akun Anda ditutup atau ditangguhkan, tanyakan kepada admin sekolah Anda.", en: "If your account was closed or suspended, ask your school admin." },
   // §1 and §2: the decider's confirmation, before the person's first attempt
-  "akun.dibuka.kredensial_staf": { default: "✓ Akun {nama} dapat dipakai lagi. Password lamanya tidak berlaku lagi. Beri tahu {nama}: buat password baru lewat «Lupa password?» di halaman masuk, dengan email akun ini.", en: "✓ {nama}'s account can be used again. The old password no longer works. Tell {nama}: make a new password with «Forgot password?» on the sign-in page, using this account's email." },
+  "akun.dibuka.kredensial_staf": { default: "✓ Akun {nama} dapat dipakai lagi. Password lamanya tidak berlaku lagi. Beri tahu {nama}: buat password baru lewat «Lupa password?» di halaman masuk, dengan email akun ini.", en: "✓ {nama}'s account can be used again. The old password no longer works. Tell {nama}: make a new password with «Forgot your password?» on the sign-in page, using this account's email." },
   "akun.dibuka.kredensial_murid": { default: "✓ {nama} dapat masuk lagi setelah mendapat PIN baru. PIN dan kartu lamanya tidak berlaku lagi. Buat PIN baru di Aktivasi akun, lalu berikan kepada {nama} sendiri.", en: "✓ {nama} can sign in again once they have a new PIN. The old PIN and card no longer work. Make a new PIN in Account activation, then give it to {nama} in person." },
   "akun.dibuka.kredensial_murid_tautan": { default: "Buat PIN baru untuk {nama}", en: "Make a new PIN for {nama}" },
   "buka_kembali.judul": { default: "Minta akun dibuka kembali", en: "Ask for your account to be reopened" },

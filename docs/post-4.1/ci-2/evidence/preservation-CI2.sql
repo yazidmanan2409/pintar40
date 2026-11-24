@@ -2,7 +2,7 @@
 --
 -- CI-2's PAIR IS 310 -> 311 (CI-1 promoted first, as ruling 98 sequences them; if CI-2 ever goes first, 309 -> 310 and
 -- only line 10's two values change): one migration, 20270126100000, sha256 at the freeze:
---   072a7cf9a89461fc6e708dfc9f91f37ca19aba8566a6bcf58b601fd1a40ddbd7
+--   4622be4e313e7063ffa03fc2e3dfbcc7f5c6031aeb3396b3800dedd70689fc3e
 -- Line 10 reads "310 / 20270125100000" BEFORE and "311 / 20270126100000" AFTER.
 --
 -- STEP 0 FIRST: staging-counts-CI2.sql (Sharon's (c), read only): banned, accounts of locked persons, banned but not

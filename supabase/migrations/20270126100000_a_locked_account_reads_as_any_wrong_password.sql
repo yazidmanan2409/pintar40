@@ -352,7 +352,29 @@ create or replace function public.akun_auth_terkunci(p_auth_user uuid)
   select exists (select 1 from public.accounts a where a.auth_user_id = p_auth_user and public.orang_ditangguhkan(a.person_id))
 $$;
 
+-- 7d. The class-card list says whether each learner is locked (Daisy CI2-KATA §5; Bob, principle 3, C-7): for a locked
+--     learner the re-issue page draws her line in place of the button, so no PIN that cannot work is shown or printed.
+--     DITUTUP for a closure at the person's request, DITANGGUHKAN for any other open suspension, null when not locked.
+--     The database still decides at the press (Q10 stores a random secret whatever the screen drew). Same rows, same
+--     readers and the same grants as before; one column more, so the function is dropped and made again.
+drop function public.card_holders();
+create function public.card_holders()
+returns table (person_id uuid, display_name text, institutional_id text, institution_id uuid, card_last4 text, kunci text)
+language sql stable security definer set search_path = public, pg_temp as $$
+  select p.id, p.display_name, ii.institutional_id, ii.institution_id, right(a.card_number, 4),
+         case when exists (select 1 from public.person_suspensions s where s.person_id = p.id and s.ended_at is null
+                             and s.category = 'CLOSED_AT_REQUEST') then 'DITUTUP'
+              when public.orang_ditangguhkan(p.id) then 'DITANGGUHKAN' end
+    from public.institutional_identities ii
+    join public.persons p on p.id = ii.person_id
+    join public.accounts a on a.person_id = p.id and a.kind = 'CLASSROOM_CARD'
+   where public.is_system_admin() or public.can_on_node('CAN_PROVISION_PEOPLE', ii.institution_id)
+   order by ii.institution_id, p.display_name
+$$;
+grant execute on function public.card_holders() to authenticated;
+
 -- ADR-0021: every function this file creates revokes PUBLIC's EXECUTE here; each keeps exactly the grants it had
+revoke all on function public.card_holders() from public, anon;
 revoke all on function public.auth_password_write_guard() from public, anon, authenticated, service_role;
 revoke all on function public.akun_kunci(uuid, boolean) from public, anon, authenticated, service_role;
 revoke all on function public.akun_baru_terkunci() from public, anon, authenticated, service_role;
