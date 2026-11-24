@@ -327,6 +327,10 @@ export default function LayarMasuk({
         >
           {layar.sibuk ? <><span className="pin-putar" aria-hidden="true" />{s("auth.card_checking")}</> : s("auth.card_enter")}
         </button>
+        {/* CI-2 (Daisy CI2-KATA §3 and §4's learner variant; Sharon §7): static, under the refusal, never its text. A learner's
+            account is closed or suspended by the school, so the learner is sent to the school, not to the reopening form */}
+        <p className="pin-rute" data-dibuka-kembali-baru="">{s("masuk.dibuka_kembali_baru")}</p>
+        <p className="pin-rute" data-f6-murid="">{s("masuk.f6_murid")}</p>
       </form>
     );
   }
@@ -438,9 +442,12 @@ export default function LayarMasuk({
           <a className="pin-tautan" href={HALAMAN_PEMULIHAN}>{s("auth.pw_lupa")}</a>
         )}
       </p>
-      {/* owner ruling 2 (9 Nov): a closed account asks to be reopened from here, signed out */}
-      <p className="pin-rute">
-        {s("auth.tutup_tanya")}{" "}
+      {/* CI-2 (Daisy CI2-KATA §3 and §4; Sharon §7, binding): two static lines, shown whatever was typed and never as the
+          refusal's text, so their presence cannot vary by account. Owner ruling 2 (9 Nov): a closed account asks to be
+          reopened from here, signed out (F-6 replaces «Akun Anda sudah ditutup?») */}
+      <p className="pin-rute" data-dibuka-kembali-baru="">{s("masuk.dibuka_kembali_baru")}</p>
+      <p className="pin-rute" data-f6="">
+        {s("masuk.f6")}{" "}
         <a className="pin-tautan" href="/masuk/buka-kembali">{s("auth.tutup_go")}</a>
       </p>
       <p className="pin-rute">

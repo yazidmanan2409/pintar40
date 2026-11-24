@@ -3273,6 +3273,12 @@ export type HleEvent =
   | "auth.ke_password"
   | "auth.tutup_tanya"
   | "auth.tutup_go"
+  | "masuk.dibuka_kembali_baru"
+  | "masuk.f6"
+  | "masuk.f6_murid"
+  | "akun.dibuka.kredensial_staf"
+  | "akun.dibuka.kredensial_murid"
+  | "akun.dibuka.kredensial_murid_tautan"
   | "buka_kembali.judul"
   | "buka_kembali.arti"
   | "buka_kembali.identitas"
@@ -7127,6 +7133,16 @@ const table: Table = {
   // owner ruling 2 (9 Nov): a closed account asks to be reopened, signed out; an Admin PINTAR decides after verifying identity
   "auth.tutup_tanya": { default: "Akun Anda sudah ditutup?", en: "Has your account been closed?" },
   "auth.tutup_go": { default: "Minta dibuka kembali", en: "Ask for it to be reopened" },
+  // CI-2 (ruling 98, OD-1 ruling 100; Daisy, CI2-KATA.md f15f33e2). §3 and F-6 are static lines of the sign-in, card and
+  // recovery views, under the refusal and never as its text (Sharon §7, binding): their presence cannot vary by account.
+  // F-6's EN and the re-issue link's words are the builder's, for Daisy's read.
+  "masuk.dibuka_kembali_baru": { default: "Akun yang baru dibuka kembali memakai password atau PIN baru. Staf: buat password baru lewat «Lupa password?». Murid: minta PIN baru kepada sekolah.", en: "An account that was just reopened uses a new password or PIN. Staff: make a new password with «Forgot password?». Learners: ask the school for a new PIN." },
+  "masuk.f6": { default: "Bila akun Anda ditutup atau ditangguhkan, Anda dapat meminta dibuka kembali.", en: "If your account was closed or suspended, you can ask for it to be reopened." },
+  "masuk.f6_murid": { default: "Bila akun Anda ditutup atau ditangguhkan, tanyakan kepada admin sekolah Anda.", en: "If your account was closed or suspended, ask your school admin." },
+  // §1 and §2: the decider's confirmation, before the person's first attempt
+  "akun.dibuka.kredensial_staf": { default: "✓ Akun {nama} dapat dipakai lagi. Password lamanya tidak berlaku lagi. Beri tahu {nama}: buat password baru lewat «Lupa password?» di halaman masuk, dengan email akun ini.", en: "✓ {nama}'s account can be used again. The old password no longer works. Tell {nama}: make a new password with «Forgot password?» on the sign-in page, using this account's email." },
+  "akun.dibuka.kredensial_murid": { default: "✓ {nama} dapat masuk lagi setelah mendapat PIN baru. PIN dan kartu lamanya tidak berlaku lagi. Buat PIN baru di Aktivasi akun, lalu berikan kepada {nama} sendiri.", en: "✓ {nama} can sign in again once they have a new PIN. The old PIN and card no longer work. Make a new PIN in Account activation, then give it to {nama} in person." },
+  "akun.dibuka.kredensial_murid_tautan": { default: "Buat PIN baru untuk {nama}", en: "Make a new PIN for {nama}" },
   "buka_kembali.judul": { default: "Minta akun dibuka kembali", en: "Ask for your account to be reopened" },
   "buka_kembali.arti": { default: "Akun yang sudah ditutup tidak dibuka dengan sendirinya. Admin PINTAR membaca permintaan ini, memastikan bahwa Anda pemilik akun itu, lalu memutuskan. Catatan Anda tetap tersimpan selama akun tertutup.", en: "A closed account is never reopened by itself. An Admin PINTAR reads this request, makes sure you are the account's owner, then decides. Your records stay kept while the account is closed." },
   "buka_kembali.identitas": { default: "Email atau username", en: "Email or username" },

@@ -49,9 +49,11 @@ export async function aktifkanKembaliAksi(fd: FormData): Promise<void> {
  */
 export async function bukaKembaliAksi(fd: FormData): Promise<void> {
   const permintaan = String(fd.get("permintaan") ?? "");
+  // CI-2 (Daisy CI2-KATA §1): the reopened person's PINTAR ID, so the confirmation names them and their fresh credential
+  const pid = String(fd.get("pid") ?? "");
   if (!UUID.test(permintaan) || fd.get("diverifikasi") !== "ya") kembali("", "gagal", "ACCOUNT_NOTE_REQUIRED");
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("buka_kembali_akun", { p_request: permintaan, p_cara_verifikasi: String(fd.get("cara") ?? "").trim() });
   if (error) kembali("", "gagal", kodeAkunDariGalat(error));
-  kembali("", "ok", undefined, "buka");
+  kembali(pid, "ok", undefined, "buka");
 }
