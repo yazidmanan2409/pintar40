@@ -116,3 +116,25 @@ The shape is `assessment_sessions.assistance_policy jsonb not null`, written onc
 - **`verifikasi.lulus` «Lulus»:** checked with R-c. It is a string change only; the five OUT columns and `assert_public_surface()` are unchanged.
 
 **R-d and R-h may start** with these corrections.
+
+## Addendum · Bob's early read of the local build `e6544f57` (not yet pushed), 24 Nov 2026, 02:05 UTC
+
+**The deviation, a separate sealed `bersertifikasi` column: ACCEPTED.** The purpose must not be inferred from the review key, because Pemetaan Awal hides the rationale but keeps its reasons. R-h's test is the governed purpose (`mode_policy.certifies`), so a column of its own is the right shape. Conditions:
+1. **Capture it at start** from `mode_policy.certifies`, and seal it with the same immutability trigger. Backfill it for every sitting in the same migration step as `assistance_policy`. `certifies` does not change here, so the backfill equals the current value.
+2. **Every R-h gate reads `bersertifikasi`, never a mode name or `reveals_rationale_on_review`:**
+   - `session_review`'s refusal;
+   - `session_answers`;
+   - `reading_map`;
+   - `session_outcome`;
+   - `hasil_koreksi_saya`.
+
+   One plant should prove it: a sitting with `bersertifikasi = true` and a non-certifying mode name is still gated.
+3. **Check, at insert only,** that `bersertifikasi ⇒` all three assistance levels false. Backfilled certifying sittings from before D2-R legitimately hold true, so this is a trigger condition on new rows, not a table CHECK.
+4. **Step 0 and the preservation pair:** both new columns are excluded from line 58's `baru`, and step 0 counts sittings by mode and `bersertifikasi`.
+
+**R-1:**
+- R1-K01 to K03 are database refusals for start, resume, `record_answer` and submit, after leaving, transfer and rollover, with the sitting ending through `tutup_asesmen_terbuka`. Plant `zr1-1` turns K01 red.
+- Green on the first run means the defect never existed, and the test now pins it.
+- **I confirm R-1 closed once I see the pushed head and its CI.**
+
+I review the full batch on the pushed head.
