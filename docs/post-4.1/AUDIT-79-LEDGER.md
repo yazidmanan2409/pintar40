@@ -664,3 +664,11 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
 2. Certificates hold both top-severity rows and four Significants, and the certificate is the one output that leaves PINTAR, so certificates go first (CI-1, then CI-1b, then the AR-79 certificate items).
 
 **Lines not raised by Daisy** (L-1 to L-43 and the builder's and Sharon's own rows) keep the severities the ledger already gives them, set by their source and by Sharon where [S]. Daisy needn't re-rank them.
+- **L-143's lolos-mark line (Daisy, `98657ab2`):**
+  - ID: «**{n} soal masih draf dari AI.** Terima atau hapus setiap draf sebelum paket ditandai lolos pemeriksaan.»
+  - EN: «**{n} questions are still AI drafts.** Accept or delete each draft before the package is marked as passing the check.»
+  - Singular, ID: «**1 soal masih draf dari AI.** Terima atau hapus draf ini sebelum paket ditandai lolos pemeriksaan.»
+  - Singular, EN: «**1 question is still an AI draft.** Accept or delete it before the package is marked as passing the check.»
+  - Both marks use L-144's pattern: `aria-disabled` (focusable) plus `aria-describedby`; the press goes to the first waiting draft, with «Lihat draf pertama» / «See the first draft».
+  - A database refusal (e.g. a draft made in another tab) uses the same sentence.
+  - KEPARAHAN is updated to Sharon's ruling.
