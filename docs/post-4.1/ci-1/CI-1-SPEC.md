@@ -93,3 +93,14 @@ A row wrongly CONFIRMED has no revocation, so DICABUT would be a different false
 **Captured, as planned:** the sealed pass mark, `bersertifikasi` (now), and the result in force and gate from `hasil_murid_id`. Evidence class stays live.
 
 **Structural (Sharon):** **don't modify `sertifikat_layak_dengan`**: `certificate_eligibility` and the correction preview call it, and at issue time captured equals live. CI-1's validity helper is a **new function** composing the captured `bersertifikasi`, official evidence, the sealed mark and the result in force. The fixture restatements for f38 and SERTIFIKAT-A01 (they bypassed `certificate_eligibility`) are accepted.
+
+## 8 · Status
+
+- **FROZEN at `dfab09b6`** (Bob's «freeze», 15:17Z). PR #30. ci 45424228769 and journeys 45424259782 run in attempt 1.
+- **Sharon: PASS** (`CI-1-VERIFY-dfab09b6.md`), conditional on both runs being green in attempt 1. She checked:
+  - S-1: the lock order, the full rollback, the captured rule, and `sertifikat_layak_dengan` untouched;
+  - S-2: the one helper with no client grant; DICABUT only from REVOKED; the OUT signature and public surface asserted; one registry row;
+  - plants P1–P9 and the mode-toggle case all caught;
+  - §7 (3) met;
+  - no rows written.
+- **The merge and the staging promotion 309→310 wait for the owner.** Sharon gives her promotion verdict on AFTER, plus the V6 counter.
