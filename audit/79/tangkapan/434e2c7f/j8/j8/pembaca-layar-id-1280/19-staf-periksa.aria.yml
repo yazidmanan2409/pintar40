@@ -1,0 +1,51 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- alert
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - strong: SD Sintetis Anggrek
+    - link "Konfigurasi":
+      - /url: /konfigurasi
+    - link "Pendataan":
+      - /url: /pendataan
+    - link "Aktivasi akun":
+      - /url: /aktivasi
+    - link "Studio":
+      - /url: /studio
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fpendataan%2F08227156-7ae8-4fca-a063-d10e15094389
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Wahyu Nugroho":
+      - strong: Wahyu Nugroho
+    - button "Keluar"
+- main:
+  - link "← Pendataan":
+    - /url: /pendataan
+  - paragraph: Administrasi sekolah
+  - heading "2 · Baru disusun" [level=1]
+  - region "Pemeriksaan":
+    - heading "Pemeriksaan" [level=2]
+    - button "Periksa daftar ini"
+    - status: 2 baris perlu diperbaiki.
+    - list:
+      - listitem:
+        - text: Baris 1
+        - list:
+          - listitem: Murid hanya bisa ditempatkan di Kelas atau Tingkat yang aktif.
+      - listitem:
+        - text: Baris 2
+        - list:
+          - listitem: Murid hanya bisa ditempatkan di Kelas atau Tingkat yang aktif.
+    - paragraph: Perbaiki berkas atau pilihan kolomnya, lalu mulai pendataan baru. Tidak ada yang dicatat sampai seluruh baris bisa dibaca.
+- contentinfo:
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com

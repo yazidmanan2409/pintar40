@@ -1,0 +1,204 @@
+{
+  "perjalanan": "j8",
+  "nama": "Wahyu Nugroho (Admin sekolah Anggrek)",
+  "lebar": 1280,
+  "zona": "WIB",
+  "bahasa": "en",
+  "laluan": "standar",
+  "label": [
+    "keadaan fiksasi: satu paket draf di Anggrek (batas ketuntasan ditetapkan per paket)",
+    "keadaan fiksasi di L5: dua staf didata (jalur staf pendataan belum ada)"
+  ],
+  "mulai": "2026-11-24T23:32:33.790Z",
+  "langkah": [
+    {
+      "id": "L1",
+      "judul": "the structure: a Bagian, a Tingkat (a wrong year, then a right one), 1A and 1B; a Bagian for staff",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-konfigurasi",
+        "02-struktur-kosong",
+        "03-tingkat-tahun-salah",
+        "04-struktur"
+      ],
+      "amatan": [],
+      "data": {
+        "readiness": "Configuration School: SD Sintetis Anggrek Yang menunggu 1 paket menunggu tindakan atau tinjauan Anda di Studio School setup What is ready at this school, and what still needs doing before teachers and students begin. Not yet Active classes · 0 Create a Bagian, a Tingkat, then a Kelas under School structure. Not yet Students placed in a class · 0 Record students through Pendataan: one list per class, its class chosen once with «One choice for everyone». Not yet Every class has a teacher Give the Guru role for that class under Roles & access. This school has one school administrator. A second ca",
+        "bagian": "✓Kelas Rendah added.",
+        "year_wrong": {
+          "words": "(no refusal line)",
+          "kept": "2026-27"
+        },
+        "tingkat": "✓Kelas 1 added. | ✓Kelas Rendah added.",
+        "kelas_1A": "✓1A added. | ✓Kelas 1 added. | ✓Kelas Rendah added.",
+        "kelas_1B": "✓1B added. | ✓Kelas 1 added. | ✓Kelas Rendah added.",
+        "bagian_staf": "✓1B added. | ✓Kelas 1 added. | ✓Guru dan Staf added.",
+        "structure": "FACULTY Jenjang, DEPARTMENT Guru dan Staf, DEPARTMENT Kelas Rendah, PROGRAMME Reguler, PROGRAMME Reguler, COHORT Kelas 1, CLASS 1A, CLASS 1B"
+      },
+      "tab": 97,
+      "url": "/konfigurasi/struktur",
+      "ms": 14257
+    },
+    {
+      "id": "L2",
+      "judul": "the school code: a wrong shape (the field kept), then «AGR»",
+      "hasil": "SAMPAI",
+      "layar": [
+        "05-kode-salah",
+        "06-kode"
+      ],
+      "amatan": [],
+      "data": {
+        "code_wrong": {
+          "words": "",
+          "kept": "A-1"
+        },
+        "code": "Adding people | ✓The school code is saved. The list of people can now be uploaded below."
+      },
+      "tab": 14,
+      "url": "/pendataan",
+      "ms": 3997
+    },
+    {
+      "id": "L3",
+      "judul": "a pass mark: out of range, then 70 with its reason",
+      "hasil": "SAMPAI",
+      "layar": [
+        "07-ketuntasan",
+        "08-ketuntasan-di-luar",
+        "09-ketuntasan-ditetapkan"
+      ],
+      "amatan": [],
+      "data": {
+        "out_of_range": {
+          "browser": "Value must be less than or equal to 100.",
+          "page": ""
+        },
+        "set": "✓Selesai. Batas ketuntasan ditetapkan. Berlaku untuk pelajaran yang disediakan mulai sekarang.",
+        "mark": "70"
+      },
+      "tab": 20,
+      "url": "/konfigurasi/ketuntasan",
+      "ms": 5439
+    },
+    {
+      "id": "L4",
+      "judul": "the learners' list with planted errors (blank, duplicate, too long); then the clean list for 1A",
+      "hasil": "SAMPAI",
+      "layar": [
+        "10-salah-terbaca",
+        "11-salah-kolom",
+        "12-salah-periksa",
+        "13-bersih-terbaca",
+        "14-bersih-kolom",
+        "15-bersih-periksa",
+        "16-bersih-dicatat"
+      ],
+      "amatan": [],
+      "data": {
+        "planted_check": "← Intake SCHOOL ADMINISTRATION 5 · Just assembled THE CHECK Check this list 3 rows need correcting. Row 2 This row is a twin of another row in the same file. Row 3 This row is a twin of another row in the same file. Row 4 The name is empty or too long. Correct the file or its column choices, then start a new intake. Nothing is recorded until every row can be read.",
+        "clean_check": "← Intake SCHOOL ADMINISTRATION 5 · Waiting for your approval WHAT WILL HAPPEN ROWS 5 NEW PEOPLE 5 PEOPLE ALREADY REGISTERED 0 SCHOOL REGISTRATION NUMBERS TO BE CREATED 5 ACCOUNTS THAT CAN SIGN IN 0 An intake creates a record of a person at this school. It does not create an account, and nobody can sign in to PINTAR as a result of it. Roles Student 5 The names to be recorded Every row of the list, with each name exactly as it will be recorded. Check the spelling before you approve. If a name is wrong, don't approve: correct the file, then start a new intake with it. 1 Laras Kinanti Student 2 Yoga Prasetya Student 3 Dewi Anjani Student 4 Bagas Saputra Student 5 Citra Ayu Student PINTAR records these people only after you approve. Yes, record these people",
+        "recorded": "← Intake SCHOOL ADMINISTRATION 5 · Done DONE 5 people are recorded at this school. An intake creates a record of a person at this school. It does not create an account, and nobody can sign in to PINTAR as a result of it. What comes next For teachers and staff: give their role first, on Roles & access Then open their account: teachers and staff by email, students by class card, on Account activation",
+        "learners_in_1a": "5"
+      },
+      "tab": 71,
+      "url": "/pendataan/abe0ad90-b0e1-4d04-a601-3c632e4c29c1",
+      "ms": 13303
+    },
+    {
+      "id": "L5",
+      "judul": "the staff list (refused: intake records learners only); roles: Guru 1A until today, Guru 1B without a date (staff by fixture)",
+      "hasil": "SAMPAI",
+      "layar": [
+        "17-staf-terbaca",
+        "18-staf-kolom",
+        "19-staf-periksa",
+        "20-peran",
+        "21-peran-cari-admin",
+        "22-sampai-peran-diberikan",
+        "23-tanpa-tanggal-peran-diberikan"
+      ],
+      "amatan": [],
+      "data": {
+        "staff_check": "← Intake SCHOOL ADMINISTRATION 2 · Just assembled THE CHECK Check this list 2 rows need correcting. Row 1 A student can only be placed in an active Kelas or Tingkat. Row 2 A student can only be placed in an active Kelas or Tingkat. Correct the file or its column choices, then start a new intake. Nothing is recorded until every row can be read.",
+        "staff_recorded": "← Intake SCHOOL ADMINISTRATION 2 · Just assembled THE CHECK Check this list 2 rows need correcting. Row 1 A student can only be placed in an active Kelas or Tingkat. Row 2 A student can only be placed in an active Kelas or Tingkat. Correct the file or its column choices, then start a new intake. Not",
+        "people_before": "(searched below)",
+        "search_admin_finds": "—",
+        "people_offered": "— / Siti Rahma / Dodi Firmansyah",
+        "scopes_offered": "— / SD Sintetis Anggrek / SD Sintetis Anggrek · Guru dan Staf / SD Sintetis Anggrek · Kelas Rendah / SD Sintetis Anggrek · Kelas 1 / SD Sintetis Anggrek · 1A / SD Sintetis Anggrek · 1B",
+        "sampai-people_found": "— / Siti Rahma",
+        "sampai-granted": "Peran & akses | Roles ending soon Roles ending within the next 30 days: 1. Renew each before its date so the person can keep working. Siti Rahma · Guru · 1A · valid until 25 Nov 2026 Renew · Siti Rahma · Guru | ✓Selesai. Peran diberikan.",
+        "tanpa-tanggal-people_found": "— / Dodi Firmansyah / Siti Rahma",
+        "tanpa-tanggal-granted": "Roles ending soon Roles ending within the next 30 days: 1. Renew each before its date so the person can keep working. Siti Rahma · Guru · 1A · valid until 25 Nov 2026 Renew · Siti Rahma · Guru",
+        "tanpa-tanggal-date_field": {
+          "browser": "Please fill out this field.",
+          "page_line": "(no page line)"
+        },
+        "roles": "Wahyu Nugroho INSTITUTION_ADMIN until 2036-11-24 23:32:30.726805+00; Siti Rahma EDUCATOR until 2026-11-25 16:59:59+00"
+      },
+      "tab": 90,
+      "url": "/konfigurasi/roles",
+      "ms": 18668
+    },
+    {
+      "id": "L6",
+      "judul": "1A's class cards made and printed",
+      "hasil": "SAMPAI",
+      "layar": [
+        "24-aktivasi",
+        "25-kartu",
+        "26-kartu-cetak"
+      ],
+      "amatan": [],
+      "data": {
+        "cards": "ACCOUNTS Activate accounts People your school has recorded who cannot sign in yet. Choose how each one signs in: with email, or with a classroom card and PIN. PINTAR sends no email or message of any kind when the account is made. For an email account, ask the person to activate it at 127.0.0.1:3999/aktifkan. Correct a person's details · A wrong email, a name or a username of someone who already ha"
+      },
+      "tab": 14,
+      "url": "/aktivasi",
+      "ms": 4050
+    },
+    {
+      "id": "L7",
+      "judul": "an assessment rule made for the package, then renamed: its settings kept",
+      "hasil": "SAMPAI",
+      "layar": [
+        "27-aturan",
+        "28-aturan-dibuat",
+        "29-aturan-diganti-nama"
+      ],
+      "amatan": [],
+      "data": {
+        "made": "✓The new rule has been created. | Studio",
+        "renamed": "✓The name is updated. How results are read has not changed. | Assessment Rules · PINTAR",
+        "rules": "Uji Penguasaan Bilangan sampai 20 v1"
+      },
+      "tab": 38,
+      "url": "/studio/definisi",
+      "ms": 5192
+    },
+    {
+      "id": "L8",
+      "judul": "the last admin: revoking their own admin role; closing their own account",
+      "hasil": "SAMPAI",
+      "layar": [
+        "30-staf-saya",
+        "31-cabut-admin-terakhir",
+        "32-akun",
+        "33-tutup-admin-terakhir"
+      ],
+      "amatan": [],
+      "data": {
+        "own_staff_page": "← Roles & access ROLES AND RESPONSIBILITIES Wahyu Nugroho The roles this person holds at this school, and the responsibilities each carries. In PINTAR, authority comes from the roles given here, not from a job title at the school. ROLES NOW School administrator Place: SD Sintetis Anggrek Valid until Tuesday, 25 Nov 2036 Responsibilities: Giving material to classes, Approving student transfers, Writing packages in Studio, Making and locking releases, Managing report templates, Managing students' ",
+        "revoke_own_admin": "Your own roles are changed or ended by another administrator.",
+        "close_offered": true,
+        "close_own_account": "My account | This request was not made: you are the only active school administrator at your school, so your account cannot be closed yet. Appoint another school administrator in Roles & access first, then ask again. If there is no one else, contact an Admin PINTAR.",
+        "admins": "1"
+      },
+      "tab": 44,
+      "url": "/akun",
+      "ms": 8432
+    }
+  ],
+  "selesai": "2026-11-24T23:33:47.130Z",
+  "sampai_akhir": true
+}

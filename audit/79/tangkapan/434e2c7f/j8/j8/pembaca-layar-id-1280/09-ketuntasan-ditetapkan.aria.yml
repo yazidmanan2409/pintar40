@@ -1,0 +1,47 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - strong: SD Sintetis Anggrek
+    - link "Konfigurasi":
+      - /url: /konfigurasi
+    - link "Pendataan":
+      - /url: /pendataan
+    - link "Aktivasi akun":
+      - /url: /aktivasi
+    - link "Studio":
+      - /url: /studio
+    - link "Keamanan akun":
+      - /url: /konfigurasi/keamanan
+    - link "Sertifikat sekolah":
+      - /url: /konfigurasi/sertifikat
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fkonfigurasi%2Fketuntasan
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Wahyu Nugroho":
+      - strong: Wahyu Nugroho
+    - button "Keluar"
+- main:
+  - link "← Konfigurasi":
+    - /url: /konfigurasi?sekolah=ad94aaf0-4b83-4919-b45d-5b1879dd840f
+  - heading "Batas ketuntasan" [level=1]
+  - paragraph:
+    - text: "Sekolah:"
+    - strong: SD Sintetis Anggrek
+  - region "Batas ketuntasan":
+    - paragraph: Nilai minimum kelulusan setiap pelajaran di sekolah ini, dalam persen bulat dari 1 sampai 100. Guru baru bisa menyediakan sebuah pelajaran untuk kelas setelah batasnya ditetapkan. Perubahan berlaku untuk pelajaran yang disediakan sesudahnya; hasil dan sertifikat yang sudah ada tidak berubah.
+    - list:
+      - listitem:
+        - strong: Bilangan sampai 20
+        - text: "· Matematika · Kelas 1 Batas ketuntasan: 70%"
+        - link "Tetapkan · Bilangan sampai 20":
+          - /url: /konfigurasi/ketuntasan?sekolah=ad94aaf0-4b83-4919-b45d-5b1879dd840f&ubah=6121ddb9-80c9-450d-9157-902a32fb4bb1#batas-6121ddb9-80c9-450d-9157-902a32fb4bb1
+        - group: Riwayat
+    - status: Selesai. Batas ketuntasan ditetapkan. Berlaku untuk pelajaran yang disediakan mulai sekarang.
+- alert

@@ -1,0 +1,53 @@
+- main:
+  - region "Kartu kelas · Kelas Rendah · Kelas 1 · 1A · 2026/2027":
+    - heading "Kartu kelas · Kelas Rendah · Kelas 1 · 1A · 2026/2027" [level=2]
+    - paragraph:
+      - text: PINTAR tidak mengirim apa pun. Berikan nomor kartu dan PIN ini kepada orangnya. Di
+      - strong: 127.0.0.1:3999/masuk
+      - text: ia memilih “Gunakan kartu kelas”, lalu mengetik keduanya.
+    - list:
+      - listitem:
+        - paragraph:
+          - strong: Bagas Saputra
+          - text: · AGR000004F3
+        - term: Nomor kartu
+        - definition: "8082145152"
+        - term: PIN
+        - definition: "942667"
+        - paragraph: 127.0.0.1:3999/masuk
+      - listitem:
+        - paragraph:
+          - strong: Citra Ayu
+          - text: · AGR000005A8
+        - term: Nomor kartu
+        - definition: "3117818287"
+        - term: PIN
+        - definition: "683425"
+        - paragraph: 127.0.0.1:3999/masuk
+      - listitem:
+        - paragraph:
+          - strong: Dewi Anjani
+          - text: · AGR00000353
+        - term: Nomor kartu
+        - definition: "7739168154"
+        - term: PIN
+        - definition: "926609"
+        - paragraph: 127.0.0.1:3999/masuk
+      - listitem:
+        - paragraph:
+          - strong: Laras Kinanti
+          - text: · AGR000001ZC
+        - term: Nomor kartu
+        - definition: "1792448192"
+        - term: PIN
+        - definition: "111267"
+        - paragraph: 127.0.0.1:3999/masuk
+      - listitem:
+        - paragraph:
+          - strong: Yoga Prasetya
+          - text: · AGR0000027W
+        - term: Nomor kartu
+        - definition: "9222007558"
+        - term: PIN
+        - definition: "099720"
+        - paragraph: 127.0.0.1:3999/masuk

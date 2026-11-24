@@ -1,0 +1,120 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - strong: SD Sintetis Anggrek
+    - link "Konfigurasi":
+      - /url: /konfigurasi
+    - link "Pendataan":
+      - /url: /pendataan
+    - link "Aktivasi akun":
+      - /url: /aktivasi
+    - link "Studio":
+      - /url: /studio
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Faktivasi
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Wahyu Nugroho":
+      - strong: Wahyu Nugroho
+    - button "Keluar"
+- main:
+  - paragraph: Akun
+  - heading "Aktifkan akun" [level=1]
+  - paragraph:
+    - text: "Orang yang sudah didata sekolah Anda tetapi belum bisa masuk. Pilih caranya untuk masing-masing: dengan email, atau dengan kartu kelas dan PIN. Untuk guru dan staf, berikan perannya di Peran & akses lebih dulu, lalu aktifkan dengan email. PINTAR tidak mengirim email atau pesan apa pun saat akun dibuat. Untuk akun email, minta orangnya mengaktifkan akunnya di"
+    - strong: 127.0.0.1:3999/aktifkan
+    - text: .
+  - paragraph:
+    - link "Koreksi data orang":
+      - /url: /aktivasi/orang
+    - text: · Email yang salah, nama, atau username orang yang sudah punya akun.
+  - heading "Kartu untuk satu kelas" [level=2]
+  - paragraph: Buat kartu kelas untuk semua murid di satu kelas yang belum punya akun, dengan sekali tekan. Setiap kartu tetap dibuat dan dicatat untuk muridnya masing-masing.
+  - text: Kelas
+  - combobox "Kelas":
+    - option "Kelas Rendah · Kelas 1 · 1A · 2026/2027 (5 murid belum punya akun)" [selected]
+  - button "Buat kartu untuk kelas ini"
+  - text: Cari nama atau no. registrasi sekolah
+  - searchbox "Cari nama atau no. registrasi sekolah"
+  - paragraph: Nomor registrasi orang ini di sekolah tersebut. Berbeda dari PINTAR ID dan NIS/NISN.
+  - paragraph: 7 orang menunggu akun.
+  - list:
+    - listitem:
+      - paragraph:
+        - strong: Bagas Saputra
+        - text: · AGR000004F3
+      - text: Alamat email
+      - textbox "Alamat email"
+      - button "Aktifkan dengan email"
+      - button "Buat kartu kelas"
+    - listitem:
+      - paragraph:
+        - strong: Citra Ayu
+        - text: · AGR000005A8
+      - text: Alamat email
+      - textbox "Alamat email"
+      - button "Aktifkan dengan email"
+      - button "Buat kartu kelas"
+    - listitem:
+      - paragraph:
+        - strong: Dewi Anjani
+        - text: · AGR00000353
+      - text: Alamat email
+      - textbox "Alamat email"
+      - button "Aktifkan dengan email"
+      - button "Buat kartu kelas"
+    - listitem:
+      - paragraph:
+        - strong: Dodi Firmansyah
+        - text: · AGR0000075P
+      - text: Alamat email
+      - textbox "Alamat email"
+      - button "Aktifkan dengan email"
+      - button "Buat kartu kelas"
+    - listitem:
+      - paragraph:
+        - strong: Laras Kinanti
+        - text: · AGR000001ZC
+      - text: Alamat email
+      - textbox "Alamat email"
+      - button "Aktifkan dengan email"
+      - button "Buat kartu kelas"
+    - listitem:
+      - paragraph:
+        - strong: Siti Rahma
+        - text: · AGR000006XF
+      - text: Alamat email
+      - textbox "Alamat email"
+      - button "Aktifkan dengan email"
+    - listitem:
+      - paragraph:
+        - strong: Yoga Prasetya
+        - text: · AGR0000027W
+      - text: Alamat email
+      - textbox "Alamat email"
+      - button "Aktifkan dengan email"
+      - button "Buat kartu kelas"
+  - navigation "Halaman daftar orang":
+    - text: Menampilkan 1–7 dari 7 orang
+    - link "Halaman sebelumnya" [disabled]: Sebelumnya
+    - text: Halaman 1 dari 1
+    - link "Halaman berikutnya" [disabled]: Berikutnya
+  - region "Kartu hilang atau rusak":
+    - heading "Kartu hilang atau rusak" [level=2]
+    - paragraph: Terbitkan kartu baru untuk murid yang kehilangan kartunya atau kartunya rusak. Kartu lama langsung berhenti berlaku; akun, kelas dan semua hasil belajarnya tetap.
+    - paragraph: Belum ada murid yang punya kartu kelas.
+  - region "Murid yang menjadi staf":
+    - heading "Murid yang menjadi staf" [level=2]
+    - paragraph: "Kartu kelas hanya untuk murid. Bila seorang murid menjadi staf, ubah kartunya menjadi akun email lebih dulu. Orangnya tetap sama: nomor registrasi sekolah, kelas dan semua hasil belajarnya tetap. Setelah ia mengaktifkan akun email itu, berikan perannya."
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- alert

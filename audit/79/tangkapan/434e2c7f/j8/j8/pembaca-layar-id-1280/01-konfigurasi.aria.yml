@@ -1,0 +1,117 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - strong: SD Sintetis Anggrek
+    - link "Konfigurasi":
+      - /url: /konfigurasi
+    - link "Pendataan":
+      - /url: /pendataan
+    - link "Aktivasi akun":
+      - /url: /aktivasi
+    - link "Studio":
+      - /url: /studio
+    - link "Keamanan akun":
+      - /url: /konfigurasi/keamanan
+    - link "Sertifikat sekolah":
+      - /url: /konfigurasi/sertifikat
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fkonfigurasi
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Wahyu Nugroho":
+      - strong: Wahyu Nugroho
+    - button "Keluar"
+- main:
+  - heading "Konfigurasi" [level=1]
+  - paragraph:
+    - text: "Sekolah:"
+    - strong: SD Sintetis Anggrek
+  - region "Yang menunggu":
+    - heading "Yang menunggu" [level=2]
+    - list:
+      - listitem:
+        - link "1 paket menunggu tindakan atau tinjauan Anda di Studio":
+          - /url: /studio
+  - region "Persiapan sekolah":
+    - heading "Persiapan sekolah" [level=2]
+    - paragraph: Apa yang sudah siap di sekolah ini, dan apa yang masih perlu dikerjakan sebelum guru dan murid mulai.
+    - list:
+      - listitem:
+        - strong: Belum
+        - text: Kelas aktif · 0
+        - link "Buat Bagian, Tingkat, lalu Kelas di Struktur sekolah.":
+          - /url: /konfigurasi/struktur
+      - listitem:
+        - strong: Belum
+        - text: "Murid yang sudah ditempatkan di Kelas · 0 Catat murid lewat Pendataan: satu daftar untuk satu kelas, kelasnya dipilih sekali dengan «Satu pilihan untuk semua»."
+      - listitem:
+        - strong: Belum
+        - text: Setiap Kelas punya guru
+        - link "Beri peran Guru untuk Kelas itu di Peran & akses.":
+          - /url: /konfigurasi/roles
+    - paragraph: Sekolah ini punya satu admin sekolah. Admin sekolah kedua dapat membantu memulihkan akun bila yang satu berhalangan; tambahkan di Peran & akses.
+  - navigation "Konfigurasi":
+    - region "Sekolah dan tahun ajaran":
+      - heading "Sekolah dan tahun ajaran" [level=2]
+      - list:
+        - listitem:
+          - link "Struktur sekolah":
+            - /url: /konfigurasi/struktur
+        - listitem:
+          - link "Batas ketuntasan":
+            - /url: /konfigurasi/ketuntasan
+        - listitem:
+          - link "Kenaikan kelas dan kelulusan":
+            - /url: /konfigurasi/rollover
+        - listitem:
+          - link "Sistem & Konfigurasi":
+            - /url: /konfigurasi/system
+    - region "Murid":
+      - heading "Murid" [level=2]
+      - list:
+        - listitem:
+          - link "Pindah kelas":
+            - /url: /konfigurasi/pindah
+        - listitem:
+          - link "Perpindahan murid":
+            - /url: /konfigurasi/transfers
+    - region "Staf dan akses":
+      - heading "Staf dan akses" [level=2]
+      - list:
+        - listitem:
+          - link "Peran & akses":
+            - /url: /konfigurasi/roles
+        - listitem:
+          - link "Peserta pengembangan profesi":
+            - /url: /konfigurasi/peserta
+        - listitem:
+          - link "Jejak audit":
+            - /url: /konfigurasi/audit
+        - listitem:
+          - link "Catatan masuk dan cetak":
+            - /url: /konfigurasi/catatan-masuk
+    - region "Laporan dan templat":
+      - heading "Laporan dan templat" [level=2]
+      - list:
+        - listitem:
+          - link "Laporan":
+            - /url: /konfigurasi/laporan
+        - listitem:
+          - link "Templat laporan":
+            - /url: /konfigurasi/intelligence
+    - region "Dukungan":
+      - heading "Dukungan" [level=2]
+      - list:
+        - listitem:
+          - link "Laporan masalah":
+            - /url: /konfigurasi/laporan-masalah
+        - listitem:
+          - link "Pemeliharaan dan pengumuman":
+            - /url: /konfigurasi/pemeliharaan
+- alert

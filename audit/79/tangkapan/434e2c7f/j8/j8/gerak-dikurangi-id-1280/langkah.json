@@ -1,0 +1,204 @@
+{
+  "perjalanan": "j8",
+  "nama": "Wahyu Nugroho (Admin sekolah Anggrek)",
+  "lebar": 1280,
+  "zona": "WIB",
+  "bahasa": "id",
+  "laluan": "gerak-dikurangi",
+  "label": [
+    "keadaan fiksasi: satu paket draf di Anggrek (batas ketuntasan ditetapkan per paket)",
+    "keadaan fiksasi di L5: dua staf didata (jalur staf pendataan belum ada)"
+  ],
+  "mulai": "2026-11-24T23:22:41.400Z",
+  "langkah": [
+    {
+      "id": "L1",
+      "judul": "the structure: a Bagian, a Tingkat (a wrong year, then a right one), 1A and 1B; a Bagian for staff",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-konfigurasi",
+        "02-struktur-kosong",
+        "03-tingkat-tahun-salah",
+        "04-struktur"
+      ],
+      "amatan": [],
+      "data": {
+        "readiness": "Konfigurasi Sekolah: SD Sintetis Anggrek Yang menunggu 1 paket menunggu tindakan atau tinjauan Anda di Studio Persiapan sekolah Apa yang sudah siap di sekolah ini, dan apa yang masih perlu dikerjakan sebelum guru dan murid mulai. Belum Kelas aktif · 0 Buat Bagian, Tingkat, lalu Kelas di Struktur sekolah. Belum Murid yang sudah ditempatkan di Kelas · 0 Catat murid lewat Pendataan: satu daftar untuk satu kelas, kelasnya dipilih sekali dengan «Satu pilihan untuk semua». Belum Setiap Kelas punya guru Beri peran Guru untuk Kelas itu di Peran & akses. Sekolah ini punya satu admin sekolah. Admin seko",
+        "bagian": "✓Kelas Rendah ditambahkan.",
+        "year_wrong": {
+          "words": "Tulis tahun ajaran seperti 2026/2027.",
+          "kept": "2026-27"
+        },
+        "tingkat": "✓Kelas 1 ditambahkan. | ✓Kelas Rendah ditambahkan.",
+        "kelas_1A": "✓1A ditambahkan. | ✓Kelas 1 ditambahkan. | ✓Kelas Rendah ditambahkan.",
+        "kelas_1B": "✓1B ditambahkan. | ✓Kelas 1 ditambahkan. | ✓Kelas Rendah ditambahkan.",
+        "bagian_staf": "✓1B ditambahkan. | ✓Kelas 1 ditambahkan. | ✓Guru dan Staf ditambahkan.",
+        "structure": "FACULTY Jenjang, DEPARTMENT Guru dan Staf, DEPARTMENT Kelas Rendah, PROGRAMME Reguler, PROGRAMME Reguler, COHORT Kelas 1, CLASS 1A, CLASS 1B"
+      },
+      "tab": 97,
+      "url": "/konfigurasi/struktur",
+      "ms": 13821
+    },
+    {
+      "id": "L2",
+      "judul": "the school code: a wrong shape (the field kept), then «AGR»",
+      "hasil": "SAMPAI",
+      "layar": [
+        "05-kode-salah",
+        "06-kode"
+      ],
+      "amatan": [],
+      "data": {
+        "code_wrong": {
+          "words": " Kode Tiga huruf atau angka.",
+          "kept": "A-1"
+        },
+        "code": "Menambahkan orang | ✓Kode sekolah tersimpan. Daftar orang sekarang bisa diunggah di bawah."
+      },
+      "tab": 14,
+      "url": "/pendataan",
+      "ms": 3956
+    },
+    {
+      "id": "L3",
+      "judul": "a pass mark: out of range, then 70 with its reason",
+      "hasil": "SAMPAI",
+      "layar": [
+        "07-ketuntasan",
+        "08-ketuntasan-di-luar",
+        "09-ketuntasan-ditetapkan"
+      ],
+      "amatan": [],
+      "data": {
+        "out_of_range": {
+          "browser": "Value must be less than or equal to 100.",
+          "page": ""
+        },
+        "set": "✓Selesai. Batas ketuntasan ditetapkan. Berlaku untuk pelajaran yang disediakan mulai sekarang. | Batas ketuntasan",
+        "mark": "70"
+      },
+      "tab": 20,
+      "url": "/konfigurasi/ketuntasan",
+      "ms": 5173
+    },
+    {
+      "id": "L4",
+      "judul": "the learners' list with planted errors (blank, duplicate, too long); then the clean list for 1A",
+      "hasil": "SAMPAI",
+      "layar": [
+        "10-salah-terbaca",
+        "11-salah-kolom",
+        "12-salah-periksa",
+        "13-bersih-terbaca",
+        "14-bersih-kolom",
+        "15-bersih-periksa",
+        "16-bersih-dicatat"
+      ],
+      "amatan": [],
+      "data": {
+        "planted_check": "← Pendataan ADMINISTRASI SEKOLAH 5 · Baru disusun PEMERIKSAAN Periksa daftar ini 3 baris perlu diperbaiki. Baris 2 Baris ini kembar dengan baris lain di berkas yang sama. Baris 3 Baris ini kembar dengan baris lain di berkas yang sama. Baris 4 Nama kosong atau terlalu panjang. Perbaiki berkas atau pilihan kolomnya, lalu mulai pendataan baru. Tidak ada yang dicatat sampai seluruh baris bisa dibaca.",
+        "clean_check": "← Pendataan ADMINISTRASI SEKOLAH 5 · Menunggu persetujuan Anda YANG AKAN TERJADI BARIS 5 ORANG BARU 5 ORANG YANG SUDAH TERDAFTAR 0 NO. REGISTRASI SEKOLAH YANG AKAN DIBUAT 5 AKUN YANG BISA MASUK 0 Pendataan membuat catatan orang di sekolah ini. Pendataan tidak membuat akun, dan tidak ada orang yang bisa masuk ke PINTAR karenanya. Peran Murid 5 Nama yang akan dicatat Semua baris dari daftar, dengan nama persis seperti akan dicatat. Periksa ejaannya sebelum menyetujui. Jika ada nama yang keliru, jangan setujui: perbaiki berkasnya, lalu mulai pendataan baru dengan berkas itu. 1 Laras Kinanti Murid 2 Yoga Prasetya Murid 3 Dewi Anjani Murid 4 Bagas Saputra Murid 5 Citra Ayu Murid PINTAR mencatat orang-orang ini hanya setelah Anda menyetujuinya. Ya, catat orang-orang ini",
+        "recorded": "← Pendataan ADMINISTRASI SEKOLAH 5 · Selesai SELESAI 5 orang tercatat di sekolah ini. Pendataan membuat catatan orang di sekolah ini. Pendataan tidak membuat akun, dan tidak ada orang yang bisa masuk ke PINTAR karenanya. Langkah berikutnya Untuk guru dan staf: berikan perannya lebih dulu, di Peran & akses Lalu buka akunnya: guru dan staf dengan email, murid dengan kartu kelas, di Aktivasi akun",
+        "learners_in_1a": "5"
+      },
+      "tab": 71,
+      "url": "/pendataan/c513eb9d-b974-4bbc-a21a-72f01e1351ab",
+      "ms": 73724
+    },
+    {
+      "id": "L5",
+      "judul": "the staff list (refused: intake records learners only); roles: Guru 1A until today, Guru 1B without a date (staff by fixture)",
+      "hasil": "SAMPAI",
+      "layar": [
+        "17-staf-terbaca",
+        "18-staf-kolom",
+        "19-staf-periksa",
+        "20-peran",
+        "21-peran-cari-admin",
+        "22-sampai-peran-diberikan",
+        "23-tanpa-tanggal-peran-diberikan"
+      ],
+      "amatan": [],
+      "data": {
+        "staff_check": "← Pendataan ADMINISTRASI SEKOLAH 2 · Baru disusun PEMERIKSAAN Periksa daftar ini 2 baris perlu diperbaiki. Baris 1 Murid hanya bisa ditempatkan di Kelas atau Tingkat yang aktif. Baris 2 Murid hanya bisa ditempatkan di Kelas atau Tingkat yang aktif. Perbaiki berkas atau pilihan kolomnya, lalu mulai pendataan baru. Tidak ada yang dicatat sampai seluruh baris bisa dibaca.",
+        "staff_recorded": "← Pendataan ADMINISTRASI SEKOLAH 2 · Baru disusun PEMERIKSAAN Periksa daftar ini 2 baris perlu diperbaiki. Baris 1 Murid hanya bisa ditempatkan di Kelas atau Tingkat yang aktif. Baris 2 Murid hanya bisa ditempatkan di Kelas atau Tingkat yang aktif. Perbaiki berkas atau pilihan kolomnya, lalu mulai p",
+        "people_before": "(searched below)",
+        "search_admin_finds": "—",
+        "people_offered": "— / Siti Rahma / Dodi Firmansyah",
+        "scopes_offered": "— / SD Sintetis Anggrek / SD Sintetis Anggrek · Guru dan Staf / SD Sintetis Anggrek · Kelas Rendah / SD Sintetis Anggrek · Kelas 1 / SD Sintetis Anggrek · 1A / SD Sintetis Anggrek · 1B",
+        "sampai-people_found": "— / Siti Rahma",
+        "sampai-granted": "Peran & akses | Peran yang segera berakhir Peran yang berakhir dalam 30 hari ke depan: 1. Perpanjang sebelum tanggalnya agar orangnya tetap dapat bekerja. Siti Rahma · Guru · 1A · berlaku sampai 25 Nov 2026 Perpanjang · Siti Rahma · Guru | ✓Selesai. Peran diberikan.",
+        "tanpa-tanggal-people_found": "— / Dodi Firmansyah / Siti Rahma",
+        "tanpa-tanggal-granted": "Peran yang segera berakhir Peran yang berakhir dalam 30 hari ke depan: 1. Perpanjang sebelum tanggalnya agar orangnya tetap dapat bekerja. Siti Rahma · Guru · 1A · berlaku sampai 25 Nov 2026 Perpanjang · Siti Rahma · Guru",
+        "tanpa-tanggal-date_field": {
+          "browser": "Please fill out this field.",
+          "page_line": "(no page line)"
+        },
+        "roles": "Wahyu Nugroho INSTITUTION_ADMIN until 2036-11-24 23:22:38.510119+00; Siti Rahma EDUCATOR until 2026-11-25 16:59:59+00"
+      },
+      "tab": 90,
+      "url": "/konfigurasi/roles",
+      "ms": 79052
+    },
+    {
+      "id": "L6",
+      "judul": "1A's class cards made and printed",
+      "hasil": "SAMPAI",
+      "layar": [
+        "24-aktivasi",
+        "25-kartu",
+        "26-kartu-cetak"
+      ],
+      "amatan": [],
+      "data": {
+        "cards": "AKUN Aktifkan akun Orang yang sudah didata sekolah Anda tetapi belum bisa masuk. Pilih caranya untuk masing-masing: dengan email, atau dengan kartu kelas dan PIN. Untuk guru dan staf, berikan perannya di Peran & akses lebih dulu, lalu aktifkan dengan email. PINTAR tidak mengirim email atau pesan apa pun saat akun dibuat. Untuk akun email, minta orangnya mengaktifkan akunnya di 127.0.0.1:3999/aktif"
+      },
+      "tab": 14,
+      "url": "/aktivasi",
+      "ms": 3856
+    },
+    {
+      "id": "L7",
+      "judul": "an assessment rule made for the package, then renamed: its settings kept",
+      "hasil": "SAMPAI",
+      "layar": [
+        "27-aturan",
+        "28-aturan-dibuat",
+        "29-aturan-diganti-nama"
+      ],
+      "amatan": [],
+      "data": {
+        "made": "✓Aturan baru dibuat. | Studio",
+        "renamed": "✓Nama diperbarui. Cara hasil dibaca tidak berubah. | Aturan Asesmen · PINTAR",
+        "rules": "Uji Penguasaan Bilangan sampai 20 v1"
+      },
+      "tab": 38,
+      "url": "/studio/definisi",
+      "ms": 5132
+    },
+    {
+      "id": "L8",
+      "judul": "the last admin: revoking their own admin role; closing their own account",
+      "hasil": "SAMPAI",
+      "layar": [
+        "30-staf-saya",
+        "31-cabut-admin-terakhir",
+        "32-akun",
+        "33-tutup-admin-terakhir"
+      ],
+      "amatan": [],
+      "data": {
+        "own_staff_page": "← Peran & akses PERAN DAN TANGGUNG JAWAB Wahyu Nugroho Peran yang dipegang orang ini di sekolah ini, dan tanggung jawab yang dibawa tiap peran. Di PINTAR, wewenang datang dari peran yang diberikan di sini, bukan dari jabatan di sekolah. PERAN SEKARANG Admin sekolah Tempat: SD Sintetis Anggrek Berlaku sampai Selasa, 25 Nov 2036 Tanggung jawab: Menyediakan materi untuk kelas, Menyetujui perpindahan murid, Menyusun paket di Studio, Membuat dan mengunci terbitan, Mengelola templat laporan, Mengatur ",
+        "revoke_own_admin": "Peran Anda sendiri diubah atau diakhiri oleh admin lain.",
+        "close_offered": true,
+        "close_own_account": "Akun saya | Permintaan ini tidak diajukan: Anda satu-satunya Admin sekolah yang masih aktif di sekolah Anda, jadi akun Anda belum dapat ditutup. Tunjuk Admin sekolah lain lebih dulu di Peran & akses, lalu ajukan lagi. Bila tidak ada orang lain, hubungi Admin PINTAR.",
+        "admins": "1"
+      },
+      "tab": 44,
+      "url": "/akun",
+      "ms": 8094
+    }
+  ],
+  "selesai": "2026-11-24T23:25:54.212Z",
+  "sampai_akhir": true
+}

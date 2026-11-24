@@ -1,0 +1,95 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - strong: SD Sintetis Anggrek
+    - link "Konfigurasi":
+      - /url: /konfigurasi
+    - link "Pendataan":
+      - /url: /pendataan
+    - link "Aktivasi akun":
+      - /url: /aktivasi
+    - link "Studio":
+      - /url: /studio
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fpendataan
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Wahyu Nugroho":
+      - strong: Wahyu Nugroho
+    - button "Keluar"
+- main:
+  - paragraph: Administrasi sekolah
+  - heading "Menambahkan orang" [level=1]
+  - paragraph: Unggah daftar dari spreadsheet. PINTAR memeriksanya, menunjukkan apa yang akan terjadi, lalu meminta persetujuan Anda sebelum mencatat siapa pun.
+  - region "Kode sekolah":
+    - heading "Kode sekolah" [level=2]
+    - paragraph: Kode ini menjadi bagian dari nomor registrasi sekolah yang dibuat PINTAR untuk setiap orang di sekolah ini.
+    - paragraph: Setelah nomor registrasi sekolah pertama diterbitkan, kode ini tidak bisa diubah lagi.
+    - text: Kode
+    - paragraph: Tiga huruf atau angka.
+    - textbox "Kode": AGR
+    - button "Simpan kode"
+    - status
+    - paragraph: "Contoh No. Registrasi Sekolah: AGR000001AB"
+    - paragraph: Nomor registrasi orang ini di sekolah tersebut. Berbeda dari PINTAR ID dan NIS/NISN. Nomor ini tidak menyatakan apakah orangnya murid, guru, atau pimpinan.
+  - region "Pendataan sebelumnya":
+    - heading "Pendataan sebelumnya" [level=2]
+    - paragraph: Belum ada pendataan.
+  - region "Daftar orang":
+    - heading "Daftar orang" [level=2]
+    - paragraph: Baris pertama berisi nama kolom. Koma, titik koma, atau tab sama-sama terbaca.
+    - paragraph: "Satu daftar untuk satu kelas. Cukup satu kolom «nama». Setelah daftar terbaca, pilih kelasnya sekali untuk semua baris: pada Tempat, pilih «Satu pilihan untuk semua» lalu kelasnya. Dari spreadsheet, simpan sebagai CSV atau salin barisnya ke kotak di bawah."
+    - text: nama Ani Lestari Budi Santoso Citra Dewi Pilih berkas
+    - button "Pilih berkas"
+    - paragraph: Belum dipilih
+    - text: Atau tempelkan dari spreadsheet
+    - textbox "Atau tempelkan dari spreadsheet": nama Laras Kinanti Yoga Prasetya Yoga Prasetya XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Dewi Anjani
+    - paragraph: 5 baris terbaca
+  - region "Kolom mana untuk apa":
+    - heading "Kolom mana untuk apa" [level=2]
+    - paragraph: "PINTAR menebak dari nama kolom. Ubah bila tebakannya keliru. Kelas dipilih pada Tempat dengan «Satu pilihan untuk semua»: satu daftar untuk setiap kelas."
+    - term: Nama
+    - definition:
+      - combobox "Nama":
+        - option "Tidak dipakai"
+    - term: Orang yang sudah terdaftar
+    - definition:
+      - combobox "Orang yang sudah terdaftar":
+        - option "Tidak dipakai" [selected]
+    - term: Tempat
+    - definition:
+      - combobox "Tempat":
+        - option "Tidak dipakai" [selected]
+    - term: Peran
+    - definition:
+      - combobox "Peran":
+        - option "Tidak dipakai" [selected]
+    - term: Program
+    - definition:
+      - combobox "Program":
+        - option "Tidak dipakai" [selected]
+    - heading "Beberapa baris pertama" [level=3]
+    - list:
+      - listitem: 1 Laras Kinanti
+      - listitem: 2 Yoga Prasetya
+      - listitem: 3 Yoga Prasetya
+      - listitem: 4 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+      - listitem: 5 Dewi Anjani
+    - paragraph: 5 baris belum punya kelas. Murid tanpa kelas bisa masuk, tetapi tidak menerima materi apa pun. Untuk daftar murid, pilih kelasnya pada Tempat («Satu pilihan untuk semua»).
+    - 'checkbox "Ini daftar guru atau staf: catat tanpa kelas. Perannya diberikan sesudahnya di Peran & akses."'
+    - text: "Ini daftar guru atau staf: catat tanpa kelas. Perannya diberikan sesudahnya di Peran & akses."
+    - button "Lanjut ke pemeriksaan" [disabled]
+    - status
+- contentinfo:
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- alert

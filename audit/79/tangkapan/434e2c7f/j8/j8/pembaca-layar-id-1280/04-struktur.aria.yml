@@ -1,0 +1,118 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - strong: SD Sintetis Anggrek
+    - link "Konfigurasi":
+      - /url: /konfigurasi
+    - link "Pendataan":
+      - /url: /pendataan
+    - link "Aktivasi akun":
+      - /url: /aktivasi
+    - link "Studio":
+      - /url: /studio
+    - link "Keamanan akun":
+      - /url: /konfigurasi/keamanan
+    - link "Sertifikat sekolah":
+      - /url: /konfigurasi/sertifikat
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fkonfigurasi%2Fstruktur
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Wahyu Nugroho":
+      - strong: Wahyu Nugroho
+    - button "Keluar"
+- main:
+  - link "← Konfigurasi":
+    - /url: /konfigurasi
+  - heading "Struktur sekolah" [level=1]
+  - paragraph:
+    - text: "Sekolah:"
+    - strong: SD Sintetis Anggrek
+  - paragraph: "Susun sekolah dari atas ke bawah: Bagian, lalu Tingkat, lalu Kelas. Murid ditempatkan di Kelas, dan guru ditugaskan ke Kelas."
+  - paragraph: "Sekolah: SD Sintetis Anggrek"
+  - list:
+    - listitem: Tambah Bagian, misalnya Kelas Rendah.
+    - listitem: Di dalam Bagian, tambah Tingkat dengan tahun ajarannya, misalnya Kelas 1 untuk 2026/2027.
+    - listitem: Di dalam Tingkat, tambah Kelas satu per satu, misalnya 1A lalu 1B.
+  - list:
+    - listitem:
+      - text: Bagian
+      - strong: Guru dan Staf
+      - text: Pengembangan profesi guru
+      - button "Ubah nama"
+      - button "Nonaktifkan"
+      - list:
+        - listitem: Belum ada Tingkat di Bagian ini.
+      - text: Tingkat
+      - textbox "Tingkat":
+        - /placeholder: Misalnya Kelas 1
+      - text: Tahun ajaran
+      - textbox "Tahun ajaran": 2026/2027
+      - button "Tambah Tingkat"
+      - status
+    - listitem:
+      - text: Bagian
+      - strong: Kelas Rendah
+      - button "Ubah nama"
+      - button "Nonaktifkan"
+      - list:
+        - listitem:
+          - text: Tingkat
+          - strong: Kelas 1
+          - text: 2026/27 0 murid
+          - button "Ubah nama"
+          - button "Nonaktifkan"
+          - list:
+            - listitem:
+              - text: Kelas
+              - strong: 1A
+              - text: 2026/27 0 murid
+              - button "Ubah nama"
+              - button "Nonaktifkan"
+            - listitem:
+              - text: Kelas
+              - strong: 1B
+              - text: 2026/27 0 murid
+              - button "Ubah nama"
+              - button "Nonaktifkan"
+          - text: Kelas
+          - textbox "Kelas":
+            - /placeholder: Misalnya 1A
+          - button "Tambah Kelas"
+          - status
+          - paragraph: "Tahun ajaran mengikuti Tingkat: 2026/27"
+          - status:
+            - strong: 1B
+            - text: ditambahkan.
+      - text: Tingkat
+      - textbox "Tingkat":
+        - /placeholder: Misalnya Kelas 1
+      - text: Tahun ajaran
+      - textbox "Tahun ajaran": 2026/2027
+      - button "Tambah Tingkat"
+      - status
+      - status:
+        - strong: Kelas 1
+        - text: ditambahkan.
+  - text: Bagian
+  - textbox "Bagian":
+    - /placeholder: Misalnya Kelas Rendah
+  - group "Untuk":
+    - text: Untuk
+    - radio "Murid (pembelajaran sekolah)" [checked]
+    - text: Murid (pembelajaran sekolah)
+    - radio "Guru dan staf (pengembangan profesi)"
+    - text: Guru dan staf (pengembangan profesi)
+    - paragraph: Pilihan ini berlaku untuk Bagian ini dan semua Tingkat serta Kelas di bawahnya, dan tidak dapat diubah kemudian.
+  - button "Tambah Bagian"
+  - status
+  - status:
+    - strong: Guru dan Staf
+    - text: ditambahkan.
+- alert

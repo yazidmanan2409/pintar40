@@ -1,0 +1,117 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - strong: SD Sintetis Anggrek
+    - link "Konfigurasi":
+      - /url: /konfigurasi
+    - link "Pendataan":
+      - /url: /pendataan
+    - link "Aktivasi akun":
+      - /url: /aktivasi
+    - link "Studio":
+      - /url: /studio
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fstudio%2Fdefinisi
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Wahyu Nugroho":
+      - strong: Wahyu Nugroho
+    - button "Keluar"
+- main:
+  - heading "Studio" [level=1]
+  - navigation "Studio":
+    - link "Studio":
+      - /url: /studio
+    - link "Buat Paket":
+      - /url: /studio/unggah
+    - link "Antrean Tinjauan":
+      - /url: /studio/tinjau
+    - link "Pustaka PINTAR":
+      - /url: /studio/kanonik
+    - link "Aturan Asesmen":
+      - /url: /studio/definisi
+    - link "Bank Soal":
+      - /url: /studio/bank
+    - link "Tinjauan Integritas":
+      - /url: /studio/integritas
+  - heading "Aturan Asesmen" [level=2]
+  - heading "Batas yang berlaku" [level=3]
+  - list:
+    - listitem: "Pemetaan Awal: antara 3 dan 60 soal · tenggang kirim paling lama 15 menit · percobaan paling banyak 5"
+    - listitem: "Uji Penguasaan: antara 3 dan 60 soal · tenggang kirim paling lama 15 menit · percobaan paling banyak 5"
+    - listitem: "Uji Cepat: antara 3 dan 20 soal · tenggang kirim paling lama 5 menit · percobaan paling banyak 1"
+    - listitem: "Asesmen Mandiri: antara 3 dan 60 soal · tenggang kirim paling lama 15 menit · percobaan paling banyak 5"
+    - listitem: "Latihan: antara 3 dan 60 soal · tenggang kirim paling lama 15 menit · percobaan paling banyak 5"
+    - listitem: "Tes: antara 3 dan 60 soal · tenggang kirim paling lama 15 menit · percobaan paling banyak 5"
+    - listitem: "Ujian: antara 3 dan 60 soal · tenggang kirim paling lama 1 menit · percobaan paling banyak 1"
+    - listitem: "Peragaan publik: antara 3 dan 60 soal · tenggang kirim paling lama 15 menit · percobaan paling banyak 5"
+    - listitem: "Tes di Kertas: antara 3 dan 60 soal · tenggang kirim paling lama 1 menit · percobaan paling banyak 1"
+  - paragraph: Semua isian wajib diisi, kecuali yang bertanda (opsional).
+  - text: Paket Pembelajaran
+  - combobox "Paket Pembelajaran":
+    - option "—" [disabled] [selected]
+    - option "Bilangan sampai 20"
+  - text: Nama aturan
+  - textbox "Nama aturan"
+  - group "Jenis asesmen":
+    - text: Jenis asesmen
+    - radio "Pemetaan Awal"
+    - text: Pemetaan Awal
+    - radio "Uji Penguasaan" [checked]
+    - text: Uji Penguasaan
+  - group "Dipakai untuk":
+    - text: Dipakai untuk
+    - radio "Latihan" [checked]
+    - text: Latihan
+    - radio "Asesmen"
+    - text: Asesmen
+    - radio "Ujian"
+    - text: Ujian
+  - text: Jumlah soal
+  - paragraph: Berapa soal yang dikerjakan setiap murid; boleh antara 3 dan 60 soal.
+  - spinbutton "Jumlah soal"
+  - text: Minimum soal keselamatan (opsional)
+  - paragraph: Berapa soal bertanda keselamatan yang paling sedikit harus ada. Kosongkan bila tidak ada.
+  - spinbutton "Minimum soal keselamatan (opsional)"
+  - text: Jendela ragu (detik) (opsional)
+  - paragraph: "Kosongkan bila arah berpikir tidak ditawarkan. Bila diisi: setelah berapa detik di satu soal murid ditawari arah berpikir; boleh antara 3 dan 120 detik."
+  - spinbutton "Jendela ragu (detik) (opsional)"
+  - text: Tenggang kirim (menit) (opsional)
+  - paragraph: Berapa lama jawaban yang terkirim sesudah waktu habis masih diterima, misalnya karena sinyal putus; paling lama 15 menit.
+  - spinbutton "Tenggang kirim (menit) (opsional)"
+  - text: Batas percobaan (opsional)
+  - paragraph: Berapa kali seorang murid boleh mengerjakannya; paling banyak 5.
+  - spinbutton "Batas percobaan (opsional)"
+  - group "Jumlah soal per tingkat kesulitan (opsional)":
+    - text: Jumlah soal per tingkat kesulitan (opsional)
+    - paragraph: Kosongkan bila tingkat kesulitan soal tidak diatur. Jumlah ketiganya harus sama dengan Jumlah soal.
+    - text: Mudah
+    - spinbutton "Mudah"
+    - text: Sedang
+    - spinbutton "Sedang"
+    - text: Sulit
+    - spinbutton "Sulit"
+  - group "Urutan":
+    - text: Urutan
+    - radio "Soal dan pilihan jawaban tidak diacak"
+    - text: Soal dan pilihan jawaban tidak diacak
+    - radio "Urutan soal diacak"
+    - text: Urutan soal diacak
+    - radio "Urutan soal dan pilihan jawaban diacak" [checked]
+    - text: Urutan soal dan pilihan jawaban diacak
+  - group "Selama mengerjakan":
+    - text: Selama mengerjakan
+    - checkbox "Boleh dijeda Murid boleh menyimpan, berhenti, lalu melanjutkan nanti."
+    - text: Boleh dijeda Murid boleh menyimpan, berhenti, lalu melanjutkan nanti.
+    - checkbox "Boleh dikerjakan luring Murid boleh terus mengerjakan saat sinyal putus; jawabannya terkirim ketika tersambung lagi."
+    - text: Boleh dikerjakan luring Murid boleh terus mengerjakan saat sinyal putus; jawabannya terkirim ketika tersambung lagi.
+  - button "Buat aturan"
+  - status
+  - list
+- alert

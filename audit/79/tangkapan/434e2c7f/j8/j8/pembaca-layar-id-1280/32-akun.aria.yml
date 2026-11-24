@@ -1,0 +1,99 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - strong: SD Sintetis Anggrek
+    - link "Konfigurasi":
+      - /url: /konfigurasi
+    - link "Pendataan":
+      - /url: /pendataan
+    - link "Aktivasi akun":
+      - /url: /aktivasi
+    - link "Studio":
+      - /url: /studio
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fakun
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Wahyu Nugroho":
+      - strong: Wahyu Nugroho
+    - button "Keluar"
+- main:
+  - heading "Akun saya" [level=1]
+  - paragraph: PINTAR ID dan Kartu PINTAR Anda.
+  - region "PINTAR ID":
+    - group "Kartu PINTAR, sisi depan":
+      - text: PINTAR
+      - paragraph: Wahyu Nugroho
+      - paragraph: CBGH W3AD
+      - list:
+        - listitem: Admin sekolah
+        - listitem: SD Sintetis Anggrek
+    - group "Kartu PINTAR, sisi belakang":
+      - img "Kode QR untuk PINTAR ID Anda"
+      - paragraph: Pindai untuk membuka halaman masuk PINTAR.
+      - paragraph: pintarselalu.com
+    - paragraph: PINTAR ID bukan rahasia. Nomor ini menunjukkan siapa Anda di PINTAR, dan tidak bisa dipakai untuk masuk.
+  - region "Buat PIN baru":
+    - heading "Buat PIN baru" [level=2]
+    - paragraph: "PIN lama Anda tidak berlaku lagi. Buat PIN baru 4 angka: PIN ini dipakai untuk memulihkan akun dengan PINTAR ID Anda. Jangan berikan kepada siapa pun."
+    - text: PIN baru (4 angka)
+    - textbox "PIN baru (4 angka)"
+    - button "Tampilkan PIN"
+    - text: Ketik PIN itu sekali lagi
+    - textbox "Ketik PIN itu sekali lagi"
+    - button "Tampilkan PIN"
+    - button "Simpan PIN baru"
+  - region "Kartu PINTAR":
+    - heading "Kartu PINTAR" [level=2]
+    - paragraph: Kirim Kartu PINTAR Anda ke email Anda, untuk disimpan atau ditunjukkan.
+    - button "Kirim kartu ke email saya"
+  - region "Foto profil":
+    - heading "Foto profil" [level=2]
+    - paragraph: Foto ini hanya tampil di profil Anda. Foto tidak dicetak di sertifikat.
+    - text: Pilih foto
+    - button "Pilih foto"
+    - paragraph: Belum dipilih
+    - paragraph: PNG, JPEG, atau WebP; paling besar 2 MB.
+  - region "Komputer ini":
+    - heading "Komputer ini" [level=2]
+    - paragraph: "Komputer pribadi Anda: Anda tetap masuk hingga 7 hari."
+    - link "Ubah":
+      - /url: /perangkat?lanjut=%2Fakun
+  - region "Meninggalkan PINTAR":
+    - heading "Meninggalkan PINTAR" [level=2]
+    - paragraph: Anda boleh pergi kapan saja. Inilah yang terjadi bila akun ditutup atau data pribadi dihapus, sebagaimana PINTAR bekerja saat ini.
+    - list:
+      - listitem: "Akses: saat akun ditutup, semua perangkat keluar dan masuk tidak lagi bisa, di semua sekolah."
+      - listitem: "Data pribadi: yang dihapus adalah foto profil beserta berkasnya, nama tampilan (diganti PINTAR ID), email untuk masuk, nama pengguna, alamat IP dan peramban yang tercatat saat masuk, dan salinan nama dan email di catatan pendaftaran PINTAR. Yang lain disimpan karena aturan, seperti di bawah."
+      - listitem: "Catatan akademik: hasil dan pengerjaan tetap tersimpan di sekolahnya. Setelah penghapusan, catatan itu tanpa nama Anda."
+      - listitem: "Sertifikat: tetap dapat diperiksa. Nama yang tertulis di sertifikat adalah catatan sertifikat itu sendiri dan tidak diubah."
+      - listitem: "Jejak audit: tidak pernah ditulis ulang. Bila nama atau email Anda pernah dikoreksi, baris koreksi itu tetap menyimpan nama atau email yang lama."
+      - listitem: "Cadangan dan log layanan: data yang dihapus dari PINTAR masih ada di cadangan sampai cadangan itu berakhir, saat ini 7 hari. Log penyedia layanan yang menjalankan PINTAR juga mencatat email dan alamat IP saat masuk; log itu terhapus menurut masa simpan penyedia tersebut, dan PINTAR tidak dapat menghapusnya lebih awal."
+    - heading "Tutup akun saya" [level=3]
+    - paragraph: "Akun ditutup saat itu juga: semua perangkat keluar dan Anda tidak dapat masuk lagi, juga untuk melihat permintaan Anda. Catatan tetap tersimpan. Untuk kembali, buka «Minta dibuka kembali» di halaman masuk; Admin PINTAR membuka akun hanya setelah memastikan identitas Anda."
+    - checkbox "Saya memahami bahwa akun saya ditutup sekarang."
+    - text: Saya memahami bahwa akun saya ditutup sekarang.
+    - button "Tutup akun saya"
+    - status
+    - heading "Hapus data pribadi saya" [level=3]
+    - paragraph: Data pribadi dihapus hanya setelah akun ditutup. Permintaan ini dicatat sekarang, dan Admin PINTAR mengerjakannya setelah Anda menutup akun. Keadaannya terlihat di sini selama akun belum ditutup; setelah ditutup, Anda tidak dapat masuk untuk melihatnya.
+    - checkbox "Saya meminta data pribadi saya dihapus."
+    - text: Saya meminta data pribadi saya dihapus.
+    - button "Kirim permintaan"
+    - status
+  - region "Keluar dari semua perangkat":
+    - heading "Keluar dari semua perangkat" [level=2]
+    - paragraph: Akun Anda keluar dari setiap komputer dan perangkat tempat Anda masuk, termasuk yang ini. Setelah itu Anda masuk lagi di perangkat yang Anda pakai.
+    - button "Keluar dari semua perangkat"
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- alert

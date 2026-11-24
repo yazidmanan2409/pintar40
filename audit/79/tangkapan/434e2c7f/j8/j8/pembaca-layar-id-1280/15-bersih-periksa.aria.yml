@@ -1,0 +1,65 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- alert: Pendataan · PINTAR
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - strong: SD Sintetis Anggrek
+    - link "Konfigurasi":
+      - /url: /konfigurasi
+    - link "Pendataan":
+      - /url: /pendataan
+    - link "Aktivasi akun":
+      - /url: /aktivasi
+    - link "Studio":
+      - /url: /studio
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fpendataan%2Ff2b5b405-0d53-4209-a050-b54851ca9f3d
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Wahyu Nugroho":
+      - strong: Wahyu Nugroho
+    - button "Keluar"
+- main:
+  - link "← Pendataan":
+    - /url: /pendataan
+  - paragraph: Administrasi sekolah
+  - heading "5 · Menunggu persetujuan Anda" [level=1]
+  - region "Yang akan terjadi":
+    - heading "Yang akan terjadi" [level=2]
+    - term: Baris
+    - definition: "5"
+    - term: Orang baru
+    - definition: "5"
+    - term: Orang yang sudah terdaftar
+    - definition: "0"
+    - term: No. Registrasi Sekolah yang akan dibuat
+    - definition: "5"
+    - term: Akun yang bisa masuk
+    - definition: "0"
+    - paragraph: Pendataan membuat catatan orang di sekolah ini. Pendataan tidak membuat akun, dan tidak ada orang yang bisa masuk ke PINTAR karenanya.
+    - heading "Peran" [level=3]
+    - list:
+      - listitem: Murid 5
+    - heading "Nama yang akan dicatat" [level=3]
+    - paragraph: "Semua baris dari daftar, dengan nama persis seperti akan dicatat. Periksa ejaannya sebelum menyetujui. Jika ada nama yang keliru, jangan setujui: perbaiki berkasnya, lalu mulai pendataan baru dengan berkas itu."
+    - region "Nama yang akan dicatat":
+      - list:
+        - listitem: 1 Laras Kinanti Murid
+        - listitem: 2 Yoga Prasetya Murid
+        - listitem: 3 Dewi Anjani Murid
+        - listitem: 4 Bagas Saputra Murid
+        - listitem: 5 Citra Ayu Murid
+    - paragraph: PINTAR mencatat orang-orang ini hanya setelah Anda menyetujuinya.
+    - button "Ya, catat orang-orang ini"
+    - status
+- contentinfo:
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
