@@ -165,17 +165,17 @@ L-08, L-11 and L-12 need the world to hold empty, untitled and integrity states.
 
 ## The owner's /konfigurasi sidebar observations (24 Nov, via Daisy `SIDEBAR-KONFIG-CATATAN.md`, `762312ca`): decided, held for the audit's ONE consolidated revision
 
-The owner: «you and bob decide what's best». Daisy decided and Bob agrees. **Nothing is built now.** These rows go into the audit's consolidated revision, together with whatever its visual-consistency pass finds.
+The owner: «you and bob decide what's best». Daisy decided and Bob agrees; Daisy confirmed the mapping on 24 Nov. **Nothing is built now.** These rows go into the audit's consolidated revision, together with whatever its visual-consistency pass finds.
 
 | L-id | Observation | Source | Dimension | Journey | Proposed severity | Decision |
 |---|---|---|---|---|---|---|
-| L-39 (K-1) | The «›» chevrons are misaligned. The row is justify-between over three children (the title, the chevron and a zero-width TandaTautan), so the chevron sits mid-row | Owner, staging /konfigurasi | E | All admin lists | **Required** | Pin the chevron right. Check **every** list that uses this row (sibling sweep) |
-| L-40 (K-2) | «Masuk sebagai» crowds the name | Owner | E | All | Improvement | Two rows; the name gets the full width |
-| L-41 (K-3) | «Keluar» lacks a visible control boundary | Owner | E | All | Improvement | A neutral outline, `--line-control` (3.4:1, which passes WCAG 1.4.11). Not orange (it isn't in the palette), not gold (2.5:1 fails, and gold is the certificate's colour), not amber (it means attention) |
-| L-42 (K-4) | The ID / EN control is unclear | Owner | E | All | Improvement | A text switch, «ID · EN»: targets of at least 24 px, with `aria-pressed` |
+| L-39 (K-1) | The «›» chevrons are misaligned. The row is justify-between over three children (the title, the chevron and a zero-width TandaTautan), so the chevron sits mid-row | Owner, staging /konfigurasi | B | J8, J12 (the admin lists), plus the visual pass | **Improvement**: a defect, not taste; fix it with the sibling sweep (Daisy) | Pin the chevron right. Check **every** list that uses this row (sibling sweep) |
+| L-40 (K-2) | «Masuk sebagai» crowds the name | Owner | B | Every journey (the chrome) | Improvement | Two rows; the name gets the full width |
+| L-41 (K-3) | «Keluar» lacks a visible control boundary | Owner | G | Every journey | Improvement: the label carries the control, so it is not a 1.4.11 blocker (Daisy) | A neutral outline, `--line-control` (3.4:1, which passes WCAG 1.4.11). Not orange (it isn't in the palette), not gold (2.5:1 fails, and gold is the certificate's colour), not amber (it means attention) |
+| L-42 (K-4) | The ID / EN control is unclear | Owner | B, F (room taken from the sidebar) | Every journey | Improvement | A text switch, «ID · EN»: targets of at least 24 px, with `aria-pressed` |
 
 ## Carried from D2-R's frozen candidate (`177ab4d2`, ruling 93; Bob, 24 Nov)
 
 | L-id | Observation | Source | Dimension | Journey | Proposed severity | Notes |
 |---|---|---|---|---|---|---|
-| L-43 | **R-f's staff display is not drawn.** Spec R-f / D2R-F01: the attempt ordinal is shown «on the learner's result and in authorised staff views only». The learner's result draws «Kesempatan ke-{n}». The teacher's sittings read carries `daftar_pengerjaan.percobaan_ke`, but the teacher's sittings screen doesn't draw it | D2-R hand-off item 131, disclosed to Sharon and Daisy before their PASS on `5550e508` | B | J4 / J5 (teacher evidence) | **Significant** (an approved display that isn't there) | No wording is missing: «Kesempatan» is Daisy's learner **and** teacher word (spec §7.3). The ordinal's restriction (no certificate, no public page) **is** enforced. Not changed on the frozen candidate, by ruling 93. Fix it in the audit's consolidated revision |
+| L-43 | **R-f's staff display is not drawn.** Spec R-f / D2R-F01: the attempt ordinal is shown «on the learner's result and in authorised staff views only». The learner's result draws «Kesempatan ke-{n}». The teacher's sittings read carries `daftar_pengerjaan.percobaan_ke`, but the teacher's sittings screen doesn't draw it | D2-R hand-off item 131, disclosed to Sharon and Daisy before their PASS on `5550e508` | B | J3, J5 | **Significant**, confirmed by Daisy: on retakes a teacher can't tell attempt 1 from attempt 2, which J3 needs | No wording is missing: «Kesempatan» is Daisy's learner **and** teacher word (spec §7.3). The ordinal's restriction (no certificate, no public page) **is** enforced. Not changed on the frozen candidate, by ruling 93. Fix it in the audit's consolidated revision |
