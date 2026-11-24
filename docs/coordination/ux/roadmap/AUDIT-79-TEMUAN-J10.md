@@ -99,3 +99,14 @@ In the tour branch, the tour stayed open with no input, and in 9 minutes there w
 | J10-8 (optional) | After three wrong PINs, the sign-in page says only «Sesi di komputer ini sudah berakhir. Masuk lagi untuk melanjutkan.», the same line as the 60-minute end (L6, L9). The owner isn't told why. | — | — | H | «PIN tidak cocok tiga kali, jadi sesi di komputer ini diakhiri. Masuk lagi dengan password Anda.» It names no account. **Optional, because the general line is also true.** |
 
 **J10's «left for the builder» lines are closed.**
+
+## EN re-capture (`73ead4a3/j10/j10/standar-en-1280`, `541bab59`), 24 Nov 22:10
+
+EN throughout. **The EN judgement I held is now made:**
+- set-up, «Whose computer is this?», recovery by email and by PINTAR ID + PIN, the lock and its warning, the card lock, the closed account and the reopening form all read correctly in English;
+- the confidentiality wording is unchanged (same refusals for every case);
+- **J10-5 is confirmed in EN** (`26`): «PINTAR will lock in 1 minute … I'm still here», with the tour's «Got it» note open over «Hello, Intan».
+
+| # | Finding | Cause | Dim. | Fix |
+|---|---|---|---|---|
+| J10-9 | **The recovery email is Indonesian for a person working in EN:** the subject «Kode untuk membuat password baru PINTAR» (L2, L3). `email.pulih.subjek` has its EN («Your PINTAR code to make a new password»). The email takes the default language, not the language of the page the request came from. | C-6 | H | Send in the language of the page the request came from (it is signed-out, so the cookie), or in the account's own language if PINTAR stores one |

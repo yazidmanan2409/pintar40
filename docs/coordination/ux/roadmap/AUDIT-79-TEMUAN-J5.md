@@ -111,3 +111,22 @@ Seven walks, every one reaching its last screen. My harness notes are applied, a
 - **(f) The tour covers the learner's «Diminta guru Anda» card** in `43-sinta-belajar`, as J12-4: dismiss it before capturing. The words were recorded.
 
 **J5's «left for the builder» lines are closed, except the EN pass (e).**
+
+## EN re-capture (`4b1de38a/j5/j5/standar-en-1280`, `7b3c7891`), 24 Nov 22:10
+
+EN throughout, with the tour dismissed. **Harness note (e) is closed**, and the earlier EN capture is set aside.
+- **The English holds:**
+  - «✓ Schedule changed. Students who are already working keep their own deadline.»;
+  - «Ask to read again … They will find the request on their home page.»;
+  - «YOUR TEACHER'S REQUEST · Bambang Sutrisno asked you to read these again: …»;
+  - the stop page («This stop does not submit or score an assessment that was in progress.»).
+- **J5-6, J5-7 and J5-11 stand in EN too:**
+  - «CLOSES Wednesday, 25 Nov 2026» with no time;
+  - «Add 10 minutes for Galih Pratama? New deadline 24 May 2027 …»;
+  - the teacher gets the learner's stop page.
+- **The Admin PINTAR stop result** on this walk is J12-5 (Konfigurasi results in ID).
+
+| # | Finding | Cause | Dim. | Fix |
+|---|---|---|---|---|
+| J5-13 | **EN: two words for one act on one page.** The Uji Cepat result says «The class average appears here once someone has **handed in**», beside the filter «Have **submitted**». | C-6 | H | «submitted» throughout (the learner's button is «Submit») |
+| J5-14 (optional) | **EN phrasing:** «Ask for a direction to think in when a question feels stuck», and «An Admin PINTAR stopped PINTAR …». Both are understandable but awkward. | — | H | «Ask for a hint on how to think about a question when you're stuck»; «Admin PINTAR stopped PINTAR …» (the role name without an article, as T-03 uses it) |

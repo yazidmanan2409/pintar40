@@ -166,3 +166,5 @@
 - 24 Nov 22:10Z · W2: severities for every finding → roadmap/AUDIT-79-KEPARAHAN.md (2 Critical proposed, 28 Significant, 76 Improvement).
 - 24 Nov 21:56Z · Bob: Sharon holds both marks for L-143 (Significant). → The lolos-mark variant of the line (ID and EN), with L-144's aria pattern for every held button; KEPARAHAN updated.
 - 24 Nov 22:00Z · Bob: W2 reconciled (aa9c2c22): L-105 and L-112 HIGH, L-143 Significant, L-35 Significant (4.5); both observations adopted. → KEPARAHAN updated. The lolos-mark line was already added (98657ab2).
+- 24 Nov 22:05Z · Bob: the J5 and J10 EN re-captures landed (7b3c7891, 541bab59). → Judging.
+- 24 Nov 22:10Z · J5 and J10 EN re-captures judged. EN holds. New: J5-13 (submitted / handed in), J5-14 optional, J10-9 (the recovery email in the default language).
