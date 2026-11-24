@@ -3285,6 +3285,65 @@
       "skip_justification": "needs the running app and the local stack"
     },
     {
+      "id": "CI2-K01",
+      "runner": "static",
+      "proves": "CI-2 (ruling 98, OD-1 ruling 100), red first, selftest/ci2.test.ts; reads the source of supabase/migrations/20270126100000_a_locked_account_reads_as_any_wrong_password.sql (no function body names banned_until; akun_rotasi writes a bcrypt hash, clears the five one-time token columns, auth.one_time_tokens, the refresh tokens and the sessions; akun_kunci rotates on the lock and the unlock; akun_baru_terkunci rotates; pintar_kunci_tetap_jaga dropped; admin_akun_dapat_masuk reads orang_ditangguhkan; hapus_data_pribadi rotates and never unlocks; the end state asserted), executes the copy table for Daisy's CI2-KATA words in ID and EN, and reads the source of src/components/masuk/LayarMasuk.tsx, src/components/aktifkan/LupaPassword.tsx, the refusal routes and src/components/keamanan/AkunPlatform.tsx (§3 and F-6 or its learner variant as static lines, never a refusal's text; §1 and §2 with the re-issue link) and docs/post-4.1/ci-2/evidence/staging-counts-CI2.sql (read only)."
+    },
+    {
+      "id": "CI2-U01",
+      "runner": "app",
+      "proves": "CI-2 F-1, red first, selftest/ci2.test.ts; executes Auth's /auth/v1/token?grant_type=password directly with the anon key against the local stack, 20 interleaved calls each: a suspended account's right and wrong passwords answer exactly an ordinary wrong password (400 invalid_credentials, the same body) for an email account and a class card, medians within max(12 ms, 35 %); no ban is set; plants Q1 (the lock still bans) and Q2 (no rotation) are caught.",
+      "skip_justification": "needs the local stack: Auth, PostgREST and Postgres (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "CI2-R01",
+      "runner": "app",
+      "proves": "CI-2 F-1 and F-2, red first, selftest/ci2.test.ts; executes Auth's refresh grant and PostgREST against the local stack: a refresh token from before the lock is refused and none is left live; an access token from before it and a session made during it are refused by pintar_permintaan.periksa (403 AKUN_DITANGGUHKAN); plants Q3 (sessions not revoked) and Q9 (periksa without its suspension rule) are caught.",
+      "skip_justification": "needs the local stack: Auth, PostgREST and Postgres (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "CI2-T01",
+      "runner": "app",
+      "proves": "CI-2 with Sharon's (a), red first, selftest/ci2.test.ts; executes Auth's admin generate_link and /auth/v1/verify against the local stack: a recovery link issued before the lock fails after it and the lock leaves no one-time token; a link issued during the lock gives its email's owner a session that periksa refuses; plant Q4 (one-time tokens not cleared) is caught.",
+      "skip_justification": "needs the local stack: Auth, PostgREST and Postgres (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "CI2-B01",
+      "runner": "app",
+      "proves": "CI-2 F-3 with ruling 100, red first, selftest/ci2.test.ts; executes tangguhkan_akun, aktifkan_kembali_akun, minta_akun CLOSE, minta_buka_kembali and buka_kembali_akun with Auth against the local stack: reinstated or reopened, a password set during the lock and the one from before it read invalid_credentials; a fresh password set afterwards signs in; plant Q5 (the unlock re-keys nothing) is caught.",
+      "skip_justification": "needs the local stack: Auth, PostgREST and Postgres (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "CI2-P01",
+      "runner": "app",
+      "proves": "CI-2 with Sharon's (b), red first, selftest/ci2.test.ts; executes the running app's /api/akun/kartu-kelas and /masuk/kartu with Auth: reinstated, a learner's old card secret reads invalid_credentials and a card re-issued during the suspension does not sign in; the school's re-issue writes the derived Auth password, so the new card and PIN sign in; plant Q6 (the re-issue's Auth password left random) is caught.",
+      "skip_justification": "needs the running app and the local stack (Auth, PostgREST)"
+    },
+    {
+      "id": "CI2-N01",
+      "runner": "app",
+      "proves": "CI-2 with Sharon's addition 1, red first, selftest/ci2.test.ts; executes an activation grant and Auth's admin user creation for a suspended person against the local stack: the new account is never banned and its password reads invalid_credentials (rotated at once); plant Q7 (the banning guard put back) is caught.",
+      "skip_justification": "needs the local stack: Auth, PostgREST and Postgres (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "CI2-Z01",
+      "runner": "app",
+      "proves": "CI-2 with Sharon's additions 2 and 4, red first, selftest/ci2.test.ts; executes against the local stack: no Auth user is banned; no function outside Auth's own schemas names banned_until in the catalogue; admin_akun_dapat_masuk is true for an unlocked person's account and false for a locked person or one with no account; plant Q8 (the old reader) is caught.",
+      "skip_justification": "needs the local stack: Auth, PostgREST and Postgres (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "CI2-H01",
+      "runner": "app",
+      "proves": "CI-2 with Sharon's (d), red first, selftest/ci2.test.ts; executes minta_akun and hapus_data_pribadi against the local stack: the anonymisation rotates the account, clears its one-time tokens and leaves no session or refresh token; the person stays locked and is not banned.",
+      "skip_justification": "needs the local stack: Auth, PostgREST and Postgres (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "CI2-F01",
+      "runner": "app",
+      "proves": "CI-2 F-4 with Sharon's (c), red first, selftest/ci2.test.ts; executes the migration file again by psql over planted bans of the old kind ('2999-12-31' and 'infinity') and a live refresh token of a locked person, with docs/post-4.1/ci-2/evidence/staging-counts-CI2.sql read before and after: banned 0, accounts of locked persons unchanged, live refresh tokens of locked 0; exactly the locked accounts rotated; an ordinary account and its session untouched.",
+      "skip_justification": "needs the local stack: Auth, PostgREST and Postgres (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
       "id": "BOB26-A03",
       "runner": "app",
       "proves": "BOB-26, selftest/bob26.test.ts: the Gate 0 finding closed by the password write permit (migration 20261112100000): a signed-in session's own PUT /auth/v1/user password change is refused and does not take; the Ironman test through PostgREST: the Guru's PATCH of display_name to «Ironman» is refused, the photo stays theirs.",

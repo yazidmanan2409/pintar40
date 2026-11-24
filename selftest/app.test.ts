@@ -17,6 +17,7 @@ import { UMPAN_BALIK_TERBUKA } from "../src/lib/umpanbalik-kontrak";
 import { bacaJawabanKartu } from "../src/components/masuk/kartu";
 import { bob26AppTests } from "./bob26.test";
 import { akunTerkunciAppTests } from "./akun-terkunci.test";
+import { ci2AppTests } from "./ci2.test";
 import { b2AppTests } from "./b2-layar.test";
 import { a2bS1Tests } from "./a2b-s1.test";
 import { a2bR2AppTests } from "./a2b-r2.test";
@@ -3598,6 +3599,8 @@ export const appTests: SelfTest[] = [
   ...bob26AppTests,
   // the bounded auth correction (owner, 11 Nov): a suspended, closed or anonymised account, each method's ordinary mismatch
   ...akunTerkunciAppTests,
+  // CI-2 (ruling 98, OD-1 ruling 100): the lock rotates and revokes, at Auth itself
+  ...ci2AppTests,
   ...dr150cAppTests,
   ...bob27AppTests,
   ...bob28AppTests,

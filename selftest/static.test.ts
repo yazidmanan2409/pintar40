@@ -117,6 +117,7 @@ import { bob25Tests } from "./bob25.test";
 import { bob42Tests } from "./bob42.test";
 import { bob26Tests } from "./bob26.test";
 import { akunTerkunciTests } from "./akun-terkunci.test";
+import { ci2StaticTests } from "./ci2.test";
 import { bob50Tests } from "./bob50.test";
 import { bob51Tests } from "./bob51.test";
 import { emailJujurTests } from "./emailjujur.test";
@@ -2269,6 +2270,8 @@ export const staticTests: SelfTest[] = [
   ...bob26Tests,
   // the bounded auth correction (owner, 11 Nov): a locked account is each method's ordinary mismatch
   ...akunTerkunciTests,
+  // CI-2 (ruling 98, OD-1 ruling 100): a locked account reads as any wrong password at Auth
+  ...ci2StaticTests,
   ...bob50Tests,
   ...bob51Tests,
   ...emailJujurTests,
