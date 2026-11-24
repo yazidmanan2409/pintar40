@@ -145,3 +145,18 @@ The row-by-row audit against main `61a6ff9e` is in `closure/Z-READINESS-CLOSURE-
 - R-7 and R-9 closed in C3w-1 (`102921ce`).
 
 **G-2 closes** when these confirmations are recorded. None of them is a blocker or reopens Z.
+
+**Sharon's confirmations (24 Nov, `G2-ROWS-SHARON.md`): all CONFIRMED.**
+- **R-1 stays a 4.1 item** (permission integrity). Second Eye tests, for a learner who has departed (after a transfer, after leaving, after a rollover), that **the database** refuses:
+  - (a) a new start by address;
+  - (b) resuming an open sitting;
+  - (c) `record_answer` and submit.
+
+  The sitting must also end with the enrolment. Red first if any case passes; Sharon confirms on the test.
+- **R-2 → 4.5.** Audit noise that nothing reads.
+- **R-3 → 4.5.** The window is re-enforced at submit, so no late sitting counts.
+- **R-4 → ruling 54.** A context narrowing, never a permit; the database decides every act.
+- **R-6 → ruling 54.** No known reachable deadlock, and Postgres's detection fails closed. A found one is a defect.
+- **C1-R4 → D2-R's R-c**, already named in its render sites.
+
+**Still to confirm:** Daisy (R-13, R-15's 320 px titles, R-28's leftovers).
