@@ -24,9 +24,12 @@
 7. **Daisy's §8 and the comparison** (Bob 03:41Z): `hasil.tidak_ditampilkan` reworded, DAISY-26's exemption removed; the
    mastery comparison not drawn on a certifying result. D2R-W01, D2R-H08 and DAISY-26-BELAJAR-01 red first.
 8. **Ruling 74a in full** (the owner, Bob 04:02Z), red first (D2R-H21, D2R-C05, both rendering the component):
-   item 2, «Baca lagi:» on a certifying pass too (the retake line stays on «Belum lulus»); item 4 as Daisy's C-1
-   (TINJAUAN-D2R-42f6f432.md): directly after the «Lulus» banner, a link to /belajar/{tugas}/sertifikat with
-   `siklus.lihat_sertifikat` and no other words, on the chapter result and on the Hasil Belajar row (D2R-C05, D2R-C06).
+   item 2, «Baca lagi:» on a certifying pass too; item 4 as Daisy's D2R-KATA §9 (d79a3c8b): on a pass, «Lulus.», then
+   the certificate (issued: the link `siklus.lihat_sertifikat`; not yet: «Sertifikat Anda sedang disiapkan.» and the
+   same link, one line, never `sertifikat.disiapkan.arti`), then «Baca lagi:» when a section is below the mark, the
+   counts and «Kesempatan ke-{n}», `hasil.tidak_ditampilkan`; no retake line. The Hasil Belajar row: the link only.
+   D2R-H21, D2R-C05, D2R-C06. The full stop after `sertifikat.disiapkan.judul` is drawn in the component (§9's
+   one-line form), so the key's text is unchanged for the certificate page's heading.
    Hasil Belajar still lists sections only on «Belum lulus»: its words («…lalu tanyakan kepada guru langkah berikutnya»)
    are for a result not yet passed, so a pass there waits for Daisy.
 

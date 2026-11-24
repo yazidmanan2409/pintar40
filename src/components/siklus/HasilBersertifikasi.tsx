@@ -11,6 +11,7 @@ import { alasanBelum, bagianUlang, hitunganSegel, ketuntasan } from "@/lib/siklu
  * An Uji Penguasaan (and any sitting whose mode certifies, as it captured it at the start) shows its learner, in this
  * order and nothing else:
  *   1. the decision, «Lulus.» or «Belum lulus.», with its one-line reason (the K-01 gate keeps its own);
+ *   1a. on a pass, the certificate (Daisy §9): the link, after «Sertifikat Anda sedang disiapkan.» until it is issued;
  *   2. what to read again, as advice, on a pass too (ruling 74a item 2; no evidence threshold is approved in 4.1, so
  *      every section is «Baca lagi:», with the note that it is advice, not a judgement of mastery);
  *   3. the retake line, when «Belum lulus»;
@@ -19,9 +20,12 @@ import { alasanBelum, bagianUlang, hitunganSegel, ketuntasan } from "@/lib/siklu
  * Never «tidak lulus». No per-question row, no key, no explanation, no mastery figure per objective: the database
  * withholds them (20270124100000) and the engine refuses a result that carries one (jagaHasil). Staff views are unchanged.
  */
-export default function HasilBersertifikasi({ outcome, peta, pelajaran, tugas, locale, dihitungUlang }: {
+export default function HasilBersertifikasi({ outcome, peta, pelajaran, tugas, locale, dihitungUlang, sertifikatTerbit = false }: {
   outcome: Outcome; peta: readonly ReadingMapCard[]; pelajaran: readonly LessonEntry[]; tugas: string; locale: Locale;
   dihitungUlang: boolean;
+  /** Daisy's §9: whether this pass's certificate renders as a credential yet (a failed read: not yet, which the
+   *  certificate page itself rechecks) */
+  sertifikatTerbit?: boolean;
 }) {
   const s = (k: HleEvent) => t(k, "learner", { locale });
   const keputusan = ketuntasan(outcome);
@@ -40,10 +44,14 @@ export default function HasilBersertifikasi({ outcome, peta, pelajaran, tugas, l
           <p><strong>{s("hasil.lulus")}</strong> {s("hasil.lulus_arti")}</p>
         </div>
       ) : null}
-      {/* Ruling 74a item 4, Daisy's C-1: directly after the «Lulus» banner, the certificate, in the existing words; the
-          certificate page itself says whether it is issued yet */}
+      {/* Ruling 74a item 4, Daisy's D2R-KATA §9: directly after the «Lulus» banner, the certificate. Issued: the link.
+          Not yet: «Sertifikat Anda sedang disiapkan.» and the same link, one line (never sertifikat.disiapkan.arti, whose
+          «akan muncul di sini» means the certificate page) */}
       {keputusan === "TERCAPAI" ? (
-        <p data-sertifikat=""><Link href={`/belajar/${tugas}/sertifikat`}>{s("siklus.lihat_sertifikat")}</Link></p>
+        <p data-sertifikat="">
+          {sertifikatTerbit ? null : <>{s("sertifikat.disiapkan.judul")}. </>}
+          <Link href={`/belajar/${tugas}/sertifikat`}>{s("siklus.lihat_sertifikat")}</Link>
+        </p>
       ) : keputusan === "BELUM" ? (
         <div className="pin-banner pin-attention pin-target" role="status" data-keputusan="belum-lulus" id="ulang">
           <Ikon nama="triangle-alert" />
