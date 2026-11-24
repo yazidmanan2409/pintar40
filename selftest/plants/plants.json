@@ -104,6 +104,11 @@
       "suite": "selftest.run_fable19()",
       "control_green": 4,
       "what": "BOB-50's certificate rule (D-082(d)): a single Uji Cepat is not eligible and nothing is prepared for it, the cycle's Uji Penguasaan still certifies, and the mode policy lint names QUICK if it certifies again; an Uji Cepat in progress keeps its verdict"
+    },
+    "db-d2r-gates": {
+      "suite": "selftest.run_fable39()",
+      "control_green": 21,
+      "what": "D2-R (ruling 89): a certifying sitting offers no help and discloses counts only, by the sitting's captured policy; the public read drops the band; the attempt ordinal is fixed at the start; Pemetaan Awal and Uji Cepat keep their help and explanations"
     }
   },
   "plants": [
@@ -305,17 +310,72 @@
       "expect_red": "F08-P08",
       "expect_detail": "read the list of people awaiting a first role"
     },
-    { "name": "wp8-11", "gate": "db-wp8-gates", "expect_red": "F08-P09", "expect_detail": "a teacher still moves an assessment window by writing the table" },
-    { "name": "wp8-12", "gate": "db-wp8-gates", "expect_red": "F08-P09", "expect_detail": "a school administrator still changes the school's is_synthetic directly" },
-    { "name": "wp8-13", "gate": "db-wp8-gates", "expect_red": "F08-P09", "expect_detail": "service_role can still change the installation's posture" },
-    { "name": "wp8-14", "gate": "db-wp8-gates", "expect_red": "F08-P09", "expect_detail": "the posture change was recorded 0 time(s)" },
-    { "name": "wp8-15", "gate": "db-wp8-gates", "expect_red": "F08-P10", "expect_detail": "the revocation's record lacks its reason" },
-    { "name": "wp8-16", "gate": "db-wp8-gates", "expect_red": "F08-P10", "expect_detail": "a place was deactivated without a reason" },
-    { "name": "wp8-17", "gate": "db-wp8-gates", "expect_red": "F08-P10", "expect_detail": "a feature flag's three saves (one unchanged) wrote 3 row(s)" },
-    { "name": "wp8-18", "gate": "db-wp8-gates", "expect_red": "F08-P10", "expect_detail": "does not name their role (G1)" },
-    { "name": "wp8-19", "gate": "db-wp8-gates", "expect_red": "F08-P10", "expect_detail": "changed by the owner were recorded 1 time(s)" },
-    { "name": "r1-4", "gate": "db-r1-gates", "expect_red": "F09-A02", "expect_detail": "say an account was activated before any account existed" },
-    { "name": "r1-5", "gate": "db-r1-gates", "expect_red": "F09-A02", "expect_detail": "0 record(s) of the account's creation" },
+    {
+      "name": "wp8-11",
+      "gate": "db-wp8-gates",
+      "expect_red": "F08-P09",
+      "expect_detail": "a teacher still moves an assessment window by writing the table"
+    },
+    {
+      "name": "wp8-12",
+      "gate": "db-wp8-gates",
+      "expect_red": "F08-P09",
+      "expect_detail": "a school administrator still changes the school's is_synthetic directly"
+    },
+    {
+      "name": "wp8-13",
+      "gate": "db-wp8-gates",
+      "expect_red": "F08-P09",
+      "expect_detail": "service_role can still change the installation's posture"
+    },
+    {
+      "name": "wp8-14",
+      "gate": "db-wp8-gates",
+      "expect_red": "F08-P09",
+      "expect_detail": "the posture change was recorded 0 time(s)"
+    },
+    {
+      "name": "wp8-15",
+      "gate": "db-wp8-gates",
+      "expect_red": "F08-P10",
+      "expect_detail": "the revocation's record lacks its reason"
+    },
+    {
+      "name": "wp8-16",
+      "gate": "db-wp8-gates",
+      "expect_red": "F08-P10",
+      "expect_detail": "a place was deactivated without a reason"
+    },
+    {
+      "name": "wp8-17",
+      "gate": "db-wp8-gates",
+      "expect_red": "F08-P10",
+      "expect_detail": "a feature flag's three saves (one unchanged) wrote 3 row(s)"
+    },
+    {
+      "name": "wp8-18",
+      "gate": "db-wp8-gates",
+      "expect_red": "F08-P10",
+      "expect_detail": "does not name their role (G1)"
+    },
+    {
+      "name": "wp8-19",
+      "gate": "db-wp8-gates",
+      "expect_red": "F08-P10",
+      "expect_detail": "changed by the owner were recorded 1 time(s)"
+    },
+    {
+      "name": "r1-4",
+      "gate": "db-r1-gates",
+      "expect_red": "F09-A02",
+      "expect_detail": "say an account was activated before any account existed"
+    },
+    {
+      "name": "r1-5",
+      "gate": "db-r1-gates",
+      "expect_red": "F09-A02",
+      "expect_detail": "0 record(s) of the account's creation"
+    },
     {
       "name": "r1-1",
       "gate": "db-r1-gates",
@@ -778,59 +838,413 @@
       "expect_red": "F10-S10",
       "expect_detail": "the admin's direct write answered ok"
     },
-    { "name": "bob01-16", "gate": "db-bob01-gates", "expect_red": "F10-V02", "expect_detail": "a platform administrator with no identity at the school is visible to its admin" },
-    { "name": "bob01-17", "gate": "db-bob01-gates", "expect_red": "F10-V02", "expect_detail": "another school's newly recorded teacher is visible to this school's admin" },
-    { "name": "bob01-18", "gate": "db-bob01-gates", "expect_red": "F10-V02", "expect_detail": "another school's teacher is visible to this school's admin" },
-    { "name": "bob01-19", "gate": "db-bob01-gates", "expect_red": "F10-V02", "expect_detail": "another school's waiting list answered this school's admin" },
-    { "name": "bob01-20", "gate": "db-bob01-gates", "expect_red": "F10-V02", "expect_detail": "a learner of the school can see the school's staff" },
-    { "name": "bob01-21", "gate": "db-bob01-gates", "expect_red": "F10-V03", "expect_detail": "the school's admin granted a role at another school's node" },
-    { "name": "bob01-22", "gate": "db-bob01-gates", "expect_red": "F10-G01", "expect_detail": "School B's admin granted a School-B role to a School-A-only teacher by id" },
-    { "name": "bob01-23", "gate": "db-bob01-gates", "expect_red": "F10-G02", "expect_detail": "an admin of both schools moved a School-A teacher to School B by granting" },
-    { "name": "bob01-24", "gate": "db-bob01-gates", "expect_red": "F10-G01", "expect_detail": "School B's admin granted a School-B role to a School-A-only teacher by id" },
-    { "name": "bob24-1", "gate": "db-bob24-gates", "expect_red": "F16-I01", "expect_detail": "changing a PINTAR ID was answered with success" },
-    { "name": "bob24-2", "gate": "db-bob24-gates", "expect_red": "F16-I01", "expect_detail": "'o1il-ooOO' is read as nothing, expected 01110000" },
-    { "name": "bob24-3", "gate": "db-bob24-gates", "expect_red": "F16-U01", "expect_detail": "'admin' is answered allowed, expected USERNAME_RESERVED" },
-    { "name": "bob24-4", "gate": "db-bob24-gates", "expect_red": "F16-U01", "expect_detail": "a username was renamed (success)" },
-    { "name": "bob24-5", "gate": "db-bob24-gates", "expect_red": "F16-U01", "expect_detail": "a teacher corrected another person's username" },
-    { "name": "bob24-6", "gate": "db-bob24-gates", "expect_red": "F16-P01", "expect_detail": "PIN 8901 is answered allowed, expected PIN_SEQUENCE" },
-    { "name": "bob24-7", "gate": "db-bob24-gates", "expect_red": "F16-P01", "expect_detail": "a second PIN was answered with success" },
-    { "name": "bob24-8", "gate": "db-bob24-gates", "expect_red": "F16-R01", "expect_detail": "the level-0 lock does not hold the ID for an hour" },
-    { "name": "bob24-9", "gate": "db-bob24-gates", "expect_red": "F16-R01", "expect_detail": "a suspension 400 days old answered WRONG: time lifted it" },
-    { "name": "bob24-10", "gate": "db-bob24-gates", "expect_red": "F16-R01", "expect_detail": "the platform admin's reset did not force a new PIN" },
-    { "name": "bob24-11", "gate": "db-bob24-gates", "expect_red": "F16-N01", "expect_detail": "authenticated holds a grant on person_pins" },
-    { "name": "bob24-12", "gate": "db-bob24-gates", "expect_red": "F16-N01", "expect_detail": "a client can call public.recovery_attempt(text,text)" },
-    { "name": "bob24-13", "gate": "db-bob24-gates", "expect_red": "F16-N01", "expect_detail": "a teacher ran select public.security_events(10) (success)" },
-    { "name": "bob24-14", "gate": "db-bob24-gates", "expect_red": "F16-S01", "expect_detail": "set-up completed with no PIN" },
-    { "name": "bob35-1", "gate": "db-bob35-gates", "expect_red": "F05-T14b", "expect_detail": "a session outside any assignment citing v1.1's release with v1.0's definition was inserted" },
-    { "name": "bob35-2", "gate": "db-bob35-gates", "expect_red": "F05-T14", "expect_detail": "the cycle's POST_TEST assignment still names the v1.0 definition" },
-    { "name": "bob35-3", "gate": "db-bob35-gates", "expect_red": "F05-T14", "expect_detail": "a release was moved after a learner had started under the assignment" },
-    { "name": "bob35-4", "gate": "db-bob35-gates", "expect_red": "F05-T14b", "expect_detail": "a move to a release with no cycle definition was accepted" },
-    { "name": "bob35-5", "gate": "db-bob35-gates", "expect_red": "F05-T14b", "expect_detail": "a session citing the release its assignment moved from was inserted" },
-    { "name": "bob36-1", "gate": "db-bob36-gates", "expect_red": "F04-T04d", "expect_detail": "after a session exists the teacher rewrote in place: passing_rules" },
-    { "name": "bob36-2", "gate": "db-bob36-gates", "expect_red": "F04-T04d", "expect_detail": "after a session exists the teacher rewrote in place: mode, bank_type" },
-    { "name": "bob36-3", "gate": "db-bob36-gates", "expect_red": "F04-T04d", "expect_detail": "the owner rewrote a sat Uji Cepat's passing_rules" },
-    { "name": "bob36-4", "gate": "db-bob36-gates", "expect_red": "F04-T04d", "expect_detail": "after a session exists the teacher rewrote in place: module_id, course_id" },
-    { "name": "bob39-1", "gate": "db-bob39-gates", "expect_red": "F06-P22", "expect_detail": "a referral through the review left 0 AWAITING_REVIEW decision(s)" },
-    { "name": "bob39-2", "gate": "db-bob39-gates", "expect_red": "F06-P22", "expect_detail": "the person who referred took up or decided their own referral" },
-    { "name": "bob37-1", "gate": "db-bob37-gates", "expect_red": "F06-P23", "expect_detail": "the class's per-topic mastery did not show for five learners" },
-    { "name": "bob37-2", "gate": "db-bob37-gates", "expect_red": "F06-P23", "expect_detail": "the school's competency outcomes hold nothing for the two objectives" },
-    { "name": "bob37-3", "gate": "db-bob37-gates", "expect_red": "F06-P23", "expect_detail": "the class's per-topic mastery is [{\"code\": \"BOB37-A\", \"title\": null, \"needed\": 5, \"learners\": 5, \"competency\": \"BOB37-A\", \"mean_score\": 0.5000" },
-    { "name": "bob25-1", "gate": "db-bob25-gates", "expect_red": "F17-L01", "expect_detail": "one slot under the ceiling, after refusals, was still refused" },
-    { "name": "bob25-2", "gate": "db-bob25-gates", "expect_red": "F17-L01", "expect_detail": "three of them refused by the host, was answered" },
-    { "name": "bob25-3", "gate": "db-bob25-gates", "expect_red": "F17-L02", "expect_detail": "a settled send was settled a second time" },
-    { "name": "bob25-4", "gate": "db-bob25-gates", "expect_red": "F17-N01", "expect_detail": "authenticated may reserve or settle a send" },
-    { "name": "bob25-5", "gate": "db-bob25-gates", "expect_red": "F17-L01", "expect_detail": "a second code to the same address within a minute was answered" },
-    { "name": "bob26-1", "gate": "db-bob26-gates", "expect_red": "F18-N01", "expect_detail": "renamed themselves «Ironman» straight at the table" },
-    { "name": "bob26-2", "gate": "db-bob26-gates", "expect_red": "F18-P01", "expect_detail": "Auth wrote a password with no permit" },
-    { "name": "bob26-3", "gate": "db-bob26-gates", "expect_red": "F18-L01", "expect_detail": "would be sent a code (only a REQUIRED email account is)" },
-    { "name": "bob26-4", "gate": "db-bob26-gates", "expect_red": "F18-S01", "expect_detail": "set-up completed before the name was confirmed" },
-    { "name": "bob26-5", "gate": "db-bob26-gates", "expect_red": "F18-N03", "expect_detail": "corrected a name" },
-    { "name": "bob26-6", "gate": "db-bob26-gates", "expect_red": "F18-N02", "expect_detail": "the name could be corrected a second time" },
-    { "name": "bob26-7", "gate": "db-bob26-gates", "expect_red": "F18-I01", "expect_detail": "another school's admin read the names" },
-    { "name": "bob26-8", "gate": "db-bob26-gates", "expect_red": "F18-S01", "expect_detail": "set-up completed with no password" },
-    { "name": "bob50-1", "gate": "db-bob50-gates", "expect_red": "F19-Q01", "expect_detail": "a finished Uji Cepat is certificate-eligible" },
-    { "name": "bob50-2", "gate": "db-bob50-gates", "expect_red": "F19-Q03", "expect_detail": "with QUICK certifying again the lint did not name it" },
-    { "name": "bob50-3", "gate": "db-bob50-gates", "expect_red": "F19-Q02", "expect_detail": "is not eligible" },
-    { "name": "bob50-4", "gate": "db-bob50-gates", "expect_red": "F19-Q04", "expect_detail": "depends on the certificate policy" }
+    {
+      "name": "bob01-16",
+      "gate": "db-bob01-gates",
+      "expect_red": "F10-V02",
+      "expect_detail": "a platform administrator with no identity at the school is visible to its admin"
+    },
+    {
+      "name": "bob01-17",
+      "gate": "db-bob01-gates",
+      "expect_red": "F10-V02",
+      "expect_detail": "another school's newly recorded teacher is visible to this school's admin"
+    },
+    {
+      "name": "bob01-18",
+      "gate": "db-bob01-gates",
+      "expect_red": "F10-V02",
+      "expect_detail": "another school's teacher is visible to this school's admin"
+    },
+    {
+      "name": "bob01-19",
+      "gate": "db-bob01-gates",
+      "expect_red": "F10-V02",
+      "expect_detail": "another school's waiting list answered this school's admin"
+    },
+    {
+      "name": "bob01-20",
+      "gate": "db-bob01-gates",
+      "expect_red": "F10-V02",
+      "expect_detail": "a learner of the school can see the school's staff"
+    },
+    {
+      "name": "bob01-21",
+      "gate": "db-bob01-gates",
+      "expect_red": "F10-V03",
+      "expect_detail": "the school's admin granted a role at another school's node"
+    },
+    {
+      "name": "bob01-22",
+      "gate": "db-bob01-gates",
+      "expect_red": "F10-G01",
+      "expect_detail": "School B's admin granted a School-B role to a School-A-only teacher by id"
+    },
+    {
+      "name": "bob01-23",
+      "gate": "db-bob01-gates",
+      "expect_red": "F10-G02",
+      "expect_detail": "an admin of both schools moved a School-A teacher to School B by granting"
+    },
+    {
+      "name": "bob01-24",
+      "gate": "db-bob01-gates",
+      "expect_red": "F10-G01",
+      "expect_detail": "School B's admin granted a School-B role to a School-A-only teacher by id"
+    },
+    {
+      "name": "bob24-1",
+      "gate": "db-bob24-gates",
+      "expect_red": "F16-I01",
+      "expect_detail": "changing a PINTAR ID was answered with success"
+    },
+    {
+      "name": "bob24-2",
+      "gate": "db-bob24-gates",
+      "expect_red": "F16-I01",
+      "expect_detail": "'o1il-ooOO' is read as nothing, expected 01110000"
+    },
+    {
+      "name": "bob24-3",
+      "gate": "db-bob24-gates",
+      "expect_red": "F16-U01",
+      "expect_detail": "'admin' is answered allowed, expected USERNAME_RESERVED"
+    },
+    {
+      "name": "bob24-4",
+      "gate": "db-bob24-gates",
+      "expect_red": "F16-U01",
+      "expect_detail": "a username was renamed (success)"
+    },
+    {
+      "name": "bob24-5",
+      "gate": "db-bob24-gates",
+      "expect_red": "F16-U01",
+      "expect_detail": "a teacher corrected another person's username"
+    },
+    {
+      "name": "bob24-6",
+      "gate": "db-bob24-gates",
+      "expect_red": "F16-P01",
+      "expect_detail": "PIN 8901 is answered allowed, expected PIN_SEQUENCE"
+    },
+    {
+      "name": "bob24-7",
+      "gate": "db-bob24-gates",
+      "expect_red": "F16-P01",
+      "expect_detail": "a second PIN was answered with success"
+    },
+    {
+      "name": "bob24-8",
+      "gate": "db-bob24-gates",
+      "expect_red": "F16-R01",
+      "expect_detail": "the level-0 lock does not hold the ID for an hour"
+    },
+    {
+      "name": "bob24-9",
+      "gate": "db-bob24-gates",
+      "expect_red": "F16-R01",
+      "expect_detail": "a suspension 400 days old answered WRONG: time lifted it"
+    },
+    {
+      "name": "bob24-10",
+      "gate": "db-bob24-gates",
+      "expect_red": "F16-R01",
+      "expect_detail": "the platform admin's reset did not force a new PIN"
+    },
+    {
+      "name": "bob24-11",
+      "gate": "db-bob24-gates",
+      "expect_red": "F16-N01",
+      "expect_detail": "authenticated holds a grant on person_pins"
+    },
+    {
+      "name": "bob24-12",
+      "gate": "db-bob24-gates",
+      "expect_red": "F16-N01",
+      "expect_detail": "a client can call public.recovery_attempt(text,text)"
+    },
+    {
+      "name": "bob24-13",
+      "gate": "db-bob24-gates",
+      "expect_red": "F16-N01",
+      "expect_detail": "a teacher ran select public.security_events(10) (success)"
+    },
+    {
+      "name": "bob24-14",
+      "gate": "db-bob24-gates",
+      "expect_red": "F16-S01",
+      "expect_detail": "set-up completed with no PIN"
+    },
+    {
+      "name": "bob35-1",
+      "gate": "db-bob35-gates",
+      "expect_red": "F05-T14b",
+      "expect_detail": "a session outside any assignment citing v1.1's release with v1.0's definition was inserted"
+    },
+    {
+      "name": "bob35-2",
+      "gate": "db-bob35-gates",
+      "expect_red": "F05-T14",
+      "expect_detail": "the cycle's POST_TEST assignment still names the v1.0 definition"
+    },
+    {
+      "name": "bob35-3",
+      "gate": "db-bob35-gates",
+      "expect_red": "F05-T14",
+      "expect_detail": "a release was moved after a learner had started under the assignment"
+    },
+    {
+      "name": "bob35-4",
+      "gate": "db-bob35-gates",
+      "expect_red": "F05-T14b",
+      "expect_detail": "a move to a release with no cycle definition was accepted"
+    },
+    {
+      "name": "bob35-5",
+      "gate": "db-bob35-gates",
+      "expect_red": "F05-T14b",
+      "expect_detail": "a session citing the release its assignment moved from was inserted"
+    },
+    {
+      "name": "bob36-1",
+      "gate": "db-bob36-gates",
+      "expect_red": "F04-T04d",
+      "expect_detail": "after a session exists the teacher rewrote in place: passing_rules"
+    },
+    {
+      "name": "bob36-2",
+      "gate": "db-bob36-gates",
+      "expect_red": "F04-T04d",
+      "expect_detail": "after a session exists the teacher rewrote in place: mode, bank_type"
+    },
+    {
+      "name": "bob36-3",
+      "gate": "db-bob36-gates",
+      "expect_red": "F04-T04d",
+      "expect_detail": "the owner rewrote a sat Uji Cepat's passing_rules"
+    },
+    {
+      "name": "bob36-4",
+      "gate": "db-bob36-gates",
+      "expect_red": "F04-T04d",
+      "expect_detail": "after a session exists the teacher rewrote in place: module_id, course_id"
+    },
+    {
+      "name": "bob39-1",
+      "gate": "db-bob39-gates",
+      "expect_red": "F06-P22",
+      "expect_detail": "a referral through the review left 0 AWAITING_REVIEW decision(s)"
+    },
+    {
+      "name": "bob39-2",
+      "gate": "db-bob39-gates",
+      "expect_red": "F06-P22",
+      "expect_detail": "the person who referred took up or decided their own referral"
+    },
+    {
+      "name": "bob37-1",
+      "gate": "db-bob37-gates",
+      "expect_red": "F06-P23",
+      "expect_detail": "the class's per-topic mastery did not show for five learners"
+    },
+    {
+      "name": "bob37-2",
+      "gate": "db-bob37-gates",
+      "expect_red": "F06-P23",
+      "expect_detail": "the school's competency outcomes hold nothing for the two objectives"
+    },
+    {
+      "name": "bob37-3",
+      "gate": "db-bob37-gates",
+      "expect_red": "F06-P23",
+      "expect_detail": "the class's per-topic mastery is [{\"code\": \"BOB37-A\", \"title\": null, \"needed\": 5, \"learners\": 5, \"competency\": \"BOB37-A\", \"mean_score\": 0.5000"
+    },
+    {
+      "name": "bob25-1",
+      "gate": "db-bob25-gates",
+      "expect_red": "F17-L01",
+      "expect_detail": "one slot under the ceiling, after refusals, was still refused"
+    },
+    {
+      "name": "bob25-2",
+      "gate": "db-bob25-gates",
+      "expect_red": "F17-L01",
+      "expect_detail": "three of them refused by the host, was answered"
+    },
+    {
+      "name": "bob25-3",
+      "gate": "db-bob25-gates",
+      "expect_red": "F17-L02",
+      "expect_detail": "a settled send was settled a second time"
+    },
+    {
+      "name": "bob25-4",
+      "gate": "db-bob25-gates",
+      "expect_red": "F17-N01",
+      "expect_detail": "authenticated may reserve or settle a send"
+    },
+    {
+      "name": "bob25-5",
+      "gate": "db-bob25-gates",
+      "expect_red": "F17-L01",
+      "expect_detail": "a second code to the same address within a minute was answered"
+    },
+    {
+      "name": "bob26-1",
+      "gate": "db-bob26-gates",
+      "expect_red": "F18-N01",
+      "expect_detail": "renamed themselves «Ironman» straight at the table"
+    },
+    {
+      "name": "bob26-2",
+      "gate": "db-bob26-gates",
+      "expect_red": "F18-P01",
+      "expect_detail": "Auth wrote a password with no permit"
+    },
+    {
+      "name": "bob26-3",
+      "gate": "db-bob26-gates",
+      "expect_red": "F18-L01",
+      "expect_detail": "would be sent a code (only a REQUIRED email account is)"
+    },
+    {
+      "name": "bob26-4",
+      "gate": "db-bob26-gates",
+      "expect_red": "F18-S01",
+      "expect_detail": "set-up completed before the name was confirmed"
+    },
+    {
+      "name": "bob26-5",
+      "gate": "db-bob26-gates",
+      "expect_red": "F18-N03",
+      "expect_detail": "corrected a name"
+    },
+    {
+      "name": "bob26-6",
+      "gate": "db-bob26-gates",
+      "expect_red": "F18-N02",
+      "expect_detail": "the name could be corrected a second time"
+    },
+    {
+      "name": "bob26-7",
+      "gate": "db-bob26-gates",
+      "expect_red": "F18-I01",
+      "expect_detail": "another school's admin read the names"
+    },
+    {
+      "name": "bob26-8",
+      "gate": "db-bob26-gates",
+      "expect_red": "F18-S01",
+      "expect_detail": "set-up completed with no password"
+    },
+    {
+      "name": "bob50-1",
+      "gate": "db-bob50-gates",
+      "expect_red": "F19-Q01",
+      "expect_detail": "a finished Uji Cepat is certificate-eligible"
+    },
+    {
+      "name": "bob50-2",
+      "gate": "db-bob50-gates",
+      "expect_red": "F19-Q03",
+      "expect_detail": "with QUICK certifying again the lint did not name it"
+    },
+    {
+      "name": "bob50-3",
+      "gate": "db-bob50-gates",
+      "expect_red": "F19-Q02",
+      "expect_detail": "is not eligible"
+    },
+    {
+      "name": "bob50-4",
+      "gate": "db-bob50-gates",
+      "expect_red": "F19-Q04",
+      "expect_detail": "depends on the certificate policy"
+    },
+    {
+      "name": "d2r-1",
+      "gate": "db-d2r-gates",
+      "expect_red": "D2R-D01",
+      "expect_detail": "a direct open_assistance on an Uji Penguasaan served"
+    },
+    {
+      "name": "d2r-2",
+      "gate": "db-d2r-gates",
+      "expect_red": "D2R-D03",
+      "expect_detail": "assistance_state on an Uji Penguasaan gives a window"
+    },
+    {
+      "name": "d2r-3",
+      "gate": "db-d2r-gates",
+      "expect_red": "D2R-D07",
+      "expect_detail": "after the policy changed"
+    },
+    {
+      "name": "d2r-4",
+      "gate": "db-d2r-gates",
+      "expect_red": "D2R-D08",
+      "expect_detail": "the lint did not name it"
+    },
+    {
+      "name": "d2r-5",
+      "gate": "db-d2r-gates",
+      "expect_red": "D2R-H01",
+      "expect_detail": "session_review answered a certifying sitting"
+    },
+    {
+      "name": "d2r-6",
+      "gate": "db-d2r-gates",
+      "expect_red": "D2R-H04",
+      "expect_detail": "reason(s) on a certifying sitting"
+    },
+    {
+      "name": "d2r-7",
+      "gate": "db-d2r-gates",
+      "expect_red": "D2R-H05",
+      "expect_detail": "carries per_domain"
+    },
+    {
+      "name": "d2r-8",
+      "gate": "db-d2r-gates",
+      "expect_red": "D2R-H07",
+      "expect_detail": "carries a correction reason"
+    },
+    {
+      "name": "d2r-9",
+      "gate": "db-d2r-gates",
+      "expect_red": "D2R-H16",
+      "expect_detail": "session_answers returns benar"
+    },
+    {
+      "name": "d2r-10",
+      "gate": "db-d2r-gates",
+      "expect_red": "D2R-C01",
+      "expect_detail": "gives the band"
+    },
+    {
+      "name": "d2r-11",
+      "gate": "db-d2r-gates",
+      "expect_red": "D2R-H14",
+      "expect_detail": "with the policy row edited after the sitting"
+    },
+    {
+      "name": "d2r-12",
+      "gate": "db-d2r-gates",
+      "expect_red": "D2R-F01",
+      "expect_detail": "expected 1"
+    },
+    {
+      "name": "d2r-13",
+      "gate": "db-d2r-gates",
+      "expect_red": "D2R-D06",
+      "expect_detail": "Pemetaan Awal served 0 of 3"
+    },
+    {
+      "name": "d2r-14",
+      "gate": "db-d2r-gates",
+      "expect_red": "D2R-H12",
+      "expect_detail": "Pemetaan Awal's reading map lost"
+    }
   ]
 }
