@@ -21,7 +21,7 @@
 
 | # | Journey | Who | World states (§3) | Dimensions |
 |---|---|---|---|---|
-| J1 | First day: class card, first sign-in, personal PIN, «Komputer siapa ini?», the tour | Young learner (SD) | W1, W2 | A, G, H, F |
+| J1 | First day: class card, first sign-in (straight to /belajar), the tour | Young learner (SD) | W1 | A, G, H, F |
 | J2 | One chapter, start to certificate | Learner (SMP) | W3, W4, W5 | B, D, H, G |
 | J3 | The gate, the retake, the new result | Learner, teacher, approver | W6, W7, W8 | B, C, H, E |
 | J4 | An interrupted sitting | Learner, teacher | W9 | C, D, G |
@@ -44,25 +44,25 @@ Each script has five parts:
 - **[S]:** Sharon's protection points.
 
 ### J1 · First day (SD)
-- **Start:** W1, a class of six learners with printed class cards, none activated.
+- **Corrected 24 Nov (01:51; the builder's J1 run).** My first version had the card learner make a personal PIN and answer «Komputer siapa ini?». **By design (D-086(c), `penjaga-sesi.ts` T1),** a class-card learner signs in straight to /belajar, has no personal PIN, and is never asked about the computer (the session is CARD). The script was wrong, not the screen.
+- **Start:** W1, a class of six learners with printed class cards, none signed in before.
 - **Steps:**
   1. sign in by card number and card PIN;
-  2. make a personal PIN;
-  3. «Komputer siapa ini?» (shared);
-  4. the tour;
-  5. open today's task.
+  2. land on /belajar;
+  3. the tour;
+  4. open today's task.
 - **Branches:**
   - a wrong card PIN three times (the wait);
   - a mistyped card number;
-  - a weak PIN refused (each PIN rule);
-  - the shared/personal choice made wrongly, then changed in «Akun saya»;
-  - the tour closed early, then reopened.
+  - the tour closed early, then reopened;
+  - signing out and back in on the same shared computer.
 - **Check:**
   - the reading level of every sentence a 9-year-old meets (H);
   - steps and time to the first task (F);
   - touch targets at 320 (G);
-  - no screen says more than the child needs.
+  - nothing asks the child a question meant for an account holder.
 - **[S]:** card and PIN pacing; nothing tells whether a card number exists.
+- **Moved to J10:** the personal-PIN rules (a weak PIN refused) and «Komputer siapa ini?» (the shared/personal choice, changed later in «Akun saya»), walked by an email-account learner from W2.
 
 ### J2 · One chapter, start to certificate
 - **Start:** W3, an assigned chapter with lessons, a sealed pass mark of 60, a certifying Uji Penguasaan with single-answer and multi-answer items, and a must-be-right item.
@@ -204,6 +204,7 @@ Each script has five parts:
 
 ### J10 · Locked out
 - **Start:** W2 (activated learners and staff) and W17 (one closed account).
+- **Account set-up (from J1, 24 Nov):** an email-account learner from W2 makes a personal PIN (a weak PIN refused under each rule) and answers «Komputer siapa ini?», then changes it in «Akun saya».
 - **Signed-out paths:**
   - forgot password by email, by username, and by PINTAR ID + PIN (time runs out: `lupa.pin.berakhir`);
   - the session lock (PIN, card PIN, three tries; a reset PIN: «belum punya PIN yang bisa dipakai»);

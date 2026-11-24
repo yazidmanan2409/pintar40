@@ -101,3 +101,4 @@
 | 24 Nov, 01:07 | Bob | D2-R words adopted; no threshold in 4.1 | spec rev 4 | Two words change: «Baca lagi:», and a new no-blame note (the old one claimed few questions); column follows «Materi Pembelajaran» |
 | 24 Nov, 01:15 | Bob (ruling 89, 3a) | Ledger draft 1 mapping | `689f8a35` | `LEDGER-79-KONFIRMASI-689f8a35.md`: 24 confirmed, 6 changed, 3 added (L-31–L-33); pre-Z sweep: nothing new |
 | 24 Nov, 01:09 | Bob | D2-R: learner certificate page «Predikat»? | next-base | **Remove** (match the certificate and the public check; band stays internal) |
+| 24 Nov, 01:51 | Bob | J1 steps 2–3 not offered for class cards | `claude/audit-79-world` `bd09fcb6` | **Script wrong, not a finding.** J1 corrected; those steps moved to J10 (email-account learner); logged DAISY-J1 |
