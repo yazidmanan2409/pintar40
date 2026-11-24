@@ -136,3 +136,4 @@
 - **24 Nov 10:27Z · Bob:** J2 → L-44..L-53. **J3 walked** on a local audit world 00fe853d: AUDIT-79-TEMUAN-J3.md (20d3fdc9); 5 Significant, 4 Improvement.
 - **24 Nov 10:38Z · Bob:** J3 → L-54..L-62; ruling 95 (common causes; add sibling lines from J4 on). **J4 walked:** AUDIT-79-TEMUAN-J4.md; 1 Significant, 4 Improvement (2 confirm L-45 and L-47).
 - **24 Nov 10:42Z · Bob:** interim common causes C-1..C-6 (35cccdf1); tag from J4 on. **J7 walked:** AUDIT-79-TEMUAN-J7.md; 4 Significant (J7-1 possibly Critical, for Sharon), 4 Improvement; proposed causes C-8 and C-9.
+- **24 Nov 10:49Z · Bob:** J4 → L-63..L-65; Sol's qualifications on C-1 and C-5 noted, words at plan time. **J10 walked:** AUDIT-79-TEMUAN-J10.md; 1 Significant (for Sharon), 2 Improvement; proposed C-10.
