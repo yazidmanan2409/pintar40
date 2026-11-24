@@ -123,6 +123,9 @@ export const KATA_D2R: Array<[HleEvent, string, string]> = [
   ["hasilbelajar.baca_lagi_banyak" as HleEvent, "Ada {n} bagian yang disarankan untuk dibaca lagi; semuanya ditandai «baca lagi» di bagian B.",
     "{n} parts are suggested for reading again; each is marked «read again» in section B."],
   ["hasilbelajar.baca_lagi_tanda" as HleEvent, "baca lagi", "read again"],
+  // Daisy's §12 (1aff74f8): the C line on a certifying «Belum lulus» row quotes the mark section B shows
+  ["hasilbelajar.berikutnya_baca_lagi" as HleEvent, "Baca lagi bagian yang ditandai «baca lagi» ({daftar}), lalu tanyakan kepada guru langkah berikutnya.",
+    "Read again the parts marked «read again» ({daftar}), then ask your teacher for the next step."],
   ["hasilbelajar.gerbang" as HleEvent, "Ada soal penting yang belum tepat, jadi Uji Penguasaan bab ini belum lulus.", "An important question is not right yet, so this chapter's Mastery Check is not passed yet."],
 ];
 
@@ -478,6 +481,14 @@ export const d2rTests: SelfTest[] = [
         "section B does not list a certifying row's sections marked «baca lagi» (pass and not passed)");
       c.expect(!/\d+ dari \d+|pin-lk-kotak|%/.test(kL + kB), "section B gives a certifying section a figure");
       c.expect(kN.includes(`>${id("hasilbelajar.pelajari_lagi")}</small>`) && !kN.includes(tanda), "a non-certifying row's section B does not keep «pelajari lagi»");
+      // Daisy's §12: the C line, on «Belum lulus» rows only, in the mark each kind of row shows in section B
+      const iC = r.out.indexOf('data-lk="berikutnya"');
+      const C = teksHtml(iC >= 0 ? r.out.slice(iC, r.out.indexOf("</section>", iC)) : "");
+      c.expect(C.includes(id("hasilbelajar.berikutnya_baca_lagi").replace("{daftar}", "IPA · Bab 3")),
+        `a certifying «Belum lulus» row's C line does not quote «baca lagi» (hasilbelajar.berikutnya_baca_lagi): «${C}»`);
+      c.expect(C.includes(id("hasilbelajar.berikutnya_ulang").replace("{daftar}", "IPA · Bab 4")), "a non-certifying row does not keep hasilbelajar.berikutnya_ulang");
+      c.expect(!/IPA · Bab 2[^.]*lalu tanyakan|lalu tanyakan[^.]*IPA · Bab 2/.test(C) && !C.includes("(IPA · Bab 3, IPA · Bab 4)") && !C.includes("(IPA · Bab 4, IPA · Bab 3)"),
+        "a certifying pass is sent to the teacher, or the two kinds share one C line");
       // many: each kind counted on its own and pointed to section B in its own words
       const banyak = render([{ ...lulus, ulang: ["A1", "A2"] }, { ...belum, ulang: ["B1"] }, biasa]);
       const tb = teksHtml(banyak.out);
