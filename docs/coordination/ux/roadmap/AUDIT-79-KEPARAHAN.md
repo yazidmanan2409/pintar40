@@ -20,8 +20,8 @@
 
 - **Critical (proposed):** 2. Both are certificate integrity, with Sharon.
 - **Significant:** 28 findings.
-  - 2 are Sharon's rulings (J6-4, J6-6).
-  - 3 are my proposals where Sharon decides (L-143, J10-1, L-112).
+  - 3 are Sharon's rulings (J6-4, J6-6, L-143).
+  - 2 are my proposals where Sharon decides (J10-1, L-112).
   - 2 more rows rank two **cause families** (C-10, and C-6 in EN) whose single rows stay where they are.
 - **Improvement:** 76, of which 2 are optional (J8-13, J10-8).
 - **Not findings:** 2 (a harness note, and a note recorded as acceptable).
@@ -52,7 +52,7 @@
 | J5-6 | The learner isn't told how long an Uji Cepat stays open; the clock counts up | C-3 | Bob: Significant |
 | J6-4 (L-124) | «Tandai lolos pemeriksaan» runs the check silently and doesn't show what it found | C-3 | **Sharon: Significant** (restated after the code reading) |
 | J6-6 (L-126) | The AI request log doesn't record why allowance and ceiling refusals happened | — | **Sharon: Significant** ([S]) |
-| L-143 | Two steps go «Selesai» while an AI draft still waits; only «Ajukan» holds | C-3 | **Sharon decides.** I propose Significant |
+| L-143 | Two steps go «Selesai» while an AI draft still waits; only «Ajukan» holds | C-3 | **Sharon: Significant.** Both marks are held, in the database too. The words for both marks are in TEMUAN-J6 |
 | J7-2 | A certificate under review tells its holder it is «masih berlaku» | C-3 | |
 | J7-3 | The second person is told nothing waits while a key correction waits for them | C-4 | |
 | J7-4 | The reissue panel says the result was «tidak pernah dihitung ulang» right after a recalculation | C-3 | |
@@ -106,7 +106,7 @@
 | J6-2 | «Terima» on an AI draft gives no line | — |
 | J6-3 | The AI allowance is never shown before a request | — (Sharon decides whether it may be shown) |
 | J6-5 | The rights tick is cleared after a refusal | — |
-| J6-7 | The held «Ajukan»'s reason can't be reached by keyboard or SR | — |
+| J6-7 (L-144) | The held «Ajukan»'s reason can't be reached by keyboard or SR. The same pattern applies to every held button | — |
 | J7-5 | Only the school admin can raise a wrong key | C-8 |
 | J7-6 | Keys shown as letters only | — |
 | J7-7 | Two long «kehilangan alasan» lines | — |

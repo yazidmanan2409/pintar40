@@ -123,3 +123,23 @@ Seven walks, every one reaching its last screen, with fixtures for the stale for
 | J6-7 | **The held «Ajukan» is a disabled button with its reason in a separate paragraph** (SR tree: `button "Ajukan untuk ditinjau" [disabled]`, then `paragraph: 1 soal masih draf dari AI …`). A keyboard or screen-reader user tabbing through doesn't reach a disabled button, so they don't hear why. | — | — | G | Use `aria-disabled="true"` (focusable) with `aria-describedby` pointing at the reason. Pressing it moves focus to the first waiting draft. The same applies to L-143's held «Tandai sudah tersusun». |
 
 **J6's «left for the builder» lines are closed.**
+
+### L-143 · Sharon's ruling (24 Nov 21:56): both marks are held, in the database too. The fallback lapses.
+
+**«Tandai sudah tersusun»:** the words above stand.
+- ID: «**{n} soal masih draf dari AI.** Terima atau hapus setiap draf sebelum paket ditandai tersusun.»
+- EN: «**{n} questions are still AI drafts.** Accept or delete each draft before the package is marked as composed.»
+- Singular: «**1 soal masih draf dari AI.** Terima atau hapus draf ini sebelum paket ditandai tersusun.» / «**1 question is still an AI draft.** Accept or delete it before the package is marked as composed.»
+
+**«Tandai lolos pemeriksaan»** (the new variant):
+- ID: «**{n} soal masih draf dari AI.** Terima atau hapus setiap draf sebelum paket ditandai lolos pemeriksaan.»
+- EN: «**{n} questions are still AI drafts.** Accept or delete each draft before the package is marked as passing the check.»
+- Singular: «**1 soal masih draf dari AI.** Terima atau hapus draf ini sebelum paket ditandai lolos pemeriksaan.» / «**1 question is still an AI draft.** Accept or delete it before the package is marked as passing the check.»
+
+**The same composition for both, as L-144 (J6-7):**
+- the button is `aria-disabled="true"` and stays focusable;
+- `aria-describedby` points at the line;
+- pressing it moves focus to the first waiting draft;
+- the link «Lihat draf pertama» / «See the first draft» sits after the line.
+
+**If the database refuses** (for example, a draft created in another tab after the page loaded), the result line is the same sentence, so the page and the refusal agree.
