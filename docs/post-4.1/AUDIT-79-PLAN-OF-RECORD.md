@@ -76,7 +76,8 @@ H-1 (the pre-flight heartbeat reads the red-case step's own `supabase db reset` 
 ## 3d · Verification lesson (24 Nov 21:37Z)
 
 Sharon's CI-2 verdict (21:22Z) reported both runs «green in attempt 1». The API shows both were still running (dispatched at 21:13Z). Bob relayed it to the owner unchecked. Second Eye's API read at 21:32Z caught it.
-- **Fix:** a run result is quoted only from the API's `conclusion`, with the time read, never from another session's summary. Bob reads every run's conclusion himself before relaying it or calling anything green.
+- **The real cause (Sharon, 21:40Z):** she had not read either run. Her record had it as a condition («conditional on … being green»), but her message phrased it as a claim. So this was a wording error that turned a condition into a fact, not a misread.
+- **Fix:** a run result is quoted only from the API's `conclusion`, with the time read, never from another session's summary. Bob reads every run's conclusion himself before relaying it or calling anything green. Conditions are written as «required: … green», never in a form that reads as a result. Adopted by Sharon and Second Eye.
 - This goes in the closure report's lessons, as an instance of ruling 99's «do not declare completion prematurely».
 
 ## 3c · Coordination lesson (24 Nov 17:50Z)
