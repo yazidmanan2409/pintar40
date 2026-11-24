@@ -7545,6 +7545,31 @@
       "proves": "D2-R Daisy's C-1 and her ruling on the null case, red first, d2r.test.ts, the rendered HTML of src/components/laporan/KomposisiMurid.tsx and reads src/lib/hasil-belajar.ts: a certifying «Lulus» row whose certificate exists or is being prepared links to /belajar/{tugas}/sertifikat with siklus.lihat_sertifikat (screen-only), one with no certificate links to none; a «Belum lulus» row and a non-certifying row do not; the library reads each certifying pass's certificate."
     },
     {
+      "id": "CI1-S01",
+      "runner": "static",
+      "proves": "CI-1 S-1 (ruling 97; CI-1-SPEC.md @d152e9ef), red first, selftest/ci1.test.ts; executes putuskan_tinjauan_sertifikat against the migrations in one rolled-back transaction of C1W-S06's world (a sealed certificate under review through a governed key correction): with the result in force (hasil_murid_id) below the mark, CONFIRMED is refused PR190 CERT_REVIEW_RESULT_NO_LONGER_PASSES and nothing is written (the review open, no decision audited, the certificate as issued, DITINJAU), REVOKED stays available (DICABUT); a still-passing review confirms as before (audited once, BERLAKU); plants P1 (no check) and P2 (over-strict) are caught."
+    },
+    {
+      "id": "CI1-S02",
+      "runner": "static",
+      "proves": "CI-1 S-1 with Sharon's §6 (c), red first, selftest/ci1.test.ts; executes putuskan_tinjauan_sertifikat against the migrations in one rolled-back transaction: a gate-only failure (mastery at or above the mark) is refused; the result in force is hasil_murid_id, so a newer row on the sitting that is not it changes nothing either way; plants P3 (a mastery-only check) and P4 (hasil_terkini_id) are caught."
+    },
+    {
+      "id": "CI1-V01",
+      "runner": "static",
+      "proves": "CI-1 S-2 with Sharon's §6 (a)(b), red first, selftest/ci1.test.ts; executes verify_certificate, sertifikat_saya_ditinjau, tinjauan_sertifikat_dikonfirmasi and sertifikat_dipersoalkan_sekolah against the migrations in one rolled-back transaction: a certificate wrongly CONFIRMED on a failing result (planted past S-1) reads DITINJAU publicly, under review to its learner, out of the staff «dikonfirmasi» note and in the staff list's questioned set, DICABUT only once revoked; a clean confirmed certificate reads BERLAKU everywhere and stays BERLAKU when its mode stops certifying afterwards (the sitting's captured bersertifikasi, never today's mode_policy); the catalogue: OUT signatures unchanged, one helper read by every validity reader, the helper internal, assert_public_surface passes; plants P5 (old verify logic), P6 (DICABUT without a revocation) and P7 (the learner's card and print) and P8 (today's mode_policy.certifies) are caught."
+    },
+    {
+      "id": "CI1-V02",
+      "runner": "static",
+      "proves": "CI-1 with Sharon's §7 (2), selftest/ci1.test.ts; executes verify_certificate, sertifikat_dipersoalkan_sekolah, revoke_certificate and putuskan_tinjauan_sertifikat against the migrations in one rolled-back transaction: an issued certificate whose sitting an evidence override (the harness's hand) makes non-OFFICIAL, with no review row, reads DITINJAU publicly, is in the staff list's questioned set and is revoked by the school through the existing path (DICABUT); with a review open, CONFIRMED is refused CERT_REVIEW_RESULT_NO_LONGER_PASSES and REVOKED stays available; the plant P9 (the staff read limited to open reviews, leaving the certificate orphaned) is caught."
+    },
+    {
+      "id": "CI1-K01",
+      "runner": "static",
+      "proves": "CI-1, red first, selftest/ci1.test.ts; reads the source of the migration (no rows written outside a function body; the S-1 refusal and its message in koreksi_tolak), the contract src/lib/soal-kontrak.ts and the copy table (CERT_REVIEW_RESULT_NO_LONGER_PASSES mapped to its own words in ID and EN) and src/app/konfigurasi/sertifikat/page.tsx (a refused decision shown by its code's words, so the refusal is named on screen; the list's pill and the selected certificate's state read sertifikat_dipersoalkan_sekolah)."
+    },
+    {
       "id": "D2R-L01",
       "runner": "static",
       "proves": "Ruling 90, Daisy's D2R-KATA §10 (ccd42fa6), red first, d2r.test.ts, executes the copy table and reads supabase/migrations/20261119100000_a_staff_member_reports_a_problem.sql and src/lib/lapor-masalah.ts: lapor.langkah.awal and lapor.langkah.awal_kelas read word for word in ID and EN and name no time period (a planted period is caught); a new report is DITERIMA, the status enum's first value, and the triage list orders open reports by status, then stops_class first."

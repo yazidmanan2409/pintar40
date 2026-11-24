@@ -102,6 +102,11 @@ export default async function SertifikatSekolah({ searchParams }: { searchParams
   const ditinjau = ((ditinjauData ?? []) as Ditinjau[]).filter((r) => r.boleh_putuskan);
   const dikonfirmasi = new Map(((dikonfirmasiData ?? []) as Array<{ sertifikat: string; alasan: string }>).map((r) => [r.sertifikat, r.alasan]));
   const sedangDitinjau = new Set(((ditinjauData ?? []) as Ditinjau[]).map((r) => r.sertifikat));
+  // CI-1 S-2 (Sharon §6 (b)): the list states validity by the one helper (a review open OR a result in force that fails),
+  // read under sertifikat_sekolah's own rule; an issued certificate it questions reads «Sedang ditinjau», never «Berlaku».
+  // A failed read questions what the open reviews question, as before
+  const { data: dipersoalkanData } = await supabase.rpc("sertifikat_dipersoalkan_sekolah", { p_sekolah: lingkup });
+  const dipersoalkan = new Set<string>(Array.isArray(dipersoalkanData) ? (dipersoalkanData as string[]) : [...sedangDitinjau]);
   const zonaTinjau = zonaDari(sekolahIni);
   const pct = (n: number | null) => (n === null ? "—" : format.percent(n, locale));
   const kodeTinjau: KodeKoreksi = KODE_KOREKSI.includes(sp.kode as KodeKoreksi) ? (sp.kode as KodeKoreksi) : kodeKoreksiDariGalat(null);
@@ -208,8 +213,8 @@ export default async function SertifikatSekolah({ searchParams }: { searchParams
               <span key="k">{c.course_title || "—"}</span>,
               <span key="t">{tanggal(c.issued_at, "baca", locale, zonaDari(c.institution_id))}</span>,
               <span key="e">
-                <span className={sedangDitinjau.has(c.id) && c.status === "ISSUED" ? "pin-pill pin-neutral" : nada(c.status)}>
-                  {sedangDitinjau.has(c.id) && c.status === "ISSUED" ? s("verifikasi.status.DITINJAU") : keadaan(c.status)}
+                <span className={dipersoalkan.has(c.id) && c.status === "ISSUED" ? "pin-pill pin-neutral" : nada(c.status)}>
+                  {dipersoalkan.has(c.id) && c.status === "ISSUED" ? s("verifikasi.status.DITINJAU") : keadaan(c.status)}
                 </span>
                 {dikonfirmasi.has(c.id) ? <span className="pin-meta" data-dikonfirmasi-ulang=""> {s("config.tinjau_sertifikat.dikonfirmasi").replace("{alasan}", dikonfirmasi.get(c.id)!)}</span> : null}
               </span>,
@@ -235,7 +240,9 @@ export default async function SertifikatSekolah({ searchParams }: { searchParams
               <div><dt>{s("sertifikat.kelola.kolom.kursus")}</dt><dd>{dipilih.course_title || "—"}</dd></div>
               <div><dt>{s("sertifikat.kelola.kolom.sekolah")}</dt><dd>{dipilih.institution_name}</dd></div>
               <div><dt>{s("sertifikat.kelola.kolom.terbit")}</dt><dd>{tanggal(dipilih.issued_at, "baca", locale, zonaDari(dipilih.institution_id))}</dd></div>
-              <div><dt>{s("sertifikat.kelola.kolom.keadaan")}</dt><dd className={nada(dipilih.status)}>{keadaan(dipilih.status)}</dd></div>
+              <div><dt>{s("sertifikat.kelola.kolom.keadaan")}</dt>{dipersoalkan.has(dipilih.id) && dipilih.status === "ISSUED"
+                ? <dd className="pin-pill pin-neutral">{s("verifikasi.status.DITINJAU")}</dd>
+                : <dd className={nada(dipilih.status)}>{keadaan(dipilih.status)}</dd>}</div>
             </dl>
             {dipilih.status === "ISSUED" ? (
               <>

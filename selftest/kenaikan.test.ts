@@ -616,6 +616,15 @@ export const kenaikanAppTests: SelfTest[] = [
                  x.assessment_definition_version, x.engine_version, x.scoring_policy_version, x.evidence_channel, x.evidence_class, x.mode,
                  'CREATED', x.shuffle_seed, now(), 0
             from public.assessment_sessions x where x.id = v_tpl returning id into v_s;
+          -- RESTATED (CI-1, ruling 97): a certificate is issued for a sitting that earned it, so the copy carries a pass mark, OFFICIAL
+          -- evidence (certificate_eligibility, INV-20) and a passing result in force (the template's, at the payload's 0.85, its gate passed); without them the one validity
+          -- helper rightly questions it (DITINJAU)
+          update public.assessment_sessions set pass_mark = 0.60, pass_mark_source = 'SCHOOL', evidence_class = 'OFFICIAL' where id = v_s;
+          insert into public.assessment_results (session_id, institution_id, person_id, evidence_class, engine_version, scoring_policy_version,
+            mastery, per_domain, safety_gate_passed, delta_inputs, computed_at)
+          select v_s, r.institution_id, v_p, r.evidence_class, r.engine_version, r.scoring_policy_version, 0.85, r.per_domain, true, r.delta_inputs, now()
+            from public.assessment_results r where r.session_id = v_tpl and r.supersedes_result_id is null limit 1;
+          if not found then raise exception 'Alpha''s Cek penguasaan sitting has no result to copy'; end if;
           set local session_replication_role = origin;
           insert into public.certificate_identity_snapshots (person_id, institution_id, name_as_issued, snapshot_hash)
           values (v_p, v_i, ${lit(salah)}, md5(${lit(salah)})) returning id into v_snap;
