@@ -633,3 +633,34 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
 | L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
 |---|---|---|---|---|---|---|
 | L-144 (J6-7) | The held «Ajukan» is a disabled button, with its reason in a separate paragraph, so a keyboard or SR user never reaches it | G | J6 | Improvement | — | `aria-disabled` plus `aria-describedby`; the press goes to the first draft. **The same pattern applies to every held button in AR-79** (L-143's two marks included) |
+
+## W2 · Severities complete (Daisy, `AUDIT-79-KEPARAHAN.md` `e0958ce7`, 24 Nov 21:55Z; reconciled by Bob)
+
+**Daisy's scale:**
+- **Critical:** someone relies on something false with consequences outside PINTAR.
+- **Significant:** misled about one's own state or task, blocked with no way round, or siblings contradicting each other on the main fact.
+- **Improvement:** the rest. An accessibility failure on a core task with no alternative path counts as Significant.
+
+**Her result:** 2 Critical proposed, 28 Significant, 76 Improvement (2 optional); not findings: J3-9 and J12-4.
+
+**Reconciled against binding classifications** (Sharon's are binding on integrity, access, privacy and confidentiality):
+
+| Item | Daisy | Binding | Ledger |
+|---|---|---|---|
+| J7-1 / L-67 | Critical (proposed) | Critical (ruling 96; Sharon's addendum) | **Critical** |
+| J7-10 revoked / L-105 | Critical (proposed) | **HIGH** (Sharon: needs the holder's deliberate print, and the public check tells the truth) | **HIGH**. Daisy's proposal is noted, not adopted. It's fixed before the first real certificate (CI-1b) |
+| L-112 | Significant (proposed) | **HIGH** (Sharon, 20:02Z) | **HIGH** (PR-23) |
+| L-143 | Significant (proposed) | Significant (Sharon, 21:50Z) | Significant |
+| J10-1 / L-75 | Significant | Significant; the disclosure is withdrawn by ruling 98, and the neutral line is kept (CI-2) | Significant, resolved by CI-2's general line |
+| J6-4 / L-124, J6-6 / L-126 | as ruled | Significant (Sharon) | Significant |
+| L-35 | Significant | Significant, **placed in 4.5** (Sharon) | Significant, 4.5 (named in the closure report) |
+
+**Cause families ranked Significant as causes, with their rows staying Improvement:**
+- C-10: browser-bubble validation on 5 screens (L-77, L-88, L-120, L-130, L-132).
+- C-6-EN: Konfigurasi outside the word lookup (L-135, L-136, L-140). L-135 is Significant on its own.
+
+**Two observations, adopted for W6's order:**
+1. 18 of the 28 Significant findings come from C-3 and C-4, so they're fixed in the shared layer, not page by page.
+2. Certificates hold both top-severity rows and four Significants, and the certificate is the one output that leaves PINTAR, so certificates go first (CI-1, then CI-1b, then the AR-79 certificate items).
+
+**Lines not raised by Daisy** (L-1 to L-43 and the builder's and Sharon's own rows) keep the severities the ledger already gives them, set by their source and by Sharon where [S]. Daisy needn't re-rank them.

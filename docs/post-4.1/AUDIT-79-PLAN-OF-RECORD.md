@@ -53,7 +53,7 @@
 | Stream | State |
 |---|---|
 | W1 | **Every journey walked locally by Daisy** (J2 to J12, passes included). Builder captures: J2, J3, J4, J7, J10, J5, J6 (J6 to be judged); the PIN-reload probe holds. Re-runs: J5's and J10's EN walks (a harness cookie fault). Next: J8, J9, J11, J12 |
-| W2 | L-1 to L-143. Critical: L-67. High: L-78, L-105, L-112. Daisy's open findings: 91 (`AUDIT-79-DAISY-FINDINGS.md`). Daisy's severity pass is next |
+| W2 | **DONE (Daisy, `e0958ce7`, reconciled by Bob)**. L-1 to L-144. Critical: L-67. High: L-78, L-105, L-112. Daisy's open findings: 91 (`AUDIT-79-DAISY-FINDINGS.md`). Daisy's severity pass is next |
 | W3 | INTERIM: C-1 to C-11 |
 | W4 | **CI-1 READY for the owner:** `94ce6727`, PR #30, ci and journeys GREEN in one attempt, Sharon PASS unconditional (`CI-1-FOR-OWNER.md`) |
 | W4b | CI-1b specified, words cleared; after CI-2 |

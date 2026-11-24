@@ -9,6 +9,15 @@ Compiled by Bob from Daisy's eleven journey files, `docs/coordination/ux/roadmap
 - None is fixed yet, except that CI-1 (ready, awaiting the owner) corrects J7-1.
 - Everything else goes into CI-1b or AR-79, as the notes say.
 
+## Daisy's own severity pass (W2, `AUDIT-79-KEPARAHAN.md` `e0958ce7`)
+
+Her pass counts 2 Critical (proposed), 28 Significant and 76 Improvement, on her stated scale. It differs from this file's tally in three ways:
+- it includes rows she confirmed but didn't raise (L-35, L-45, L-58);
+- it counts families;
+- it proposes Critical for a revoked print, where Sharon's HIGH is binding.
+
+The ledger's W2 section reconciles the two.
+
 ## Summary
 
 | Severity | Count |
