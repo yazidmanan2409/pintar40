@@ -92,24 +92,24 @@ for (const lebar of LEBAR) {
     await ke("/konfigurasi/struktur");
     await foto("struktur-kosong");
     rec.tab += await j.ketik(page.locator("input[id^=str-nama-BAGIAN]").first(), "Kelas Rendah", 200);
-    rec.tab += await j.tekan(page.getByRole("button", { name: /^(Tambah Bagian|Add a section|Add section)/ }).first(), 20);
+    rec.tab += await j.tekan(page.getByRole("button", { name: /^(Tambah Bagian|Add Bagian)/ }).first(), 20);
     await tunggu();
     data("bagian", await pesan());
     rec.tab += await j.ketik(page.locator("input[id^=str-nama-TINGKAT]").first(), "Kelas 1", 200);
     rec.tab += await j.ketik(page.locator("input[name=tahun_ajaran]").first(), "2026-27", 20);
-    rec.tab += await j.tekan(page.getByRole("button", { name: /^(Tambah Tingkat|Add a level|Add level)/ }).first(), 20);
+    rec.tab += await j.tekan(page.getByRole("button", { name: /^(Tambah Tingkat|Add Tingkat)/ }).first(), 20);
     await tunggu();
     await foto("tingkat-tahun-salah");
     data("year_wrong", { words: ((await isi()).match(/Tulis tahun ajaran[^.]*\.|Write the school year[^.]*\./) ?? ["(no refusal line)"])[0], kept: await page.locator("input[name=tahun_ajaran]").first().inputValue().catch(() => "") });
     await page.locator("input[name=tahun_ajaran]").first().fill("");
     if (!(await page.locator("input[id^=str-nama-TINGKAT]").first().inputValue())) rec.tab += await j.ketik(page.locator("input[id^=str-nama-TINGKAT]").first(), "Kelas 1", 200);
     rec.tab += await j.ketik(page.locator("input[name=tahun_ajaran]").first(), "2026/2027", 20);
-    rec.tab += await j.tekan(page.getByRole("button", { name: /^(Tambah Tingkat|Add a level|Add level)/ }).first(), 20);
+    rec.tab += await j.tekan(page.getByRole("button", { name: /^(Tambah Tingkat|Add Tingkat)/ }).first(), 20);
     await tunggu();
     data("tingkat", await pesan());
     for (const k of ["1A", "1B"]) {
       rec.tab += await j.ketik(page.locator("input[id^=str-nama-KELAS]").first(), k, 200);
-      rec.tab += await j.tekan(page.getByRole("button", { name: /^(Tambah Kelas|Add a class|Add class)/ }).first(), 20);
+      rec.tab += await j.tekan(page.getByRole("button", { name: /^(Tambah Kelas|Add Kelas)/ }).first(), 20);
       await tunggu();
       data(`kelas_${k}`, await pesan());
     }
@@ -118,7 +118,7 @@ for (const lebar of LEBAR) {
     const staf = page.locator("input[type=radio][name=untuk]").nth(1);
     rec.tab += await j.tabKe(page.locator("input[type=radio][name=untuk]:checked").last(), 30);
     for (let i = 0; i < 3 && !(await staf.isChecked()); i++) await page.keyboard.press("ArrowDown");
-    rec.tab += await j.tekan(page.getByRole("button", { name: /^(Tambah Bagian|Add a section|Add section)/ }).last(), 20);
+    rec.tab += await j.tekan(page.getByRole("button", { name: /^(Tambah Bagian|Add Bagian)/ }).last(), 20);
     await tunggu();
     await foto("struktur");
     data("bagian_staf", await pesan());
@@ -184,7 +184,7 @@ for (const lebar of LEBAR) {
     {
       const kotakCari = page.locator("input[name=cari_orang]").first();
       rec.tab += await j.ketik(kotakCari, "Wahyu", 200);
-      rec.tab += await j.tekan(page.getByRole("button", { name: /^(Cari orang|Find people|Search)/ }).first(), 10);
+      rec.tab += await j.tekan(page.getByRole("button", { name: /^(Cari orang|Find the person)/ }).first(), 10);
       await tunggu();
       await foto("peran-cari-admin");
       data("search_admin_finds", RAPI((await page.locator("select[name=person] option").allInnerTexts()).join(" / ")).slice(0, 200));
@@ -197,7 +197,7 @@ for (const lebar of LEBAR) {
       const kotakCari = page.locator("input[name=cari_orang]").first();
       await kotakCari.fill("");
       rec.tab += await j.ketik(kotakCari, cari, 200);
-      rec.tab += await j.tekan(page.getByRole("button", { name: /^(Cari orang|Find people|Search)/ }).first(), 10);
+      rec.tab += await j.tekan(page.getByRole("button", { name: /^(Cari orang|Find the person)/ }).first(), 10);
       await tunggu();
       data(`${awalan}people_found`, RAPI((await page.locator("select[name=person] option").allInnerTexts()).join(" / ")).slice(0, 300));
       await pilihOpsi(rec, "select[name=person]", new RegExp(cari));
@@ -224,7 +224,9 @@ for (const lebar of LEBAR) {
     const pilih = page.getByLabel(/^Kelas$|^Class$/).first();
     if (await pilih.count() && (await pilih.evaluate((e) => e.tagName)) === "SELECT") await pilihOpsi(rec, pilih, /1A/);
     rec.tab += await j.tekan(page.getByRole("button", { name: /^(Buat kartu untuk kelas ini|Make cards for this class)/ }).first(), 300);
-    await page.getByText(/PIN hanya ditampilkan sekali|PINs are shown only once/).first().waitFor({ timeout: 60000 });
+    // the cards are made one by one («Membuat kartu… 3/5»): the sheet is captured once all are made and it offers printing
+    await page.waitForFunction(() => !/Membuat kartu…|Making cards…/.test(document.body.innerText), null, { timeout: 120000 }).catch(() => {});
+    await page.getByRole("button", { name: /^(Cetak kartu kelas|Print the class cards)/ }).first().waitFor({ timeout: 60000 });
     await foto("kartu");
     data("cards", (await isi()).slice(0, 400));
     await page.emulateMedia({ media: "print" });
@@ -272,9 +274,12 @@ for (const lebar of LEBAR) {
     data("revoke_own_admin", await pesan() || (await isi()).slice(0, 400));
     await ke("/akun");
     await foto("akun");
-    const tutup = page.getByRole("button", { name: /Tutup akun|Close (my|the) account|Minta akun ditutup/ }).first();
+    const tutup = page.getByRole("button", { name: /^(Tutup akun saya|Close my account)$/ }).first();
     data("close_offered", await tutup.count() > 0);
     if (await tutup.count()) {
+      // the form asks for its statement ticked first («Saya memahami bahwa akun saya ditutup sekarang.»)
+      const paham = page.getByRole("checkbox", { name: /Saya memahami bahwa akun saya ditutup|I understand my account closes/ }).first();
+      if (await paham.count()) { rec.tab += await j.tabKe(paham, 300); if (!(await paham.isChecked())) await page.keyboard.press("Space"); }
       rec.tab += await j.tekan(tutup, 300);
       await page.waitForTimeout(800);
       const tanya = page.locator("[data-bahaya-tanya]").first();
