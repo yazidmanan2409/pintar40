@@ -450,3 +450,5 @@ Relayed to Second Eye. K-01's SQL is unblocked, in order.
   - **AFTER: only lines 10, 84, 85 and 86 moved, as predicted**; the digest equals the dry run's; every preserved line and the feedback records are identical.
   - C4 met (all three floors validated). v6 OK. c3w-r3-bahan OK.
   - **Open for the owner:** the dashboard check for `PGRST_DB_PRE_REQUEST`; staging acceptance; the D-1 containment decision (not lifted). Evidence: `batches/z/z-promotion/`.
+
+**24 Nov, 00:28–00:35Z.** Second Eye: local 308 md5 of `periksa` = `2b4a0444fbd36007341a536916fe14a0`, identical to staging (built from a8d9ff27 = main 61a6ff9e tree). Sharon's condition met: her side of Z staging acceptance complete. Second Eye: ruling 83 PASS at `claude/infra-83` 8a1293be. Z goes to the owner for staging acceptance and the separate D-1 decision.

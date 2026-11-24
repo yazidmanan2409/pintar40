@@ -69,3 +69,8 @@ No configuration was changed. Every read was in `set transaction read only`.
 - She asked for one more check: the md5 of `pg_get_functiondef('pintar_permintaan.periksa()')` on staging against a local 308 build.
   - **Staging:** `2b4a0444fbd36007341a536916fe14a0`.
   - **Local 308:** requested from Second Eye; recorded below.
+  - **Local 308 (Second Eye, 24 Nov 00:28Z):** `2b4a0444fbd36007341a536916fe14a0`. **Identical to staging.**
+    - Built from `claude/z` `a8d9ff27`, whose tree is byte-identical to main `61a6ff9e` (empty diff).
+    - Freshly reset local database: 308 migrations, the last `20270123170000`.
+
+**V6's hosted condition is met.** The pre-request ran after the promotion, and the function it runs is byte-for-byte the one main installs. By Sharon's stated terms, her side of Z's staging acceptance is complete; she records the number herself.

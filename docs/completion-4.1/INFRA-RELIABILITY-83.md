@@ -69,3 +69,13 @@ They also hit a full disk (16 GB of stale /tmp) and registry refusals after a re
 - A real reboot leaves a stale `/run/containerd/containerd.sock`, which stops dockerd from starting. The gate failed after 60 s, and only removing the socket fixed it.
 - **The rule from now on:** every infrastructure fix is also proved against the real incident where it can be reproduced. Here that is easy: the session reboots whenever it goes idle.
 - Also from the review: the registry signals must cover all of today's real refusal texts (Docker Hub 429, public ECR «Data limit exceeded», the GHCR proxy block), not only the 429.
+
+## 6 · Reviews complete (24 Nov 2026)
+
+- **Sharon (safety):** PASS at `7696819e`, addendum at `a3bc9516`.
+- **Second Eye (design and proofs):** **PASS at `8a1293be`**, 24 Nov 00:3xZ.
+  - N-4: his three app-style proxy refusals read FAIL; today's four real registry refusals (Docker Hub 429, public ECR, GHCR single-line and three-line) read INFRA; «Docker daemon not running» reads INFRA.
+  - The restart-recovery fix (B-1) held on two real reboots, one per kind of leftover socket, and on the builder's own reboot.
+  - The missing-dependency message names `npm ci`.
+  - Scope since his last check: two scripts and six documents under the ruling 83 folders, nothing else.
+- **Next:** `claude/infra-83` at `8a1293be` merges into the next round's base (not main) when that round opens.
