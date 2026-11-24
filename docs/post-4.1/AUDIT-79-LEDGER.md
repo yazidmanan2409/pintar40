@@ -588,3 +588,31 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
 - **Sharon on L-127 (21:35Z): CONFIRMED.** The same name with neither NIS nor birth date is a possible duplicate, with a per-pair admin choice, recorded, and «Catat» held until every pair is chosen.
   - **Amendment:** «Orang yang sama: hapus baris {b}» removes only that import row. It never merges or deletes an existing person record, which stays a separate, audited admin act.
   - It becomes an AR-79 test.
+
+**The PIN-reload probe (builder, `6de5b9f4`, `audit/79/tangkapan/9c3a67db/j8/pin-muat-ulang/`, with fixture w15-kartu and three invented learners per class):** measured against Sharon's PIN rule.
+- **Shown once, at creation:** holds.
+- **Never on Reload, leaving, Back, or Forward then Back:** holds. Every time there were 0 PINs visible, 0 in the DOM, 0 in history.state, 0 in the URL, and 0 in session or local storage. The bfcache didn't restore the page (`persisted=false`).
+- **No plaintext storage:** holds. Only the derived password goes to Auth.
+- **No second return:** holds. Each call draws a fresh card and PIN (`api/akun/aktivasi/route.ts` :97–103; `api/akun/kartu-kelas` :62); the sheet lives only in `useState` (`FormAktivasi.tsx`:117).
+- **Documents** are sent `private, no-cache, no-store, max-age=0, must-revalidate`.
+- **The one gap is L-142 below.** No higher finding: L-131 stays an Improvement.
+
+| L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
+|---|---|---|---|---|---|---|
+| L-142 | **The six `POST /api/akun/aktivasi` responses that carry the PINs have no Cache-Control at all.** The route answers with plain `NextResponse.json` (`route.ts` l.50–122; the PIN at :106), against the BOB-26 contract «Every answer is JSON, no-store» (`aktivasi-kontrak.ts`:9). The single-card reissue route does set it, through `_jawab.ts`:5 | [S] | J8 | **Pending Sharon** (the builder: small) | A sibling route missed by the contract's own helper | Answer through `_jawab`, with a test that every PIN-bearing response is `no-store`; sweep every `/api/*` route that returns a secret |
+
+**J6 captured (builder, `11c269e2`, `audit/79/tangkapan/ddae57a9/j6/`):** 7 walks reached their last screen; EN is EN throughout, and W13 has no AI word.
+- **The stale form:** with an objective replaced, the refusal is AI_TUJUAN_LAIN, «Tujuan pembelajaran pelajaran ini sudah berubah…». (Removing the only objective gives AI_TANPA_TUJUAN instead.)
+- **«Already passed»:** from a second tab opened before the mark, the refusal is AI_PAKET_LOLOS_PERIKSA.
+- **Confirmed in the capture:** J6-6 / L-126 (AI_PLAFON leaves `hasil` empty); J6-2 / L-84; J6-5 / L-125; the allowance (AI_JATAH_HABIS).
+- **L-124 in the capture:** the mark is accepted without a separate check (the button runs it, per Bob's code reading). «Periksa isi sekarang» then finds «Tidak satu pun pengecoh tertaut ke miskonsepsi» (a WARNING), and the package is approved by the second person.
+  - **This is not yet the HIGH case:** an approval over WARNINGs is the current rule.
+  - **Still to be proven in AR-79's red-first tests:** that approval and publication refuse with an open ERROR, whatever the mark says.
+- **New, for Daisy and Sharon:** «Tandai sudah tersusun» and «Tandai lolos pemeriksaan» go through while an AI draft still waits for its decision. Only «Ajukan» is held («1 soal masih draf dari AI…»).
+  - So a package can carry «lolos» while a draft no one has accepted sits in it.
+  - **Proposed L-143**, with severity pending: is a pending AI draft part of the content the mark vouches for?
+
+**J5's harness notes (builder, `4b1de38a`):**
+- **(e) was the harness, not the product.** The language cookie `pintar-lang` is kept a year (`locale-klien.ts`:22), and sign-out never clears it (`keluar/route.ts`:37–38, `masuk/actions.ts`:183). The harness's fallback cleared every cookie; it's fixed with `lupakanSesi`.
+- **J10's EN walk had the same fault,** so both J5's and J10's EN walks are re-run.
+- **(f)** The tour is dismissed on /belajar.
