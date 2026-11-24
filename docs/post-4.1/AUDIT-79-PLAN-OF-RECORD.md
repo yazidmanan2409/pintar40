@@ -59,7 +59,7 @@
 | W4b | CI-1b specified, words cleared; after CI-2 |
 | W5 | **CI-2 FROZEN at `9c6aae62`; PR #31** (21:17Z), ci 45488925842 and journeys 45488932426 running; then Sharon, then the owner |
 | W6 | After W3 FINAL |
-| H-1 | **FROZEN at `5ab2af9a` (21:20Z)**: red on main's heartbeat (VOID), green with the fix (4 RESET beats); grace 0 → INFRA (the bound holds); a database stopped with no reset → INFRA (the control). In real use: CI-2's redcase at the default heartbeat, 23 resets, no false INFRA. Harness only (2 files). The uji-* steps are kept as the regression test (inert without PREFLIGHT_UJI=1). Next: the PR, its ci, then the owner |
+| H-1 | **FROZEN at `73fc4ab1` (21:26Z; a README-only delta from `5ab2af9a`, naming the test-only uji-* steps)**: red on main's heartbeat (VOID), green with the fix (4 RESET beats); grace 0 → INFRA (the bound holds); a database stopped with no reset → INFRA (the control). In real use: CI-2's redcase at the default heartbeat, 23 resets, no false INFRA. Harness only (2 files). The uji-* steps are kept as the regression test (inert without PREFLIGHT_UJI=1). Next: the PR, its ci, then the owner |
 
 ## 3a · Harness H-1, recurring (Bob, 14:07Z)
 
