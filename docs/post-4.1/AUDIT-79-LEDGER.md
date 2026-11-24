@@ -416,3 +416,15 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
 | L-109 (J7-13) | The confirmed line doesn't name whose certificate | A | J7 | Improvement | — | — |
 | L-110 (J4-7) | The sidebar popover opens off-screen | G | J4 | Improvement | — | — |
 | L-111 (J3-11) | Bagian C's headings run together; the footer is misaligned | G | J3 | Improvement | — | — |
+
+**J10 captured** (builder, `6b248975`, `audit/79/tangkapan/d70f3222/j10/`): 8 walks, all reaching their last screen.
+- The email path is real: the code goes to the mail sink, and an unknown address gets the identical screen. [S] holds.
+- PIN recovery's expiry reads correctly. An unknown ID, a wrong PIN and a reset PIN all read the same line, so there's no oracle.
+- The real-time session lock works: the warning at 243 s, the lock at 303 s, then the counted retries and the session ending PIN_GAGAL.
+- Every weak-PIN rule gives its own reason.
+- J10-1 and J10-3 are reproduced.
+
+| L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
+|---|---|---|---|---|---|---|
+| L-112 | **An open welcome tour keeps a shared computer from locking.** On /belajar on a shared computer with the tour open, /api/sesi/detak fired at 242, 307 and 487 s with no input, and the session stayed BUKA for the 9 minutes sampled. With the tour skipped, it locks at 303 s. The tour reopens at each sign-in until dismissed, so a first-days learner who walks away stays signed in | [S], E | J10 | **Pending Sharon** (the builder proposes Significant) | C-11 likely (two features' rules about one session); the builder's suspected mechanism, not yet verified in code, is that the 4-min warning beside the tour card fires a scroll that PenjagaSesi counts as activity | Evidence: `d70f3222/j10/j10-cabang-tur-terbuka/` (langkah.json holds the samples and heartbeat times). Root cause to be traced in code before any fix |
+| L-113 | «Komputer siapa ini?» promises «Anda bisa mengubah pilihan ini nanti di Akun saya», but a learner's «Akun saya» has no «Komputer ini» section (staff only, `src/app/akun/page.tsx`) | A, D | J10 | Pending Daisy | C-4/principle 4 (an unsupported promise) | The walk reached /perangkat only by typing its address |
