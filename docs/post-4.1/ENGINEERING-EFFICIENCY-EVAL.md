@@ -1,5 +1,18 @@
 # Engineering efficiency · tool evaluation (Bob, 25 Nov 2026)
 
+**Owner's decision (25 Nov):**
+- the four classifications are approved;
+- **Agent Skills only, for now;** Graphify, Ponytail and OmniRoute are set aside.
+
+**Sharon's review** (`ENG-SKILLS-REVIEW-ecf2b5cc.md`, `e736e1d6`): skills ADOPT WITH CONDITIONS; the three tool verdicts confirmed. Her E1 to E5 are done at `claude/eng-skills` `786e10cd`:
+- **E1:** CI job `guard-scan` under the verdict (a workflow change);
+- **E2:** the «Never» list;
+- **E3:** `ENG-GUARD-01`, red on `ecf2b5cc`, green on `786e10cd`;
+- **E4:** the security-boundaries skill completed from her record;
+- **E5:** the wording.
+
+**Graphify residue deleted** (Sharon §G): the scratch venv, the copy of main, its 51 MB `graphify-out/` with `GRAPH_REPORT.md`, the logs and the cloned source. All of it was under this session's scratchpad (`…/scratchpad/eval/`); nothing was committed or shared, and a filesystem search finds no remainder.
+
 **Owner's brief:** evaluate Ponytail, OmniRoute, Graphify and Anthropic Agent Skills; adopt proven improvements early; escalate only material matters.
 
 **Method:**
