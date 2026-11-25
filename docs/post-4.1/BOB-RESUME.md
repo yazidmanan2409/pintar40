@@ -11,6 +11,7 @@
   - review head `8126759c` on `claude/ci-1b`, not frozen;
   - Sharon's pre-review (`63116255`): FIT TO FREEZE after **P1** (an RPC error must not print a reviewed certificate as clean; a plant that fails the read) and **P2** (no clipping of the DITINJAU line: drop overflow:hidden or assert it fits, ID and EN);
   - Daisy's EN is confirmed and already in the build;
+  - **update 01:30Z:** Second Eye reports P1 and P2 done, red first, as a proposed frozen head `6db4770d` (8126759c + 6992a63f red + 6db4770d fix), local only at the time; its full suite, plants and redcase were running when the pause reached it;
   - next: P1 and P2 → freeze → local suite, plants and redcase → ci and journeys (API conclusions) → diff accounting against `0c155a5c` (name the poppler workflow line) → Daisy's word check → Sharon's delta verification → the owner's request.
 - **Audit 79:**
   - W1–W3 FINAL;
@@ -25,7 +26,7 @@
    - Daisy: `ux-1/daisy-experience`;
    - the Z-UX builder: `claude/audit-79-world`.
 2. **Re-enable the driver** `trig_01WheS53MVmTRwbKs3itPKNQ` (disabled at the pause).
-3. Continue CI-1b from P1 and P2.
+3. Continue CI-1b: confirm `6db4770d` (or whatever Second Eye pushed at the pause) has its local suite, plants and redcase green, then freeze, then run ci and journeys.
 
 ## Standing rules
 - A run result is quoted only from the API's conclusion (plan of record §3d).
