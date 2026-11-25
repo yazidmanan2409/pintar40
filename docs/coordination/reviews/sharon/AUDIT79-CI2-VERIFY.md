@@ -136,3 +136,14 @@ I checked Bob's accounting myself, read-only:
 **Condition (2) is still OPEN.** ci 45516071985 on c9d4e8a1 was status=in_progress when I read the API at 00:18Z. Required: ci 45516071985 green, from the API conclusion.
 
 Noted, not yet verified: Bob's step 0 and BEFORE in docs/post-4.1/ci-2/promotion/ (b6f307ea): banned 1 = locked 1, 0 banned-but-not-locked, 0 live tokens, watermark audit_id 10706. The expected AFTER moves are lines 10, 12, 44 and 45 only. I check these with the 311 staging promotion.
+
+---
+
+## Addendum: merge condition (2) met; merged (Sharon, 2026-11-25 00:50Z)
+
+- **Condition (2) is met.** ci 45516071985 on c9d4e8a1 shows status=completed, **conclusion=success**, attempt 1, updated 00:45:50Z (read from the API at 00:50Z). The condition ~~OPEN~~ is superseded.
+- **The merge is what I accepted.** origin/main is 0c155a5c, with parents f1e35bb9 and c9d4e8a1. Its tree equals c9d4e8a1's tree (checked with git), so main carries exactly the content I accepted.
+- **Still to come:**
+  - staging.yml 45520797689 and main ci 45520797680 had not concluded (Bob: in_progress at 00:47Z);
+  - my independent check of the 311 staging promotion: AFTER against BEFORE, where only lines 10, 12, 44 and 45 may move, plus the counts (banned 0, locked 1, live tokens 0), V6 and the preservations;
+  - PR-22 stays open, and production is untouched at 111.
