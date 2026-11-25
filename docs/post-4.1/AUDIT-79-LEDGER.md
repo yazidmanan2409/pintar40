@@ -783,3 +783,36 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
 | L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
 |---|---|---|---|---|---|---|
 | L-155 | **Staff recorded through «Ini daftar guru atau staf» are offered «Buat kartu kelas» (a LEARNER card) until they hold a staff role, and the database would accept it.** They are also counted in Konfigurasi's «murid tanpa kelas» and its placement list. **A staff member whose role lapses becomes «a learner» again** (Siti Rahma's Guru role ends today) | E, B, [S] | J8 | **Pending Sharon and Daisy** (proposed Significant; Sharon judges the credential side: a low-entropy PIN card for a staff member) | **C-1: no authoritative record of what a person is.** «Ini daftar guru atau staf» is browser state only (`BacaDanPetakan.tsx`:55, :85) and records nothing. `boleh_kartu = not memegang_peran_staf(p)` (`20261224100000`:43); `memegang_peran_staf` means only a live staff role (`20261212100000`:32); `authorize_account_activation` refuses a card only on that test; `murid_tanpa_kelas` (`20270112170000`:257) uses the same test | **The same root as L-154.** AR-79: record at intake that the person was entered as staff (a person attribute, or an `institutional_identities` kind), and have the card offer, the database's card refusal, the «murid tanpa kelas» count and the approval summary all read it. Sharon sets the rule for a lapsed staff role |
+
+**Sharon on L-155 (00:30Z, `J12-L155-STAFF-CARD.md` `8ffe866a`): SIGNIFICANT, not Critical.** It doesn't block CI-2.
+- **Why not Critical:** CR-91 holds both ways in the database. A card can't be given to a person with a live staff role, and a staff role can't be given to a card holder, so a card session never carries staff capability.
+- **Why Significant:** an adult's own data (e.g. an educator's feedback reading through `current_person_id`) would sit behind a learner's low-entropy card, and the counts are wrong. The root is a negative definition («no live staff role») plus staff-ness held only in the browser.
+- **The card rule (binding):**
+  - (1) record staff-ness at intake **on the server**, durable and audited, and change it only by an audited reclassification with a reason;
+  - (2) a card only for a person **not recorded as staff AND who never held a staff role** (revoked or expired included), unless reclassified;
+  - (3) **one helper** read by the offer, `accounts_card_is_learners` (keeping CARD_FOR_STAFF), `authorize_account_activation` and every count;
+  - (4) the reverse direction is unchanged.
+- **A lapsed staff role:** email sign-in continues with no capabilities, no card is ever offered, and the person isn't counted as a learner without a class.
+- **Tests:** in her record, including a plant that reverts to `not memegang_peran_staf`.
+- **Her required pre-AR-79 step 0** (Bob, staging, read only, 00:36:43Z): **1,477 card accounts, of which 0 belong to a person who ever held a staff role** (0 with a live one). **No hits on staging.** The production count is taken in the authorised production readiness process, with any hits to the owner.
+
+**Daisy on L-155's UX side (`f506df5d`): Significant (C-3).** The prerequisite is that the tick records the person's kind (Sharon's (1)).
+- Aktivasi shows **no** class card for staff-kind people, and one line per case:
+  - no role: «{nama} · guru atau staf · belum punya peran. Berikan perannya lebih dulu, lalu aktifkan akunnya dengan email.» + «Buka Peran & akses»;
+  - a lapsed role: «… perannya berakhir {tanggal}. Perpanjang perannya di Peran & akses.»
+- Readiness: staff leave «murid tanpa kelas» and get their own line, «Guru dan staf yang belum punya peran · {n}».
+- **For Sharon:** whether email activation is allowed before a role.
+
+**J12's capture judged (Daisy, `f506df5d`): the builder lines are closed.**
+- L5 holds (the cross-origin refusal says what to do; the success says «diserahkan ke server email» with a reference); L6 holds.
+- J12-4 is closed; J12-1 to J12-3 stand.
+- **L-140 (J12-5) is confirmed in EN and narrowed:** L5's results ARE English, so it's per message. Route every Konfigurasi result through the lookup.
+
+| L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
+|---|---|---|---|---|---|---|
+| L-156 (J12-6) | The last Admin PINTAR's row lacks «Lepaskan» with no reason | A | J12 | Improvement | C-12's pattern (L-36) | «Peran ini tidak dapat dilepas: ini satu-satunya Admin PINTAR yang masih aktif. Tambahkan Admin PINTAR lain lebih dulu.», the same pattern as L-152 |
+| L-157 (J12-7) | The button says «Lepaskan», but the result says «Peran dicabut» | H | J12 | Improvement | C-6 | «Peran dilepas» |
+
+**J1 captured (builder, `83b51cc3`, `audit/79/tangkapan/126a3adf/j1/`): 7 walks** plus two branch walks (C1–C2 and C3–C4) reached their last screen.
+- A harness fault (one learner reused across passes) was fixed by reloading before each pass.
+- **All twelve journeys are now captured.** Daisy judges J1. **W3 goes FINAL** on her judgement.
