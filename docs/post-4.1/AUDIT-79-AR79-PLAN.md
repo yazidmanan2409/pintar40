@@ -1,6 +1,7 @@
 # Audit 79 · W6 · the AR-79 correction plan (Bob, 25 Nov 2026)
 
-**Status: DRAFT for Sharon's and Daisy's pre-build review.** Nothing in it is built.
+**Status: AMENDED after Sharon's pre-review** (`docs/coordination/reviews/sharon/AR79-PLAN-PREREVIEW-627fdaee.md` (`41ba600e`): FIT TO PROCEED after amendment; A1, A2 and B1–B9 carried below, her record is the binding text). Daisy's pre-review is pending. Nothing in it is built.
+- **Each batch's verification is held to the full text of Sharon's records**, cited per row; where this plan and a record differ, the record governs.
 - Input: W3 FINAL, `AUDIT-79-COMMON-CAUSES.md` (`2385c40a`), the twelve causes C-1 to C-12 and the five principles.
 - Ledger: `AUDIT-79-LEDGER.md`, L-1 to L-160, with W2's severities.
 - **Completeness (checked by script, 25 Nov 01:00Z):** every finding L-1 to L-160 is placed exactly once: in a batch (§2), in §1 (done or in flight) or in §3 (not built, with the reason). None is missing and none is placed twice.
@@ -46,20 +47,20 @@ Migration numbers: 312 onwards, after CI-1b takes its own. Builder: Second Eye. 
 
 ### AR-B · Confidentiality boundaries (principle 5, C-9, C-11; Sharon's bindings)
 
-**Authority:** one per boundary, as Sharon set them.
+**Authority:** one per boundary. Sharon's bindings unless the row says otherwise; her records are the binding text.
 
 | Finding | Sharon's binding condition |
 |---|---|
-| **L-112 (HIGH)**, L-114 | The idle lock counts only real input (keydown, pointerdown, touchstart, wheel, real pointer movement), never a render or a programmatic scroll. Every component that scrolls, focuses or changes height by itself is swept. A plant proves a tour-driven `scrollBy` doesn't keep a session open. **Readiness: PR-23** |
+| **L-112 (HIGH)**, L-114 | In full: `AUDIT79-L112.md` and the pre-review's B1. The idle lock counts only real input (keydown, pointerdown, touchstart, wheel; `pointermove` only with movementX or movementY ≠ 0), never a render or a programmatic scroll. `scroll` is dropped, or counted only within about 1 s of a wheel, touch or key event. **The warning and the lock screen never count as activity:** only «Masih di sini», a pointerdown or a key. No looping or autoplay media keeps a session alive. Every component that scrolls, focuses or changes height by itself is swept. **Red-first in a real browser:** the tour open with no input locks at about 300 s; `scrollBy`, `scrollIntoView`, `focus` and each layout change count as nothing; a real wheel or key counts. **Gate:** fixed before any shared-computer use, and before the pilot if the pilot uses shared machines. **Readiness: PR-23** |
 | L-113, L-116, L-115, L-117, L-160 | «Komputer siapa ini?» keeps its promise: the choice is changeable where it says (principle 4). A wrong card PIN is cleared from the field |
-| L-131, **L-142** | A PIN is a secret shown once. Every response that carries a secret is `no-store` through the one helper, with a static guard against a sibling route bypassing it. The «shown once» probe keeps holding |
-| L-134 | A teacher never learns that a sitting was set aside by an integrity review: only «not countable», and the ordinary next step |
-| L-126 | Every AI refusal records a closed reason code in `ai_permintaan`. **Before C3w-2's activation; readiness PR-24** |
-| L-127 | A name is never identity. NIS is per school, shown only to intake and admin staff, and never matched across schools. No merge without an audited admin decision. Removing an import row never touches a person record |
-| L-151 | Data quality, not a security gap: a name row like «Citra 123 <b>» is flagged at intake; output stays encoded |
-| **L-154, L-155** (C-1 widened) | Staff-ness is recorded server-side, never held only in the browser. **No card for anyone recorded as staff, or who ever held a staff role.** One helper decides it, for the read and the action alike. Staging step 0 (00:36:43Z): 1,477 card accounts, 0 ever held a role. Daisy's adjusted Aktivasi words (`098539b2`): «Aktifkan dengan email» is offered, «Buat kartu kelas» never is |
-| L-75, L-76, L-147 (C-9) | Say more only after the requester has proven what a stranger can't know, and only where the proof is strong: a password qualifies, a PIN doesn't. The recovery email goes out in the person's language |
-| L-99 (C-11) | Maintenance's advice is reconciled with A3's one-device rule: learners are never told to sign out of a sitting they can't leave |
+| L-131, **L-142** | In full: the pre-review's B2. A PIN is a secret shown once: never in a URL, never stored in plaintext, never re-shown on reload or Back, never in history state, and the server can't return it a second time (a reload that re-shows PINs is a separate, higher finding). Every response that carries a secret is `no-store` through the one helper. **The test covers every `/api` response carrying a PIN, code, token or secret.** The static guard: no route on the secret-bearing list calls `NextResponse.json` directly |
+| L-134 | In full: the pre-review's B3. A teacher never learns that a sitting was set aside by an integrity review: only the counts, «not countable», and the ordinary next step. **The test covers the teacher's reads, screen and RPC alike,** for an overridden sitting: no reason, reviewer or override record. Who may know why: the integrity reviewer and those the referral process names; the learner is told by that process, never through the teacher's screen |
+| L-126 | In full: the pre-review's B4. Every AI refusal records its code **in the same transaction as the refusal**, from a closed list (e.g. ALLOWANCE_EXHAUSTED, PLATFORM_CEILING, NOT_ENTITLED, REFUSED_PERSONAL_DATA), with no free text and no request content. A CHECK means a terminal row can't have an empty `hasil`. The test: each refusal path leaves exactly its code. **Before C3w-2's activation; readiness PR-24** |
+| L-127 | In full: the pre-review's B5. (1) The same NIS in the same school is the same person, refused as a duplicate; a different NIS means different people, never «kembar». (2) No NIS: the same name and birth date is a possible duplicate; the same name with neither NIS nor birth date is a possible duplicate too, with a per-pair, audited admin choice («Dua orang berbeda»), and «Catat» is held until every pair is chosen; the same name with different birth dates means different people. (3) NIS is a per-school attribute: unique within the institution; shown only to that school's intake and admin staff; **never** on the certificate, the public check, other learners' views or exports outside the school; **never** a sign-in, and never matched across schools. (4) Never auto-merge or auto-split: «Hapus baris» removes only the import row, and a merge is a separate, audited admin act |
+| L-151 | In full: `J8-L151-L149-ACCESS.md` and the pre-review's B6. A name row like «Citra 123 <b>» is flagged at intake, and output stays encoded. **Control, bidi and zero-width characters are refused at storage** (a `display_name` CHECK plus an intake row error, with a step 0 count first): the security-relevant part, against a spoofed printed name. Any future CSV or spreadsheet export neutralises a leading `= + - @`, TAB and CR, and quotes per RFC 4180. A new non-React renderer states its encoding and is tested with the row |
+| **L-154, L-155** (C-1 widened) | In full: `J12-L155-STAFF-CARD.md` and the pre-review's B7. Staff-ness is recorded server-side, never held only in the browser. **No card for anyone recorded as staff, or who ever held a staff role,** with one exception: an audited reclassification to learner, with a reason. One helper decides it, for the read, the action and the counts («murid tanpa kelas» and the rest) alike. The DB trigger `accounts_card_is_learners` stays the boundary and keeps CARD_FOR_STAFF; the reverse direction (`role_assignments_card_holds_no_role`) is unchanged. A lapsed role keeps email sign-in with no capability and never makes a person card-eligible. Tests include a PLANT that reverts to `not memegang_peran_staf`. Staging step 0 (00:36:43Z): 1,477 card accounts, 0 ever held a role; **the production step 0 goes through the readiness process, with any hit going to the owner.** Daisy's adjusted Aktivasi words (`098539b2`): «Aktifkan dengan email» is offered, «Buat kartu kelas» never is |
+| L-75, L-76, L-147 (C-9) | **L-75: WITHDRAWN, the neutral line only** (pre-review A1). Under CI-2 a locked account's password is rotated, so a correct old password reads as any wrong one and no password can be proven for a closed account. **Any AR-79 change that tells a closed account apart from a wrong password reopens L-78.** C-9's principle (say more only after a strong proof a stranger can't have; a password qualifies, a PIN doesn't) stays for L-147 and any future path. **L-76** (B9): its line is shown on **every** PIN-recovery refusal, never conditioned on whether a reset happened, with the response and its timing otherwise unchanged. L-147: the recovery email goes out in the person's language |
+| L-99 (C-11) | **Bob's direction (W3, C-11), not a condition of Sharon's** (attribution corrected, pre-review D). Maintenance's advice is reconciled with A3's one-device rule: learners are never told to sign out of a sitting they can't leave. Sharon reviews it in AR-B's pre-build |
 
 **Journey assertions:**
 - the tour open on a shared computer, then the lock at its time;
@@ -80,12 +81,14 @@ Migration numbers: 312 onwards, after CI-1b takes its own. Builder: Second Eye. 
 - drop and create, with the grant and the registry entry asserted;
 - a red-first test per consumer, with the pinned case: an open retake after a finished attempt. The result page shows attempt 1, and the test page resumes attempt 2;
 - never call outcome, map or review with the open retake's id;
-- the result is labelled as the previous attempt's.
+- the result is labelled as the previous attempt's;
+- (pre-review C) `my_cycle_state` **calls** the helper rather than restating it; every page reads the id through `session_outcome` / `reading_map` under `session_is_mine`, so R-h counts-only is inherited; only `session_answers` reads an open sitting.
 
 **C-5 (Sharon's conditions):**
 - each recommendation block is read with its own sitting's id and gated by that sitting's flag;
 - each block's provenance is labelled;
-- KUAT is dropped where it would read as a mastery verdict beside a certifying result;
+- KUAT is dropped where it would read as a mastery verdict beside a certifying result, **in that view only** (a presentation choice, with no new analytics);
+- neither block is computed from the other's answers;
 - a plant that feeds the certifying id to the pre-test block must be refused.
 
 **Findings:** L-14, L-15, L-33, L-43, L-46, L-47, L-48, L-49, L-50, L-51, L-52, L-54, L-55, L-56, L-57, L-59, L-60, L-61, L-63, L-64, L-74, L-118, L-121, L-141.
@@ -104,7 +107,14 @@ Migration numbers: 312 onwards, after CI-1b takes its own. Builder: Second Eye. 
 ### AR-E · Actions offered only when their prerequisites hold, refused with the true cause (C-7 both halves, C-8, C-12)
 
 **Authority:** PINTAR's existing pattern: a read the database owns that answers «may do / why not» with the action's own refusal codes. Every indicator and every button's enabled state read it. The database still decides at the moment of action (Sol's qualification), and a refusal at press time is shown by name (DAISY-18).
-- **The second half (L-124, L-143):** every rule a screen enforces is also enforced by the action's RPC, with the same code. **Sharon's binding:** the «lolos» mark is bound to the exact revision it checked, approval re-checks the current revision whatever the mark says, and neither mark goes through while an AI draft awaits its decision.
+- **The second half (L-124, L-143):** every rule a screen enforces is also enforced by the action's RPC, with the same code. **Sharon's binding, in full (pre-review B8):**
+  - the mark stores the check run id and the revision or content hash;
+  - the DB refuses the mark when there is no completed check for the current revision, or an open mandatory finding;
+  - the approval screen and RPC never treat VALIDATED as «checked»: approval runs or reads a check of the current revision;
+  - **the HIGH test:** the approve and publish paths each re-run the check and refuse with an open ERROR, whatever the mark says;
+  - red-first: a mark before any check is refused; a mark after a clean check is accepted; an edit after the mark leaves it stale and refuses approval; a mark with a pending draft is refused, and is accepted once the draft is decided; a draft added after the mark makes it stale;
+  - severity contingency: HIGH if any approve or publish path skips the re-check.
+- **L-38, Sharon's C-3 transfer conditions (pre-review A2; `AUDIT79-C1-C3-C5-VIEW.md` §C-3):** (1) one helper holds the closed-source rule, used by both the transfer row's read and `transfer_execute`; (2) the receiving school gets a boolean only («tidak dapat dilaksanakan: pendaftaran asal sudah ditutup»), **never why** the source closed: that reason is the sending school's record.
 - **The 9 buttons** (§3b of W3) and the reverse sweep: a database action without the screen's rule.
 - **C-12:** each refusal names the cause that applies, from the same codes; never a generic permission line when the cause is known and harmless to name.
 - **L-152:** the guard already exists (`role_assignments_guard`, `20270113170000`, FOR UPDATE on institutions, ROLE_LAST_SCHOOL_ADMIN). AR-79 adds **a dynamic plant that removes the lock** and proves two concurrent releases can't leave a school with no admin, and gives the true refusal.
@@ -138,7 +148,7 @@ Migration numbers: 312 onwards, after CI-1b takes its own. Builder: Second Eye. 
 | Finding | Why | Where it goes |
 |---|---|---|
 | L-26, L-27, L-28, L-29, L-30 | phase-bound to 4.5 by their record | 4.5 |
-| L-35 | Sharon: 4.5, not a 4.1 correctness defect; also **PR-3** | 4.5 (Sharon's one closed-source helper is specified there) |
+| L-35 | Sharon: 4.5, not a 4.1 correctness defect; **PR-3** rides with it | 4.5, carrying Sharon's fixes (pre-review C): (a) acceptance refuses a closed source by the same name, before AUTHORIZED; (b) a transfer whose source closed becomes EXPIRED or CANCELLED with its cause, never left dangling; and the UX note: the receiving admin sees the sender's latest period and outcome. AR-E's L-38 helper is the same helper |
 | L-08, L-11, L-12 | unknown until walked: they need fixtures holding empty, untitled and integrity states | walked with those fixtures in AR-79's verification; a finding opens a row |
 | L-37 | no finding | — |
 | L-62 | no change proposed | — |
@@ -168,3 +178,4 @@ Migration numbers: 312 onwards, after CI-1b takes its own. Builder: Second Eye. 
 - A finding placed in a batch whose authority doesn't actually cover it. **Sharon:** AR-B and AR-E. **Daisy:** AR-C, AR-D and AR-G.
 - A dependent screen missing from a batch's list. The rule from L-148 and L-149 applies: **a code reading is a hypothesis until the path is walked**, so each list is confirmed by the builder's walk before the freeze.
 - Any boundary of Sharon's not carried verbatim into the build's tests.
+- **The lesson from Sharon's A1:** this plan was first drafted from the findings list, not from the rulings that later changed them (L-75 after CI-2's rotation). Every batch request re-reads the rulings and specialist records made since its finding was recorded.
