@@ -259,3 +259,9 @@ Migration 311 is changed in place (unmerged, applied nowhere; staging is at 310 
 - journeys 45509965430: completed, **success**, attempt 1, finished 23:58:12Z.
 
 **Next:** Sharon closes the run half, then the owner's request (`CI-2-FOR-OWNER.md`).
+
+**Sharon: FINAL, PASS on CI-2** (00:11Z, record `35f47c87`). She read the API herself: ci 45509971723 success, journeys 45509965430 success, and main's ci 45510549989 success.
+- **Her merge conditions:**
+  - (1) the updated diff is the reviewed one with main's commits only. Bob gave her the accounting for H-1's identical clock lines (`941c0d0b…`).
+  - (2) ci on the updated head is green.
+  - (3) **the production carry-overs stand:** 311 goes with or before any production promotion bringing migration 221 or later; step 0s come first; and her own check of the 311 staging promotion.

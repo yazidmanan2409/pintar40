@@ -768,4 +768,9 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
 
 | L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
 |---|---|---|---|---|---|---|
-| L-154 | **With «Ini daftar guru atau staf» ticked, the approval screen still says «Peran: Murid 2» and labels each name «Murid»**, so the admin approves «learners» while recording staff (screen 22) | B, A | J8 | **Pending Daisy** (proposed Significant: the admin is misled about what they approve) | C-3 (the summary derives the kind from the role column, not from the staff choice) | The approval summary reads the staff choice: «Staf tanpa kelas: 2», with no «Murid» label |
+| L-154 | **With «Ini daftar guru atau staf» ticked, the approval screen still says «Peran: Murid 2» and labels each name «Murid»**, so the admin approves «learners» while recording staff (screen 22) | B, A | J8 | **Significant (Daisy, `629ea2ac`)** | C-3 (the summary derives the kind from the role column, not from the staff choice) | The approval summary reads the staff choice: «Staf tanpa kelas: 2», with no «Murid» label |
+- **L-154's words (Daisy, `629ea2ac`, ID and EN in TEMUAN-J8):** when the tick is set:
+  - the summary reads «Guru atau staf (tanpa kelas) · {n}», and each name's label reads «Guru atau staf»;
+  - above the button: «Orang-orang ini dicatat tanpa kelas dan tanpa peran. Perannya Anda berikan sesudahnya di Peran & akses; akunnya diaktifkan dengan email.»;
+  - done: «✓ {n} guru atau staf tercatat di sekolah ini. Langkah berikutnya: berikan perannya di Peran & akses.»
+  - **For the builder:** check whether Aktivasi offers «Buat kartu kelas» (a learner card) to staff recorded this way. If it does, they should get email activation only (L-129's family).
