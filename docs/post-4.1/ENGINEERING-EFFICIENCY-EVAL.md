@@ -88,7 +88,7 @@ On `claude/eng-skills` (`ecf2b5cc`, from main `0c155a5c`), **not merged**:
 
 | Condition | State |
 |---|---|
-| Sharon confirms the revised implementation (her E1–E5 and N1) | sent at `f83c8d50`; **pending** |
+| Sharon confirms the revised implementation (her E1–E5 and N1) | **MET** (10:00Z): confirmed at `f83c8d50d227347b65fced466ef8b5ee31b09eab`; no material finding of hers is open |
 | CI-1b has merged | **pending** (paused at review head `e8a35c3a`) |
 | All required CI checks pass, including `guard-scan` and the database tests not run locally | **pending**: ci on the frozen `claude/eng-skills` head, conclusion read from the API |
 | No material unresolved findings | none open today |

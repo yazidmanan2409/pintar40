@@ -42,3 +42,15 @@
 | Z-UX builder | `claude/audit-79-world` | `9bb22d96` (`dunia.json` uncommitted by rule) | `audit/79/LANJUT-Z-UX.md` |
 
 The owner gave the team the day off (25 Nov). Nothing resumes until the owner returns.
+
+## Engineering efficiency (owner's brief, 25 Nov)
+- **Agent Skills:** approved, subject to the owner's conditions (`ENGINEERING-EFFICIENCY-EVAL.md` §2a). Branch `claude/eng-skills`, confirmed by Sharon at `f83c8d50`.
+- **What remains:**
+  1. CI-1b merges;
+  2. update-branch on eng-skills, with no rewrite;
+  3. prove the diff is `f83c8d50` plus main only, and send Sharon any delta to a reviewed file;
+  4. ci on that head, API conclusion success, with guard-scan and the db selftests included;
+  5. merge, citing Sharon's `ENG-SKILLS-REVIEW-ecf2b5cc.md` and the reviewed sha;
+  6. read main's ci on the merge;
+  7. two weeks of monitoring (§3).
+- **Graphify, Ponytail and OmniRoute:** set aside («the dungeon», owner).
