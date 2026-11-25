@@ -123,3 +123,28 @@ The owner approved Agent Skills only; Graphify, Ponytail and OmniRoute are set a
 **N1 (before merge, small):** a skill directory may bundle scripts that a session is told to run. That is an execution path the settings check doesn't see. Add to ENG-GUARD-01: each `.claude/skills/<name>/` holds only `SKILL.md`, or Markdown only, unless on the same empty allowlist. Plant a `run.sh` and show it is caught. Today the tree holds only the seven `SKILL.md` files (checked with `git ls-tree`).
 
 **Verdict: PASS for merge** once N1 is in and with **required: ci on the frozen eng-skills head green (API conclusion)**, by the owner's ruling, after CI-1b.
+
+---
+
+## Addendum: the revised implementation confirmed at f83c8d50d227347b65fced466ef8b5ee31b09eab (2026-11-25 ~10:05Z)
+
+I checked the diff 786e10cd..f83c8d50 myself; the local runs are Bob's.
+
+- **N1, MET.**
+  - ENG-GUARD-01 walks every file under each skill folder. It refuses any file that is not Markdown, and any executable file, with the allowlist empty.
+  - The plant tree's `run.sh` (mode 755) is caught.
+  - `git ls-tree` shows only the seven `SKILL.md` files.
+- **The scan fails closed, MET.**
+  - The test asserts that the `guard-scan` job runs `sensitive-scan.mjs --tree`, has no `if:` and no `continue-on-error`, and is in the verdict's `needs`.
+  - The verdict step exits 1 on any need whose result is not `success`, so a failed or skipped scan is red.
+  - On a cancelled run (`if: !cancelled()`) the verdict doesn't run, so the required check never reports and the merge stays blocked.
+  - I take the exit codes from Bob's throwaway-repo check: key 1, no repo 1, missing script 1, clean 0. The script's `process.exit(1)` path matches.
+- **The nit is done** («a test or plant»). The `pintar-words` change is Daisy's pointers only, with no security content.
+- **My ask is recorded** (EVAL §2a, c0e3bf69): any merge ruling for a guidance path cites my review record and the reviewed sha.
+
+**Confirmed: no material finding of mine is open on eng-skills.**
+
+My condition for the merge (the owner's conditional approval):
+1. CI-1b merged first.
+2. An update-branch with no rewrite, with the diff proven to be f83c8d50's reviewed content plus main's commits only. Any change to a reviewed file comes back to me as a delta.
+3. **Required: ci on the updated head green (API conclusion),** with guard-scan and the db selftests among the jobs, as the verdict reports.
