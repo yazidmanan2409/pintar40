@@ -52,7 +52,7 @@
 
 | Stream | State |
 |---|---|
-| W1 | **Every journey walked locally by Daisy.** Captured and judged: J2, J3, J4, J5, J6, J7, J10. **J8 captured** (`9874ea1b`) and judged (`dedd4e9e`). The PIN-reload probe holds. The builder is on J9, J11 and J12 |
+| W1 | **Every journey walked locally by Daisy.** Captured and judged: J2 to J11 (J8 `dedd4e9e`; J9 and J11 `fe44851d`). The PIN-reload probe holds. The builder is on J12, then J1 |
 | W2 | **DONE** (Daisy `e0958ce7`, reconciled by Bob). L-1 to L-151. Critical: L-67 (closed by CI-1). High: L-78 (CI-2), L-105 (CI-1b), L-112 (AR-79). L-149 withdrawn (Daisy reproduced a working staff path). L-152 new, Significant |
 | W3 | INTERIM: C-1 to C-11 |
 | W4 | **CI-1 CLOSED ON STAGING (ruling 101, 22:50Z):** merged `93b93134` (tree = `94ce6727`), staging 310, only line 10 moved, V6 met, **Sharon FINAL PASS**. Main's ci is red on the known R1 clock bug, so PR-25 holds any production promotion until main is green. L-105 open under CI-1b |

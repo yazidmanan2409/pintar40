@@ -754,3 +754,8 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
 
 **J11 captured (builder, `eccb71ad`, `audit/79/tangkapan/1ed2d250/j11/`):** 7 walks reached their last screen, on W18 at the bootstrap (OFFICIAL evidence, labelled synthetic). The printed summary is kept as a PDF, and EN stayed EN. Daisy judges it.
 - **Sharon on L-152 (23:59Z, corrected at `dbb12f12`): confirmed UX.** The B0 race exists (`b0.test.ts` ~568–631). Removing the lock is covered only statically (line 192 checks for `for update`), so **AR-79 adds a dynamic plant:** drop the FOR UPDATE, run the same race, and it must go red. Non-blocking.
+
+**J9 and J11 captures judged (Daisy, `fe44851d`): both match her local passes, with no new findings, and both are CLOSED.**
+- **J9:** the outcome is the same in every walk, and EN confirms L-135. At 390 and 320 the refusal wraps in full and the actions stay side by side. The [S] line is ruling 73 / 4.5.
+- **J11:** J11-1 to J11-4 stand; 390 and 320 stack without sideways scroll; the print view keeps every withheld reason.
+- **Remaining:** the J12 capture (running), then J1.
