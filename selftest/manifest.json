@@ -7634,6 +7634,16 @@
       "proves": "CI-1, red first, selftest/ci1.test.ts; reads the source of the migration (no rows written outside a function body; the S-1 refusal and its message in koreksi_tolak), the contract src/lib/soal-kontrak.ts and the copy table (CERT_REVIEW_RESULT_NO_LONGER_PASSES mapped to its own words in ID and EN) and src/app/konfigurasi/sertifikat/page.tsx (a refused decision shown by its code's words, so the refusal is named on screen; the list's pill and the selected certificate's state read sertifikat_dipersoalkan_sekolah)."
     },
     {
+      "id": "CI1B-K01",
+      "runner": "static",
+      "proves": "CI-1b (L-105, HIGH; Daisy's CI1B-KATA.md @cfc65eb6; the plan of record W4b), red first, selftest/ci1b.test.ts; executes the copy table and reads src/app/experience.css, src/components/sertifikat/AksiCetak.tsx and src/app/belajar/[tugas]/sertifikat/page.tsx: Daisy's nine keys read word for word in ID and EN, the notice headings the public check's own verifikasi.status.*; no print rule hides the notice or the review line (planted rules caught), the print-only parts hidden on screen and shown in print; «Cetak» re-reads the certificate (router.refresh) before it prints; the page renders the notice and the line."
+    },
+    {
+      "id": "CI1B-A01",
+      "runner": "app",
+      "proves": "CI-1b (L-105), red first, selftest/ci1b.test.ts, the running app, the learner's own certificate page as the server renders it, in all four states of one sealed bootstrap certificate (review, replacement and revocation written past the guards and removed): BERLAKU prints the sheet with «Periksa keaslian», its QR and printed link, no notice or line; DITINJAU prints Daisy's line with the print date ahead of the sheet, which keeps its QR and link; DICABUT and DIGANTIKAN print only the notice (the public check's heading, the statement with number, school and dates, «Lembar ini bukan sertifikat.», the QR and printed link, «Dicetak …»), never the name as issued, the pass sentence, the replacement's number or the reason; the card stays on screen. The rendered PDFs are the journeys' (S21i, S21j, S27v)."
+    },
+    {
       "id": "D2R-L01",
       "runner": "static",
       "proves": "Ruling 90, Daisy's D2R-KATA §10 (ccd42fa6), red first, d2r.test.ts, executes the copy table and reads supabase/migrations/20261119100000_a_staff_member_reports_a_problem.sql and src/lib/lapor-masalah.ts: lapor.langkah.awal and lapor.langkah.awal_kelas read word for word in ID and EN and name no time period (a planted period is caught); a new report is DITERIMA, the status enum's first value, and the triage list orders open reports by status, then stops_class first."

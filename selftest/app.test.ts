@@ -41,6 +41,7 @@ import { a3LayarAppTests } from "./a3-layar.test";
 import { c3wZAppTests } from "./c3w-z.test";
 import { zUxAppTests } from "./z-ux.test";
 import { c1wLayarTests } from "./c1w-layar.test";
+import { ci1bTests } from "./ci1b.test";
 import { c3wLayarTests } from "./c3w-layar.test";
 import { c2wCatatanLayarTests } from "./c2w-catatan-layar.test";
 import { b1AppTests } from "./b1-layar.test";
@@ -3620,6 +3621,8 @@ export const appTests: SelfTest[] = [
   ...c3wZAppTests,
   ...zUxAppTests,
   ...c1wLayarTests.filter((x) => x.id !== "C1W-K02"),
+  // CI-1b (L-105): the printed certificate follows its validity, the learner's page as the server renders it
+  ...ci1bTests.filter((x) => x.id !== "CI1B-K01"),
   ...c3wLayarTests,
   ...c2wCatatanLayarTests.filter((x) => x.id !== "C2W-K01"),
   // B1 · accountability events through the running app (every sign-in path, a failing writer, the reader)
