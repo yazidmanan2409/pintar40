@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| AR-79 plan pre-review | FIT after amendment (A1 L-75 vs CI-2; A2 C-3 uncarried; B1–B9 shortened) | 627fdaee | [AR79-PLAN-PREREVIEW-627fdaee.md](AR79-PLAN-PREREVIEW-627fdaee.md) |
 | J12 L-155 staff offered a learner card | Significant; card rule given | main | [J12-L155-STAFF-CARD.md](J12-L155-STAFF-CARD.md) |
 | J8 L-151 / L-149 access | L-151 data quality (rule given); L-149 boundary given | main | [J8-L151-L149-ACCESS.md](J8-L151-L149-ACCESS.md) |
 | CI-2 independent verification (PR #31) | PASS with 2 conditions: V-1 card_holders exposes suspension category (make neutral); V-2 G01 uses prosrc (use pg_get_functiondef + BEGIN ATOMIC plant); 5 preservations confirmed; oracle closed | 9c6aae62 | [AUDIT79-CI2-VERIFY.md](AUDIT79-CI2-VERIFY.md) |
