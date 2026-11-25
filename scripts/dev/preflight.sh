@@ -14,7 +14,9 @@
 #      suite never runs on a world another run has used (I-2). `--tanpa-reset` skips it, for replaying I-2 only: those
 #      steps carry an INFRA (world) row, and under S-1 such a run is never GREEN (RED if a row fails, else VOID), its FAIL rows not attributed to the code until a reset run reproduces them.
 #   3. While a step runs, a heartbeat every PREFLIGHT_DENYUT seconds (default 120): `siap.sh --denyut`, the runtime,
-#      the database and the disk. The FIRST lost heartbeat stops the step at once and the run is VOID (I-1).
+#      the database and the disk. The FIRST lost heartbeat stops the step at once and the run is VOID (I-1). H-1: a
+#      database that does not answer while the step's OWN `supabase db reset` runs is that reset, not a lost machine,
+#      for at most PREFLIGHT_RESET_GRACE seconds (default 900); such beats are written RESET in HEARTBEAT.txt.
 #
 # Every step, and every row of the suite, is classed:
 #   PASS   it passed
@@ -49,11 +51,12 @@ while [ $# -gt 0 ]; do
   shift
 done
 DENYUT="${PREFLIGHT_DENYUT:-120}"
+RESET_GRACE="${PREFLIGHT_RESET_GRACE:-900}"   # H-1: the longest a step's own db reset may hold the database down (its timeout)
 SHA="$(git rev-parse HEAD)"
 OUT="${OUT:-$HOME/pintar-preflight/${SHA:0:8}-$(date -u +%Y%m%dT%H%M%SZ)}"
 [ "$UKUR" = 1 ] && OUT="$(mktemp -d)"   # --ukur writes nothing it keeps, and removes only this folder
 mkdir -p "$OUT"
-SUM="$OUT/SUMMARY.txt"; HB="$OUT/HEARTBEAT.txt"
+SUM="$OUT/SUMMARY.txt"; HB="$OUT/HEARTBEAT.txt"; RESET_JEJAK="$OUT/.reset-sejak"
 : > "$HB"
 { echo "commit $SHA"; echo "started $(date -u +%FT%TZ)"; echo "steps $STEPS"; echo "heartbeat every ${DENYUT}s"; } > "$SUM"
 
@@ -162,14 +165,39 @@ cmd_for() {
     suite) printf 'npx --no-install tsx selftest/run.ts --accept-justified-skips'; printf ' %q' "${SUITE_ARGS[@]}" ;;
     plants) echo "node scripts/dev/plants.mjs run --db-url=$SUPABASE_DB_URL" ;;
     redcase) echo "node scripts/dev/redcase-local.mjs --db-url=$SUPABASE_DB_URL" ;;
+    # H-1's own proof, never in a real run (PREFLIGHT_UJI=1 only): uji-reset resets the database inside the step, as the
+    # red cases do, on a healthy machine; uji-mati stops the database with no reset running, so the heartbeat must
+    # still find it lost.
+    uji-reset) [ "${PREFLIGHT_UJI:-}" = 1 ] || return 1
+      echo "for i in 1 2 3; do npx --no-install supabase db reset --local || exit 1; done" ;;
+    uji-mati) [ "${PREFLIGHT_UJI:-}" = 1 ] || return 1
+      echo "docker stop supabase_db_pintar40 >/dev/null; sleep $((DENYUT * 3)); docker start supabase_db_pintar40 >/dev/null; sleep 30" ;;  # the stopped step leaves the database down: start it again after
     *) return 1 ;;
   esac
 }
 
-heartbeat() { # prints the cause and returns 1 when the machine is lost
-  local r; r="$(bash scripts/dev/siap.sh --denyut 2>&1 | tail -1)"
+heartbeat() { # [the step's process group] prints the cause and returns 1 when the machine is lost
+  local r pg="${1:-}" now sejak
+  r="$(bash scripts/dev/siap.sh --denyut 2>&1 | tail -1)"; now=$(date +%s)
+  if [ "$r" = READY ]; then rm -f "$RESET_JEJAK"; echo "$(date -u +%TZ) $r" >> "$HB"; return 0; fi
+  # H-1: the database not answering WHILE THE STEP ITSELF RESETS IT (a `supabase db reset` in the step's own process
+  # group: the red cases' and the plant groups' fresh stacks) is the reset's "Recreating database / Restarting
+  # containers", not a lost machine, for at most PREFLIGHT_RESET_GRACE seconds of beats in a row. Any other cause (disk,
+  # runtime), a database down with no reset of the step's running, or one down past the grace is still lost at once
+  # (I-1). The beat after the step ends passes no group, so a reset that leaves the database dead is lost there.
+  if [ -n "$pg" ] && [ "$r" = "INFRA stack: the database does not answer on 54322" ] \
+     && pgrep -g "$pg" -f "supabase db reset" > /dev/null 2>&1; then
+    [ -s "$RESET_JEJAK" ] || echo "$now" > "$RESET_JEJAK"
+    sejak="$(cat "$RESET_JEJAK")"
+    if [ $((now - sejak)) -lt "$RESET_GRACE" ]; then
+      echo "$(date -u +%TZ) RESET the step's own supabase db reset is running; the database is not answering ($((now - sejak))s of ${RESET_GRACE}s)" >> "$HB"
+      return 0
+    fi
+    r="$r, through the step's own reset for over ${RESET_GRACE}s"
+  fi
+  rm -f "$RESET_JEJAK"
   echo "$(date -u +%TZ) $r" >> "$HB"
-  [ "$r" = READY ] || { echo "${r#INFRA }"; return 1; }
+  echo "${r#INFRA }"; return 1
 }
 
 run_step() { # <name>
@@ -195,7 +223,7 @@ run_step() { # <name>
     sleep 2
     if [ "$(date +%s)" -ge "$next" ]; then
       next=$(( $(date +%s) + DENYUT ))
-      if ! lost="$(heartbeat)"; then
+      if ! lost="$(heartbeat "$pid")"; then
         kill -TERM -- "-$pid" 2>/dev/null; sleep 5; kill -KILL -- "-$pid" 2>/dev/null
         break
       fi
