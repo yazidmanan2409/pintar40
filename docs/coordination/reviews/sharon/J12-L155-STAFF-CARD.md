@@ -39,3 +39,17 @@ Could reasonably have been anticipated: yes. CR-91 defined "learner" negatively,
   - a reclassified person is allowed, and the reclassification is audited;
   - the counts exclude both cases;
   - a PLANT reverts the helper to `not memegang_peran_staf` and must turn the tests red.
+
+---
+
+## Addendum (2026-11-25, 00:4xZ): step 0 on staging; Daisy's activation question
+
+**Step 0:** Bob took it on staging, read-only, at 00:36:43Z. I did not take it myself; I record it from his evidence.
+- 1,477 CLASSROOM_CARD accounts.
+- 0 whose person ever held any role, and 0 with a live role.
+
+So there are no staging hits. Production is counted through the authorised readiness process, and any hits there go to the owner.
+
+**Daisy's question:** may a staff-kind person with no role yet activate by email before a role is given?
+
+**Yes, by email only.** A person with no role has no capability, and an email credential is strong, so activating first is safe. Giving the role first and then activating is the clearer order for the admin, but it is not a security requirement, so Daisy's line can stay as guidance. The firm rule is that a card is never offered or issued for a person recorded as staff, whatever their role's state.
