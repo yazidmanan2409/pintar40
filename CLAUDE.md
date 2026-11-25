@@ -13,7 +13,7 @@ Sharon's records are under `docs/coordination/reviews/sharon/` on `claude/gracio
 - **Production:** no deployment, migration, configuration or data change without the owner's separate authorisation. Never touch `.github/*-request.txt`: those two files are what start a production deploy.
 - **Merges and staging:** no merge to main and no staging promotion without the owner's ruling for that change. **No staging write outside an authorised step.**
 - **Protections:** no bypassing branch protection, required checks or an independent review. No history rewrite and no force-push. Never commit `supabase/config.toml`.
-- **Tests:** never skip, disable or quarantine a test to get green.
+- **Tests:** never skip, disable or quarantine a test or plant to get green.
 - **Data:** no real-person data, keys or credentials in commits, logs, tests or reports. Synthetic fixtures only. No model or AI identifiers in the repository.
 - **Credentials:** the owner enters every credential personally. Never ask for one, handle one or log one.
 - **Supply chain:** no new dependency, plugin, hook, MCP server or external service without Sharon's review. Nothing that sends PINTAR source code or data to a third party. No paid spend or subscription without the owner.

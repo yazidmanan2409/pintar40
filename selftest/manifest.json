@@ -2356,7 +2356,7 @@
     {
       "id": "ENG-GUARD-01",
       "runner": "static",
-      "proves": "ENG-GUARD (Sharon, ENG-SKILLS-REVIEW E3): the engineering guidance runs nothing. The repository has no .mcp.json and no hooks, mcpServers, enabledPlugins, extraKnownMarketplaces or enabledMcpjsonServers in .claude/settings*.json (allowlist empty); CLAUDE.md indexes exactly the skills in .claude/skills, each SKILL.md named after its directory with a description; the «Never» list keeps the supply-chain rule; a planted tree with each of these is caught."
+      "proves": "ENG-GUARD (Sharon, ENG-SKILLS-REVIEW E3): the engineering guidance runs nothing. The repository has no .mcp.json and no hooks, mcpServers, enabledPlugins, extraKnownMarketplaces or enabledMcpjsonServers in .claude/settings*.json (allowlist empty); CLAUDE.md indexes exactly the skills in .claude/skills, each SKILL.md named after its directory with a description, and each skill folder holds only non-executable Markdown (allowlist empty); the «Never» list keeps the supply-chain rule; CI's guard-scan job runs the tree scan with no if: or continue-on-error and the verdict needs it, so it fails closed; a planted tree with each of these, a bundled run.sh included, is caught."
     },
     {
       "id": "BOB41-K01",
