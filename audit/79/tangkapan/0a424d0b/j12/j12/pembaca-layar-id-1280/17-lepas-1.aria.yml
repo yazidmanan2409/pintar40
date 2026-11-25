@@ -1,0 +1,73 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - strong: Seluruh platform
+    - link "Mau ke mana hari ini?":
+      - /url: /
+    - link "Konfigurasi":
+      - /url: /konfigurasi
+    - link "Aktivasi akun":
+      - /url: /aktivasi
+    - link "Keamanan akun":
+      - /url: /konfigurasi/keamanan
+    - link "Kirim email uji":
+      - /url: /konfigurasi/email-uji
+    - link "Sertifikat sekolah":
+      - /url: /konfigurasi/sertifikat
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fkonfigurasi%2Froles
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Hendra Kusuma":
+      - strong: Hendra Kusuma
+    - button "Keluar"
+- main:
+  - link "← Konfigurasi":
+    - /url: /konfigurasi
+  - heading "Peran & akses" [level=1]
+  - paragraph: Seluruh platform
+  - paragraph: "Siapa memegang peran apa, dan di mana. Untuk guru atau staf baru: berikan perannya di sini lebih dulu, lalu aktifkan akunnya dengan email di Aktivasi."
+  - list:
+    - listitem: Hendra Kusuma · Admin PINTAR · Admin PINTAR · berlaku sampai 25 Nov 2036
+    - listitem:
+      - text: Admin Platform (sintetis) · Admin PINTAR · Admin PINTAR · berlaku sampai 25 Nov 2036
+      - link "Perpanjang · Admin Platform (sintetis)":
+        - /url: /konfigurasi/roles?hal_peran=1&perpanjang=921ce3b0-cfe1-41a7-bb3c-f34bb1bd4fdc#perpanjang
+      - link "Lepaskan · Admin Platform (sintetis)":
+        - /url: /konfigurasi/roles?hal_peran=1&ubah=921ce3b0-cfe1-41a7-bb3c-f34bb1bd4fdc#peran-921ce3b0-cfe1-41a7-bb3c-f34bb1bd4fdc
+  - status: Selesai. Peran dicabut.
+  - navigation "Halaman daftar peran":
+    - text: Menampilkan 1–2 peran
+    - link "Halaman sebelumnya" [disabled]: Sebelumnya
+    - text: Halaman 1
+    - link "Halaman berikutnya" [disabled]: Berikutnya
+  - text: Cari orang menurut nama
+  - textbox "Cari orang menurut nama"
+  - button "Cari orang"
+  - paragraph: "Daftar di bawah memuat paling banyak 50 orang: yang terbaru terdaftar, atau yang namanya cocok dengan pencarian."
+  - form "Berikan peran":
+    - heading "Berikan peran" [level=2]
+    - text: Orang
+    - combobox "Orang":
+      - option "—" [disabled] [selected]
+    - text: Peran
+    - combobox "Peran":
+      - option "Guru" [selected]
+      - option "Kepala departemen"
+      - option "Dekan"
+      - option "Admin PINTAR"
+    - text: "Lingkup Tempat peran ini berlaku: kelas untuk Guru, bagian untuk Kepala departemen, sekolah untuk Dekan dan Admin sekolah."
+    - 'combobox "Lingkup Tempat peran ini berlaku: kelas untuk Guru, bagian untuk Kepala departemen, sekolah untuk Dekan dan Admin sekolah."':
+      - option "—" [selected]
+    - text: Berlaku sampai Biasanya akhir tahun ajaran. Setelah tanggal ini peran berhenti dengan sendirinya.
+    - textbox "Berlaku sampai"
+    - paragraph: Belum ada tanggal.
+    - button "Berikan peran"
+    - status
+- alert: Peran & akses

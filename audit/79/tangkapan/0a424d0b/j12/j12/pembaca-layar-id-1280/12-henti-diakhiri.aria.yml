@@ -1,0 +1,96 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - strong: Seluruh platform
+    - link "Mau ke mana hari ini?":
+      - /url: /
+    - link "Konfigurasi":
+      - /url: /konfigurasi
+    - link "Aktivasi akun":
+      - /url: /aktivasi
+    - link "Keamanan akun":
+      - /url: /konfigurasi/keamanan
+    - link "Kirim email uji":
+      - /url: /konfigurasi/email-uji
+    - link "Sertifikat sekolah":
+      - /url: /konfigurasi/sertifikat
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fkonfigurasi%2Fpemeliharaan
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Hendra Kusuma":
+      - strong: Hendra Kusuma
+    - button "Keluar"
+- main:
+  - link "← Konfigurasi":
+    - /url: /konfigurasi
+  - heading "Pemeliharaan dan pengumuman" [level=1]
+  - paragraph: Seluruh platform
+  - region "Pemeliharaan dan pengumuman":
+    - paragraph: Jadwalkan pemeliharaan supaya orang yang terdampak tahu lebih dulu. Mulai 60 menit sebelumnya, pita peringatan tampil; mulai 15 menit sebelumnya, asesmen baru tidak dapat dimulai. Pemeliharaan untuk sekolah atau kelas menahan perubahan pada pekerjaannya, dan bagian PINTAR yang lain tetap dapat dipakai. Pemeliharaan seluruh platform membuat PINTAR tidak dapat dipakai. Asesmen yang sedang dikerjakan tetap dapat diselesaikan dan dikumpulkan.
+    - region "Jadwalkan pemeliharaan":
+      - heading "Jadwalkan pemeliharaan" [level=2]
+      - group "Untuk":
+        - text: Untuk
+        - checkbox "Seluruh platform"
+        - text: Seluruh platform
+      - text: Mulai (WIB; kosongkan untuk sekarang)
+      - textbox "Mulai (WIB; kosongkan untuk sekarang)"
+      - paragraph: Belum ada tanggal.
+      - text: Perkiraan selesai (WIB)
+      - textbox "Perkiraan selesai (WIB)"
+      - paragraph: Belum ada tanggal.
+      - button "Periksa waktu ini"
+    - region "Pemeliharaan":
+      - heading "Pemeliharaan" [level=2]
+      - list:
+        - listitem:
+          - strong: Berakhir
+          - text: "· Penghentian darurat · Seluruh platform Rabu, 25 Nov 2026, 07.12 WIB · waktu selesai belum ditentukan Alasan (dicatat): Uji henti darurat (dunia audit J12): gangguan basis data disimulasikan."
+        - listitem:
+          - strong: Berakhir
+          - text: "· Terencana · Seluruh platform Rabu, 25 Nov 2026, 07.12 WIB sampai Rabu, 25 Nov 2026, 09.12 WIB Dijadwalkan oleh Hendra Kusuma Alasan: Pemeliharaan rutin"
+      - status: Selesai. Pemeliharaan diakhiri.
+      - navigation "Halaman daftar jadwal pemeliharaan":
+        - text: Menampilkan 1–2 jadwal pemeliharaan
+        - link "Halaman sebelumnya" [disabled]: Sebelumnya
+        - text: Halaman 1
+        - link "Halaman berikutnya" [disabled]: Berikutnya
+    - region "Pengumuman":
+      - heading "Pengumuman" [level=2]
+      - paragraph: Satu baris untuk orang di sekolah yang dipilih, dari waktu terbit sampai kedaluwarsa. Bukan sistem pesan.
+      - paragraph: Belum ada pengumuman.
+      - group "Untuk":
+        - text: Untuk
+        - checkbox "Seluruh platform"
+        - text: Seluruh platform
+      - text: Isi pengumuman
+      - textbox "Isi pengumuman"
+      - text: Terbit (WIB; kosongkan untuk sekarang)
+      - textbox "Terbit (WIB; kosongkan untuk sekarang)"
+      - paragraph: Belum ada tanggal.
+      - text: Sampai (WIB)
+      - textbox "Sampai (WIB)"
+      - paragraph: Belum ada tanggal.
+      - button "Terbitkan pengumuman"
+      - status
+    - region "Hentikan sekarang":
+      - heading "Hentikan sekarang" [level=2]
+      - paragraph: "Hanya untuk masalah keamanan, integritas atau infrastruktur yang membuat PINTAR tidak aman dilanjutkan. Semua kegiatan yang terdampak berhenti seketika, termasuk asesmen yang sedang dikerjakan. Tidak ada yang dikumpulkan, dinilai atau dihapus: yang sudah tersimpan tetap seperti adanya. Akhiri dari daftar pemeliharaan bila sudah aman."
+      - group "Untuk":
+        - text: Untuk
+        - checkbox "Seluruh platform"
+        - text: Seluruh platform
+      - text: Alasan (dicatat)
+      - textbox "Alasan (dicatat)"
+      - text: Ketik HENTIKAN SEKARANG untuk mengonfirmasi
+      - textbox "Ketik HENTIKAN SEKARANG untuk mengonfirmasi"
+      - button "Hentikan PINTAR sekarang"
+      - status
+- alert: Konfigurasi · PINTAR

@@ -1,0 +1,57 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - button "Ciutkan navigasi" [expanded]
+  - navigation "Tempat kerja Anda":
+    - strong: Seluruh platform
+    - link "Mau ke mana hari ini?":
+      - /url: /
+    - link "Konfigurasi":
+      - /url: /konfigurasi
+    - link "Aktivasi akun":
+      - /url: /aktivasi
+    - link "Keamanan akun":
+      - /url: /konfigurasi/keamanan
+    - link "Kirim email uji":
+      - /url: /konfigurasi/email-uji
+    - link "Sertifikat sekolah":
+      - /url: /konfigurasi/sertifikat
+  - link "Laporkan masalah":
+    - /url: /lapor?dari=%2Fkonfigurasi%2Femail-uji
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Masuk sebagai
+    - button "Hendra Kusuma":
+      - strong: Hendra Kusuma
+    - button "Keluar"
+- main:
+  - link "← Konfigurasi":
+    - /url: /konfigurasi
+  - paragraph: Email
+  - heading "Kirim email uji" [level=1]
+  - paragraph: Kirim satu email uji ke kotak masuk yang Anda pilih, untuk memastikan email PINTAR sampai. Email ini melewati jalur dan batas pengiriman yang sama dengan email PINTAR lainnya.
+  - text: Alamat email tujuan
+  - textbox "Alamat email tujuan": admin1.pintar@dunia.pintar.test
+  - button "Kirim email uji"
+  - alert: "Belum terkirim: permintaan ini tidak datang dari halaman PINTAR di alamat ini. Buka halaman ini lagi dari alamat PINTAR, lalu kirim ulang."
+  - region "Apa yang terjadi pada sebuah email?":
+    - heading "Apa yang terjadi pada sebuah email?" [level=2]
+    - paragraph: "Setiap pengiriman berada di salah satu dari empat keadaan: «Dalam antrean» (belum ada jawaban dari server email), «Diserahkan» (server email sudah menerimanya), «Gagal» (ditolak atau server tidak terjangkau), atau «Tidak dikirim» (batas pengiriman). PINTAR tidak menerima kabar dari kotak masuk penerima, jadi tidak pernah tahu apakah sebuah email sudah sampai."
+    - paragraph: Ketik alamat email atau rujukan sebuah pengiriman. PINTAR tidak menyimpan alamat email; ia mencocokkan sidik alamat yang Anda ketik dengan catatan pengirimannya.
+    - text: Alamat email atau rujukan
+    - textbox "Alamat email atau rujukan"
+    - button "Lihat riwayat"
+    - status
+  - region "Pengiriman tertahan":
+    - heading "Pengiriman tertahan" [level=2]
+    - paragraph: Email dalam antrean yang belum dijawab server email lebih dari 10 menit. «Diserahkan» berarti server email sudah menerimanya; itu belum berarti sampai di kotak masuk.
+    - paragraph: Tidak ada pengiriman yang tertahan.
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- alert

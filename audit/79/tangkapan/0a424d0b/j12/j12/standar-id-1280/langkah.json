@@ -1,0 +1,170 @@
+{
+  "perjalanan": "j12",
+  "nama": "Hendra Kusuma",
+  "lebar": 1280,
+  "zona": "WIB",
+  "bahasa": "id",
+  "laluan": "standar",
+  "label": [],
+  "mulai": "2026-11-25T00:04:11.462Z",
+  "langkah": [
+    {
+      "id": "L1",
+      "judul": "plan a platform maintenance in 30 minutes",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-pemeliharaan",
+        "02-periksa-waktu",
+        "03-dijadwalkan",
+        "pengamat-01-direncanakan-murid",
+        "pengamat-02-direncanakan-guru"
+      ],
+      "amatan": [],
+      "data": {
+        "signed_in": {
+          "mendarat": "/",
+          "perangkat": "pribadi"
+        },
+        "words": "Pemeliharaan dalam 30 menit. | ✓Selesai. Pemeliharaan dijadwalkan.",
+        "windows": "PLANNED 07:34→08:34",
+        "seen_by_murid_direncanakan": "/belajar: Langsung ke isi Pemeliharaan dalam 30 menit. PINTAR akan menjalani pemeliharaan pukul 07.34 WIB. Perkiraan selesai pukul 08.34 WIB. Selesaikan aktivitas Anda dan keluar sebelum pemeliharaan dimulai. Alasan: Pemeliharaan rutin Pemeliharaan dalam 30 menit. PINTA",
+        "seen_by_guru_direncanakan": "/mengajar: Langsung ke isi Pemeliharaan dalam 30 menit. PINTAR akan menjalani pemeliharaan pukul 07.34 WIB. Perkiraan selesai pukul 08.34 WIB. Selesaikan aktivitas Anda dan keluar sebelum pemeliharaan dimulai. Alasan: Pemeliharaan rutin Pemeliharaan dalam 30 menit. PINTA"
+      },
+      "tab": 66,
+      "url": "/konfigurasi/pemeliharaan",
+      "ms": 12102
+    },
+    {
+      "id": "L2",
+      "judul": "extend it by 30 minutes",
+      "hasil": "SAMPAI",
+      "layar": [
+        "04-perpanjang-periksa",
+        "05-diperpanjang"
+      ],
+      "amatan": [],
+      "data": {
+        "check_words": "Pemeliharaan dalam 30 menit. | Perhatian. 24 asesmen dijadwalkan berlangsung selama periode ini.",
+        "words": "Pemeliharaan dalam 30 menit. | ✓Selesai. Pemeliharaan diperpanjang sampai pukul 09.04 WIB. Yang terdampak akan melihat waktu selesai yang baru.",
+        "windows_before_after": "PLANNED 07:34→08:34  ⟶  PLANNED 07:34→09:04"
+      },
+      "tab": 83,
+      "url": "/konfigurasi/pemeliharaan",
+      "ms": 5119
+    },
+    {
+      "id": "L3",
+      "judul": "start it now, then end it early",
+      "hasil": "SAMPAI",
+      "layar": [
+        "06-mulai-sekarang",
+        "07-dimulai",
+        "pengamat-03-berjalan-murid",
+        "pengamat-04-berjalan-guru",
+        "08-diakhiri-lebih-awal",
+        "pengamat-05-setelah-diakhiri-murid",
+        "pengamat-06-setelah-diakhiri-guru"
+      ],
+      "amatan": [],
+      "data": {
+        "start_words": "Pemeliharaan dalam 30 menit. | ✓Selesai. Pemeliharaan dimulai. | Konfigurasi · PINTAR",
+        "windows_started": "PLANNED 07:04→09:04",
+        "seen_by_murid_berjalan": "/pemeliharaan: Langsung ke isi PINTAR ID EN PINTAR sedang dalam pemeliharaan Pemeliharaan dimulai pukul 07.04 WIB. Perkiraan selesai pukul 09.04 WIB. Alasan: Pemeliharaan rutin Apa pun yang sudah tersimpan di PINTAR tetap aman. Silakan kembali setelah pemeliharaan selesai, l",
+        "seen_by_guru_berjalan": "/pemeliharaan: Langsung ke isi PINTAR ID EN PINTAR sedang dalam pemeliharaan Pemeliharaan dimulai pukul 07.04 WIB. Perkiraan selesai pukul 09.04 WIB. Alasan: Pemeliharaan rutin Apa pun yang sudah tersimpan di PINTAR tetap aman. Silakan kembali setelah pemeliharaan selesai, l",
+        "end_words": "✓Selesai. Pemeliharaan diakhiri. | Pemeliharaan dan pengumuman",
+        "windows_ended": "PLANNED 07:04→09:04 ended 07:04",
+        "seen_by_murid_setelah-diakhiri": "/belajar: Langsung ke isi PINTAR Belajar Sertifikat ? Bantuan ID EN Bukan akun Anda? Keluar BELAJAR Halo, Rizky Ini yang sedang berjalan hari ini. LANGKAH BERIKUTNYA Matematika · Persamaan Linear Satu Variabel Selesai Pemetaan Awal Peta Bacaan Personal Pelajaran Uji Pen",
+        "seen_by_guru_setelah-diakhiri": "/mengajar: Langsung ke isi PINTAR Ciutkan navigasi Mengajar SMP Sintetis Cendekia Mengajar Studio ? Bantuan Laporkan masalah ID EN Masuk sebagai Dimas Saputra Keluar SMP Sintetis Cendekia / TA 2026/2027 RABU, 25 NOV 2026 Selamat pagi, Dimas Saputra Satu hal yang paling l"
+      },
+      "tab": 64,
+      "url": "/konfigurasi/pemeliharaan",
+      "ms": 13274
+    },
+    {
+      "id": "L4",
+      "judul": "an emergency stop, then its end",
+      "hasil": "SAMPAI",
+      "layar": [
+        "09-henti-siap",
+        "10-dihentikan",
+        "pengamat-07-dihentikan-murid",
+        "pengamat-08-dihentikan-guru",
+        "11-henti-konfirmasi",
+        "12-henti-diakhiri",
+        "pengamat-09-setelah-henti-murid",
+        "pengamat-10-setelah-henti-guru"
+      ],
+      "amatan": [],
+      "data": {
+        "stop_words": "Pemeliharaan dan pengumuman | ✓Selesai. PINTAR dihentikan untuk cakupan itu. Akhiri dari daftar pemeliharaan bila sudah aman.",
+        "windows_stopped": "PLANNED 07:04→09:04 ended 07:04; EMERGENCY 07:04→…",
+        "seen_by_murid_dihentikan": "/pemeliharaan: Langsung ke isi PINTAR ID EN PINTAR dihentikan sementara Admin PINTAR menghentikan PINTAR karena ada masalah yang harus ditangani lebih dulu agar data tetap aman. Apa pun yang sudah tersimpan tetap aman dan tidak dihapus. Jawaban yang belum tampil «Tersimpan» ",
+        "seen_by_guru_dihentikan": "/pemeliharaan: Langsung ke isi PINTAR ID EN PINTAR dihentikan sementara Admin PINTAR menghentikan PINTAR karena ada masalah yang harus ditangani lebih dulu agar data tetap aman. Apa pun yang sudah tersimpan tetap aman dan tidak dihapus. Jawaban yang belum tampil «Tersimpan» ",
+        "confirm_question": "Akhiri jendela pemeliharaan ini sekarang?",
+        "end_words": "✓Selesai. Pemeliharaan diakhiri. | Pemeliharaan dan pengumuman",
+        "windows_after": "PLANNED 07:04→09:04 ended 07:04; EMERGENCY 07:04→… ended 07:04",
+        "seen_by_murid_setelah-henti": "/belajar: Langsung ke isi PINTAR Belajar Sertifikat ? Bantuan ID EN Bukan akun Anda? Keluar BELAJAR Halo, Rizky Ini yang sedang berjalan hari ini. LANGKAH BERIKUTNYA Matematika · Persamaan Linear Satu Variabel Selesai Pemetaan Awal Peta Bacaan Personal Pelajaran Uji Pen",
+        "seen_by_guru_setelah-henti": "/mengajar: Langsung ke isi PINTAR Ciutkan navigasi Mengajar SMP Sintetis Cendekia Mengajar Studio ? Bantuan Laporkan masalah ID EN Masuk sebagai Dimas Saputra Keluar SMP Sintetis Cendekia / TA 2026/2027 RABU, 25 NOV 2026 Selamat pagi, Dimas Saputra Satu hal yang paling l"
+      },
+      "tab": 138,
+      "url": "/konfigurasi/pemeliharaan",
+      "ms": 14450
+    },
+    {
+      "id": "L5",
+      "judul": "a test email (Mailpit is the sink)",
+      "hasil": "SAMPAI",
+      "layar": [
+        "13-email-uji",
+        "14-email-uji-localhost"
+      ],
+      "amatan": [
+        "refused at 127.0.0.1 as cross-origin (the harness's address: Next reports the origin as localhost); walked again from localhost"
+      ],
+      "data": {
+        "words": "Belum terkirim: permintaan ini tidak datang dari halaman PINTAR di alamat ini. Buka halaman ini lagi dari alamat PINTAR, lalu kirim ulang.",
+        "words_from_localhost": "✓Email uji sudah diserahkan ke server email untuk admin1.pintar@dunia.pintar.test. Periksa kotak masuk alamat itu, termasuk folder spam. Rujukan: b29d5f40-f7df-4f12-b1a0-0e24dfe78fb6",
+        "sink_latest": [
+          "Uji pengiriman email PINTAR",
+          "Uji pengiriman email PINTAR"
+        ]
+      },
+      "tab": 32,
+      "url": "/konfigurasi/email-uji",
+      "ms": 11663
+    },
+    {
+      "id": "L6",
+      "judul": "a platform role renewed; then the last Admin PINTAR's row",
+      "hasil": "SAMPAI",
+      "layar": [
+        "15-perpanjang-peran",
+        "16-peran-diperpanjang",
+        "17-lepas-1",
+        "18-lepas-2",
+        "19-satu-admin-tersisa"
+      ],
+      "amatan": [
+        "the last Admin PINTAR's row offers no «Lepaskan» (as f19d202c expects); the row does NOT say why"
+      ],
+      "data": {
+        "usable_admins_before": "Admin Platform (sintetis) until 2036-11-25, Hendra Kusuma until 2036-11-25, Ratna Sari Dewi until 2036-11-25",
+        "renew_words": "✓Selesai. Peran diperpanjang.",
+        "ratna_valid_until_before_after": "2036-11-25 ⟶ 2037-11-25",
+        "release_ratna": "✓Selesai. Peran dicabut. | Peran & akses",
+        "release_seed_admin": "✓Selesai. Peran dicabut. | Peran & akses",
+        "usable_admins_after": "Hendra Kusuma until 2036-11-25",
+        "own_row_offers": [
+          "Perpanjang · Hendra Kusuma"
+        ],
+        "own_row_text": "Hendra Kusuma · Admin PINTAR · Admin PINTAR · berlaku sampai 25 Nov 2036 Perpanjang · Hendra Kusuma",
+        "own_row_says_why": false
+      },
+      "tab": 54,
+      "url": "/konfigurasi/roles",
+      "ms": 9592
+    }
+  ],
+  "selesai": "2026-11-25T00:05:17.665Z",
+  "sampai_akhir": true
+}
