@@ -18,6 +18,8 @@ import KartuSertifikat from "@/components/sertifikat/KartuSertifikat";
 import LembarA4 from "@/components/sertifikat/LembarA4";
 import SalinTautan from "@/components/sertifikat/SalinTautan";
 import AksiCetak from "@/components/sertifikat/AksiCetak";
+import { PemberitahuanCetak, BarisDitinjauCetak } from "@/components/sertifikat/CetakKeadaan";
+import SegarkanKeadaan from "@/components/sertifikat/SegarkanKeadaan";
 import type { KonteksSertifikat } from "@/lib/sertifikat-lembar";
 import {
   certificateForSession, myCertificates, institutionNames, replacementFor, issueIfEligible,
@@ -56,7 +58,15 @@ export const generateMetadata = judulHalaman("/belajar/[tugas]/sertifikat");
  * The A4 sheet is rendered for ISSUED only, and print is where the sheet
  * becomes the page: the shell, the on-screen card, the actions and the well
  * step aside under `@media print` and exactly one A4 leaves the printer with
- * the name from the snapshot (DAISY-36; Daisy's cetak-usulan.css).
+ * the name from the snapshot (DAISY-36; Daisy's cetak-usulan.css). *
+ * WHAT A PRINTER IS GIVEN, BY STATE (CI-1b, L-105; Daisy CI1B-KATA.md):
+ *   ISSUED       the sheet, with «Periksa keaslian», the QR and the link;
+ *   under review the same sheet, with one fixed line above it (BarisDitinjauCetak);
+ *   REVOKED,     never the credential: a notice in its place (PemberitahuanCetak),
+ *   SUPERSEDED   with the QR and the link and no name. The on-screen card never
+ *                prints, and the banners stay on screen.
+ * The state is re-read before «Cetak» prints and whenever the reader returns
+ * to the tab (AksiCetak, SegarkanKeadaan).
  */
 export const dynamic = "force-dynamic";
 
@@ -158,6 +168,10 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
   const verificationUrl = issued
     ? `${appUrl()}/verifikasi/${encodeURIComponent(detail.verification_token)}`
     : null;
+  // CI-1b (L-105): the same check address for every state. On screen it is shown for ISSUED only, as before; a revoked
+  // or replaced certificate prints it on its notice (the plan of record W4b: the QR and the link print in every state;
+  // the token never opens the name)
+  const alamatPeriksa = verificationUrl ?? `${appUrl()}/verifikasi/${encodeURIComponent(detail.verification_token)}`;
 
   const cred = {
     institution,
@@ -172,11 +186,16 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
   };
 
   const replacement = row ? replacementFor(row, all) : null;
+  // the certificate that replaced this one directly: its issue is the day this one was replaced (Daisy §2)
+  const penggantiLangsung = row ? all.find((c) => c.supersedes_certificate_id === row.id) ?? null : null;
   // C1w (O41-19, Daisy §C1·N1, C1-R4): an issued certificate under review says so on its card, in the learner's
   // register; it stays the credential, and «Cetak atau simpan PDF» stays, since its QR resolves to the live status
   const ditinjau = detail.status === "ISSUED" && row
     ? (await db.rpc("sertifikat_saya_ditinjau", { p_session: row.session_id }).then((x) => x.data, () => false)) === true
     : false;
+
+  // CI-1b (L-105; Daisy CI1B-KATA §3): under review, the printed certificate carries one fixed line above it
+  const barisDitinjau = ditinjau ? <BarisDitinjauCetak locale={bahasaSertifikat} zona={cred.zona} /> : null;
 
   // The sheet's accent follows the kind of learning (Daisy §5: plum academic, sage professional learning). NO READ
   // THIS PAGE MAKES SAYS WHICH KIND IT WAS, and the Experience is held never to know it (UX1-AJAR-KONTEKS-01): the
@@ -239,8 +258,24 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
           </div>
         ) : null}
 
-        {/* the on-screen card steps aside in print wherever the sheet is printed (DAISY-36): one copy, the sheet */}
-        <div className={issued ? "pin-noprint" : undefined}>
+        {/* CI-1b (L-105): a revoked or replaced certificate prints this notice IN PLACE OF the certificate (print-only;
+            the banner above says the state on screen) */}
+        {detail.status === "REVOKED" || detail.status === "SUPERSEDED" ? (
+          <PemberitahuanCetak
+            keadaan={detail.status === "REVOKED" ? "DICABUT" : "DIGANTIKAN"}
+            nomor={detail.certificate_number}
+            sekolah={institution}
+            terbitIso={detail.issued_at_iso}
+            tanggalIso={detail.status === "REVOKED" ? row?.revoked_at ?? null : penggantiLangsung?.issued_at_iso ?? null}
+            url={alamatPeriksa}
+            locale={bahasaSertifikat}
+            zona={cred.zona}
+          />
+        ) : null}
+
+        {/* the on-screen card never prints: where the sheet is printed (DAISY-36) the sheet is the one copy, and a revoked
+            or replaced certificate prints its notice instead (CI-1b) */}
+        <div className="pin-noprint">
           <KartuSertifikat cred={cred} locale={bahasaSertifikat} />
         </div>
 
@@ -256,7 +291,8 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
               <h2 className="pin-h1 pin-noprint">{s("sertifikat.cetak.judul")}</h2>
               <p className="pin-intro pin-noprint">{s("sertifikat.cetak.arti")}</p>
             </div>
-            <LembarA4>
+            {/* CI-1b: under review, the printed certificate carries one fixed line above it (print-only, in the well) */}
+            <LembarA4 atas={barisDitinjau}>
               <KartuSertifikat cred={cred} locale={bahasaSertifikat} variant="sheet" konteks={konteks} />
             </LembarA4>
           </>
@@ -270,6 +306,7 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
             PINTAR appears on it once, as the wordmark in its frozen slot (D-120 Q16, D-160(a)), never as this
             corporate footer. */}
         <KakiPintar className="pin-noprint" />
+        <SegarkanKeadaan />
       </main>
     </>
   );

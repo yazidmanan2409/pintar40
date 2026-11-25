@@ -78,7 +78,9 @@ export function bagianCetak(html: string): { tercetak: string; tersembunyi: stri
   const h = tersusun(html);
   const awal = h.search(/<main\b/);
   const akhir = h.lastIndexOf("</main>");
-  const badan = awal >= 0 && akhir > awal ? h.slice(awal, akhir) : h;
+  // React's text-boundary comments carry nothing; a block element's edge is where a reader sees a space
+  const badan = (awal >= 0 && akhir > awal ? h.slice(awal, akhir) : h).replace(/<!--[\s\S]*?-->/g, "");
+  const BLOK = /^(?:p|div|section|article|h[1-6]|li|ul|ol|dl|dt|dd|br|hr|main|header|footer|figure|table|tr|td|th)$/i;
   const KOSONG = /^(?:area|base|br|col|embed|hr|img|input|link|meta|source|track|wbr|path|rect|circle|line|polyline|polygon|stop|use)$/i;
   const tumpukan: Array<{ nama: string; noprint: boolean; tanda: string | null; teks: string[] }> = [];
   let tercetak = "", tersembunyi = "";
@@ -87,15 +89,16 @@ export function bagianCetak(html: string): { tercetak: string; tersembunyi: stri
     if (m[4] !== undefined) {
       const run = m[4];
       const disembunyikan = tumpukan.some((e) => e.noprint);
-      if (disembunyikan) tersembunyi += ` ${run}`; else tercetak += ` ${run}`;
+      if (disembunyikan) tersembunyi += run; else tercetak += run;
       for (const e of tumpukan) if (e.tanda) e.teks.push(run);
       continue;
     }
     const [, nama, attr, tutupSendiri] = m;
+    if (BLOK.test(nama)) { tercetak += " "; tersembunyi += " "; for (const e of tumpukan) if (e.tanda) e.teks.push(" "); }
     if (m[0].startsWith("</")) {
       const i = tumpukan.map((e) => e.nama).lastIndexOf(nama.toLowerCase());
       if (i < 0) continue;
-      for (const e of tumpukan.splice(i)) if (e.tanda) tanda.set(e.tanda, [...(tanda.get(e.tanda) ?? []), teks(e.teks.join(" "))]);
+      for (const e of tumpukan.splice(i)) if (e.tanda) tanda.set(e.tanda, [...(tanda.get(e.tanda) ?? []), teks(e.teks.join(""))]);
       continue;
     }
     if (tutupSendiri || KOSONG.test(nama)) {
