@@ -5,9 +5,15 @@ description: Rules for any user-facing PINTAR text in Indonesian or English — 
 
 # Words
 
-**Authority:** Daisy's word list. The current one is `TINJAUAN-AR79-PLAN.md` §2 on `ux-1/daisy-experience`; per change, its `*-KATA.md` file. **Daisy owns every word.**
+**Authority:** Daisy's files on `ux-1/daisy-experience`. **Daisy owns every word.**
+- **The word list:** `docs/coordination/ux/roadmap/TINJAUAN-AR79-PLAN.md` §2; its batch table is §6.
+- **Per change:**
+  - CI-1 and CI-2: `docs/coordination/ux/roadmap/CI1-KATA.md` and `CI2-KATA.md`;
+  - CI-1b and D2-R: `docs/coordination/ux/completion-4.1/CI1B-KATA.md` and `D2R-KATA.md`;
+  - other `*-KATA.md` files sit alongside them.
 
 ## Rules
+- **A word not in the list keeps the lookup's existing one.** Ask Daisy before inventing a new term.
 - **Words before code:** a batch's strings are written, committed and reviewed by Daisy before the code that shows them.
 - **Every visible string goes through the translation lookup, in ID and EN.** No hard-coded page text (L-135, L-136, L-140).
 - **One name per concept, on every surface.** Some examples:
