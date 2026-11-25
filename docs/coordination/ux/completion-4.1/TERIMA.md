@@ -173,3 +173,5 @@
 - 24 Nov 23:57Z · Bob: J8 recorded (L-148 restated, L-149 withdrawn, L-152 and L-153 new). J9 captured (1ed2d250); J11 captured (eccb71ad). → Judging J9, then J11.
 - 25 Nov 00:05Z · J9 and J11 captures judged. Both match my local passes; 390 and 320 hold; all builder lines closed (J9 [S] → ruling 73, 4.5).
 - 25 Nov 00:07Z · Bob: L-149 withdrawn after the re-capture; L-154 to classify. → L-154 Significant (C-3), words for summary, label, line and done screen; KEPARAHAN updated with J8-14, L-148, L-154, J8-15, L-150.
+- 25 Nov 00:30Z · Bob: L-154 recorded; J12 captured (a47f76a0); L-155 (staff offered class cards, counted as «murid tanpa kelas"). → J12 judged, then the L-155 words.
+- 25 Nov 00:35Z · J12 capture judged: L5 and L6 hold; J12-4 closed; J12-5 confirmed per message. New: J12-6, J12-7. L-155 UX side and words (Aktivasi, readiness count). KEPARAHAN updated.

@@ -62,6 +62,7 @@
 | J8-14 / L-152 | The last admin releasing their own role is told «diubah atau diakhiri oleh admin lain»; «Lepaskan» is offered | C-9 (neighbour), C-7 | The guard exists in the database; the UX shows the wrong line |
 | L-148 (restated) | Intake offers staff units as a Tempat, then refuses them with the learner line | C-7 | |
 | L-154 | With «guru atau staf» ticked, the approval screen labels everyone «Murid» | C-3 | Bob and I: Significant |
+| L-155 | Staff recorded via the tick are offered a class card and counted as «murid tanpa kelas» | C-3 | UX: Significant. Sharon classifies the credential side |
 | J9-1 | The promotion doesn't say it will strand an open transfer (upstream of L-35) | C-4 | |
 | L-35 | The receiving school can «Terima» a transfer whose origin enrolment already ended | C-7 | **Sharon: Significant**, placed in 4.5. J9 confirms it in every pass |
 | J9-4 | In EN, the transfers section of /konfigurasi is wholly Indonesian, its refusal included | C-6 | Same cause as J12-5 |
@@ -147,7 +148,9 @@
 | J11-4 | An empty list; inconsistent regions | — |
 | J12-2 | «Batalkan» beside «Batal» | — |
 | J12-3 | «Mulai sekarang» doesn't say it overrides the 30-minute warning | — |
-| J12-5 | EN: the Konfigurasi results and section heading untranslated | C-6 |
+| J12-5 | EN: the Konfigurasi results and section heading untranslated (per message: L5's are English) | C-6 |
+| J12-6 | The last Admin PINTAR's row lacks «Lepaskan» with no reason | C-7 |
+| J12-7 | «Lepaskan» on the button, «dicabut» in the result | C-6 |
 | K-1 / L-39 | /konfigurasi chevrons not aligned | — |
 | K-2 / L-40 | «Masuk sebagai» cramped on one row | — |
 | K-3 / L-41 | «Keluar» indistinct from the page | — |

@@ -63,3 +63,30 @@ I ran the builder's harness `audit/perjalanan/j12.mjs` at `6b248975`, at 1280: s
 **Harness note for the builder:** the 127.0.0.1 vs localhost cross-origin retry is handled by the harness and noted. No action needed.
 
 **J12's «left for the builder» lines:** the passes are walked. **L5 and L6 remain CI's** (mail sink).
+
+## Capture judgement · the builder's committed J12 (`0a424d0b/j12`, `a47f76a0`), 25 Nov 00:35
+
+Seven walks, every one reaching its last screen. The tour is now dismissed for the observers, so **J12-4 is closed**, and L5 and L6 are now walked. J12-1 to J12-3 stand.
+- **J12-5 is confirmed in the EN walk:** the results stay «✓ Selesai. Pemeliharaan dijadwalkan.» and the like, and the section heading stays «Pemeliharaan dan pengumuman».
+  - **But L5's results are English** («Not sent: this request did not come from a PINTAR page at this address …»; «✓ The test email was handed to the email server …»). So the defect is per message, not the whole page.
+  - That strengthens J12-5's fix: send every Konfigurasi result through the locale-aware lookup.
+
+### Holds
+- **L5, the test email:**
+  - the cross-origin refusal names what to do: «Buka halaman ini lagi dari alamat PINTAR, lalu kirim ulang.»;
+  - the success names the address, the spam folder and a reference: «✓ Email uji sudah diserahkan ke server email untuk {alamat}. Periksa kotak masuk alamat itu, termasuk folder spam. Rujukan: …».
+  - «Diserahkan ke server email» is honest: it says handed over, not delivered.
+- **L6, the platform roles:**
+  - renewing reads «✓ Selesai. Peran diperpanjang.»;
+  - releasing a seeded admin works;
+  - **the last usable Admin PINTAR's row offers no «Lepaskan»**, so the guard holds.
+- **After each end,** learners and teachers are back on their normal pages, in ID and EN.
+
+### New
+
+| # | Finding | Siblings | Cause | Dim. | Fix |
+|---|---|---|---|---|---|
+| J12-6 | **The last Admin PINTAR's row simply lacks «Lepaskan», with no reason** (the builder's note). The admin reads a row with one action missing and no explanation. | J8-14 / L-152 (the school's last admin: the wrong reason); the close-account refusal (the right reason) | C-7 (an absent action without its prerequisite named) | F, H | On that row: «Peran ini tidak dapat dilepas: ini satu-satunya Admin PINTAR yang masih aktif. Tambahkan Admin PINTAR lain lebih dulu.» / «This role can't be released: it's the only active Admin PINTAR. Add another Admin PINTAR first.» This is one pattern with J8-14: the same sentence shape for both last-admin guards. |
+| J12-7 | **«Lepaskan» on the button, «Peran dicabut» in the result.** Two verbs for one act. | J8 roles: «Lepaskan» | C-6 | H | «✓ Selesai. Peran dilepas.» / «✓ Done. Role released.» |
+
+**J12's «left for the builder» lines are closed.**

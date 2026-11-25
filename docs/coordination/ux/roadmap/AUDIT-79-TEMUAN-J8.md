@@ -179,3 +179,34 @@ The builder walked the staff path without the fixture (`96e42ac5/j8`, screens 20
 | The done screen | «✓ {n} guru atau staf tercatat di sekolah ini. Langkah berikutnya: berikan perannya di Peran & akses.» | «✓ {n} teachers or staff recorded at this school. Next: give their role in Roles & access.» |
 
 **One thing for the builder to check with it:** in Aktivasi, people recorded this way may be offered «Buat kartu kelas» (a learner card) beside «Aktifkan dengan email». If so, staff recorded without a class should be offered email activation only. This is the same family as J8-9.
+
+## L-155 · the UX side (Sharon classifies the credential side), 25 Nov 00:35
+
+**What happens:**
+- people recorded with «Ini daftar guru atau staf» are offered «Buat kartu kelas», a learner credential, until they hold a staff role, and again if it lapses;
+- they are counted as «murid tanpa kelas»;
+- it is the same root as L-154: the tick is recorded nowhere, so every later page treats them as learners.
+
+**UX severity: Significant (C-3).** It is the same fact misread on two more screens, and it offers a learner credential to staff.
+
+**Prerequisite:** the tick must be recorded as the person's kind («guru atau staf»). Every line below reads from it.
+
+### Aktivasi: a staff-kind person without a usable staff role
+
+**No «Buat kartu kelas».** In its place, one line and a link.
+
+| Case | ID | EN |
+|---|---|---|
+| Never had a role | «{nama} · guru atau staf · belum punya peran. Berikan perannya lebih dulu, lalu aktifkan akunnya dengan email.» + «Buka Peran & akses» | «{nama} · teacher or staff · no role yet. Give their role first, then activate the account by email.» + «Open Roles & access» |
+| The role lapsed | «{nama} · guru atau staf · perannya berakhir {tanggal}. Perpanjang perannya di Peran & akses.» + «Perpanjang peran» | «{nama} · teacher or staff · their role ended on {tanggal}. Renew it in Roles & access.» + «Renew the role» |
+| Holds a role | as today: «Aktifkan dengan email» only, never a class card | — |
+
+**Whether email activation may be offered before a role exists** is Sharon's (credential side). The words above assume «role first», as the page's own intro already says («Untuk guru dan staf, berikan perannya di Peran & akses lebih dulu, lalu aktifkan dengan email»).
+
+### Konfigurasi readiness: the «murid tanpa kelas» count
+
+- Staff-kind people **leave** «Murid yang belum ditempatkan di Kelas».
+- They appear on their own line, only while some have no role:
+  - ID: «Guru dan staf yang belum punya peran · {n}», with the action «Berikan peran di Peran & akses».
+  - EN: «Teachers and staff without a role · {n}» / «Give roles in Roles & access».
+- Once every one has a role, the line goes, as the other readiness lines do.
