@@ -102,3 +102,22 @@ Read from the source, not from the builder's summary.
 - **Migration 311:** sha256 begins `5c4b2306c4c1c418`, matching Bob's value. `preservation-CI2.sql` carries the new sha, and that is its only change.
 - Could reasonably have been anticipated: yes, as V-1/V-2 already said. No new findings.
 - I have not queried staging; this is a code read only.
+
+---
+
+## Addendum: run half closed; CI-2 FINAL (Sharon, 2026-11-25)
+
+I read both runs on 25681b110173b87dd2996c752145e5e377b6baf5 myself from the GitHub API at **00:11Z**:
+- ci 45509971723 (PR #31): status=completed, **conclusion=success**, attempt 1, updated 00:05:13Z.
+- journeys 45509965430: status=completed, **conclusion=success**, attempt 1, updated 23:58:12Z (first read as success at 23:59Z).
+
+The run half is closed, and ~~OPEN~~ above is superseded.
+
+Also read at 00:11Z: main's ci 45510549989 on f1e35bb9 (H-1's merge) is completed, conclusion=success.
+
+**CI-2 FINAL: PASS**, at the frozen content 25681b11. V-1 and V-2 are closed. The conditions for the merge, all of them the owner's to authorise:
+1. **#31 is updated onto main** (CI-1 and H-1 have moved it). After the update, the PR's diff against main must be byte-identical to 25681b11's diff, with only main's commits added. Any content change re-opens review.
+2. **Required: ci on the updated head of #31 green**, from the API conclusion.
+3. **The production carry-overs stand.** CI-2 (311) rides with, or precedes, any production promotion that brings migration 221 or later (PR-22, L-78). Step 0s come before promotion. 311's staging promotion gets its own preservation verification from me.
+
+I have not queried staging; the run half is from the API and the content is a code read.
