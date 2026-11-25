@@ -62,3 +62,26 @@ There's **no operational workaround** that would stop institutions suspending ac
    - Sharon's FINAL;
    - merge only when both are green;
    - then the promotion 310 → 311.
+5. **Done (25 Nov 00:45Z–01:18Z):**
+   - ci 45516071985 on `c9d4e8a1`: success, 18/18;
+   - Sharon's FINAL PASS;
+   - merged as `0c155a5c`, pinned to the head, with main's tree equal to `c9d4e8a1`'s;
+   - staging.yml 45520797689: success, 310 → 311;
+   - AFTER: only lines 10, 12, 44 and 45 moved, as predicted;
+   - the counts met;
+   - v6-pre-request and c3w-r3-bahan OK;
+   - the V6 re-read after the owner's staging sign-in: +159;
+   - the five preservations confirmed;
+   - Sharon's independent promotion PASS (`6f0d376f`);
+   - main ci 45520797680 on `0c155a5c`: success, 18/18.
+
+   Evidence: `docs/post-4.1/ci-2/promotion/`.
+
+## CI-2: CLOSED ON STAGING (25 Nov 2026 01:18Z)
+
+**PR-22 stays open** as the production gate, until the owner's separate production authorisation, together with:
+- PR-25, main green on the exact commit (met for `0c155a5c`);
+- the production exposure check;
+- optionally, a reinstatement run on a disposable fixture (Sharon: the owner's choice).
+
+Production is untouched at 111.
