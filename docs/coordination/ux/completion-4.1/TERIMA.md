@@ -175,3 +175,5 @@
 - 25 Nov 00:07Z · Bob: L-149 withdrawn after the re-capture; L-154 to classify. → L-154 Significant (C-3), words for summary, label, line and done screen; KEPARAHAN updated with J8-14, L-148, L-154, J8-15, L-150.
 - 25 Nov 00:30Z · Bob: L-154 recorded; J12 captured (a47f76a0); L-155 (staff offered class cards, counted as «murid tanpa kelas"). → J12 judged, then the L-155 words.
 - 25 Nov 00:35Z · J12 capture judged: L5 and L6 hold; J12-4 closed; J12-5 confirmed per message. New: J12-6, J12-7. L-155 UX side and words (Aktivasi, readiness count). KEPARAHAN updated.
+- 25 Nov 00:39Z · Bob: J12 recorded (L-156, L-157); J1 captured (83b51cc3), the last capture. → Judging J1.
+- 25 Nov 00:45Z · J1 capture judged (the last capture). The core path, pacing and confidentiality hold. New: J1-1 (SD register for the tour), J1-2 (card text clipped at 320), J1-3 (wrong PIN kept), all Improvement. Every journey's builder lines are closed.

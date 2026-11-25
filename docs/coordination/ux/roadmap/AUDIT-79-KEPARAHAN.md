@@ -77,6 +77,9 @@
 
 | # | One line | Cause |
 |---|---|---|
+| J1-1 | The learner tour is written for an adult reader; its first readers are nine | C-6 |
+| J1-2 | The tour card's text is clipped at 320 | — |
+| J1-3 | A wrong card PIN stays in the field | — |
 | J2-4 / J4-5 / L-47 | «sisa 259191 menit» | — |
 | J2-5 | One verdict, three words on learner surfaces | C-6 |
 | J2-6 | «bagian yang perlu dipelajari lagi» vs «baca lagi» | C-6 |
