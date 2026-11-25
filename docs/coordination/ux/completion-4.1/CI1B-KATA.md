@@ -61,3 +61,10 @@ One line at the top of the printed certificate, outside the certificate's frame,
 ## Proposed keys
 
 `cetak.DICABUT.judul`, `cetak.DICABUT.isi`, `cetak.DIGANTIKAN.judul`, `cetak.DIGANTIKAN.isi`, `cetak.DIGANTIKAN.isi_tanpa_tanggal`, `cetak.bukan_sertifikat`, `cetak.periksa`, `cetak.DITINJAU.baris`, `cetak.tanggal_cetak`. The headings reuse `verifikasi.status.DICABUT` / `verifikasi.status.DIGANTIKAN` where the builder prefers that.
+
+## `cetak.DIGANTIKAN.isi_tanpa_tanggal`, in full (25 Nov 00:45; Second Eye's EN confirmed)
+
+- **ID:** «Sertifikat {nomor} diterbitkan oleh {sekolah} pada {tanggal_terbit}. Sertifikat ini tidak lagi dipakai. Mintalah sertifikat yang baru kepada pemegangnya.»
+- **EN:** «Certificate {nomor} was issued by {sekolah} on {tanggal_terbit}. It is no longer in use. Ask the holder for the new certificate.»
+
+Second Eye's derivation («…on {tanggal_terbit}. It is no longer in use. Ask the holder for the new certificate.») is **confirmed**. It is the with-date line with «, lalu digantikan pada {tanggal_ganti}» / «and replaced on {tanggal_ganti}» removed.

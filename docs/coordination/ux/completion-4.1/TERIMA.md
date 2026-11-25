@@ -177,3 +177,4 @@
 - 25 Nov 00:35Z · J12 capture judged: L5 and L6 hold; J12-4 closed; J12-5 confirmed per message. New: J12-6, J12-7. L-155 UX side and words (Aktivasi, readiness count). KEPARAHAN updated.
 - 25 Nov 00:39Z · Bob: J12 recorded (L-156, L-157); J1 captured (83b51cc3), the last capture. → Judging J1.
 - 25 Nov 00:45Z · J1 capture judged (the last capture). The core path, pacing and confidentiality hold. New: J1-1 (SD register for the tour), J1-2 (card text clipped at 320), J1-3 (wrong PIN kept), all Improvement. Every journey's builder lines are closed.
+- 25 Nov 00:44Z · Bob: Sharon allows email activation before a role (never a card); the CI-1b EN for isi_tanpa_tanggal. → The L-155 Aktivasi line adjusted; the CI-1b EN confirmed in full.

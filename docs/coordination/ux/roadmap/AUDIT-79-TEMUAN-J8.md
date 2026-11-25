@@ -210,3 +210,16 @@ The builder walked the staff path without the fixture (`96e42ac5/j8`, screens 20
   - ID: «Guru dan staf yang belum punya peran · {n}», with the action «Berikan peran di Peran & akses».
   - EN: «Teachers and staff without a role · {n}» / «Give roles in Roles & access».
 - Once every one has a role, the line goes, as the other readiness lines do.
+
+### L-155 · Aktivasi adjusted to Sharon's answer (25 Nov 00:45)
+
+**Sharon:** a staff-kind person **may** activate by email before a role is given (no role means no capability). **The firm rule stays:** never a card for anyone recorded as staff.
+
+So «Aktifkan dengan email» is offered, «Buat kartu kelas» never is, and the line points to the role without blocking activation.
+
+| Case | ID | EN |
+|---|---|---|
+| No role yet | «{nama} · guru atau staf · belum punya peran. Akunnya dapat diaktifkan dengan email sekarang; perannya diberikan di Peran & akses.» + «Aktifkan dengan email» + «Buka Peran & akses» | «{nama} · teacher or staff · no role yet. The account can be activated by email now; the role is given in Roles & access.» + «Activate by email» + «Open Roles & access» |
+| The role lapsed | «{nama} · guru atau staf · perannya berakhir {tanggal}. Perpanjang perannya di Peran & akses.» + «Perpanjang peran» (account activation as today) | «{nama} · teacher or staff · their role ended on {tanggal}. Renew it in Roles & access.» + «Renew the role» |
+
+The page intro's recommended order («berikan perannya … lebih dulu, lalu aktifkan dengan email») can stay. It is advice, and the lines above no longer contradict it.
