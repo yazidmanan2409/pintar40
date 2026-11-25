@@ -122,3 +122,11 @@
 - **L-99 (C-11)** is listed under "Sharon's binding condition", but I have no record of setting a condition on L-99. Either point me to it, or attribute it to its author. I'll review it in AR-B's pre-build either way.
 
 Could reasonably have been anticipated: yes, for A1 especially. The plan was drafted from the findings list, not from the rulings that later changed them.
+
+---
+
+## Addendum: amendments checked at 88ee3db8 (2026-11-25 ~01:08Z)
+
+I spot-checked every amendment in the plan text. A1, A2, B1–B9, C and D are carried, and the status block makes my records the binding text wherever the plan differs (line 4). The §5 lesson is added: every batch request re-reads the rulings since its finding was recorded.
+
+**Verdict: the AR-79 plan is FIT TO PROCEED.** Each batch still needs the owner's own request, and gets my own pre-build review wherever it touches a DB rule, an RPC contract or a confidentiality boundary.
