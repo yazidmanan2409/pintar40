@@ -230,6 +230,13 @@ for (const lebar of LEBAR) {
     await beri("Dodi Firmansyah", /· 1B$/, null, "tanpa-tanggal-");
     data("roles", j.baca(`select coalesce(string_agg(p.display_name || ' ' || r.role::text || ' until ' || coalesce(r.valid_until::text, '—'), '; '), 'none')
       from public.role_assignments r join public.persons p on p.id = r.person_id where r.institution_id = '${D["w15.sekolah"]}'`));
+    // the rows behind the staff path (Bob 23:54Z): persons, institutional_identities, role_assignments, enrolments
+    data("staff_rows", j.baca(`select coalesce(string_agg(p.display_name || ' | id ' || coalesce(ii.institutional_id, '—')
+        || ' | roles ' || coalesce((select string_agg(r.role::text || '@' || coalesce(n.name, '?') || ' until ' || coalesce(r.valid_until::text, '—'), ', ')
+             from public.role_assignments r left join public.org_nodes n on n.id = r.scope_node_id where r.person_id = p.id), 'none')
+        || ' | enrolments ' || (select count(*) from public.enrollments e where e.person_id = p.id), '; ' order by p.display_name), 'none')
+      from public.persons p left join public.institutional_identities ii on ii.person_id = p.id and ii.institution_id = '${D["w15.sekolah"]}'
+      where p.display_name in ('Siti Rahma', 'Dodi Firmansyah')`));
   });
 
   await j.langkah("L6", "1A's class cards made and printed", async ({ rec, foto, data }) => {
