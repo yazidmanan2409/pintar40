@@ -1,0 +1,34 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- main:
+  - text: PINTAR
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - heading "Selamat datang di PINTAR" [level=1]
+  - paragraph: Masuk dengan email atau username, dan password Anda.
+  - text: Email atau username
+  - textbox "Email atau username"
+  - text: Password
+  - textbox "Password"
+  - button "Tampilkan password"
+  - button "Masuk"
+  - paragraph:
+    - link "Lupa password?":
+      - /url: /masuk/lupa
+  - paragraph:
+    - text: Akun Anda sudah ditutup?
+    - link "Minta dibuka kembali":
+      - /url: /masuk/buka-kembali
+  - paragraph:
+    - text: Belum mengaktifkan akun?
+    - link "Aktifkan akun":
+      - /url: /aktifkan
+  - paragraph:
+    - text: Punya kartu kelas?
+    - button "Gunakan kartu kelas"
+  - paragraph: Pendidikan yang lebih adil, untuk lebih banyak kesempatan.
+  - region "Belajar dengan bukti. Memahami sebelum memutuskan.":
+    - heading "Belajar dengan bukti. Memahami sebelum memutuskan." [level=2]
+    - paragraph: PINTAR membantu melihat apa yang sedang terjadi dalam proses belajar. Keputusannya tetap pada manusia.
+- alert

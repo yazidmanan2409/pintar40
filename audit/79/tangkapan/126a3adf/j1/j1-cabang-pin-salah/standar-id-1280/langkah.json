@@ -1,0 +1,159 @@
+{
+  "perjalanan": "j1-cabang-pin-salah",
+  "nama": "Gita Paramita",
+  "lebar": 1280,
+  "zona": "WIB",
+  "bahasa": "id",
+  "laluan": "standar",
+  "label": [],
+  "mulai": "2026-11-24T10:12:14.944Z",
+  "langkah": [
+    {
+      "id": "C1.1",
+      "judul": "a wrong card PIN, try 1",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-kartu",
+        "02-pin-salah-1"
+      ],
+      "amatan": [],
+      "data": {
+        "message": "Belum cocok. Coba periksa nomor kartu dan PIN, lalu coba sekali lagi. |",
+        "still_on": "/masuk",
+        "pin_field_value_kept": "000000",
+        "card_field_value_kept": true
+      },
+      "tab": 20,
+      "url": "/masuk",
+      "ms": 1564
+    },
+    {
+      "id": "C1.2",
+      "judul": "a wrong card PIN, try 2",
+      "hasil": "SAMPAI",
+      "layar": [
+        "03-pin-salah-2"
+      ],
+      "amatan": [],
+      "data": {
+        "message": "Belum cocok. Coba periksa nomor kartu dan PIN, lalu coba sekali lagi. |",
+        "still_on": "/masuk",
+        "pin_field_value_kept": "000000",
+        "card_field_value_kept": true
+      },
+      "tab": 9,
+      "url": "/masuk",
+      "ms": 913
+    },
+    {
+      "id": "C1.3",
+      "judul": "a wrong card PIN, try 3",
+      "hasil": "SAMPAI",
+      "layar": [
+        "04-pin-salah-3"
+      ],
+      "amatan": [],
+      "data": {
+        "message": "Belum cocok. Coba periksa nomor kartu dan PIN, lalu coba sekali lagi. |",
+        "still_on": "/masuk",
+        "pin_field_value_kept": "000000",
+        "card_field_value_kept": true
+      },
+      "tab": 9,
+      "url": "/masuk",
+      "ms": 918
+    },
+    {
+      "id": "C1.4",
+      "judul": "a wrong card PIN, try 4",
+      "hasil": "SAMPAI",
+      "layar": [
+        "05-pin-salah-4"
+      ],
+      "amatan": [],
+      "data": {
+        "message": "Belum cocok. Coba periksa nomor kartu dan PIN, lalu coba sekali lagi. |",
+        "still_on": "/masuk",
+        "pin_field_value_kept": "000000",
+        "card_field_value_kept": true
+      },
+      "tab": 9,
+      "url": "/masuk",
+      "ms": 948
+    },
+    {
+      "id": "C1.5",
+      "judul": "a wrong card PIN, try 5",
+      "hasil": "SAMPAI",
+      "layar": [
+        "06-pin-salah-5"
+      ],
+      "amatan": [],
+      "data": {
+        "message": "Belum cocok. Coba periksa nomor kartu dan PIN, lalu coba sekali lagi. |",
+        "still_on": "/masuk",
+        "pin_field_value_kept": "000000",
+        "card_field_value_kept": true
+      },
+      "tab": 9,
+      "url": "/masuk",
+      "ms": 916
+    },
+    {
+      "id": "C1.6",
+      "judul": "a wrong card PIN, try 6 (the wait)",
+      "hasil": "SAMPAI",
+      "layar": [
+        "07-pin-salah-6"
+      ],
+      "amatan": [],
+      "data": {
+        "message": "Nomor kartu ini sudah terlalu sering dicoba. Tunggu 30 detik, lalu coba lagi. Lupa PIN? Tanyakan kepada guru. |",
+        "still_on": "/masuk",
+        "pin_field_value_kept": "000000",
+        "card_field_value_kept": true
+      },
+      "tab": 9,
+      "url": "/masuk",
+      "ms": 922
+    },
+    {
+      "id": "C1.7",
+      "judul": "then the right card PIN, during the wait",
+      "hasil": "SAMPAI",
+      "layar": [
+        "08-pin-benar-setelah-tiga"
+      ],
+      "amatan": [
+        "still on the sign-in page after the right PIN"
+      ],
+      "data": {
+        "path_after": "/masuk",
+        "card_last_sign_in": "never",
+        "message": "Nomor kartu ini sudah terlalu sering dicoba. Tunggu 29 detik, lalu coba lagi. Lupa PIN? Tanyakan kepada guru. |"
+      },
+      "tab": 9,
+      "url": "/masuk",
+      "ms": 956
+    },
+    {
+      "id": "C2",
+      "judul": "a mistyped card number (a number no card has)",
+      "hasil": "SAMPAI",
+      "layar": [
+        "09-nomor-salah"
+      ],
+      "amatan": [],
+      "data": {
+        "no_card_has_it": "t",
+        "message": "Belum cocok. Coba periksa nomor kartu dan PIN, lalu coba sekali lagi. |",
+        "same_words_as_a_wrong_pin_on_a_real_card": true
+      },
+      "tab": 9,
+      "url": "/masuk",
+      "ms": 969
+    }
+  ],
+  "selesai": "2026-11-24T10:12:23.050Z",
+  "sampai_akhir": true
+}

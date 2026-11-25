@@ -1,0 +1,61 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - navigation "Belajar":
+    - link "Belajar":
+      - /url: /belajar
+    - link "Sertifikat":
+      - /url: /belajar/sertifikat
+  - button "Bantuan"
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - paragraph: Belajar
+  - heading "Halo, Fajar" [level=1]
+  - paragraph: Ini yang sedang berjalan hari ini.
+  - paragraph: Langkah berikutnya
+  - paragraph: Matematika · Mengenal Pecahan
+  - heading "Mulai dari Pemetaan Awal" [level=2]
+  - list:
+    - listitem: Pemetaan Awal
+    - listitem: Peta Bacaan Personal
+    - listitem: Pelajaran
+    - listitem: Uji Penguasaan
+    - listitem: Hasil
+  - link "Mulai Pemetaan Awal":
+    - /url: /belajar/6720d184-2de5-4e61-803a-9dd41222c2fd/pemetaan
+  - link "Lihat semua langkah":
+    - /url: /belajar/6720d184-2de5-4e61-803a-9dd41222c2fd
+  - heading "Pembelajaran Anda" [level=2]
+  - article:
+    - text: Matematika · Kelas 4 Mengenal Pecahan
+    - list:
+      - listitem: Pemetaan Awal
+      - listitem: Peta Bacaan Personal
+      - listitem: Pelajaran
+      - listitem: Uji Penguasaan
+      - listitem: Hasil
+    - text: Mulai dari Pemetaan Awal
+    - link "Mulai Pemetaan Awal":
+      - /url: /belajar/6720d184-2de5-4e61-803a-9dd41222c2fd/pemetaan
+  - text: Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- dialog "Hasil setiap materi":
+  - text: Tur PINTAR Langkah 5 dari 7
+  - button "EN"
+  - button "Lewati tur"
+  - heading "Hasil setiap materi" [level=2]
+  - paragraph: "Hasil adalah langkah terakhir: penguasaan, bagian yang perlu diulang, dan perubahan sejak Pemetaan Awal. Perbandingannya selalu dengan diri sendiri."
+  - checkbox "Jangan tampilkan tur ini lagi"
+  - text: Jangan tampilkan tur ini lagi
+  - button "Kembali"
+  - button "Berikutnya"
+- alert

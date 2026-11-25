@@ -1,0 +1,96 @@
+{
+  "perjalanan": "j1",
+  "nama": "Eka Pradipta",
+  "lebar": 1280,
+  "zona": "WIB",
+  "bahasa": "en",
+  "laluan": "standar",
+  "label": [],
+  "mulai": "2026-11-25T00:24:45.695Z",
+  "langkah": [
+    {
+      "id": "L1",
+      "judul": "sign in by card number and card PIN (keyboard; Enter)",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-masuk",
+        "02-kartu"
+      ],
+      "amatan": [],
+      "data": {
+        "card_signed_in_before": "never",
+        "card_last_sign_in": "2026-11-25 00:24:46.694216+00"
+      },
+      "tab": 17,
+      "url": "/belajar",
+      "ms": 1298
+    },
+    {
+      "id": "L2",
+      "judul": "land on /belajar",
+      "hasil": "SAMPAI",
+      "layar": [
+        "03-belajar"
+      ],
+      "amatan": [],
+      "data": {
+        "landed_on": "/belajar",
+        "device_session_mode": "CARD"
+      },
+      "tab": 0,
+      "url": "/belajar",
+      "ms": 985
+    },
+    {
+      "id": "L3",
+      "judul": "the tour, every card by its own button",
+      "hasil": "SAMPAI",
+      "layar": [
+        "04-tur-1",
+        "05-tur-2",
+        "06-tur-3",
+        "07-tur-4",
+        "08-tur-5",
+        "09-tur-6",
+        "10-tur-7",
+        "11-setelah-tur"
+      ],
+      "amatan": [
+        "card 1: PINTAR TOUR Step 1 of 7 1 / 7 ID Skip tour Start from this list Everything assigned is here, already in order. Begin with the one at the top — its button opens ",
+        "card 2: PINTAR TOUR Step 2 of 7 2 / 7 ID Skip tour EXAMPLE Every assignment has five steps Initial Mapping, Reading Map, Lessons, Mastery Check, then Results. One step ",
+        "card 3: PINTAR TOUR Step 3 of 7 3 / 7 ID Skip tour EXAMPLE Where you read and watch The Reading Map shows which part to read first, and why. Lessons open from there, an",
+        "card 4: PINTAR TOUR Step 4 of 7 4 / 7 ID Skip tour EXAMPLE While you answer Choose one answer, then save it. The answers you save are recorded. If it is needed, a small",
+        "card 5: PINTAR TOUR Step 5 of 7 5 / 7 ID Skip tour EXAMPLE Results for each assignment Results are the last step: mastery, what to revisit, and what has changed since t",
+        "card 6: PINTAR TOUR Step 6 of 7 6 / 7 ID Skip tour Certificates Certificates the school issues are here. Each one can be checked through its own link. Don't show this t",
+        "card 7: PINTAR TOUR Step 7 of 7 7 / 7 ID Skip tour Help You can open this tour again from here, or go straight to one step. If anything is still unclear, ask your teach"
+      ],
+      "data": {
+        "tour_cards": 7,
+        "tour_state": "learner.first_login completed=2026-11-25 00:24:51.111426+00 dismissed=- shown=1"
+      },
+      "tab": 19,
+      "url": "/belajar",
+      "ms": 3614
+    },
+    {
+      "id": "L4",
+      "judul": "open today's task (its first step; nothing started)",
+      "hasil": "SAMPAI",
+      "layar": [
+        "12-tugas-hari-ini"
+      ],
+      "amatan": [
+        "last screen: /belajar/6720d184-2de5-4e61-803a-9dd41222c2fd/pemetaan"
+      ],
+      "data": {
+        "opened": "/belajar/6720d184-2de5-4e61-803a-9dd41222c2fd/pemetaan",
+        "sittings_started": "0"
+      },
+      "tab": 1,
+      "url": "/belajar/6720d184-2de5-4e61-803a-9dd41222c2fd/pemetaan",
+      "ms": 420
+    }
+  ],
+  "selesai": "2026-11-25T00:24:52.015Z",
+  "sampai_akhir": true
+}

@@ -1,0 +1,22 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- main:
+  - text: PINTAR
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - button "Masuk dengan password"
+  - heading "Masuk dengan kartu kelas" [level=1]
+  - paragraph: Masukkan nomor kartu dan PIN yang tertera pada kartu.
+  - text: Nomor kartu
+  - textbox "Nomor kartu":
+    - /placeholder: 10 0000 0000
+  - text: PIN
+  - textbox "PIN"
+  - button "Tampilkan PIN"
+  - button "Masuk dengan kartu"
+  - paragraph: Pendidikan yang lebih adil, untuk lebih banyak kesempatan.
+  - region "Belajar dengan bukti. Memahami sebelum memutuskan.":
+    - heading "Belajar dengan bukti. Memahami sebelum memutuskan." [level=2]
+    - paragraph: PINTAR membantu melihat apa yang sedang terjadi dalam proses belajar. Keputusannya tetap pada manusia.
+- alert

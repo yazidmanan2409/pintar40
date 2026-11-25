@@ -1,0 +1,105 @@
+{
+  "perjalanan": "j1-cabang-tur-keluar",
+  "nama": "Fajar Nugraha",
+  "lebar": 1280,
+  "zona": "WIB",
+  "bahasa": "id",
+  "laluan": "standar",
+  "label": [],
+  "mulai": "2026-11-24T10:12:23.188Z",
+  "langkah": [
+    {
+      "id": "C3.1",
+      "judul": "sign in; the tour closed early (card 2)",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-tur-awal-1",
+        "02-tur-awal-2",
+        "03-tur-ditutup"
+      ],
+      "amatan": [
+        "card 1: TUR PINTAR Langkah 1 dari 7 1 / 7 EN Lewati tur Mulai dari daftar ini Semua yang disediakan untuk Anda ada di sini, sudah diurutkan. Yang paling atas dikerjakan",
+        "card 2: TUR PINTAR Langkah 2 dari 7 2 / 7 EN Lewati tur CONTOH Setiap materi punya lima langkah Pemetaan Awal, Peta Bacaan, Pelajaran, Uji Penguasaan, lalu Hasil. Satu ",
+        "closed early at card 2 by «?»"
+      ],
+      "data": {
+        "cards_seen": 2,
+        "tour_state": "learner.first_login completed=- dismissed=- shown=1"
+      },
+      "tab": 40,
+      "url": "/belajar",
+      "ms": 32834
+    },
+    {
+      "id": "C3.2",
+      "judul": "the tour reopened from «Bantuan»",
+      "hasil": "SAMPAI",
+      "layar": [
+        "04-bantuan",
+        "05-tur-lagi-1",
+        "06-tur-lagi-2",
+        "07-tur-lagi-3",
+        "08-tur-lagi-4",
+        "09-tur-lagi-5",
+        "10-tur-lagi-6",
+        "11-tur-lagi-7",
+        "12-setelah-tur-lagi"
+      ],
+      "amatan": [
+        "card 1: TUR PINTAR Langkah 1 dari 7 1 / 7 EN Lewati tur Mulai dari daftar ini Semua yang disediakan untuk Anda ada di sini, sudah diurutkan. Yang paling atas dikerjakan",
+        "card 2: TUR PINTAR Langkah 2 dari 7 2 / 7 EN Lewati tur CONTOH Setiap materi punya lima langkah Pemetaan Awal, Peta Bacaan, Pelajaran, Uji Penguasaan, lalu Hasil. Satu ",
+        "card 3: TUR PINTAR Langkah 3 dari 7 3 / 7 EN Lewati tur CONTOH Tempat membaca dan menonton Peta Bacaan menunjukkan bagian yang perlu dibaca lebih dulu, beserta alasanny",
+        "card 4: TUR PINTAR Langkah 4 dari 7 4 / 7 EN Lewati tur CONTOH Saat mengerjakan soal Pilih satu jawaban, lalu simpan. Jawaban yang sudah Anda simpan tercatat. Bila perl",
+        "card 5: TUR PINTAR Langkah 5 dari 7 5 / 7 EN Lewati tur CONTOH Hasil setiap materi Hasil adalah langkah terakhir: penguasaan, bagian yang perlu diulang, dan perubahan s",
+        "card 6: TUR PINTAR Langkah 6 dari 7 6 / 7 EN Lewati tur Sertifikat Sertifikat yang diterbitkan sekolah ada di sini. Masing-masing bisa diperiksa keasliannya lewat tauta",
+        "card 7: TUR PINTAR Langkah 7 dari 7 7 / 7 EN Lewati tur Bantuan Tur ini bisa dibuka lagi dari sini, termasuk langsung ke satu langkah. Bila masih ada pertanyaan, tanyak"
+      ],
+      "data": {
+        "cards_seen": 7,
+        "tour_state": "learner.first_login completed=2026-11-24 10:12:59.969998+00 dismissed=- shown=1"
+      },
+      "tab": 25,
+      "url": "/belajar",
+      "ms": 4416
+    },
+    {
+      "id": "C4.1",
+      "judul": "sign out (the same shared computer)",
+      "hasil": "SAMPAI",
+      "layar": [
+        "13-setelah-keluar"
+      ],
+      "amatan": [],
+      "data": {
+        "path_after": "/",
+        "open_device_sessions": "none"
+      },
+      "tab": 3,
+      "url": "/",
+      "ms": 1074
+    },
+    {
+      "id": "C4.2",
+      "judul": "sign back in by card on the same computer",
+      "hasil": "SAMPAI",
+      "layar": [
+        "14-lagi-kartu",
+        "15-masuk-lagi"
+      ],
+      "amatan": [
+        "last screen: /belajar"
+      ],
+      "data": {
+        "landed_on": "/belajar",
+        "tour_opened_by_itself": false,
+        "device_session_mode": "CARD",
+        "tour_state": "learner.first_login completed=2026-11-24 10:12:59.969998+00 dismissed=- shown=1"
+      },
+      "tab": 20,
+      "url": "/belajar",
+      "ms": 2200
+    }
+  ],
+  "selesai": "2026-11-24T10:13:03.712Z",
+  "sampai_akhir": true
+}
