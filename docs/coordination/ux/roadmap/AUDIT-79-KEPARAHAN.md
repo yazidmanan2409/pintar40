@@ -66,7 +66,7 @@
 | J9-1 | The promotion doesn't say it will strand an open transfer (upstream of L-35) | C-4 | |
 | L-35 | The receiving school can «Terima» a transfer whose origin enrolment already ended | C-7 | **Sharon: Significant**, placed in 4.5. J9 confirms it in every pass |
 | J9-4 | In EN, the transfers section of /konfigurasi is wholly Indonesian, its refusal included | C-6 | Same cause as J12-5 |
-| J10-1 | A closed account with the right password is told the password is wrong | C-9 | **Sharon decides** the confidentiality; CI-2's general line is the fallback |
+| J10-1 | A closed account with the right password is told the password is wrong | C-9 | **Sharon decides** the confidentiality; CI-2's general line is the fallback **Sharon (88ee3db8): the neutral line only (CI-2 §3 + F-6), because of CI-2's rotation. The specific «sudah ditutup» line is withdrawn.** |
 | J10-4 (L-113) | «Komputer siapa ini?» promises a setting learners never get | C-3 | Recommendation adopted |
 | L-112 | An open welcome tour stops a shared computer from locking | — | **Sharon: HIGH** (20:02Z). The UX side is given |
 | J12-1 | The maintenance banner tells learners to sign out, which then blocks their test (A3 lock) | C-11 | |
