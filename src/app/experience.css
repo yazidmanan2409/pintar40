@@ -590,7 +590,8 @@
      composition, so the sheet stays exactly the paper and one A4 leaves the printer. It is inside the print well, before
      the sheet, and placed on the page itself (no positioned ancestor in print). */
   .pin-cetak-ditinjau {
-    position: absolute; z-index: 2; top: 5mm; left: 20mm; right: 20mm; max-height: 16mm; overflow: hidden;
+    /* never clipped (Sharon P2): no max-height, no overflow rule; the journey asserts it is whole and above the header */
+    position: absolute; z-index: 2; top: 5mm; left: 20mm; right: 20mm;
     /* body size, not a footnote (Daisy §3): the sheet's own text is 12pt; two lines of 11pt fit the band */
     margin: 0; font-size: 11pt; line-height: var(--leading-tight); color: var(--ink-1);
   }

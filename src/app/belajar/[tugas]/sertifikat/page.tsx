@@ -21,6 +21,7 @@ import AksiCetak from "@/components/sertifikat/AksiCetak";
 import { PemberitahuanCetak, BarisDitinjauCetak } from "@/components/sertifikat/CetakKeadaan";
 import SegarkanKeadaan from "@/components/sertifikat/SegarkanKeadaan";
 import type { KonteksSertifikat } from "@/lib/sertifikat-lembar";
+import { tinjauanDariBacaan, type KeadaanTinjauan } from "@/lib/sertifikat-kontrak";
 import {
   certificateForSession, myCertificates, institutionNames, replacementFor, issueIfEligible,
   rendersCredential, rendersVerification, layoutFor, tugasSertifikatSaya,
@@ -190,12 +191,15 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
   const penggantiLangsung = row ? all.find((c) => c.supersedes_certificate_id === row.id) ?? null : null;
   // C1w (O41-19, Daisy §C1·N1, C1-R4): an issued certificate under review says so on its card, in the learner's
   // register; it stays the credential, and «Cetak atau simpan PDF» stays, since its QR resolves to the live status
-  const ditinjau = detail.status === "ISSUED" && row
-    ? (await db.rpc("sertifikat_saya_ditinjau", { p_session: row.session_id }).then((x) => x.data, () => false)) === true
-    : false;
+  // CI-1b, Sharon P1: three states (tinjauanDariBacaan). The screen banner says «under review» only when the read says
+  // so; the PRINT never fails open: a review the page cannot rule out (an error, a non-boolean) prints the review line.
+  const tinjauan: KeadaanTinjauan = detail.status === "ISSUED" && row
+    ? await db.rpc("sertifikat_saya_ditinjau", { p_session: row.session_id }).then((x) => tinjauanDariBacaan(x), () => tinjauanDariBacaan(null))
+    : "TIDAK";
+  const ditinjau = tinjauan === "YA";
 
   // CI-1b (L-105; Daisy CI1B-KATA §3): under review, the printed certificate carries one fixed line above it
-  const barisDitinjau = ditinjau ? <BarisDitinjauCetak locale={bahasaSertifikat} zona={cred.zona} /> : null;
+  const barisDitinjau = tinjauan !== "TIDAK" ? <BarisDitinjauCetak locale={bahasaSertifikat} zona={cred.zona} /> : null;
 
   // The sheet's accent follows the kind of learning (Daisy §5: plum academic, sage professional learning). NO READ
   // THIS PAGE MAKES SAYS WHICH KIND IT WAS, and the Experience is held never to know it (UX1-AJAR-KONTEKS-01): the

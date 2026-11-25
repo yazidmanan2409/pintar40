@@ -83,3 +83,18 @@ export function keadaanSertifikat(row: { status: CertificateStatus | string } | 
 export function rendersVerification(status: CertificateStatus): boolean {
   return status === "ISSUED";
 }
+
+/**
+ * CI-1b, Sharon P1 (CI-1B-PREREVIEW-8126759c): THE LEARNER'S REVIEW READ HAS THREE STATES, and the print never fails
+ * open. `sertifikat_saya_ditinjau` answers a boolean; only `true` is YA and only `false` is TIDAK. An error, a
+ * rejected read (null here), a null or anything that is not a boolean is TIDAK_TAHU: the page cannot say the
+ * certificate is clear of review, so its print carries the review line (whose words, «Pindai kode QR untuk keadaannya
+ * saat ini», stay true either way) rather than a clean sheet.
+ */
+export type KeadaanTinjauan = "YA" | "TIDAK" | "TIDAK_TAHU";
+export function tinjauanDariBacaan(r: { data: unknown; error: unknown } | null): KeadaanTinjauan {
+  if (!r || r.error) return "TIDAK_TAHU";
+  if (r.data === true) return "YA";
+  if (r.data === false) return "TIDAK";
+  return "TIDAK_TAHU";
+}
