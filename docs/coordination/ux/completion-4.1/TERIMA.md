@@ -178,3 +178,5 @@
 - 25 Nov 00:39Z · Bob: J12 recorded (L-156, L-157); J1 captured (83b51cc3), the last capture. → Judging J1.
 - 25 Nov 00:45Z · J1 capture judged (the last capture). The core path, pacing and confidentiality hold. New: J1-1 (SD register for the tour), J1-2 (card text clipped at 320), J1-3 (wrong PIN kept), all Improvement. Every journey's builder lines are closed.
 - 25 Nov 00:44Z · Bob: Sharon allows email activation before a role (never a card); the CI-1b EN for isi_tanpa_tanggal. → The L-155 Aktivasi line adjusted; the CI-1b EN confirmed in full.
+- 25 Nov 01:00Z · Bob: the W6 AR-79 plan drafted (claude/bob-41-master-plan 627fdaee). Pre-review: AR-C, AR-D, AR-G authority; the AR-G word list; the AR-H list; §3 fixtures.
+- 25 Nov 01:15Z · W6 pre-review → roadmap/TINJAUAN-AR79-PLAN.md: L-80 withdrawn (resolved on the corrected world); 11 findings moved to their authority; 3 optional regroupings; the AR-G word list; AR-H notes; §3 fixtures.
