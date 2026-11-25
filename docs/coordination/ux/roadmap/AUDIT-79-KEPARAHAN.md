@@ -59,6 +59,9 @@
 | J7-10 (revoked) / L-105 | A revoked certificate prints as a clean, valid certificate | C-3 | **Sharon: HIGH (not Critical)**, fixed before the first real certificate (CI-1b). The words are in `CI1B-KATA.md` |
 | J7-10 (replaced) | A replaced certificate prints as a clean certificate | C-3 | With CI-1b |
 | J8-7 (L-127) | Two different children with the same name can't be entered | C-7 | Words fitted to Sharon's identity rule (`a73874d6`) |
+| J8-14 / L-152 | The last admin releasing their own role is told «diubah atau diakhiri oleh admin lain»; «Lepaskan» is offered | C-9 (neighbour), C-7 | The guard exists in the database; the UX shows the wrong line |
+| L-148 (restated) | Intake offers staff units as a Tempat, then refuses them with the learner line | C-7 | |
+| L-154 | With «guru atau staf» ticked, the approval screen labels everyone «Murid» | C-3 | Bob and I: Significant |
 | J9-1 | The promotion doesn't say it will strand an open transfer (upstream of L-35) | C-4 | |
 | L-35 | The receiving school can «Terima» a transfer whose origin enrolment already ended | C-7 | **Sharon: Significant**, placed in 4.5. J9 confirms it in every pass |
 | J9-4 | In EN, the transfers section of /konfigurasi is wholly Indonesian, its refusal included | C-6 | Same cause as J12-5 |
@@ -125,6 +128,8 @@
 | J8-10 | A role with no end date is held by the browser bubble | C-10 |
 | J8-11 (L-131) | Counts aren't updated after the cards; each PIN shows twice | C-3 |
 | J8-12 | Aturan Asesmen shows its form with no package to choose | C-7, C-10 |
+| J8-15 / L-153 | The staff-page role card collapses and overlaps at 1280 | — |
+| L-150 | A pass mark of 150 held only by the browser | C-10 |
 | J8-13 (optional) | «Permintaan» on an immediate close | C-6 |
 | J9-2 | «4 naik ke 8A» twice | — |
 | J9-3 | «pihak lain» where PINTAR knows the school | — |

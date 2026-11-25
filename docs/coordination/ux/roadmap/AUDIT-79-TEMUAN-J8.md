@@ -160,3 +160,22 @@ So the intake's promise works as worded. The builder's run chose **Tempat = «Gu
 | L-150 | A pass mark of 150 is held only by the browser | J8-1 family | C-10 | G | As C-10 |
 
 **J8's «left for the builder» lines are closed**, except re-taking `03` (timing).
+
+## L-149 withdrawn; L-154 classified and worded (25 Nov 00:10)
+
+The builder walked the staff path without the fixture (`96e42ac5/j8`, screens 20–27). **L-149 is withdrawn.**
+
+**L-154 (Significant, as Bob proposes):** with «Ini daftar guru atau staf» ticked, the approval screen (`22`) still says «Peran · Murid 2», and labels each name «Murid». The admin approves «learners» while PINTAR records two staff with no class and no enrolment (my reproduction: no `enrollments` row). The one screen whose job is «persis seperti akan dicatat» states the wrong kind of person.
+- **Cause:** C-3 (the summary re-derives «role» from the default rather than from the tick).
+- **Dimensions:** B, H.
+
+**Words, when the tick is set:**
+
+| Where | ID | EN |
+|---|---|---|
+| «Peran» summary row | «Guru atau staf (tanpa kelas) · {n}» | «Teacher or staff (no class) · {n}» |
+| The label beside each name | «Guru atau staf» | «Teacher or staff» |
+| The line above «Ya, catat orang-orang ini» | «Orang-orang ini dicatat tanpa kelas dan tanpa peran. Perannya Anda berikan sesudahnya di Peran & akses; akunnya diaktifkan dengan email.» | «These people are recorded without a class and without a role. You give their role afterwards in Roles & access; their account is activated by email.» |
+| The done screen | «✓ {n} guru atau staf tercatat di sekolah ini. Langkah berikutnya: berikan perannya di Peran & akses.» | «✓ {n} teachers or staff recorded at this school. Next: give their role in Roles & access.» |
+
+**One thing for the builder to check with it:** in Aktivasi, people recorded this way may be offered «Buat kartu kelas» (a learner card) beside «Aktifkan dengan email». If so, staff recorded without a class should be offered email activation only. This is the same family as J8-9.

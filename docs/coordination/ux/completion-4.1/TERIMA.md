@@ -172,3 +172,4 @@
 - 24 Nov 23:55Z · J8 capture judged. L-148 and L-149 restated from a local reproduction: staff intake works with Tempat and Peran empty, and staff are offered for roles; the defect is the staff units offered as Tempat, refused with the learner line. New: J8-14 Significant (the last admin releasing their own role is told «diubah oleh admin lain»), J8-15 (role card overlap).
 - 24 Nov 23:57Z · Bob: J8 recorded (L-148 restated, L-149 withdrawn, L-152 and L-153 new). J9 captured (1ed2d250); J11 captured (eccb71ad). → Judging J9, then J11.
 - 25 Nov 00:05Z · J9 and J11 captures judged. Both match my local passes; 390 and 320 hold; all builder lines closed (J9 [S] → ruling 73, 4.5).
+- 25 Nov 00:07Z · Bob: L-149 withdrawn after the re-capture; L-154 to classify. → L-154 Significant (C-3), words for summary, label, line and done screen; KEPARAHAN updated with J8-14, L-148, L-154, J8-15, L-150.
