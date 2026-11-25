@@ -19,3 +19,28 @@
 ## Local environment (scratch, may be gone)
 - Worktree: `$S/wt-d2r` at the builder's `6b248975`, with a patched `audit/perjalanan/lib.mjs` (executablePath) and `j5.mjs` (scratch only, never committed).
 - `$S/hidup.sh` restarts docker, supabase and the app; `bash audit/dunia/muat.sh` reloads the world.
+
+## The owner's brief for resumption (25 Nov): a read-only design reflection
+
+- **Source:** the owner directly, with eight before-and-after examples. They are **inspiration for the thinking, not a direction**: no adopting their style, components, colours or layout.
+- **The task:** look at PINTAR as built (the Design System, the compositions, the screens, desktop and mobile) for small, meaningful refinements in:
+  - hierarchy;
+  - type, spacing and rhythm;
+  - purposeful colour;
+  - clear labels and actions;
+  - repetition;
+  - figures that mean something;
+  - the next action being apparent;
+  - cognitive load;
+  - consistency.
+- **Rules:**
+  - Preserve what is good. Don't manufacture problems; «what we have is good» is an acceptable outcome.
+  - Never trade away accessibility, function, educational meaning, confidentiality or safeguards. The principle stays: every screen answers one question and offers the next.
+  - For each real opportunity, say:
+    - what we have;
+    - the small refinement;
+    - why it helps a person;
+    - which other screens or shared components it touches.
+  - Separate the meaningful from the aesthetic. Cross-reference Audit 79 and the AR-79 plan, so nothing is duplicated or contradicts them.
+- **The form:** concise observations, not an audit or a redesign.
+- **Read-only:** no changes to code, compositions, the Design System, approved words or AR-79's scope, and no instructions to the builder. Every suggestion stays a recommendation until it is approved.
