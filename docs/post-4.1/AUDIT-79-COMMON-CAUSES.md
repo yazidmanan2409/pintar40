@@ -1,12 +1,12 @@
 # Audit 79 · the common causes behind conflicting screens (Bob, 24 Nov 2026; ruling 95)
 
-**Status: INTERIM, brought up to date at 24 Nov 22:50Z, covering every finding L-1 to L-147.**
-- Daisy has walked all twelve journeys locally, and every finding has a severity (W2).
-- The builder's captures are judged for J2, J3, J4, J5, J6, J7 and J10. J8, J9, J11 and J12 are still to be captured.
-- **FINAL comes once those four are judged** (ruling 95: the plan isn't final until every journey is done), so a cause may still be added.
-- Tonight's update adds C-12 and widens C-3, C-6, C-7 and C-11 (§1, §8).
+**Status: FINAL (Bob, 25 Nov 2026 00:50Z), under ruling 95.**
+- All twelve journeys are walked by Daisy and captured by the builder, and every capture is judged (J1 `8bf4a85a`, J12 `f506df5d`). Every builder line is closed.
+- Every finding L-1 to L-160 has a severity (W2) and a cause or a stated "none".
+- **The twelve causes, C-1 to C-12 (§1), explain every finding that isn't plain wording or layout.** No cause was added after J12's and J1's judgements: J1's three findings are register, layout and form state.
+- **This is the input to W6, the AR-79 plan** (`AUDIT-79-AR79-PLAN.md`), which fixes each cause at one authority, in the shared layer.
 
-The original status note (12:03Z) follows. Sol's review (relayed by the owner, 24 Nov) supports the direction in principle, with two qualifications, adopted here: C-1 keeps the current attempt and the result in force as two facts, and every consumer of `my_cycle_state` is checked (§3a); C-5 keeps each recommendation's provenance. Sol's recommendation, as relayed: approve the direction in principle, and finalise the implementation plan only after all twelve journeys. It is updated as Daisy walks each remaining journey. **The correction plan is not final until all twelve are walked** (ruling 95). Nothing here is built.
+The earlier status notes follow. Sol's review (relayed by the owner, 24 Nov) supports the direction in principle, with two qualifications, adopted here: C-1 keeps the current attempt and the result in force as two facts, and every consumer of `my_cycle_state` is checked (§3a); C-5 keeps each recommendation's provenance. Sol's recommendation, as relayed: approve the direction in principle, and finalise the implementation plan only after all twelve journeys. It is updated as Daisy walks each remaining journey. **The correction plan is not final until all twelve are walked** (ruling 95). Nothing here is built.
 
 **Method:**
 - Every finding where screens disagree was traced, read-only, to the code on main `429b7dcc`. For each finding the trace names:
@@ -21,7 +21,7 @@ The original status note (12:03Z) follows. Sol's review (relayed by the owner, 2
 
 | # | Cause | What it looks like in the code | Findings it explains |
 |---|---|---|---|
-| **C-1** | **Two definitions of «the sitting in force»** | `my_cycle_state` returns the latest *begun* sitting per mode (`order by s.created_at desc`, `20261010100000…sql:554-565`). Z's V2 made `hasil_belajar_sesi_orang` take the latest *finalized* one (`20270123110000…sql:54-83`). Pages built on `my_cycle_state` lose the result while a retake is open, or read a different sitting from Hasil Belajar | L-54 (the learner's result is a 404 during a retake), L-55, the sitting mismatch in L-48 and L-61 |
+| **C-1** (widened at FINAL: L-154, L-155) | **Two definitions of «the sitting in force»; more generally, a fact with no single authoritative record** (also «this person was entered as staff», held only in the browser) | `my_cycle_state` returns the latest *begun* sitting per mode (`order by s.created_at desc`, `20261010100000…sql:554-565`). Z's V2 made `hasil_belajar_sesi_orang` take the latest *finalized* one (`20270123110000…sql:54-83`). Pages built on `my_cycle_state` lose the result while a retake is open, or read a different sitting from Hasil Belajar | L-54 (the learner's result is a 404 during a retake), L-55, the sitting mismatch in L-48 and L-61 |
 | **C-2** | **A new state reached one screen, not its siblings** | The approved retake (`percobaan_saya`) was wired into the chapter card's note and the test page only. It is missing from: the step derivation (`posisi` / `peringkat`, `siklus.ts:145`); the home's «nothing waiting» check; the result's retake line; the chapter page; and `lanjut`. Likewise `ulang_berjalan` and `percobaan_ke` each reached one reader. | L-56, L-57, L-54, L-43, L-55; **J4:** L-63 (the teacher's end reaches only the teacher's screen), L-64 (no «in progress» step) |
 | **C-3** | **A page re-derives a shared fact from raw fields** | The certificate page tests `outcome.lulus` (`sertifikat/page.tsx:101`) instead of `keadaanSertifikat`, so a non-certifying pass lands in «sedang disiapkan». The teacher's record works out «retake open» and «latest» in TypeScript, more loosely than the SQL (`pengajar.ts:1019-1047`). A transfer row's buttons read `status` only, while the closed-source rule lives inside `transfer_execute` | L-44, L-43 / L-55, L-35, L-38; **J7:** L-68 (the holder is told the check confirms «masih berlaku» while the public page says otherwise), L-70 («tidak pernah dihitung ulang» after a recalculation) |
 | **C-4** | **Each «waiting for you» covers only one kind of decision** | The teacher's home falls back to «Tidak ada yang menunggu keputusan Anda» whenever there is no release to assign (`mengajar/page.tsx:140-176`). It never reads continue requests (`lanjut_diminta_pada`) or retake requests. The approver's Bagian A counts `management_decisions` only, while the line above it counts `percobaan_antrean` (`pimpinan/page.tsx:97-154`) | L-45, L-58; J4 confirms L-45 at a second school; **J7:** L-69 (a correction waits for the second person, who is told nothing waits) |
@@ -134,6 +134,7 @@ The 9 buttons found:
 | J5 (rest, capture) | L-118 to L-123, L-134, L-141, L-145, L-146 | L-118 (C-3); L-119 (C-7); L-120 (C-10); L-121 (C-6, C-3); L-123 (C-6); L-134 (C-3); L-141 (C-5); L-145 (C-6) | **C-12** (L-122) |
 | J6 (rest, capture) | L-124 to L-126, L-143, L-144 | L-124, L-143 (**C-7, the database half missing**); L-125 (form state); L-144 (accessibility) | **C-7 widened:** a rule held by the screen only, with the database not enforcing it (principle 3's second check). L-126 is accountability (§8) |
 | J8 (rest, probe) | L-127 to L-133, L-142 | L-127 (C-7: a rule assuming names are unique); L-128 (C-7); L-130 (C-10); L-131 (C-3); L-132 (C-7, C-10) | **C-12** (L-129, L-133); **C-3 widened** to contracts: L-142, a sibling route bypassing the helper that guarantees no-store |
+| J8 (staff path), J12 (capture), J1 (capture) | L-154 to L-160 | L-154, L-155 (**C-1**: no authoritative record that a person was entered as staff; the browser holds it); L-156 (C-12's pattern); L-157 (C-6); L-158 to L-160 (register, layout, form state) | **C-1 widened** from «the sitting in force» to **«what a person is»** |
 | J8 (capture) | L-148, L-150 to L-153 (L-149 withdrawn) | L-148 (**C-7** and **C-12**: staff units offered as Tempat, then refused with the learner line); L-150 (C-10); L-151 (data quality, Sharon's encode-on-output rules); **L-152 (C-12, C-7: the last admin told a false cause)**; L-153 (layout) | — |
 | J9, J11, J12 (passes) | L-135 to L-140 | L-138 (C-6); L-139 (accessibility) | **C-6 widened:** words outside the translation lookup (L-135, L-136, L-140: hard-coded in `konfigurasi/page.tsx`) |
 
@@ -149,7 +150,7 @@ The 9 buttons found:
 - **Recovery (J10):** better guidance, with no weakening of account confidentiality. Sharon confirms whether any account-specific disclosure is appropriate.
 - **No speculative fixes; don't reopen 4.1 unnecessarily.** A confirmed critical integrity issue goes to the owner promptly.
 
-## 5 · Open (filled as the journeys are walked; at 22:50Z what remains is the builder's J8, J9, J11 and J12 captures and their judgement)
+## 5 · Open: NONE at FINAL (25 Nov 00:50Z). Every journey is captured and judged
 
 - J4 to J12: does each new finding fit C-1 to C-6, or show a new cause? Daisy adds a «sibling screens» line per finding.
 - To verify before the plan:
