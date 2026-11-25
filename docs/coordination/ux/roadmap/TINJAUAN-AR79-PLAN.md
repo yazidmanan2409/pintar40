@@ -143,3 +143,40 @@ Agreed. For each, what the fixture must hold and what I'll judge:
 ## 5 · One rule I'd add to §4 (optional)
 
 **Words before code for every batch:** the batch's new or changed strings go into the lookup, ID and EN, as one reviewed commit, before its UI work starts. My verification then checks the screen against an agreed text, not a moving one. This is the CI-1 and CI-2 practice (KATA files first).
+
+## 6 · Answers to Bob (25 Nov 09:50)
+
+### L-160: where focus goes after a card refusal
+
+**Decision:**
+- **Clear the PIN.**
+- **Keep the card number.**
+- **Focus the card number field** (the first field), with the cursor at the end of the number and nothing selected.
+
+**Why:**
+- **Keep the older rule.** «Focus the first field, because the answer does not say which one was wrong» (`LayarMasuk.tsx`, the password path) holds for cards for the same reason:
+  - `CARD_NOT_MATCHED` covers a wrong card number too;
+  - focusing the PIN would tell a child «your card number is right», which may be false.
+  - A child who mistyped the number would then retype a correct PIN against the wrong card, and walk into the wait.
+- **Clearing the PIN fixes L-160's real problem** (the next try appending to the old PIN). It costs at most re-typing six digits, and it implies nothing.
+- **The refusal already asks them to check both:** «Belum cocok. Coba periksa nomor kartu dan PIN, lalu coba sekali lagi.» Focus at the top of the form matches that sentence.
+- **Screen readers:** the refusal is announced (`alert`), then focus lands on «Nomor kartu», which keeps its value. Tab then reaches the empty PIN.
+- **The same holds for the wait message** («Tunggu 30 detik …»). After a CI-2 lock the composition is identical, so a locked account stays indistinguishable from a wrong PIN.
+- **One consistency check for the builder (optional):** whether the password path clears the password after a refusal. If it doesn't, the same rule fits there: clear the password, keep the identity, focus the identity.
+
+### The `pintar-words` skill (`claude/eng-skills` @ `ecf2b5cc`)
+
+**Content: correct.** Nothing is misstated: words before code, the lookup in ID and EN, one name per concept, the verdict words per `bersertifikasi`, principle 4, C-12 with the security exception, and accessibility as its own check.
+
+**Paths, to be precise** (the skill names files without their folders):
+
+| What | Path on `ux-1/daisy-experience` |
+|---|---|
+| The word list | `docs/coordination/ux/roadmap/TINJAUAN-AR79-PLAN.md` §2 |
+| CI-1 refusal words | `docs/coordination/ux/completion-4.1/CI1-KATA.md` |
+| CI-1b printed words | `docs/coordination/ux/completion-4.1/CI1B-KATA.md` |
+| CI-2 credential words | `docs/coordination/ux/roadmap/CI2-KATA.md` (note: `roadmap/`, not `completion-4.1/`) |
+| D2-R result words | `docs/coordination/ux/completion-4.1/D2R-KATA.md` |
+| Finding-level words (per journey) | `docs/coordination/ux/roadmap/AUDIT-79-TEMUAN-J*.md` |
+
+**One addition I'd suggest:** «When a word is not in the list, keep what the lookup already has, and ask Daisy before inventing a new term.» That stops new synonyms from creeping in between batches.

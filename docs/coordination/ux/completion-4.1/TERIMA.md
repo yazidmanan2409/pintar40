@@ -182,3 +182,4 @@
 - 25 Nov 01:15Z · W6 pre-review → roadmap/TINJAUAN-AR79-PLAN.md: L-80 withdrawn (resolved on the corrected world); 11 findings moved to their authority; 3 optional regroupings; the AR-G word list; AR-H notes; §3 fixtures.
 - 25 Nov 01:08Z · Bob: the AR-79 plan amended at 7c13efc7 (all my points carried; words before code in §4). Sharon: L-75 is the neutral line only. → KEPARAHAN J10-1 noted.
 - 25 Nov 01:31Z · Bob (owner's instruction): pause and save. → Everything pushed; resume note in LANJUT-DAISY.md.
+- 25 Nov 09:45Z · Bob: review the pintar-words skill; the L-160 focus question. → The skill is correct, with exact paths and one suggested line. L-160: clear the PIN, keep the card number, focus the card number (the older rule holds). TINJAUAN-AR79-PLAN §6.
