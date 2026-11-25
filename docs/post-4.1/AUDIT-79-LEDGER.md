@@ -816,3 +816,21 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
 **J1 captured (builder, `83b51cc3`, `audit/79/tangkapan/126a3adf/j1/`): 7 walks** plus two branch walks (C1–C2 and C3–C4) reached their last screen.
 - A harness fault (one learner reused across passes) was fixed by reloading before each pass.
 - **All twelve journeys are now captured.** Daisy judges J1. **W3 goes FINAL** on her judgement.
+- **Sharon (00:41Z):** a staff-kind person **may** activate by email before a role is given. With no role there's no capability, and an email credential is strong. «Role first» is clearer for the admin but not a security requirement. The firm rule stays: never a card for anyone recorded as staff.
+
+**CI-1b (L-105), red first (Second Eye, local `898387a7` on main, tests only):**
+- L-105 is reproduced on main:
+  - **BERLAKU prints the sheet with its QR and link;**
+  - **DITINJAU** prints the same clean sheet, with nothing about the review;
+  - **DICABUT and DIGANTIKAN** print the on-screen card (name, pass sentence, course, date, number) with no banner, QR or link.
+- **Causes:** no sheet and no verification block render in those states, the card is the one element not marked `pin-noprint`, and the banners are `pin-noprint`.
+- **Tests:**
+  - CI1B-K01 (static: Daisy's nine keys word for word; no print rule hides the notice; «Cetak» re-reads the state);
+  - CI1B-A01 (the four states as rendered; red on DITINJAU, DIGANTIKAN and DICABUT);
+  - journey PDFs S21i, S21j and S27v, each with a plant proving it can fail.
+- **Bob's decisions:**
+  - (1) the S21j journey-world record edit is OK (disposable world, labelled, restored, never staging);
+  - (2) one guarded poppler-utils line in audit-journeys job B, a workflow change named in the owner's request;
+  - (3) re-read the state on focus and visibilitychange now; **residual** (a page never refocused, then printed with Ctrl+P), mitigated by the QR and link on every print, **is Sharon's to accept**; a server-rendered print view is not in CI-1b;
+  - (4) Daisy confirms the EN of «isi_tanpa_tanggal».
+- **Next:** the build starts on main after CI-2 merges.
