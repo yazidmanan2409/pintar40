@@ -1,6 +1,6 @@
 # Audit 79 · W6 · the AR-79 correction plan (Bob, 25 Nov 2026)
 
-**Status: AMENDED after Sharon's pre-review** (`docs/coordination/reviews/sharon/AR79-PLAN-PREREVIEW-627fdaee.md` (`41ba600e`): FIT TO PROCEED after amendment; A1, A2 and B1–B9 carried below, her record is the binding text). Daisy's pre-review is pending. Nothing in it is built.
+**Status: AMENDED after both pre-reviews.** Daisy's (`roadmap/TINJAUAN-AR79-PLAN.md`, `2f5a6ac8`): the shape is right; L-80 withdrawn; eleven findings moved to the batch whose authority covers them; her optional moves taken (L-84 and L-91 to AR-F; L-119 joins L-47 and L-118 under one «how this sitting ends» read in AR-C); her AR-G word list (§2 of her file) is the binding text for every word. Sharon's (`docs/coordination/reviews/sharon/AR79-PLAN-PREREVIEW-627fdaee.md` (`41ba600e`): FIT TO PROCEED after amendment; A1, A2 and B1–B9 carried below, her record is the binding text). Nothing in it is built.
 - **Each batch's verification is held to the full text of Sharon's records**, cited per row; where this plan and a record differ, the record governs.
 - Input: W3 FINAL, `AUDIT-79-COMMON-CAUSES.md` (`2385c40a`), the twelve causes C-1 to C-12 and the five principles.
 - Ledger: `AUDIT-79-LEDGER.md`, L-1 to L-160, with W2's severities.
@@ -84,6 +84,8 @@ Migration numbers: 312 onwards, after CI-1b takes its own. Builder: Second Eye. 
 - the result is labelled as the previous attempt's;
 - (pre-review C) `my_cycle_state` **calls** the helper rather than restating it; every page reads the id through `session_outcome` / `reading_map` under `session_is_mine`, so R-h counts-only is inherited; only `session_answers` reads an open sitting.
 
+**«How this sitting ends» (Daisy's optional grouping, taken):** L-47, L-118 and L-119 read one answer for a sitting's time limit and end (no raw minute counts, no «Tambah waktu» on an untimed sitting).
+
 **C-5 (Sharon's conditions):**
 - each recommendation block is read with its own sitting's id and gated by that sitting's flag;
 - each block's provenance is labelled;
@@ -91,7 +93,7 @@ Migration numbers: 312 onwards, after CI-1b takes its own. Builder: Second Eye. 
 - neither block is computed from the other's answers;
 - a plant that feeds the certifying id to the pre-test block must be refused.
 
-**Findings:** L-14, L-15, L-33, L-43, L-46, L-47, L-48, L-49, L-50, L-51, L-52, L-54, L-55, L-56, L-57, L-59, L-60, L-61, L-63, L-64, L-74, L-118, L-121, L-141.
+**Findings:** L-14, L-33, L-43, L-46, L-47, L-48, L-54, L-55, L-56, L-57, L-59, L-61, L-63, L-64, L-74, L-118, L-119, L-121, L-141.
 
 **Journey assertions:**
 - a retake approved: the home, the result, the chapter and `lanjut` all offer it;
@@ -101,7 +103,7 @@ Migration numbers: 312 onwards, after CI-1b takes its own. Builder: Second Eye. 
 ### AR-D · «Waiting for you» covers every decision a person owns (C-4)
 
 **Authority:** one count per person over every kind of decision they own. For a teacher: release, continue and retake requests. For an approver: management decisions and retake requests. For the second person: key corrections. The empty line appears only when every kind is empty.
-- **Findings:** L-45, L-58, L-69, L-80, L-83, L-90, L-97, L-98.
+- **Findings:** L-45, L-58, L-69, L-83.
 - **Journey assertions:** a continue request, a retake request and a correction each appear in their owner's «waiting» list, and the empty line is absent while any of them waits.
 
 ### AR-E · Actions offered only when their prerequisites hold, refused with the true cause (C-7 both halves, C-8, C-12)
@@ -119,7 +121,7 @@ Migration numbers: 312 onwards, after CI-1b takes its own. Builder: Second Eye. 
 - **C-12:** each refusal names the cause that applies, from the same codes; never a generic permission line when the cause is known and harmless to name.
 - **L-152:** the guard already exists (`role_assignments_guard`, `20270113170000`, FOR UPDATE on institutions, ROLE_LAST_SCHOOL_ADMIN). AR-79 adds **a dynamic plant that removes the lock** and proves two concurrent releases can't leave a school with no admin, and gives the true refusal.
 - **C-8 (L-71):** the teacher and the head of department can raise a wrong key to the admin; only the admin decides.
-- **Findings:** L-13, L-36, L-38, L-71, L-79, L-81, L-94, L-96, L-102, L-119, L-122, L-123, L-124, L-128, L-129, L-132, L-133, L-143, L-144, L-148, L-152, L-156, L-157.
+- **Findings:** L-13, L-36, L-38, L-60, L-71, L-79, L-81, L-94, L-96, L-101, L-102, L-104, L-122, L-123, L-124, L-128, L-129, L-132, L-133, L-143, L-144, L-148, L-152, L-156, L-157.
 - **Journey assertions:**
   - for each of the 9 buttons, the button's state and the press-time refusal agree;
   - the last admin is refused with the true cause.
@@ -127,20 +129,22 @@ Migration numbers: 312 onwards, after CI-1b takes its own. Builder: Second Eye. 
 ### AR-F · Forms validated by PINTAR, not the browser (C-10, form state)
 
 **Authority:** PINTAR's own announced error line on every form, as the sibling forms already do. A refusal never clears what the person entered (L-125).
-- **Findings:** L-77, L-88, L-120, L-125, L-130, L-150.
+- **Findings:** L-77, L-84, L-88, L-90, L-91, L-120, L-125, L-130, L-150.
 - **Journey assertion:** each field submitted empty or out of range gets PINTAR's line, announced, and it survives a scroll.
 
 ### AR-G · Words: one name per concept, every word through the lookup (C-6 widened; Daisy's word list)
 
 **Authority:** the translation lookup, with Daisy's word list (sent before the build). No hard-coded page text (L-135, L-136, L-140 in `konfigurasi/page.tsx`).
-- **Findings:** L-17, L-18, L-19, L-20, L-21, L-22, L-23, L-24, L-25, L-31, L-32, L-34, L-65, L-72, L-73, L-84, L-85, L-89, L-91, L-92, L-93, L-95, L-100, L-101, L-104, L-135, L-136, L-137, L-138, L-140, L-145, L-146, L-158.
+- **Findings:** L-15, L-17, L-18, L-19, L-20, L-21, L-22, L-23, L-24, L-25, L-31, L-32, L-34, L-49, L-65, L-72, L-73, L-85, L-89, L-92, L-93, L-95, L-97, L-98, L-100, L-135, L-136, L-137, L-138, L-140, L-145, L-146, L-158.
+- **Daisy's word list** (`2f5a6ac8` §2) is the binding text: one name each for L-17 to L-25 (e.g. kesempatan = attempt, pengerjaan = sitting, never «session»; murid, not «Peserta»; tahun ajaran «2026/2027»); the verdict words per `bersertifikasi`: Lulus / Belum lulus / Belum dapat ditentukan when certifying, Mencapai target / Belum mencapai target otherwise, with staff adding the figure after the word.
 - **L-31 (principle 4):** a response-time promise is made only where a fact supports it (ruling 90's lesson).
 - **Assertion:** a static check that every visible string on the changed pages comes from the lookup, in both ID and EN.
 
 ### AR-H · Layout and accessibility (its own verification)
 
 **Authority:** the shared components, fixed once, not per page. Accessibility is verified separately: a screen that looks right isn't necessarily accessible (L-87). Each batch gets the screen-reader pass.
-- **Findings:** L-01, L-02, L-03, L-04, L-05, L-06, L-07, L-09, L-10, L-39, L-40, L-41, L-42, L-53, L-87, L-110, L-111, L-139, L-153, L-159.
+- **Findings:** L-01, L-02, L-03, L-04, L-05, L-06, L-07, L-09, L-10, L-39, L-40, L-41, L-42, L-50, L-51, L-52, L-53, L-87, L-110, L-111, L-139, L-153, L-159.
+- **Daisy:** L-01 is WCAG 1.4.1, so it is verified app-wide; K-1 to K-4 apply to the learner and teacher chrome (L-53).
 - **Assertion:** 320, 390 and 1280 captures plus the screen-reader pass, per changed surface.
 
 ## 3 · Not built in AR-79, named for the closure report
@@ -151,6 +155,7 @@ Migration numbers: 312 onwards, after CI-1b takes its own. Builder: Second Eye. 
 | L-35 | Sharon: 4.5, not a 4.1 correctness defect; **PR-3** rides with it | 4.5, carrying Sharon's fixes (pre-review C): (a) acceptance refuses a closed source by the same name, before AUTHORIZED; (b) a transfer whose source closed becomes EXPIRED or CANCELLED with its cause, never left dangling; and the UX note: the receiving admin sees the sender's latest period and outcome. AR-E's L-38 helper is the same helper |
 | L-08, L-11, L-12 | unknown until walked: they need fixtures holding empty, untitled and integrity states | walked with those fixtures in AR-79's verification; a finding opens a row |
 | L-37 | no finding | — |
+| L-80 | **WITHDRAWN** (Daisy, `2f5a6ac8`): resolved on the corrected world; Ayu's first thing now names 8C (her walk `6b248975`, the builder's `d41ed05c` L1); the ledger already records it | — |
 | L-62 | no change proposed | — |
 | L-149 | WITHDRAWN (Daisy's reproduction; the builder's walk `0a424d0b`) | — |
 | L-67, L-78, L-105 | CI-1, CI-2, CI-1b (§1) | — |
@@ -163,6 +168,7 @@ Migration numbers: 312 onwards, after CI-1b takes its own. Builder: Second Eye. 
 2. **AR-C, then AR-D and AR-E** (AR-E's «may do» reads reuse AR-C's helper where they touch the result).
 3. **AR-F, AR-G and AR-H** can go with the batches that touch the same pages, so each page changes once.
 4. **For each batch:**
+   - **words before code** (Daisy): the batch's strings are committed and reviewed first, as CI-1 and CI-2 did;
    - the frozen head;
    - ci and journeys conclusions read from the API (plan of record §3d);
    - the local suite, plants and redcase;
