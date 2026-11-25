@@ -774,3 +774,12 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
   - above the button: «Orang-orang ini dicatat tanpa kelas dan tanpa peran. Perannya Anda berikan sesudahnya di Peran & akses; akunnya diaktifkan dengan email.»;
   - done: «✓ {n} guru atau staf tercatat di sekolah ini. Langkah berikutnya: berikan perannya di Peran & akses.»
   - **For the builder:** check whether Aktivasi offers «Buat kartu kelas» (a learner card) to staff recorded this way. If it does, they should get email activation only (L-129's family).
+
+**J12 captured (builder, `a47f76a0`, `audit/79/tangkapan/0a424d0b/j12/`):** 7 walks reached their last screen, with the observer tour fix in. The slow-network walk was cut by a container restart at L4 and re-walked on its own.
+- L6: the last Admin PINTAR's row offers no «Lepaskan», but doesn't say why (L-36).
+- L5: the cross-origin refusal at 127.0.0.1 is a harness-address artefact, and it went through from localhost.
+- Daisy judges the capture. **J1's capture is running; it's the last one.**
+
+| L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
+|---|---|---|---|---|---|---|
+| L-155 | **Staff recorded through «Ini daftar guru atau staf» are offered «Buat kartu kelas» (a LEARNER card) until they hold a staff role, and the database would accept it.** They are also counted in Konfigurasi's «murid tanpa kelas» and its placement list. **A staff member whose role lapses becomes «a learner» again** (Siti Rahma's Guru role ends today) | E, B, [S] | J8 | **Pending Sharon and Daisy** (proposed Significant; Sharon judges the credential side: a low-entropy PIN card for a staff member) | **C-1: no authoritative record of what a person is.** «Ini daftar guru atau staf» is browser state only (`BacaDanPetakan.tsx`:55, :85) and records nothing. `boleh_kartu = not memegang_peran_staf(p)` (`20261224100000`:43); `memegang_peran_staf` means only a live staff role (`20261212100000`:32); `authorize_account_activation` refuses a card only on that test; `murid_tanpa_kelas` (`20270112170000`:257) uses the same test | **The same root as L-154.** AR-79: record at intake that the person was entered as staff (a person attribute, or an `institutional_identities` kind), and have the card offer, the database's card refusal, the «murid tanpa kelas» count and the approval summary all read it. Sharon sets the rule for a lapsed staff role |
