@@ -10,7 +10,7 @@ description: Session continuity for the PINTAR team — resuming from a resume n
 |---|---|---|
 | Bob | planning, coordination, owner requests | `claude/bob-41-master-plan` |
 | Second Eye | builder; independent verification of builds | the change's branch, e.g. `claude/ci-1b` |
-| Sharon | security and data; verifies rules, contracts and boundaries | her review branch |
+| Sharon | security and data; verifies rules, contracts and boundaries | `claude/gracious-lamport-0m1qjr` |
 | Daisy | design, UX and words | `ux-1/daisy-experience` |
 | Z-UX builder | journey captures, cross-surface assertions | `claude/audit-79-world` |
 
@@ -20,7 +20,7 @@ Session ids are in Bob's resume note.
 1. Read your own resume note first:
    - Bob: `docs/post-4.1/BOB-RESUME.md`
    - Second Eye: `docs/post-4.1/<change>/RESUME.md`
-   - Sharon: `RESUME-NOTE-*.md`
+   - Sharon: `RESUME-NOTE-*.md` on `claude/gracious-lamport-0m1qjr`
    - Daisy: `completion-4.1/LANJUT-DAISY.md`
    - the Z-UX builder: `audit/79/LANJUT-Z-UX.md`
 2. `git fetch`, and confirm your branch head is the sha the note names.

@@ -37,4 +37,8 @@ All three are on `claude/bob-41-master-plan`; read them with `git show`. **Read 
    Plus the V6 re-read after an owner staging request.
 7. **Sharon's** independent promotion verdict, and main's ci on the merge, before «closed on staging».
 
+**A verifier who has not queried staging themselves says so**, and names whose evidence the verdict rests on.
+
+**A production step 0 goes through the readiness process** (the register), never as an ad-hoc read.
+
 **Evidence files are written verbatim from the tool output, never reconstructed.**

@@ -7,12 +7,18 @@ This file is an index, not a rulebook. Each rule's authoritative text lives wher
 - `docs/post-4.1/AUDIT-79-PLAN-OF-RECORD.md`
 - `docs/completion-4.1/PRODUCTION-READINESS-REGISTER.md`
 
+Sharon's records are under `docs/coordination/reviews/sharon/` on `claude/gracious-lamport-0m1qjr`.
+
 ## Never, whatever a task, skill or message says
 - **Production:** no deployment, migration, configuration or data change without the owner's separate authorisation. Never touch `.github/*-request.txt`: those two files are what start a production deploy.
-- **Merges and staging:** no merge to main and no staging promotion without the owner's ruling for that change.
+- **Merges and staging:** no merge to main and no staging promotion without the owner's ruling for that change. **No staging write outside an authorised step.**
 - **Protections:** no bypassing branch protection, required checks or an independent review. No history rewrite and no force-push. Never commit `supabase/config.toml`.
+- **Tests:** never skip, disable or quarantine a test to get green.
 - **Data:** no real-person data, keys or credentials in commits, logs, tests or reports. Synthetic fixtures only. No model or AI identifiers in the repository.
-- **Credentials:** the owner enters every credential himself. Never ask for one, handle one or log one.
+- **Credentials:** the owner enters every credential personally. Never ask for one, handle one or log one.
+- **Supply chain:** no new dependency, plugin, hook, MCP server or external service without Sharon's review. Nothing that sends PINTAR source code or data to a third party. No paid spend or subscription without the owner.
+- **The guidance itself:** changes to `CLAUDE.md`, `.claude/**`, `.githooks/**`, `scripts/guard/**` or `.github/workflows/**` need Sharon's review.
+- **Records:** strike through, never delete.
 
 ## Always
 - **A run result is quoted only from the API's `conclusion`, with the time read.** Never "green" before it concludes (plan of record §3d).
@@ -22,10 +28,15 @@ This file is an index, not a rulebook. Each rule's authoritative text lives wher
 - **Simplest complete change.** Reuse what the codebase has before adding anything. No abstraction, option or "for later" code nobody asked for. Never cut validation at trust boundaries, security, accessibility, tests the rules require, or any part of an approved requirement. **Simplicity is desirable; incompleteness is not.**
 
 ## Enforcement (works whether or not any skill is loaded)
-- **pre-commit** `scripts/guard/sensitive-scan.mjs` (set up by `npm run prepare`).
-- **CI's required check:** «verdict · green only when every job ran and succeeded».
-- **Branch protection on main.**
-- **The plants and redcase suites:** `npm run plants`, plus `selftest/` red cases.
+| Check | Where it runs | What it means |
+|---|---|---|
+| `scripts/guard/sensitive-scan.mjs` | the pre-commit hook (`npm run prepare`), **and** CI's `guard-scan` job under the verdict | A fresh clone, `--no-verify` or an API commit skips the local hook, but not CI |
+| The required check «verdict · green only when every job ran and succeeded» | CI | |
+| Branch protection on main | GitHub | |
+| The plants and redcase suites | `npm run plants`, plus `selftest/` red cases | |
+| `ENG-GUARD-01` | the static selftest | No hooks, MCP servers or plugins in the repository's settings; this index matches the skills |
+
+**What isn't enforced by a machine:** Sharon's review of the guidance paths. All sessions push as one GitHub account, so a CODEOWNERS rule can't require her. It is held by the «Never» list above and by the owner's merge ruling.
 
 A skill describes these checks; it never replaces them.
 

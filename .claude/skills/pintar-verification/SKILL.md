@@ -8,7 +8,7 @@ description: How PINTAR proves a change before it is frozen, merged or promoted 
 **Authority:**
 - the plan of record §3d (verification wording);
 - `docs/ENGINEERING-LESSONS.md` (on main);
-- the specialist's record for the change (Sharon: `docs/coordination/reviews/sharon/` on her branch).
+- the specialist's record for the change (Sharon: `docs/coordination/reviews/sharon/` on `claude/gracious-lamport-0m1qjr`).
 
 When they differ from this skill, they govern.
 
@@ -32,7 +32,7 @@ When they differ from this skill, they govern.
 ## Test reliability (W3 §9)
 - A test pins, or is independent of, the **order** (random question order), the **time** (UTC against the school's day) and the **data** (randomly drawn addresses) it depends on.
 - «Flake» is not a root cause.
-- Never skip, disable or quarantine a test to get green.
+- Never skip, disable or quarantine a test to get green (`CLAUDE.md`, «Never»).
 
 ## Models
 - `docs/post-4.1/ci-1/CI-2-FOR-OWNER.md`
