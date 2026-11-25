@@ -1,0 +1,64 @@
+CI-2 after-promotion checks on staging (pintar-staging, keijhmdtsgrfvnvocfvk; ACTIVE_HEALTHY), read only, 25 Nov 2026. Bob.
+Every run conclusion below was read by Bob from the GitHub API (plan of record §3d).
+
+MERGE
+- ci 45516071985 on c9d4e8a1 (PR #31's updated head): conclusion success, updated_at 00:45:50Z. All 18 check runs success,
+  including the required "verdict · green only when every job ran and succeeded" (completed 00:45:49Z).
+- Re-checked at 00:47:04Z, before the merge: PR head c9d4e8a1, main f1e35bb9, PR diff (f1e35bb9...c9d4e8a1) sha256
+  941c0d0b0ba2376b098943b212c00741f3be3ed1b76d9bfe29b5459f660fb151, 33 files: unchanged from what Sharon accepted.
+- Merged as a merge commit with expectedHeadSha c9d4e8a1: main 0c155a5c (parents f1e35bb9, c9d4e8a1). main's tree equals
+  c9d4e8a1's tree. Migration 20270126100000 on main: sha256 5c4b2306c4c1c418832762a481d2d4bc98df717c174215f113d93625199a1627 (the reviewed one).
+
+PROMOTION
+- staging.yml 45520797689 on 0c155a5c: conclusion success, 00:48:20Z. Steps: apply pending migrations 00:47:45-00:47:48Z;
+  migrations after = repository; sign-in boundary, email and identity settings written and read back; the live sign-in
+  round trip 00:48:08-00:48:17Z.
+
+AFTER (preservation-CI2-staging-AFTER.txt), compared with BEFORE by machine (diff of the output lines):
+- Exactly four lines moved, the four predicted (F-4): 10 (310 -> 311 / 20270126100000), 12 (5 -> 4 triggers:
+  pintar_kunci_tetap_jaga dropped), 44 (same count 1580, new digest), 45 (1 -> 0). The other 62 lines are byte-identical
+  (line 76 keeps its trailing space).
+- Line 44 is accounted for. audit_log above the watermark holds one row: 10707 account.lock_converted, at 00:47:48Z
+  (inside the apply step), summary {"rotated": 1, "bans_lifted": 1, "migration": "20270126100000"}: the one locked
+  account's lock flag and password digest, both inputs of line 44.
+- Investigated, not a discrepancy: one auth row has updated_at after the cutoff, and it is NOT the locked account. It is an
+  EMAIL account with no school; last_sign_in_at 00:48:17.409Z, updated_at 00:48:17.412Z, 2 sessions and 2 refresh tokens
+  since the cutoff: staging.yml's own "live sign-in round trip" step (00:48:08-00:48:17Z). A sign-in writes
+  last_sign_in_at, updated_at and tokens, none of which is an input of line 44 (id, email, lock flag, password digest).
+  The migration's own write doesn't touch updated_at, which is why the locked row isn't in that count.
+
+STAGING COUNTS (staging-counts-CI2.sql, read only), 00:51:19Z
+migrations                     = 311 / 20270126100000
+banned                         = 0
+accounts_of_locked_persons     = 1
+banned_but_not_locked          = 0
+live_refresh_tokens_of_locked  = 0
+Expected AFTER: banned = 0; accounts_of_locked_persons unchanged (1); live_refresh_tokens_of_locked = 0. MET.
+
+The locked account itself (read only; no identifier read): lock flag false; a password secret present (rotated, per 10707);
+0 sessions; 0 live refresh tokens; recovery, confirmation, email-change and reauthentication tokens all clear; its
+suspension still open (1).
+
+AFTER-PROMOTION SCRIPTS (scripts/release/after-promotion/, on main), 00:55:14Z
+- v6-pre-request.sql: OK
+- c3w-r3-bahan.sql:   OK
+
+V6 HOSTED CHECK, 00:55:14Z
+- md5(pg_get_functiondef('pintar_permintaan.periksa()')): 2b4a0444fbd36007341a536916fe14a0, unchanged (the migration states
+  periksa is unchanged, and it is).
+- periksa calls (pg_stat_statements): 178,247 (anon 2,167, authenticated 172,221, service_role 3,859). That is the
+  post-promotion baseline. Showing it rising needs one staging request after 00:55:14Z (the owner loads a staging page). PENDING.
+
+THE FIVE PRESERVATIONS (ruling 103)
+- Legitimate suspension: line 47 (person_suspensions) unchanged; the locked person's suspension is still open; the
+  pre-request check is in place (V6 OK, periksa unchanged); the person's sessions and tokens are 0.
+- Reinstatement: no suspension or account row changed (lines 43, 47, 48 identical). Unlocking rotates again (OD-1); that
+  path is proven by the suite and the plants, not exercised on staging (no real reinstatement was performed).
+- Account recovery: one-time tokens of the locked account are clear; recovery for others is unchanged (lines 40-43, 48
+  identical). The live sign-in round trip in staging.yml succeeded after the migration.
+- Historical records: every record line (20-33, 40-43, 46-87) byte-identical; only auth credential columns of the one
+  locked account were written, with the audited count (10707).
+- Institutional authorisation: role_assignments (46), institutions (50), org_nodes (51) identical.
+
+Pending: the V6 re-read after the owner's staging request; Sharon's independent promotion verdict. PR-22 stays open.
+Production untouched at 111.
