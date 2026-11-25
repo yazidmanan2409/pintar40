@@ -759,3 +759,13 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
 - **J9:** the outcome is the same in every walk, and EN confirms L-135. At 390 and 320 the refusal wraps in full and the actions stay side by side. The [S] line is ruling 73 / 4.5.
 - **J11:** J11-1 to J11-4 stand; 390 and 320 stack without sideways scroll; the print view keeps every withheld reason.
 - **Remaining:** the J12 capture (running), then J1.
+
+**L-149 CONFIRMED WITHDRAWN by the builder's own walk** (`0a424d0b`, `audit/79/tangkapan/96e42ac5/j8/standar-id-1280/` screens 20–27, on W15 **without** the w15-staf fixture, which J8 no longer uses):
+- The «Guru dan Staf» mapping is still refused (L-148, screens 17–19).
+- With Tempat and Peran «Tidak dipakai» and staff ticked: «✓ 2 orang tercatat di sekolah ini». Both are offered in «Berikan peran», and Siti Rahma was granted Guru 1A.
+- DB: Dodi has institutional id AGR0000079D, no roles, 0 enrolments. Siti has AGR000006G9 and EDUCATOR@1A, with 0 enrolments.
+- **The disagreement is settled by the walk.** Daisy's reproduction was right; the builder's code reading and Bob's both missed the role-less row path. J8's capture 03 was re-taken.
+
+| L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
+|---|---|---|---|---|---|---|
+| L-154 | **With «Ini daftar guru atau staf» ticked, the approval screen still says «Peran: Murid 2» and labels each name «Murid»**, so the admin approves «learners» while recording staff (screen 22) | B, A | J8 | **Pending Daisy** (proposed Significant: the admin is misled about what they approve) | C-3 (the summary derives the kind from the role column, not from the staff choice) | The approval summary reads the staff choice: «Staf tanpa kelas: 2», with no «Murid» label |
