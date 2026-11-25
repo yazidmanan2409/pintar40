@@ -7,7 +7,7 @@
 //
 // World: W1 only (audit/dunia/01-sekolah-sd.sql, 4A's six class cards, none signed in) and 4A's chapter (02-bab.sql).
 // Keyboard only. Every walk is a first sign-in, by its own W1 learner:
-//   the walk     1280 → learner 1, 390 → 2, 320 → 3; the EN walk → 4; a pass (AUDIT_LALUAN) → 5
+//   the walk     1280 → learner 1, 390 → 2, 320 → 3; the EN walk → 4; a pass (AUDIT_LALUAN) → 5, so the world is reloaded (muat.sh) before each pass: learner 5 sees the tour once
 //   the branches (AUDIT_CABANG=1, 1280, ID):
 //     «pin-salah»     learner 6: wrong card PINs until the wait (five are free in 15 minutes; the sixth waits), then
 //                     the right one during the wait; and a mistyped card number
