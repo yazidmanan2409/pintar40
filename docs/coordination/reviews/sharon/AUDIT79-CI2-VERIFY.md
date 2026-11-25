@@ -178,3 +178,19 @@ PR-22 stays open, and production is untouched at 111. All production carry-overs
 - **Open item (2) is MET.** The evidence is Bob's read, recorded in after-promotion-CI2-staging.txt at 2b4387eb, lines 74–78. I have not queried staging.
 - **What it shows:** read after the owner's staging sign-in at 01:00:40Z, periksa calls are 178,406, which is +159 over the 178,247 baseline (00:55:14Z). The periksa md5 `2b4a0444…` is unchanged, and the latest migration is 20270126100000.
 - **Open item (1) is still OPEN.** Main ci 45520797680 on 0c155a5c was status=in_progress when I read the API at ~01:05Z. Required: 45520797680 green. Until it is, CI-2 is not closed on staging.
+
+---
+
+## Addendum: CI-2 closed on staging (Sharon, 2026-11-25 ~01:20Z)
+
+- **Open item (1) is MET.** Main ci 45520797680 on 0c155a5c shows status=completed, **conclusion=success**, attempt 1, updated 01:17:38Z (read from the API at ~01:20Z). ~~OPEN~~ above is superseded.
+- **Every item I set for the staging promotion is now met:**
+  - the staging promotion PASS (6f0d376f);
+  - the hosted V6 re-read (8db19f2f);
+  - main ci green.
+
+  **CI-2 is CLOSED ON STAGING** as far as my verification goes.
+- **PR-22 stays open,** and production is untouched at 111. All production carry-overs stand:
+  - 311 goes with or before any promotion that brings migration 221 or later;
+  - step 0s come first;
+  - the owner's production authorisation.
