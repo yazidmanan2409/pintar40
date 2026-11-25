@@ -62,3 +62,11 @@ THE FIVE PRESERVATIONS (ruling 103)
 
 Pending: the V6 re-read after the owner's staging request; Sharon's independent promotion verdict. PR-22 stays open.
 Production untouched at 111.
+
+SHARON'S INDEPENDENT PROMOTION VERDICT (her record 6f0d376f, received 00:59Z): PASS.
+- She made her own diff of the 66 lines: only 10, 12, 44 and 45 moved; line 12 lost exactly pintar_kunci_tetap_jaga.
+- She agrees the sign-in row is not a discrepancy (line 44 reads only id, email, banned and md5(encrypted_password)).
+- The counts match what was expected.
+- Reinstatement: no staging exercise is needed for this promotion. A disposable-fixture run before production is optional, at the owner's choice.
+- Still open, in her words: (1) «required: main ci 45520797680 on 0c155a5c green»; (2) «required before production: the hosted V6
+  re-read, with the calls counter above 178,247 after the owner's staging request». Bob holds CI-2 open on staging until both are read.
