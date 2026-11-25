@@ -2039,6 +2039,7 @@ const KATA_CETAK = {
   DIGANTIKAN: "Digantikan sertifikat yang lebih baru",
   bukan: "Lembar ini bukan sertifikat.",
   ditinjau: "Sedang ditinjau: sekolah penerbit sedang meninjau sertifikat ini. Pindai kode QR untuk keadaannya saat ini.",
+  ditinjauEn: "Under review: the issuing school is reviewing this certificate. Scan the QR code for its current status.",
   lulus: "Telah dinyatakan memenuhi kriteria kelulusan",
 };
 const rapat = (s) => String(s ?? "").replace(/\s+/g, "");
@@ -2049,7 +2050,13 @@ async function cetakSertifikat(page, label, tanam = null) {
     const kelihatan = (el) => { const r = el.getBoundingClientRect(); const g = getComputedStyle(el); return r.width > 0 && r.height > 0 && g.display !== "none" && g.visibility !== "hidden"; };
     const qr = [...document.querySelectorAll(".pin-s-qr svg, [data-cetak-qr] svg")].filter(kelihatan).length;
     const ada = (q) => { const el = document.querySelector(q); return el ? kelihatan(el) : false; };
-    return { qr, lembar: ada(".pin-sheet"), pemberitahuan: ada("[data-cetak-pemberitahuan]"), baris: ada("[data-cetak-ditinjau]") };
+    // Sharon P2: text extraction does not prove visibility. The line must be whole on paper (nothing clipped by its box)
+    // and end above the sheet's header (nothing printed over)
+    const b = document.querySelector("[data-cetak-ditinjau]");
+    const kepala = document.querySelector(".pin-sheet .pin-s-kepala");
+    const barisUtuh = !!b && kelihatan(b) && b.scrollHeight <= b.clientHeight + 1 && b.scrollWidth <= b.clientWidth + 1
+      && (!kepala || b.getBoundingClientRect().bottom <= kepala.getBoundingClientRect().top + 0.5);
+    return { qr, lembar: ada(".pin-sheet"), pemberitahuan: ada("[data-cetak-pemberitahuan]"), baris: ada("[data-cetak-ditinjau]"), barisUtuh };
   });
   const pdf = join(OUT, `${label}.pdf`);
   await page.pdf({ path: pdf, format: "A4", printBackground: true, preferCSSPageSize: true });
@@ -2071,9 +2078,11 @@ function salahCetak(h, keadaan, f) {
   if (keadaan === "BERLAKU" || keadaan === "DITINJAU") {
     if (!ada(f.nama) || !h.dom.lembar) out.push("the certificate itself is not printed");
     if (!ada("Periksa keaslian")) out.push("«Periksa keaslian» is not printed");
-    if (keadaan === "DITINJAU" && !(ada(KATA_CETAK.ditinjau) && h.dom.baris)) out.push("the review line is not printed");
+    const barisKata = f.bahasa === "en" ? KATA_CETAK.ditinjauEn : KATA_CETAK.ditinjau;
+    if (keadaan === "DITINJAU" && !(ada(barisKata) && h.dom.baris)) out.push("the review line is not printed");
+    if (keadaan === "DITINJAU" && !h.dom.barisUtuh) out.push("the review line is clipped or printed over the certificate's header");
     if (keadaan === "BERLAKU" && (ada(KATA_CETAK.ditinjau) || h.dom.pemberitahuan)) out.push("a valid certificate prints a review line or a notice");
-    if (keadaan === "DITINJAU" && rapat(h.teks).indexOf(rapat(KATA_CETAK.ditinjau)) > rapat(h.teks).indexOf(rapat(f.nama))) out.push("the review line is not ahead of the certificate");
+    if (keadaan === "DITINJAU" && rapat(h.teks).indexOf(rapat(barisKata)) > rapat(h.teks).indexOf(rapat(f.nama))) out.push("the review line is not ahead of the certificate");
   } else {
     if (!(ada(KATA_CETAK[keadaan]) && h.dom.pemberitahuan)) out.push(`the notice «${KATA_CETAK[keadaan]}» is not printed`);
     if (!ada(KATA_CETAK.bukan)) out.push("«Lembar ini bukan sertifikat.» is not printed");
@@ -2241,6 +2250,24 @@ await step("S21j", "the certificate printed in each state (CI-1b, L-105): under 
       await BUKA();
       const t = await cetakSertifikat(l, "ci1b-ditinjau-tanam", "@media print { [data-cetak-ditinjau] { display: none !important; } }");
       ulas("DITINJAU printed", salahCetak(h, "DITINJAU", f), salahCetak(t, "DITINJAU", f));
+      // Sharon P2: a line clipped by its own box still reads whole in the PDF's text; the layout check must see it
+      await BUKA();
+      const k = await cetakSertifikat(l, "ci1b-ditinjau-tanam-klip", "@media print { [data-cetak-ditinjau] { max-height: 4mm !important; overflow: hidden !important; } }");
+      const klip = salahCetak(k, "DITINJAU", f);
+      notes.push(`DITINJAU with a planted clip: ${klip.some((x) => /clipped/.test(x)) ? "caught" : "NOT caught"}`);
+      if (!klip.some((x) => /clipped/.test(x))) rec.verdict = "FAIL";
+      // the English line is the longer one (Sharon P2): the certificate's language, set to EN for this one print
+      const bahasaAsal = sql(`select coalesce(language_as_issued, '') from public.certificates where id = '${f.id}'`).trim();
+      sql(`begin; set local session_replication_role = replica; update public.certificates set language_as_issued = 'en' where id = '${f.id}'; commit`);
+      try {
+        await BUKA();
+        const e = await cetakSertifikat(l, "ci1b-ditinjau-en");
+        const salahEn = salahCetak(e, "DITINJAU", { ...f, bahasa: "en" });
+        notes.push(`DITINJAU printed in EN: ${salahEn.length ? salahEn.join(", ") : "as it must, the line whole"}`);
+        if (salahEn.length) rec.verdict = "FAIL";
+      } finally {
+        sql(`begin; set local session_replication_role = replica; update public.certificates set language_as_issued = ${bahasaAsal ? `'${bahasaAsal}'` : "null"} where id = '${f.id}'; commit`);
+      }
     } finally {
       sql(`begin; set local session_replication_role = replica; delete from public.certificate_reviews where certificate_id = '${f.id}';
         delete from public.key_corrections where reason = 'CI1B-S21j kunci tertukar (uji perjalanan)'; commit`);

@@ -137,6 +137,7 @@ export function cetakDisembunyikan(css: string): string[] {
 }
 
 const baca = (root: string, f: string) => { try { return readFileSync(join(root, f), "utf8"); } catch { return ""; } };
+const baca0 = (root: string) => baca(root, "src/app/belajar/[tugas]/sertifikat/page.tsx");
 
 export const ci1bTests: SelfTest[] = [
   {
@@ -167,13 +168,35 @@ export const ci1bTests: SelfTest[] = [
         "no print rule shows the print-only parts (.pin-cetak-saja)");
       c.expect(/\.pin-cetak-saja\b[^{}]*\{[^}]*display\s*:\s*none/.test(css.replace(/@media\s+print\s*\{[\s\S]*?\n\}/g, "")),
         "the print-only parts are not hidden on screen (.pin-cetak-saja)");
-      // 3. Daisy's requirement 3: the print is decided by the state at print time; «Cetak» re-reads it first
+      // 3. Sharon P1 (CI-1B-PREREVIEW-8126759c): the review read never fails open to a clean print. Only a boolean
+      // answers; an error, a rejection, null or anything else is UNKNOWN, and unknown prints the review line
+      const kontrak = await import("../src/lib/sertifikat-kontrak") as Record<string, unknown>;
+      const bacaTinjauan = kontrak.tinjauanDariBacaan as ((r: { data: unknown; error: unknown } | null) => string) | undefined;
+      if (c.expect(typeof bacaTinjauan === "function", "src/lib/sertifikat-kontrak.ts has no tinjauanDariBacaan (the review read's three states)")) {
+        const kasus: Array<[string, { data: unknown; error: unknown } | null, string]> = [
+          ["true", { data: true, error: null }, "YA"],
+          ["false", { data: false, error: null }, "TIDAK"],
+          ["an error", { data: null, error: { message: "permission denied" } }, "TIDAK_TAHU"],
+          ["an error beside false", { data: false, error: { message: "x" } }, "TIDAK_TAHU"],
+          ["a rejection", null, "TIDAK_TAHU"],
+          ["null", { data: null, error: null }, "TIDAK_TAHU"],
+          ["the string «true»", { data: "true", error: null }, "TIDAK_TAHU"],
+          ["a number", { data: 1, error: null }, "TIDAK_TAHU"],
+        ];
+        for (const [apa, r, harap] of kasus) c.expect(bacaTinjauan!(r) === harap, `the review read of ${apa} is ${bacaTinjauan!(r)}, not ${harap}`);
+      }
+      c.expect(/tinjauanDariBacaan\(/.test(baca0(repoRoot)) && !/\.then\(\(x\) => x\.data, \(\) => false\)/.test(baca0(repoRoot)),
+        "the certificate page still reads the review with a default of false (an error prints a clean sheet)");
+      c.expect(/tinjauan !== "TIDAK"/.test(baca0(repoRoot)) || /tinjauan === "YA" \|\| tinjauan === "TIDAK_TAHU"/.test(baca0(repoRoot)),
+        "the certificate page does not print the review line when the review is unknown");
+      // 4. Daisy's requirement 3: the print is decided by the state at print time; «Cetak» re-reads it first
       const aksi = baca(repoRoot, "src/components/sertifikat/AksiCetak.tsx");
       c.expect(/router\.refresh\(\)/.test(aksi) && /useRouter/.test(aksi), "«Cetak» prints the state the page loaded with: it does not re-read it (router.refresh) before printing");
       const halaman = baca(repoRoot, "src/app/belajar/[tugas]/sertifikat/page.tsx");
       c.expect(/data-cetak-pemberitahuan/.test(halaman) || /PemberitahuanCetak/.test(halaman), "the certificate page renders no printed notice");
       c.expect(/data-cetak-ditinjau/.test(halaman) || /BarisDitinjauCetak/.test(halaman), "the certificate page renders no printed review line");
-      return c.verdict("Daisy's CI-1b words read word for word in ID and EN, the headings the public check's own; no print rule hides the "
+      return c.verdict("Daisy's CI-1b words read word for word in ID and EN, the headings the public check's own; the review read has three "
+        + "states, only a boolean answers and an error, rejection or non-boolean is unknown, which prints the review line (Sharon P1); no print rule hides the "
         + "notice or the review line (planted rules caught), and the print-only parts are hidden on screen and shown in print; «Cetak» "
         + "re-reads the certificate before it prints; the page renders the notice and the line");
     },
@@ -221,6 +244,25 @@ export const ci1bTests: SelfTest[] = [
           "BERLAKU: the printed part has no «Periksa keaslian» with its sentence and the printed link");
         c.expect(![...b.tanda.keys()].some((k) => k.startsWith("data-cetak-pemberitahuan") || k === "data-cetak-ditinjau"),
           `BERLAKU: a notice or a review line is rendered (${[...b.tanda.keys()].join(", ")})`);
+
+        // ---- Sharon P1: the PLANT. The learner's review read fails (EXECUTE revoked for the request's role while the page
+        // is rendered, then granted back exactly as it was): the page must not print a clean sheet. It prints the line
+        // (the review state is unknown), or no sheet at all.
+        const hibah = psql(`select coalesce(string_agg(a.privilege_type, ','), '') from pg_proc p, aclexplode(p.proacl) a
+          where p.oid = 'public.sertifikat_saya_ditinjau(uuid)'::regprocedure and a.grantee = 'authenticated'::regrole`);
+        c.expect(hibah === "EXECUTE", `the learner's review read is not granted to authenticated as expected (${hibah})`);
+        try {
+          psql(`revoke execute on function public.sertifikat_saya_ditinjau(uuid) from authenticated`);
+          const p = await buka();
+          const lembar = p.tercetak.includes(fakta.nama) && p.tercetak.includes(LULUS);
+          const baris0 = (p.tanda.get("data-cetak-ditinjau") ?? []).length > 0;
+          c.expect(!lembar || baris0, "PLANT (the review read fails): the page prints a clean certificate, with no review line");
+        } finally {
+          psql(`grant execute on function public.sertifikat_saya_ditinjau(uuid) to authenticated`);
+        }
+        const hibah2 = psql(`select coalesce(string_agg(a.privilege_type, ','), '') from pg_proc p, aclexplode(p.proacl) a
+          where p.oid = 'public.sertifikat_saya_ditinjau(uuid)'::regprocedure and a.grantee = 'authenticated'::regrole`);
+        c.expect(hibah2 === hibah, `the review read's grant is not restored (${hibah2})`);
 
         // ---- DITINJAU: an open review (C1W-A02's fixture)
         psql(`do $$ declare v_r uuid; v_k uuid; v_item uuid; v_s uuid := ${lit(pre.sesi)}; begin
@@ -288,7 +330,7 @@ export const ci1bTests: SelfTest[] = [
           kata("cetak.DICABUT.judul", "id"));
         c.expect(!r.tercetak.includes("CI1B-A01"), "DICABUT: the revocation's reason reaches the printer");
         return c.verdict("the learner's own page, as the server renders it, in all four states of one sealed certificate: BERLAKU prints the sheet "
-          + "with «Periksa keaslian», its QR and link and nothing else; DITINJAU prints Daisy's line with the print date ahead of the sheet, "
+          + "with «Periksa keaslian», its QR and link and nothing else; with the review read failing (planted) it never prints a clean sheet; DITINJAU prints Daisy's line with the print date ahead of the sheet, "
           + "which keeps its QR and link; DICABUT and DIGANTIKAN print only the notice (the public check's heading, the statement with the "
           + "number, school and dates, «Lembar ini bukan sertifikat.», the QR and the printed link, «Dicetak …»), never the name, the pass "
           + "sentence, the replacement's number or the reason; the card stays on screen");
