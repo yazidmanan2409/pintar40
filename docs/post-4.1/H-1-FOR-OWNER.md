@@ -37,3 +37,6 @@ It's a test harness and test files only: **no product code, no migration, no wor
 6. **The ci on `ac91df3f`** (45505466200): completed, **success**, attempt 1 (API, 23:30Z). Re-checked just before the merge: the head is still `ac91df3f`, and the diff against main is still sha256 `647f5bef…`.
 7. **Merged** as a merge commit, pinned to `ac91df3f`: main **`f1e35bb9`** (parents `93b93134` and `ac91df3f`). **Its tree equals `ac91df3f`'s.** No staging run, as expected (no migration).
 8. **Main's full ci on `f1e35bb9`:** run **45510549989**, in progress. It's read from the API before PR-25's first half is closed (ruling 102).
+9. **Main's full ci on `f1e35bb9`** (45510549989): completed, **success**, attempt 1 (API, 00:08Z, 25 Nov). **All 18 jobs succeeded, including selftest**, and the R1 group ran inside the clock window. **PR-25's first half is met** (ruling 102).
+
+## H-1: CLOSED (25 Nov 00:08Z)

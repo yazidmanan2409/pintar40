@@ -253,3 +253,9 @@ Migration 311 is changed in place (unmerged, applied nowhere; staging is at 310 
 **Pushed (Second Eye, 23:26Z; Bob confirms `origin/claude/ci-2` = `25681b110173b87dd2996c752145e5e377b6baf5`):**
 - PR #31's body is updated.
 - Runs: ci **45509971723** on the exact sha (in progress, read from the API) and journeys **45509965430**, dispatched once with the full sha.
+
+**Runs on `25681b11`, read by Bob from the API at 00:08Z on 25 Nov:**
+- ci 45509971723: completed, **success**, attempt 1, finished 00:05:13Z.
+- journeys 45509965430: completed, **success**, attempt 1, finished 23:58:12Z.
+
+**Next:** Sharon closes the run half, then the owner's request (`CI-2-FOR-OWNER.md`).
