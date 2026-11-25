@@ -1,0 +1,123 @@
+{
+  "perjalanan": "j8",
+  "nama": "Wahyu Nugroho (Admin sekolah Anggrek)",
+  "lebar": 390,
+  "zona": "WIB",
+  "bahasa": "id",
+  "laluan": "standar",
+  "label": [
+    "keadaan fiksasi: satu paket draf di Anggrek (batas ketuntasan ditetapkan per paket)",
+    "jalur staf di L5: Tempat «Tidak dipakai» dan «Ini daftar guru atau staf» dicentang (ledger 1effb02d)"
+  ],
+  "mulai": "2026-11-25T00:01:15.007Z",
+  "langkah": [
+    {
+      "id": "L1",
+      "judul": "the structure: a Bagian, a Tingkat (a wrong year, then a right one), 1A and 1B; a Bagian for staff",
+      "hasil": "SAMPAI",
+      "layar": [
+        "01-konfigurasi",
+        "02-struktur-kosong",
+        "03-tingkat-tahun-salah",
+        "04-struktur"
+      ],
+      "amatan": [],
+      "data": {
+        "readiness": "Konfigurasi Sekolah: SD Sintetis Anggrek Yang menunggu 1 paket menunggu tindakan atau tinjauan Anda di Studio Persiapan sekolah Apa yang sudah siap di sekolah ini, dan apa yang masih perlu dikerjakan sebelum guru dan murid mulai. Belum Kelas aktif · 0 Buat Bagian, Tingkat, lalu Kelas di Struktur sekolah. Belum Murid yang sudah ditempatkan di Kelas · 0 Catat murid lewat Pendataan: satu daftar untuk satu kelas, kelasnya dipilih sekali dengan «Satu pilihan untuk semua». Belum Setiap Kelas punya guru Beri peran Guru untuk Kelas itu di Peran & akses. Sekolah ini punya satu admin sekolah. Admin seko",
+        "bagian": "✓Kelas Rendah ditambahkan.",
+        "year_wrong": {
+          "words": "Tulis tahun ajaran seperti 2026/2027.",
+          "kept": "2026-27"
+        },
+        "tingkat": "✓Kelas 1 ditambahkan. | ✓Kelas Rendah ditambahkan.",
+        "kelas_1A": "✓1A ditambahkan. | ✓Kelas 1 ditambahkan. | ✓Kelas Rendah ditambahkan.",
+        "kelas_1B": "✓1B ditambahkan. | ✓Kelas 1 ditambahkan. | ✓Kelas Rendah ditambahkan.",
+        "bagian_staf": "✓1B ditambahkan. | ✓Kelas 1 ditambahkan. | ✓Guru dan Staf ditambahkan.",
+        "structure": "FACULTY Jenjang, DEPARTMENT Guru dan Staf, DEPARTMENT Kelas Rendah, PROGRAMME Reguler, PROGRAMME Reguler, COHORT Kelas 1, CLASS 1A, CLASS 1B"
+      },
+      "tab": 57,
+      "url": "/konfigurasi/struktur",
+      "ms": 13947
+    },
+    {
+      "id": "L2",
+      "judul": "the school code: a wrong shape (the field kept), then «AGR»",
+      "hasil": "TIDAK_DIJALAN",
+      "layar": [],
+      "amatan": [
+        "a partial walk: AUDIT_SAMPAI=L1"
+      ],
+      "data": {},
+      "tab": 0
+    },
+    {
+      "id": "L3",
+      "judul": "a pass mark: out of range, then 70 with its reason",
+      "hasil": "TIDAK_DIJALAN",
+      "layar": [],
+      "amatan": [
+        "a partial walk: AUDIT_SAMPAI=L1"
+      ],
+      "data": {},
+      "tab": 0
+    },
+    {
+      "id": "L4",
+      "judul": "the learners' list with planted errors (blank, duplicate, too long); then the clean list for 1A",
+      "hasil": "TIDAK_DIJALAN",
+      "layar": [],
+      "amatan": [
+        "a partial walk: AUDIT_SAMPAI=L1"
+      ],
+      "data": {},
+      "tab": 0
+    },
+    {
+      "id": "L5",
+      "judul": "the staff list: mapped to «Guru dan Staf» (refused, L-148); then Tempat «Tidak dipakai» with the staff box ticked (recorded); roles: Guru 1A until today, Guru 1B without a date",
+      "hasil": "TIDAK_DIJALAN",
+      "layar": [],
+      "amatan": [
+        "a partial walk: AUDIT_SAMPAI=L1"
+      ],
+      "data": {},
+      "tab": 0
+    },
+    {
+      "id": "L6",
+      "judul": "1A's class cards made and printed",
+      "hasil": "TIDAK_DIJALAN",
+      "layar": [],
+      "amatan": [
+        "a partial walk: AUDIT_SAMPAI=L1"
+      ],
+      "data": {},
+      "tab": 0
+    },
+    {
+      "id": "L7",
+      "judul": "an assessment rule made for the package, then renamed: its settings kept",
+      "hasil": "TIDAK_DIJALAN",
+      "layar": [],
+      "amatan": [
+        "a partial walk: AUDIT_SAMPAI=L1"
+      ],
+      "data": {},
+      "tab": 0
+    },
+    {
+      "id": "L8",
+      "judul": "the last admin: revoking their own admin role; closing their own account",
+      "hasil": "TIDAK_DIJALAN",
+      "layar": [],
+      "amatan": [
+        "a partial walk: AUDIT_SAMPAI=L1"
+      ],
+      "data": {},
+      "tab": 0
+    }
+  ],
+  "sebagian": "AUDIT_SAMPAI=L1: the steps after L1 were not walked",
+  "selesai": "2026-11-25T00:01:28.956Z",
+  "sampai_akhir": true
+}

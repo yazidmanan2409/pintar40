@@ -1,0 +1,2 @@
+keadaan fiksasi: satu paket draf di Anggrek (batas ketuntasan ditetapkan per paket)
+jalur staf di L5: Tempat «Tidak dipakai» dan «Ini daftar guru atau staf» dicentang (ledger 1effb02d)
