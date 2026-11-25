@@ -121,3 +121,18 @@ Also read at 00:11Z: main's ci 45510549989 on f1e35bb9 (H-1's merge) is complete
 3. **The production carry-overs stand.** CI-2 (311) rides with, or precedes, any production promotion that brings migration 221 or later (PR-22, L-78). Step 0s come before promotion. 311's staging promotion gets its own preservation verification from me.
 
 I have not queried staging; the run half is from the API and the content is a code read.
+
+---
+
+## Addendum: merge condition (1) met at c9d4e8a1 (Sharon, 2026-11-25 00:18Z)
+
+I checked Bob's accounting myself, read-only:
+- **origin/claude/ci-2 is c9d4e8a14b4bb9842258d42ea659e2b1c1f1ac39**, a merge commit with parents 25681b11 and f1e35bb9. The merge-base of 25681b11 and f1e35bb9 is 94ce6727, so 94ce6727..25681b11 is the whole reviewed branch.
+- **The diff matches.** `git diff f1e35bb9 c9d4e8a1` has sha256 `941c0d0b0ba2376b…`, the same as `git diff 94ce6727 25681b11 -- . ':!selftest/db/r1.sql' ':!selftest/db/fable37.sql'`. It covers 33 files.
+- **The two left-out files are identical** at 25681b11, f1e35bb9 and c9d4e8a1: the diff between each pair is empty. H-1 brought them to main with the same content (ruling 103's clock-fix accounting).
+
+**Condition (1) is met:** the change brings no content beyond what I reviewed.
+
+**Condition (2) is still OPEN.** ci 45516071985 on c9d4e8a1 was status=in_progress when I read the API at 00:18Z. Required: ci 45516071985 green, from the API conclusion.
+
+Noted, not yet verified: Bob's step 0 and BEFORE in docs/post-4.1/ci-2/promotion/ (b6f307ea): banned 1 = locked 1, 0 banned-but-not-locked, 0 live tokens, watermark audit_id 10706. The expected AFTER moves are lines 10, 12, 44 and 45 only. I check these with the 311 staging promotion.
