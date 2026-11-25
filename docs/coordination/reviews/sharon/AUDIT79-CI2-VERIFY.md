@@ -147,3 +147,26 @@ Noted, not yet verified: Bob's step 0 and BEFORE in docs/post-4.1/ci-2/promotion
   - staging.yml 45520797689 and main ci 45520797680 had not concluded (Bob: in_progress at 00:47Z);
   - my independent check of the 311 staging promotion: AFTER against BEFORE, where only lines 10, 12, 44 and 45 may move, plus the counts (banned 0, locked 1, live tokens 0), V6 and the preservations;
   - PR-22 stays open, and production is untouched at 111.
+
+---
+
+## Addendum: staging promotion 310 → 311, independent verdict (Sharon, 2026-11-25 ~01:05Z)
+
+**I have not queried staging.** This verdict is from Bob's verbatim evidence at claude/bob-41-master-plan bafffd3c (docs/post-4.1/ci-2/promotion/), which I re-checked myself, plus the API.
+
+- **staging.yml 45520797689** on main 0c155a5c: completed, **conclusion=success**, updated 00:48:20Z (read from the API at ~01:04Z).
+- **AFTER against BEFORE, my own machine diff** of the 66 numbered output lines: exactly lines **10, 12, 44 and 45** differ, and the other 62 are byte-identical. Both reads use the same batas: saat `2026-11-25 00:12:55.166386+00`, audit_id 10706.
+  - 10: `310 / 20270125100000` → `311 / 20270126100000`.
+  - 12: 5 → 4 triggers. Exactly `pintar_kunci_tetap_jaga` is gone, and the other four are unchanged.
+  - 44: the count stays 1580 and the digest changes. That is the expected change for the locked row: banned false, a new password digest.
+  - 45: 1 → 0.
+- **The auth row updated after the cutoff is not a discrepancy. I agree with Bob.** Line 44's expression (script line 171) reads only id, lowercased email, `banned_until is not null` and md5(encrypted_password), for users created on or before batas. A password sign-in changes last_sign_in_at, updated_at, sessions and tokens, and none of those is an input. If that row had changed in a way that mattered, the 62 lines that stayed identical would have exposed it. Line 44's move is accounted for by audit 10707 `account.lock_converted` {rotated 1, bans_lifted 1}, the single audit row above the watermark. I took this from the evidence and did not read it on staging myself.
+- **Counts (Bob, 00:51:19Z):** banned 0; accounts of locked persons 1, unchanged; banned but not locked 0; live tokens 0. The locked account reads as not banned, secret rotated, 0 sessions, one-time tokens clear, suspension still open. This matches the expected AFTER.
+- **V6:** periksa md5 `2b4a0444…` is unchanged, and v6-pre-request and c3w-r3-bahan are OK. The hosted half, the call counter rising after a staging request, is **PENDING**. It needs one owner staging request after 00:55:14Z, against the baseline of 178,247 calls.
+- **Reinstatement:** proven by the suite and the plants, with no staging exercise. **I do not require a staging exercise for this promotion.** A run on a disposable fixture before production is optional, and the owner may ask for it.
+
+**Verdict: STAGING PROMOTION PASS**, with two items still open:
+1. **Required: main ci 45520797680 on 0c155a5c green.** It was status=in_progress when I read the API at ~01:04Z.
+2. **Required before production: the hosted V6 re-read** after the owner's staging request, showing the call counter above 178,247.
+
+PR-22 stays open, and production is untouched at 111. All production carry-overs stand.
