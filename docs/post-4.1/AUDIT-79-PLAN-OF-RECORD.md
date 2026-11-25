@@ -52,7 +52,7 @@
 
 | Stream | State |
 |---|---|
-| W1 | **Every journey walked locally by Daisy.** Captured and judged: J2 to J11 (J8 `dedd4e9e`; J9 and J11 `fe44851d`). The PIN-reload probe holds. The builder is on J12, then J1 |
+| W1 | **Every journey walked locally by Daisy.** **ALL TWELVE captured and judged** (J12 `f506df5d`, J1 `8bf4a85a`). The PIN-reload probe holds. Every builder line is closed |
 | W2 | **DONE** (Daisy `e0958ce7`, reconciled by Bob). L-1 to L-151. Critical: L-67 (closed by CI-1). High: L-78 (CI-2), L-105 (CI-1b), L-112 (AR-79). L-149 withdrawn (Daisy reproduced a working staff path). L-152 new, Significant |
 | W3 | INTERIM: C-1 to C-11 |
 | W4 | **CI-1 CLOSED ON STAGING (ruling 101, 22:50Z):** merged `93b93134` (tree = `94ce6727`), staging 310, only line 10 moved, V6 met, **Sharon FINAL PASS**. Main's ci is red on the known R1 clock bug, so PR-25 holds any production promotion until main is green. L-105 open under CI-1b |
@@ -100,3 +100,4 @@ Bob paces the work. The usage allowance is shared by every session.
 |---|---|---|---|
 | OD-1 | **CI-2: a reinstated or reopened account signs in with a fresh credential** (a password reset; a new PIN from the school) | CI-2's merge | Accept (Sharon). **Sol, relayed by the owner (24 Nov): recommends approval.** Reinstatement restores authorised access; replacing the credential makes it resume securely; identity, history, results and certificates stay intact. Daisy makes recovery clear, so no one keeps trying a dead credential. **APPROVED by the owner (ruling 100):** fresh credentials are mandatory; previous credentials and sessions stay invalid; identity and records are preserved |
 | OD-2 | Merge and staging promotion of CI-1, CI-2 and AR-79, in order, each with its own evidence | Each merge | — |
+| OD-3 | **SD learner pages in «kamu»?** Daisy (L-158, J1-1): the tour and learner pages speak to a 9-year-old in an adult register («Anda»). She recommends «kamu» on SD learner pages | AR-79's words for SD learner pages (not blocking; AR-79 does the plain-word changes either way) | Daisy: yes. Bob: yes, scoped to SD learner-facing pages only, with one key set per register so the change stays a word-table change |

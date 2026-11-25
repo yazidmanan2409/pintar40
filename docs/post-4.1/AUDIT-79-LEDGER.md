@@ -834,3 +834,18 @@ Throttled and reduced motion: everything reached, nothing seen. **EN holds**, bu
   - (3) re-read the state on focus and visibilitychange now; **residual** (a page never refocused, then printed with Ctrl+P), mitigated by the QR and link on every print, **is Sharon's to accept**; a server-rendered print view is not in CI-1b;
   - (4) Daisy confirms the EN of «isi_tanpa_tanggal».
 - **Next:** the build starts on main after CI-2 merges.
+
+**J1's capture judged (Daisy, `8bf4a85a`, `AUDIT-79-TEMUAN-J1.md`). EVERY journey's builder lines are now closed (J1 to J12).**
+- **Holds:**
+  - card sign-in goes straight to /belajar;
+  - one press from the tour to the task, with nothing started;
+  - pacing: 5 free tries, the 6th waits 30 s, and the right PIN during the wait is refused with a countdown;
+  - an unknown card number gets the same words as a wrong PIN;
+  - the tour closes early unmarked, reopens from Bantuan, and doesn't self-reopen after completion;
+  - sign-out leaves no session.
+
+| L-id | Observation | Dimension | Journey | Severity | Cause | Notes |
+|---|---|---|---|---|---|---|
+| L-158 (J1-1) | The tour's register is adult («Anda», «penguasaan», «keasliannya lewat tautan») for a 9-year-old SD learner | H | J1 | Improvement | — | Daisy proposes an SD register. **Whether SD learner pages use «kamu» is a voice and policy decision: OD-3, the owner's**, with Daisy's recommendation (yes). AR-79 does the plain-word changes that need no decision |
+| L-159 (J1-2) | The tour card's text is clipped at 320 | G | J1 | Improvement | — | Visual pass |
+| L-160 (J1-3) | A wrong card PIN stays in the field | F | J1 | Improvement | — | Clear and focus it |
