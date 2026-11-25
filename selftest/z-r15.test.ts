@@ -6,8 +6,9 @@
  *             subtransaction. minta_akun('CLOSE') by the school's last usable administrator is refused
  *             PR140 ACCOUNT_LAST_SCHOOL_ADMIN, with a message that names no school; revoke_role of their own role is
  *             refused PR160 ROLE_LAST_SCHOOL_ADMIN. A second administrator counts only when usable now: appointed now
- *             (not future-dated), not suspended or closed, not anonymised, with an account, and not locked (no
- *             banned_until in the future; one in the past counts). Every school the caller administers is checked: a
+ *             (not future-dated), not suspended or closed, not anonymised, with an account, and not locked by PINTAR.
+ *             RESTATED, CI-2 (Sharon's addition 2): no reader trusts banned_until, which PINTAR no longer writes, so a
+ *             ban planted by hand (future or past) changes nothing. Every school the caller administers is checked: a
  *             second school with another administrator does not make the first safe. With a usable second
  *             administrator both are allowed, and a platform admin may revoke the last one. Red on 307: the closure
  *             was never checked, and a locked or account-less second administrator counted.
@@ -158,6 +159,7 @@ export const zR15Tests: SelfTest[] = [
         // a second administrator who is not usable now: refused
         ["c_ditangguhkan", EMAIL.admin, tutup, `${G}; ${tangguh(id.g)}`],
         ["r_ditangguhkan", EMAIL.admin, cabutSendiri, `${G}; ${tangguh(id.g)}`],
+        // RESTATED, CI-2: a ban planted by hand is not PINTAR's lock (a suspension is, above) and is read by no one
         ["c_dikunci", EMAIL.admin, tutup, `${G}; ${kunci(id.g, 365)}`],
         ["r_dikunci", EMAIL.admin, cabutSendiri, `${G}; ${kunci(id.g, 365)}`],
         ["c_tanpa_akun", EMAIL.admin, tutup, `${G}; ${tanpaAkun(id.g)}`],
@@ -177,7 +179,7 @@ export const zR15Tests: SelfTest[] = [
       const TUTUP = "PR140:ACCOUNT_LAST_SCHOOL_ADMIN", CABUT = "PR160:ROLE_LAST_SCHOOL_ADMIN";
       const harap: Record<string, string> = {
         c_sendiri: TUTUP, r_sendiri: CABUT, c_dua: "ok", r_dua: "ok",
-        c_ditangguhkan: TUTUP, r_ditangguhkan: CABUT, c_dikunci: TUTUP, r_dikunci: CABUT, c_tanpa_akun: TUTUP, r_tanpa_akun: CABUT,
+        c_ditangguhkan: TUTUP, r_ditangguhkan: CABUT, c_dikunci: "ok", r_dikunci: "ok", c_tanpa_akun: TUTUP, r_tanpa_akun: CABUT,
         c_anonim: TUTUP, c_mendatang: TUTUP, r_mendatang: CABUT, c_kunci_lewat: "ok",
         c_dua_sekolah: TUTUP, c_dua_sekolah_aman: "ok", r_platform: "ok",
       };
@@ -185,7 +187,8 @@ export const zR15Tests: SelfTest[] = [
       const pesan = (H.c_sendiri ?? "").split("\t")[1] ?? "";
       for (const n of id.nama) c.expect(!pesan.includes(n), `the closure's refusal names a school («${n}»): ${pesan}`);
       return c.verdict("the last usable school administrator's closure is refused ACCOUNT_LAST_SCHOOL_ADMIN (naming no school) and their own revocation "
-        + "ROLE_LAST_SCHOOL_ADMIN; a second administrator counts only appointed now, unsuspended, not anonymised, with an account and not locked; "
+        + "ROLE_LAST_SCHOOL_ADMIN; a second administrator counts only appointed now, unsuspended, not anonymised and with an account (a ban "
+        + "planted by hand is read by no one: CI-2); "
         + "every school is checked; a usable second administrator allows both; a platform admin may revoke the last one");
     },
   },

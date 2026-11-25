@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { supabaseServer } from "@/lib/supabase/server";
 import { supabaseService } from "@/lib/supabase/service";
+import { keluarPerangkatIni } from "@/lib/keluar";
 import { alamatKlien, fetchBerpenerus } from "@/lib/auth-forwarding";
 import { asalSendiri } from "@/lib/kartu-masuk";
 import { HALAMAN_AKTIVASI } from "@/lib/aktivasi-kontrak";
@@ -56,6 +57,15 @@ export async function POST(request: NextRequest) {
       },
       tujuan: tujuanMasuk,
       catatGalat: (ref, apa) => console.error(`[aktifkan/periksa] ref=${ref} ${apa}`),
+      // CI-2 F-5: a locked person's accepted code is the ordinary wrong code, and the session it made ends here
+      terkunci: async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return false;
+        const { data: dikunci, error } = await layanan.rpc("akun_auth_terkunci", { p_auth_user: user.id });
+        if (error) throw new Error(error.code ?? "no answer");
+        if (dikunci === true) await keluarPerangkatIni(supabase).catch(() => undefined);
+        return dikunci === true;
+      },
     },
   );
   return jawab(hasil);

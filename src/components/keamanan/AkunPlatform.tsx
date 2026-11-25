@@ -8,6 +8,8 @@ import { KATEGORI_TANGGUH, type KodeAkun } from "@/lib/akun-kontrak";
 
 export type KeadaanAkun = {
   person_id: string; nama: string | null; pintar_id: string | null; anonim: boolean;
+  /** CI-2: the person holds a class card (akun_keadaan), so a reinstatement's fresh credential is the school's new PIN */
+  kartu?: boolean;
   tangguh: { kategori: string; sejak: string; catatan: string | null } | null;
 };
 export type BarisPermintaan = { id: string; person_id: string; nama: string; pintar_id: string; kind: string; status: string; created_at: string; ditutup: boolean; pesan: string | null };
@@ -38,7 +40,21 @@ export default function AkunPlatform({ locale, pid, pidKetik, pidSalah = false, 
     <section className="pin-sec" id="akun-platform" aria-labelledby="pin-akun-platform">
       <h2 id="pin-akun-platform">{s("keamanan.akun.judul")}</h2>
       <p className="pin-sub">{s("keamanan.akun.arti")}</p>
-      {hasil === "ok" ? <BarisHasil nada="ok">{s(`keamanan.akun.ok.${apa === "aktif" ? "aktif" : apa === "hapus" ? "hapus" : apa === "buka" ? "buka" : "tangguh"}` as HleEvent)}</BarisHasil> : null}
+      {hasil === "ok" && (apa === "aktif" || apa === "buka") && akun && !akun.tangguh ? (
+        // CI-2 (ruling 100; Daisy CI2-KATA §1 and §2): the decider learns, before the person's first attempt, that the old
+        // credential no longer works and what the fresh one is. A learner's comes from the school's re-issue (Sharon (b))
+        <BarisHasil nada="ok">
+          <span data-kredensial-baru={akun.kartu ? "murid" : "staf"}>
+            {/* Daisy's «✓ » is the result line's own tick (BarisHasil draws it) */}
+            {s(akun.kartu ? "akun.dibuka.kredensial_murid" : "akun.dibuka.kredensial_staf").replace(/^✓\s*/, "").split("{nama}").join(akun.nama ?? "—")}
+          </span>
+          {akun.kartu ? (
+            <>{" "}<a className="pin-tautan" href={`/aktivasi?cari_kartu=${encodeURIComponent(akun.nama ?? "")}#pin-akt-ulang`}>
+              {s("akun.dibuka.kredensial_murid_tautan").split("{nama}").join(akun.nama ?? "—")}
+            </a></>
+          ) : null}
+        </BarisHasil>
+      ) : hasil === "ok" ? <BarisHasil nada="ok">{s(`keamanan.akun.ok.${apa === "aktif" ? "aktif" : apa === "hapus" ? "hapus" : apa === "buka" ? "buka" : "tangguh"}` as HleEvent)}</BarisHasil> : null}
       {hasil === "gagal" ? <BarisHasil nada="gagal">{galat()}</BarisHasil> : null}
       {/* Sharon §16 finding 2: the data is deleted and a photo file is not yet; one press finishes it */}
       {hasil === "gagal" && kode === "ACCOUNT_PHOTO_PENDING" && ulang ? (
@@ -112,6 +128,7 @@ export default function AkunPlatform({ locale, pid, pidKetik, pidSalah = false, 
                 // owner ruling 2: reopened only here, by an Admin PINTAR, saying how identity was confirmed
                 <form action={bukaKembaliAksi} data-buka-kembali={r.id}>
                   <input type="hidden" name="permintaan" value={r.id} />
+                  <input type="hidden" name="pid" value={r.pintar_id} />
                   {r.pesan ? <p className="pin-meta" data-pesan="">{s("keamanan.permintaan.pesan")}: {r.pesan}</p> : null}
                   <div className="pin-isian">
                     <label htmlFor={`bk-${r.id}`}>{s("keamanan.permintaan.cara_verifikasi")}</label>

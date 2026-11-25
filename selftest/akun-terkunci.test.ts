@@ -2,8 +2,9 @@
  * SIGN-IN BY A SUSPENDED, CLOSED OR ANONYMISED ACCOUNT · bounded correction of 4.0 behaviour (owner, 11 Nov 2026;
  * AUTH-SUSPENDED-SIGNIN-CORRECTION.md, «Tests»). Each method answers a locked account with ITS OWN ordinary mismatch
  * (per method): the same status and the same body as that method's wrong credential, whichever credential is given.
- * A genuine Auth failure stays the method's own "unavailable" answer. The lock is one named instant Auth can read
- * (public.akun_terkunci_sampai(), supabase/migrations/20270116130000), and the migration rewrites the old value.
+ * A genuine Auth failure stays the method's own "unavailable" answer. RESTATED, CI-2 (ruling 98): the lock is no longer
+ * a ban Auth reads (20270116130000's instant) but a rotation of the account's secret (20270126100000), so Auth itself
+ * answers every password as an ordinary wrong one; the «user_banned» mapping stays as a second guard.
  * These tests depend on no 4.1 object; the accountability event's outcome is B1-A04's (selftest/b1-layar.test.ts).
  *
  *   AUTH-K01  the decisions with their tools replaced (src/lib/aktivasi.ts, kartu-masuk.ts, pemulihan.ts): Auth's
@@ -11,16 +12,17 @@
  *             identifier; Auth unreachable is still 503 in each
  *   AUTH-A01  through the running app, with a person activated for the test and a class card made for the test: each
  *             method (password, card, activation code, recovery code, recovery PIN) against the account suspended,
- *             then reinstated (it works again), then closed, then anonymised, with the right and a wrong credential:
+ *             then reinstated (RESTATED, ruling 100: the old password and card read the ordinary mismatch, a fresh
+ *             recovery works), then closed, then anonymised, with the right and a wrong credential:
  *             the same status and body as the method's wrong credential on an active account; an unknown identifier
  *             unchanged; nothing of the test left live (role, session, suspension)
  *   AUTH-A03  L-1 (Sharon §6b): an activation outstanding for a suspended person creates no credential (the route, and
  *             the permit and Auth's admin write asked for directly); reinstated, the activation goes on. AUTH-A01 also
  *             holds her recovery-grant case: a grant from before a suspension is an expired grant's case in every field
  *             (answer, record, password), during the suspension and after reinstatement; a fresh recovery then works
- *   AUTH-A02  the migration on a database with no locked account, with one locked under the old 'infinity' (Auth fails:
- *             the route still answers 503), and run twice: afterwards the account is refused in the ordinary way and
- *             nothing else changed
+ *   AUTH-A02  RESTATED, CI-2: CI-2's migration on a database with no ban, with one account locked under the old
+ *             'infinity' (Auth fails: the route still answers 503), and run twice: afterwards the ban is lifted, the
+ *             account is refused in the ordinary way and nothing else changed; reinstated, the old password is wrong
  */
 import { spawnSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
@@ -41,7 +43,8 @@ const sebagaiUid = (uid: string, sql: string) => psql(`begin; set local role aut
   select set_config('request.jwt.claims', json_build_object('sub', ${lit(uid)}, 'role', 'authenticated')::text, true);
   select set_config('request.jwt.claim.sub', ${lit(uid)}, true);
   ${sql}; commit;`);
-const MIGRASI = "20270116130000_a_locked_account_is_locked_until_a_date_auth_can_read.sql";
+/** CI-2 (ruling 98): the later word on a lock, run again by AUTH-A02 */
+const MIGRASI_CI2_A02 = "20270126100000_a_locked_account_reads_as_any_wrong_password.sql";
 /** The B1 store, when this tree has one (the test depends on no 4.1 object): where its ids stand, and its rows gone. */
 const adaB1 = () => psql("select to_regclass('public.accountability_events') is not null") === "t";
 const titikB1 = () => adaB1() ? Number(psql("select case when is_called then last_value else last_value - 1 end from public.accountability_events_id_seq")) : 0;
@@ -174,6 +177,7 @@ export const akunTerkunciAppTests: SelfTest[] = [
       const email = `auth-ina-${tag}@local.invalid`, username = `ina.${tag}`, PIN = "2817";
       const sys = uidDari("sysadmin@synthetic.pintar.test");
       const awal = titikB1();
+      const mulaiUji = psql("select now()::text");
       const orang = await daftar(asal, "Ina Kusumawati", email);
       const sandi = await aktifkan(c, asal, email, username, PIN);
       let murid = "";
@@ -298,8 +302,21 @@ export const akunTerkunciAppTests: SelfTest[] = [
         c.expect(/^\d{6}$/.test(benar1), "Auth issued no code for the suspended account to try");
         const rk = await pakai("/masuk/lupa/periksa", { nama: email, kode: benar1 });
         c.expect(sama(rk, dasar.pulih), `suspended, recovery code (right): ${tampil(rk)}; a wrong code is ${tampil(dasar.pulih)}`);
-        const ra = await pakai("/aktifkan/periksa", { email, kode: await kodeAuth() });
+        // Sharon CI-2-SPEC §8 2: the locked account's accepted code is the route's ordinary refusal in status and body AND in
+        // its pacing (jeda): it is counted on the code door exactly as a wrong code is, so the next wait is the same
+        const hitungKode = () => Number(psql(`select coalesce(sum(cardinality(percobaan)), 0) from public.identity_attempts where scope = 'CODE_VERIFY'`));
+        const kodeBenar = await kodeAuth();
+        // the harness's hand, as ladderNol: the code door's own counter starts empty, so neither attempt meets its wait
+        psql(`delete from public.identity_attempts where scope = 'CODE_VERIFY'`);
+        const n0 = hitungKode();
+        const ra = await pakai("/aktifkan/periksa", { email, kode: kodeBenar });
+        const n1 = hitungKode();
+        const raSalah = await pakai("/aktifkan/periksa", { email, kode: salahKode });
+        const n2 = hitungKode();
         c.expect(sama(ra, dasar.aktivasi), `suspended, activation code (right): ${tampil(ra)}; a wrong code is ${tampil(dasar.aktivasi)}`);
+        c.expect(sama(raSalah, dasar.aktivasi), `suspended, activation code (wrong): ${tampil(raSalah)}; a wrong code is ${tampil(dasar.aktivasi)}`);
+        c.expect(n1 - n0 === 1 && n2 - n1 === 1,
+          `suspended: the accepted code counted ${n1 - n0} attempt(s) and a wrong code ${n2 - n1}; both must count one, so the pacing (jeda) is the same (Sharon §8 2)`);
         // the grant from before the suspension, used now (RESTATED, L-1, Sharon §6b): exactly an expired grant's answer and
         // record, field by field; the password byte-identical (the permit refuses a locked person's grant)
         const sebelumIzin = hashSandi();
@@ -308,17 +325,19 @@ export const akunTerkunciAppTests: SelfTest[] = [
         c.expect(hashSandi() === sebelumIzin, "suspended, a grant from before used after changed the password");
         if (adaB1()) c.expect(izinTerkunci.baris === dasarIzin.baris,
           `suspended, a grant from before used after was recorded «${izinTerkunci.baris}»; an expired grant «${dasarIzin.baris}»: a school admin could tell them apart`);
-        // 2. reinstated: refused, then works (each method that signs in)
+        // 2. reinstated. RESTATED, CI-2 (OD-1, ruling 100): a reinstated account signs in with a FRESH credential only. The
+        // old password and the old card's PIN read each method's own ordinary mismatch; the fresh recovery below sets a
+        // password that signs in (a learner's new card and PIN from the school's re-issue: CI2-P01)
         sebagaiUid(sys, `select public.aktifkan_kembali_akun(${lit(orang)}, 'uji auth: akun sudah aman kembali')`);
         sebagaiUid(sys, `select public.aktifkan_kembali_akun(${lit(murid)}, 'uji auth: kartu dipakai kembali')`);
-        const p1 = new Peramban(asal, ipUji());
-        const lagi = await p1.jsonDari("/masuk/password", { form: { identitas: email, password: sandiKini } });
-        await p1.kirim("/keluar", { method: "POST" });
-        const k1 = new Peramban(asal, ipUji());
-        const kLagi = await k1.jsonDari("/masuk/kartu", { form: { kartu: kartu.card!, pin: kartu.pin! } });
-        await k1.kirim("/keluar", { method: "POST" });
-        c.expect(lagi.status === 200 && lagi.body?.ok === true, `reinstated, the password does not sign in again: ${tampil(lagi)}`);
-        c.expect(kLagi.status === 200 && kLagi.body?.ok === true, `reinstated, the card does not sign in again: ${tampil(kLagi)}`);
+        const lagi = await pakai("/masuk/password", { identitas: email, password: sandiKini });
+        const kLagi = await pakai("/masuk/kartu", { kartu: kartu.card!, pin: kartu.pin! });
+        c.expect(sama(lagi, dasar.sandi), `reinstated, the old password: ${tampil(lagi)}; a wrong password is ${tampil(dasar.sandi)} (ruling 100: a fresh credential)`);
+        c.expect(sama(kLagi, dasar.kartu), `reinstated, the old card and PIN: ${tampil(kLagi)}; a wrong PIN is ${tampil(dasar.kartu)} (ruling 100: a new PIN from the school)`);
+        // the harness's hand: before CI-2 the reinstated sign-in succeeded and so cleared the address's password counter;
+        // the old password is now a failure, so this test's own PASSWORD_SIGNIN records are cleared here instead, or the
+        // closed step below would meet the counter (429) rather than the mismatch it is about
+        psql(`delete from public.identity_attempts where scope = 'PASSWORD_SIGNIN' and diperbarui >= ${lit(mulaiUji)}`);
         // L-1 (Sharon §6b): reinstated, the grant from before the suspension is still no grant (a lock covered its life),
         // and a fresh recovery works: the password is set and this browser signs in with it
         const sebelumLama = hashSandi();
@@ -343,8 +362,8 @@ export const akunTerkunciAppTests: SelfTest[] = [
         await periksa("anonymised", anonim, false);
         const lama = await pakai("/masuk/password", { identitas: email, password: sandiKini });
         c.expect(sama(lama, dasar.sandi), `anonymised, the old address: ${tampil(lama)}; a wrong password is ${tampil(dasar.sandi)}`);
-        c.expect(psql(`select isfinite(banned_until) and banned_until > now() + interval '500 years' from auth.users where id = ${lit(uid)}`) === "t",
-          "the closed account is not locked until a far-future instant Auth can read");
+        // RESTATED, CI-2 (ruling 98): the lock is a rotation, never a ban, so Auth cannot tell a closed account from any other
+        c.expect(psql(`select banned_until is null from auth.users where id = ${lit(uid)}`) === "t", "the closed account is banned");
       } finally {
         if (pidAkhir) psql(`delete from public.recovery_ladder where typed_id = ${lit(pidAkhir)}`);
         lepaskan(orang, sys);
@@ -356,7 +375,8 @@ export const akunTerkunciAppTests: SelfTest[] = [
       return c.verdict("with a person activated for the test and a class card made for it, each method (password by address and by username, the card, "
         + "an activation code, a recovery code, the recovery PIN) answered the account suspended, closed and anonymised, with the right and a wrong "
         + "credential, with exactly its own ordinary mismatch (status and body of a wrong credential on an active account); a wrong credential and "
-        + "an unknown identifier are unchanged; reinstated, the password and the card sign in again; the old address of the anonymised account is "
+        + "an unknown identifier are unchanged; reinstated, the old password and the old card read the ordinary mismatch (ruling 100) and a fresh "
+        + "recovery sets a password that signs in; the closed account is never banned; the old address of the anonymised account is "
         + "nobody's; nothing of the test is left live");
     },
   },
@@ -366,24 +386,17 @@ export const akunTerkunciAppTests: SelfTest[] = [
     run: async (ctx) => {
       const c = new Checks();
       const asal = ctx.appUrl!;
-      const berkas = join(ctx.repoRoot, "supabase", "migrations", MIGRASI);
-      if (!c.expect(existsSync(berkas), `the rewrite migration ${MIGRASI} is not in the tree`)) return c.verdict("");
-      // the file is run again here: it must still be the last word on what it defines, or running it would undo a later one
+      // RESTATED, CI-2 (ruling 98): the lock is no longer a ban, so the later word on an old value is CI-2's F-4
+      // (20270126100000), which lifts every ban and rotates the accounts of locked persons. It is that file which is run
+      // again here; 20270116130000's rewrite to akun_terkunci_sampai() is superseded (its 'infinity' case is this one)
+      const berkas = join(ctx.repoRoot, "supabase", "migrations", MIGRASI_CI2_A02);
+      if (!c.expect(existsSync(berkas), `CI-2's migration ${MIGRASI_CI2_A02} is not in the tree`)) return c.verdict("");
       const dir = join(ctx.repoRoot, "supabase", "migrations");
-      // RESTATED, L1-F2 and L1-R2 (owner, 12 Nov): 20270117160000 redefines akun_kunci (the accounts locked FOR UPDATE,
-      // a lock's RECOVERY and ACTIVATION permits deleted). It is the one later word allowed: running this file again
-      // puts back the older akun_kunci, so the newer definition is saved before each run and restored after it
-      const L1F2 = "20270117160000_a_suspension_covers_the_accounts_made_after_it.sql";
-      // RESTATED again, L1-F2 (Sharon's result review of e27f4a77): 20270117190000 redefines akun_kunci too (auth.users
-      // before accounts), and is allowed the same way: the newer definition is the one saved and restored around each run
-      const L1F2_URUTAN = "20270117190000_the_person_row_is_locked_before_the_account_rows.sql";
-      const lebihBaru = readdirSync(dir).filter((f) => f.endsWith(".sql") && f > MIGRASI && f !== L1F2 && f !== L1F2_URUTAN)
-        .filter((f) => /function public\.(akun_kunci|recovery_attempt|akun_terkunci_sampai)\(/.test(readFileSync(join(dir, f), "utf8")));
-      if (!c.expect(lebihBaru.length === 0, `a later migration redefines what ${MIGRASI} defines (${lebihBaru.join(", ")}): restate this test before running the file again`)) return c.verdict("");
-      const kunciKini = spawnSync("psql", ["-X", "-At", process.env.SUPABASE_DB_URL!, "-c", "select pg_get_functiondef('public.akun_kunci(uuid,boolean)'::regprocedure)"], { encoding: "utf8" }).stdout;
+      const lebihBaru = readdirSync(dir).filter((f) => f.endsWith(".sql") && f > MIGRASI_CI2_A02)
+        .filter((f) => /function public\.(akun_kunci|akun_rotasi|auth_password_write_guard|akun_baru_terkunci|admin_akun_dapat_masuk|hapus_data_pribadi|akun_keadaan)\(/.test(readFileSync(join(dir, f), "utf8")));
+      if (!c.expect(lebihBaru.length === 0, `a later migration redefines what ${MIGRASI_CI2_A02} defines (${lebihBaru.join(", ")}): restate this test before running the file again`)) return c.verdict("");
       const jalankan = () => {
         const r = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-q", "--single-transaction", "-f", berkas, process.env.SUPABASE_DB_URL!], { encoding: "utf8" });
-        spawnSync("psql", ["-X", "-q", "-v", "ON_ERROR_STOP=1", process.env.SUPABASE_DB_URL!], { encoding: "utf8", input: kunciKini + ";\n" });
         return r.status === 0 ? "OK" : (r.stderr || "").trim().split("\n").pop() ?? "failed";
       };
       const potret = () => psql("select coalesce(md5(string_agg(id::text || ':' || coalesce(banned_until::text, '-'), ',' order by id)), '') from auth.users");
@@ -427,9 +440,9 @@ export const akunTerkunciAppTests: SelfTest[] = [
           `Auth failing on the old value is not the route's 503: ${tampil(gagal)} (a real Auth failure must not become a mismatch)`);
         const lainSebelum = psql(`select coalesce(md5(string_agg(id::text || ':' || coalesce(banned_until::text, '-'), ',' order by id)), '') from auth.users where id <> ${lit(uid)}`);
         const b = jalankan();
-        c.expect(b === "OK" && psql(`select banned_until = public.akun_terkunci_sampai() from auth.users where id = ${lit(uid)}`) === "t"
-          && psql("select count(*) from auth.users where banned_until = 'infinity'") === "0",
-          `the migration did not rewrite the old value to the one instant («${b}»)`);
+        c.expect(b === "OK" && psql(`select banned_until is null from auth.users where id = ${lit(uid)}`) === "t"
+          && psql("select count(*) from auth.users where banned_until is not null") === "0",
+          `the migration did not lift the old value («${b}»)`);
         c.expect(psql(`select coalesce(md5(string_agg(id::text || ':' || coalesce(banned_until::text, '-'), ',' order by id)), '') from auth.users where id <> ${lit(uid)}`) === lainSebelum,
           "the migration changed another account's lock");
         const benar = await coba(sandi);
@@ -439,22 +452,20 @@ export const akunTerkunciAppTests: SelfTest[] = [
         const kedua = potret();
         const d = jalankan();
         c.expect(d === "OK" && potret() === kedua, `run a second time the migration answered «${d}» or changed a lock`);
-        // reinstated: it works again
+        // RESTATED, CI-2 (ruling 100): reinstated, the old password is an ordinary wrong one; a fresh credential is needed
         sebagaiUid(sys, `select public.aktifkan_kembali_akun(${lit(orang)}, 'uji auth: nilai kunci lama dibuka')`);
-        const p = new Peramban(asal, ipUji());
-        const ok = await p.jsonDari("/masuk/password", { form: { identitas: email, password: sandi } });
-        await p.kirim("/keluar", { method: "POST" });
-        c.expect(ok.status === 200 && ok.body?.ok === true, `reinstated after the rewrite, the password does not sign in: ${tampil(ok)}`);
+        const lama = await coba(sandi);
+        c.expect(sama(lama, salah), `reinstated after the conversion, the old password: ${tampil(lama)}; a wrong password is ${tampil(salah)}`);
       } finally {
         lepaskan(orang, sys);
         const sisa = buangB1(awal);
         const hidup = sisaHidup(orang);
         c.expect(sisa === "0" && hidup === "0/0/0/0", `the test left ${sisa} event row(s) and role/session/suspension/lock ${hidup} behind`);
       }
-      return c.verdict("the migration run on a database with no account on the old value changed nothing; with one locked as before (banned_until "
-        + "'infinity'), Auth failed and the route answered 503, not a mismatch; the migration rewrote that one to akun_terkunci_sampai() and no "
-        + "other; the right and a wrong password were then exactly a wrong password's answer; run a second time it changed nothing; reinstated, "
-        + "the account signs in; nothing of the test is left live");
+      return c.verdict("CI-2's migration run on a database with no ban changed no lock; with one account locked under the oldest value (banned_until "
+        + "'infinity'), Auth failed and the route answered 503, not a mismatch; the migration lifted that ban and changed no other account's; "
+        + "the right and a wrong password were then exactly a wrong password's answer; run a second time it changed nothing; reinstated, the "
+        + "old password is an ordinary wrong one (ruling 100); nothing of the test is left live");
     },
   },
   {
@@ -486,8 +497,12 @@ export const akunTerkunciAppTests: SelfTest[] = [
         const tulisAuth = async (password: string) => (await fetch(`${ctx.supabaseUrl}/auth/v1/admin/users/${uid}`, { method: "PUT",
           headers: { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!, authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`, "content-type": "application/json" },
           body: JSON.stringify({ password }) })).status;
-        const awalSandi = hash();
+        const sebelumKunci = hash();
         sebagaiUid(sys, `select public.tangguhkan_akun(${lit(orang)}, 'SECURITY', 'uji auth: aktivasi diduga diambil alih')`);
+        // RESTATED, CI-2 (ruling 98): the lock itself rotates the secret (a random one nobody holds); from there nothing may
+        // write a credential, so the hash is read after the lock
+        const awalSandi = hash();
+        c.expect(awalSandi !== sebelumKunci, "the lock did not rotate the account's secret");
         // through the route: the wizard's session ended with the lock
         const r = await w.jsonDari("/api/aktifkan/password", { form: { password: `Tari-Baru-${randomBytes(6).toString("hex")}` } });
         const tanpaSesi = await new Peramban(asal, ipUji()).jsonDari("/api/aktifkan/password", { form: { password: `Tari-Asing-${randomBytes(6).toString("hex")}` } });

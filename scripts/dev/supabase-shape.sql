@@ -48,12 +48,16 @@ create table auth.users (
   email_change_token_new varchar(255),
   email_change varchar(255),
   last_sign_in_at timestamptz,
-  -- R-19 (Z): GoTrue columns the migrations read or write. banned_until is read and set by the account lock
-  -- (20270113130000, 20270116130000, 20270117160000); the two tokens are cleared by the email-change triggers
-  -- (20261203100000, 20261217100000, 20270113130000); deleted_at is read by the selftests. Types as GoTrue's.
+  -- R-19 (Z): GoTrue columns the migrations read or write. banned_until was read and set by the account lock
+  -- (20270113130000, 20270116130000, 20270117160000); CI-2 (20270126100000) lifts every ban and no function reads or
+  -- writes it since. The two tokens are cleared by the email-change triggers (20261203100000, 20261217100000,
+  -- 20270113130000) and, with phone_change_token and email_change_confirm_status, by CI-2's rotation; deleted_at is
+  -- read by the selftests. Types as GoTrue's.
   banned_until timestamptz,
   email_change_token_current varchar(255) default '',
   reauthentication_token varchar(255) default '',
+  phone_change_token varchar(255) default '',
+  email_change_confirm_status smallint default 0,
   deleted_at timestamptz
 );
 create table auth.identities (
@@ -75,6 +79,35 @@ create table auth.sessions (
   updated_at timestamptz default now(),
   not_after timestamptz,
   refreshed_at timestamp
+);
+-- CI-2 (20270126100000): GoTrue's refresh tokens, one-time tokens and PKCE flow state (subsets), revoked and cleared by
+-- the lock's rotation; F-4 reads the refresh tokens of locked persons at migration time.
+create table auth.refresh_tokens (
+  id bigserial primary key,
+  instance_id uuid,
+  token varchar(255) unique,
+  user_id varchar(255),
+  revoked boolean,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now(),
+  parent varchar(255),
+  session_id uuid references auth.sessions(id) on delete cascade
+);
+create table auth.one_time_tokens (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  token_type text not null,
+  token_hash text not null,
+  relates_to text not null,
+  created_at timestamp default now(),
+  updated_at timestamp default now()
+);
+create table auth.flow_state (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid,
+  auth_code text,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
 );
 create function auth.uid() returns uuid language sql stable as $fn$
   select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid

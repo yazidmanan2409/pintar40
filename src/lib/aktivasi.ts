@@ -134,6 +134,12 @@ export type AlatVerifikasi = {
   keadaan(): Promise<string>;
   tujuan(lanjut: unknown): Promise<string>;
   catatGalat(ref: string, apa: string): void;
+  /**
+   * CI-2 F-5: after a code Auth accepted, whether its person is locked (suspended or closed), with the new session
+   * signed out if so. Auth no longer refuses a locked account (it is rotated, not banned), so this is where the
+   * activation door answers a locked person as before: the ordinary wrong code, counted like one.
+   */
+  terkunci?(): Promise<boolean>;
 };
 
 export async function verifikasiKode(
@@ -179,6 +185,10 @@ export async function verifikasiKode(
     const ref = rujukan();
     alat.catatGalat(ref, `Auth could not verify (${jawaban.error.status ?? 0} ${jawaban.error.code ?? jawaban.error.name ?? ""})`);
     return gagal<K, B>(STATUS_VERIFIKASI, "LAYANAN_TIDAK_TERSEDIA", { ref });
+  }
+  if (alat.terkunci && (await alat.terkunci().catch(() => true))) {
+    alat.catatGalat(rujukan(), AKUN_TERKUNCI_LOG);
+    return gagal<K, B>(STATUS_VERIFIKASI, "KODE_TIDAK_COCOK");
   }
   await alat.selesaikan(kunci, "OK").catch(() => alat.catatGalat(rujukan(), "a matched code's record was not cleared"));
   const keadaan = await alat.keadaan().catch(() => "REQUIRED");

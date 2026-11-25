@@ -34,7 +34,14 @@ const SYS = "sysadmin@synthetic.pintar.test";
 const orangBaru = (nama: string) => psql(`select selftest.l1f2_orang(${lit(nama)})`);
 const akunUntuk = (p: string, email: string) => `select selftest.l1f2_akun(${lit(p)}::uuid, ${lit(email)})`;
 const tangguh = (p: string) => `select selftest.as_user(${lit(SYS)}); select public.tangguhkan_akun(${lit(p)}::uuid, 'ADMINISTRATIVE', 'uji L1-F2: balapan dua koneksi'); select selftest.as_owner()`;
-const kunci = (email: string) => psql(`select coalesce(selftest.l1f2_kunci(u.id), 'no user') from auth.users u where u.email = ${lit(email)} union all select 'no user' limit 1`);
+/**
+ * RESTATED, CI-2 (ruling 98): a lock is a rotation of the account's secret, never a ban. The race's Auth users are made
+ * with no password, so «locked» is a key the lock wrote (never banned) and «open» is no key at all.
+ */
+const kunci = (email: string) => {
+  const k = psql(`select coalesce(selftest.l1f2_kunci(u.id), 'no user') from auth.users u where u.email = ${lit(email)} union all select 'no user' limit 1`);
+  return k === "no user" ? k : k === "banned" ? "banned" : k === "key:none" ? "open" : "locked";
+};
 const uidDari = (email: string) => psql(`select id from auth.users where email = ${lit(email)}`);
 /** Everything a race made, by its names, removed past the guards (the harness's hand, never a product path), and counted. */
 function bersihkan(awalan: string): string {

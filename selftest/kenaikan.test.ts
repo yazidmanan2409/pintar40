@@ -888,14 +888,20 @@ export const kenaikanAppTests: SelfTest[] = [
       if (!c.expect(typeof fb !== "string", `the reopening form in the queue: ${fb}`)) return c.verdict("");
       const rb = await sys.kirim("/konfigurasi/keamanan", { form: fb as Record<string, string> });
       c.expect(/hasil=ok/.test(rb.headers.get("location") ?? ""), `the reopening answered ${rb.status} ${rb.headers.get("location")}`);
+      // RESTATED, CI-2 (OD-1, ruling 100): reopening re-keys, so the old password is an ordinary wrong one, and the decider's
+      // confirmation tells them so (Daisy CI2-KATA §1) with the person named, before the person's first attempt
       const lagi = await new Komputer(asal, ipUji()).jsonDari("/masuk/password", { form: { identitas: email, password: sandi } });
-      c.expect(lagi.status === 200, `the reopened account does not sign in (${lagi.status})`);
+      c.expect(lagi.status === 401 && lagi.body?.code === "MASUK_TIDAK_COCOK", `the reopened account's old password: ${lagi.status} ${JSON.stringify(lagi.body)} (expected the ordinary mismatch)`);
+      const konfirmasi = await sys.halaman(rb.headers.get("location") ?? "/konfigurasi/keamanan");
+      const isiKonfirmasi = await konfirmasi.text();
+      c.expect(/data-kredensial-baru="staf"/.test(isiKonfirmasi) && /Password lamanya tidak berlaku lagi/.test(isiKonfirmasi),
+        "the reopening's confirmation does not say the old password no longer works (Daisy CI2-KATA §1)");
       c.expect(psql(`select status from public.account_requests where id = ${lit(req)}`) === "DONE", "the request is not DONE");
       c.expect(psql(`select count(*) from public.role_assignments where person_id = ${lit(orang)} and revoked_at is null`) === "0",
         "the reopened account got a former school role back");
       return c.verdict("a closed account is asked back signed out from the sign-in screen, answered as an unknown address is; the request waits " +
         "in the queue and reopens nothing; the closed account offers no other reopening; the PINTAR Administrator confirms the identity, says how, " +
-        "and reopens it from the queue; the request is DONE and the educator signs in again, with no former school role; a repeat from one address is paced");
+        "and reopens it from the queue; the request is DONE; the old password is an ordinary wrong one and the confirmation says so (ruling 100), with no former school role given back; a repeat from one address is paced");
     },
   },
 ];

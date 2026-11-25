@@ -249,6 +249,12 @@ export default function LupaPassword({ locale, aturan, idAwal = null }: { locale
           {sisa > 0 ? <p className="pin-meta pin-akt-hitung">{s("aktifkan.kirim_ulang_dalam")} {format.durasi(sisa, locale)}.</p> : null}
           <button type="button" className="pin-mbtn pin-mbtn-2" onClick={namaLain} disabled={!siap}>{s("lupa.nama_lain")}</button>
         </div>
+        {/* CI-2 (Daisy CI2-KATA §3 and §4; Sharon §7): static, under the refusal, never its text */}
+        <p className="pin-rute" data-dibuka-kembali-baru="">{s("masuk.dibuka_kembali_baru")}</p>
+        <p className="pin-rute" data-f6="">
+          {s("masuk.f6")}{" "}
+          <a className="pin-tautan" href="/masuk/buka-kembali">{s("auth.tutup_go")}</a>
+        </p>
       </form>
     );
   }
@@ -288,6 +294,9 @@ export default function LupaPassword({ locale, aturan, idAwal = null }: { locale
             {s("lupa.pin.ke_email")}
           </button>
         </div>
+        {/* CI-2 (Daisy CI2-KATA §3 and §4's learner variant; Sharon §7): static, under the refusal, never its text */}
+        <p className="pin-rute" data-dibuka-kembali-baru="">{s("masuk.dibuka_kembali_baru")}</p>
+        <p className="pin-rute" data-f6-murid="">{s("masuk.f6_murid")}</p>
         <p className="pin-rute">
           <a className="pin-tautan" href="/masuk">{s("lupa.ke_masuk")}</a>
         </p>
@@ -320,6 +329,12 @@ export default function LupaPassword({ locale, aturan, idAwal = null }: { locale
       <div className="pin-stack">
         <button type="button" className="pin-mbtn pin-mbtn-2" onClick={kePin} disabled={!siap}>{s("lupa.ke_pin")}</button>
       </div>
+      {/* CI-2 (Daisy CI2-KATA §3 and §4; Sharon §7): static, under the refusal, never its text */}
+      <p className="pin-rute" data-dibuka-kembali-baru="">{s("masuk.dibuka_kembali_baru")}</p>
+      <p className="pin-rute" data-f6="">
+        {s("masuk.f6")}{" "}
+        <a className="pin-tautan" href="/masuk/buka-kembali">{s("auth.tutup_go")}</a>
+      </p>
       <p className="pin-rute">
         {s("lupa.belum_aktif")}{" "}
         <a className="pin-tautan" href="/aktifkan">{s("lupa.ke_aktifkan")}</a>

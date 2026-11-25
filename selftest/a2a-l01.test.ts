@@ -244,8 +244,9 @@ export const PENGECUALIAN: { penulis: string; lewat: Lewat; alasan: string; syar
   ...["(GoTrue I auth.users)", "handle_new_auth_user"].map((penulis) => ({
     penulis, lewat: (v: string) => (/^persons \(rank 1\) after auth\.users \(rank 4\) — /.test(v)
       && /; earlier via (GoTrue > \[auth\.users I\] )?handle_new_auth_user$/.test(v))
-      || /^an upgrade on auth\.users: strength 0 via (GoTrue > \[auth\.users I\] )?handle_new_auth_user, then 2 via .*\[accounts I\] akun_baru_terkunci$/.test(v),
-    alasan: "the auth.users row held is the new row Auth is inserting: no other transaction can see it, so none can hold it",
+      // RESTATED, CI-2: the new account of a locked person is rotated (akun_baru_terkunci > akun_rotasi), the same new row
+      || /^an upgrade on auth\.users: strength 0 via (GoTrue > \[auth\.users I\] )?handle_new_auth_user, then 2 via .*\[accounts I\] akun_baru_terkunci( > akun_rotasi)?$/.test(v),
+    alasan: "the auth.users row held is the new row Auth is inserting: no other transaction can see it, so none can hold it (CI-2, Sharon §8 1(e): widened to akun_baru_terkunci > akun_rotasi rotating that same new row)",
     syarat: (kat: Katalog) => [...kat.pemicu].every(([k, fs]) => !fs.includes("handle_new_auth_user") || /^auth\.users\|I\|/.test(k)),
   })),
   // the window functions, RE-READ AFTER B1 (change C; the "pending B1" exception is removed): the actor's foreign key
@@ -302,6 +303,28 @@ export const PENGECUALIAN: { penulis: string; lewat: Lewat; alasan: string; syar
       return jaga && pemanggil.length > 0 && pemanggil.every((f) => f !== "GoTrue" && (kat.fns.get(f) ?? []).length > 0
         && (kat.fns.get(f) ?? []).every((b) => bersih(b).split(";").filter((st) => /\bupdate\s+auth\.users\b/.test(st))
           .every((st) => !/\bencrypted_password\b/.test(st))));
+    } },
+  // CI-2 (ruling 98; FOR SHARON'S READ, named in the CI-2 freeze check): "the rotation's own write". akun_rotasi sets
+  // encrypted_password to a random secret, so the guard is reached; it returns at its second statement, the GUC check, when
+  // the GUC names the row being written. This covers a breach only when (1) the guard's GUC return follows its
+  // unchanged-password return directly, and (2) every caller reaching it through its own UPDATE of auth.users that sets
+  // encrypted_password is akun_rotasi, whose body sets the GUC to p_auth_user before that update and writes only that row
+  { penulis: "*", lewat: (v: string) => /akun_rotasi > \[auth\.users U\] auth_password_write_guard/.test(v),
+    alasan: "the rotation's own write (CI-2; Sharon CI-2-SPEC §8 1(e)): exactly akun_rotasi > auth_password_write_guard; the guard returns at the GUC check, which names this row, set transaction-locally and cleared after the one-row update, before any permit, recovery or person",
+    syarat: (kat: Katalog, _l?: Kunci[], v?: string) => {
+      // bersih blanks string literals, so the GUC's name is read from the raw body
+      const jaga = (kat.fns.get("auth_password_write_guard") ?? []).every((b) => bersih(b).replace(/\s+/g, " ")
+        .includes("if new.encrypted_password is not distinct from old.encrypted_password or coalesce(new.encrypted_password, '') = '' then return new; end if; "
+          + "if current_setting('', true) = new.id::text then return new; end if;")
+        && /if current_setting\('pintar\.kunci_rotasi', true\) = new\.id::text then\s+return new;/.test(b));
+      const rotasi = (kat.fns.get("akun_rotasi") ?? []).every((b) => {
+        const t = bersih(b).replace(/\s+/g, " ");
+        const gucPada = /perform set_config\('pintar\.kunci_rotasi', p_auth_user::text, true\);/.test(b) ? t.indexOf("perform set_config('', p_auth_user::text, true);") : -1;
+        const tulisPada = t.indexOf("update auth.users u set encrypted_password = v_hash,");
+        return gucPada >= 0 && tulisPada > gucPada && /update auth\.users u set encrypted_password = v_hash,[^;]* where u\.id = p_auth_user;/.test(t);
+      }) && (kat.fns.get("akun_rotasi") ?? []).length > 0;
+      const pemanggil = [...(v ?? "").matchAll(/([a-z_0-9]+|GoTrue) > \[auth\.users U\] auth_password_write_guard/g)].map((m) => m[1]);
+      return jaga && rotasi && pemanggil.length > 0 && pemanggil.every((f) => f === "akun_rotasi");
     } },
   // ROW 11, REGISTER REG-A2A-01 (Sharon, §3): two enrolments of one person at once (tempatkan_murid, transfer_execute):
   // orang_lampiran_jaga FOR SHARE, then enrollments_programme_alone FOR UPDATE, both BEFORE INSERT on enrollments; a

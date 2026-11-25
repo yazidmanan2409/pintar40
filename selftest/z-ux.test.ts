@@ -1012,26 +1012,46 @@ export const zUxAppTests: SelfTest[] = [
       const c = new Checks();
       const { Komputer } = await import("./bob29.test");
       const { ipUji } = await import("./bob26.test");
+      const { randomBytes } = await import("node:crypto");
       const asal = ctx.appUrl!;
-      const k = new Komputer(asal, ipUji());
       const ke = (r: Response) => r.headers.get("location") ?? "";
       const isian = t("buka_kembali.galat.isian", "public", { locale: "id" });
       const tunggu = t("buka_kembali.galat.tunggu", "public", { locale: "id" });
-      // a refused input, twice from one address: each is said as the input's own line, and neither uses the pace
-      for (const [apa, form] of [["a message of spaces and 6 letters", { identitas: "seseorang@local.invalid", pesan: "    pendek    " }],
-        ["no identity", { identitas: "   ", pesan: "Saya ingin kembali mengajar di sekolah ini." }]] as const) {
-        const r = await k.kirim("/masuk/buka-kembali/kirim", { form: { ...form } });
-        c.expect(r.status === 303 && /kode=ISIAN/.test(ke(r)), `${apa}: answered ${r.status} ${ke(r)}, not the input's own line (kode=ISIAN)`);
-        const h = await (await k.halaman(ke(r))).text();
-        c.expect(h.includes(isian) && !h.includes(tunggu), `${apa}: the page does not say the input's own line, or says «a request was just sent»`);
-      }
-      // the pace still holds for requests the database takes: the first is sent, the second at once is paced
+      // ISOLATION (the 8678de21 run): the reopening route is paced per client address (code_request_pace), so this test
+      // posts from 192.0.2.0/24 (TEST-NET-1), its own range: ipUji (every other test's address) never draws it, nor twice
+      const sendiri = () => `192.0.2.${1 + (randomBytes(1)[0] % 254)}`;
+      const ditarik = Array.from({ length: 2000 }, () => ipUji());
+      c.expect(new Set(ditarik).size === ditarik.length && !ditarik.some((a) => a.startsWith("192.0.2.")),
+        "ipUji drew one address twice, or one of Z-S12-01's own (192.0.2.0/24): two tests could share a pace again");
       const pesan = "Saya ingin kembali mengajar. Hubungi saya di nomor sekolah.";
-      const r1 = await k.kirim("/masuk/buka-kembali/kirim", { form: { identitas: `tiada-s12-${Date.now()}@local.invalid`, pesan } });
-      c.expect(/hasil=terkirim/.test(ke(r1)), `a well-formed request after two refused ones was not sent: ${ke(r1)}`);
-      const r2 = await k.kirim("/masuk/buka-kembali/kirim", { form: { identitas: `tiada-s12b-${Date.now()}@local.invalid`, pesan } });
-      c.expect(/kode=TUNGGU/.test(ke(r2)), `a second well-formed request at once is not paced: ${ke(r2)}`);
-      return c.verdict("posts to the running app's reopening route from one address: a message of spaces and six letters, then an empty identity, each answer kode=ISIAN and the page says buka_kembali.galat.isian, never «a request was just sent»; neither used the pace, so a well-formed request then is sent (hasil=terkirim), and a second at once is still paced (kode=TUNGGU)");
+      // the test itself, from one address; it returns what it found wrong
+      const jalankan = async (alamat: string): Promise<string[]> => {
+        const salah: string[] = [];
+        const k = new Komputer(asal, alamat);
+        // a refused input, twice from one address: each is said as the input's own line, and neither uses the pace
+        for (const [apa, form] of [["a message of spaces and 6 letters", { identitas: "seseorang@local.invalid", pesan: "    pendek    " }],
+          ["no identity", { identitas: "   ", pesan: "Saya ingin kembali mengajar di sekolah ini." }]] as const) {
+          const r = await k.kirim("/masuk/buka-kembali/kirim", { form: { ...form } });
+          if (!(r.status === 303 && /kode=ISIAN/.test(ke(r)))) salah.push(`${apa}: answered ${r.status} ${ke(r)}, not the input's own line (kode=ISIAN)`);
+          const h = await (await k.halaman(ke(r))).text();
+          if (!(h.includes(isian) && !h.includes(tunggu))) salah.push(`${apa}: the page does not say the input's own line, or says «a request was just sent»`);
+        }
+        // the pace still holds for requests the database takes: the first is sent, the second at once is paced
+        const r1 = await k.kirim("/masuk/buka-kembali/kirim", { form: { identitas: `tiada-s12-${Date.now()}@local.invalid`, pesan } });
+        if (!/hasil=terkirim/.test(ke(r1))) salah.push(`a well-formed request after two refused ones was not sent: ${ke(r1)}`);
+        const r2 = await k.kirim("/masuk/buka-kembali/kirim", { form: { identitas: `tiada-s12b-${Date.now()}@local.invalid`, pesan } });
+        if (!/kode=TUNGGU/.test(ke(r2))) salah.push(`a second well-formed request at once is not paced: ${ke(r2)}`);
+        return salah;
+      };
+      for (const m of await jalankan(sendiri())) c.expect(false, m);
+      // PLANT: the address another test has just sent a well-formed request from (AKUN-A02's, as on 8678de21) must turn
+      // this test red: the collision is what the isolation removes, not something the test tolerates
+      const lain = ipUji();
+      await new Komputer(asal, lain).kirim("/masuk/buka-kembali/kirim", { form: { identitas: `tiada-s12-lain-${Date.now()}@local.invalid`, pesan } });
+      const tertanam = await jalankan(lain);
+      c.expect(tertanam.some((m) => m.startsWith("a well-formed request after two refused ones was not sent")),
+        `the plant (this test given another test's address, just paced) did not turn it red: ${JSON.stringify(tertanam)}`);
+      return c.verdict("posts to the running app's reopening route from its own address in 192.0.2.0/24, which ipUji (2000 draws, none repeated) never gives another test: a message of spaces and six letters, then an empty identity, each answer kode=ISIAN and the page says buka_kembali.galat.isian, never «a request was just sent»; neither used the pace, so a well-formed request then is sent (hasil=terkirim), and a second at once is still paced (kode=TUNGGU). The plant, the same test given an address another test has just been paced on, turns it red");
     },
   },
   {

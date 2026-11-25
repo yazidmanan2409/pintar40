@@ -9,7 +9,7 @@ import LembarKartu, { type KartuCetak } from "./LembarKartu";
 import { useCariDiAlamat } from "./cari-pemegang";
 import { kataAman } from "@/lib/pemegang-kartu";
 
-export type PemegangKartu = { person_id: string; display_name: string; institutional_id: string; card_last4: string };
+export type PemegangKartu = { person_id: string; display_name: string; institutional_id: string; card_last4: string; terkunci?: boolean };
 
 /**
  * «KARTU HILANG ATAU RUSAK» (BOB-28 with DAISY-22; D-088(e), J2.21).
@@ -103,7 +103,14 @@ export default function KartuUlang({ locale, pemegang, ada, dicari }: { locale: 
                     <strong>{p.display_name}</strong> · <span className="pin-num">{p.institutional_id}</span>
                     {" · "}{s("aktivasi.ulang.akhiran")} <span className="pin-num">{akhiran[p.person_id] ?? p.card_last4}</span>
                   </span>
-                  {dipilih ? (
+                  {p.terkunci ? (
+                    // CI-2 (Daisy CI2-KATA §6; Bob, principle 3, C-7; Sharon V-1): a locked learner gets one neutral line in place of
+                    // the button, naming no reason, so no card is drawn and no PIN that cannot work is shown or printed. The
+                    // database decides at the press regardless
+                    <span className="pin-meta" data-kartu-terkunci="ya">
+                      {s("aktivasi.kartu_ulang.tidak_dapat_dipakai").split("{nama}").join(p.display_name)}
+                    </span>
+                  ) : dipilih ? (
                     <span>
                       <fieldset className="pin-akt-alasan">
                         <legend className="pin-meta">{s("aktivasi.ulang.alasan")}</legend>

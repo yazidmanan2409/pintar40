@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-export type PemegangKartuBaris = { person_id: string; display_name: string; institutional_id: string; card_last4: string };
+/** terkunci (CI-2, Daisy CI2-KATA §5; Sharon V-1): whether the learner is locked, never why, so the page draws no re-issue for them. */
+export type PemegangKartuBaris = { person_id: string; display_name: string; institutional_id: string; card_last4: string; terkunci: boolean };
 
 /** The words of a search, made safe for PostgREST's quoted or-filter value (no quote, backslash or wildcard of the reader's own). */
 export function kataAman(kata: string | string[] | undefined): string {
@@ -29,7 +30,7 @@ export async function cariPemegangKartu(db: SupabaseClient, kata: string, sekola
 }
 
 function tanpaSekolah(p: PemegangKartuBaris): PemegangKartuBaris {
-  return { person_id: p.person_id, display_name: p.display_name, institutional_id: p.institutional_id, card_last4: p.card_last4 };
+  return { person_id: p.person_id, display_name: p.display_name, institutional_id: p.institutional_id, card_last4: p.card_last4, terkunci: p.terkunci === true };
 }
 
 /** Whether the reader has any class-card holder in scope, counted, never listed. */

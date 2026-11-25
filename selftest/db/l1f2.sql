@@ -3,14 +3,16 @@
 -- 20270117160000_a_suspension_covers_the_accounts_made_after_it.sql). One transaction per case, each undone. The races,
 -- on two real connections, are selftest/l1f2-balapan.test.ts.
 --
---   L1F2-S01  a suspended person given an account: it is created locked (banned_until = akun_terkunci_sampai())
---   L1F2-S02  the lock survives later updates: an update clearing banned_until, an update of another column, and
---             one setting a nearer date each leave it at akun_terkunci_sampai() (Sharon §2a test 4)
---   L1F2-S03  successive suspensions: suspend, create, reinstate, suspend again: locked, released, locked (test 5);
---             reinstatement ends the suspension row first, and only then unlocks
+--   RESTATED, CI-2 (ruling 98): a lock is a rotation of the account's secret, never a ban, so «locked» reads here as
+--   «re-keyed by the lock, and not banned» (selftest.l1f2_kunci gives the key's fingerprint, or 'banned')
+--   L1F2-S01  a suspended person given an account: it is created rotated (a secret nobody holds), never banned
+--   L1F2-S02  the lock survives later updates: an update of another column leaves the key; a password written with
+--             no permit is refused and leaves it (Sharon §2a test 4, restated)
+--   L1F2-S03  successive suspensions: suspend, create, reinstate, suspend again: re-keyed at each (test 5; ruling 100:
+--             the unlock re-keys too); reinstatement ends the suspension row first, and only then re-keys
 --   L1F2-S04  atomicity: a lock step forced to fail leaves no Auth user and no account (test 1); an Auth insert with
 --             no grant is refused PR010 (test 2)
---   L1F2-S05  a closed person (CLOSED_AT_REQUEST) given an account: it ends locked; buka_kembali_akun releases it (test 6)
+--   L1F2-S05  a closed person (CLOSED_AT_REQUEST) given an account: it is rotated; buka_kembali_akun re-keys it (test 6)
 --   L1R2-S01  a lock leaves no RECOVERY or ACTIVATION permit of the person; a CARD_REISSUE permit stays; an unlock
 --             deletes nothing; another person's permits are untouched (Sharon §2b point 1)
 --   L1R2-S02  the lock order, structurally (Sharon's result review of e27f4a77): every act that takes an account row and
@@ -48,8 +50,8 @@ revoke all on function selftest.l1f2_akun(uuid, text) from public;
 
 create or replace function selftest.l1f2_kunci(p_uid uuid)
 returns text language sql stable set search_path = public, pg_temp as $$
-  select case when u.banned_until = public.akun_terkunci_sampai() then 'locked' when u.banned_until is null then 'open'
-              else 'other:' || u.banned_until::text end from auth.users u where u.id = p_uid
+  select case when u.banned_until is not null then 'banned' else 'key:' || coalesce(left(md5(u.encrypted_password), 12), 'none') end
+    from auth.users u where u.id = p_uid
 $$;
 revoke all on function selftest.l1f2_kunci(uuid) from public;
 
@@ -73,20 +75,23 @@ begin
     perform selftest.as_owner();
     v_u := selftest.l1f2_akun(v_p, 'l1f2-satu-' || v_tag || '@local.invalid');
     v_t := selftest.l1f2_kunci(v_u);
-    id := 'L1F2-S01'; ok := v_t = 'locked';
-    detail := case when ok then 'a person suspended before having an account is given one: it is created locked, until akun_terkunci_sampai()'
+    -- the fixture's Auth user is made with no password, so only the lock's rotation gives it a key
+    id := 'L1F2-S01'; ok := v_t like 'key:%' and v_t <> 'key:none';
+    detail := case when ok then 'a person suspended before having an account is given one: it is created rotated (a secret nobody holds), never banned'
                    else 'a suspended person''s new account reads ' || coalesce(v_t, 'no user') end;
     return next;
-    -- S02: later updates
-    update auth.users set banned_until = null where id = v_u;
-    v_t := selftest.l1f2_kunci(v_u);
+    -- S02: later updates (RESTATED, CI-2: there is no ban left to clear or shorten)
     update auth.users set raw_user_meta_data = coalesce(raw_user_meta_data, '{}'::jsonb) || '{"x": 1}' where id = v_u;
-    v_t := v_t || '|' || selftest.l1f2_kunci(v_u);
-    update auth.users set banned_until = now() + interval '1 hour' where id = v_u;
-    v_t := v_t || '|' || selftest.l1f2_kunci(v_u);
-    id := 'L1F2-S02'; ok := v_t = 'locked|locked|locked';
-    detail := case when ok then 'while the person is suspended, an update clearing banned_until, one of another column and one setting a nearer date each leave the lock as it was'
-                   else 'after later updates the account read ' || v_t || ' (expected locked|locked|locked)' end;
+    v_state := selftest.l1f2_kunci(v_u);
+    begin
+      update auth.users set encrypted_password = extensions.crypt('l1f2-tanpa-izin', extensions.gen_salt('bf', 4)) where id = v_u;
+      v_state := v_state || '|written';
+    exception when others then v_state := v_state || '|refused';
+    end;
+    v_state := v_state || '|' || selftest.l1f2_kunci(v_u);
+    id := 'L1F2-S02'; ok := v_state = v_t || '|refused|' || v_t;
+    detail := case when ok then 'while the person is suspended, an update of another column leaves the rotated key, and a password written with no permit is refused and leaves it'
+                   else 'after later updates the account read ' || v_state || ' (expected ' || v_t || '|refused|' || v_t || ')' end;
     return next;
     raise exception 'L1F2_UNDO';
   exception when others then
@@ -110,9 +115,10 @@ begin
     perform public.tangguhkan_akun(v_p, 'ADMINISTRATIVE', 'uji L1-F2: penangguhan kedua');
     perform selftest.as_owner();
     v_t := v_t || '|' || selftest.l1f2_kunci(v_u);
-    id := 'L1F2-S03'; ok := v_t = 'locked|open|locked';
-    detail := case when ok then 'suspended, then given an account: locked; reinstated (the suspension ended first, then the unlock): released; suspended again: locked'
-                   else 'suspend, create, reinstate, suspend read ' || v_t || ' (expected locked|open|locked)' end;
+    id := 'L1F2-S03'; ok := v_t not like '%banned%' and split_part(v_t, '|', 1) <> 'key:none'
+      and split_part(v_t, '|', 2) <> split_part(v_t, '|', 1) and split_part(v_t, '|', 3) <> split_part(v_t, '|', 2);
+    detail := case when ok then 'suspended, then given an account: rotated; reinstated (the suspension ended first, then the re-key): re-keyed; suspended again: rotated; never banned'
+                   else 'suspend, create, reinstate, suspend read ' || v_t || ' (expected three different keys, none banned)' end;
     return next;
     raise exception 'L1F2_UNDO';
   exception when others then
@@ -167,9 +173,9 @@ begin
     perform public.buka_kembali_akun(v_req, 'uji L1-F2: identitas diperiksa lewat telepon sekolah');
     perform selftest.as_owner();
     v_t := v_t || '|' || selftest.l1f2_kunci(v_u);
-    id := 'L1F2-S05'; ok := v_t = 'locked|open';
-    detail := case when ok then 'a closed person given an account: it is created locked, and buka_kembali_akun releases it'
-                   else 'a closed person''s new account, then reopened, read ' || v_t || ' (expected locked|open)' end;
+    id := 'L1F2-S05'; ok := v_t not like '%banned%' and split_part(v_t, '|', 1) <> 'key:none' and split_part(v_t, '|', 2) <> split_part(v_t, '|', 1);
+    detail := case when ok then 'a closed person given an account: it is created rotated, and buka_kembali_akun re-keys it; never banned'
+                   else 'a closed person''s new account, then reopened, read ' || v_t || ' (expected two different keys, none banned)' end;
     return next;
     raise exception 'L1F2_UNDO';
   exception when others then
