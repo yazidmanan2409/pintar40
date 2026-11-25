@@ -51,3 +51,14 @@ There's **no operational workaround** that would stop institutions suspending ac
 - the production exposure check (ruling 98: production has no bans today; verified in the readiness process).
 
 **Order:** CI-1 is closed, and CI-2 is independent of it. CI-1b (printed certificates, L-105) is built after CI-2, as ruled.
+
+## Executed under ruling 103 (25 Nov 2026, Bob)
+
+1. **The reviewed correction:** `94ce6727..25681b11` (CI-2's base was CI-1's head). Its two clock-fix files (`selftest/db/r1.sql`, `selftest/db/fable37.sql`) are **byte-identical** to the lines H-1 already merged (`429b7dcc..7716f228`): sha256 `58529105…` both ways.
+2. **The branch was updated by GitHub's update-branch** (a merge commit, no history rewrite): the new head is **`c9d4e8a1`** (parents `25681b11` and `f1e35bb9`).
+3. **The changes match the reviewed correction, accounting for H-1's clock fix:** the PR's diff against main (`f1e35bb9..c9d4e8a1`) has sha256 **`941c0d0b…`**. That is exactly the reviewed correction with the two clock files excluded. 33 files, and the two clock files no longer appear.
+4. **Next:**
+   - ci on `c9d4e8a1` is read from the API;
+   - Sharon's FINAL;
+   - merge only when both are green;
+   - then the promotion 310 → 311.
