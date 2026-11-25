@@ -82,12 +82,49 @@ On `claude/eng-skills` (`ecf2b5cc`, from main `0c155a5c`), **not merged**:
 **Update:** edit the files by PR.
 **Removal and rollback:** revert the merge commit; there's nothing else to uninstall.
 
+## 2a · Owner's conditional approval (25 Nov), and its state
+
+**Merge and adopt once every condition below holds. No further general approval is needed.**
+
+| Condition | State |
+|---|---|
+| Sharon confirms the revised implementation (her E1–E5 and N1) | sent at `f83c8d50`; **pending** |
+| CI-1b has merged | **pending** (paused at review head `e8a35c3a`) |
+| All required CI checks pass, including `guard-scan` and the database tests not run locally | **pending**: ci on the frozen `claude/eng-skills` head, conclusion read from the API |
+| No material unresolved findings | none open today |
+
+**Fail-closed (owner):**
+- `guard-scan` runs `sensitive-scan --tree` with no `if:` and no `continue-on-error`, and the verdict needs it. The verdict fails on any result but `success`, so a failure, a skip or a cancellation all turn it red.
+- ENG-GUARD-01 asserts all of this; it is red on a planted `continue-on-error` and on a planted `run.sh`.
+- The scan's exit codes, checked in a throwaway repo:
+  - a finding: 1;
+  - no git repo: 1;
+  - the script missing: 1;
+  - a clean tree: 0.
+
+**The shared GitHub account limitation is acknowledged and not pursued** (owner).
+
+**A merge touching a guidance path cites Sharon's review record and the reviewed sha** (Sharon).
+
+**Merge order:**
+1. CI-1b merges.
+2. `claude/eng-skills` is updated from main by update-branch (no rewrite).
+3. Its diff is checked to be the reviewed one.
+4. ci runs on that head; the merge waits for success.
+5. Then main's ci is read on the merge commit.
+
 ## 3 · Monitoring after adoption (Bob, two weeks)
 
 - **Rule restatements in my team briefs:** they should fall to pointers («per `pintar-verification`»).
 - **Resumed sessions:** count the files read before the first useful action, against tonight's resumes.
 - **Errors the skills target:** a premature «green», a missed dependent screen, an unread ruling (A1). Each recurrence is logged against the skill that should have caught it.
 - **Removal:** any skill nobody loads in two weeks, or that drifts from its authority, is removed.
+- **The owner's four measures:**
+  - **Token consumption:** the tokens of a comparable task before and after. The L-160 runs here (127,871 and 129,194 tokens, without skills) are the first baseline. Every brief I send is logged by size.
+  - **Session recovery:** the tool calls and files read before the first useful action after a resume.
+  - **Engineering consistency:** the governance errors per change (a premature «green», an unread ruling, an unswept dependent screen).
+  - **Reduced rework:** the freeze re-dos and review rounds per change. CI-1b and CI-2 are the before-adoption baseline.
+- Results go into this file at two weeks, and the decision follows the numbers: keep, trim or remove each skill.
 
 ## 4 · Measurement limits
 
