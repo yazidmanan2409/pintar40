@@ -70,3 +70,11 @@ SHARON'S INDEPENDENT PROMOTION VERDICT (her record 6f0d376f, received 00:59Z): P
 - Reinstatement: no staging exercise is needed for this promotion. A disposable-fixture run before production is optional, at the owner's choice.
 - Still open, in her words: (1) «required: main ci 45520797680 on 0c155a5c green»; (2) «required before production: the hosted V6
   re-read, with the calls counter above 178,247 after the owner's staging request». Bob holds CI-2 open on staging until both are read.
+
+V6 RE-READ after the owner's staging sign-in (owner reported "staging log in - done"), read only, 2026-11-25 01:00:40Z:
+- periksa calls: 178,406 (anon 2,176, authenticated 172,366, service_role 3,864): +159 over the 178,247 post-promotion
+  baseline (00:55:14Z); authenticated +145. So the pre-request ran on requests made after the promotion: there is no
+  disabling override.
+- periksa md5: 2b4a0444fbd36007341a536916fe14a0, unchanged. Latest migration: 20270126100000.
+V6's hosted condition is MET (Sharon's open item (2)).
+Still open: main ci 45520797680 on 0c155a5c, in_progress at 01:00Z (read from the API).
