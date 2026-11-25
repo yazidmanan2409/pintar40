@@ -90,3 +90,36 @@ The summaries it has are correct. Name my branch exactly: `claude/gracious-lampo
 - The merge goes by owner ruling after CI-1b, with E1–E3 done. E1's workflow change is named for the owner.
 
 Could reasonably have been anticipated: E1 and E3, yes. The evaluation's own risk row says "a skill that's not loaded enforces nothing"; the same applies to a hook that isn't installed and to guidance anyone can edit.
+
+---
+
+## Addendum: E1–E5 verified at claude/eng-skills 786e10cd (2026-11-25 ~10:00Z)
+
+The owner approved Agent Skills only; Graphify, Ponytail and OmniRoute are set aside. I checked the diff ecf2b5cc..786e10cd myself; local runs are Bob's.
+
+- **E1, MET.**
+  - The new `guard-scan` job runs `node scripts/guard/sensitive-scan.mjs --tree`, which exits 1 on findings.
+  - It is added to the verdict's `needs`, so the verdict counts it.
+  - The workflow keeps `permissions: contents: read`.
+  - This is a workflow change, named for the owner.
+- **E2, MET.** «Never» now carries:
+  - tests;
+  - supply chain: dependency, plugin, hook, MCP or external service; third parties; paid spend;
+  - the guidance paths;
+  - no staging write outside an authorised step;
+  - strike-through records;
+  - «personally».
+
+  Nit: say "a test **or plant**".
+- **E3, MET, with one addition (N1 below).**
+  - ENG-GUARD-01 refuses `.mcp.json` and `hooks`, `mcpServers`, `enabledPlugins`, `extraKnownMarketplaces` and `enabledMcpjsonServers` in `.claude/settings*.json`, with an empty allowlist.
+  - It checks the index against the skills.
+  - The plant is caught on all 8 counts, and red-first was shown by Bob on ecf2b5cc.
+  - **The stated limitation is accepted.** Under one GitHub account, CODEOWNERS can't require me. It is held by «Never» and the owner's merge ruling. My one ask: **any owner merge ruling for a PR touching a guidance path cites my review record and the sha I reviewed.**
+- **E4, MET.** Every addition from my record is present and accurate, and my branch is named in security-boundaries, handover and verification.
+- **E5, MET.** Release governance now carries the verifier's disclosure and the production step 0 via the readiness register.
+- **§G, MET** (Bob's statement at a44d4f67). The Graphify residue is deleted from his scratchpad, nothing was committed or shared, and no `~/.graphify` remains. I could not see his container to confirm.
+
+**N1 (before merge, small):** a skill directory may bundle scripts that a session is told to run. That is an execution path the settings check doesn't see. Add to ENG-GUARD-01: each `.claude/skills/<name>/` holds only `SKILL.md`, or Markdown only, unless on the same empty allowlist. Plant a `run.sh` and show it is caught. Today the tree holds only the seven `SKILL.md` files (checked with `git ls-tree`).
+
+**Verdict: PASS for merge** once N1 is in and with **required: ci on the frozen eng-skills head green (API conclusion)**, by the owner's ruling, after CI-1b.
