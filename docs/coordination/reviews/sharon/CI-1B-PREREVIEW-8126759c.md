@@ -117,3 +117,40 @@ Could reasonably have been anticipated: yes, by any reviewer of earlier journey 
   - The `:has()` rules and `@page cetak-keadaan` apply only where the notice renders.
   - **One cheap guard instead of re-scoping:** a static check that these components and classes are rendered only by the certificate page. Then a future page that reuses them knowingly takes on the hiding rules. Non-blocking: build it with the re-freeze if convenient, otherwise ledger it.
 - **(1), noted:** S21j is fixed at e7bbd547 with two people and the constraint untouched, per Bob. I verify it in the re-freeze delta.
+
+---
+
+## Addendum: re-freeze delta at 145bd8dcf61bb9c66de5210d94ba8fa44ee5c96c (2026-11-26 ~04:50Z)
+
+**Head:** origin/claude/ci-1b = 145bd8dc.
+- `git diff 0c155a5c 145bd8dc`: sha256 begins `3ca5eb9167ffcb59`, matching Bob's value; 19 files, +1065/−30; no migration.
+- **The product delta since e8a35c3a is empty:** `git diff e8a35c3a 145bd8dc -- src supabase .github` gives 0 lines. Only `audit/journey.mjs` and `FREEZE-EVIDENCE.md` changed.
+- So my code PASS for e8a35c3a (P1, P2, the workflow lines) carries over unchanged.
+
+**(1) S21j, MET.**
+- The fixture now takes two different people: the school admin proposes and the head of department decides.
+- It throws if they are missing or are the same person.
+- `key_corrections_independent` is untouched; there is no `supabase` delta.
+
+**(2) and (3), MET** (the earlier addendum). The sweep's method, surfaces and results are now in FREEZE-EVIDENCE §3, as I asked.
+
+**B2J, MET as a journey-only fix.**
+- **Fail closed:** a missing or failed `pdftotext` returns «!! …», and `pdfOk` requires that it is not «!!».
+- **The official path:** the page's own «Cetak laporan» calls the real `window.print`.
+- **The product assertion that matters:** `diBeforeprint`. That is the footer the page itself holds at the browser's real `beforeprint`, after its own handler, and it must contain `Ref. {ref}`.
+- **Disclosed limitation:** the PDF itself is made with that captured footer held in a test style, because `page.pdf` fires `beforeprint` again as a browser print. So the PDF proves the footer renders in print, and `diBeforeprint` proves the product keeps it. Together they cover the claim.
+- **The committed plant** (footer not held) is caught. The two **product** plants (footer skipped; `beforeprint` confused) were shown red locally and are not committed, per the evidence.
+- **The product fact,** seen in real Chromium: the reference is kept through `beforeprint`, and the default returns at `afterprint`. So **there is no audit-trail gap, and nothing for me to classify.**
+
+**The harness sweep (evidence §2):** B2J was the only vacuous **PDF-text** check. S21i, S21j and S27v were already fail-closed. `audit/laporan-jalan.mjs` swallows a PDF error with no assertion and runs in no workflow; it is recorded and left alone. Acceptable.
+
+**Ledger (non-blocking, ruling 93):**
+1. My sweep extension, the **non-PDF** evidence checks (catch → pass, empty-text matches, absent-file guards), is not covered by §2. Take it with AR-79's harness work.
+2. My optional static check, that the certificate print parts render only on the certificate page, is neither taken nor ledgered in the evidence. Ledger it.
+3. F04-S04 «deadlock detected» is the harness's `DISABLE TRIGGER` racing pg_cron's `pengerjaan_tutup_berkala`. It is pre-existing and passes alone. It is a test-reliability item, rightly not "flake".
+
+**Verdict: CI-1b re-freeze delta PASS on the code.**
+- **Required:** ci 45755950858 and journeys 45755954130 on 145bd8dc green, from the API conclusion. Both were status=in_progress when I read the API at ~04:50Z.
+- **Plus** Daisy's word check.
+
+I have not queried staging; this is a code read.
