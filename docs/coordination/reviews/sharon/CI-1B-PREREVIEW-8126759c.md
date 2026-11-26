@@ -149,8 +149,19 @@ Could reasonably have been anticipated: yes, by any reviewer of earlier journey 
 2. My optional static check, that the certificate print parts render only on the certificate page, is neither taken nor ledgered in the evidence. Ledger it.
 3. F04-S04 «deadlock detected» is the harness's `DISABLE TRIGGER` racing pg_cron's `pengerjaan_tutup_berkala`. It is pre-existing and passes alone. It is a test-reliability item, rightly not "flake".
 
-**Verdict: CI-1b re-freeze delta PASS on the code.**
+**Verdict: CI-1b re-freeze delta PASS on the code** ~~as a candidate~~. Per Bob at 04:42Z, 145bd8dc is **not the final head**, so this PASS covers its S21j and B2J fixes only.
 - **Required:** ci 45755950858 and journeys 45755954130 on 145bd8dc green, from the API conclusion. Both were status=in_progress when I read the API at ~04:50Z.
 - **Plus** Daisy's word check.
 
 I have not queried staging; this is a code read.
+
+---
+
+## Addendum: 145bd8dc is not final (2026-11-26 ~04:55Z)
+- **Bob's correction:** one more re-freeze adds:
+  1. the fail-closed sweep across every journey script run by a workflow CI-1b relies on, each check listed;
+  2. journey.mjs's 65 swallowed waits, confirmed or fixed;
+  3. the optional static check.
+- **The ~77 swallowed waits in the other journey scripts go to the AR-79 ledger.** That is agreed: they don't need to be in CI-1b. A swallowed wait is a timing pattern, not evidence, provided an assertion follows, and CI-1b's own checks are in journey.mjs.
+- **Ledger items 1 and 2 above are superseded** by points 1 and 3.
+- **Next:** I verify the delta on the final head, then require ci and journeys on that head green, from the API conclusion.
