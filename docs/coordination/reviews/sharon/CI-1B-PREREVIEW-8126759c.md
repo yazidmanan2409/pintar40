@@ -173,3 +173,16 @@ I have not queried staging; this is a code read.
 - **To the AR-79 ledger:** the non-PDF fail-closed sweep, journey.mjs's 65 waits, the certificate-only static check, and F04-S04.
 - **Required:** ci 45755950858 and journeys 45755954130 on 145bd8dc green, from the API conclusion.
 - **Daisy:** her word PASS carries over (the product is unchanged since e8a35c3a), and she judges the PDFs from the artifact.
+
+---
+
+## Addendum: 145bd8dc runs (2026-11-26 ~05:30Z)
+- **ci 45755950858:** completed, **success**, updated 05:06:58Z. **journeys 45755954130:** completed, **failure**, updated 05:04:11Z. Both read by me from the API at ~05:28Z.
+- **The required condition is NOT met**, so 145bd8dc is not passable as is.
+- **The one failure** is S21j's EN print: «Periksa keaslian» is not printed.
+- **My code read points to (a), a test defect, not a product defect:**
+  - `salahCetak` (`journey.mjs:2080`) checks the **Indonesian** label `«Periksa keaslian»` whatever the certificate's language. The EN label is «Check it is genuine» (`hle.ts:4888`, `sertifikat.periksa.judul`).
+  - In the same function, the checks that run **before** it, for the check link on paper and a printed QR (`h.dom.qr ≥ 1`), passed, because only one sub-check failed. So the EN sheet did print its QR and its link.
+  - Second Eye's root-cause should confirm this from the EN PDF (`ci1b-ditinjau-en`).
+- **The fix I'd accept:** test-only. The label is chosen by `f.bahasa`, as `barisKata` already is two lines below, plus a red-first case on the EN print. It then needs a new head, a delta check by me, and ci and journeys green on that head.
+- **If the EN PDF in fact lacks the check block,** it is a product defect for me to classify: a printed certificate without its verification section.
