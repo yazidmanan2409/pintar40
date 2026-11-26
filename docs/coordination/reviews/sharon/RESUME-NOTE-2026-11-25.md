@@ -33,3 +33,16 @@ All my records are pushed to claude/gracious-lamport-0m1qjr. Nothing is in progr
 - Run results come only from the API conclusion, with the time read, written as "required: … green".
 - Superseded text is struck through, never deleted.
 - Each finding carries its "could reasonably have been anticipated" note.
+
+---
+
+## Update (2026-11-26): the IP protection initiative is PARKED by the owner
+- **What exists:** the exposure assessment, the supplement and the consolidated plan (record sha256 `5d799006d65026dd…`). They were delivered to the owner directly and kept **out of this public repository** on purpose. Bob appends Part C (visibility and cost).
+- **What is parked:** no implementation, no testing environments and no new dependencies until 4.1 is formally closed. I raise it again only for an immediate, material security threat.
+- **Standing:**
+  - the before-every-major-release reassessment of AI-assisted reverse engineering is mine (Bob builds it into the release gates);
+  - the approved principle: «Expose what the user needs, not how the entire system works — and explain every result the user is entitled to understand.»
+- **Focus:** 4.1. Open for me:
+  - CI-1b's delta after its freeze (P1 and P2 from my pre-review), then its runs;
+  - each AR-79 batch's pre-build review;
+  - the eng-skills merge conditions, after CI-1b.
