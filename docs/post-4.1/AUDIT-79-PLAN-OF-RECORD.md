@@ -101,3 +101,11 @@ Bob paces the work. The usage allowance is shared by every session.
 | OD-1 | **CI-2: a reinstated or reopened account signs in with a fresh credential** (a password reset; a new PIN from the school) | CI-2's merge | Accept (Sharon). **Sol, relayed by the owner (24 Nov): recommends approval.** Reinstatement restores authorised access; replacing the credential makes it resume securely; identity, history, results and certificates stay intact. Daisy makes recovery clear, so no one keeps trying a dead credential. **APPROVED by the owner (ruling 100):** fresh credentials are mandatory; previous credentials and sessions stay invalid; identity and records are preserved |
 | OD-2 | Merge and staging promotion of CI-1, CI-2 and AR-79, in order, each with its own evidence | Each merge | — |
 | OD-3 | **SD learner pages in «kamu»?** Daisy (L-158, J1-1): the tour and learner pages speak to a 9-year-old in an adult register («Anda»). She recommends «kamu» on SD learner pages | AR-79's words for SD learner pages (not blocking; AR-79 does the plain-word changes either way) | Daisy: yes. Bob: yes, scoped to SD learner-facing pages only, with one key set per register so the change stays a word-table change |
+
+
+## CI-1b · 26 Nov
+- **Frozen at `e8a35c3a`** (03:25Z), with Sharon's code PASS and Daisy's word PASS.
+- **Journeys 45748680995: conclusion failure** (API, 03:55:34Z; PASS 81, FAIL 2). The freeze is **void**.
+- **S21j:** a fixture breaks `key_corrections_independent`. The test is wrong, not the product.
+- **B2J:** the Ringkasan's PDF lost its CTK reference. It passed on CI-2's journeys, and CI-1b's print CSS is the suspected cause, to be proven on main.
+- Second Eye root-causes both, red first, and re-freezes. **The L-8 sweep is widened:** a print-stylesheet change has dependents beyond the certificate.

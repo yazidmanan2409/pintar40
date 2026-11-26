@@ -225,5 +225,7 @@ Three test faults went red tonight. Each was a test depending on something it di
 | C1W-S06 | the random order of questions | proven under both orders (CI-1) |
 | R1-K01 | the wall clock (UTC against the school's day), so it fails every evening from 16:00 to 24:00Z | in CI-2, ported to H-1. **Main carries it until one merges** |
 | Z-S12-01 | randomly drawn test addresses colliding on a rate-limited route (about 2 in 250) | a non-repeating draw, its own range, and a sweep (in CI-2) |
+| DR-D02 (CI-1b local pre-flight, 26 Nov) | Storage objects other suites leave in the same run (the backup drill counts files) | **open:** isolate the drill's Storage state, or reset it in the drill. CI-1b's code doesn't touch it |
+| S21j (CI-1b journeys 45748680995, 26 Nov) | a fixture that broke a database rule (`key_corrections_independent`) and passed locally on a different world state | the fixture is fixed, not the rule; why local differed is recorded at the fix |
 
 **The lesson:** a passing run is evidence only for the order, time and data it ran with. Tests pin each of these or are independent of them. (Also: a run result is quoted only from the API's conclusion, plan of record §3d.)
