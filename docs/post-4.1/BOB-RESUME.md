@@ -72,11 +72,21 @@
 - No merge, promotion or production change without the owner's ruling. No rewrite, and no force-push.
 - Never touch `.github/*-request.txt`. Never commit `supabase/config.toml`.
 
+## What existed for AR-A when the pause reached the team (none of it is code)
+
+- **Daisy:** draft words, `ux-1/daisy-experience` `44b09b05`, `ARA-KATA.md` §1–§10. Her pending messages are cancelled.
+- **Second Eye:** the STOP reached it at 08:15Z.
+  - A **read-only walk** of main's product on the local stack.
+  - A local branch `ar79/ar-a` = `2c96bdd2`, with no commits and unpushed.
+  - A **docs-only** branch `claude/second-eye-resume` `0a7b74d2`, pushed before the STOP was read: 6 files under `docs/post-4.1/ar79/ar-a-resume/`, namely the resume note, the walk's raw JSON and the scripts as `.txt`.
+  - Its queued AR-A messages are disabled and were never delivered.
+- **Kept as they are:** none of this is development, and deleting it would discard the walk evidence. On resumption, AR-A starts from its §2 entry, and the walk is re-confirmed on the resumption head before it is trusted.
+
 ## Team saves at the pause
 
 | Who | Branch | Head at the pause | Resume note |
 |---|---|---|---|
-| Second Eye | `claude/ci-1b` (merged), `claude/ci-1b-evidence` | `5cd81f9d`, `1f2689d4` | (pending its confirmation) |
+| Second Eye | `claude/ci-1b` (merged), `claude/ci-1b-evidence`, `claude/second-eye-resume` | `5cd81f9d`, `1f2689d4`, `0a7b74d2` (confirmed 08:20Z; all clean) | `claude/second-eye-resume`: `docs/post-4.1/ar79/ar-a-resume/RESUME.md` |
 | Sharon | `claude/gracious-lamport-0m1qjr` | `9709f2c5` (confirmed 08:11Z; no uncommitted work) | `RESUME-NOTE-2026-11-26-LONG-WEEKEND.md` |
 | Daisy | `ux-1/daisy-experience` | `a1e3c28f` (confirmed 08:15Z; clean). The AR-A draft words are at `44b09b05` `ARA-KATA.md` §1–§10, kept as a draft. Her pending AR-A messages are cancelled | `LANJUT-DAISY.md` |
 | Audit builder | `claude/audit-79-world` | `ac745e4a` (confirmed 08:14Z; clean, pushed) | `audit/79/LANJUT-Z-UX.md` |
