@@ -117,3 +117,9 @@ Bob paces the work. The usage allowance is shared by every session.
 - **Candidate `5cd81f9d`** (05:40Z): `145bd8dc` plus the S21j EN heading fix, chosen by the certificate's language from hle.ts. Journey and evidence only; the product diff is empty.
   - Runs: ci 45763080807 and journeys 45763084276.
   - **A disclosure carried here, not in the branch** (Second Eye's words): «The run's own PDFs (artifact 15088389798 of journeys 45755954130) could not be read from this session: the artifact host is not allowed by its network. What stands in for them: the run's log, where salahCetak's link and QR checks run before the label check and the label was the only EN failure listed; and the local prints from main and CI-1b above.»
+- **`5cd81f9d` green** (read 06:37Z):
+  - ci 45763080807 attempt 2: **success** (06:25:47Z). It is the one infrastructure re-run, after attempt 1's port-54322 clash before any test body (CI-W54322, §9 of COMMON-CAUSES).
+  - In attempt 2, the WP7 plants proved 14/14 and the BOB-01 plants 24/24, each red for its declared reason.
+  - journeys 45763084276: **success** (06:12:11Z). Job B's TALLY is PASS 83; job A succeeded. The artifact is 15091868185.
+- **PR [#33](https://github.com/yazidmanan2409/pintar40/pull/33) opened** against main `0c155a5c` (unmoved). The diff is 19 files, sha256 `e1f4c6c4…`, with no migration.
+- The merge waits for Sharon's verdict on `5cd81f9d`, Daisy's PDF judgement and the owner's ruling.
