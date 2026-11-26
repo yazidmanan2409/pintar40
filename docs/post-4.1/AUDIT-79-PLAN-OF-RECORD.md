@@ -133,3 +133,10 @@ Bob paces the work. The usage allowance is shared by every session.
   - The prints are local renders from `5cd81f9d` on `claude/ci-1b-evidence` `1f2689d4`. The CI artifact's download host is refused by the team's networks; that disclosure is in the branch's README.
   - Her one note, the check text under the review band, goes to AR-A. It is non-blocking.
 - **The merge waits only for the owner's ruling.**
+- **Ruling 104** (07:05Z): approved, subject to the PR's ci.
+  - ci 45769584637 on `5cd81f9d`: **success** (07:15:19Z).
+  - **PR #33 merged** at `b9ca98ef`, a merge commit with `expectedHeadSha` `5cd81f9d`. Its parents are `0c155a5c` and `5cd81f9d`, and its tree equals `5cd81f9d`'s.
+  - Main's ci 45774017397 is in progress. **CI-1b closes when it concludes success.**
+- **Agent Skills (after closure, under the 25 Nov conditions):**
+  - `claude/eng-skills` was updated by merging main (`555fc14e`), with no rewrite. Its changed lines are identical to the reviewed `0c155a5c..f83c8d50`; only context moved.
+  - [PR #34](https://github.com/yazidmanan2409/pintar40/pull/34) is open.
