@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| A1-S08 race fix (ruling 106), PR #35 | PASS (test-only); runs required | c3824c3a | [A1-S08-FIX-c3824c3a.md](A1-S08-FIX-c3824c3a.md) |
 | CI-1b (L-105) final | FINAL PASS at 5cd81f9d (ci attempt 2 + journeys success) | 5cd81f9d | [CI-1B-PREREVIEW-8126759c.md](CI-1B-PREREVIEW-8126759c.md) |
 | IP protection & AI reverse-engineering exposure assessment (owner brief, 26 Nov) | delivered to the owner directly; held off-repo on purpose | main 0c155a5c | not in the repository |
 | Engineering skills + third-party tools | Skills ADOPT WITH CONDITIONS (E1–E3 before merge); OmniRoute/Ponytail REJECT; Graphify DEFER | ecf2b5cc / 29cd93d4 | [ENG-SKILLS-REVIEW-ecf2b5cc.md](ENG-SKILLS-REVIEW-ecf2b5cc.md) |
