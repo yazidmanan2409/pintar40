@@ -2043,6 +2043,17 @@ const KATA_CETAK = {
   lulus: "Telah dinyatakan memenuhi kriteria kelulusan",
 };
 const rapat = (s) => String(s ?? "").replace(/\s+/g, "");
+/** One of the product's own words, in one language, read from the candidate's src/lib/hle.ts (APP_DIR), so a check
+ * asks for what the paper must say in the certificate's language and never a copy that can drift. null when the key or
+ * the language is missing there (the caller fails on it: fail closed). */
+function kataProduk(kunci, bahasa) {
+  let baris;
+  try {
+    baris = readFileSync(join(process.env.APP_DIR ?? process.cwd(), "src/lib/hle.ts"), "utf8").split("\n").find((b) => b.trimStart().startsWith(`"${kunci}":`));
+  } catch { return null; }
+  const m = baris && (bahasa === "en" ? /\ben:\s*"([^"]+)"/ : /\bdefault:\s*"([^"]+)"/).exec(baris);
+  return m ? m[1] : null;
+}
 async function cetakSertifikat(page, label, tanam = null) {
   if (tanam) await page.addStyleTag({ content: tanam });
   await page.emulateMedia({ media: "print" });
@@ -2077,7 +2088,15 @@ function salahCetak(h, keadaan, f) {
   if (h.dom.qr < 1) out.push("no QR is printed");
   if (keadaan === "BERLAKU" || keadaan === "DITINJAU") {
     if (!ada(f.nama) || !h.dom.lembar) out.push("the certificate itself is not printed");
-    if (!ada("Periksa keaslian")) out.push("«Periksa keaslian» is not printed");
+    // the sheet's check heading, in the certificate's own language (journeys 45755954130: an EN sheet rightly prints
+    // «Check it is genuine»; on main 0c155a5c too). Read from the candidate's hle.ts; the other language's heading fails
+    const bahasa = f.bahasa === "en" ? "en" : "id";
+    const judulPeriksa = kataProduk("sertifikat.periksa.judul", bahasa);
+    const judulLain = kataProduk("sertifikat.periksa.judul", bahasa === "en" ? "id" : "en");
+    if (!judulPeriksa) out.push(`the check heading's words (sertifikat.periksa.judul, ${bahasa}) are not in the candidate's hle.ts`);
+    else if (!ada(judulPeriksa)) out.push(`«${judulPeriksa}» is not printed`);
+    if (judulPeriksa && judulLain && rapat(judulLain).toLowerCase() !== rapat(judulPeriksa).toLowerCase() && ada(judulLain))
+      out.push(`the check heading is printed in the other language («${judulLain}»)`);
     const barisKata = f.bahasa === "en" ? KATA_CETAK.ditinjauEn : KATA_CETAK.ditinjau;
     if (keadaan === "DITINJAU" && !(ada(barisKata) && h.dom.baris)) out.push("the review line is not printed");
     if (keadaan === "DITINJAU" && !h.dom.barisUtuh) out.push("the review line is clipped or printed over the certificate's header");
