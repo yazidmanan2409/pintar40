@@ -148,3 +148,16 @@ My condition for the merge (the owner's conditional approval):
 1. CI-1b merged first.
 2. An update-branch with no rewrite, with the diff proven to be f83c8d50's reviewed content plus main's commits only. Any change to a reviewed file comes back to me as a delta.
 3. **Required: ci on the updated head green (API conclusion),** with guard-scan and the db selftests among the jobs, as the verdict reports.
+
+---
+
+## Addendum: PR #34 updated from main, at 555fc14e64de6057a517c176aa770e6da830e409 (2026-11-26 ~07:25Z)
+- **The update:** 555fc14e's parents are f83c8d50 and b9ca98ef, a merge commit with no rewrite.
+- **The content is the one I reviewed.**
+  - The sorted +/− lines of `git diff -U0 b9ca98ef 555fc14e` and of `git diff -U0 0c155a5c f83c8d50` are identical: both hash to `22ef9af0d2761c7f`.
+  - The file lists are identical: 12 files, +447/−1.
+  - Only the hunk context moved, beside CI-1b's tests.
+- **Merge conditions** (the owner's of 25 Nov, sequenced by ruling 104):
+  1. CI-1b closed, i.e. main ci 45774017397 success (open);
+  2. **required: ci on 555fc14e green,** with guard-scan and the db selftests among its jobs (API);
+  3. no material finding of mine is open (none).

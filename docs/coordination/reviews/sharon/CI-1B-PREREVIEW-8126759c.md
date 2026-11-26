@@ -251,3 +251,9 @@ I have not queried staging; this is a code read.
   - the screen's unknown-review banner (AR-A).
 
 I have not queried staging; this is a code read plus API conclusions.
+
+---
+
+## Addendum: merged (2026-11-26 ~07:25Z)
+- **The merge:** ruling 104. origin/main is b9ca98ef, with parents 0c155a5c and 5cd81f9d. **Its tree equals 5cd81f9d's tree** (checked with git).
+- **Main's ci 45774017397 on b9ca98ef:** status=in_progress when I read the API at ~07:23Z. **Required: success.** CI-1b closes only then.
