@@ -1,0 +1,159 @@
+// LOCAL WALK (not committed): AR-A's dependent screens, on main's product, in each certificate state.
+// usage: npx tsx selftest/_walk-ar-a.ts <asal> <outdir>
+import { chromium, type Browser } from "playwright";
+import { writeFileSync, mkdirSync } from "node:fs";
+import { lit, psql } from "./bob26.test";
+import { Komputer } from "./bob29.test";
+import { tersusun } from "./konteks-uji";
+import { BOOT_SISWA, BOOT_ADMIN, BOOT_GURU, masuk } from "./c1w-layar.test";
+
+const teks = (html: string) => tersusun(html).replace(/<!-- -->/g, "").replace(/<script[\s\S]*?<\/script>/g, " ").replace(/<style[\s\S]*?<\/style>/g, " ")
+  .replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/\s+/g, " ").trim();
+const BOOT = "(select id from public.institutions where official_evidence_purpose = 'D1_ENGINEERING_BOOTSTRAP')";
+const catatan: Record<string, unknown> = {};
+
+async function main() {
+  const [asal, out] = process.argv.slice(2);
+  mkdirSync(out, { recursive: true });
+  const b: Browser = await chromium.launch();
+  const halamanDari = async (k: Komputer, lebar = 1280) => {
+    const ctx = await b.newContext({ viewport: { width: lebar, height: 900 } });
+    await ctx.addCookies([...(k as unknown as { kue: Map<string, string> }).kue].map(([name, value]) => ({ name, value, domain: new URL(asal).hostname, path: "/" })));
+    return ctx.newPage();
+  };
+  const bersih = () => psql(`begin; set local session_replication_role = replica;
+    delete from public.certificate_reviews where institution_id in ${BOOT};
+    delete from public.key_corrections where institution_id in ${BOOT} and reason like 'WALK-ARA%';
+    commit; select selftest.purge_certificates();`);
+  const tugasDari = (sesi: string) => psql(`select learning_assignment_id from public.assessment_sessions where id = ${lit(sesi)}`);
+  const ambil = async (k: Komputer, p: string) => { const r = await k.halaman(p); return { status: r.status, lokasi: r.headers.get("location"), html: await r.text() }; };
+  const siswa = (await masuk(asal, BOOT_SISWA, "BELAJAR")) as Komputer;
+  if (typeof siswa === "string") throw new Error(siswa);
+
+  // ---- W1 (L-44, L-16): a pass with NO certificate row (never certified), then ELIGIBLE
+  bersih();
+  const s1 = psql(`select selftest.boot_attempt(true)`);
+  const t1 = tugasDari(s1);
+  for (const p of [`/belajar/${t1}/sertifikat`, `/belajar/${t1}/hasil`, `/belajar/sertifikat`]) {
+    const h = await ambil(siswa, p); catatan[`W1 tanpa-baris ${p}`] = { status: h.status, lokasi: h.lokasi, teks: teks(h.html).slice(0, 1500) };
+  }
+  const pre = JSON.parse(psql(`select row_to_json(t) from (select x.certificate_id, x.canonical_payload from public.certificate_prepare(${lit(s1)}, 1::smallint) x) t`)) as { certificate_id: string; canonical_payload: Record<string, unknown> };
+  for (const p of [`/belajar/${t1}/sertifikat`, `/belajar/${t1}/hasil`, `/belajar/sertifikat`]) {
+    const h = await ambil(siswa, p); catatan[`W1 ELIGIBLE ${p}`] = { status: h.status, lokasi: h.lokasi, teks: teks(h.html).slice(0, 1500) };
+  }
+
+  // ---- W2 (L-86, L-103): ISSUED: the learner page's link and its accessibility tree; the public check
+  const { signWithKey } = await import("../src/lib/certificates/sign");
+  psql(`select public.certificate_seal(${lit(pre.certificate_id)}, 1::smallint, ${lit(signWithKey(pre.canonical_payload as never, process.env.CERT_SECRET_KEY_V1 ?? ""))})`);
+  const cert = pre.certificate_id;
+  const token = psql(`select verification_token from public.certificates where id = ${lit(cert)}`);
+  {
+    const h = await ambil(siswa, `/belajar/${t1}/sertifikat`);
+    const a = tersusun(h.html);
+    catatan["W2 ISSUED halaman"] = { teks: teks(h.html).slice(0, 1800), tautanVerifikasi: (a.match(/<a [^>]*href="[^"]*\/verifikasi\/[^"]*"/g) ?? []).length,
+      salinTautan: /Salin tautan verifikasi/.test(teks(h.html)) };
+    const pg = await halamanDari(siswa);
+    await pg.goto(`${asal}/belajar/${t1}/sertifikat`, { waitUntil: "networkidle" });
+    const snap = await pg.locator("body").ariaSnapshot();
+    writeFileSync(`${out}/W2-aria.txt`, snap);
+    catatan["W2 ISSUED aria"] = { h1: (snap.match(/- heading .*\[level=1\]/g) ?? []), periksa: (snap.match(/Periksa keaslian/gi) ?? []).length, img: (snap.match(/- img/g) ?? []).length };
+    await pg.screenshot({ path: `${out}/W2-belajar-sertifikat-1280.png`, fullPage: true });
+    await pg.context().close();
+    const v = await (await fetch(`${asal}/verifikasi/${encodeURIComponent(token)}`)).text();
+    catatan["W2 ISSUED verifikasi"] = teks(v).slice(0, 900);
+  }
+
+  // ---- W3 (L-68): under review: the learner's card vs the public check
+  psql(`do $$ declare v_s uuid := ${lit(s1)}; v_c uuid := ${lit(cert)}; v_r uuid; v_k uuid; v_i uuid; v_item uuid; begin
+      select institution_id into v_i from public.certificates where id = v_c;
+      select id into v_r from public.assessment_results where session_id = v_s and supersedes_result_id is null;
+      select p.item_id into v_item from public.presented_items p where p.session_id = v_s order by p.position limit 1;
+      set local session_replication_role = replica;
+      insert into public.key_corrections (institution_id, line_root_course_id, asked_item_id, item_id, course_id, release_id, question_digest, key_before, key_after,
+                                          reason, proposed_by_person_id, status, decided_at, decided_by_person_id)
+      select v_i, r.course_id, v_item, v_item, r.course_id, r.id, 'x', '{A}', '{B}', 'WALK-ARA kunci tertukar',
+             (select a.person_id from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = 'boot-admin@bootstrap.pintar.test'),
+             'CONFIRMED', now(),
+             (select a.person_id from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = 'boot-kaprodi@bootstrap.pintar.test')
+        from public.assessment_sessions s join public.plp_releases r on r.id = s.plp_release_id where s.id = v_s returning id into v_k;
+      insert into public.certificate_reviews (certificate_id, institution_id, session_id, opened_by_result_id, previous_result_id, key_correction_id)
+      values (v_c, v_i, v_s, v_r, v_r, v_k);
+    end $$`);
+  {
+    const h = await ambil(siswa, `/belajar/${t1}/sertifikat`);
+    catatan["W3 DITINJAU halaman"] = { teks: teks(h.html).slice(0, 1800), masihBerlaku: /masih berlaku/.test(teks(h.html)) };
+    const l = await ambil(siswa, `/belajar/sertifikat`);
+    catatan["W3 DITINJAU daftar"] = teks(l.html).slice(0, 900);
+    const v = await (await fetch(`${asal}/verifikasi/${encodeURIComponent(token)}`)).text();
+    catatan["W3 DITINJAU verifikasi"] = teks(v).slice(0, 900);
+  }
+
+  // ---- W4 (L-107, L-70, L-108, L-109): the admin decides «Konfirmasi berlaku», then opens the certificate's panel
+  const admin = (await masuk(asal, BOOT_ADMIN, `MENGELOLA:${psql(`select institution_id from public.certificates where id = ${lit(cert)}`)}`)) as Komputer;
+  if (typeof admin === "string") throw new Error(admin);
+  {
+    const pg = await halamanDari(admin);
+    await pg.goto(`${asal}/konfigurasi/sertifikat`, { waitUntil: "networkidle" });
+    await pg.screenshot({ path: `${out}/W4-konfigurasi-sertifikat-1280-sebelum.png`, fullPage: true });
+    catatan["W4 panel sebelum"] = teks(await pg.content()).slice(0, 1500);
+    catatan["W4 tabel lebar"] = await pg.evaluate(() => { const t = document.querySelector("table"); return t ? { scroll: t.scrollWidth, client: (t.parentElement as HTMLElement).clientWidth } : null; });
+    const ta = pg.locator('textarea[name="alasan"]').first();
+    if (await ta.count()) {
+      await ta.fill("Hasil dihitung ulang dan tetap di atas target (uji jalan).");
+      await pg.getByRole("button", { name: /Konfirmasi berlaku/ }).first().click();
+      await pg.waitForLoadState("networkidle");
+    }
+    catatan["W4 setelah konfirmasi url"] = pg.url();
+    catatan["W4 setelah konfirmasi"] = teks(await pg.content()).slice(0, 1500);
+    await pg.screenshot({ path: `${out}/W4-konfigurasi-sertifikat-1280-setelah.png`, fullPage: true });
+    await pg.goto(`${asal}/konfigurasi/sertifikat?pilih=${cert}`, { waitUntil: "networkidle" });
+    const isi = await pg.locator("#cabut").textContent().catch(() => null);
+    catatan["W4 panel dipilih"] = (isi ?? "").replace(/\s+/g, " ").slice(0, 1500);
+    await pg.screenshot({ path: `${out}/W4-panel-dipilih-1280.png`, fullPage: true });
+    await pg.context().close();
+  }
+
+  // ---- W5 (L-106): a reissue (the printed name changed), then the holder's «Lihat sertifikat» and the old page's link
+  psql(`begin; set local session_replication_role = replica;
+    update public.persons set display_name = display_name || ' Putri' where id = (select person_id from public.certificates where id = ${lit(cert)}); commit`);
+  {
+    const pg = await halamanDari(admin);
+    await pg.goto(`${asal}/konfigurasi/sertifikat?pilih=${cert}&jenis=ganti`, { waitUntil: "networkidle" });
+    catatan["W5 panel ganti"] = ((await pg.locator("#cabut").textContent().catch(() => "")) ?? "").replace(/\s+/g, " ").slice(0, 1500);
+    const f = pg.locator('form[data-ganti-form] textarea[name="alasan"]');
+    if (await f.count()) {
+      await f.fill("Nama di sertifikat diperbaiki (uji jalan).");
+      await pg.locator("form[data-ganti-form] button[type=submit], form[data-ganti-form] button").first().click();
+      await pg.waitForLoadState("networkidle");
+    }
+    catatan["W5 setelah ganti url"] = pg.url();
+    catatan["W5 setelah ganti"] = ((await pg.locator("#cabut").textContent().catch(() => "")) ?? "").replace(/\s+/g, " ").slice(0, 1200);
+    await pg.context().close();
+  }
+  {
+    const rantai = psql(`select string_agg(certificate_number || ':' || status, ' → ' order by issued_at) from public.certificates where person_id = (select person_id from public.certificates where id = ${lit(cert)})`);
+    catatan["W5 rantai"] = rantai;
+    for (const p of [`/belajar/sertifikat`, `/belajar/${t1}/hasil`, `/belajar/${t1}/sertifikat`, `/belajar`]) {
+      const h = await ambil(siswa, p);
+      const a = tersusun(h.html);
+      catatan[`W5 ${p}`] = { teks: teks(h.html).slice(0, 900),
+        lihat: [...a.matchAll(/<a [^>]*href="([^"]+)"[^>]*>(?:(?!<\/a>)[\s\S])*?(Lihat sertifikat|Buka sertifikat yang baru)/g)].map((m) => `${m[2]} → ${m[1]}`) };
+    }
+  }
+
+  // ---- W6 (L-82): Siapkan's certificate step, as the teacher
+  const guru = (await masuk(asal, BOOT_GURU, "MENGAJAR")) as Komputer;
+  if (typeof guru !== "string") {
+    const m = (await ambil(guru, `/mengajar`)).html; const kelas = /href="\/mengajar\/([^"/?#]+)"/.exec(tersusun(m))?.[1] ?? "-";
+    const h = await ambil(guru, `/mengajar/${kelas}/siapkan`);
+    const tt = teks(h.html);
+    catatan["W6 siapkan"] = { status: h.status, lokasi: h.lokasi, memenuhiCapaian: /bila murid memenuhi capaian/.test(tt), cuplikan: tt.slice(Math.max(0, tt.indexOf("Sertifikat") - 200), tt.indexOf("Sertifikat") + 400) };
+  } else catatan["W6 siapkan"] = guru;
+
+  writeFileSync(`${out}/catatan.json`, JSON.stringify(catatan, null, 2));
+  await b.close();
+  bersih();
+  psql(`begin; set local session_replication_role = replica; update public.persons set display_name = regexp_replace(display_name, ' Putri$', '') where display_name like '% Putri'; commit`);
+  console.log("WALK DONE", Object.keys(catatan).length);
+}
+main().catch((e) => { console.error(e); process.exit(1); });

@@ -1,0 +1,61 @@
+- link "Langsung ke isi":
+  - /url: "#isi"
+- banner:
+  - text: PINTAR
+  - navigation "Belajar":
+    - link "Belajar":
+      - /url: /belajar
+    - link "Sertifikat":
+      - /url: /belajar/sertifikat
+  - button "Bantuan"
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - group "Akun yang sedang masuk":
+    - text: Bukan akun Anda?
+    - button "Keluar"
+- main:
+  - link "← Semua sertifikat":
+    - /url: /belajar/sertifikat
+  - article:
+    - paragraph: PINTAR Bootstrap (OFFICIAL evidence — development and CI only)
+    - paragraph: Sertifikat
+    - heading "Siswa Bootstrap" [level=1]
+    - paragraph: "Telah dinyatakan memenuhi kriteria kelulusan yang ditetapkan berdasarkan hasil asesmen pada Materi Pembelajaran:"
+    - paragraph: Matematika · Pengukuran.
+    - separator
+    - term: Tanggal terbit
+    - definition: 26 November 2026
+    - term: Nomor sertifikat
+    - definition: T5Y4ATW7/00005
+    - separator
+    - img "Periksa keaslian"
+    - heading "Periksa keaslian" [level=3]
+    - paragraph: Pindai kode ini atau buka tautannya. Halaman itu memastikan sertifikat ini benar diterbitkan dan masih berlaku.
+    - code: http://127.0.0.1:3999/verifikasi/I8cAMhUQudxCL4gRZXL8z8ErLhS8IvdGaGzJ6decp20
+  - button "Cetak atau simpan PDF"
+  - button "Salin tautan verifikasi"
+  - paragraph: Pratinjau cetak
+  - heading "Sertifikat · A4" [level=2]
+  - paragraph: Satu lembar A4 tegak. Komposisinya tetap pada setiap lebar layar; yang berubah hanya skalanya.
+  - paragraph: Sertifikat
+  - text: PINTAR
+  - heading "Siswa Bootstrap" [level=1]
+  - paragraph: "Telah dinyatakan memenuhi kriteria kelulusan yang ditetapkan berdasarkan hasil asesmen pada Materi Pembelajaran:"
+  - paragraph: Matematika · Pengukuran.
+  - term: Tanggal terbit
+  - definition: 26 November 2026
+  - term: Nomor sertifikat
+  - definition: T5Y4ATW7/00005
+  - paragraph: Diterbitkan oleh
+  - paragraph: PINTAR Bootstrap (OFFICIAL evidence — development and CI only)
+  - heading "Periksa keaslian" [level=3]
+  - paragraph: Pindai kode ini atau buka tautannya. Halaman itu memastikan sertifikat ini benar diterbitkan dan masih berlaku.
+  - paragraph: http://127.0.0.1:3999/verifikasi/I8cAMhUQudxCL4gRZXL8z8ErLhS8IvdGaGzJ6decp20
+  - img "Periksa keaslian"
+  - text: PINTAR Bootstrap (OFFICIAL evidence — development and CI only) Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU
+  - link "info@pintarselalu.com":
+    - /url: mailto:info@pintarselalu.com
+  - link "pintarselalu.com":
+    - /url: https://pintarselalu.com
+- alert
