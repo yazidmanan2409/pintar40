@@ -12,7 +12,7 @@
 
 - **Main:** `2c96bdd291aee9d8df0c39cb3737cace839b04dc` (PR #34, the Agent Skills merge).
   - Parents: `b9ca98ef` and `555fc14e`. Its tree equals `555fc14e`'s.
-  - **Main's ci on it: run 45779343510.** Its conclusion is recorded below, read from the API.
+  - **Main's ci on it: run 45779343510, conclusion FAILURE** (read 08:41Z). One test, A1-S08, failed: 1449 passed, 1 failed. The cause is a race with the live 5-minute pg_cron job (COMMON-CAUSES §9). It is pre-existing, test-only and not caused by the skills change: the identical tree `555fc14e` passed every job. **The checkpoint is therefore NOT clean.** Escalated to the owner (ruling 105 pauses development).
 - **Staging** `keijhmdtsgrfvnvocfvk`: at **311** (20270126100000). Untouched since CI-2.
 - **Production** `trtlvibiybwixfumjrrx`: untouched at **111**.
 - **Open PRs:** none.

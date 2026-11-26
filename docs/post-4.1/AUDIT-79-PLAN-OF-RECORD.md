@@ -149,3 +149,7 @@ Bob paces the work. The usage allowance is shared by every session.
   - The 08:01Z AR-A kickoff was stopped at 08:11Z.
   - Daisy's AR-A words were committed before the stop and kept for resumption: `ux-1/daisy-experience` `44b09b05`, unreviewed.
   - The driver `trig_01WheS53MVmTRwbKs3itPKNQ` is disabled.
+- **Main's ci 45779343510 on `2c96bdd2`: FAILURE** (read 08:41Z).
+  - The only failure, A1-S08, is a race with the live pg_cron job (COMMON-CAUSES §9); it is pre-existing and test-only.
+  - The Agent Skills phase is **not** declared closed, and the pre-break checkpoint is **not** clean.
+  - Escalated to the owner for a decision.
