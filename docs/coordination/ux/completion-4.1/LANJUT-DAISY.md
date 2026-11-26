@@ -1,4 +1,31 @@
-# Daisy · resume note (paused 25 Nov 01:31Z, on the owner's instruction via Bob)
+# Daisy · resumption record (pause for the long weekend, 26 Nov 2026, on the owner's instruction)
+
+> **Resume only on the owner's instruction.** Until then, Daisy does no development, no new assessments or discretionary reviews, no merges and no scope changes. Staging and production are untouched.
+
+## Checkpoint
+- **Lane:** `ux-1/daisy-experience`, clean and pushed. This record's commit is the lane's head; the AR-A words are at `44b09b05`.
+- **Main at the pause** is Bob's to record. CI-1b closed on main at `b9ca98ef` (ci green 07:50:09Z). Agent Skills at `2c96bdd2`, with pintar-words carrying my paths.
+
+## Closed before the pause
+- **CI-1b:** words PASS on source (`e8a35c3a`, carried to `145bd8dc`); rendered prints PASS (`claude/ci-1b-evidence` `1f2689d4`). Record: `CI1B-KATA.md`.
+- **The owner's design reflection:** R-1 to R-3 and the 320 note approved inside AR-C, AR-D, AR-G and AR-H. Record: `roadmap/REFLEKSI-DESAIN-2026-11.md`.
+- **Audit 79:** J1–J12 judged; W2 and W6 complete.
+
+## Ready for resumption: AR-A first
+- **AR-A's words are committed before code:** `ARA-KATA.md` §1–§10, drafted from main's `hle.ts`. They were written on Bob's 08:02Z assignment, before the pause instruction. **No AR-A code has started.**
+- **Open on resumption, in order:**
+  1. Reconcile Second Eye's walked strings in `ARA-KATA.md` §11 (not yet received). Anything not covered gets words before code.
+  2. Sharon's answer on §3: the learner sees their own two figures on the certificate page. The public check stays scoreless.
+  3. Daisy's verification of the built AR-A screens at 1280, 390 and 320, ID and EN, the print included.
+- **After AR-A:**
+  - the AR-G words per batch, before code, including «di atas» (R-1, AR-C) and «ditutup» (R-2, AR-D);
+  - the §3 fixture walks for L-08, L-11 and L-12 (TINJAUAN-AR79-PLAN §4);
+  - Daisy's verification of each built batch.
+
+---
+
+## Earlier note (25 Nov), kept for reference
+
 
 ## State
 - **Audit 79:** every journey (J1–J12) is judged, from local walks and the builder's captures. Their «left for the builder» lines are closed.
