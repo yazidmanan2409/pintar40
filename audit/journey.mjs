@@ -3442,7 +3442,20 @@ await step("B2J", "Pak Guru Budi prints his class's Ringkasan: the paper carries
   await tutupTur(gp);
   const kaki = () => gp.locator("style[data-kaki-cetak]").evaluate((el) => el.textContent ?? "");
   const awal = await kaki();
-  await gp.evaluate(() => { window.__kakiSaatCetak = []; window.print = () => { window.__kakiSaatCetak.push(document.querySelector("style[data-kaki-cetak]")?.textContent ?? ""); }; });
+  // CI-1b (26 Nov; Bob's conditions 2-4): THE OFFICIAL PRINT AS THE BROWSER MAKES IT. The page's own «Cetak laporan»
+  // runs; the real window.print is called, so the browser fires beforeprint inside it exactly as in a real print, and
+  // the footer is taken AT beforeprint, after the page's own handler has run (this listener is added after it). That
+  // footer is held in a style of its own while the PDF is made, because page.pdf fires beforeprint again as a print
+  // the browser starts, which the page rightly answers with its browser line. Before 26 Nov the footer was hand-set
+  // and the PDF overwrote it, and a missing pdftotext counted as a pass, so the PDF was never really read.
+  await gp.evaluate(() => {
+    window.__kakiSaatCetak = [];
+    window.__kakiBeforeprint = [];
+    const kaki = () => document.querySelector("style[data-kaki-cetak]")?.textContent ?? "";
+    window.addEventListener("beforeprint", () => window.__kakiBeforeprint.push(kaki()));
+    const asli = window.print.bind(window);
+    window.print = () => { window.__kakiSaatCetak.push(kaki()); asli(); };
+  });
   await gp.getByRole("button", { name: "Cetak laporan", exact: true }).click();
   await gp.waitForFunction(() => (window.__kakiSaatCetak ?? []).length === 1, null, { timeout: SLOW }).catch(() => {});
   const saatCetak = (await gp.evaluate(() => window.__kakiSaatCetak ?? []))[0] ?? "";
@@ -3453,14 +3466,25 @@ await step("B2J", "Pak Guru Budi prints his class's Ringkasan: the paper carries
   const peramban = await kaki();
   await gp.evaluate(() => window.dispatchEvent(new Event("afterprint")));
   const pulih = await kaki();
-  // the official rendering as a PDF: the footer as it stood when the dialog opened
-  await gp.evaluate((teks) => { document.querySelector("style[data-kaki-cetak]").textContent = teks; }, saatCetak);
-  await gp.emulateMedia({ media: "print" });
-  const pdf = `${OUT}/b2-ringkasan-cetak.pdf`;
-  await gp.pdf({ path: pdf, format: "A4", printBackground: true });
-  await gp.emulateMedia({ media: "screen" });
-  let teksPdf = "";
-  try { teksPdf = execFileSync("pdftotext", ["-layout", pdf, "-"], { encoding: "utf8" }); } catch { teksPdf = "(pdftotext unavailable)"; }
+  // the footer the page held at the official print's beforeprint (the browser's own event, after the page's handler)
+  const diBeforeprint = (await gp.evaluate(() => window.__kakiBeforeprint ?? []))[0] ?? "";
+  // the official rendering as a PDF: the footer of that moment held while the PDF is made; FAIL CLOSED on no pdftotext
+  const cetakPdf = async (nama, kakiDitahan) => {
+    await gp.evaluate((teks) => {
+      document.querySelector("style[data-uji-saat-cetak]")?.remove();
+      if (teks !== null) { const el = document.createElement("style"); el.setAttribute("data-uji-saat-cetak", ""); el.textContent = teks; document.body.appendChild(el); }
+    }, kakiDitahan);
+    await gp.emulateMedia({ media: "print" });
+    const f = `${OUT}/${nama}.pdf`;
+    await gp.pdf({ path: f, format: "A4", printBackground: true });
+    await gp.emulateMedia({ media: "screen" });
+    await gp.evaluate(() => document.querySelector("style[data-uji-saat-cetak]")?.remove());
+    try { return execFileSync("pdftotext", ["-layout", f, "-"], { encoding: "utf8" }); } catch (e) { return `!! pdftotext failed: ${String(e.message ?? e).split("\n")[0]}`; }
+  };
+  const teksPdf = await cetakPdf("b2-ringkasan-cetak", diBeforeprint);
+  // the check proves it can fail: a planted product break, the official print losing its reference to the browser's
+  // beforeprint (the page's handler not telling the official print from a browser one), must leave the PDF without it
+  const teksTanam = await cetakPdf("b2-ringkasan-cetak-tanam", null);
   await gc.close();
   // the school admin types the reference into the reader
   await a.goto(`${APP}/konfigurasi/catatan-masuk?cari=${encodeURIComponent(ref.toLowerCase().replace("-", " "))}`, { waitUntil: "networkidle" });
@@ -3469,14 +3493,17 @@ await step("B2J", "Pak Guru Budi prints his class's Ringkasan: the paper carries
   const baris = await a.locator("[data-akuntabilitas-baris]").evaluateAll((trs) => trs.map((tr) => ({
     jenis: tr.getAttribute("data-akuntabilitas-baris"), siapa: (tr.querySelector("[data-akuntabilitas-orang]")?.textContent ?? "").trim(),
     ref: tr.querySelector("[data-rujukan-cetak]")?.getAttribute("data-rujukan-cetak") ?? "" })));
-  const pdfOk = teksPdf === "(pdftotext unavailable)" || teksPdf.includes(`Ref. ${ref}`);
+  const pdfOk = !teksPdf.startsWith("!!") && teksPdf.includes(`Ref. ${ref}`) && diBeforeprint.includes(`Ref. ${ref}`);
+  const tanamTertangkap = !teksTanam.startsWith("!!") && !teksTanam.includes(`Ref. ${ref}`);
   const ok = Boolean(ref) && saatCetak.includes(`Dicetak oleh ${people.guru.name}`) && !/CTK-/.test(awal) && /Dicetak dari browser · tanpa nomor referensi/.test(awal)
-    && sesudah === awal && /\(jam perangkat\)/.test(peramban) && !/CTK-/.test(peramban) && !peramban.includes(people.guru.name) && pulih === awal && pdfOk
+    && sesudah === awal && /\(jam perangkat\)/.test(peramban) && !/CTK-/.test(peramban) && !peramban.includes(people.guru.name) && pulih === awal && pdfOk && tanamTertangkap
     && baris.length === 1 && baris[0].jenis === "PRINT_REQUEST" && baris[0].ref === ref && baris[0].siapa === people.guru.name;
   if (!ok) rec.verdict = "FAIL";
   return `the footer before «${awal.slice(0, 90)}»; at the dialog «${(/content: (".*?");/.exec(saatCetak)?.[1] ?? saatCetak).slice(0, 140)}»; after it returned (no afterprint) `
     + `${sesudah === awal ? "the default again" : `«${sesudah.slice(0, 90)}»`}; a browser print «${(/content: (".*?");/.exec(peramban)?.[1] ?? "").slice(0, 120)}», then ${pulih === awal ? "the default" : "not restored"}; `
-    + `the PDF ${teksPdf === "(pdftotext unavailable)" ? "was made (no pdftotext to read it)" : teksPdf.includes(`Ref. ${ref}`) ? `carries «Ref. ${ref}»` : "does not carry the reference"}; `
+    + `at the official print's beforeprint «${(/content: (".*?");/.exec(diBeforeprint)?.[1] ?? diBeforeprint).slice(0, 140)}»; `
+    + `the PDF ${teksPdf.startsWith("!!") ? teksPdf.slice(0, 120) : teksPdf.includes(`Ref. ${ref}`) ? `carries «Ref. ${ref}»` : "does not carry the reference"}; `
+    + `the planted break (the reference lost at beforeprint) ${tanamTertangkap ? "is caught" : "is NOT caught"}; `
     + `the reader, searched for ${ref}: ${JSON.stringify(baris)}`;
 });
 
