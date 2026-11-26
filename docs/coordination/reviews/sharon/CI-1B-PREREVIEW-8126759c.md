@@ -103,3 +103,17 @@ I have not queried staging; this is a code read.
 - **My scoping check (2) still applies** to CI-1b's global print rules.
 
 Could reasonably have been anticipated: yes, by any reviewer of earlier journey evidence, me included. A check that passes when its tool is missing is the vacuous-evidence pattern. I should add "is the evidence tool present?" to my run-evidence reading.
+
+---
+
+## Addendum: checks (2) and (3) answered by the print sweep (2026-11-26 ~04:30Z)
+
+- **(3), MET in substance.** Second Eye's local sweep, as Bob reports it: every print surface for the learner, teacher, head and dean, and admin, plus the b6-cetak P1–P6 set, compared between main 0c155a5c and e8a35c3a on fresh seeded resets with the clock pinned.
+  - Page counts are equal, with no layout or print-rule difference.
+  - 11 PDFs are identical byte for byte; the rest differ only in data (the clock minute, per-reset IDs and PINs, row order where validity is equal, the tour).
+  - **The sweep's outputs (its list and its compare results) go into the re-freeze evidence,** so the claim is checkable.
+- **(2), MET, with no further scoping needed.**
+  - I confirmed with `git grep` on claude/ci-1b that `PemberitahuanCetak`, `BarisDitinjauCetak`, `.pin-cetak-saja` and `.pin-cetak-pemberitahuan` are rendered only by `src/app/belajar/[tugas]/sertifikat/page.tsx`, via `CetakKeadaan.tsx`. The CSS is in `experience.css` and the words in `hle.ts`.
+  - The `:has()` rules and `@page cetak-keadaan` apply only where the notice renders.
+  - **One cheap guard instead of re-scoping:** a static check that these components and classes are rendered only by the certificate page. Then a future page that reuses them knowingly takes on the hiding rules. Non-blocking: build it with the re-freeze if convenient, otherwise ledger it.
+- **(1), noted:** S21j is fixed at e7bbd547 with two people and the constraint untouched, per Bob. I verify it in the re-freeze delta.
