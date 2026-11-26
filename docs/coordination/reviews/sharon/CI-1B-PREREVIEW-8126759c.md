@@ -39,3 +39,34 @@
 Could reasonably have been anticipated:
 - P1: yes. The `() => false` default predates CI-1b, but the print turns it into a claim on paper.
 - P2: partly. Text extraction doesn't prove visibility.
+
+---
+
+## Addendum: delta verification at the freeze e8a35c3af0ee234fed9fa3d0a46a1db2d0e4c93f (Sharon, 2026-11-26 ~03:40Z)
+
+**Head:** origin/claude/ci-1b = e8a35c3a. `git diff 0c155a5c e8a35c3a`: sha256 begins `12e08c7ed0cd37a7`, matching Bob's value; 18 files, +917/−18; no migration. I read the delta 8126759c..e8a35c3a myself.
+
+**P1, MET.**
+- `tinjauanDariBacaan` maps only `true` to YA and only `false` to TIDAK. An error, a rejection, null or a non-boolean are all TIDAK_TAHU. The page prints the review line for anything but TIDAK.
+- The words say «Pindai kode QR untuk keadaannya saat ini» either way, so the line stays true.
+- The unit cases cover an error, an error beside `false`, and a rejection.
+- The journey's PLANT fails the read and catches «a clean certificate, with no review line». Red first: 6992a63f, red on 8126759c.
+
+**P2, MET.**
+- `max-height` and `overflow:hidden` are removed.
+- S21j asserts in print media that the line is visible, with `scrollHeight ≤ clientHeight + 1` and `scrollWidth ≤ clientWidth + 1`, and that it ends above the sheet's header.
+- A planted clip (`max-height: 4mm; overflow: hidden`) is caught.
+- The English line, the longer one, is printed and checked.
+
+**The workflow change** (audit-journeys.yml job B, named for the owner): a comment, `poppler-utils` installed only if `pdftotext` is missing, and a version print. It is an apt package from the runner's distribution, not a new project dependency. Acceptable.
+
+**Non-blocking (to the ledger, ruling 93):**
+1. On screen, TIDAK_TAHU shows no review banner. The screen keeps the earlier C1w behaviour, and only the print fails closed. The print was CI-1b's scope; the screen's handling of an unknown state is an AR-A item.
+2. Bob's local first run, 1447/1 on DR-D02 (the backup drill, «fetch failed»), is in code this diff doesn't touch. It is logged as a test-reliability item, not «flake»: right.
+3. The frozen head's own commit message reads «REVIEW HEAD, not a candidate» (the resume note's). The freeze is by Bob's declaration on this sha; I record it that way.
+
+**Verdict: CI-1b delta PASS on the code.**
+- **Required:** ci 45748677520 and journeys 45748680995 on e8a35c3a green, from the API conclusion. Both were status=in_progress when I read the API at ~03:40Z.
+- **Plus** Daisy's word check.
+
+I have not queried staging; this is a code read.
