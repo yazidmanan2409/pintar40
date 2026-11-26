@@ -204,3 +204,14 @@ I have not queried staging; this is a code read.
 
 **Verdict: the delta PASSES on the code. 5cd81f9d is the CI-1b candidate.**
 - **Required:** ci 45763080807 and journeys 45763084276 on 5cd81f9d green, from the API conclusion. Both were status=in_progress when I read the API at ~05:55Z.
+
+---
+
+## Addendum: ci 45763080807 attempt 1, an infrastructure failure, read from the job log (2026-11-26 ~06:15Z)
+- **Attempt 1:** conclusion=failure (05:57:54Z). The failed job is «red case · db · bob01 bob35 wp7 bob26» (139719019779), and the verdict failed after it.
+- **The cause, from the full log (1,874 lines, all read by search):** the WP7 and BOB-01 gates' «Start stack» steps failed with `failed to start docker container "supabase_db_pintar40": … failed to set up container networking: driver failed programming external connectivity`. That happened twice for each gate, the retry included (log lines 476, 486, 545, 555).
+  - Their following steps failed only for lack of a database. BOB-01's test step exited with code 2 against no stack.
+  - **No test body for those two gates ran against a database.**
+  - In the same job, the BOB-35 and BOB-26 gates started their stacks and passed: 5/5 and 8/8 plants red for their declared reasons.
+- **So this is runner infrastructure, not the candidate.** The product is identical to 145bd8dc, whose ci passed. **One rerun is justified** under the rule (a job that died before any test body). Bob's single rerun of the failed jobs, attempt 2 at 06:03Z, is accepted, with no further reruns.
+- **Required:** ci 45763080807 **attempt 2** concluding success, with the WP7 and BOB-01 gates actually executed (their plants red for their declared reasons in the attempt-2 log), plus journeys 45763084276 success. Both from the API conclusion.
