@@ -165,3 +165,11 @@ I have not queried staging; this is a code read.
 - **The ~77 swallowed waits in the other journey scripts go to the AR-79 ledger.** That is agreed: they don't need to be in CI-1b. A swallowed wait is a timing pattern, not evidence, provided an assertion follows, and CI-1b's own checks are in journey.mjs.
 - **Ledger items 1 and 2 above are superseded** by points 1 and 3.
 - **Next:** I verify the delta on the final head, then require ci and journeys on that head green, from the API conclusion.
+
+---
+
+## Addendum: 145bd8dc IS the candidate (2026-11-26 ~05:00Z; supersedes the «not final» addendum above)
+- **Bob, 04:44Z:** my PASS at 145bd8dc stands, and the wider items are non-blocking, which matches my position. ~~145bd8dc is not the final head~~ **145bd8dc is the CI-1b candidate.** The further re-freeze is stopped.
+- **To the AR-79 ledger:** the non-PDF fail-closed sweep, journey.mjs's 65 waits, the certificate-only static check, and F04-S04.
+- **Required:** ci 45755950858 and journeys 45755954130 on 145bd8dc green, from the API conclusion.
+- **Daisy:** her word PASS carries over (the product is unchanged since e8a35c3a), and she judges the PDFs from the artifact.
