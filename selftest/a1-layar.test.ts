@@ -258,6 +258,19 @@ const akhirSesi = (sesi: string) => psql(`select s.status || '/' || coalesce(s.c
 /** A1-S08's plants removed (also by the clean-up, should a run stop half-way: they are committed since D6.6). */
 const S08_TANAM_LEPAS = `drop trigger if exists a1_s08_rusak on public.assessment_sessions;
 drop trigger if exists a1_s08_rusak on public.assessment_results;`;
+/**
+ * A1-S08 RACED THE LIVE JOB (main ci 45779343510 on 2c96bdd2, 26 Nov; ruling 106). The scenario is the job's command run by
+ * the test, with failures planted, on sittings whose deadlines the test moves into the past; its readings assume the test is
+ * the only closer. CI's database also runs that job itself, every five minutes, and the test left it on: a real run between
+ * the deadlines moving and the planted run closed every sitting first («before the job: x=FINALIZED/DEADLINE/1/1 …»). Now
+ * the job is paused for the scenario and switched back on after it (and in the clean-up), and the readings of the job as
+ * pg_cron holds it (one active five-minute job) are taken once it is back. Why the wait is enough: the job reads its
+ * candidates once, at its start (pengerjaan_tutup_berkala), so a run that started before the deadlines moved cannot take
+ * these sittings; and pg_cron's launcher re-reads cron.job within its one-second loop, so once no run is under way and that
+ * loop has passed, no run can start. The test does not rely on that alone: it asserts from cron.job_run_details that no run
+ * of the job started after the deadlines moved, and says so if one did.
+ */
+const S08_JADWAL = (aktif: boolean) => `select cron.alter_job(jobid, active := ${aktif}) from cron.job where jobname = '${JOB}';`;
 // RESTATED, D6.6: the job's own command is read from pg_cron where each test runs it (S08 through psql's \gexec, S09 as
 // a statement of its own), at the top level as pg_cron executes it. Was: PERINTAH, a subquery executed in a DO block.
 
@@ -279,6 +292,19 @@ export const a1LayarTests: SelfTest[] = [
         const s: Record<string, string> = {};
         for (const [n, nama] of [["x", "buka"], ["y", "serah"], ["z1", "dinilai"], ["z2", "tidak"], ["w", "tenggat"]] as const) s[n] = mulai(m[nama].uid, d.pre, 2);
         if (!c.expect(Object.values(s).every((x) => /^[0-9a-f-]{36}$/.test(x)), `the sittings could not be started: ${JSON.stringify(s)}`)) return c.verdict("");
+        // the live job paused for the scenario (S08_JADWAL above), and the deadlines moved only once no run is under way and
+        // the launcher's loop has passed the pause; pg_cron must log its runs, or the check after the scenario proves nothing
+        if (!c.expect(psql("show cron.log_run") === "on", "pg_cron does not log its runs (cron.log_run), so a run during the scenario could not be seen")) return c.verdict("");
+        psql(S08_JADWAL(false));
+        const dijeda = psql("select clock_timestamp()");
+        let tenang = false;
+        for (let i = 0; i < 300 && !tenang; i++) {
+          tenang = psql(`select clock_timestamp() > ${lit(dijeda)}::timestamptz + interval '1500 milliseconds'
+            and not exists (select 1 from cron.job_run_details r join cron.job j using (jobid) where j.jobname = '${JOB}' and r.status in ('starting', 'running'))`) === "t";
+          if (!tenang) await tidur(100);
+        }
+        if (!c.expect(tenang, "the live job could not be paused: a run of it stayed under way for 30 s")) return c.verdict("");
+        const digeser = psql("select clock_timestamp()");
         for (const n of ["x", "y", "z1", "z2"]) tenggat(s[n], "- interval '1 hour'");
         tenggat(s.w, "+ interval '1 hour'");
         const ringkas = (n: string) => `(select s.status || '/' || coalesce(s.closure_kind, '-') || '/' || (select count(*) from public.assessment_results r where r.session_id = s.id)
@@ -326,6 +352,10 @@ select 'P|' || (public.pintar_jadwal_pasang() ->> 'ok') || '|' || (public.pintar
 rollback;
 ` });
         const out = r.stdout ?? "", err = r.stderr ?? "";
+        // the scenario was the test's own: no run of the live job started once the deadlines moved; then the job is back on
+        const asing = psql(`select count(*) from cron.job_run_details r join cron.job j using (jobid) where j.jobname = '${JOB}' and r.start_time >= ${lit(digeser)}::timestamptz`);
+        psql(S08_JADWAL(true));
+        c.expect(asing === "0", `the live job ran ${asing} time(s) during the scenario although it was paused: the readings below are not the test's own`);
         if (!c.expect(r.status === 0, `the scenario did not run: ${err.trim().split("\n").slice(-3).join(" | ")}`)) return c.verdict("");
         // before: every sitting open, nothing ended
         c.expect(hasilnya(out, "K0|") === "x=IN_PROGRESS/-/0/0 y=IN_PROGRESS/-/0/0 z1=IN_PROGRESS/-/0/0 z2=IN_PROGRESS/-/0/0 w=IN_PROGRESS/-/0/0", `before the job: ${hasilnya(out, "K0|")}`);
@@ -347,13 +377,14 @@ rollback;
         // the job's schedule and role, as pg_cron holds them
         c.expect(psql(`select count(*) || '|' || min(schedule) || '|' || bool_and(active) || '|' || min(database) = '1|*/5 * * * *|true|' || current_database() from cron.job where jobname = '${JOB}'`) === "t",
           "the database does not hold exactly one active five-minute job by that name");
-        return c.verdict("on the seeded cycle school, with sittings nobody touches again: pg_cron's own command for the one job, executed with no "
+        return c.verdict("on the seeded cycle school, with sittings nobody touches again and the live job paused for the scenario (no run of it started once the deadlines moved): pg_cron's own command for the one job, executed with no "
           + "signed-in actor, ends and scores every sitting past its deadline once (FINALIZED, closure DEADLINE, one result, one audit row) and "
           + "leaves one within its deadline open; a sitting whose ending raised is listed with its error, warned to the server log, and left open; "
           + "one whose scoring raised is kept EXPIRED with its warning; neither stops the others, and the next run picks both up; a third run "
           + "changes no sitting, result or audit row; installing the schedule twice through the one installer, and again through A1's, leaves one job");
       } finally {
         psql(S08_TANAM_LEPAS);
+        psql(S08_JADWAL(true));
         bersihkan();
       }
     },
