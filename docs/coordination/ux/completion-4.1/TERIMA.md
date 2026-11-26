@@ -191,3 +191,4 @@
 - 26 Nov 05:39Z · Bob: the printed certificate's language (issued vs viewer). → The issued language is right; reasons and one optional AR-A line in TINJAUAN-AR79-PLAN §7. No CI-1b change.
 - 26 Nov 06:46Z · Bob: Second Eye renders the CI-1b prints locally to the new branch claude/ci-1b-evidence (PR #33 stays pinned). Sharon FINAL PASS. → Waiting for the commit.
 - 26 Nov 07:10Z · Second Eye: the CI-1b prints at claude/ci-1b-evidence 1f2689d4 (S21i BERLAKU-ID, S21j DITINJAU-ID/EN, S27v DICABUT-ID). → Rendered check PASS: each one A4 page; words and layout match; the revoked print can't pass for a certificate. One note for AR-A (out of CI-1b scope): «Periksa keaslian» says «masih berlaku» under the review band. CI1B-KATA.md.
+- 26 Nov 08:02Z · Bob: CI-1b CLOSED on main (b9ca98ef); AR-79 starts with AR-A; words before code; Second Eye sends the walked strings. → AR-A words drafted from main's text: completion-4.1/ARA-KATA.md. Second Eye's strings to reconcile in §11.
