@@ -153,3 +153,9 @@ Bob paces the work. The usage allowance is shared by every session.
   - The only failure, A1-S08, is a race with the live pg_cron job (COMMON-CAUSES §9); it is pre-existing and test-only.
   - The Agent Skills phase is **not** declared closed, and the pre-break checkpoint is **not** clean.
   - Escalated to the owner for a decision.
+- **Ruling 106: the A1-S08 race was fixed before the pause.**
+  - PR #35 (test-only): the live job is paused for the scenario, and a run during it is detected.
+  - Red first locally: the original test failed with CI's symptom; the fix ran 10 of 10 clean under every-second forcing; the new check was seen red.
+  - Sharon PASS at `c3824c3a`. PR ci 45792146106: success. Merged at `a72203d8`.
+  - **Main's ci 45798622469 on `a72203d8`: success (10:49:02Z).** The Agent Skills implementation phase is CLOSED.
+  - **CHECKPOINT CLEAN. The long-weekend pause began at 10:51Z** (rulings 105 and 106). It resumes only on the owner's instruction, from `BOB-RESUME.md`.

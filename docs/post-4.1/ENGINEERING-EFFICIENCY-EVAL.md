@@ -117,6 +117,8 @@ On `claude/eng-skills` (`ecf2b5cc`, from main `0c155a5c`), **not merged**:
 
 **ADOPTED, 26 Nov 07:59Z:** PR #34 merged at `2c96bdd2`, a merge commit with `expectedHeadSha` `555fc14e`. Its tree equals `555fc14e`'s. `555fc14e` is the reviewed `f83c8d50` plus main `b9ca98ef`, and its changed lines are identical to the reviewed diff (Sharon checked independently). Main's ci on `2c96bdd2` is read from the API. **The two-week monitoring runs to 10 Dec.**
 
+**Implementation phase CLOSED (26 Nov 10:50Z).** Main's ci on the merge `2c96bdd2` (45779343510) failed on A1-S08 alone: a pre-existing test race unrelated to the skills, fixed under ruling 106 (PR #35). **Main is green at `a72203d8`** (ci 45798622469, success). Monitoring continues **passively** through the pause.
+
 ## 3 · Monitoring after adoption (Bob, two weeks)
 
 - **Rule restatements in my team briefs:** they should fall to pointers («per `pintar-verification`»).

@@ -8,12 +8,13 @@
 - escalate only an immediate, material security or operational incident;
 - IP protection stays parked until 4.1 is formally closed.
 
-## The checkpoint
+## The checkpoint (CLEAN, 26 Nov 10:50Z)
 
-- **Main:** `2c96bdd291aee9d8df0c39cb3737cace839b04dc` (PR #34, the Agent Skills merge).
-  - Parents: `b9ca98ef` and `555fc14e`. Its tree equals `555fc14e`'s.
-  - **Main's ci on it: run 45779343510, conclusion FAILURE** (read 08:41Z). One test, A1-S08, failed: 1449 passed, 1 failed. The cause is a race with the live 5-minute pg_cron job (COMMON-CAUSES §9). It is pre-existing, test-only and not caused by the skills change: the identical tree `555fc14e` passed every job. **The checkpoint is therefore NOT clean.** Escalated to the owner (ruling 105 pauses development).
-- **Staging** `keijhmdtsgrfvnvocfvk`: at **311** (20270126100000). Untouched since CI-2.
+- **Main:** `a72203d80304ed0934f316682ee739653973218a` (PR #35, the A1-S08 fix; ruling 106).
+  - Parents: `2c96bdd2` and `c3824c3a`.
+  - **Main's ci 45798622469 on it: success** (10:49:02Z, read from the API).
+- **Before it:** main `2c96bdd2` (the Agent Skills merge), whose ci 45779343510 failed on A1-S08 alone. That was a pre-existing timing race in the test, fixed by PR #35.
+- **Staging** `keijhmdtsgrfvnvocfvk`: **311** (20270126100000), untouched since CI-2.
 - **Production** `trtlvibiybwixfumjrrx`: untouched at **111**.
 - **Open PRs:** none.
 
@@ -25,7 +26,8 @@
 | H-1 | closed (ruling 102) |
 | CI-2 | closed on staging (ruling 103); PR-22 stays open as the production gate |
 | **CI-1b** (L-105, High) | **CLOSED on main** (ruling 104).<br>- PR #33 merged at `b9ca98ef`, candidate `5cd81f9d`.<br>- Main ci 45774017397: success at 07:50:09Z.<br>- Sharon FINAL PASS; Daisy PASS on the prints (`claude/ci-1b-evidence` `1f2689d4`).<br>- No migration, so no staging step |
-| **Agent Skills** | **Merged and adopted**: PR #34 at `2c96bdd2`.<br>- All four of the owner's 25 Nov conditions were met.<br>- PR ci 45774171563 on `555fc14e`: success at 07:48:33Z, guard-scan and the db selftests included.<br>- The implementation phase closes when main's ci on `2c96bdd2` succeeds.<br>- Monitoring runs passively to 10 Dec (ENGINEERING-EFFICIENCY-EVAL §3) |
+| **A1-S08 race** (ruling 106) | **CLOSED.**<br>- PR #35 merged at `a72203d8`, a test-only fix: the live closer job is paused for the scenario, and a run during it is detected.<br>- Sharon PASS at `c3824c3a` (`A1-S08-FIX-c3824c3a.md`, `5e75ac35`).<br>- PR ci 45792146106 and main ci 45798622469: success |
+| **Agent Skills** | **Merged and adopted; implementation phase CLOSED**: PR #34 at `2c96bdd2`. Main is green at `a72203d8`.<br>- All four of the owner's 25 Nov conditions were met.<br>- PR ci 45774171563 on `555fc14e`: success at 07:48:33Z, guard-scan and the db selftests included.<br>- The implementation phase closes when main's ci on `2c96bdd2` succeeds.<br>- Monitoring runs passively to 10 Dec (ENGINEERING-EFFICIENCY-EVAL §3) |
 
 ## Outstanding, in order, on resumption
 
