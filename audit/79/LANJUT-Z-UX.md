@@ -9,6 +9,9 @@ Branch `claude/audit-79-world`. Nothing is in flight: no run, no uncommitted wor
 - J9 [S] is not a new finding: it is the recorded gap PR-3 (ruling 73). Bob said to stage nothing for it.
 
 ## Next, in order
+
+**Long-weekend pause (Bob, 26 Nov 08:11Z, the owner's word).** No development, captures or journey work, merges or deployments until the owner says so. **AR-79 resumes with AR-A,** where Z-UX owns the cross-surface journey assertions.
+
 1. **AR-79 cross-surface journey assertions, per batch.**
    - The plan and Daisy's review are in `docs/coordination/ux/roadmap/TINJAUAN-AR79-PLAN.md` on `origin/ux-1/daisy-experience`, read at 0bfd741f.
    - Each batch carries its dependent screens and journey assertions, and AR-G's word list goes first.
