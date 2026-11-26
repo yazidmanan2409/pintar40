@@ -68,3 +68,20 @@ One line at the top of the printed certificate, outside the certificate's frame,
 - **EN:** «Certificate {nomor} was issued by {sekolah} on {tanggal_terbit}. It is no longer in use. Ask the holder for the new certificate.»
 
 Second Eye's derivation («…on {tanggal_terbit}. It is no longer in use. Ask the holder for the new certificate.») is **confirmed**. It is the with-date line with «, lalu digantikan pada {tanggal_ganti}» / «and replaced on {tanggal_ganti}» removed.
+
+## Word check at the freeze, `e8a35c3a` (claude/ci-1b), 26 Nov 03:40: PASS (source)
+
+- **The nine keys in `src/lib/hle.ts`** match this file in ID and EN, word for word: `cetak.DICABUT.judul`/`isi`, `cetak.DIGANTIKAN.judul`/`isi`/`isi_tanpa_tanggal` (verbatim, as confirmed @098539b2), `cetak.bukan_sertifikat`, `cetak.periksa`, `cetak.tanggal_cetak` and `cetak.DITINJAU.baris`.
+- **`PemberitahuanCetak` (DICABUT, DIGANTIKAN):**
+  - prints in place of the certificate: the h1 heading, the statement, «Lembar ini bukan sertifikat.» (emphasised), the QR, the link in monospace that may break anywhere, and «Dicetak {tanggal}»;
+  - no name, no pass sentence, no course, no replacement number;
+  - when no replacement date is stored, it chooses `isi_tanpa_tanggal`.
+  - **The composition matches.**
+- **`BarisDitinjauCetak`:** «Sedang ditinjau:» in bold, then the line with the print date. **It matches** (bold label as KATA §3).
+- **`TanggalCetak`:** the date is rewritten at `beforeprint`, so the date printed is the paper's. It uses the certificate's date form.
+- **`SegarkanKeadaan`:** the page re-reads the state on refocus. **Its named residual is Sharon's to accept** (a page never refocused, printed with the browser's own Print, prints the state it last read; the QR and the link still lead to the truth).
+- **The printed link** drops `https://`, which is the certificate's existing convention (`tautanCetak`). The token and the host are whole.
+
+**One note, not a word difference (optional):** `{sekolah}` falls back to an empty string, which would print «diterbitkan oleh  pada …». If a certificate can lack its school name, use the clause without it. Otherwise ignore this.
+
+**The rendered check** (S21i, S21j, S27v; run 45748680995) **is pending the run.** I'll judge the PDFs when it completes.
