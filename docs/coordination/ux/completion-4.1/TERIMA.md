@@ -188,3 +188,4 @@
 - 26 Nov 02:56Z · Bob: the owner approved R-1 to R-3 and the 320 note, inside AR-C, AR-D, AR-G and AR-H. → Agreed, R-1 with AR-C; recorded in REFLEKSI.
 - 26 Nov 03:32Z · Bob: CI-1b frozen (e8a35c3a); word check. → PASS on source (nine keys and the components); one optional note ({sekolah} empty); the rendered PDFs are pending the run.
 - 26 Nov 04:40Z · Bob: CI-1b re-frozen at 145bd8dc; src identical to e8a35c3a (verified: empty src diff), so the PASS carries over. The rendered PDFs come with journeys 45755954130.
+- 26 Nov 05:39Z · Bob: the printed certificate's language (issued vs viewer). → The issued language is right; reasons and one optional AR-A line in TINJAUAN-AR79-PLAN §7. No CI-1b change.

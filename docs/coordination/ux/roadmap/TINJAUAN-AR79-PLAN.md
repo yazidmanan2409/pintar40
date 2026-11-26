@@ -180,3 +180,19 @@ Agreed. For each, what the fixture must hold and what I'll judge:
 | Finding-level words (per journey) | `docs/coordination/ux/roadmap/AUDIT-79-TEMUAN-J*.md` |
 
 **One addition I'd suggest:** «When a word is not in the list, keep what the lookup already has, and ask Daisy before inventing a new term.» That stops new synonyms from creeping in between batches.
+
+## 7 · The printed certificate's language (Bob's question, 26 Nov 05:39; for AR-A)
+
+**Yes: the paper follows the issued language, not the viewer.** The screen's chrome follows the viewer.
+
+**Why the rule is right:**
+- **A certificate is a record, not a view.** Its text is fixed at issue, as its name is («Nama yang tertulis di sertifikat adalah catatan sertifikat itu sendiri dan tidak diubah»). Two people printing the same certificate in two locales would get two different-looking documents with one number. That invites doubt about which one is genuine.
+- **A verifier compares the paper with the issued record.** The same text every time is what makes that comparison easy.
+- **Changing what is printed is what reissue is for.** A holder who needs the other language asks the school for a replacement in it. That keeps one authoritative document at a time.
+- **CI-1b's notice and the review line following the certificate's language is consistent.** They sit on, or in place of, that sheet. The person needing their own language has the public check, which the QR opens in the viewer's locale.
+
+**One small refinement for AR-A (Improvement, optional):** when the viewer's locale differs from the issued language, say so beside «Cetak», so the paper isn't a surprise.
+- ID: «Dicetak dalam bahasa sertifikat ini diterbitkan: Inggris.»
+- EN: «Printed in the language this certificate was issued in: Indonesian.»
+
+**Nothing changes in CI-1b.**
