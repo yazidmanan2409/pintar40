@@ -1,0 +1,67 @@
+// LOCAL PROBE (not committed): print the learner's certificate sheet in EN on the build serving ASAL, to PDF.
+// usage: npx tsx selftest/_probe-en-sheet.ts <asal> <out.pdf> [ditinjau]
+import { chromium } from "playwright";
+import { lit, psql } from "./bob26.test";
+import { Komputer } from "./bob29.test";
+import { tersusun } from "./konteks-uji";
+import { BOOT_SISWA, masuk } from "./c1w-layar.test";
+
+async function main() {
+const [asal, out, keadaan, bahasa] = process.argv.slice(2);
+const mode = keadaan === "DITINJAU" ? "ditinjau" : "";
+const BOOT = "(select id from public.institutions where official_evidence_purpose = 'D1_ENGINEERING_BOOTSTRAP')";
+psql(`begin; set local session_replication_role = replica; delete from public.certificate_reviews where institution_id in ${BOOT}; commit; select selftest.purge_certificates();`);
+const pre = JSON.parse(psql(`select row_to_json(t) from (select x.certificate_id, x.canonical_payload, s.sesi from (select selftest.boot_attempt(true) as sesi) s,
+    lateral public.certificate_prepare(s.sesi, 1::smallint) x) t`)) as { certificate_id: string; canonical_payload: Record<string, unknown> };
+const { signWithKey } = await import("../src/lib/certificates/sign");
+psql(`select public.certificate_seal(${lit(pre.certificate_id)}, 1::smallint, ${lit(signWithKey(pre.canonical_payload as never, process.env.CERT_SECRET_KEY_V1 ?? ""))})`);
+const cert = pre.certificate_id;
+psql(`begin; set local session_replication_role = replica; update public.certificates set language_as_issued = ${lit(bahasa)} where id = ${lit(cert)}; commit`);
+if (mode === "ditinjau") {
+  psql(`do $$ declare v_r uuid; v_k uuid; v_item uuid; v_s uuid; v_i uuid; begin
+    select session_id, institution_id into v_s, v_i from public.certificates where id = ${lit(cert)};
+    select id into v_r from public.assessment_results where session_id = v_s and supersedes_result_id is null;
+    select p.item_id into v_item from public.presented_items p where p.session_id = v_s order by p.position limit 1;
+    set local session_replication_role = replica;
+    delete from public.key_corrections where reason = 'PROBE-EN kunci tertukar';
+    insert into public.key_corrections (institution_id, line_root_course_id, asked_item_id, item_id, course_id, release_id, question_digest, key_before, key_after,
+                                        reason, proposed_by_person_id, status, decided_at, decided_by_person_id)
+    select v_i, r.course_id, v_item, v_item, r.course_id, r.id, 'x', '{A}', '{B}', 'PROBE-EN kunci tertukar',
+           (select a.person_id from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = 'boot-admin@bootstrap.pintar.test'),
+           'CONFIRMED', now(),
+           (select a.person_id from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = 'boot-kaprodi@bootstrap.pintar.test')
+      from public.assessment_sessions s join public.plp_releases r on r.id = s.plp_release_id where s.id = v_s returning id into v_k;
+    insert into public.certificate_reviews (certificate_id, institution_id, session_id, opened_by_result_id, previous_result_id, key_correction_id)
+    values (${lit(cert)}, v_i, v_s, v_r, v_r, v_k);
+  end $$`);
+}
+if (keadaan === "DICABUT") psql(`begin; set local session_replication_role = replica; update public.certificates set status = 'REVOKED', revoked_at = now(), revoked_reason = 'RENDER-CI1B sintetis' where id = ${lit(cert)}; commit`);
+const k = (await masuk(asal, BOOT_SISWA, "BELAJAR")) as Komputer;
+if (typeof k === "string") throw new Error(k);
+const daftar = await (await k.halaman("/belajar/sertifikat")).text();
+const tugas = /href="\/belajar\/([0-9a-f-]{36})\/sertifikat"/.exec(tersusun(daftar))?.[1];
+if (!tugas) throw new Error("no certificate link");
+const b = await chromium.launch();
+const ctx = await b.newContext();
+const host = new URL(asal).hostname;
+await ctx.addCookies([...(k as unknown as { kue: Map<string, string> }).kue].map(([name, value]) => ({ name, value, domain: host, path: "/" })));
+const page = await ctx.newPage();
+await page.goto(`${asal}/belajar/${tugas}/sertifikat`, { waitUntil: "networkidle" });
+let jalur = "";
+const tombol = page.getByRole("button", { name: /Cetak atau simpan PDF|Print or save as PDF/ });
+if (await tombol.count()) {
+  // the official path: «Cetak» re-reads the state (router.refresh), then calls window.print; headless Chromium's print
+  // returns at once, so the call is recorded and the paper is then made in print media
+  await page.evaluate(() => { const w = window as unknown as { __cetak: number }; w.__cetak = 0; const asli = window.print.bind(window); window.print = () => { w.__cetak++; asli(); }; });
+  await tombol.first().click();
+  await page.waitForFunction(() => (window as unknown as { __cetak: number }).__cetak > 0, null, { timeout: 30000 });
+  jalur = "official: «Cetak» → router.refresh → window.print (called), then page.pdf in print media";
+} else {
+  jalur = "no «Cetak» on the page (the product removes it for this state): the browser's own print, page.pdf in print media";
+}
+await page.emulateMedia({ media: "print" });
+await page.pdf({ path: out, format: "A4", printBackground: true, preferCSSPageSize: true });
+await b.close();
+console.log(JSON.stringify({ keadaan, bahasa, jalur, out }));
+}
+main().catch((e) => { console.error(e); process.exit(1); });
