@@ -59,6 +59,7 @@ Migration numbers: 312 onwards, after CI-1b takes its own. Builder: Second Eye. 
 **Authority:** `keadaanSertifikat`, the result in force (AR-C's helper) and the certificate's validity, read by every certificate surface, the public check included.
 - **Three facts, each said truthfully and distinctly:** the original passing result, the recalculated result, and the certificate's current validity.
 - **Findings:** L-16, L-44, L-66, L-68, L-70, L-82, L-86, L-103, L-106, L-107, L-108, L-109.
+- **Print language (Daisy, `5ca1a18c`):** the paper follows the certificate's issued language, and the chrome follows the viewer. This is settled; nothing changes. Her optional note beside «Cetak» when the locales differ rides only if AR-A already touches that line, otherwise it is left out (scope).
 - **Dependent screens:** the learner's certificate page and list, the public check page, the reissue and revoke panel, Siapkan's certificate step, and the printed and PDF forms (with CI-1b).
 - **Journey assertions:**
   - after a recalculation, the holder, the admin panel and the public check agree on validity;
