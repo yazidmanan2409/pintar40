@@ -109,3 +109,8 @@ Bob paces the work. The usage allowance is shared by every session.
 - **S21j:** a fixture breaks `key_corrections_independent`. The test is wrong, not the product.
 - **B2J:** the Ringkasan's PDF lost its CTK reference. It passed on CI-2's journeys, and CI-1b's print CSS is the suspected cause, to be proven on main.
 - Second Eye root-causes both, red first, and re-freezes. **The L-8 sweep is widened:** a print-stylesheet change has dependents beyond the certificate.
+- **Re-freeze `145bd8dc`** (read 05:20Z):
+  - ci 45755950858: **success** (05:06:58Z);
+  - journeys 45755954130: **failure** (05:04:11Z), PASS 82, FAIL 1.
+- B2J and S21j's fixture now pass. The one FAIL is an S21j sub-check: «DITINJAU printed in EN: «Periksa keaslian» is not printed».
+- **Not yet a candidate.** Being root-caused: a hard-coded Indonesian expectation in the test, or a product defect in the EN sheet (Sharon classifies).
