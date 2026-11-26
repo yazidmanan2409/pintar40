@@ -65,8 +65,23 @@ Could reasonably have been anticipated:
 2. Bob's local first run, 1447/1 on DR-D02 (the backup drill, «fetch failed»), is in code this diff doesn't touch. It is logged as a test-reliability item, not «flake»: right.
 3. The frozen head's own commit message reads «REVIEW HEAD, not a candidate» (the resume note's). The freeze is by Bob's declaration on this sha; I record it that way.
 
-**Verdict: CI-1b delta PASS on the code.**
+~~**Verdict: CI-1b delta PASS on the code.**~~ **Superseded below: the freeze is void.**
 - **Required:** ci 45748677520 and journeys 45748680995 on e8a35c3a green, from the API conclusion. Both were status=in_progress when I read the API at ~03:40Z.
 - **Plus** Daisy's word check.
 
 I have not queried staging; this is a code read.
+
+---
+
+## Addendum: the freeze at e8a35c3a is VOID (2026-11-26 ~04:10Z)
+
+- **journeys 45748680995 on e8a35c3a:** status=completed, **conclusion=failure**, attempt 1, updated 03:55:34Z. I read it from the API at ~04:10Z; Bob reports PASS 81 / FAIL 2.
+  - **S21j:** the fixture's key correction violates `key_corrections_independent`. The database is right and the fixture is wrong.
+  - **B2J:** the Ringkasan's PDF lacks the CTK reference. It is likely a CI-1b print-CSS side effect, which Second Eye is proving on main.
+- **My PASS above holds only for the code I read.** It is not a verdict on e8a35c3a as a candidate, since the required runs failed.
+- **For the re-freeze, I will check:**
+  1. the S21j fixture fix, so the key correction is made by two independent people as the constraint requires, with no weakening of the constraint or the test;
+  2. B2J's cause named, with red first. If CI-1b's global print rules (`.pin-cetak-saja`, the `body:has(...)` and `.pin-col:has(...)` hiding rules, the `@page` name) reach other pages, they must be scoped to the certificate page only;
+  3. **a sweep of every other print surface** (the card sheet, the reports, Ringkasan, any `window.print()` page), with each one's journey PDF unchanged against main. This asks what else the print CSS changed.
+
+  Then: required, ci and journeys on the new frozen head green, from the API conclusion.
