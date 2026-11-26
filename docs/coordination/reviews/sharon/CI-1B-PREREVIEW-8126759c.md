@@ -85,3 +85,21 @@ I have not queried staging; this is a code read.
   3. **a sweep of every other print surface** (the card sheet, the reports, Ringkasan, any `window.print()` page), with each one's journey PDF unchanged against main. This asks what else the print CSS changed.
 
   Then: required, ci and journeys on the new frozen head green, from the API conclusion.
+
+---
+
+## Addendum: B2J was vacuous on main; my judgement on earlier verdicts (2026-11-26 ~04:25Z)
+
+- **The facts** (Second Eye, via Bob):
+  - B2J is red on main 0c155a5c too, so CI-1b's CSS is not the cause;
+  - its PDF check passed whenever `pdftotext` was absent (`journey.mjs:3465`, `teksPdf === "(pdftotext unavailable)" || …`), and the runner had no `pdftotext` until CI-1b's poppler line;
+  - the red comes from the harness: `page.pdf` fires `beforeprint`, which AksiLaporan reads as a browser print («tanpa nomor referensi»).
+- **My judgement on what I passed: no verdict of mine rested on B2J.**
+  - My CI-1, CI-2, D2-R and Z verdicts were each conditioned on their own named tests and plants, plus the runs' conclusions. None used the printed report's reference footer as evidence.
+  - The «green» runs I quoted (e.g. CI-2 journeys 45509965430) did contain this one vacuous check. Their conclusion overstated coverage of **that check only**.
+  - The footer is an accountability mark on printed reports, not an access control. No access, disclosure or data-integrity verdict depended on it.
+- **Bob's journey-only fix conditions are right.** The fourth is the one that matters to me: proof that a real official «Cetak laporan» print keeps the reference through `beforeprint`. If it doesn't, it is a **product defect**, an audit-trail gap on official prints, and it comes back to me for classification.
+- **One addition for the fail-closed sweep:** besides «unavailable» fallbacks, list every check whose pass branch is reachable when its evidence tool or file is missing. That covers `catch → pass`, empty-text matches and absent-file guards. Each one must fail, or be reported as **not run**, never as pass. (The swallowed waits, about 65 `.catch(() => {})` calls, are timing only, provided an assertion follows; the one I sampled, at line 4533, has one.)
+- **My scoping check (2) still applies** to CI-1b's global print rules.
+
+Could reasonably have been anticipated: yes, by any reviewer of earlier journey evidence, me included. A check that passes when its tool is missing is the vacuous-evidence pattern. I should add "is the evidence tool present?" to my run-evidence reading.
