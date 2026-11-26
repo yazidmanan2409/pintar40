@@ -89,9 +89,9 @@ On `claude/eng-skills` (`ecf2b5cc`, from main `0c155a5c`), **not merged**:
 | Condition | State |
 |---|---|
 | Sharon confirms the revised implementation (her E1–E5 and N1) | **MET** (10:00Z): confirmed at `f83c8d50d227347b65fced466ef8b5ee31b09eab`; no material finding of hers is open |
-| CI-1b has merged | **pending** (paused at review head `e8a35c3a`) |
-| All required CI checks pass, including `guard-scan` and the database tests not run locally | **pending**: ci on the frozen `claude/eng-skills` head, conclusion read from the API |
-| No material unresolved findings | none open today |
+| CI-1b has merged | **MET:** PR #33 merged at `b9ca98ef`; main ci 45774017397 **success** (07:50:09Z, 26 Nov) |
+| All required CI checks pass, including `guard-scan` and the database tests not run locally | **MET:** ci 45774171563 on `555fc14e`, **success** (07:48:33Z). All 19 jobs succeeded, `guard · no sensitive values anywhere in the tree` and every db red case included |
+| No material unresolved findings | **MET:** Sharon has none open (07:20Z); the PR has no review threads |
 
 **R3 doesn't hold this merge** (Sharon, 26 Nov 02:06Z). R3 keeps new security-sensitive records (findings, weaknesses, exposure detail) off the repository. The skills carry only rules and pointers that are already public, with no findings. The merge is governed by the owner's conditions above alone.
 
@@ -114,6 +114,8 @@ On `claude/eng-skills` (`ecf2b5cc`, from main `0c155a5c`), **not merged**:
 3. Its diff is checked to be the reviewed one.
 4. ci runs on that head; the merge waits for success.
 5. Then main's ci is read on the merge commit.
+
+**ADOPTED, 26 Nov 07:59Z:** PR #34 merged at `2c96bdd2`, a merge commit with `expectedHeadSha` `555fc14e`. Its tree equals `555fc14e`'s. `555fc14e` is the reviewed `f83c8d50` plus main `b9ca98ef`, and its changed lines are identical to the reviewed diff (Sharon checked independently). Main's ci on `2c96bdd2` is read from the API. **The two-week monitoring runs to 10 Dec.**
 
 ## 3 · Monitoring after adoption (Bob, two weeks)
 

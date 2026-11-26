@@ -139,4 +139,10 @@ Bob paces the work. The usage allowance is shared by every session.
   - Main's ci 45774017397 is in progress. **CI-1b closes when it concludes success.**
 - **Agent Skills (after closure, under the 25 Nov conditions):**
   - `claude/eng-skills` was updated by merging main (`555fc14e`), with no rewrite. Its changed lines are identical to the reviewed `0c155a5c..f83c8d50`; only context moved.
-  - [PR #34](https://github.com/yazidmanan2409/pintar40/pull/34) is open.
+  - [PR #34](https://github.com/yazidmanan2409/pintar40/pull/34) was opened.
+- **CI-1b CLOSED (ruling 104): main's ci 45774017397 on `b9ca98ef` succeeded** (07:50:09Z). L-105 is closed on main.
+  - There was no migration, so no staging step. Production is untouched, and PR-22 stays open as a production gate.
+  - Daisy's check-text note is carried in AR-A.
+- **Agent Skills ADOPTED.** All four owner conditions were met. ci 45774171563 on `555fc14e` succeeded (07:48:33Z), guard-scan and the db selftests included.
+  - PR #34 merged at `2c96bdd2` (07:59Z). Main's ci on it is read from the API.
+- **Next: AR-79**, batch by batch, each by its own owner request, starting with AR-A then AR-B.
