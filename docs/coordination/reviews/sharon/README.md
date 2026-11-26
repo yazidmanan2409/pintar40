@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| CI-1b (L-105) final | FINAL PASS at 5cd81f9d (ci attempt 2 + journeys success) | 5cd81f9d | [CI-1B-PREREVIEW-8126759c.md](CI-1B-PREREVIEW-8126759c.md) |
 | IP protection & AI reverse-engineering exposure assessment (owner brief, 26 Nov) | delivered to the owner directly; held off-repo on purpose | main 0c155a5c | not in the repository |
 | Engineering skills + third-party tools | Skills ADOPT WITH CONDITIONS (E1–E3 before merge); OmniRoute/Ponytail REJECT; Graphify DEFER | ecf2b5cc / 29cd93d4 | [ENG-SKILLS-REVIEW-ecf2b5cc.md](ENG-SKILLS-REVIEW-ecf2b5cc.md) |
 | CI-1b pre-review | FIT TO FREEZE after P1 (review state fails open) and P2 (line clipping) | 8126759c | [CI-1B-PREREVIEW-8126759c.md](CI-1B-PREREVIEW-8126759c.md) |

@@ -215,3 +215,39 @@ I have not queried staging; this is a code read.
   - In the same job, the BOB-35 and BOB-26 gates started their stacks and passed: 5/5 and 8/8 plants red for their declared reasons.
 - **So this is runner infrastructure, not the candidate.** The product is identical to 145bd8dc, whose ci passed. **One rerun is justified** under the rule (a job that died before any test body). Bob's single rerun of the failed jobs, attempt 2 at 06:03Z, is accepted, with no further reruns.
 - **Required:** ci 45763080807 **attempt 2** concluding success, with the WP7 and BOB-01 gates actually executed (their plants red for their declared reasons in the attempt-2 log), plus journeys 45763084276 success. Both from the API conclusion.
+
+---
+
+## Addendum: CI-1b FINAL at 5cd81f9d819f91261a9cb63b53f66b88b22bd6d5 (2026-11-26 ~06:45Z)
+
+**Runs, read by me from the API at ~06:43Z:**
+- **ci 45763080807, attempt 2:** status=completed, **conclusion=success**, updated 06:25:47Z.
+  - I searched all 2,718 lines of red-case job 139725482732's log:
+    - WP7 «14/14 plant(s) proved their gate» (06:06:32Z);
+    - BOB-01 «24/24» (06:07:30Z);
+    - BOB-35 «5/5»;
+    - BOB-26 «8/8».
+  - There is no `##[error]`, no «failed to set up» and no «address already in use» outside comments.
+  - So the two gates that died in attempt 1 **did run** in attempt 2, each plant red for its declared reason.
+- **journeys 45763084276, attempt 1:** status=completed, **conclusion=success**, updated 06:12:11Z. Bob's log reading is TALLY PASS 83 in job B, with S21i, S21j, S27v and B2J passing. I take the counts from Bob; the conclusion I read myself.
+
+**Diff:**
+- main is unmoved at 0c155a5c, which is the merge-base.
+- `git diff main 5cd81f9d`: sha256 `e1f4c6c49e0be0a0…`, 19 files, **no migration**.
+- The only workflow change is the `poppler-utils` line in audit-journeys.yml job B, named for the owner.
+
+**Verdict: CI-1b FINAL PASS** (L-105: a printed certificate follows its validity).
+- **The merge is the owner's to authorise.** It goes as PR #33's merge commit at exactly 5cd81f9d, with the required check on that head.
+- **If main moves first:** update-branch with no rewrite, and the diff proven to be 5cd81f9d plus main only.
+- **After the merge,** main's ci on the merge commit is read from the API.
+- **No migration,** so there is no staging preservation step; it is an app change only.
+- **Daisy's PDF judgement** from the artifact (audit-production-posture 15091868185) stands as her condition.
+- **Ledger, AR-79:**
+  - the non-PDF fail-closed sweep;
+  - journey.mjs's 65 waits;
+  - the certificate-only static check;
+  - F04-S04;
+  - CI-W54322;
+  - the screen's unknown-review banner (AR-A).
+
+I have not queried staging; this is a code read plus API conclusions.
