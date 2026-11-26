@@ -114,3 +114,6 @@ Bob paces the work. The usage allowance is shared by every session.
   - journeys 45755954130: **failure** (05:04:11Z), PASS 82, FAIL 1.
 - B2J and S21j's fixture now pass. The one FAIL is an S21j sub-check: «DITINJAU printed in EN: «Periksa keaslian» is not printed».
 - **Not yet a candidate.** Being root-caused: a hard-coded Indonesian expectation in the test, or a product defect in the EN sheet (Sharon classifies).
+- **Candidate `5cd81f9d`** (05:40Z): `145bd8dc` plus the S21j EN heading fix, chosen by the certificate's language from hle.ts. Journey and evidence only; the product diff is empty.
+  - Runs: ci 45763080807 and journeys 45763084276.
+  - **A disclosure carried here, not in the branch** (Second Eye's words): «The run's own PDFs (artifact 15088389798 of journeys 45755954130) could not be read from this session: the artifact host is not allowed by its network. What stands in for them: the run's log, where salahCetak's link and QR checks run before the label check and the label was the only EN failure listed; and the local prints from main and CI-1b above.»
