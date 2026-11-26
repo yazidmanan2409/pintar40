@@ -187,3 +187,4 @@
 - 26 Nov 02:30Z · The owner's design reflection done (read-only) → roadmap/REFLEKSI-DESAIN-2026-11.md: what to preserve; R-1 to R-3; an AR-H note; one dropped; taste items left alone.
 - 26 Nov 02:56Z · Bob: the owner approved R-1 to R-3 and the 320 note, inside AR-C, AR-D, AR-G and AR-H. → Agreed, R-1 with AR-C; recorded in REFLEKSI.
 - 26 Nov 03:32Z · Bob: CI-1b frozen (e8a35c3a); word check. → PASS on source (nine keys and the components); one optional note ({sekolah} empty); the rendered PDFs are pending the run.
+- 26 Nov 04:40Z · Bob: CI-1b re-frozen at 145bd8dc; src identical to e8a35c3a (verified: empty src diff), so the PASS carries over. The rendered PDFs come with journeys 45755954130.
