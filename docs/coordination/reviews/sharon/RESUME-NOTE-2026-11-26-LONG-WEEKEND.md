@@ -4,7 +4,7 @@ Supersedes `RESUME-NOTE-2026-11-25.md` as my current note. That one is kept as h
 
 ## The checkpoint
 - **main = 2c96bdd291aee9d8df0c39cb3737cace839b04dc,** the Agent Skills merge of PR #34. Its parents are b9ca98ef (CI-1b) and 555fc14e, and its tree equals 555fc14e's (checked).
-- **Main ci on 2c96bdd2:** 45779343510, see the final line below.
+- **Main ci on 2c96bdd2:** 45779343510 concluded **failure**, so ~~the checkpoint is clean~~ **the checkpoint is NOT clean** (see the final line).
 - **Staging:** at 311 (CI-2 closed on staging). **Production:** untouched at 111.
 - **My branch:** `claude/gracious-lamport-0m1qjr`. All my records are pushed, with nothing uncommitted.
 
@@ -45,3 +45,11 @@ Supersedes `RESUME-NOTE-2026-11-25.md` as my current note. That one is kept as h
 - Superseded text is struck through, never deleted.
 - Security-sensitive findings stay off the public repository.
 - **Before escalating, I search the decisions log** (the D-143 lesson).
+
+---
+**Final line (read from the API at ~08:47Z):** main ci 45779343510 on 2c96bdd2 is status=completed, **conclusion=failure**, updated 08:38:17Z.
+- **The failing job,** per Bob: «selftest contract», 1449 passed and 1 failed.
+- **The failure:** A1-S08, a race between the test and the real pg_cron `*/5` job `pengerjaan_tutup_berkala`. It is the same family as F04-S04.
+- **Why it is test-only and pre-existing:** 555fc14e, with the identical tree, passed (45774171563), and the test file is unchanged.
+- **No rerun,** because a test body ran. Bob has escalated to the owner, and there is no fix or revert without the owner.
+- **My read:** not a security or data incident; it is a test-reliability defect. On resumption, closing the checkpoint is the owner's call: an authorised rerun, or a test fix that pauses the job during A1-S08. I verify whichever is chosen.
