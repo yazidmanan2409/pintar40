@@ -2029,6 +2029,101 @@ await step("S21h", "a student comes back to her finished chapter from her home (
   }
 });
 
+// CI-1b (L-105, HIGH; Daisy's CI1B-KATA.md @cfc65eb6; the plan of record W4b): A PRINTED CERTIFICATE FOLLOWS ITS
+// VALIDITY. Each state of the learner's own page is printed by the browser and read back FROM THE RENDERED PDF
+// (pdftotext), with what the print layout shows: BERLAKU the sheet with «Periksa keaslian», the QR and the link;
+// DITINJAU Daisy's line ahead of that sheet; DICABUT and DIGANTIKAN a notice and no credential. Before CI-1b the two
+// last printed the on-screen card: the name as issued and the pass sentence, with no QR, link or state.
+const KATA_CETAK = {
+  DICABUT: "Dicabut oleh penerbit",
+  DIGANTIKAN: "Digantikan sertifikat yang lebih baru",
+  bukan: "Lembar ini bukan sertifikat.",
+  ditinjau: "Sedang ditinjau: sekolah penerbit sedang meninjau sertifikat ini. Pindai kode QR untuk keadaannya saat ini.",
+  ditinjauEn: "Under review: the issuing school is reviewing this certificate. Scan the QR code for its current status.",
+  lulus: "Telah dinyatakan memenuhi kriteria kelulusan",
+};
+const rapat = (s) => String(s ?? "").replace(/\s+/g, "");
+/** One of the product's own words, in one language, read from the candidate's src/lib/hle.ts (APP_DIR), so a check
+ * asks for what the paper must say in the certificate's language and never a copy that can drift. null when the key or
+ * the language is missing there (the caller fails on it: fail closed). */
+function kataProduk(kunci, bahasa) {
+  let baris;
+  try {
+    baris = readFileSync(join(process.env.APP_DIR ?? process.cwd(), "src/lib/hle.ts"), "utf8").split("\n").find((b) => b.trimStart().startsWith(`"${kunci}":`));
+  } catch { return null; }
+  const m = baris && (bahasa === "en" ? /\ben:\s*"([^"]+)"/ : /\bdefault:\s*"([^"]+)"/).exec(baris);
+  return m ? m[1] : null;
+}
+async function cetakSertifikat(page, label, tanam = null) {
+  if (tanam) await page.addStyleTag({ content: tanam });
+  await page.emulateMedia({ media: "print" });
+  const dom = await page.evaluate(() => {
+    const kelihatan = (el) => { const r = el.getBoundingClientRect(); const g = getComputedStyle(el); return r.width > 0 && r.height > 0 && g.display !== "none" && g.visibility !== "hidden"; };
+    const qr = [...document.querySelectorAll(".pin-s-qr svg, [data-cetak-qr] svg")].filter(kelihatan).length;
+    const ada = (q) => { const el = document.querySelector(q); return el ? kelihatan(el) : false; };
+    // Sharon P2: text extraction does not prove visibility. The line must be whole on paper (nothing clipped by its box)
+    // and end above the sheet's header (nothing printed over)
+    const b = document.querySelector("[data-cetak-ditinjau]");
+    const kepala = document.querySelector(".pin-sheet .pin-s-kepala");
+    const barisUtuh = !!b && kelihatan(b) && b.scrollHeight <= b.clientHeight + 1 && b.scrollWidth <= b.clientWidth + 1
+      && (!kepala || b.getBoundingClientRect().bottom <= kepala.getBoundingClientRect().top + 0.5);
+    return { qr, lembar: ada(".pin-sheet"), pemberitahuan: ada("[data-cetak-pemberitahuan]"), baris: ada("[data-cetak-ditinjau]"), barisUtuh };
+  });
+  const pdf = join(OUT, `${label}.pdf`);
+  await page.pdf({ path: pdf, format: "A4", printBackground: true, preferCSSPageSize: true });
+  await page.emulateMedia({ media: "screen" });
+  const halaman = (readFileSync(pdf).toString("latin1").match(/\/Type\s*\/Page[^s]/g) ?? []).length;
+  let teks = "";
+  try { teks = norm(execFileSync("pdftotext", ["-layout", pdf, "-"], { encoding: "utf8" })); } catch (e) { teks = `!! pdftotext: ${String(e.message ?? e).split("\n")[0]}`; }
+  return { pdf, halaman, teks, dom };
+}
+/** What is wrong with one printed state, read from its PDF and its print layout; [] when it prints as it must. */
+function salahCetak(h, keadaan, f) {
+  const out = [];
+  // case-blind: the sheet sets its labels in capitals by text-transform («PERIKSA KEASLIAN»), and the PDF holds them so
+  const ada = (s) => rapat(h.teks).toLowerCase().includes(rapat(s).toLowerCase());
+  if (h.teks.startsWith("!!")) return [h.teks];
+  if (h.halaman !== 1) out.push(`${h.halaman} page(s), not one`);
+  if (!ada(f.tautan)) out.push("the check link is not on the paper");
+  if (h.dom.qr < 1) out.push("no QR is printed");
+  if (keadaan === "BERLAKU" || keadaan === "DITINJAU") {
+    if (!ada(f.nama) || !h.dom.lembar) out.push("the certificate itself is not printed");
+    // the sheet's check heading, in the certificate's own language (journeys 45755954130: an EN sheet rightly prints
+    // «Check it is genuine»; on main 0c155a5c too). Read from the candidate's hle.ts; the other language's heading fails
+    const bahasa = f.bahasa === "en" ? "en" : "id";
+    const judulPeriksa = kataProduk("sertifikat.periksa.judul", bahasa);
+    const judulLain = kataProduk("sertifikat.periksa.judul", bahasa === "en" ? "id" : "en");
+    if (!judulPeriksa) out.push(`the check heading's words (sertifikat.periksa.judul, ${bahasa}) are not in the candidate's hle.ts`);
+    else if (!ada(judulPeriksa)) out.push(`«${judulPeriksa}» is not printed`);
+    if (judulPeriksa && judulLain && rapat(judulLain).toLowerCase() !== rapat(judulPeriksa).toLowerCase() && ada(judulLain))
+      out.push(`the check heading is printed in the other language («${judulLain}»)`);
+    const barisKata = f.bahasa === "en" ? KATA_CETAK.ditinjauEn : KATA_CETAK.ditinjau;
+    if (keadaan === "DITINJAU" && !(ada(barisKata) && h.dom.baris)) out.push("the review line is not printed");
+    if (keadaan === "DITINJAU" && !h.dom.barisUtuh) out.push("the review line is clipped or printed over the certificate's header");
+    if (keadaan === "BERLAKU" && (ada(KATA_CETAK.ditinjau) || h.dom.pemberitahuan)) out.push("a valid certificate prints a review line or a notice");
+    if (keadaan === "DITINJAU" && rapat(h.teks).indexOf(rapat(barisKata)) > rapat(h.teks).indexOf(rapat(f.nama))) out.push("the review line is not ahead of the certificate");
+  } else {
+    if (!(ada(KATA_CETAK[keadaan]) && h.dom.pemberitahuan)) out.push(`the notice «${KATA_CETAK[keadaan]}» is not printed`);
+    if (!ada(KATA_CETAK.bukan)) out.push("«Lembar ini bukan sertifikat.» is not printed");
+    if (!ada(f.nomor)) out.push("the certificate's number is not printed");
+    if (ada(f.nama)) out.push("the name as issued is printed");
+    if (ada(KATA_CETAK.lulus)) out.push("the pass sentence is printed");
+    if (h.dom.lembar) out.push("the sheet is printed");
+    if (f.nomorBaru && ada(f.nomorBaru)) out.push("the replacement's number is printed");
+  }
+  return out;
+}
+/** The learner's certificate as the journey left it: id, number, token, chapter, name as issued, institution. */
+function sertifikatAni(nama, status = "ISSUED") {
+  const r = sql(`select c.id || '|' || c.certificate_number || '|' || c.verification_token || '|' || s.learning_assignment_id || '|' || sn.name_as_issued || '|' || c.session_id
+     from public.certificates c join public.persons p on p.id = c.person_id join public.assessment_sessions s on s.id = c.session_id
+     join public.certificate_identity_snapshots sn on sn.id = c.snapshot_id
+     where p.display_name = '${nama.replace(/'/g, "''")}' and c.institution_id = '${ids.sd}' and c.status = '${status}' order by c.issued_at desc limit 1`).trim();
+  if (!r) return null;
+  const [id, nomor, token, tugas, namaTerbit, sesi] = r.split("|");
+  return { id, nomor, token, tugas, nama: namaTerbit, sesi, tautan: `${APP}/verifikasi/${token}`.replace(/^https?:\/\//, "") };
+}
+
 // STU-17: the certificate's state as a student meets it. Above the school's target (Ani, 7 of 8 against 60%) her
 // certificate is listed and, issued, opens with its actions; below it (Eka, 4 of 8) there is none, and opening the
 // chapter's certificate page, which asks the system on the learner's behalf, creates none: rendering never issues one.
@@ -2084,6 +2179,15 @@ await step("S21i", "the certificate as students meet it: above the target it is 
         await a1.emulateMedia({ media: "screen" });
         notes.push(`printed: the sheet ${cetak.ada ? `alone (${cetak.luar} other element(s) visible), ${cetak.lebarMm} mm wide` : "missing"}; the A4 PDF has ${halaman} page(s)`);
         if (!cetak.ada || cetak.luar !== 0 || cetak.lebarMm !== 210 || halaman !== 1) rec.verdict = "FAIL";
+        // CI-1b: BERLAKU prints the sheet with «Periksa keaslian», its QR and its link (read from the PDF itself)
+        const f = sertifikatAni(lulus.nama);
+        if (!f) { notes.push("CI-1b: no issued certificate to print"); rec.verdict = "FAIL"; }
+        else {
+          const h = await cetakSertifikat(a1, "ci1b-berlaku");
+          const salah = salahCetak(h, "BERLAKU", f);
+          notes.push(`CI-1b BERLAKU printed: ${salah.length ? salah.join(", ") : "the sheet with «Periksa keaslian», the QR and the link, one page"}`);
+          if (salah.length) rec.verdict = "FAIL";
+        }
       }
     }
   } catch (e) {
@@ -2121,6 +2225,125 @@ await step("S21i", "the certificate as students meet it: above the target it is 
   return notes.join("; ");
 });
 
+
+// CI-1b (L-105): the other states of the same certificate, printed: DITINJAU (an open review), DIGANTIKAN (a
+// replacement) and the print decided by the state at print time (Daisy's requirement 3). Each is written past the
+// guards, as the selftest's C1W-A02 does, because a review exists only after a confirmed key correction and a
+// replacement only after a school's correction, and removed again: S27v revokes this certificate later, through the
+// screens, and the reports in between count it as issued. Each check also proves it can fail: the same print with the
+// notice or the line hidden by a planted print rule must be red.
+await step("S21j", "the certificate printed in each state (CI-1b, L-105): under review it prints Daisy's line ahead of the certificate with its QR and link; replaced, it prints only a notice (no name, no pass sentence, no new number) with the QR and link; «Cetak» on a page loaded before a replacement prints no credential; a planted print rule hiding the line or the notice turns each check red", async (rec) => {
+  const lulus = kartuKelas.find((k) => k.nama === MURID[0]);
+  const f = lulus ? sertifikatAni(lulus.nama) : null;
+  if (!f) { rec.verdict = "BLOCKED"; return "no issued certificate from S21i"; }
+  const notes = [];
+  const lc = await ctx();
+  const l = await lc.newPage();
+  const BUKA = async () => {
+    await l.goto(`${APP}/belajar/${f.tugas}/sertifikat`, { waitUntil: "networkidle" });
+    await tutupTur(l);
+  };
+  const ulas = (label, salah, tertanam) => {
+    notes.push(`${label}: ${salah.length ? salah.join(", ") : "as it must"}; the planted print rule ${tertanam.length ? `is caught (${tertanam[0]})` : "is NOT caught"}`);
+    if (salah.length || !tertanam.length) rec.verdict = "FAIL";
+  };
+  try {
+    await masukKartu(l, lulus);
+    // ---- DITINJAU: an open review of this certificate
+    // two different people, as the database requires of every correction (key_corrections_independent): the school's
+    // admin proposes and the head of department decides, as a real correction would (journeys 45748680995 caught the
+    // first version, which named the learner twice)
+    const orang = (email) => sql(`select a.person_id from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = '${email}'`).trim();
+    const pengusul = orang(people.sdAdmin.email), pemutus = orang(people.kaprodi.email);
+    if (!pengusul || !pemutus || pengusul === pemutus) throw new Error(`S21j fixture: no two different people to propose and decide (${pengusul || "-"} / ${pemutus || "-"})`);
+    sql(`do $$ declare v_r uuid; v_k uuid; v_item uuid; v_s uuid := '${f.sesi}'; v_i uuid := '${ids.sd}';
+      v_pengusul uuid := '${pengusul}'; v_pemutus uuid := '${pemutus}'; begin
+      select id into v_r from public.assessment_results where session_id = v_s and supersedes_result_id is null;
+      select p.item_id into v_item from public.presented_items p where p.session_id = v_s order by p.position limit 1;
+      set local session_replication_role = replica;
+      insert into public.key_corrections (institution_id, line_root_course_id, asked_item_id, item_id, course_id, release_id, question_digest, key_before, key_after,
+                                          reason, proposed_by_person_id, status, decided_at, decided_by_person_id)
+      select v_i, r.course_id, v_item, v_item, r.course_id, r.id, 'x', '{A}', '{B}', 'CI1B-S21j kunci tertukar (uji perjalanan)',
+             v_pengusul, 'CONFIRMED', now(), v_pemutus
+        from public.assessment_sessions s join public.plp_releases r on r.id = s.plp_release_id where s.id = v_s returning id into v_k;
+      insert into public.certificate_reviews (certificate_id, institution_id, session_id, opened_by_result_id, previous_result_id, key_correction_id)
+      values ('${f.id}', v_i, v_s, v_r, v_r, v_k);
+    end $$`);
+    try {
+      await BUKA();
+      rec.shots.push(await shot(l, "ci1b-ditinjau"));
+      const h = await cetakSertifikat(l, "ci1b-ditinjau");
+      await BUKA();
+      const t = await cetakSertifikat(l, "ci1b-ditinjau-tanam", "@media print { [data-cetak-ditinjau] { display: none !important; } }");
+      ulas("DITINJAU printed", salahCetak(h, "DITINJAU", f), salahCetak(t, "DITINJAU", f));
+      // Sharon P2: a line clipped by its own box still reads whole in the PDF's text; the layout check must see it
+      await BUKA();
+      const k = await cetakSertifikat(l, "ci1b-ditinjau-tanam-klip", "@media print { [data-cetak-ditinjau] { max-height: 4mm !important; overflow: hidden !important; } }");
+      const klip = salahCetak(k, "DITINJAU", f);
+      notes.push(`DITINJAU with a planted clip: ${klip.some((x) => /clipped/.test(x)) ? "caught" : "NOT caught"}`);
+      if (!klip.some((x) => /clipped/.test(x))) rec.verdict = "FAIL";
+      // the English line is the longer one (Sharon P2): the certificate's language, set to EN for this one print
+      const bahasaAsal = sql(`select coalesce(language_as_issued, '') from public.certificates where id = '${f.id}'`).trim();
+      sql(`begin; set local session_replication_role = replica; update public.certificates set language_as_issued = 'en' where id = '${f.id}'; commit`);
+      try {
+        await BUKA();
+        const e = await cetakSertifikat(l, "ci1b-ditinjau-en");
+        const salahEn = salahCetak(e, "DITINJAU", { ...f, bahasa: "en" });
+        notes.push(`DITINJAU printed in EN: ${salahEn.length ? salahEn.join(", ") : "as it must, the line whole"}`);
+        if (salahEn.length) rec.verdict = "FAIL";
+      } finally {
+        sql(`begin; set local session_replication_role = replica; update public.certificates set language_as_issued = ${bahasaAsal ? `'${bahasaAsal}'` : "null"} where id = '${f.id}'; commit`);
+      }
+    } finally {
+      sql(`begin; set local session_replication_role = replica; delete from public.certificate_reviews where certificate_id = '${f.id}';
+        delete from public.key_corrections where reason = 'CI1B-S21j kunci tertukar (uji perjalanan)'; commit`);
+    }
+    // ---- DIGANTIKAN, and the print at print time: the page is loaded while the certificate is valid, then replaced
+    await BUKA();
+    const cetakAda = await l.getByRole("button", { name: /Cetak atau simpan PDF/ }).count();
+    await l.evaluate(() => { window.__ci1bCetak = []; window.print = () => { window.__ci1bCetak.push({ lembar: !!document.querySelector(".pin-printwell .pin-sheet"), pemberitahuan: !!document.querySelector("[data-cetak-pemberitahuan]") }); }; });
+    const baru = sql(`begin; set local session_replication_role = replica;
+      with b as (insert into public.certificates (session_id, person_id, institution_id, snapshot_id, certificate_number, verification_token, status, issued_at, issued_at_iso,
+          canonical_payload, signature, key_version, supersedes_certificate_id, institution_as_issued, course_subject_as_issued, course_title_as_issued, language_as_issued)
+        select session_id, person_id, institution_id, snapshot_id, certificate_number || 'G', replace(replace(rtrim(encode(gen_random_bytes(32), 'base64'), '='), '+', '-'), '/', '_'),
+               'ISSUED', now(), to_char(now() at time zone 'utc', 'YYYY-MM-DD"T"HH24:MI:SS"Z"'), canonical_payload, signature, key_version, id,
+               institution_as_issued, course_subject_as_issued, course_title_as_issued, language_as_issued
+          from public.certificates where id = '${f.id}' returning id || '|' || certificate_number as x)
+      select x from b; update public.certificates set status = 'SUPERSEDED' where id = '${f.id}'; commit;`).split("\n").find((x) => x.includes("|")) ?? "";
+    const [idBaru, nomorBaru] = baru.split("|");
+    try {
+      // Daisy's requirement 3: «Cetak» on the page loaded before the replacement prints the state at print time
+      if (cetakAda) {
+        await l.getByRole("button", { name: /Cetak atau simpan PDF/ }).first().click();
+        await l.waitForFunction(() => (window.__ci1bCetak ?? []).length > 0 || !!document.querySelector("[data-cetak-pemberitahuan]"), null, { timeout: SLOW }).catch(() => {});
+        await l.waitForTimeout(1500);
+        const dicetak = await l.evaluate(() => window.__ci1bCetak ?? []);
+        const bersih = dicetak.every((x) => !x.lembar);
+        notes.push(`«Cetak» pressed on the page loaded while valid, after the replacement: ${dicetak.length ? `print called ${dicetak.length}×, ${bersih ? "with no credential on the page" : "WITH THE CREDENTIAL ON THE PAGE"}` : "no print (the page re-read the state)"}`);
+        if (!bersih) rec.verdict = "FAIL";
+      } else { notes.push("«Cetak» was not offered on the valid page"); rec.verdict = "FAIL"; }
+      await BUKA();
+      rec.shots.push(await shot(l, "ci1b-digantikan"));
+      const h = await cetakSertifikat(l, "ci1b-digantikan");
+      await BUKA();
+      const t = await cetakSertifikat(l, "ci1b-digantikan-tanam", "@media print { [data-cetak-pemberitahuan] { display: none !important; } }");
+      ulas("DIGANTIKAN printed", salahCetak(h, "DIGANTIKAN", { ...f, nomorBaru }), salahCetak(t, "DIGANTIKAN", { ...f, nomorBaru }));
+    } finally {
+      sql(`begin; set local session_replication_role = replica; delete from public.certificates where id = '${idBaru}';
+        update public.certificates set status = 'ISSUED' where id = '${f.id}'; commit`);
+    }
+    const kembali = sql(`select status from public.certificates where id = '${f.id}'`).trim();
+    notes.push(`the certificate is ${kembali} again for the steps after`);
+    if (kembali !== "ISSUED") rec.verdict = "FAIL";
+  } catch (e) {
+    rec.verdict = "FAIL";
+    rec.shots.push(await shot(l, "ci1b-berhenti"));
+    notes.push(`stopped: ${String(e.message ?? e).split("\n")[0].slice(0, 200)}`);
+  } finally {
+    await lc.close();
+  }
+  return notes.join("; ");
+});
 
 await step("S22", "the teacher reaches Lihat bukti by clicking and reads the class figures from official evidence, follows «Lihat per soal» to the questions the class found hard (M5, D-088(k)), then opens a student's record from the roster (EDU-12, X-10, EDU-J03, M4)", async (rec) => {
   if (!HARAP) { rec.verdict = "BLOCKED"; return "the chapter fixture is absent"; }
@@ -3238,7 +3461,20 @@ await step("B2J", "Pak Guru Budi prints his class's Ringkasan: the paper carries
   await tutupTur(gp);
   const kaki = () => gp.locator("style[data-kaki-cetak]").evaluate((el) => el.textContent ?? "");
   const awal = await kaki();
-  await gp.evaluate(() => { window.__kakiSaatCetak = []; window.print = () => { window.__kakiSaatCetak.push(document.querySelector("style[data-kaki-cetak]")?.textContent ?? ""); }; });
+  // CI-1b (26 Nov; Bob's conditions 2-4): THE OFFICIAL PRINT AS THE BROWSER MAKES IT. The page's own «Cetak laporan»
+  // runs; the real window.print is called, so the browser fires beforeprint inside it exactly as in a real print, and
+  // the footer is taken AT beforeprint, after the page's own handler has run (this listener is added after it). That
+  // footer is held in a style of its own while the PDF is made, because page.pdf fires beforeprint again as a print
+  // the browser starts, which the page rightly answers with its browser line. Before 26 Nov the footer was hand-set
+  // and the PDF overwrote it, and a missing pdftotext counted as a pass, so the PDF was never really read.
+  await gp.evaluate(() => {
+    window.__kakiSaatCetak = [];
+    window.__kakiBeforeprint = [];
+    const kaki = () => document.querySelector("style[data-kaki-cetak]")?.textContent ?? "";
+    window.addEventListener("beforeprint", () => window.__kakiBeforeprint.push(kaki()));
+    const asli = window.print.bind(window);
+    window.print = () => { window.__kakiSaatCetak.push(kaki()); asli(); };
+  });
   await gp.getByRole("button", { name: "Cetak laporan", exact: true }).click();
   await gp.waitForFunction(() => (window.__kakiSaatCetak ?? []).length === 1, null, { timeout: SLOW }).catch(() => {});
   const saatCetak = (await gp.evaluate(() => window.__kakiSaatCetak ?? []))[0] ?? "";
@@ -3249,14 +3485,25 @@ await step("B2J", "Pak Guru Budi prints his class's Ringkasan: the paper carries
   const peramban = await kaki();
   await gp.evaluate(() => window.dispatchEvent(new Event("afterprint")));
   const pulih = await kaki();
-  // the official rendering as a PDF: the footer as it stood when the dialog opened
-  await gp.evaluate((teks) => { document.querySelector("style[data-kaki-cetak]").textContent = teks; }, saatCetak);
-  await gp.emulateMedia({ media: "print" });
-  const pdf = `${OUT}/b2-ringkasan-cetak.pdf`;
-  await gp.pdf({ path: pdf, format: "A4", printBackground: true });
-  await gp.emulateMedia({ media: "screen" });
-  let teksPdf = "";
-  try { teksPdf = execFileSync("pdftotext", ["-layout", pdf, "-"], { encoding: "utf8" }); } catch { teksPdf = "(pdftotext unavailable)"; }
+  // the footer the page held at the official print's beforeprint (the browser's own event, after the page's handler)
+  const diBeforeprint = (await gp.evaluate(() => window.__kakiBeforeprint ?? []))[0] ?? "";
+  // the official rendering as a PDF: the footer of that moment held while the PDF is made; FAIL CLOSED on no pdftotext
+  const cetakPdf = async (nama, kakiDitahan) => {
+    await gp.evaluate((teks) => {
+      document.querySelector("style[data-uji-saat-cetak]")?.remove();
+      if (teks !== null) { const el = document.createElement("style"); el.setAttribute("data-uji-saat-cetak", ""); el.textContent = teks; document.body.appendChild(el); }
+    }, kakiDitahan);
+    await gp.emulateMedia({ media: "print" });
+    const f = `${OUT}/${nama}.pdf`;
+    await gp.pdf({ path: f, format: "A4", printBackground: true });
+    await gp.emulateMedia({ media: "screen" });
+    await gp.evaluate(() => document.querySelector("style[data-uji-saat-cetak]")?.remove());
+    try { return execFileSync("pdftotext", ["-layout", f, "-"], { encoding: "utf8" }); } catch (e) { return `!! pdftotext failed: ${String(e.message ?? e).split("\n")[0]}`; }
+  };
+  const teksPdf = await cetakPdf("b2-ringkasan-cetak", diBeforeprint);
+  // the check proves it can fail: a planted product break, the official print losing its reference to the browser's
+  // beforeprint (the page's handler not telling the official print from a browser one), must leave the PDF without it
+  const teksTanam = await cetakPdf("b2-ringkasan-cetak-tanam", null);
   await gc.close();
   // the school admin types the reference into the reader
   await a.goto(`${APP}/konfigurasi/catatan-masuk?cari=${encodeURIComponent(ref.toLowerCase().replace("-", " "))}`, { waitUntil: "networkidle" });
@@ -3265,14 +3512,17 @@ await step("B2J", "Pak Guru Budi prints his class's Ringkasan: the paper carries
   const baris = await a.locator("[data-akuntabilitas-baris]").evaluateAll((trs) => trs.map((tr) => ({
     jenis: tr.getAttribute("data-akuntabilitas-baris"), siapa: (tr.querySelector("[data-akuntabilitas-orang]")?.textContent ?? "").trim(),
     ref: tr.querySelector("[data-rujukan-cetak]")?.getAttribute("data-rujukan-cetak") ?? "" })));
-  const pdfOk = teksPdf === "(pdftotext unavailable)" || teksPdf.includes(`Ref. ${ref}`);
+  const pdfOk = !teksPdf.startsWith("!!") && teksPdf.includes(`Ref. ${ref}`) && diBeforeprint.includes(`Ref. ${ref}`);
+  const tanamTertangkap = !teksTanam.startsWith("!!") && !teksTanam.includes(`Ref. ${ref}`);
   const ok = Boolean(ref) && saatCetak.includes(`Dicetak oleh ${people.guru.name}`) && !/CTK-/.test(awal) && /Dicetak dari browser · tanpa nomor referensi/.test(awal)
-    && sesudah === awal && /\(jam perangkat\)/.test(peramban) && !/CTK-/.test(peramban) && !peramban.includes(people.guru.name) && pulih === awal && pdfOk
+    && sesudah === awal && /\(jam perangkat\)/.test(peramban) && !/CTK-/.test(peramban) && !peramban.includes(people.guru.name) && pulih === awal && pdfOk && tanamTertangkap
     && baris.length === 1 && baris[0].jenis === "PRINT_REQUEST" && baris[0].ref === ref && baris[0].siapa === people.guru.name;
   if (!ok) rec.verdict = "FAIL";
   return `the footer before «${awal.slice(0, 90)}»; at the dialog «${(/content: (".*?");/.exec(saatCetak)?.[1] ?? saatCetak).slice(0, 140)}»; after it returned (no afterprint) `
     + `${sesudah === awal ? "the default again" : `«${sesudah.slice(0, 90)}»`}; a browser print «${(/content: (".*?");/.exec(peramban)?.[1] ?? "").slice(0, 120)}», then ${pulih === awal ? "the default" : "not restored"}; `
-    + `the PDF ${teksPdf === "(pdftotext unavailable)" ? "was made (no pdftotext to read it)" : teksPdf.includes(`Ref. ${ref}`) ? `carries «Ref. ${ref}»` : "does not carry the reference"}; `
+    + `at the official print's beforeprint «${(/content: (".*?");/.exec(diBeforeprint)?.[1] ?? diBeforeprint).slice(0, 140)}»; `
+    + `the PDF ${teksPdf.startsWith("!!") ? teksPdf.slice(0, 120) : teksPdf.includes(`Ref. ${ref}`) ? `carries «Ref. ${ref}»` : "does not carry the reference"}; `
+    + `the planted break (the reference lost at beforeprint) ${tanamTertangkap ? "is caught" : "is NOT caught"}; `
     + `the reader, searched for ${ref}: ${JSON.stringify(baris)}`;
 });
 
@@ -4339,6 +4589,18 @@ await step("S27v", "the school revokes a learner's certificate: the learner's li
     const banner = /Sertifikat ini sudah dicabut oleh penerbitnya/.test(isi);
     notes.push(`the learner's list says «Dicabut»: ${diDaftar}; her certificate page shows the revoked banner: ${banner}`);
     if (!diDaftar || !banner) rec.verdict = "FAIL";
+    // CI-1b (L-105): revoked through the screens, the page prints only the notice: no name, no pass sentence, the QR
+    // and the link; a planted print rule hiding the notice turns the check red
+    const f = sertifikatAni(lulus.nama, "REVOKED");
+    if (!f) { notes.push("CI-1b: the revoked certificate is not found"); rec.verdict = "FAIL"; }
+    else {
+      const h = await cetakSertifikat(l, "ci1b-dicabut");
+      await l.reload({ waitUntil: "networkidle" });
+      const t = await cetakSertifikat(l, "ci1b-dicabut-tanam", "@media print { [data-cetak-pemberitahuan] { display: none !important; } }");
+      const salah = salahCetak(h, "DICABUT", f), tertanam = salahCetak(t, "DICABUT", f);
+      notes.push(`CI-1b DICABUT printed: ${salah.length ? salah.join(", ") : "only the notice, with the QR and the link, one page"}; the planted print rule ${tertanam.length ? "is caught" : "is NOT caught"}`);
+      if (salah.length || !tertanam.length) rec.verdict = "FAIL";
+    }
   } finally { await lc.close(); }
   // a stranger, by the certificate's own link
   const vc = await ctx();
