@@ -60,6 +60,7 @@ Migration numbers: 312 onwards, after CI-1b takes its own. Builder: Second Eye. 
 - **Three facts, each said truthfully and distinctly:** the original passing result, the recalculated result, and the certificate's current validity.
 - **Findings:** L-16, L-44, L-66, L-68, L-70, L-82, L-86, L-103, L-106, L-107, L-108, L-109.
 - **Print language (Daisy, `5ca1a18c`):** the paper follows the certificate's issued language, and the chrome follows the viewer. This is settled; nothing changes. Her optional note beside «Cetak» when the locales differ rides only if AR-A already touches that line, otherwise it is left out (scope).
+- **Check text under the review band (Daisy, CI-1b print judgement, 26 Nov; J7-2's sibling):** under «Sedang ditinjau», the «Periksa keaslian» text still says «… dan masih berlaku» (EN «… and is still valid»). The band and the QR already tell the truth, so it is non-blocking. Her words for AR-A: «Halaman itu menunjukkan apakah sertifikat ini benar diterbitkan dan bagaimana keadaannya sekarang.» / «That page shows whether this certificate was genuinely issued and what its status is now.» Record: `docs/coordination/ux/completion-4.1/CI1B-KATA.md` (`ux-1/daisy-experience` `88602ba2`).
 - **Dependent screens:** the learner's certificate page and list, the public check page, the reissue and revoke panel, Siapkan's certificate step, and the printed and PDF forms (with CI-1b).
 - **Journey assertions:**
   - after a recalculation, the holder, the admin panel and the public check agree on validity;

@@ -129,4 +129,7 @@ Bob paces the work. The usage allowance is shared by every session.
     - update-branch only if main moves, with the diff proven;
     - main's ci read on the merge commit.
 - **Second Eye confirmed** both runs (06:39Z).
-- The merge waits for Daisy's PDF judgement and the owner's ruling.
+- **Daisy: PASS** on the four prints (07:03Z).
+  - The prints are local renders from `5cd81f9d` on `claude/ci-1b-evidence` `1f2689d4`. The CI artifact's download host is refused by the team's networks; that disclosure is in the branch's README.
+  - Her one note, the check text under the review band, goes to AR-A. It is non-blocking.
+- **The merge waits only for the owner's ruling.**
