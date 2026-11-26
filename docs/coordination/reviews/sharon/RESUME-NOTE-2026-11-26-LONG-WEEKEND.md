@@ -3,8 +3,8 @@
 Supersedes `RESUME-NOTE-2026-11-25.md` as my current note. That one is kept as history.
 
 ## The checkpoint
-- **main = 2c96bdd291aee9d8df0c39cb3737cace839b04dc,** the Agent Skills merge of PR #34. Its parents are b9ca98ef (CI-1b) and 555fc14e, and its tree equals 555fc14e's (checked).
-- **Main ci on 2c96bdd2:** 45779343510 concluded **failure**, so ~~the checkpoint is clean~~ **the checkpoint is NOT clean** (see the final line).
+- ~~**main = 2c96bdd291aee9d8df0c39cb3737cace839b04dc,** the Agent Skills merge of PR #34.~~ **main = a72203d80304ed0934f316682ee739653973218a** (the A1-S08 fix, PR #35, ruling 106, on top of the Agent Skills merge 2c96bdd2). Its parents are b9ca98ef (CI-1b) and 555fc14e, and its tree equals 555fc14e's (checked).
+- **Main ci on 2c96bdd2:** 45779343510 concluded **failure**, so ~~the checkpoint is clean~~ ~~**the checkpoint is NOT clean**~~ the checkpoint was not clean at 2c96bdd2; **it is CLEAN at a72203d8** (see the end).
 - **Staging:** at 311 (CI-2 closed on staging). **Production:** untouched at 111.
 - **My branch:** `claude/gracious-lamport-0m1qjr`. All my records are pushed, with nothing uncommitted.
 
@@ -53,3 +53,12 @@ Supersedes `RESUME-NOTE-2026-11-25.md` as my current note. That one is kept as h
 - **Why it is test-only and pre-existing:** 555fc14e, with the identical tree, passed (45774171563), and the test file is unchanged.
 - **No rerun,** because a test body ran. Bob has escalated to the owner, and there is no fix or revert without the owner.
 - **My read:** not a security or data incident; it is a test-reliability defect. On resumption, closing the checkpoint is the owner's call: an authorised rerun, or a test fix that pauses the job during A1-S08. I verify whichever is chosen.
+
+---
+**Checkpoint CLEAN (read from the API at ~10:56Z):**
+- **main ci 45798622469 on a72203d8:** status=completed, **conclusion=success**, updated 10:49:02Z.
+- **The merge:** a72203d8, with parents 2c96bdd2 and c3824c3a. **Its tree equals c3824c3a's** (checked with git).
+- **PR ci 45792146106:** success (10:08:38Z), per Bob.
+- **Closed:** A1-S08 (my record `A1-S08-FIX-c3824c3a.md`) and the Agent Skills implementation phase.
+- **My two AR-79 ledger notes:** A1-S09 and DR-D02 can pass without exercising their race; a pause should refuse a non-local database.
+- **The pause began at 10:51Z.** Development resumes only on the owner's instruction, starting with the AR-A pre-build.
