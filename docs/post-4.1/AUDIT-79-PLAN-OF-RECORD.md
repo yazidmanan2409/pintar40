@@ -145,4 +145,7 @@ Bob paces the work. The usage allowance is shared by every session.
   - Daisy's check-text note is carried in AR-A.
 - **Agent Skills ADOPTED.** All four owner conditions were met. ci 45774171563 on `555fc14e` succeeded (07:48:33Z), guard-scan and the db selftests included.
   - PR #34 merged at `2c96bdd2` (07:59Z). Main's ci on it is read from the API.
-- **Next: AR-79**, batch by batch, each by its own owner request, starting with AR-A then AR-B.
+- ~~**Next: AR-79**, batch by batch, each by its own owner request, starting with AR-A then AR-B.~~ **Superseded by ruling 105 (08:10Z): the long-weekend pause.** AR-A did not start. Development resumes only on the owner's instruction, from the resumption record `docs/post-4.1/BOB-RESUME.md`.
+  - The 08:01Z AR-A kickoff was stopped at 08:11Z.
+  - Daisy's AR-A words were committed before the stop and kept for resumption: `ux-1/daisy-experience` `44b09b05`, unreviewed.
+  - The driver `trig_01WheS53MVmTRwbKs3itPKNQ` is disabled.
