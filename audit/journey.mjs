@@ -2231,14 +2231,21 @@ await step("S21j", "the certificate printed in each state (CI-1b, L-105): under 
   try {
     await masukKartu(l, lulus);
     // ---- DITINJAU: an open review of this certificate
-    sql(`do $$ declare v_r uuid; v_k uuid; v_item uuid; v_s uuid := '${f.sesi}'; v_i uuid := '${ids.sd}'; begin
+    // two different people, as the database requires of every correction (key_corrections_independent): the school's
+    // admin proposes and the head of department decides, as a real correction would (journeys 45748680995 caught the
+    // first version, which named the learner twice)
+    const orang = (email) => sql(`select a.person_id from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = '${email}'`).trim();
+    const pengusul = orang(people.sdAdmin.email), pemutus = orang(people.kaprodi.email);
+    if (!pengusul || !pemutus || pengusul === pemutus) throw new Error(`S21j fixture: no two different people to propose and decide (${pengusul || "-"} / ${pemutus || "-"})`);
+    sql(`do $$ declare v_r uuid; v_k uuid; v_item uuid; v_s uuid := '${f.sesi}'; v_i uuid := '${ids.sd}';
+      v_pengusul uuid := '${pengusul}'; v_pemutus uuid := '${pemutus}'; begin
       select id into v_r from public.assessment_results where session_id = v_s and supersedes_result_id is null;
       select p.item_id into v_item from public.presented_items p where p.session_id = v_s order by p.position limit 1;
       set local session_replication_role = replica;
       insert into public.key_corrections (institution_id, line_root_course_id, asked_item_id, item_id, course_id, release_id, question_digest, key_before, key_after,
                                           reason, proposed_by_person_id, status, decided_at, decided_by_person_id)
       select v_i, r.course_id, v_item, v_item, r.course_id, r.id, 'x', '{A}', '{B}', 'CI1B-S21j kunci tertukar (uji perjalanan)',
-             (select person_id from public.certificates where id = '${f.id}'), 'CONFIRMED', now(), (select person_id from public.certificates where id = '${f.id}')
+             v_pengusul, 'CONFIRMED', now(), v_pemutus
         from public.assessment_sessions s join public.plp_releases r on r.id = s.plp_release_id where s.id = v_s returning id into v_k;
       insert into public.certificate_reviews (certificate_id, institution_id, session_id, opened_by_result_id, previous_result_id, key_correction_id)
       values ('${f.id}', v_i, v_s, v_r, v_r, v_k);
