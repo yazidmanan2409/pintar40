@@ -84,4 +84,21 @@ Second Eye's derivation («…on {tanggal_terbit}. It is no longer in use. Ask t
 
 **One note, not a word difference (optional):** `{sekolah}` falls back to an empty string, which would print «diterbitkan oleh  pada …». If a certificate can lack its school name, use the clause without it. Otherwise ignore this.
 
-**The rendered check** (S21i, S21j, S27v; run 45748680995) **is pending the run.** I'll judge the PDFs when it completes.
+**The rendered check** moved to Second Eye's local render (below).
+
+## Rendered check, `claude/ci-1b-evidence` `1f2689d4`, 26 Nov: PASS
+
+Judged as a reader would, from the four PDFs and their page images in `docs/post-4.1/ci-1b/evidence/`. Each PDF is **one page, 595 × 842 pt (A4)**.
+
+| Print | What a reader sees | Verdict |
+|---|---|---|
+| S21i BERLAKU (ID) | The certificate alone, no band: name, the pass sentence, «Materi Pembelajaran», date, number, issuer, «Periksa keaslian» with the link and the QR. Nothing cut, nothing on a second page. | PASS |
+| S21j DITINJAU (ID) | A band above the certificate: «**Sedang ditinjau:** sekolah penerbit sedang meninjau sertifikat ini. Pindai kode QR untuk keadaannya saat ini. Dicetak 26 November 2026.», then the certificate whole. Bold label as KATA §3. | PASS |
+| S21j DITINJAU (EN) | «**Under review:** the issuing school is reviewing this certificate. Scan the QR code for its current status. Printed 26 November 2026.» Labels in EN (CERTIFICATE, ISSUE DATE, CERTIFICATE NUMBER, ISSUED BY, CHECK IT IS GENUINE). The course name stays as authored. | PASS |
+| S27v DICABUT (ID) | «Dicabut oleh penerbit»; the statement with both dates and «tidak lagi berlaku dan tidak dapat dipakai sebagai bukti»; «**Lembar ini bukan sertifikat.**»; the QR; «Periksa keadaannya …» with the link; «Dicetak 26 November 2026.» **No name, no pass sentence, no course, no certificate frame.** | PASS |
+
+- **The revoked print can't be mistaken for a valid certificate.** It has none of the certificate's parts, says in bold that it is not one, and points to the live state.
+- **The printed date is the paper's** in every print.
+- **The links** show `http://127.0.0.1:3999/…` only because the local render runs on http; `tautanCetak` strips `https://` in production. The token is whole and wraps cleanly.
+
+**Outside CI-1b's scope, for AR-A (J7-2's sibling), not a CI-1b finding:** under the «Sedang ditinjau» band, the certificate's own «Periksa keaslian» text still says «Halaman itu memastikan sertifikat ini benar diterbitkan dan masih berlaku.» (EN: «That page confirms this certificate was genuinely issued and is still valid.»). The band and the QR already tell the truth, so the paper doesn't mislead; but «masih berlaku» is a promise the page can't make for a certificate under review. **Suggested AR-A words:** «Halaman itu menunjukkan apakah sertifikat ini benar diterbitkan dan bagaimana keadaannya sekarang.» / «That page shows whether this certificate was genuinely issued and what its status is now.» This changes the certificate component, so it belongs in AR-A, not CI-1b.
