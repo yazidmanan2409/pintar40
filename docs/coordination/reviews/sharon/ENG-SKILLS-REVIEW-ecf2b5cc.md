@@ -161,3 +161,12 @@ My condition for the merge (the owner's conditional approval):
   1. CI-1b closed, i.e. main ci 45774017397 success (open);
   2. **required: ci on 555fc14e green,** with guard-scan and the db selftests among its jobs (API);
   3. no material finding of mine is open (none).
+
+---
+
+## Addendum: merged (2026-11-26 ~08:05Z)
+- **ci 45774171563 on 555fc14e:** status=completed, **conclusion=success**, updated 07:48:33Z (read from the API at ~08:04Z). Per Bob, all 19 jobs succeeded, including guard-scan and ENG-GUARD-01.
+- **The merge:** origin/main is 2c96bdd2, with parents b9ca98ef and 555fc14e. **Its tree equals 555fc14e's** (checked with git).
+- **All four owner conditions held.**
+- **Still to read:** main's ci on 2c96bdd2, from the API.
+- **Monitoring:** two weeks, to 10 Dec. Any proposed edit to a guidance path comes to me with its sha.

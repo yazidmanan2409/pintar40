@@ -257,3 +257,9 @@ I have not queried staging; this is a code read plus API conclusions.
 ## Addendum: merged (2026-11-26 ~07:25Z)
 - **The merge:** ruling 104. origin/main is b9ca98ef, with parents 0c155a5c and 5cd81f9d. **Its tree equals 5cd81f9d's tree** (checked with git).
 - **Main's ci 45774017397 on b9ca98ef:** status=in_progress when I read the API at ~07:23Z. **Required: success.** CI-1b closes only then.
+
+---
+
+## Addendum: CI-1b CLOSED (2026-11-26 ~08:05Z)
+- **Main ci 45774017397 on b9ca98ef:** status=completed, **conclusion=success**, updated 07:50:09Z. I read it from the API at ~08:04Z.
+- **CI-1b is closed on main** (ruling 104), and L-105 is closed. PR-22 stays open, and production is untouched.
