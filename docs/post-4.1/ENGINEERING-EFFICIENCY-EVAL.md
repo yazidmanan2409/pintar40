@@ -93,6 +93,8 @@ On `claude/eng-skills` (`ecf2b5cc`, from main `0c155a5c`), **not merged**:
 | All required CI checks pass, including `guard-scan` and the database tests not run locally | **pending**: ci on the frozen `claude/eng-skills` head, conclusion read from the API |
 | No material unresolved findings | none open today |
 
+**R3 doesn't hold this merge** (Sharon, 26 Nov 02:06Z). R3 keeps new security-sensitive records (findings, weaknesses, exposure detail) off the repository. The skills carry only rules and pointers that are already public, with no findings. The merge is governed by the owner's conditions above alone.
+
 **Fail-closed (owner):**
 - `guard-scan` runs `sensitive-scan --tree` with no `if:` and no `continue-on-error`, and the verdict needs it. The verdict fails on any result but `success`, so a failure, a skip or a cancellation all turn it red.
 - ENG-GUARD-01 asserts all of this; it is red on a planted `continue-on-error` and on a planted `run.sh`.
