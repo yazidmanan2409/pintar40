@@ -22,6 +22,25 @@ Each batch carries:
 - one cross-surface journey assertion per cause it fixes;
 - red-first tests, a plant per database rule, and a static guard wherever a rule could be bypassed by a sibling route.
 
+## 0a · Approved refinements riding inside the batches (owner, 26 Nov)
+
+Daisy's design reflection, `docs/coordination/ux/roadmap/REFLEKSI-DESAIN-2026-11.md` (`bdb51ee0`, on `ux-1/daisy-experience`), is the binding text.
+
+**The owner's conditions:**
+- refinements to existing functionality only: no new batch, workstream or capability;
+- no unnecessary architectural change;
+- educational meaning and every necessary explanation preserved;
+- each affected shared component verified on every consuming screen, at 1280, 390 and 320;
+- no completed batch reopened for them;
+- **any refinement that proves substantially larger than anticipated is deferred until after 4.1, and recorded as such.**
+
+| | Refinement | Rides with | Shared component and its consumers |
+|---|---|---|---|
+| R-1 | Belajar: the chapter already shown in «Langkah berikutnya» keeps only its title and one status line in «Pembelajaran Anda», with no second step line or button (optionally «di atas») | **AR-C**: the home's step derivation already changes there, so the home changes once | the chapter card on Belajar |
+| R-2 | Mengajar: each running assessment listed once; the date labelled, with «ditutup» | **AR-D** (composed with L-45's «waiting for you», not before it) | the class card on `/mengajar` and `/mengajar/[kelas]` |
+| R-3 | /pimpinan: empty sections stop carrying their full method text; no figure, threshold or withheld reason moves | **AR-G** (with L-97, L-98, L-138) | the blocks shared by `/pimpinan` and `/dekan/ringkasan` |
+| 320 | the learner's bar takes about a third of the screen at 320 | **AR-H** (within L-53 and K-4) | the learner chrome: AR-H's 320 capture checks the learner bar specifically |
+
 ## 1 · What is already done or in flight (not part of AR-79's build)
 
 | Finding | Where | State |
@@ -96,6 +115,7 @@ Migration numbers: 312 onwards, after CI-1b takes its own. Builder: Second Eye. 
 **Findings:** L-14, L-33, L-43, L-46, L-47, L-48, L-54, L-55, L-56, L-57, L-59, L-61, L-63, L-64, L-74, L-118, L-119, L-121, L-141.
 
 **Journey assertions:**
+- **R-1 (§0a):** the next-step chapter appears once with one button; other chapters are unchanged; checked at 1280, 390 and 320;
 - a retake approved: the home, the result, the chapter and `lanjut` all offer it;
 - a retake open: the learner and the teacher both show the result in force;
 - a sitting ended by the teacher: the learner is told how it ended (ruling 96).
@@ -104,7 +124,9 @@ Migration numbers: 312 onwards, after CI-1b takes its own. Builder: Second Eye. 
 
 **Authority:** one count per person over every kind of decision they own. For a teacher: release, continue and retake requests. For an approver: management decisions and retake requests. For the second person: key corrections. The empty line appears only when every kind is empty.
 - **Findings:** L-45, L-58, L-69, L-83.
-- **Journey assertions:** a continue request, a retake request and a correction each appear in their owner's «waiting» list, and the empty line is absent while any of them waits.
+- **Journey assertions:**
+  - a continue request, a retake request and a correction each appear in their owner's «waiting» list, and the empty line is absent while any of them waits;
+  - **R-2 (§0a):** each running assessment is listed once on `/mengajar` and `/mengajar/[kelas]`, with its date labelled, at all three widths.
 
 ### AR-E · Actions offered only when their prerequisites hold, refused with the true cause (C-7 both halves, C-8, C-12)
 
@@ -139,12 +161,14 @@ Migration numbers: 312 onwards, after CI-1b takes its own. Builder: Second Eye. 
 - **Daisy's word list** (`2f5a6ac8` §2) is the binding text: one name each for L-17 to L-25 (e.g. kesempatan = attempt, pengerjaan = sitting, never «session»; murid, not «Peserta»; tahun ajaran «2026/2027»); the verdict words per `bersertifikasi`: Lulus / Belum lulus / Belum dapat ditentukan when certifying, Mencapai target / Belum mencapai target otherwise, with staff adding the figure after the word.
 - **L-31 (principle 4):** a response-time promise is made only where a fact supports it (ruling 90's lesson).
 - **Assertion:** a static check that every visible string on the changed pages comes from the lookup, in both ID and EN.
+- **R-3 (§0a):** on `/pimpinan` and `/dekan/ringkasan`, the empty sections are short, and the non-empty ones keep their method text and figures unchanged.
 
 ### AR-H · Layout and accessibility (its own verification)
 
 **Authority:** the shared components, fixed once, not per page. Accessibility is verified separately: a screen that looks right isn't necessarily accessible (L-87). Each batch gets the screen-reader pass.
 - **Findings:** L-01, L-02, L-03, L-04, L-05, L-06, L-07, L-09, L-10, L-39, L-40, L-41, L-42, L-50, L-51, L-52, L-53, L-87, L-110, L-111, L-139, L-153, L-159.
 - **Daisy:** L-01 is WCAG 1.4.1, so it is verified app-wide; K-1 to K-4 apply to the learner and teacher chrome (L-53).
+- **The 320 note (§0a):** the learner bar is checked at 320, not only /konfigurasi.
 - **Assertion:** 320, 390 and 1280 captures plus the screen-reader pass, per changed surface.
 
 ## 3 · Not built in AR-79, named for the closure report
