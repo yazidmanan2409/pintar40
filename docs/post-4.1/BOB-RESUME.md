@@ -78,5 +78,5 @@
 |---|---|---|---|
 | Second Eye | `claude/ci-1b` (merged), `claude/ci-1b-evidence` | `5cd81f9d`, `1f2689d4` | (pending its confirmation) |
 | Sharon | `claude/gracious-lamport-0m1qjr` | `9709f2c5` (confirmed 08:11Z; no uncommitted work) | `RESUME-NOTE-2026-11-26-LONG-WEEKEND.md` |
-| Daisy | `ux-1/daisy-experience` | `44b09b05` or later | (pending) |
+| Daisy | `ux-1/daisy-experience` | `a1e3c28f` (confirmed 08:15Z; clean). The AR-A draft words are at `44b09b05` `ARA-KATA.md` §1–§10, kept as a draft. Her pending AR-A messages are cancelled | `LANJUT-DAISY.md` |
 | Audit builder | `claude/audit-79-world` | `ac745e4a` (confirmed 08:14Z; clean, pushed) | `audit/79/LANJUT-Z-UX.md` |
