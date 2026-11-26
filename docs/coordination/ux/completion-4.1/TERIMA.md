@@ -185,3 +185,4 @@
 - 25 Nov 09:45Z · Bob: review the pintar-words skill; the L-160 focus question. → The skill is correct, with exact paths and one suggested line. L-160: clear the PIN, keep the card number, focus the card number (the older rule holds). TINJAUAN-AR79-PLAN §6.
 - 26 Nov 02:05Z · Bob: the owner's direction is to complete 4.1. Next: CI-1b word check (frozen sha to come); AR-G words per batch. The L-160 decision is recorded (c12f84c4). → Waiting on the sha; in the meantime, the owner's read-only design reflection (his brief of 25 Nov), interruptible.
 - 26 Nov 02:30Z · The owner's design reflection done (read-only) → roadmap/REFLEKSI-DESAIN-2026-11.md: what to preserve; R-1 to R-3; an AR-H note; one dropped; taste items left alone.
+- 26 Nov 02:56Z · Bob: the owner approved R-1 to R-3 and the 320 note, inside AR-C, AR-D, AR-G and AR-H. → Agreed, R-1 with AR-C; recorded in REFLEKSI.

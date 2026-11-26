@@ -89,3 +89,24 @@ I noticed things that are preference rather than improvement, and I'm leaving th
 ## In one line
 
 **PINTAR doesn't need to be different.** Removing three repetitions (R-1, R-2, R-3), each confined to one shared component and sequenced with an AR-79 batch already planned, would make it a little calmer without losing a fact.
+
+## Approved (26 Nov, the owner, via Bob; AR-79 plan §0a `e04ba7d7`)
+
+R-1, R-2, R-3 and the AR-H 320 note are approved as refinements **inside existing AR-79 batches**:
+
+| Item | Batch |
+|---|---|
+| R-1 | AR-C |
+| R-2 | AR-D, composed with L-45 |
+| R-3 | AR-G |
+| The 320 learner-bar check | AR-H |
+
+- **R-1 in AR-C is right.** I wrote «not covered by AR-79» meaning no finding covers it, but AR-C already changes the Belajar home's step derivation (L-46, L-56, L-64). So that is where the home changes once.
+- **The owner's conditions apply:**
+  - no new batch or workstream;
+  - no unnecessary architecture;
+  - meaning and every necessary explanation preserved;
+  - every consuming screen verified at 1280, 390 and 320;
+  - no completed batch reopened;
+  - deferred until after 4.1 if substantially larger than anticipated.
+- **Words go in each batch's KATA file before code:** «di atas» (optional, R-1) and «ditutup» (R-2).
