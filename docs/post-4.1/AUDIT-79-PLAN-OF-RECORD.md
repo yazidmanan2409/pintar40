@@ -122,4 +122,11 @@ Bob paces the work. The usage allowance is shared by every session.
   - In attempt 2, the WP7 plants proved 14/14 and the BOB-01 plants 24/24, each red for its declared reason.
   - journeys 45763084276: **success** (06:12:11Z). Job B's TALLY is PASS 83; job A succeeded. The artifact is 15091868185.
 - **PR [#33](https://github.com/yazidmanan2409/pintar40/pull/33) opened** against main `0c155a5c` (unmoved). The diff is 19 files, sha256 `e1f4c6c4…`, with no migration.
-- The merge waits for Sharon's verdict on `5cd81f9d`, Daisy's PDF judgement and the owner's ruling.
+- **Sharon: CI-1b FINAL PASS at `5cd81f9d`** (06:43Z).
+  - She read all 2,718 lines of the red-case job: WP7 14/14, BOB-01 24/24, BOB-35 5/5, BOB-26 8/8; no `##[error]`.
+  - Her conditions:
+    - a merge commit at exactly `5cd81f9d`, with the required check on that head;
+    - update-branch only if main moves, with the diff proven;
+    - main's ci read on the merge commit.
+- **Second Eye confirmed** both runs (06:39Z).
+- The merge waits for Daisy's PDF judgement and the owner's ruling.
