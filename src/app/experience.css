@@ -574,6 +574,52 @@
   }
 }
 
+/* ------------------------------------------------- the printed state (CI-1b, L-105)
+   Daisy's CI1B-KATA.md: what a printed copy says when the certificate is not plainly valid. PRINT-ONLY: on screen the
+   banners already say the state, so these parts never show; in print they always do, and no rule may hide them
+   (CI1B-K01). DITINJAU: one line above the sheet, outside its frame, in body size. DICABUT / DIGANTIKAN: a notice that
+   is the whole page, in place of the certificate, on one A4 of its own. */
+.pin-cetak-saja { display: none; }
+@page cetak-keadaan {
+  size: A4 portrait;
+  margin: 0;
+}
+@media print {
+  .pin-cetak-saja { display: block !important; }
+  /* DITINJAU: the line sits in the sheet's blank top band (the header begins at 22 mm), outside the certificate's
+     composition, so the sheet stays exactly the paper and one A4 leaves the printer. It is inside the print well, before
+     the sheet, and placed on the page itself (no positioned ancestor in print). */
+  .pin-cetak-ditinjau {
+    /* never clipped (Sharon P2): no max-height, no overflow rule; the journey asserts it is whole and above the header */
+    position: absolute; z-index: 2; top: 5mm; left: 20mm; right: 20mm;
+    /* body size, not a footnote (Daisy §3): the sheet's own text is 12pt; two lines of 11pt fit the band */
+    margin: 0; font-size: 11pt; line-height: var(--leading-tight); color: var(--ink-1);
+  }
+  .pin-cetak-ditinjau strong { font-weight: var(--weight-strong); }
+  .pin-cetak-pemberitahuan {
+    page: cetak-keadaan;
+    box-sizing: border-box; width: 210mm; height: 297mm; max-width: 100vw; max-height: 100vh; overflow: hidden;
+    padding: 36mm 25mm 25mm; break-inside: avoid; color: var(--ink-1); background: none;
+    font-family: var(--font-sans);
+  }
+  .pin-cetak-pemberitahuan h1 { font-size: 24pt; font-weight: var(--weight-strong); line-height: var(--leading-tight); margin: 0; }
+  .pin-cetak-pemberitahuan .pin-cetak-isi { font-size: 12pt; line-height: var(--leading-body); margin: 10mm 0 0; max-width: 150mm; }
+  .pin-cetak-pemberitahuan .pin-cetak-bukan { font-size: 14pt; font-weight: var(--weight-strong); margin: 8mm 0 0; }
+  .pin-cetak-pemberitahuan .pin-cetak-periksa {
+    display: grid; grid-template-columns: 30mm 1fr; column-gap: 8mm; align-items: center; margin-top: 16mm;
+  }
+  .pin-cetak-pemberitahuan .pin-cetak-periksa p { font-size: 10pt; line-height: var(--leading-body); margin: 0; }
+  .pin-cetak-pemberitahuan .pin-s-qr, .pin-cetak-pemberitahuan .pin-s-qr svg { width: 30mm; height: 30mm; display: block; }
+  /* the address in full, in the number's monospace, free to break after «/» (Daisy, requirement 2) */
+  .pin-cetak-pemberitahuan .pin-cetak-alamat { font-family: var(--font-mono); font-weight: 500; overflow-wrap: anywhere; }
+  .pin-cetak-pemberitahuan .pin-cetak-kaki { font-size: 9pt; color: var(--ink-2); margin: 16mm 0 0; }
+  /* a page that prints the notice prints nothing else */
+  body:has(.pin-cetak-pemberitahuan) { margin: 0; padding: 0; min-height: 0; background: none; }
+  body:has(.pin-cetak-pemberitahuan) > :not(:has(.pin-cetak-pemberitahuan)) { display: none !important; }
+  .pin-col:has(> .pin-cetak-pemberitahuan) { margin: 0; padding: 0; }
+  .pin-col:has(> .pin-cetak-pemberitahuan) > :not(.pin-cetak-pemberitahuan) { display: none !important; }
+}
+
 /* --------------------------------------------------------- product provenance
    The application footer. PROVENANCE, NOT PROMOTION: it says who stands behind
    PINTAR, in the quietest register the type ladder has, and it is the last

@@ -898,6 +898,15 @@ export type HleEvent =
   | "sertifikat.digantikan.buka"
   | "sertifikat.cetak.eyebrow"
   | "sertifikat.cetak.judul"
+  | "cetak.DICABUT.judul"
+  | "cetak.DICABUT.isi"
+  | "cetak.DIGANTIKAN.judul"
+  | "cetak.DIGANTIKAN.isi"
+  | "cetak.DIGANTIKAN.isi_tanpa_tanggal"
+  | "cetak.bukan_sertifikat"
+  | "cetak.periksa"
+  | "cetak.tanggal_cetak"
+  | "cetak.DITINJAU.baris"
   | "sertifikat.cetak.arti"
   | "nav.belajar"
   | "nav.sertifikat"
@@ -4894,6 +4903,21 @@ const table: Table = {
   "sertifikat.cetak.eyebrow": { default: "Pratinjau cetak", en: "Print preview" },
   "sertifikat.cetak.judul": { default: "Sertifikat · A4", en: "Certificate · A4" },
   "sertifikat.cetak.arti": { default: "Satu lembar A4 tegak. Komposisinya tetap pada setiap lebar layar; yang berubah hanya skalanya.", en: "One portrait A4 sheet. The composition is fixed at every screen width; only the scale changes." },
+  // CI-1b (L-105; Daisy, CI1B-KATA.md @cfc65eb6): what a printed copy says when the certificate is not plainly valid.
+  // DICABUT and DIGANTIKAN print a notice in place of the certificate, its headings the public check's own terms
+  // (verifikasi.status.*); DITINJAU prints one line above it. Dates in the certificate's own form («24 November 2026»).
+  "cetak.DICABUT.judul": { default: "Dicabut oleh penerbit", en: "Revoked by the issuer" },
+  "cetak.DICABUT.isi": { default: "Sertifikat {nomor} diterbitkan oleh {sekolah} pada {tanggal_terbit}, lalu dicabut pada {tanggal_cabut}. Sertifikat ini tidak lagi berlaku dan tidak dapat dipakai sebagai bukti.", en: "Certificate {nomor} was issued by {sekolah} on {tanggal_terbit} and revoked on {tanggal_cabut}. It is no longer valid and cannot be used as evidence." },
+  "cetak.DIGANTIKAN.judul": { default: "Digantikan sertifikat yang lebih baru", en: "Replaced by a newer certificate" },
+  "cetak.DIGANTIKAN.isi": { default: "Sertifikat {nomor} diterbitkan oleh {sekolah} pada {tanggal_terbit}, lalu digantikan pada {tanggal_ganti}. Sertifikat ini tidak lagi dipakai. Mintalah sertifikat yang baru kepada pemegangnya.", en: "Certificate {nomor} was issued by {sekolah} on {tanggal_terbit} and replaced on {tanggal_ganti}. It is no longer in use. Ask the holder for the new certificate." },
+  // Daisy §2: no stored replacement date drops «, lalu digantikan pada {tanggal_ganti}» («and replaced on …» in EN);
+  // both lines confirmed in full by Daisy (CI1B-KATA.md @098539b2)
+  "cetak.DIGANTIKAN.isi_tanpa_tanggal": { default: "Sertifikat {nomor} diterbitkan oleh {sekolah} pada {tanggal_terbit}. Sertifikat ini tidak lagi dipakai. Mintalah sertifikat yang baru kepada pemegangnya.", en: "Certificate {nomor} was issued by {sekolah} on {tanggal_terbit}. It is no longer in use. Ask the holder for the new certificate." },
+  "cetak.bukan_sertifikat": { default: "Lembar ini bukan sertifikat.", en: "This page is not a certificate." },
+  "cetak.periksa": { default: "Periksa keadaannya: pindai kode ini atau buka {alamat}.", en: "Check its status: scan this code or open {alamat}." },
+  "cetak.tanggal_cetak": { default: "Dicetak {tanggal_cetak}.", en: "Printed {tanggal_cetak}." },
+  // the label before the first colon is set in bold (BarisDitinjauCetak)
+  "cetak.DITINJAU.baris": { default: "Sedang ditinjau: sekolah penerbit sedang meninjau sertifikat ini. Pindai kode QR untuk keadaannya saat ini. Dicetak {tanggal_cetak}.", en: "Under review: the issuing school is reviewing this certificate. Scan the QR code for its current status. Printed {tanggal_cetak}." },
   "nav.belajar": { default: "Belajar", en: "Learning" },
   "nav.sertifikat": { default: "Sertifikat", en: "Certificates" },
   "nav.akun": { default: "Akun", en: "Account" },

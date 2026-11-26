@@ -635,7 +635,10 @@ export const d168Tests: SelfTest[] = [
       const semua: string[] = [];
       const jalan = (d: string) => { for (const e of readdirSync(join(repoRoot, d), { withFileTypes: true })) { const f = `${d}/${e.name}`; if (e.isDirectory()) jalan(f); else if (f.endsWith(".tsx")) semua.push(f); } };
       jalan("src");
-      const resmi = semua.filter((f) => !/\/email\//.test(f) && f !== "src/components/sertifikat/KartuSertifikat.tsx" && /format\.date\(/.test(baca(f)));
+      // CI-1b (L-105; Daisy CI1B-KATA: «Dates use the certificate's own format»): the certificate's printed copies (the
+      // notice of a revoked or replaced certificate, the review line and the print date) are the certificate's paper
+      const KERTAS = ["src/components/sertifikat/KartuSertifikat.tsx", "src/components/sertifikat/CetakKeadaan.tsx", "src/components/sertifikat/TanggalCetak.tsx"];
+      const resmi = semua.filter((f) => !/\/email\//.test(f) && !KERTAS.includes(f) && /format\.date\(/.test(baca(f)));
       c.expect(resmi.length === 0, `a screen writes the formal date: ${resmi.join(", ")}`);
       const pemain = baca("src/app/belajar/_components/ItemPlayer.tsx");
       c.expect(/aria-describedby=\{!chosen && !committed \? "jawab-alasan" : undefined\}/.test(pemain) && /<AlasanNonaktif id="jawab-alasan">\{kata\("alasan\.nonaktif\.jawab"\)\}<\/AlasanNonaktif>/.test(pemain),

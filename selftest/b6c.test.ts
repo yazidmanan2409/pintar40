@@ -351,8 +351,9 @@ export const b6cTests: SelfTest[] = [
       // every part of the page around the sheet is pin-noprint (the ISSUED branch's direct children of <main>)
       const hal = kode(baca(ctx.repoRoot, HALAMAN));
       const terbit = hal.slice(hal.lastIndexOf('<main id="isi"'));
-      c.expect(/<div className=\{issued \? "pin-noprint" : undefined\}>\s*<KartuSertifikat cred=\{cred\} locale=\{bahasaSertifikat\} \/>/.test(terbit),
-        "the on-screen card prints ahead of the sheet");
+      // CI-1b (L-105): the on-screen card never prints, in any state (a revoked or replaced certificate prints its notice)
+      c.expect(/<div className="pin-noprint">\s*<KartuSertifikat cred=\{cred\} locale=\{bahasaSertifikat\} \/>/.test(terbit),
+        "the on-screen card prints (ahead of the sheet, or in place of a revoked or replaced certificate)");
       c.expect(/<div className="pin-actions pin-noprint">/.test(terbit) && /<div className="pin-head pin-noprint"/.test(terbit)
         && /<div className="pin-noprint">\s*<BarisLingkup /.test(terbit) && /<KakiPintar className="pin-noprint" \/>/.test(terbit)
         && /<div className="pin-banner pin-neutral pin-noprint"/.test(terbit) && /<div className="pin-banner pin-info pin-noprint"/.test(terbit),
@@ -427,7 +428,8 @@ export const b6cTests: SelfTest[] = [
         "the verification URL is no longer the one the page built (appUrl + /verifikasi/ + the token)");
       c.expect(/const issued = rendersVerification\(detail\.status\);/.test(hal), "the issued state no longer comes from rendersVerification");
       const terbit = hal.slice(hal.indexOf("{issued ? ("));
-      c.expect(/\{issued \? \([\s\S]*<LembarA4>\s*<KartuSertifikat cred=\{cred\} locale=\{bahasaSertifikat\} variant="sheet" konteks=\{konteks\} \/>\s*<\/LembarA4>[\s\S]*\) : null\}/.test(terbit),
+      // CI-1b (L-105): the well may carry the review line above the sheet (LembarA4's «atas», print-only)
+      c.expect(/\{issued \? \([\s\S]*<LembarA4(?: atas=\{barisDitinjau\})?>\s*<KartuSertifikat cred=\{cred\} locale=\{bahasaSertifikat\} variant="sheet" konteks=\{konteks\} \/>\s*<\/LembarA4>[\s\S]*\) : null\}/.test(terbit),
         "the sheet is not rendered for an issued certificate only");
       c.expect(/\{detail\.status === "REVOKED" \? \(\s*<div className="pin-banner pin-neutral pin-noprint" role="status">[\s\S]*sertifikat\.dicabut\.judul/.test(hal),
         "a revoked certificate no longer shows its «dicabut» banner");

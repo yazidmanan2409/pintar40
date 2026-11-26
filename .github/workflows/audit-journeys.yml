@@ -361,6 +361,9 @@ jobs:
           npm install --no-audit --no-fund
           # CR-90 (BD-11): the walk's BD11 step presses Back in all three engines, so job B installs them
           npx playwright install --with-deps chromium firefox webkit
+          # CI-1b (L-105): the printed certificate is read back from its rendered PDF (S21i, S21j, S27v)
+          command -v pdftotext >/dev/null || { sudo apt-get update -q && sudo apt-get install -y -q poppler-utils; }
+          pdftotext -v 2>&1 | head -1
       - name: Walk Gladys's path
         working-directory: harness/audit
         env:

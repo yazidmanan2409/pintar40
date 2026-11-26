@@ -15,7 +15,11 @@ import { useEffect, useRef } from "react";
  * The scale is the one value that cannot be a token: it is measured from the
  * container at runtime (token lint exemption, with this sentence as the reason).
  */
-export default function LembarA4({ children }: { children: React.ReactNode }) {
+export default function LembarA4({ children, atas = null }: {
+  children: React.ReactNode;
+  /** CI-1b: a print-only line above the sheet (DITINJAU), in the well so the well remains the one printed part. */
+  atas?: React.ReactNode;
+}) {
   const box = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -36,6 +40,7 @@ export default function LembarA4({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="pin-printwell">
+      {atas}
       <div className="pin-sheetbox" ref={box}>{children}</div>
     </div>
   );
