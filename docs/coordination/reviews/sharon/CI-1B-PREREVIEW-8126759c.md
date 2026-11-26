@@ -186,3 +186,21 @@ I have not queried staging; this is a code read.
   - Second Eye's root-cause should confirm this from the EN PDF (`ci1b-ditinjau-en`).
 - **The fix I'd accept:** test-only. The label is chosen by `f.bahasa`, as `barisKata` already is two lines below, plus a red-first case on the EN print. It then needs a new head, a delta check by me, and ci and journeys green on that head.
 - **If the EN PDF in fact lacks the check block,** it is a product defect for me to classify: a printed certificate without its verification section.
+
+---
+
+## Addendum: delta 145bd8dc..5cd81f9d819f91261a9cb63b53f66b88b22bd6d5 (2026-11-26 ~05:55Z)
+- **The head:** one fast-forward commit on 145bd8dc. The diff touches only `audit/journey.mjs` (+20/−1) and `FREEZE-EVIDENCE.md`. **The product and workflow diff is empty** (`src`, `supabase` and `.github`: 0 lines); no migration. `git diff 0c155a5c 5cd81f9d` has sha256 beginning `e1f4c6c49e0be0a0`.
+- **The fix, MET.**
+  - `kataProduk` reads `sertifikat.periksa.judul` from the candidate's `hle.ts` in the certificate's language: `default` for ID, `en` for EN. The entry is one line (`hle.ts:4888`), so a line-based read works.
+  - An unreadable key or language returns null, which is reported as a failure: **fail closed**.
+  - The other language's heading on the paper also fails.
+  - **Plants:** a hidden heading; the ID heading on EN; EN on ID; no `hle.ts`. All four are caught, per Bob; they are not committed.
+- **The evidence correction, MET.**
+  - FREEZE-EVIDENCE strikes through §1's implied "S21j proven" and §5's "planted clip in ID and EN" (the clip plant runs on ID only).
+  - §6 records the cause: a journey branch that had never run before its freeze.
+  - My own earlier addendum claimed only that the EN line "is printed and checked", not an EN clip plant, so nothing of mine needs striking.
+- **Daisy's ruling (5ca1a18c):** the paper follows the issued language. There is no CI-1b change.
+
+**Verdict: the delta PASSES on the code. 5cd81f9d is the CI-1b candidate.**
+- **Required:** ci 45763080807 and journeys 45763084276 on 5cd81f9d green, from the API conclusion. Both were status=in_progress when I read the API at ~05:55Z.
