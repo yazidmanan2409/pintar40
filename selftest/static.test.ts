@@ -113,6 +113,7 @@ import { bob34Tests } from "./bob34.test";
 import { bob38Tests } from "./bob38.test";
 import { bob39Tests } from "./bob39.test";
 import { bob40Tests } from "./bob40.test";
+import { engGuardTests } from "./eng-guard.test";
 import { bob41Tests } from "./bob41.test";
 import { bob25Tests } from "./bob25.test";
 import { bob42Tests } from "./bob42.test";
@@ -2266,6 +2267,7 @@ export const staticTests: SelfTest[] = [
   ...bob38Tests,
   ...bob39Tests,
   ...bob40Tests,
+  ...engGuardTests,
   ...bob41Tests,
   ...bob25Tests,
   ...bob42Tests,

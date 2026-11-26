@@ -2096,6 +2096,21 @@ jobs:
       - name: Every frozen baseline document matches BASELINE-MANIFEST.json
         run: node scripts/baseline-parity.mjs
 
+  guard-scan:
+    name: guard · no sensitive values anywhere in the tree
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # The pre-commit hook runs this on a contributor's machine only; a fresh
+      # clone, --no-verify or an API commit skips it. This job makes the same
+      # scan part of the verdict (Sharon, ENG-SKILLS-REVIEW E1).
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: sensitive-scan over the whole tree
+        run: node scripts/guard/sensitive-scan.mjs --tree
+
   selftest:
     name: selftest contract (strict, local stack)
     needs: [check, migrations-clean, migrations-upgrade-path, red-case]
@@ -2158,7 +2173,7 @@ jobs:
   # always means the full proof ran.
   verdict:
     name: verdict · green only when every job ran and succeeded
-    needs: [reuse, check, migrations-clean, migrations-upgrade-path, red-case, baseline-parity, selftest]
+    needs: [reuse, check, migrations-clean, migrations-upgrade-path, red-case, baseline-parity, guard-scan, selftest]
     if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
