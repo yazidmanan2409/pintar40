@@ -189,3 +189,4 @@
 - 26 Nov 03:32Z · Bob: CI-1b frozen (e8a35c3a); word check. → PASS on source (nine keys and the components); one optional note ({sekolah} empty); the rendered PDFs are pending the run.
 - 26 Nov 04:40Z · Bob: CI-1b re-frozen at 145bd8dc; src identical to e8a35c3a (verified: empty src diff), so the PASS carries over. The rendered PDFs come with journeys 45755954130.
 - 26 Nov 05:39Z · Bob: the printed certificate's language (issued vs viewer). → The issued language is right; reasons and one optional AR-A line in TINJAUAN-AR79-PLAN §7. No CI-1b change.
+- 26 Nov 06:46Z · Bob: Second Eye renders the CI-1b prints locally to the new branch claude/ci-1b-evidence (PR #33 stays pinned). Sharon FINAL PASS. → Waiting for the commit.
